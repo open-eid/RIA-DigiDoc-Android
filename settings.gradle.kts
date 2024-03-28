@@ -21,4 +21,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "RIA-DigiDoc"
 include(":app")
- 

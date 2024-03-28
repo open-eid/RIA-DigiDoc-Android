@@ -1,1 +1,15 @@
+*.iml
+.gradle
+/local.properties
+.DS_Store
 /build
+/captures
+.externalNativeBuild
+.cxx
+.idea/
+misc.xml
+deploymentTargetDropDown.xml
+render.experimental.xml
+*.jks
+*.keystore
+google-services.json
