@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">RIA DigiDoc</string>
+
+    <!-- Home -->
+    <string name="main_home_navigation_signature_accessibility">Allkiri</string>
+    <string name="main_home_navigation_crypto_accessibility">Krüpto</string>
+    <string name="main_home_navigation_eid_accessibility">Minu e I D</string>
+
+    <!-- Main Home -->
+    <string name="main_home_navigation_signature">Allkiri</string>
+    <string name="main_home_navigation_crypto">Krüpto</string>
+    <string name="main_home_navigation_eid">Minu eID</string>
+
+    <string name="main_home_logo">DigiDoc</string>
+    <string name="main_home_menu_button">Menüü</string>
+
+</resources>
