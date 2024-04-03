@@ -1,31 +1,44 @@
+package ee.ria.DigiDoc.fragment
+
+import MenuScreen
 import android.content.res.Configuration
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import ee.ria.DigiDoc.ui.theme.Primary500
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
-fun HomeScreen(
-    modifier: Modifier = Modifier,
+fun MenuFragment(
     navController: NavHostController,
-    onClickToMenuScreen: () -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
-    HomeNavigation(
-        modifier = modifier,
-        navController = navController,
-        onClickMenu = onClickToMenuScreen
-    )
+    Surface(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Primary500),
+        color = Primary500,
+        contentColor = Primary500
+    ) {
+        MenuScreen(
+            modifier = modifier,
+            navController = navController
+        )
+    }
 }
 
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun HomeScreenPreview() {
+fun MenuFragmentPreview() {
     val navController = rememberNavController()
     RIADigiDocTheme {
-        HomeScreen(
+        MenuFragment(
             navController = navController
         )
     }

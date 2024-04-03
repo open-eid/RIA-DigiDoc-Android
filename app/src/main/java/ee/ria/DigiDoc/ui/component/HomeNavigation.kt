@@ -15,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -24,18 +25,25 @@ import ee.ria.DigiDoc.ui.theme.Primary500
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Transparent
 import ee.ria.DigiDoc.ui.theme.White
+import ee.ria.DigiDoc.utils.Route
 
 @Composable
-fun HomeNavigation() {
+fun HomeNavigation(
+    navController: NavHostController,
+    modifier: Modifier = Modifier,
+    onClickMenu: () -> Unit = {}
+) {
     var navigationSelectedItem by remember {
         mutableStateOf(0)
     }
-    val navController = rememberNavController()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            HomeToolbar()
+            HomeToolbar(
+                modifier = modifier,
+                onClickMenu = onClickMenu
+            )
         },
         bottomBar = {
             NavigationBar(containerColor = Primary500) {
@@ -77,15 +85,15 @@ fun HomeNavigation() {
     ) { paddingValues ->
         NavHost(
             navController = navController,
-            startDestination = Screens.Signature.route,
+            startDestination = Route.Signature.route,
             modifier = Modifier.padding(paddingValues = paddingValues)) {
-            composable(Screens.Signature.route) {
+            composable(Route.Signature.route) {
                 SignatureScreen(navController = navController)
             }
-            composable(Screens.Crypto.route) {
+            composable(Route.Crypto.route) {
                 CryptoScreen(navController = navController)
             }
-            composable(Screens.eID.route) {
+            composable(Route.eID.route) {
                 MyEIDScreen(navController = navController)
             }
         }
@@ -96,7 +104,8 @@ fun HomeNavigation() {
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun ProductCardPreview() {
+    val navController = rememberNavController()
     RIADigiDocTheme {
-        HomeNavigation()
+        HomeNavigation(navController)
     }
 }

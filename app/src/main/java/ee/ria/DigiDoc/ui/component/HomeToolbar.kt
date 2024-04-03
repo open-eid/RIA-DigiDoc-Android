@@ -1,3 +1,5 @@
+import Dimensions.iconSize
+import Dimensions.toolbarHeight
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,33 +14,40 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
-fun HomeToolbar(){
+fun HomeToolbar(
+    modifier: Modifier = Modifier,
+    onClickMenu: () -> Unit = {}
+){
     ConstraintLayout(
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.height(toolbarHeight).fillMaxWidth()
     ) {
         val (
             digiDocIcon,
             menuButton,
         ) = createRefs()
         Image(
-            modifier = Modifier.height(48.dp).padding(start = 48.dp).constrainAs(digiDocIcon) {
-                start.linkTo(parent.start)
-                end.linkTo(menuButton.start)
-            },
+            modifier = Modifier
+                .height(toolbarHeight)
+                .padding(start = iconSize)
+                .constrainAs(digiDocIcon) {
+                    start.linkTo(parent.start)
+                    end.linkTo(menuButton.start)
+                },
             imageVector = ImageVector.vectorResource(id = R.drawable.main_home_toolbar_logo),
             contentDescription = stringResource(id = R.string.main_home_logo)
         )
         IconButton(
-            modifier = Modifier.size(48.dp).constrainAs(menuButton) {
-                end.linkTo(parent.end)
-            },
-            onClick = { /*TODO*/ },
+            modifier = Modifier
+                .size(iconSize)
+                .constrainAs(menuButton) {
+                    end.linkTo(parent.end)
+                },
+            onClick = onClickMenu,
         ) {
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_more_vert),

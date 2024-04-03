@@ -1,11 +1,6 @@
 <resources>
     <string name="app_name">RIA DigiDoc</string>
 
-    <!-- Home -->
-    <string name="main_home_navigation_signature_accessibility">Signature</string>
-    <string name="main_home_navigation_crypto_accessibility">Crypto</string>
-    <string name="main_home_navigation_eid_accessibility">My e I D</string>
-
     <!-- Main Home -->
     <string name="main_home_navigation_signature">Signature</string>
     <string name="main_home_navigation_crypto">Crypto</string>
@@ -13,5 +8,29 @@
 
     <string name="main_home_logo">DigiDoc</string>
     <string name="main_home_menu_button">Menu</string>
+
+    <string name="main_home_menu_help">HELP</string>
+    <string name="main_home_menu_accessibility">ACCESSIBILITY</string>
+    <string name="main_home_recent">RECENT DOCUMENTS</string>
+    <string name="main_home_menu_settings">SETTINGS</string>
+    <string name="main_home_menu_about">INFO</string>
+    <string name="main_home_menu_diagnostics">DIAGNOSTICS</string>
+
+    <!-- Accessibility -->
+
+    <!-- Home -->
+    <string name="main_home_navigation_signature_accessibility">Signature</string>
+    <string name="main_home_navigation_crypto_accessibility">Crypto</string>
+    <string name="main_home_navigation_eid_accessibility">My e I D</string>
+
+    <!-- Menu -->
+    <string name="main_home_menu_help_accessibility">Help</string>
+    <string name="main_home_menu_settings_accessibility">Settings</string>
+    <string name="main_home_menu_about_accessibility">Info</string>
+    <string name="main_home_menu_diagnostics_accessibility">Diagnostics</string>
+    <string name="main_home_menu_recent_accessibility">Recent documents</string>
+    <string name="main_home_menu_accessibility_accessibility">Accessibility</string>
+
+    <string name="close_menu">Close menu</string>
 
 </resources>

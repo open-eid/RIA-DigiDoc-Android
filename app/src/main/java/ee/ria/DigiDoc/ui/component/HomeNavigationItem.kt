@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.utils.Route
 
 data class HomeNavigationItem(
     val label: String = "",
@@ -18,19 +19,19 @@ data class HomeNavigationItem(
             HomeNavigationItem(
                 label = stringResource(id = R.string.main_home_navigation_signature),
                 icon = ImageVector.vectorResource(id = R.drawable.ic_icon_signature),
-                route = Screens.Signature.route,
+                route = Route.Signature.route,
                 contentDescription = stringResource(id = R.string.main_home_navigation_signature_accessibility).lowercase()
             ),
             HomeNavigationItem(
                 label = stringResource(id = R.string.main_home_navigation_crypto),
                 icon = ImageVector.vectorResource(id = R.drawable.ic_icon_crypto),
-                route = Screens.Crypto.route,
+                route = Route.Crypto.route,
                 contentDescription = stringResource(id = R.string.main_home_navigation_crypto_accessibility).lowercase()
             ),
             HomeNavigationItem(
                 label = stringResource(id = R.string.main_home_navigation_eid),
                 icon = ImageVector.vectorResource(id = R.drawable.ic_icon_eid),
-                route = Screens.eID.route,
+                route = Route.eID.route,
                 contentDescription = stringResource(id = R.string.main_home_navigation_eid_accessibility).lowercase()
             )
         )

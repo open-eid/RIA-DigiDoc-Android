@@ -16,18 +16,19 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = Primary50,
+    secondary = Primary50,
+    tertiary = Primary50,
+    background = Primary500
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
+    primary = Primary900,
+    secondary = Primary900,
+    tertiary = Primary900,
+    background = Primary50
     /* Other default colors to override
-    background = Color(0xFFFFFBFE),
+    background = Color(0xFFFFFFFF),
     surface = Color(0xFFFFFBFE),
     onPrimary = Color.White,
     onSecondary = Color.White,
@@ -41,7 +42,7 @@ private val LightColorScheme = lightColorScheme(
 fun RIADigiDocTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
