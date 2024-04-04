@@ -1,11 +1,11 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.utils
+package ee.ria.DigiDoc.utilslib.logging
 
 import android.util.Log
-import ee.ria.DigiDoc.libdigidoclib.BuildConfig
+import ee.ria.utilslib.BuildConfig
 
-// TODO: Move to common module and / or use logging framework
+// TODO: Use logging framework?
 object LoggingUtil {
     fun errorLog(
         tag: String,

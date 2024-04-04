@@ -10,7 +10,7 @@ import ee.ria.DigiDoc.libdigidoclib.BuildConfig
 import ee.ria.DigiDoc.utils.FileUtils.getSchemaDir
 import ee.ria.DigiDoc.utils.FileUtils.getSchemaPath
 import ee.ria.DigiDoc.utils.FileUtils.initSchema
-import ee.ria.DigiDoc.utils.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilslib.logging.LoggingUtil.errorLog
 import ee.ria.libdigidocpp.Conf
 import ee.ria.libdigidocpp.DigiDocConf
 import ee.ria.libdigidocpp.digidoc

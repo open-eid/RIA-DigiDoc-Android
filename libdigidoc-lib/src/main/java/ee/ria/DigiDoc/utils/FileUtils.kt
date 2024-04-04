@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.res.Resources.NotFoundException
 import android.util.Log
 import ee.ria.DigiDoc.libdigidoclib.R
-import ee.ria.DigiDoc.utils.LoggingUtil.debugLog
+import ee.ria.DigiDoc.utilslib.logging.LoggingUtil.debugLog
 import java.io.File
 import java.io.IOException
 import java.io.InputStream

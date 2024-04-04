@@ -109,4 +109,5 @@ dependencies {
     implementation(project(":crypto-lib"))
     implementation(project(":config-lib"))
     implementation(project(":networking-lib"))
+    implementation(project(":utils-lib"))
 }
