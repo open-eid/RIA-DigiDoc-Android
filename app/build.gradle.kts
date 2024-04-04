@@ -1,3 +1,5 @@
+val appAbiFilters = "arm64-v8a;armeabi-v7a;x86_64"
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -7,18 +9,23 @@ plugins {
 
 android {
     namespace = "ee.ria.DigiDoc"
-    compileSdk = 34
+    compileSdk = Integer.parseInt(libs.versions.compileSdkVersion.get())
 
     defaultConfig {
         applicationId = "ee.ria.DigiDoc"
-        minSdk = 30
-        targetSdk = 34
-        versionCode = 47
-        versionName = "3.0.0"
+        minSdk = Integer.parseInt(libs.versions.minSdkVersion.get())
+        targetSdk = Integer.parseInt(libs.versions.targetSdkVersion.get())
+        versionCode = Integer.parseInt(libs.versions.versionCode.get())
+        versionName = libs.versions.versionName.get()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+
+        ndk {
+            abiFilters.clear()
+            abiFilters.addAll(appAbiFilters.split(';').map { it.trim() })
         }
     }
 
@@ -61,6 +68,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -94,4 +102,6 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation(project(":libdigidoc-lib"))
 }

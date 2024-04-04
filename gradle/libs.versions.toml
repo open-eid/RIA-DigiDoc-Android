@@ -1,5 +1,12 @@
 [versions]
+compileSdkVersion = "34"
+minSdkVersion = "30"
+targetSdkVersion = "34"
+versionCode = "47"
+versionName = "3.0.0"
+
 agp = "8.3.1"
+algp = "8.3.1"
 kotlin = "1.9.0"
 coreKtx = "1.12.0"
 junit = "4.13.2"
@@ -13,6 +20,11 @@ composeBom = "2024.03.00"
 jlleitschuhKtlint = "12.1.0"
 dagger = "2.49"
 hilt = "1.2.0"
+appcompat = "1.6.1"
+material = "1.11.0"
+jetbrainsKotlinJvm = "1.9.0"
+mockito-android = "5.11.0"
+kotlinx-coroutines-test = "1.8.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -34,9 +46,15 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 google-dagger-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "dagger" }
 google-dagger-hilt-android-compile = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "dagger" }
 androidx-hilt = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+mockito-android = { group = "org.mockito", name = "mockito-android", version.ref = "mockito-android" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-test" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
+androidLibrary = { id = "com.android.library", version.ref = "algp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 jlleitschuhKtlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "jlleitschuhKtlint" }
 googleDagger = {id = "com.google.dagger.hilt.android", version.ref = "dagger"}
+jetbrainsKotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }

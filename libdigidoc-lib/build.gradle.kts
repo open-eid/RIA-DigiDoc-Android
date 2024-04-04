@@ -1,0 +1,59 @@
+import ee.ria.DigiDoc.libdigidoclib.update.LibdigidocppPlugin
+
+val appAbiFilters = "arm64-v8a;armeabi-v7a;x86_64"
+
+plugins {
+    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.jetbrainsKotlinAndroid)
+}
+
+apply<LibdigidocppPlugin>()
+
+android {
+    namespace = "ee.ria.DigiDoc.libdigidoclib"
+    compileSdk = Integer.parseInt(libs.versions.compileSdkVersion.get())
+
+    defaultConfig {
+        minSdk = Integer.parseInt(libs.versions.minSdkVersion.get())
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        testInstrumentationRunnerArguments +=
+            mapOf(
+                "clearPackageData" to "true",
+            )
+
+        ndk {
+            abiFilters.clear()
+            abiFilters.addAll(appAbiFilters.split(';').map { it.trim() })
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+}
+
+dependencies {
+
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.mockito.android)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.lifecycle.runtime.ktx)
+
+    implementation(files("libs/libdigidocpp.jar"))
+}

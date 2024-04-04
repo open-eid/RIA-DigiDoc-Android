@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">RIA DigiDoc</string>
 
+    <!-- Libdigidocpp -->
+    <string name="libdigidocpp_initialization_failed">Libdigidocpp initsialiseerimine ebaõnnestus</string>
+
     <!-- Main Home -->
     <string name="main_home_navigation_signature">Allkiri</string>
     <string name="main_home_navigation_crypto">Krüpto</string>

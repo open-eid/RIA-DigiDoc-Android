@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">RIA DigiDoc</string>
 
+    <!-- Libdigidocpp -->
+    <string name="libdigidocpp_initialization_failed">Не удалось инициализировать Libdigidocpp</string>
+
     <!-- Main Home -->
     <string name="main_home_navigation_signature">Подпись</string>
     <string name="main_home_navigation_crypto">Крипто</string>
