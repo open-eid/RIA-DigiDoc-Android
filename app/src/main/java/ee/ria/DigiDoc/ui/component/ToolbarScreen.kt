@@ -1,5 +1,7 @@
-import Dimensions.iconSize
-import Dimensions.toolbarHeight
+@file:Suppress("PackageName", "FunctionName")
+
+package ee.ria.DigiDoc.ui.component
+
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,6 +22,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
+import ee.ria.DigiDoc.ui.theme.Dimensions.toolbarHeight
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
@@ -27,7 +31,7 @@ fun ToolbarScreen(
     modifier: Modifier = Modifier,
     onClickBack: () -> Unit = {},
     title: String,
-){
+) {
     ConstraintLayout(
         modifier = modifier.height(toolbarHeight).fillMaxWidth(),
     ) {
@@ -39,19 +43,21 @@ fun ToolbarScreen(
             text = title,
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
-            modifier = Modifier.height(toolbarHeight).padding(start = iconSize)
-                .wrapContentHeight(align = Alignment.CenterVertically)
-                .constrainAs(titleText) {
-                start.linkTo(parent.start)
-                top.linkTo(parent.top)
-                end.linkTo(menuButton.start)
-                bottom.linkTo(parent.bottom)
-            },
+            modifier =
+                Modifier.height(toolbarHeight).padding(start = iconSize)
+                    .wrapContentHeight(align = Alignment.CenterVertically)
+                    .constrainAs(titleText) {
+                        start.linkTo(parent.start)
+                        top.linkTo(parent.top)
+                        end.linkTo(menuButton.start)
+                        bottom.linkTo(parent.bottom)
+                    },
         )
         IconButton(
-            modifier = Modifier.size(iconSize).constrainAs(menuButton) {
-                end.linkTo(parent.end)
-            },
+            modifier =
+                Modifier.size(iconSize).constrainAs(menuButton) {
+                    end.linkTo(parent.end)
+                },
             onClick = onClickBack,
         ) {
             Icon(
@@ -68,7 +74,7 @@ fun ToolbarScreen(
 fun ToolbarScreenPreview() {
     RIADigiDocTheme {
         ToolbarScreen(
-            title = "Test"
+            title = "Test",
         )
     }
 }

@@ -1,5 +1,7 @@
-import Dimensions.iconSize
-import Dimensions.toolbarHeight
+@file:Suppress("PackageName", "FunctionName")
+
+package ee.ria.DigiDoc.ui.component
+
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,37 +18,41 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
+import ee.ria.DigiDoc.ui.theme.Dimensions.toolbarHeight
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
 fun HomeToolbar(
     modifier: Modifier = Modifier,
-    onClickMenu: () -> Unit = {}
-){
+    onClickMenu: () -> Unit = {},
+) {
     ConstraintLayout(
-        modifier = modifier.height(toolbarHeight).fillMaxWidth()
+        modifier = modifier.height(toolbarHeight).fillMaxWidth(),
     ) {
         val (
             digiDocIcon,
             menuButton,
         ) = createRefs()
         Image(
-            modifier = Modifier
-                .height(toolbarHeight)
-                .padding(start = iconSize)
-                .constrainAs(digiDocIcon) {
-                    start.linkTo(parent.start)
-                    end.linkTo(menuButton.start)
-                },
+            modifier =
+                Modifier
+                    .height(toolbarHeight)
+                    .padding(start = iconSize)
+                    .constrainAs(digiDocIcon) {
+                        start.linkTo(parent.start)
+                        end.linkTo(menuButton.start)
+                    },
             imageVector = ImageVector.vectorResource(id = R.drawable.main_home_toolbar_logo),
-            contentDescription = stringResource(id = R.string.main_home_logo)
+            contentDescription = stringResource(id = R.string.main_home_logo),
         )
         IconButton(
-            modifier = Modifier
-                .size(iconSize)
-                .constrainAs(menuButton) {
-                    end.linkTo(parent.end)
-                },
+            modifier =
+                Modifier
+                    .size(iconSize)
+                    .constrainAs(menuButton) {
+                        end.linkTo(parent.end)
+                    },
             onClick = onClickMenu,
         ) {
             Icon(

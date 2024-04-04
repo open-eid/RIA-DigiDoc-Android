@@ -1,3 +1,7 @@
+@file:Suppress("PackageName", "FunctionName")
+
+package ee.ria.DigiDoc.fragment.screen
+
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,12 +23,12 @@ fun MyEIDScreen(navController: NavController) {
     Column(
         modifier = Modifier.fillMaxSize().padding(15.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Text(
             "My eID Screen",
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(vertical = 20.dp)
+            modifier = Modifier.padding(vertical = 20.dp),
         )
     }
 }

@@ -1,6 +1,7 @@
+@file:Suppress("PackageName", "FunctionName")
+
 package ee.ria.DigiDoc.fragment
 
-import HomeScreen
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,29 +10,35 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import ee.ria.DigiDoc.fragment.screen.HomeScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.viewmodel.HomeViewModel
 
 @Composable
 fun HomeFragment(
     navController: NavHostController,
     navBarNavController: NavHostController,
     modifier: Modifier = Modifier,
+    homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
+    homeViewModel.getListState()
     Surface(
         modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
-        color = MaterialTheme.colorScheme.background
+        color = MaterialTheme.colorScheme.background,
     ) {
         HomeScreen(
-            modifier,
-            navBarNavController,
+            modifier = modifier,
+            navController = navBarNavController,
             onClickToMenuScreen = {
                 navController.navigate(
-                    Route.Menu.route
+                    Route.Menu.route,
                 )
-            }
+            },
+            someList = homeViewModel.listState,
         )
     }
 }

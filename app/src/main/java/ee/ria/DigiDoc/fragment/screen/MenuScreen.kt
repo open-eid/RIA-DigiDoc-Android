@@ -1,3 +1,7 @@
+@file:Suppress("PackageName", "FunctionName")
+
+package ee.ria.DigiDoc.fragment.screen
+
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,12 +17,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.domain.model.SomeObject
+import ee.ria.DigiDoc.ui.component.MenuItem
+import ee.ria.DigiDoc.ui.component.ToolbarScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
 fun MenuScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController
+    navController: NavHostController,
+    someObject: SomeObject? = null,
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -28,38 +36,37 @@ fun MenuScreen(
                 onClickBack = {
                     navController.navigateUp()
                 },
-                title = ""
+                title = "",
             )
-        }
-    )
-    { paddingValues ->
+        },
+    ) { paddingValues ->
         Column(
             modifier = modifier.padding(paddingValues = paddingValues).fillMaxWidth(),
         ) {
             MenuItem(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_help_outline),
                 title = stringResource(id = R.string.main_home_menu_help),
-                contentDescription = stringResource(id = R.string.main_home_menu_help_accessibility)
+                contentDescription = stringResource(id = R.string.main_home_menu_help_accessibility),
             )
             MenuItem(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_icon_accessibility),
                 title = stringResource(id = R.string.main_home_menu_accessibility),
-                contentDescription = stringResource(id = R.string.main_home_menu_accessibility_accessibility)
+                contentDescription = stringResource(id = R.string.main_home_menu_accessibility_accessibility),
             )
             MenuItem(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_settings),
                 title = stringResource(id = R.string.main_home_menu_settings),
-                contentDescription = stringResource(id = R.string.main_home_menu_settings_accessibility)
+                contentDescription = stringResource(id = R.string.main_home_menu_settings_accessibility),
             )
             MenuItem(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_info_outline),
                 title = stringResource(id = R.string.main_home_menu_about),
-                contentDescription = stringResource(id = R.string.main_home_menu_about_accessibility)
+                contentDescription = stringResource(id = R.string.main_home_menu_about_accessibility),
             )
             MenuItem(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_icon_diagnostics),
                 title = stringResource(id = R.string.main_home_menu_diagnostics),
-                contentDescription = stringResource(id = R.string.main_home_menu_diagnostics_accessibility)
+                contentDescription = stringResource(id = R.string.main_home_menu_diagnostics_accessibility),
             )
         }
     }
@@ -72,7 +79,7 @@ fun MenuScreenPreview() {
     RIADigiDocTheme {
         val navController = rememberNavController()
         MenuScreen(
-            navController = navController
+            navController = navController,
         )
     }
 }

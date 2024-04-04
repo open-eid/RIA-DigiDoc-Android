@@ -1,4 +1,7 @@
-import Dimensions.menuItemHeight
+@file:Suppress("PackageName", "FunctionName")
+
+package ee.ria.DigiDoc.ui.component
+
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.theme.Dimensions.menuItemHeight
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
@@ -32,52 +36,56 @@ fun MenuItem(
     onClickItem: () -> Unit = {},
     imageVector: ImageVector,
     title: String,
-    contentDescription: String
+    contentDescription: String,
 ) {
     Button(
         modifier = modifier.height(menuItemHeight),
         shape = RectangleShape,
-        colors = ButtonColors(
-            containerColor = MaterialTheme.colorScheme.background,
-            contentColor = MaterialTheme.colorScheme.primary,
-            disabledContainerColor = Color.Transparent,
-            disabledContentColor = Color.Transparent
-        ),
-        onClick = onClickItem
+        colors =
+            ButtonColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                contentColor = MaterialTheme.colorScheme.primary,
+                disabledContainerColor = Color.Transparent,
+                disabledContentColor = Color.Transparent,
+            ),
+        onClick = onClickItem,
     ) {
         ConstraintLayout(
-            modifier = modifier.height(menuItemHeight)
-                .fillMaxWidth()
-                .align(Alignment.CenterVertically)
+            modifier =
+                modifier.height(menuItemHeight)
+                    .fillMaxWidth()
+                    .align(Alignment.CenterVertically),
         ) {
             val (
                 menuButtonHelpText,
-                menuButtonHelpIcon
+                menuButtonHelpIcon,
             ) = createRefs()
             Icon(
                 imageVector = imageVector,
                 contentDescription = null,
-                modifier = modifier
-                    .padding(start = 8.dp, top = 0.dp, end = 24.dp)
-                    .wrapContentHeight(align = Alignment.CenterVertically)
-                    .constrainAs(menuButtonHelpIcon) {
-                        start.linkTo(parent.start)
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                    }
+                modifier =
+                    modifier
+                        .padding(start = 8.dp, top = 0.dp, end = 24.dp)
+                        .wrapContentHeight(align = Alignment.CenterVertically)
+                        .constrainAs(menuButtonHelpIcon) {
+                            start.linkTo(parent.start)
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
+                        },
             )
             Text(
-                modifier = modifier
-                    .wrapContentHeight(align = Alignment.CenterVertically)
-                    .semantics {
-                        this.contentDescription = contentDescription
-                    }
-                    .constrainAs(menuButtonHelpText) {
-                        start.linkTo(menuButtonHelpIcon.end)
-                    },
+                modifier =
+                    modifier
+                        .wrapContentHeight(align = Alignment.CenterVertically)
+                        .semantics {
+                            this.contentDescription = contentDescription
+                        }
+                        .constrainAs(menuButtonHelpText) {
+                            start.linkTo(menuButtonHelpIcon.end)
+                        },
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Start,
-                text = title
+                text = title,
             )
         }
     }
@@ -91,7 +99,7 @@ fun MenuItemPreview() {
         MenuItem(
             imageVector = ImageVector.vectorResource(id = R.drawable.ic_help_outline),
             title = stringResource(id = R.string.main_home_menu_help),
-            contentDescription = stringResource(id = R.string.main_home_menu_help_accessibility)
+            contentDescription = stringResource(id = R.string.main_home_menu_help_accessibility),
         )
     }
 }

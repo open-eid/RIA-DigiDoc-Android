@@ -1,3 +1,7 @@
+@file:Suppress("PackageName")
+
+package ee.ria.DigiDoc.utils
+
 object Constant {
     // ee.ria.DigiDoc.utils.Route
     object Routes {

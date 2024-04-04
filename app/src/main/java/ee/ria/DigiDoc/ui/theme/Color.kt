@@ -1,3 +1,5 @@
+@file:Suppress("PackageName")
+
 package ee.ria.DigiDoc.ui.theme
 
 import androidx.compose.ui.graphics.Color

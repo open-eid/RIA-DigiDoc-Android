@@ -1,3 +1,7 @@
+@file:Suppress("PackageName", "FunctionName")
+
+package ee.ria.DigiDoc.ui.component
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
@@ -9,31 +13,37 @@ import ee.ria.DigiDoc.utils.Route
 
 data class HomeNavigationItem(
     val label: String = "",
-    val icon : ImageVector = Icons.Filled.Home,
-    val route : String = "",
-    val contentDescription: String = ""
+    val icon: ImageVector = Icons.Filled.Home,
+    val route: String = "",
+    val contentDescription: String = "",
 ) {
     @Composable
-    fun bottomNavigationItems() : List<HomeNavigationItem> {
+    fun bottomNavigationItems(): List<HomeNavigationItem> {
         return listOf(
             HomeNavigationItem(
                 label = stringResource(id = R.string.main_home_navigation_signature),
                 icon = ImageVector.vectorResource(id = R.drawable.ic_icon_signature),
                 route = Route.Signature.route,
-                contentDescription = stringResource(id = R.string.main_home_navigation_signature_accessibility).lowercase()
+                contentDescription =
+                    stringResource(
+                        id = R.string.main_home_navigation_signature_accessibility,
+                    ),
             ),
             HomeNavigationItem(
                 label = stringResource(id = R.string.main_home_navigation_crypto),
                 icon = ImageVector.vectorResource(id = R.drawable.ic_icon_crypto),
                 route = Route.Crypto.route,
-                contentDescription = stringResource(id = R.string.main_home_navigation_crypto_accessibility).lowercase()
+                contentDescription =
+                    stringResource(
+                        id = R.string.main_home_navigation_crypto_accessibility,
+                    ),
             ),
             HomeNavigationItem(
                 label = stringResource(id = R.string.main_home_navigation_eid),
                 icon = ImageVector.vectorResource(id = R.drawable.ic_icon_eid),
-                route = Route.eID.route,
-                contentDescription = stringResource(id = R.string.main_home_navigation_eid_accessibility).lowercase()
-            )
+                route = Route.EID.route,
+                contentDescription = stringResource(id = R.string.main_home_navigation_eid_accessibility),
+            ),
         )
     }
 }

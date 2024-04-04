@@ -1,3 +1,7 @@
+@file:Suppress("PackageName", "FunctionName")
+
+package ee.ria.DigiDoc.ui.component
+
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,6 +23,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import ee.ria.DigiDoc.fragment.screen.CryptoScreen
+import ee.ria.DigiDoc.fragment.screen.MyEIDScreen
+import ee.ria.DigiDoc.fragment.screen.SignatureScreen
 import ee.ria.DigiDoc.ui.theme.Dark
 import ee.ria.DigiDoc.ui.theme.Normal
 import ee.ria.DigiDoc.ui.theme.Primary500
@@ -31,7 +38,7 @@ import ee.ria.DigiDoc.utils.Route
 fun HomeNavigation(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    onClickMenu: () -> Unit = {}
+    onClickMenu: () -> Unit = {},
 ) {
     var navigationSelectedItem by remember {
         mutableStateOf(0)
@@ -42,22 +49,23 @@ fun HomeNavigation(
         topBar = {
             HomeToolbar(
                 modifier = modifier,
-                onClickMenu = onClickMenu
+                onClickMenu = onClickMenu,
             )
         },
         bottomBar = {
             NavigationBar(containerColor = Primary500) {
-                HomeNavigationItem().bottomNavigationItems().forEachIndexed {index,navigationItem ->
+                HomeNavigationItem().bottomNavigationItems().forEachIndexed { index, navigationItem ->
                     NavigationBarItem(
-                        colors = NavigationBarItemColors(
-                            selectedIconColor = White,
-                            selectedTextColor = White,
-                            selectedIndicatorColor = Transparent,
-                            unselectedIconColor = Normal,
-                            unselectedTextColor = Normal,
-                            disabledIconColor = Dark,
-                            disabledTextColor = Dark
-                        ),
+                        colors =
+                            NavigationBarItemColors(
+                                selectedIconColor = White,
+                                selectedTextColor = White,
+                                selectedIndicatorColor = Transparent,
+                                unselectedIconColor = Normal,
+                                unselectedTextColor = Normal,
+                                disabledIconColor = Dark,
+                                disabledTextColor = Dark,
+                            ),
                         selected = index == navigationSelectedItem,
                         label = {
                             Text(navigationItem.label)
@@ -65,7 +73,7 @@ fun HomeNavigation(
                         icon = {
                             Icon(
                                 navigationItem.icon,
-                                contentDescription = navigationItem.contentDescription
+                                contentDescription = navigationItem.contentDescription,
                             )
                         },
                         onClick = {
@@ -77,23 +85,24 @@ fun HomeNavigation(
                                 launchSingleTop = true
                                 restoreState = true
                             }
-                        }
+                        },
                     )
                 }
             }
-        }
+        },
     ) { paddingValues ->
         NavHost(
             navController = navController,
             startDestination = Route.Signature.route,
-            modifier = Modifier.padding(paddingValues = paddingValues)) {
+            modifier = Modifier.padding(paddingValues = paddingValues),
+        ) {
             composable(Route.Signature.route) {
                 SignatureScreen(navController = navController)
             }
             composable(Route.Crypto.route) {
                 CryptoScreen(navController = navController)
             }
-            composable(Route.eID.route) {
+            composable(Route.EID.route) {
                 MyEIDScreen(navController = navController)
             }
         }
