@@ -23,3 +23,4 @@ rootProject.name = "RIA-DigiDoc"
 include(":app")
 include(":libdigidoc-lib")
 include(":mobile-id-lib")
+include(":smart-id-lib")
