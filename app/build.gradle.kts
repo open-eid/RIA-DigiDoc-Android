@@ -108,4 +108,5 @@ dependencies {
     implementation(project(":smart-id-lib"))
     implementation(project(":crypto-lib"))
     implementation(project(":config-lib"))
+    implementation(project(":networking-lib"))
 }
