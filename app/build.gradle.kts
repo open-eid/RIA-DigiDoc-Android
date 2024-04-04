@@ -114,4 +114,5 @@ dependencies {
     implementation(project(":smart-card-reader-lib"))
     implementation(project(":nfc-lib"))
     implementation(project(":id-card-lib"))
+    implementation(project(":sign-lib"))
 }
