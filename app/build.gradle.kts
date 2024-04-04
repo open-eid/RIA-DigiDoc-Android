@@ -104,4 +104,5 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation(project(":libdigidoc-lib"))
+    implementation(project(":mobile-id-lib"))
 }
