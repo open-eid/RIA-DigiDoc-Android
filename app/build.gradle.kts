@@ -110,4 +110,5 @@ dependencies {
     implementation(project(":config-lib"))
     implementation(project(":networking-lib"))
     implementation(project(":utils-lib"))
+    implementation(project(":commons-lib"))
 }

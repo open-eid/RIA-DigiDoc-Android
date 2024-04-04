@@ -1,6 +1,6 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.init
+package ee.ria.DigiDoc.libdigidoclib.init
 
 import android.content.Context
 import android.content.res.Resources

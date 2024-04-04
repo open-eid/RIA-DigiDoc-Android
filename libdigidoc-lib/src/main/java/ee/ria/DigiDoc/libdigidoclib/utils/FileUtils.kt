@@ -1,6 +1,6 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.utils
+package ee.ria.DigiDoc.libdigidoclib.utils
 
 import android.content.Context
 import android.content.res.Resources.NotFoundException

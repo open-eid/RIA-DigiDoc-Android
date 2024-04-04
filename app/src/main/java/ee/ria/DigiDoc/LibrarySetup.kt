@@ -4,7 +4,7 @@ package ee.ria.DigiDoc
 
 import android.content.Context
 import android.widget.Toast
-import ee.ria.DigiDoc.init.Initialization
+import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

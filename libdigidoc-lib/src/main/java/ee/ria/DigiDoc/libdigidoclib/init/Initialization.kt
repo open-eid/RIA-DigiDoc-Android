@@ -1,15 +1,15 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.init
+package ee.ria.DigiDoc.libdigidoclib.init
 
 import android.content.Context
 import android.content.res.Resources.NotFoundException
 import android.system.ErrnoException
 import android.system.Os
 import ee.ria.DigiDoc.libdigidoclib.BuildConfig
-import ee.ria.DigiDoc.utils.FileUtils.getSchemaDir
-import ee.ria.DigiDoc.utils.FileUtils.getSchemaPath
-import ee.ria.DigiDoc.utils.FileUtils.initSchema
+import ee.ria.DigiDoc.libdigidoclib.utils.FileUtils.getSchemaDir
+import ee.ria.DigiDoc.libdigidoclib.utils.FileUtils.getSchemaPath
+import ee.ria.DigiDoc.libdigidoclib.utils.FileUtils.initSchema
 import ee.ria.DigiDoc.utilslib.logging.LoggingUtil.errorLog
 import ee.ria.libdigidocpp.Conf
 import ee.ria.libdigidocpp.DigiDocConf
