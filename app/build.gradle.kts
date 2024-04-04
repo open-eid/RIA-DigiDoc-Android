@@ -106,4 +106,5 @@ dependencies {
     implementation(project(":libdigidoc-lib"))
     implementation(project(":mobile-id-lib"))
     implementation(project(":smart-id-lib"))
+    implementation(project(":crypto-lib"))
 }
