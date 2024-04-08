@@ -24,6 +24,7 @@ appcompat = "1.6.1"
 material = "1.11.0"
 jetbrainsKotlinJvm = "1.9.0"
 mockito-android = "5.11.0"
+mockito-kotlin = "5.2.1"
 kotlinx-coroutines-test = "1.8.0"
 
 [libraries]
@@ -49,6 +50,7 @@ androidx-hilt = { group = "androidx.hilt", name = "hilt-navigation-compose", ver
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 mockito-android = { group = "org.mockito", name = "mockito-android", version.ref = "mockito-android" }
+mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-test" }
 
 [plugins]
