@@ -6,11 +6,26 @@ import android.util.Log
 import ee.ria.utilslib.BuildConfig
 
 // TODO: Use logging framework?
-object LoggingUtil {
+
+interface Logging {
     fun errorLog(
         tag: String,
         message: String,
         throwable: Throwable? = null,
+    )
+
+    fun debugLog(
+        tag: String,
+        message: String,
+        throwable: Throwable? = null,
+    )
+}
+
+object LoggingUtil : Logging {
+    override fun errorLog(
+        tag: String,
+        message: String,
+        throwable: Throwable?,
     ) {
         if (BuildConfig.DEBUG) {
             throwable?.let {
@@ -19,10 +34,10 @@ object LoggingUtil {
         }
     }
 
-    fun debugLog(
+    override fun debugLog(
         tag: String,
         message: String,
-        throwable: Throwable? = null,
+        throwable: Throwable?,
     ) {
         if (BuildConfig.DEBUG) {
             throwable?.let {
