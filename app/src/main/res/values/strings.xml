@@ -19,6 +19,34 @@
     <string name="main_home_menu_about">INFO</string>
     <string name="main_home_menu_diagnostics">DIAGNOSTICS</string>
 
+    <!-- Signature Add -->
+    <string name="signature_update_signature_add_method_mobile_id">Mobile-ID</string>
+    <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
+    <string name="signature_update_signature_add_method_id_card">ID-card</string>
+    <string name="signature_update_signature_add_method_nfc">NFC</string>
+
+    <string name="signature_update_signature_selected_method_mobile_id">Signing option Mobile-ID, tab %1$d of %2$d</string>
+    <string name="signature_update_signature_selected_method_smart_id">Signing option Smart-ID, tab %1$d of %2$d</string>
+    <string name="signature_update_signature_selected_method_id_card">Signing option ID-card, tab %1$d of %2$d</string>
+
+    <string name="signature_update_signature_chosen_method_mobile_id">Signing method Mobile-ID, selected</string>
+    <string name="signature_update_signature_chosen_method_smart_id">Signing method Smart-ID, selected</string>
+    <string name="signature_update_signature_chosen_method_id_card">Signing method ID-Card, selected</string>
+
+    <string name="signature_update_mobile_id_message">Enter your mobile number and personal code to sign with mobile-ID</string>
+    <string name="signature_update_mobile_id_phone_no">Country code and phone number</string>
+    <string name="signature_update_mobile_id_personal_code">Personal code</string>
+    <string name="signature_update_mobile_id_remember_me">Remember me</string>
+
+    <string name="signature_update_smart_id_message">Enter your personal code to sign with Smart-ID</string>
+    <string name="signature_update_smart_id_country">Country</string>
+
+    <string name="signature_update_id_card_progress_message_initial">Connect the card reader and insert your ID-card into the reader</string>
+
+    <string name="sign_button">SIGN</string>
+    <string name="yes_button">YES</string>
+    <string name="cancel_button">CANCEL</string>
+
     <!-- Accessibility -->
 
     <!-- Home -->

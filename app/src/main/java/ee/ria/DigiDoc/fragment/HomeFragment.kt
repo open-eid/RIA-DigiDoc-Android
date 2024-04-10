@@ -22,6 +22,7 @@ import ee.ria.DigiDoc.viewmodel.HomeViewModel
 fun HomeFragment(
     navController: NavHostController,
     navBarNavController: NavHostController,
+    signatureAddController: NavHostController,
     modifier: Modifier = Modifier,
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
@@ -33,6 +34,7 @@ fun HomeFragment(
         HomeScreen(
             modifier = modifier,
             navController = navBarNavController,
+            signatureAddController = signatureAddController,
             onClickToMenuScreen = {
                 navController.navigate(
                     Route.Menu.route,
@@ -48,8 +50,13 @@ fun HomeFragment(
 @Composable
 fun HomeFragmentPreview() {
     val navController = rememberNavController()
-    val navBarController = rememberNavController()
+    val navBarNavController = rememberNavController()
+    val signatureAddController = rememberNavController()
     RIADigiDocTheme {
-        HomeFragment(navController, navBarController)
+        HomeFragment(
+            navController = navController,
+            navBarNavController = navBarNavController,
+            signatureAddController = signatureAddController,
+        )
     }
 }

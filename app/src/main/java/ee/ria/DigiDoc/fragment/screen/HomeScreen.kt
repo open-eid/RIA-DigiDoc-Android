@@ -16,12 +16,14 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 fun HomeScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    signatureAddController: NavHostController,
     onClickToMenuScreen: () -> Unit = {},
     someList: List<SomeObject>? = listOf(SomeObject()),
 ) {
     HomeNavigation(
         modifier = modifier,
         navController = navController,
+        signatureAddController = signatureAddController,
         onClickMenu = onClickToMenuScreen,
     )
 }
@@ -31,9 +33,11 @@ fun HomeScreen(
 @Composable
 fun HomeScreenPreview() {
     val navController = rememberNavController()
+    val signatureAddController = rememberNavController()
     RIADigiDocTheme {
         HomeScreen(
             navController = navController,
+            signatureAddController = signatureAddController,
         )
     }
 }

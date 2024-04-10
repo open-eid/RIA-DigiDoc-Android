@@ -5,20 +5,10 @@ package ee.ria.DigiDoc.ui.component
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -26,24 +16,16 @@ import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.fragment.screen.CryptoScreen
 import ee.ria.DigiDoc.fragment.screen.MyEIDScreen
 import ee.ria.DigiDoc.fragment.screen.SignatureScreen
-import ee.ria.DigiDoc.ui.theme.Dark
-import ee.ria.DigiDoc.ui.theme.Normal
-import ee.ria.DigiDoc.ui.theme.Primary500
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.ui.theme.Transparent
-import ee.ria.DigiDoc.ui.theme.White
 import ee.ria.DigiDoc.utils.Route
 
 @Composable
 fun HomeNavigation(
-    navController: NavHostController,
     modifier: Modifier = Modifier,
+    navController: NavHostController,
+    signatureAddController: NavHostController,
     onClickMenu: () -> Unit = {},
 ) {
-    var navigationSelectedItem by remember {
-        mutableStateOf(0)
-    }
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -53,42 +35,10 @@ fun HomeNavigation(
             )
         },
         bottomBar = {
-            NavigationBar(containerColor = Primary500) {
-                HomeNavigationItem().bottomNavigationItems().forEachIndexed { index, navigationItem ->
-                    NavigationBarItem(
-                        colors =
-                            NavigationBarItemColors(
-                                selectedIconColor = White,
-                                selectedTextColor = White,
-                                selectedIndicatorColor = Transparent,
-                                unselectedIconColor = Normal,
-                                unselectedTextColor = Normal,
-                                disabledIconColor = Dark,
-                                disabledTextColor = Dark,
-                            ),
-                        selected = index == navigationSelectedItem,
-                        label = {
-                            Text(navigationItem.label)
-                        },
-                        icon = {
-                            Icon(
-                                navigationItem.icon,
-                                contentDescription = navigationItem.contentDescription,
-                            )
-                        },
-                        onClick = {
-                            navigationSelectedItem = index
-                            navController.navigate(navigationItem.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                    )
-                }
-            }
+            HomeNavigationBar(
+                modifier = modifier,
+                navController = navController,
+            )
         },
     ) { paddingValues ->
         NavHost(
@@ -97,7 +47,11 @@ fun HomeNavigation(
             modifier = Modifier.padding(paddingValues = paddingValues),
         ) {
             composable(Route.Signature.route) {
-                SignatureScreen(navController = navController)
+                SignatureScreen(
+                    navController = navController,
+                    signatureAddController = signatureAddController,
+                    isDialogOpen = true,
+                )
             }
             composable(Route.Crypto.route) {
                 CryptoScreen(navController = navController)
@@ -114,7 +68,11 @@ fun HomeNavigation(
 @Composable
 fun ProductCardPreview() {
     val navController = rememberNavController()
+    val signatureAddController = rememberNavController()
     RIADigiDocTheme {
-        HomeNavigation(navController)
+        HomeNavigation(
+            navController = navController,
+            signatureAddController = signatureAddController,
+        )
     }
 }

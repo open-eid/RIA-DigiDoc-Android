@@ -24,10 +24,11 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.theme.Dimensions.menuItemEndPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.menuItemHeight
+import ee.ria.DigiDoc.ui.theme.Dimensions.menuItemStartPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
@@ -65,7 +66,7 @@ fun MenuItem(
                 contentDescription = null,
                 modifier =
                     modifier
-                        .padding(start = 8.dp, top = 0.dp, end = 24.dp)
+                        .padding(start = menuItemStartPadding, end = menuItemEndPadding)
                         .wrapContentHeight(align = Alignment.CenterVertically)
                         .constrainAs(menuButtonHelpIcon) {
                             start.linkTo(parent.start)

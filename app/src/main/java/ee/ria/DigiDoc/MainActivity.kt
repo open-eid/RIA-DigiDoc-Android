@@ -38,6 +38,7 @@ class MainActivity : ComponentActivity() {
 fun RIADigiDocAppScreen() {
     val navController = rememberNavController()
     val navBarNavController = rememberNavController()
+    val signatureAddController = rememberNavController()
     NavHost(
         navController = navController,
         startDestination = Route.Home.route,
@@ -46,9 +47,10 @@ fun RIADigiDocAppScreen() {
             HomeFragment(
                 navController = navController,
                 navBarNavController = navBarNavController,
+                signatureAddController = signatureAddController,
             )
         }
-        composable(route = Route.Menu.route) { backStackEntry ->
+        composable(route = Route.Menu.route) {
             MenuFragment(
                 navController = navController,
             )

@@ -13,22 +13,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import ee.ria.DigiDoc.ui.theme.Dimensions.textVerticalPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
 fun CryptoScreen(navController: NavController) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(15.dp),
+        modifier = Modifier.fillMaxSize().padding(textVerticalPadding),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
             "Crypto Screen",
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(vertical = 20.dp),
+            modifier = Modifier.padding(vertical = textVerticalPadding),
         )
     }
 }

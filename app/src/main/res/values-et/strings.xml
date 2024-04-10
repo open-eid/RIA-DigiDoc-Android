@@ -19,6 +19,34 @@
     <string name="main_home_menu_diagnostics">DIAGNOSTIKA</string>
     <string name="main_home_recent">HILJUTISED DOKUMENDID</string>
 
+    <!-- Signature Add -->
+    <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>
+    <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
+    <string name="signature_update_signature_add_method_id_card">ID-kaart</string>
+    <string name="signature_update_signature_add_method_nfc">NFC</string>
+
+    <string name="signature_update_signature_selected_method_mobile_id">Allkirjastamise viisiks on Mobiil-ID, vahekaart %1$d / %2$d</string>
+    <string name="signature_update_signature_selected_method_smart_id">Allkirjastamise viisiks on Smart-ID, vahekaart %1$d / %2$d</string>
+    <string name="signature_update_signature_selected_method_id_card">Allkirjastamise viisiks on ID-kaart, vahekaart %1$d / %2$d</string>
+
+    <string name="signature_update_signature_chosen_method_mobile_id">Allkirjastamisviis mobiil-ID on valitud</string>
+    <string name="signature_update_signature_chosen_method_smart_id">Smart-ID allkirjastamise vahend valitud</string>
+    <string name="signature_update_signature_chosen_method_id_card">ID-kaart allkirjastamise vahend valitud</string>
+
+    <string name="signature_update_mobile_id_message">Sisesta oma telefoninumber ja isikukood mobiil-IDga allkirjastamiseks</string>
+    <string name="signature_update_mobile_id_phone_no">Riigikood ja telefoninumber</string>
+    <string name="signature_update_mobile_id_personal_code">Isikukood</string>
+    <string name="signature_update_mobile_id_remember_me">Pea mind meeles</string>
+
+    <string name="signature_update_smart_id_message">Sisesta oma isikukood Smart-IDga allkirjastamiseks</string>
+    <string name="signature_update_smart_id_country">Riik</string>
+
+    <string name="signature_update_id_card_progress_message_initial">Ühenda kaardilugeja nutiseadmega ja sisesta ID-kaart lugejasse</string>
+
+    <string name="sign_button">ALLKIRJASTA</string>
+    <string name="yes_button">JAH</string>
+    <string name="cancel_button">KATKESTA</string>
+
     <!-- Accessibility -->
 
     <!-- Home -->
