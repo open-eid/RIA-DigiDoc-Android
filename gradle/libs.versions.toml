@@ -26,6 +26,10 @@ jetbrainsKotlinJvm = "1.9.0"
 mockito-android = "5.11.0"
 mockito-kotlin = "5.2.1"
 kotlinx-coroutines-test = "1.8.0"
+gson = "2.10.1"
+commons-io = "2.16.1"
+commons-text = "1.11.0"
+bouncy-castle = "1.78"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -52,6 +56,10 @@ material = { group = "com.google.android.material", name = "material", version.r
 mockito-android = { group = "org.mockito", name = "mockito-android", version.ref = "mockito-android" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-test" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+commons-io = { group = "commons-io", name = "commons-io", version.ref = "commons-io" }
+commons-text = { group = "org.apache.commons", name = "commons-text", version.ref = "commons-text" }
+bouncy-castle = { group = "org.bouncycastle", name = "bcpkix-jdk18on", version.ref = "bouncy-castle" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

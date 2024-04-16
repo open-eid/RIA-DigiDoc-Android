@@ -1,6 +1,6 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.networkinglib
+package ee.ria.DigiDoc.common
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

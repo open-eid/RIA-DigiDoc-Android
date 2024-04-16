@@ -1,8 +1,7 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.utilslib
+package ee.ria.DigiDoc.utilslib.logging
 
-import ee.ria.DigiDoc.utilslib.logging.Logging
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock

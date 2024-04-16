@@ -45,4 +45,11 @@ object LoggingUtil : Logging {
             } ?: Log.d(tag, message)
         }
     }
+
+    fun infoLog(
+        tag: String,
+        message: String,
+    ) {
+        Log.i(tag, message)
+    }
 }

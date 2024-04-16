@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+// primary
 val Primary900 = Color(0xFF07142a)
 val Primary800 = Color(0xFF091a36)
 val Primary700 = Color(0xFF0c2246)
@@ -15,6 +16,7 @@ val Primary200 = Color(0xFF92a0b7)
 val Primary100 = Color(0xFFb5bfcf)
 val Primary50 = Color(0xFFe7eaef)
 
+// secondary
 val Secondary900 = Color(0xFF5d2617)
 val Secondary800 = Color(0xFF7a321e)
 val Secondary700 = Color(0xFF9e4026)
@@ -26,6 +28,7 @@ val Secondary200 = Color(0xFFf0b3a3)
 val Secondary100 = Color(0xFFf5ccc1)
 val Secondary50 = Color(0xFFfcefeb)
 
+// yellow
 val Yellow900 = Color(0xFF644a22)
 val Yellow800 = Color(0xFF83612d)
 val Yellow700 = Color(0xFFaa7e3a)
@@ -37,6 +40,7 @@ val Yellow200 = Color(0xFFf8dbaf)
 val Yellow100 = Color(0xFFfae7c9)
 val Yellow50 = Color(0xFFfdf7ee)
 
+// red
 val Red900 = Color(0xFF42171e)
 val Red800 = Color(0xFF571e27)
 val Red700 = Color(0xFF702632)
@@ -48,6 +52,7 @@ val Red200 = Color(0xFFd2a3aa)
 val Red100 = Color(0xFFe1c1c6)
 val Red50 = Color(0xFFf5ebed)
 
+// green
 val Green900 = Color(0xFF0f2519)
 val Green800 = Color(0xFF143020)
 val Green700 = Color(0xFF1a3e2a)
@@ -59,6 +64,7 @@ val Green200 = Color(0xFF9ab2a5)
 val Green100 = Color(0xFFbbcbc2)
 val Green50 = Color(0xFFe9eeeb)
 
+// surface
 val White = Color.White
 val WhiteHover = Color(0xFFf3f5f7)
 val WhiteActive = Color(0xFFd9dee6)
