@@ -12,10 +12,13 @@ object Dimensions {
     val radioGroupBarHeight = 48.dp
     val navigationBarHeight = 64.dp
     val textFieldHeight = 64.dp
+    val dividerHeight = 0.1.dp
 
     // sizes
-    val iconSize = 48.dp
+    val iconSize = 24.dp
+    val toolbarIconSize = 48.dp
     val loadingBarSize = 128.dp
+    val buttonCornerShapeSize = 4.dp
 
     // paddings
     val textVerticalPadding = 20.dp
@@ -29,6 +32,12 @@ object Dimensions {
     val zeroPadding = 0.dp
     val radioButtonPadding = 2.dp
     val radioButtonHorizontalPadding = 16.dp
+    val containerButtonHorizontalPadding = 4.dp
+
+    val screenViewHorizontalPadding = 16.dp
+    val screenViewVerticalPadding = 24.dp
+
+    val itemSpacingPadding = 8.dp
 
     // strokes
     val noBorderStroke = 0.dp

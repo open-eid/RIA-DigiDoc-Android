@@ -22,8 +22,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.toolbarHeight
+import ee.ria.DigiDoc.ui.theme.Dimensions.toolbarIconSize
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
@@ -44,7 +44,7 @@ fun ToolbarScreen(
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
             modifier =
-                Modifier.height(toolbarHeight).padding(start = iconSize)
+                Modifier.height(toolbarHeight).padding(start = toolbarIconSize)
                     .wrapContentHeight(align = Alignment.CenterVertically)
                     .constrainAs(titleText) {
                         start.linkTo(parent.start)
@@ -55,7 +55,7 @@ fun ToolbarScreen(
         )
         IconButton(
             modifier =
-                Modifier.size(iconSize).constrainAs(menuButton) {
+                Modifier.size(toolbarIconSize).constrainAs(menuButton) {
                     end.linkTo(parent.end)
                 },
             onClick = onClickBack,

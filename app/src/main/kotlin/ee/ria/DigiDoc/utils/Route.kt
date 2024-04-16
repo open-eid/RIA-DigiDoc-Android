@@ -10,6 +10,7 @@ import ee.ria.DigiDoc.utils.Constant.Routes.MENU_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MOBILE_ID_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.NFC_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNATURE_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.SIGNING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SMART_ID_SCREEN
 
 sealed class Route(val route: String) {
@@ -30,4 +31,6 @@ sealed class Route(val route: String) {
     object IdCard : Route(ID_CARD_SCREEN)
 
     object NFC : Route(NFC_SCREEN)
+
+    object Signing : Route(SIGNING_SCREEN)
 }

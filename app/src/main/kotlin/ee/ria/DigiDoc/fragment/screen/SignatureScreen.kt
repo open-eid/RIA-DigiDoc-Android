@@ -3,8 +3,10 @@
 package ee.ria.DigiDoc.fragment.screen
 
 import android.content.res.Configuration
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -19,29 +21,39 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.IdCardView
 import ee.ria.DigiDoc.ui.component.MobileIdView
+import ee.ria.DigiDoc.ui.component.PrimaryButton
 import ee.ria.DigiDoc.ui.component.SignatureAddRadioGroup
 import ee.ria.DigiDoc.ui.component.SmartIdView
 import ee.ria.DigiDoc.ui.theme.Dimensions.alertDialogInnerPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.alertDialogOuterPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewHorizontalPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewVerticalPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.textVerticalPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun SignatureScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     signatureAddController: NavHostController,
+    onClickToSigningScreen: () -> Unit = {},
     isDialogOpen: Boolean = true,
 ) {
     val openSignatureDialog = remember { mutableStateOf(isDialogOpen) }
@@ -56,7 +68,7 @@ fun SignatureScreen(
         }
     }
     RIADigiDocTheme {
-        if (openSignatureDialog.value) {
+        if (!openSignatureDialog.value) {
             BasicAlertDialog(
                 onDismissRequest = dismissDialog,
             ) {
@@ -104,6 +116,31 @@ fun SignatureScreen(
                         }
                     }
                 }
+            }
+        } else {
+            Column(
+                modifier =
+                    modifier
+                        .fillMaxSize()
+                        .padding(horizontal = screenViewHorizontalPadding, vertical = screenViewVerticalPadding),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Text(
+                    stringResource(id = R.string.signature_home_create_text),
+                    modifier =
+                        modifier
+                            .focusable(false)
+                            .clearAndSetSemantics {},
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                )
+                PrimaryButton(
+                    title = R.string.signature_home_create_button,
+                    contentDescription = stringResource(id = R.string.signature_home_create_text),
+                    onClickItem = onClickToSigningScreen,
+                )
             }
         }
     }

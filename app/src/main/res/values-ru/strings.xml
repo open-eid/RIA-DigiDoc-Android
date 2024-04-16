@@ -1,6 +1,20 @@
 <resources>
     <string name="app_name">RIA DigiDoc</string>
 
+    <string name="back">Назад</string>
+
+    <string name="container_title">КОНТЕЙНЕР:</string>
+    <string name="documents_add_button">+ ДОБАВИТЬ БОЛЬШЕ ФАЙЛОВ</string>
+    <string name="documents_add_button_accessibility">Добавить больше файлов</string>
+    <string name="file">Файл</string>
+    <string name="document_remove_button">Удалить файл</string>
+    <string name="document_save_button">Сохраните файл</string>
+    <string name="document_remove_confirmation_message">Удалить файл из контейнера?</string>
+    <string name="document_remove_last_confirmation_message">Вы собираетесь удалить последний файл в контейнере, он удаляется вместе с контейнером.</string>
+    <string name="document_cancel_removal_button">Отменить удаление файла</string>
+    <string name="document_confirm_removal_button">Подтвердите удаление файла</string>
+    <string name="signature_remove_button">Удалить подпись</string>
+
     <!-- Libdigidocpp -->
     <string name="libdigidocpp_initialization_failed">Не удалось инициализировать Libdigidocpp</string>
 
@@ -12,12 +26,24 @@
     <string name="main_home_logo">DigiDoc</string>
     <string name="main_home_menu_button">Меню</string>
 
+    <string name="signature_home_create_text">Выберите файл для подписания или проверки</string>
+    <string name="signature_home_create_button">ВЫБРАТЬ ФАЙЛ</string>
+
     <string name="main_home_menu_help">ПОМОЩЬ</string>
     <string name="main_home_menu_accessibility">ДОСТУПНОСТЬ</string>
     <string name="main_home_recent">НЕДАВНИЕ ДОКУМЕНТЫ</string>
     <string name="main_home_menu_settings">НАСТРОЙКИ</string>
     <string name="main_home_menu_about">ИНФОРМАЦИЯ</string>
     <string name="main_home_menu_diagnostics">ДИАГНОСТИКА</string>
+
+    <!-- Signing -->
+    <string name="signing_title_new_container">Подписание</string>
+    <string name="signing_title_container_existing">Проверка контейнера</string>
+    <string name="signing_container_name_update_button">Изменить название контейнера</string>
+    <string name="signing_documents_title">Файлы контейнера</string>
+    <string name="signing_container_documents_title">Файлы контейнера</string>
+    <string name="signing_container_signatures_title">Подписи контейнера</string>
+    <string name="signing_container_signatures_empty">Контейнер не подписан</string>
 
     <!-- Signature Add -->
     <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>
@@ -44,8 +70,13 @@
     <string name="signature_update_id_card_progress_message_initial">Подключите считыватель карты и вставьте в него Вашу ID-карту</string>
 
     <string name="sign_button">ПОДПИСАТЬ</string>
+    <string name="share_button">ПОДЕЛИТЬСЯ</string>
     <string name="yes_button">ДА</string>
     <string name="cancel_button">ОТМЕНИТЬ</string>
+
+    <!-- Crypto -->
+    <string name="crypto_button">ЗАШИФРОВАТЬ</string>
+    <string name="crypto_button_accessibility">Зашифровать документ</string>
 
     <!-- Accessibility -->
 
@@ -63,5 +94,8 @@
     <string name="main_home_menu_accessibility_accessibility">Доступность</string>
 
     <string name="close_menu">Закрыть меню</string>
+
+    <!-- Voice Control -->
+    <string name="signing_container_name_update_button_voice">Изменить</string>
 
 </resources>

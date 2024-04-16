@@ -1,6 +1,22 @@
 <resources>
     <string name="app_name">RIA DigiDoc</string>
 
+    <string name="back">Tagasi</string>
+
+    <!-- Container -->
+    <string name="container_title">ÜMBRIK:</string>
+    <string name="documents_add_button">+ LISA VEEL FAILE</string>
+    <string name="documents_add_button_accessibility">Lisa veel faile</string>
+    <string name="file">Fail</string>
+    <string name="document_remove_button">Eemalda dokument</string>
+    <string name="document_save_button">Salvesta fail ümbrikust</string>
+    <string name="document_remove_confirmation_message">Soovid eemaldada faili ümbrikust?</string>
+    <string name="document_remove_last_confirmation_message">Oled kustutamas viimast faili ümbrikus, koos sellega eemaldatakse ka ümbrik.</string>
+    <string name="document_cancel_removal_button">Katkesta faili eemaldamine</string>
+    <string name="document_confirm_removal_button">Kinnita faili eemaldamine</string>
+    <string name="signature_remove_button">Eemalda allkiri</string>
+
+
     <!-- Libdigidocpp -->
     <string name="libdigidocpp_initialization_failed">Libdigidocpp initsialiseerimine ebaõnnestus</string>
 
@@ -12,12 +28,24 @@
     <string name="main_home_logo">DigiDoc</string>
     <string name="main_home_menu_button">Menüü</string>
 
+    <string name="signature_home_create_text">Vali fail allkirjastamiseks või kontrollimiseks</string>
+    <string name="signature_home_create_button">VALI FAIL</string>
+
     <string name="main_home_menu_help">ABI</string>
     <string name="main_home_menu_accessibility">JUURDEPÄÄSETAVUS</string>
     <string name="main_home_menu_settings">SEADED</string>
     <string name="main_home_menu_about">INFO</string>
     <string name="main_home_menu_diagnostics">DIAGNOSTIKA</string>
     <string name="main_home_recent">HILJUTISED DOKUMENDID</string>
+
+    <!-- Signing -->
+    <string name="signing_title_new_container">Allkirjastamine</string>
+    <string name="signing_title_container_existing">Ümbriku valideerimine</string>
+    <string name="signing_container_name_update_button">Muuda ümbriku nime</string>
+    <string name="signing_documents_title">Ümbriku failid</string>
+    <string name="signing_container_documents_title">Ümbriku sisu</string>
+    <string name="signing_container_signatures_title">Ümbriku allkirjad</string>
+    <string name="signing_container_signatures_empty">Allkirjad puuduvad</string>
 
     <!-- Signature Add -->
     <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>
@@ -44,8 +72,13 @@
     <string name="signature_update_id_card_progress_message_initial">Ühenda kaardilugeja nutiseadmega ja sisesta ID-kaart lugejasse</string>
 
     <string name="sign_button">ALLKIRJASTA</string>
+    <string name="share_button">JAGA</string>
     <string name="yes_button">JAH</string>
     <string name="cancel_button">KATKESTA</string>
+
+    <!-- Crypto -->
+    <string name="crypto_button">KRÜPTEERI</string>
+    <string name="crypto_button_accessibility">Krüpteeri dokument</string>
 
     <!-- Accessibility -->
 
@@ -63,5 +96,8 @@
     <string name="main_home_menu_accessibility_accessibility">Juurdepääsetavus</string>
 
     <string name="close_menu">Sulge menüü</string>
+
+    <!-- Voice Control -->
+    <string name="signing_container_name_update_button_voice">Muuda</string>
 
 </resources>

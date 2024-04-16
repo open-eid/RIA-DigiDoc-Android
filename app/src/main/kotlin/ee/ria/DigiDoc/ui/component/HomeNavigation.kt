@@ -25,6 +25,7 @@ fun HomeNavigation(
     navController: NavHostController,
     signatureAddController: NavHostController,
     onClickMenu: () -> Unit = {},
+    onClickToSigningScreen: () -> Unit = {},
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -50,6 +51,7 @@ fun HomeNavigation(
                 SignatureScreen(
                     navController = navController,
                     signatureAddController = signatureAddController,
+                    onClickToSigningScreen = onClickToSigningScreen,
                     isDialogOpen = true,
                 )
             }
@@ -66,7 +68,7 @@ fun HomeNavigation(
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun ProductCardPreview() {
+fun HomeNavigationPreview() {
     val navController = rememberNavController()
     val signatureAddController = rememberNavController()
     RIADigiDocTheme {

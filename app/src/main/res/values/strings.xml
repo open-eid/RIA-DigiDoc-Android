@@ -1,6 +1,20 @@
 <resources>
     <string name="app_name">RIA DigiDoc</string>
 
+    <string name="back">Back</string>
+
+    <string name="container_title">CONTAINER:</string>
+    <string name="documents_add_button">+ ADD MORE FILES</string>
+    <string name="documents_add_button_accessibility">Add more files</string>
+    <string name="file">File</string>
+    <string name="document_remove_button">Remove document</string>
+    <string name="document_save_button">Save file</string>
+    <string name="document_remove_confirmation_message">Remove file from container?</string>
+    <string name="document_remove_last_confirmation_message">You are about to remove the last file in the container, it is removed along with the container.</string>
+    <string name="document_cancel_removal_button">Cancel file removal</string>
+    <string name="document_confirm_removal_button">Confirm file removal</string>
+    <string name="signature_remove_button">Remove signature</string>
+
     <!-- Libdigidocpp -->
     <string name="libdigidocpp_initialization_failed">Failed to initialize Libdigidocpp</string>
 
@@ -12,12 +26,24 @@
     <string name="main_home_logo">DigiDoc</string>
     <string name="main_home_menu_button">Menu</string>
 
+    <string name="signature_home_create_text">Choose a file to sign or validate</string>
+    <string name="signature_home_create_button">CHOOSE FILE</string>
+
     <string name="main_home_menu_help">HELP</string>
     <string name="main_home_menu_accessibility">ACCESSIBILITY</string>
     <string name="main_home_recent">RECENT DOCUMENTS</string>
     <string name="main_home_menu_settings">SETTINGS</string>
     <string name="main_home_menu_about">INFO</string>
     <string name="main_home_menu_diagnostics">DIAGNOSTICS</string>
+
+    <!-- Signing -->
+    <string name="signing_title_new_container">Signing</string>
+    <string name="signing_title_container_existing">Container verification</string>
+    <string name="signing_container_name_update_button">Edit container name</string>
+    <string name="signing_documents_title">Container files</string>
+    <string name="signing_container_documents_title">Container files</string>
+    <string name="signing_container_signatures_title">Container signatures</string>
+    <string name="signing_container_signatures_empty">Container is not signed</string>
 
     <!-- Signature Add -->
     <string name="signature_update_signature_add_method_mobile_id">Mobile-ID</string>
@@ -44,8 +70,13 @@
     <string name="signature_update_id_card_progress_message_initial">Connect the card reader and insert your ID-card into the reader</string>
 
     <string name="sign_button">SIGN</string>
+    <string name="share_button">SHARE</string>
     <string name="yes_button">YES</string>
     <string name="cancel_button">CANCEL</string>
+
+    <!-- Crypto -->
+    <string name="crypto_button">ENCRYPT</string>
+    <string name="crypto_button_accessibility">Encrypt document</string>
 
     <!-- Accessibility -->
 
@@ -63,5 +94,8 @@
     <string name="main_home_menu_accessibility_accessibility">Accessibility</string>
 
     <string name="close_menu">Close menu</string>
+
+    <!-- Voice Control -->
+    <string name="signing_container_name_update_button_voice">Edit</string>
 
 </resources>

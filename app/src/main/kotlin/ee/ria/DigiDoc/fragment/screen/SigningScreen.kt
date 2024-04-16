@@ -9,37 +9,29 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.domain.model.SomeObject
-import ee.ria.DigiDoc.ui.component.HomeNavigation
+import ee.ria.DigiDoc.ui.component.signing.SigningNavigation
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
-fun HomeScreen(
+fun SigningScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    signatureAddController: NavHostController,
-    onClickToMenuScreen: () -> Unit = {},
-    onClickToSigningScreen: () -> Unit = {},
     someList: List<SomeObject>? = listOf(SomeObject()),
 ) {
-    HomeNavigation(
+    SigningNavigation(
         modifier = modifier,
         navController = navController,
-        signatureAddController = signatureAddController,
-        onClickMenu = onClickToMenuScreen,
-        onClickToSigningScreen = onClickToSigningScreen,
     )
 }
 
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun HomeScreenPreview() {
+fun SigningScreenPreview() {
     val navController = rememberNavController()
-    val signatureAddController = rememberNavController()
     RIADigiDocTheme {
-        HomeScreen(
+        SigningScreen(
             navController = navController,
-            signatureAddController = signatureAddController,
         )
     }
 }

@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import ee.ria.DigiDoc.fragment.HomeFragment
 import ee.ria.DigiDoc.fragment.MenuFragment
+import ee.ria.DigiDoc.fragment.SigningFragment
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import kotlinx.coroutines.launch
@@ -52,6 +53,11 @@ fun RIADigiDocAppScreen() {
         }
         composable(route = Route.Menu.route) {
             MenuFragment(
+                navController = navController,
+            )
+        }
+        composable(route = Route.Signing.route) {
+            SigningFragment(
                 navController = navController,
             )
         }
