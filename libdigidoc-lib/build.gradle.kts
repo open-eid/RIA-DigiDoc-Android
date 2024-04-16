@@ -14,14 +14,10 @@ android {
     compileSdk = Integer.parseInt(libs.versions.compileSdkVersion.get())
 
     defaultConfig {
+        testInstrumentationRunnerArguments += mapOf("clearPackageData" to "true")
         minSdk = Integer.parseInt(libs.versions.minSdkVersion.get())
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        testInstrumentationRunnerArguments +=
-            mapOf(
-                "clearPackageData" to "true",
-            )
 
         ndk {
             abiFilters.clear()
