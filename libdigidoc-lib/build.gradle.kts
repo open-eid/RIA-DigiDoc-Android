@@ -1,4 +1,4 @@
-import ee.ria.DigiDoc.libdigidoclib.update.LibdigidocppPlugin
+import ee.ria.DigiDoc.libdigidoc.update.LibdigidocppPlugin
 
 val appAbiFilters = "arm64-v8a;armeabi-v7a;x86_64"
 

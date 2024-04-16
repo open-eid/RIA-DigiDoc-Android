@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "ee.ria.networkinglib"
+    namespace = "ee.ria.DigiDoc.network"
     compileSdk = Integer.parseInt(libs.versions.compileSdkVersion.get())
 
     defaultConfig {

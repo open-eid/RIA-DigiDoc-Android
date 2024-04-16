@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "ee.ria.configlib"
+    namespace = "ee.ria.DigiDoc.configuration"
     compileSdk = 34
 
     defaultConfig {

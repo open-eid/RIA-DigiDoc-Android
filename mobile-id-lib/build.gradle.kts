@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "ee.ria.mobileidlib"
+    namespace = "ee.ria.DigiDoc.mobileId"
     compileSdk = Integer.parseInt(libs.versions.compileSdkVersion.get())
 
     defaultConfig {

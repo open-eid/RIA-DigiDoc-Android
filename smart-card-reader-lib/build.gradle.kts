@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "ee.ria.smartcardreaderlib"
+    namespace = "ee.ria.smartCardReader"
     compileSdk = Integer.parseInt(libs.versions.compileSdkVersion.get())
 
     defaultConfig {

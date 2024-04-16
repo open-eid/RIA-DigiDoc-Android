@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "ee.ria.smartidlib"
+    namespace = "ee.ria.DigiDoc.smartId"
     compileSdk = Integer.parseInt(libs.versions.compileSdkVersion.get())
 
     defaultConfig {

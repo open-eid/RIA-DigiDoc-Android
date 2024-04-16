@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "ee.ria.nfclib"
+    namespace = "ee.ria.DigiDoc.nfc"
     compileSdk = 34
 
     defaultConfig {

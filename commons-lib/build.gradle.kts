@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "ee.ria.commonslib"
+    namespace = "ee.ria.DigiDoc.common"
     compileSdk = Integer.parseInt(libs.versions.compileSdkVersion.get())
 
     defaultConfig {

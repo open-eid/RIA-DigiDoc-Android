@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "ee.ria.signlib"
+    namespace = "ee.ria.DigiDoc.sign"
     compileSdk = Integer.parseInt(libs.versions.compileSdkVersion.get())
 
     defaultConfig {

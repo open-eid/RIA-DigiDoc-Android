@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "ee.ria.idcardlib"
+    namespace = "ee.ria.DigiDoc.idCard"
     compileSdk = Integer.parseInt(libs.versions.compileSdkVersion.get())
 
     defaultConfig {

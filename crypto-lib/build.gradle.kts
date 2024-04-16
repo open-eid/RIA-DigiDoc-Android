@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "ee.ria.cryptolib"
+    namespace = "ee.ria.DigiDoc.crypto"
     compileSdk = Integer.parseInt(libs.versions.compileSdkVersion.get())
 
     defaultConfig {
