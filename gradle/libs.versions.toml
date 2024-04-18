@@ -30,6 +30,9 @@ gson = "2.10.1"
 commons-io = "2.16.1"
 commons-text = "1.11.0"
 bouncy-castle = "1.78"
+okhttp = "4.12.0"
+preferencex = "1.1.0"
+androidx-security-crypto = "1.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -60,6 +63,9 @@ gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 commons-io = { group = "commons-io", name = "commons-io", version.ref = "commons-io" }
 commons-text = { group = "org.apache.commons", name = "commons-text", version.ref = "commons-text" }
 bouncy-castle = { group = "org.bouncycastle", name = "bcpkix-jdk18on", version.ref = "bouncy-castle" }
+okhttp3 = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+preferencex = { group = "com.takisoft.preferencex", name = "preferencex", version.ref = "preferencex" }
+androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "androidx-security-crypto" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

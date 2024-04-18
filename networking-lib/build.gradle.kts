@@ -24,9 +24,12 @@ android {
 
 dependencies {
 
+    api(libs.okhttp3)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    implementation(libs.commons.text)
+    implementation(libs.preferencex)
     testImplementation(libs.junit)
     androidTestImplementation(libs.mockito.android)
     androidTestImplementation(libs.kotlinx.coroutines.test)
@@ -34,6 +37,8 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.lifecycle.runtime.ktx)
 
-    implementation(project(":utils-lib"))
-    implementation(project(":commons-lib"))
+    debugImplementation(project(":utils-lib", "debugRuntimeElements"))
+    releaseImplementation(project(":utils-lib", "releaseRuntimeElements"))
+    debugImplementation(project(":commons-lib", "debugRuntimeElements"))
+    releaseImplementation(project(":commons-lib", "releaseRuntimeElements"))
 }

@@ -18,7 +18,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Properties
 
-class Properties(assetManager: AssetManager) {
+class ConfigurationProperties(assetManager: AssetManager) {
     @Suppress("PropertyName")
     private val LOG_TAG = javaClass.simpleName
     private val dateFormat: SimpleDateFormat

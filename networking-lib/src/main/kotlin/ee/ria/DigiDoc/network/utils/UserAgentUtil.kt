@@ -52,17 +52,17 @@ object UserAgentUtil {
                 .filter { (_, value): Map.Entry<String, UsbDevice> ->
                     deviceNameFilters
                         .stream()
-                        .anyMatch { charSequence: String? ->
+                        .anyMatch { charSequence: String ->
                             Objects.requireNonNull<String?>(value.productName)
                                 .contains(
-                                    charSequence!!,
+                                    charSequence,
                                 )
                         } ||
                         deviceNameFilters
                             .stream()
-                            .anyMatch { charSequence: String? ->
+                            .anyMatch { charSequence: String ->
                                 value.deviceName.contains(
-                                    charSequence!!,
+                                    charSequence,
                                 )
                             }
                 }

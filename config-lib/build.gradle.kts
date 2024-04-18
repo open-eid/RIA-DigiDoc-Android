@@ -5,30 +5,24 @@ plugins {
 
 android {
     namespace = "ee.ria.DigiDoc.configuration"
-    compileSdk = 34
+    compileSdk = Integer.parseInt(libs.versions.compileSdkVersion.get())
 
     defaultConfig {
-        minSdk = 30
+        minSdk = Integer.parseInt(libs.versions.minSdkVersion.get())
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
 
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
-            )
-        }
-    }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
+    }
+    buildFeatures {
+        buildConfig = true
     }
     packaging {
         resources {
@@ -53,6 +47,38 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    implementation(project(":utils-lib"))
+    debugImplementation(project(":networking-lib", "debugRuntimeElements"))
+    releaseImplementation(project(":networking-lib", "releaseRuntimeElements"))
+    debugImplementation(project(":utils-lib", "debugRuntimeElements"))
+    releaseImplementation(project(":utils-lib", "releaseRuntimeElements"))
     testImplementation(project(":utils-lib"))
+}
+
+configurations {
+    create("generateMatchers") {
+        extendsFrom(configurations["api"], configurations["releaseImplementation"])
+        attributes {
+            attribute(Attribute.of("artifactType", String::class.java), "android-classes-jar")
+            attribute(Attribute.of("com.android.build.api.attributes.BuildTypeAttr", String::class.java), "release")
+        }
+    }
+}
+
+tasks.register<JavaExec>("fetchAndPackageDefaultConfiguration") {
+    dependsOn("build")
+    dependsOn(":networking-lib:build")
+    classpath(files("${layout.buildDirectory.get().asFile}/tmp/kotlin-classes/release"))
+    classpath(configurations["generateMatchers"])
+    mainClass = "ee.ria.DigiDoc.configuration.task.FetchAndPackageDefaultConfigurationTask"
+
+    doLast {
+        copy {
+            from(file("$projectDir/src/main/assets/config"))
+            into(file("${layout.buildDirectory.get().asFile}/intermediates/library_assets/debug/out/config"))
+        }
+        copy {
+            from(file("$projectDir/src/main/assets/config"))
+            into(file("${layout.buildDirectory.get().asFile}/intermediates/library_assets/release/out/config"))
+        }
+    }
 }

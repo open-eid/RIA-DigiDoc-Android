@@ -38,5 +38,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    implementation(project(":commons-lib"))
+    debugImplementation(project(":commons-lib", "debugRuntimeElements"))
+    releaseImplementation(project(":commons-lib", "releaseRuntimeElements"))
 }

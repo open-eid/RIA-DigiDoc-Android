@@ -18,7 +18,7 @@ import java.util.Objects
 import java.util.Optional
 
 @RunWith(MockitoJUnitRunner::class)
-class PropertiesTest {
+class ConfigurationPropertiesTest {
     @Mock
     private val assetManager: AssetManager? = null
 
@@ -38,7 +38,7 @@ class PropertiesTest {
         ).use { inputStream ->
             `when`(assetManager!!.open(anyString())).thenReturn(inputStream)
             val configurationProperties =
-                Properties(assetManager)
+                ConfigurationProperties(assetManager)
             assertEquals(
                 "https://id.eesti.ee/",
                 configurationProperties.centralConfigurationServiceUrl,
