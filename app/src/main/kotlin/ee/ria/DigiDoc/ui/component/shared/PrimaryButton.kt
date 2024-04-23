@@ -1,6 +1,6 @@
 @file:Suppress("PackageName", "FunctionName")
 
-package ee.ria.DigiDoc.ui.component
+package ee.ria.DigiDoc.ui.component.shared
 
 import android.content.res.Configuration
 import androidx.annotation.StringRes

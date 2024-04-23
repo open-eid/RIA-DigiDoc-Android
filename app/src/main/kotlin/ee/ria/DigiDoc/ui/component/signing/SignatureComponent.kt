@@ -1,6 +1,6 @@
 @file:Suppress("PackageName", "FunctionName")
 
-package ee.ria.DigiDoc.ui.component
+package ee.ria.DigiDoc.ui.component.signing
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusGroup

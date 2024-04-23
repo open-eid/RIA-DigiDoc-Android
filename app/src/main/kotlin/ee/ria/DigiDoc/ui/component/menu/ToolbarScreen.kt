@@ -1,6 +1,6 @@
 @file:Suppress("PackageName", "FunctionName")
 
-package ee.ria.DigiDoc.ui.component
+package ee.ria.DigiDoc.ui.component.menu
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.fillMaxWidth

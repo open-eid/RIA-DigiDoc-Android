@@ -1,6 +1,6 @@
 @file:Suppress("PackageName", "FunctionName")
 
-package ee.ria.DigiDoc.ui.component
+package ee.ria.DigiDoc.ui.component.shared
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider

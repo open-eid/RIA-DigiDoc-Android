@@ -1,6 +1,6 @@
 @file:Suppress("PackageName", "FunctionName")
 
-package ee.ria.DigiDoc.ui.component
+package ee.ria.DigiDoc.ui.component.signing
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home

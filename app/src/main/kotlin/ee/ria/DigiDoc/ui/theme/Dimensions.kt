@@ -17,6 +17,9 @@ object Dimensions {
     // sizes
     val iconSize = 24.dp
     val toolbarIconSize = 48.dp
+    val settingsIconSize = 48.dp
+    val switchSize = 48.dp
+    val radioSize = 48.dp
     val loadingBarSize = 128.dp
     val buttonCornerShapeSize = 4.dp
 
@@ -29,6 +32,10 @@ object Dimensions {
     val countryIconPadding = 8.dp
     val menuItemStartPadding = 8.dp
     val menuItemEndPadding = 24.dp
+    val settingsAdditionalStartPadding = 12.dp
+    val settingsItemStartPadding = 16.dp
+    val settingsItemEndPadding = 8.dp
+    val settingsItemVerticalPadding = 32.dp
     val zeroPadding = 0.dp
     val radioButtonPadding = 2.dp
     val radioButtonHorizontalPadding = 16.dp

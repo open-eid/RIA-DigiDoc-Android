@@ -1,6 +1,6 @@
 @file:Suppress("PackageName", "FunctionName")
 
-package ee.ria.DigiDoc.ui.component
+package ee.ria.DigiDoc.ui.component.menu
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.theme.Dimensions
 import ee.ria.DigiDoc.ui.theme.Dimensions.menuItemEndPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.menuItemHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.menuItemStartPadding
@@ -40,7 +41,10 @@ fun MenuItem(
     contentDescription: String,
 ) {
     Button(
-        modifier = modifier.height(menuItemHeight),
+        modifier =
+            modifier
+                .padding(vertical = Dimensions.settingsItemEndPadding)
+                .wrapContentHeight(Alignment.CenterVertically),
         shape = RectangleShape,
         colors =
             ButtonColors(
@@ -83,6 +87,8 @@ fun MenuItem(
                         }
                         .constrainAs(menuButtonHelpText) {
                             start.linkTo(menuButtonHelpIcon.end)
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
                         },
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Start,

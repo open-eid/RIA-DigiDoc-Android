@@ -1,6 +1,6 @@
 @file:Suppress("PackageName", "FunctionName")
 
-package ee.ria.DigiDoc.ui.component
+package ee.ria.DigiDoc.ui.component.shared
 
 import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
@@ -34,10 +34,10 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.noBorderStroke
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
-fun CountrySpinner(
+fun SelectionSpinner(
     list: Array<String>,
     preselected: String,
-    onSelectionChanged: (country: String) -> Unit,
+    onSelectionChanged: (item: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var selected by remember { mutableStateOf(preselected) }
@@ -102,7 +102,7 @@ fun SpinnerSample_Preview() {
     RIADigiDocTheme {
         val list = arrayOf("Estonia", "Lithuania", "Latvia")
 
-        CountrySpinner(
+        SelectionSpinner(
             list,
             preselected = list.first(),
             onSelectionChanged = { },

@@ -21,7 +21,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
-import ee.ria.DigiDoc.ui.component.PreventResize
+import ee.ria.DigiDoc.ui.component.shared.PreventResize
 
 @Composable
 fun SigningBottomBar(modifier: Modifier) {

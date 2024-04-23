@@ -15,5 +15,13 @@ object Constant {
         const val ID_CARD_SCREEN = "id_card_route"
         const val NFC_SCREEN = "nfc_route"
         const val SIGNING_SCREEN = "signing_route"
+        const val SETTINGS_SCREEN = "settings_route"
+        const val SETTINGS_RIGHTS_SCREEN = "settings_rights_route"
+        const val SETTINGS_SIGNING_SCREEN = "settings_signing_route"
+    }
+
+    object Defaults {
+        const val DEFAULT_UUID_VALUE = "00000000-0000-0000-0000-000000000000"
+        const val DEFAULT_TSA_URL_VALUE = "https://eid-dd.ria.ee/ts"
     }
 }

@@ -75,6 +75,7 @@
     <string name="share_button">JAGA</string>
     <string name="yes_button">JAH</string>
     <string name="cancel_button">KATKESTA</string>
+    <string name="ok_button">OK</string>
 
     <!-- Crypto -->
     <string name="crypto_button">KRÜPTEERI</string>
@@ -96,6 +97,46 @@
     <string name="main_home_menu_accessibility_accessibility">Juurdepääsetavus</string>
 
     <string name="close_menu">Sulge menüü</string>
+
+    <!-- Main Settings -->
+    <string name="main_settings_title">Seaded</string>
+    <string name="main_settings_use_default_settings_button_title">TAASTA ALGSEADED</string>
+    <string name="main_settings_use_default_settings_message">Algseaded taastatud</string>
+    <string name="main_settings_rights">Õigused</string>
+    <string name="main_settings_signing">Allkirjastamine</string>
+    <string name="main_settings_proxy_title">Proksi</string>
+    <string name="main_settings_proxy_no_proxy">Ei kasuta proksit</string>
+    <string name="main_settings_proxy_use_system">Kasuta süsteemseid proksi seadeid</string>
+    <string name="main_settings_proxy_manual">Proksi seaded määratakse käsitsi</string>
+    <string name="main_settings_proxy_host">Host</string>
+    <string name="main_settings_proxy_port">Port</string>
+    <string name="main_settings_proxy_username">Kasutajanimi</string>
+    <string name="main_settings_proxy_password">Parool</string>
+    <string name="main_settings_role_and_address_button">Roll ja aadress</string>
+    <string name="main_settings_phone_no_title">Riigikood ja telefoninumber</string>
+    <string name="main_settings_personal_code_title">Isikukood</string>
+    <string name="main_settings_tsa_url_title">Ligipääs ajatempliteenusele</string>
+    <string name="main_settings_uuid_title">Ligipääs mobiil-ID ja Smart-ID teenusele</string>
+    <string name="main_settings_tsa_url_use_default">Kasuta vaikeväärtust</string>
+    <string name="main_settings_ask_role_and_address_title">Küsi rolli ja aadressi igal allkirjastamisel</string>
+    <string name="main_settings_role_title">Roll / resolutsioon</string>
+    <string name="main_settings_city_title">Linn</string>
+    <string name="main_settings_county_title">Maakond</string>
+    <string name="main_settings_country_title">Riik</string>
+    <string name="main_settings_postal_code_title">Postikood</string>
+    <string name="main_settings_signature_profile_title">Vaikimisi faili tüüp</string>
+    <string name="main_settings_open_all_filetypes_title">Luba rakendusel avada kõiki failitüüpe (vajab rakenduse taaskäivitamist)</string>
+    <string name="main_settings_allow_screenshots_title">Luba ekraanipildistamine (vajab rakenduse taaskäivitamist)</string>
+    <string name="main_settings_timestamp_cert_title">Ajatempliteenuse SSL sertifikaat</string>
+    <string name="main_settings_timestamp_cert_issued_to_title">Kellele väljastatud: </string>
+    <string name="main_settings_timestamp_cert_valid_to_title">Kehtib kuni: </string>
+    <string name="main_settings_timestamp_cert_add_certificate_button">LISA SERTIFIKAAT</string>
+    <string name="main_settings_timestamp_cert_show_certificate_button">NÄITA SERTIFIKAATI</string>
+    <string name="main_settings_siva_service_title">Ligipääs valideerimisteenusele SiVa</string>
+    <string name="main_settings_siva_default_access_title">Kasutan vaikimisi määratud ligipääsu</string>
+    <string name="main_settings_siva_default_manual_access_title">Kasutan käsitsi määratud ligipääsu</string>
+    <string name="main_settings_siva_certificate_title">Valideerimisteenuse SiVa SSL sertifikaat</string>
+    <string name="main_settings_siva_service_url">SiVa valideerimisteenusele URL</string>
 
     <!-- Voice Control -->
     <string name="signing_container_name_update_button_voice">Muuda</string>

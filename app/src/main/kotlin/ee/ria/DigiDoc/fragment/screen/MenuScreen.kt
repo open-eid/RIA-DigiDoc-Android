@@ -18,9 +18,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.domain.model.SomeObject
-import ee.ria.DigiDoc.ui.component.MenuItem
-import ee.ria.DigiDoc.ui.component.ToolbarScreen
+import ee.ria.DigiDoc.ui.component.menu.MenuItem
+import ee.ria.DigiDoc.ui.component.menu.ToolbarScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.Route
 
 @Composable
 fun MenuScreen(
@@ -57,6 +58,11 @@ fun MenuScreen(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_settings),
                 title = stringResource(id = R.string.main_home_menu_settings),
                 contentDescription = stringResource(id = R.string.main_home_menu_settings_accessibility),
+                onClickItem = {
+                    navController.navigate(
+                        Route.Settings.route,
+                    )
+                },
             )
             MenuItem(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_info_outline),

@@ -73,6 +73,7 @@
     <string name="share_button">SHARE</string>
     <string name="yes_button">YES</string>
     <string name="cancel_button">CANCEL</string>
+    <string name="ok_button">OK</string>
 
     <!-- Crypto -->
     <string name="crypto_button">ENCRYPT</string>
@@ -94,6 +95,47 @@
     <string name="main_home_menu_accessibility_accessibility">Accessibility</string>
 
     <string name="close_menu">Close menu</string>
+
+    <!-- Main Settings -->
+    <string name="main_settings_title">Settings</string>
+    <string name="main_settings_use_default_settings_button_title">USE DEFAULT SETTINGS</string>
+    <string name="main_settings_use_default_settings_message">Default settings restored</string>
+    <string name="main_settings_rights">Permissions</string>
+    <string name="main_settings_signing">Signing</string>
+    <string name="main_settings_proxy_title">Proxy</string>
+    <string name="main_settings_proxy_no_proxy">No proxy</string>
+    <string name="main_settings_proxy_use_system">Use system proxy settings</string>
+    <string name="main_settings_proxy_manual">Manual proxy configuration</string>
+    <string name="main_settings_proxy_host">Host</string>
+    <string name="main_settings_proxy_port">Port</string>
+    <string name="main_settings_proxy_username">Username</string>
+    <string name="main_settings_proxy_password">Password</string>
+    <string name="main_settings_role_and_address_button">Role and address</string>
+    <string name="main_settings_phone_no_title">Country code and phone number</string>
+    <string name="main_settings_personal_code_title">Personal code</string>
+    <string name="main_settings_tsa_url_title">Access to Time-Stamping service</string>
+    <string name="main_settings_uuid_title">Access to mobile-ID and Smart-ID service</string>
+    <string name="main_settings_tsa_url_use_default">Use default</string>
+    <string name="main_settings_ask_role_and_address_title">Ask role and address info on signing</string>
+    <string name="main_settings_role_title">Role / resolution</string>
+    <string name="main_settings_city_title">City</string>
+    <string name="main_settings_county_title">State</string>
+    <string name="main_settings_country_title">Country</string>
+    <string name="main_settings_postal_code_title">Zip</string>
+    <string name="main_settings_signature_profile_title">Default file type</string>
+    <string name="main_settings_open_all_filetypes_title">Allow app to use all file types (requires app restart)</string>
+    <string name="main_settings_allow_screenshots_title">Allow screenshots (requires app restart)</string>
+    <string name="main_settings_timestamp_cert_title">Time-Stamping service SSL certificate</string>
+    <string name="main_settings_timestamp_cert_issued_to_title">Issued to: </string>
+    <string name="main_settings_timestamp_cert_valid_to_title">Valid to: </string>
+    <string name="main_settings_timestamp_cert_add_certificate_button">ADD CERTIFICATE</string>
+    <string name="main_settings_timestamp_cert_show_certificate_button">SHOW CERTIFICATE</string>
+    <string name="main_settings_siva_service_title">Access to Digital Signature Validation Service SiVa</string>
+    <string name="main_settings_siva_default_access_title">Use default access</string>
+    <string name="main_settings_siva_default_manual_access_title">Use manually configured access</string>
+    <string name="main_settings_siva_service_url">SiVa service URL</string>
+
+    <string name="main_settings_siva_certificate_title">Digital Signature Validation Service SiVa SSL certificate</string>
 
     <!-- Voice Control -->
     <string name="signing_container_name_update_button_voice">Edit</string>

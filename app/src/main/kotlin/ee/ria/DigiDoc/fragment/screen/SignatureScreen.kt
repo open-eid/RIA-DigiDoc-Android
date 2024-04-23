@@ -34,11 +34,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.component.IdCardView
-import ee.ria.DigiDoc.ui.component.MobileIdView
-import ee.ria.DigiDoc.ui.component.PrimaryButton
-import ee.ria.DigiDoc.ui.component.SignatureAddRadioGroup
-import ee.ria.DigiDoc.ui.component.SmartIdView
+import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
+import ee.ria.DigiDoc.ui.component.signing.IdCardView
+import ee.ria.DigiDoc.ui.component.signing.MobileIdView
+import ee.ria.DigiDoc.ui.component.signing.SignatureAddRadioGroup
+import ee.ria.DigiDoc.ui.component.signing.SmartIdView
 import ee.ria.DigiDoc.ui.theme.Dimensions.alertDialogInnerPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.alertDialogOuterPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewHorizontalPadding

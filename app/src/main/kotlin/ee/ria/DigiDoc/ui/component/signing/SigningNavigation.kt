@@ -38,8 +38,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.domain.model.SignatureItem
 import ee.ria.DigiDoc.ui.component.ContainerFile
 import ee.ria.DigiDoc.ui.component.ContainerName
-import ee.ria.DigiDoc.ui.component.PrimaryButton
-import ee.ria.DigiDoc.ui.component.SignatureComponent
+import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
 import ee.ria.DigiDoc.ui.theme.Dimensions.dividerHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewHorizontalPadding

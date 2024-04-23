@@ -19,7 +19,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.component.PreventResize
+import ee.ria.DigiDoc.ui.component.shared.PreventResize
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
