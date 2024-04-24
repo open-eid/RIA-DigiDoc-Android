@@ -97,6 +97,8 @@
     <string name="main_home_menu_accessibility_accessibility">Juurdepääsetavus</string>
 
     <string name="close_menu">Sulge menüü</string>
+    <string name="hide_password">Peida parooli</string>
+    <string name="show_password">Näita parooli</string>
 
     <!-- Main Settings -->
     <string name="main_settings_title">Seaded</string>
@@ -140,5 +142,7 @@
 
     <!-- Voice Control -->
     <string name="signing_container_name_update_button_voice">Muuda</string>
+
+    <string name="signature_update_mobile_id_error_general_client">Midagi läks valesti, proovi uuesti</string>
 
 </resources>

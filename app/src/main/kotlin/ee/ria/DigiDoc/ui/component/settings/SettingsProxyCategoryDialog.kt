@@ -8,21 +8,28 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.ui.component.shared.BackButton
 import ee.ria.DigiDoc.ui.component.shared.TextRadioButton
 import ee.ria.DigiDoc.ui.theme.Dimensions
@@ -35,6 +42,18 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 fun SettingsProxyCategoryDialog(
     modifier: Modifier = Modifier,
     onClickBack: () -> Unit = {},
+    proxyChoice: String = ProxySetting.NO_PROXY.name,
+    proxyHostValue: TextFieldValue = TextFieldValue(""),
+    onProxyHostValueChange: (TextFieldValue) -> Unit = {},
+    proxyPortValue: TextFieldValue = TextFieldValue("80"),
+    onProxyPortValueChange: (TextFieldValue) -> Unit = {},
+    proxyUsernameValue: TextFieldValue = TextFieldValue(""),
+    onProxyUsernameValueChange: (TextFieldValue) -> Unit = {},
+    proxyPasswordValue: TextFieldValue = TextFieldValue(""),
+    onProxyPasswordValueChange: (TextFieldValue) -> Unit = {},
+    onClickNoProxy: () -> Unit = {},
+    onClickManualProxy: () -> Unit = {},
+    onClickSystemProxy: () -> Unit = {},
 ) {
     Column(
         modifier = modifier.padding(Dimensions.alertDialogInnerPadding),
@@ -50,57 +69,52 @@ fun SettingsProxyCategoryDialog(
             text = stringResource(id = R.string.main_settings_proxy_title),
             style = MaterialTheme.typography.titleLarge,
         )
-        val settingsProxyChoice = remember { mutableStateOf("proxyNoProxy") }
         TextRadioButton(
             title = stringResource(id = R.string.main_settings_proxy_no_proxy),
             contentDescription = stringResource(id = R.string.main_settings_proxy_no_proxy).lowercase(),
-            selected = settingsProxyChoice.value == "proxyNoProxy",
-            onClick = { settingsProxyChoice.value = "proxyNoProxy" },
+            selected = proxyChoice == ProxySetting.NO_PROXY.name,
+            onClick = onClickNoProxy,
         )
         TextRadioButton(
             title = stringResource(id = R.string.main_settings_proxy_use_system),
             contentDescription = stringResource(id = R.string.main_settings_proxy_use_system).lowercase(),
-            selected = settingsProxyChoice.value == "proxyUseSystem",
-            onClick = { settingsProxyChoice.value = "proxyUseSystem" },
+            selected = proxyChoice == ProxySetting.SYSTEM_PROXY.name,
+            onClick = onClickSystemProxy,
         )
         TextRadioButton(
             title = stringResource(id = R.string.main_settings_proxy_manual),
             contentDescription = stringResource(id = R.string.main_settings_proxy_manual).lowercase(),
-            selected = settingsProxyChoice.value == "proxyManual",
-            onClick = { settingsProxyChoice.value = "proxyManual" },
+            selected = proxyChoice == ProxySetting.MANUAL_PROXY.name,
+            onClick = onClickManualProxy,
         )
-        var settingsProxyHost by remember { mutableStateOf(TextFieldValue(text = "")) }
         TextField(
+            enabled = proxyChoice == ProxySetting.MANUAL_PROXY.name,
             modifier =
                 modifier
                     .padding(vertical = settingsItemEndPadding)
                     .fillMaxWidth()
                     .height(textFieldHeight),
-            value = settingsProxyHost,
             shape = RectangleShape,
-            onValueChange = {
-                settingsProxyHost = it
-            },
+            value = proxyHostValue,
+            onValueChange = onProxyHostValueChange,
             label = {
                 Text(text = stringResource(id = R.string.main_settings_proxy_host))
             },
             maxLines = 1,
             singleLine = true,
             textStyle = MaterialTheme.typography.titleLarge,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
         )
-        var settingsProxyPort by remember { mutableStateOf(TextFieldValue(text = "")) }
         TextField(
+            enabled = proxyChoice == ProxySetting.MANUAL_PROXY.name,
             modifier =
                 modifier
                     .padding(vertical = settingsItemEndPadding)
                     .fillMaxWidth()
                     .height(textFieldHeight),
-            value = settingsProxyPort,
             shape = RectangleShape,
-            onValueChange = {
-                settingsProxyPort = it
-            },
+            value = proxyPortValue,
+            onValueChange = onProxyPortValueChange,
             label = {
                 Text(text = stringResource(id = R.string.main_settings_proxy_port))
             },
@@ -109,45 +123,62 @@ fun SettingsProxyCategoryDialog(
             textStyle = MaterialTheme.typography.titleLarge,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         )
-        var settingsProxyUsername by remember { mutableStateOf(TextFieldValue(text = "")) }
         TextField(
+            enabled = proxyChoice == ProxySetting.MANUAL_PROXY.name,
             modifier =
                 modifier
                     .padding(vertical = settingsItemEndPadding)
                     .fillMaxWidth()
                     .height(textFieldHeight),
-            value = settingsProxyUsername,
             shape = RectangleShape,
-            onValueChange = {
-                settingsProxyUsername = it
-            },
+            value = proxyUsernameValue,
+            onValueChange = onProxyUsernameValueChange,
             label = {
                 Text(text = stringResource(id = R.string.main_settings_proxy_username))
             },
             maxLines = 1,
             singleLine = true,
             textStyle = MaterialTheme.typography.titleLarge,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
         )
-        var settingsProxyPassword by remember { mutableStateOf(TextFieldValue(text = "")) }
+        var passwordVisible by rememberSaveable { mutableStateOf(false) }
         TextField(
+            enabled = proxyChoice == ProxySetting.MANUAL_PROXY.name,
             modifier =
                 modifier
                     .padding(vertical = settingsItemEndPadding)
                     .fillMaxWidth()
                     .height(textFieldHeight),
-            value = settingsProxyPassword,
             shape = RectangleShape,
-            onValueChange = {
-                settingsProxyPassword = it
-            },
+            value = proxyPasswordValue,
+            onValueChange = onProxyPasswordValueChange,
             label = {
                 Text(text = stringResource(id = R.string.main_settings_proxy_password))
             },
             maxLines = 1,
             singleLine = true,
             textStyle = MaterialTheme.typography.titleLarge,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            trailingIcon = {
+                val image =
+                    if (passwordVisible) {
+                        ImageVector.vectorResource(id = R.drawable.ic_visibility)
+                    } else {
+                        ImageVector.vectorResource(id = R.drawable.ic_visibility_off)
+                    }
+                val description =
+                    if (passwordVisible) {
+                        stringResource(
+                            id = R.string.hide_password,
+                        )
+                    } else {
+                        stringResource(id = R.string.show_password)
+                    }
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(imageVector = image, description)
+                }
+            },
         )
     }
 }

@@ -24,7 +24,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.domain.model.SomeObject
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
 import ee.ria.DigiDoc.ui.component.shared.BackButton
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
@@ -34,7 +33,10 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 fun SettingsRightsScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    someList: List<SomeObject>? = listOf(SomeObject()),
+    getIsScreenshotAllowed: () -> Boolean = { false },
+    setIsScreenshotAllowed: (Boolean) -> Unit = {},
+    getIsOpenAllFileTypesEnabled: () -> Boolean = { true },
+    setIsOpenAllFileTypesEnabled: (Boolean) -> Unit = {},
 ) {
     Scaffold(
         modifier = modifier,
@@ -64,22 +66,24 @@ fun SettingsRightsScreen(
         Column(
             modifier = modifier.padding(innerPadding).verticalScroll(rememberScrollState()),
         ) {
-            var checkedOpenAllFileTypes by remember { mutableStateOf(true) }
+            var checkedOpenAllFileTypes by remember { mutableStateOf(getIsOpenAllFileTypesEnabled()) }
             SettingsSwitchItem(
                 modifier = modifier,
                 checked = checkedOpenAllFileTypes,
                 onCheckedChange = {
                     checkedOpenAllFileTypes = it
+                    setIsOpenAllFileTypesEnabled(it)
                 },
                 title = stringResource(id = R.string.main_settings_open_all_filetypes_title),
                 contentDescription = stringResource(id = R.string.main_settings_open_all_filetypes_title).lowercase(),
             )
-            var checkedAllowScreenshots by remember { mutableStateOf(false) }
+            var checkedAllowScreenshots by remember { mutableStateOf(getIsScreenshotAllowed()) }
             SettingsSwitchItem(
                 modifier = modifier,
                 checked = checkedAllowScreenshots,
                 onCheckedChange = {
                     checkedAllowScreenshots = it
+                    setIsScreenshotAllowed(it)
                 },
                 title = stringResource(id = R.string.main_settings_allow_screenshots_title),
                 contentDescription = stringResource(id = R.string.main_settings_allow_screenshots_title).lowercase(),

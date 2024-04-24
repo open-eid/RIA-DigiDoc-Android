@@ -93,6 +93,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.preferencex)
     implementation(libs.google.dagger.hilt.android)
     kapt(libs.google.dagger.hilt.android.compile)
     implementation(libs.androidx.hilt)

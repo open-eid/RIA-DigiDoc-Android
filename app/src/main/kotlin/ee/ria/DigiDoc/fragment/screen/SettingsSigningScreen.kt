@@ -2,7 +2,9 @@
 
 package ee.ria.DigiDoc.fragment.screen
 
+import android.content.Context
 import android.content.res.Configuration
+import android.text.TextUtils
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -23,12 +25,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.domain.model.SomeObject
+import ee.ria.DigiDoc.configuration.ConfigurationProvider
+import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.ui.component.settings.SettingsEditValueDialog
 import ee.ria.DigiDoc.ui.component.settings.SettingsInputItem
 import ee.ria.DigiDoc.ui.component.settings.SettingsItem
@@ -46,8 +53,26 @@ import ee.ria.DigiDoc.utils.Constant.Defaults.DEFAULT_UUID_VALUE
 fun SettingsSigningScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    someList: List<SomeObject>? = listOf(SomeObject()),
+    getIsRoleAskingEnabled: () -> Boolean = { false },
+    setIsRoleAskingEnabled: (Boolean) -> Unit = {},
+    getSettingsUUID: () -> String = { "" },
+    setSettingsUUID: (String) -> Unit = {},
+    getSettingsTSAUrl: () -> String = { "" },
+    setSettingsTSAUrl: (String) -> Unit = {},
+    getProxySetting: () -> ProxySetting = { ProxySetting.NO_PROXY },
+    setProxySetting: (ProxySetting) -> Unit = {},
+    getProxyHost: () -> String = { "" },
+    setProxyHost: (String) -> Unit = {},
+    getProxyPort: () -> Int = { 80 },
+    setProxyPort: (Int) -> Unit = {},
+    getProxyUsername: () -> String = { "" },
+    setProxyUsername: (String) -> Unit = {},
+    getProxyPassword: (context: Context) -> String = { "" },
+    setProxyPassword: (context: Context, password: String) -> Unit = { _: Context, _: String -> },
+    configurationWorkerResult: MutableLiveData<ConfigurationProvider> = MutableLiveData(),
 ) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val context = LocalContext.current
     val openSettingsSivaCategoryDialog = remember { mutableStateOf(false) }
     val dismissSettingsSivaCategoryDialog = {
         openSettingsSivaCategoryDialog.value = false
@@ -74,6 +99,11 @@ fun SettingsSigningScreen(
     val dismissSettingsProxyCategoryDialog = {
         openSettingsProxyCategoryDialog.value = false
     }
+    val settingsProxyChoice = remember { mutableStateOf(getProxySetting().name) }
+    var settingsProxyHost by remember { mutableStateOf(TextFieldValue(text = getProxyHost())) }
+    var settingsProxyPort by remember { mutableStateOf(TextFieldValue(text = getProxyPort().toString())) }
+    var settingsProxyUsername by remember { mutableStateOf(TextFieldValue(text = getProxyUsername())) }
+    var settingsProxyPassword by remember { mutableStateOf(TextFieldValue(text = getProxyPassword(context))) }
     if (openSettingsProxyCategoryDialog.value) {
         BasicAlertDialog(
             onDismissRequest = dismissSettingsProxyCategoryDialog,
@@ -88,14 +118,64 @@ fun SettingsSigningScreen(
             ) {
                 SettingsProxyCategoryDialog(
                     onClickBack = dismissSettingsProxyCategoryDialog,
+                    proxyChoice = settingsProxyChoice.value,
+                    onClickNoProxy = {
+                        settingsProxyChoice.value = ProxySetting.NO_PROXY.name
+                        setProxySetting(ProxySetting.NO_PROXY)
+                    },
+                    onClickManualProxy = {
+                        settingsProxyChoice.value = ProxySetting.MANUAL_PROXY.name
+                        setProxySetting(ProxySetting.MANUAL_PROXY)
+                    },
+                    onClickSystemProxy = {
+                        settingsProxyChoice.value = ProxySetting.SYSTEM_PROXY.name
+                        setProxySetting(ProxySetting.SYSTEM_PROXY)
+                    },
+                    proxyHostValue = settingsProxyHost,
+                    onProxyHostValueChange = {
+                        settingsProxyHost = it
+                        setProxyHost(it.text)
+                    },
+                    proxyPortValue = settingsProxyPort,
+                    onProxyPortValueChange = {
+                        settingsProxyPort = it
+                        if (it.text.isEmpty()) {
+                            settingsProxyPort = TextFieldValue("80")
+                            setProxyPort(80)
+                        } else {
+                            setProxyPort(it.text.toInt())
+                        }
+                    },
+                    proxyUsernameValue = settingsProxyUsername,
+                    onProxyUsernameValueChange = {
+                        settingsProxyUsername = it
+                        setProxyUsername(it.text)
+                    },
+                    proxyPasswordValue = settingsProxyPassword,
+                    onProxyPasswordValueChange = {
+                        settingsProxyPassword = it
+                        setProxyPassword(context, it.text)
+                    },
                 )
             }
         }
     }
-    val uuidValue = DEFAULT_UUID_VALUE
+    var uuidValue = DEFAULT_UUID_VALUE
+    if (!TextUtils.isEmpty(getSettingsUUID())) {
+        uuidValue = getSettingsUUID()
+    }
     val openSettingsAccessToSigningServiceDialog = remember { mutableStateOf(false) }
+    val useDefaultCheckedSettingsAccessToSigningService =
+        remember { mutableStateOf(TextUtils.isEmpty(getSettingsUUID())) }
+    var fieldValueSettingsAccessToSigningService by remember {
+        mutableStateOf(
+            TextFieldValue(text = getSettingsUUID()),
+        )
+    }
     val dismissSettingsAccessToSigningServiceDialog = {
         openSettingsAccessToSigningServiceDialog.value = false
+        useDefaultCheckedSettingsAccessToSigningService.value = TextUtils.isEmpty(getSettingsUUID())
+        fieldValueSettingsAccessToSigningService = TextFieldValue(text = getSettingsUUID())
     }
     if (openSettingsAccessToSigningServiceDialog.value) {
         BasicAlertDialog(
@@ -111,19 +191,57 @@ fun SettingsSigningScreen(
             ) {
                 SettingsEditValueDialog(
                     title = stringResource(id = R.string.main_settings_uuid_title),
-                    placeHolderText = uuidValue,
+                    placeHolderText = DEFAULT_UUID_VALUE,
                     cancelButtonClick = dismissSettingsAccessToSigningServiceDialog,
                     okButtonClick = {
-                        // TODO:
+                        if (TextUtils.isEmpty(fieldValueSettingsAccessToSigningService.text) &&
+                            !useDefaultCheckedSettingsAccessToSigningService.value
+                        ) {
+                            fieldValueSettingsAccessToSigningService = TextFieldValue(text = DEFAULT_UUID_VALUE)
+                        }
+                        if (useDefaultCheckedSettingsAccessToSigningService.value) {
+                            fieldValueSettingsAccessToSigningService = TextFieldValue(text = "")
+                            setSettingsUUID("")
+                            uuidValue = DEFAULT_UUID_VALUE
+                        }
+                        setSettingsUUID(fieldValueSettingsAccessToSigningService.text)
+                        openSettingsAccessToSigningServiceDialog.value = false
+                    },
+                    useDefaultChecked = useDefaultCheckedSettingsAccessToSigningService.value,
+                    useDefaultCheckedChange = {
+                        useDefaultCheckedSettingsAccessToSigningService.value = it
+                        if (it) {
+                            fieldValueSettingsAccessToSigningService = TextFieldValue(text = "")
+                            // setSettingsUUID("")
+                            uuidValue = DEFAULT_UUID_VALUE
+                        }
+                    },
+                    value = fieldValueSettingsAccessToSigningService,
+                    onValueChange = {
+                        fieldValueSettingsAccessToSigningService = it
                     },
                 )
             }
         }
     }
-    val tsaUrlValue = DEFAULT_TSA_URL_VALUE
+    var defaultTsaUrlValue = DEFAULT_TSA_URL_VALUE
+    var tsaUrlValue = defaultTsaUrlValue
+    configurationWorkerResult.observe(lifecycleOwner) {
+        it.tsaUrl.let { defaultTsaUrlValue = it }
+    }
+    if (!TextUtils.isEmpty(getSettingsTSAUrl())) {
+        tsaUrlValue = getSettingsTSAUrl()
+    }
     val openSettingsAccessToTimeStampingServiceDialog = remember { mutableStateOf(false) }
+    val useDefaultCheckedSettingsAccessToTimeStampingService =
+        remember { mutableStateOf(TextUtils.isEmpty(getSettingsTSAUrl())) }
+    var fieldValueSettingsAccessToTimeStampingService by remember {
+        mutableStateOf(TextFieldValue(text = getSettingsTSAUrl()))
+    }
     val dismissSettingsAccessToTimeStampingServiceDialog = {
         openSettingsAccessToTimeStampingServiceDialog.value = false
+        useDefaultCheckedSettingsAccessToTimeStampingService.value = TextUtils.isEmpty(getSettingsTSAUrl())
+        fieldValueSettingsAccessToTimeStampingService = TextFieldValue(text = getSettingsTSAUrl())
     }
     if (openSettingsAccessToTimeStampingServiceDialog.value) {
         BasicAlertDialog(
@@ -139,10 +257,34 @@ fun SettingsSigningScreen(
             ) {
                 SettingsEditValueDialog(
                     title = stringResource(id = R.string.main_settings_tsa_url_title),
-                    placeHolderText = tsaUrlValue,
+                    placeHolderText = defaultTsaUrlValue,
                     cancelButtonClick = dismissSettingsAccessToTimeStampingServiceDialog,
                     okButtonClick = {
-                        // TODO:
+                        if (TextUtils.isEmpty(fieldValueSettingsAccessToTimeStampingService.text) &&
+                            !useDefaultCheckedSettingsAccessToTimeStampingService.value
+                        ) {
+                            fieldValueSettingsAccessToTimeStampingService = TextFieldValue(text = defaultTsaUrlValue)
+                        }
+                        if (useDefaultCheckedSettingsAccessToTimeStampingService.value) {
+                            fieldValueSettingsAccessToTimeStampingService = TextFieldValue(text = "")
+                            setSettingsTSAUrl("")
+                            tsaUrlValue = defaultTsaUrlValue
+                        }
+                        setSettingsTSAUrl(fieldValueSettingsAccessToTimeStampingService.text)
+                        openSettingsAccessToTimeStampingServiceDialog.value = false
+                    },
+                    useDefaultChecked = useDefaultCheckedSettingsAccessToTimeStampingService.value,
+                    useDefaultCheckedChange = {
+                        useDefaultCheckedSettingsAccessToTimeStampingService.value = it
+                        if (it) {
+                            fieldValueSettingsAccessToTimeStampingService = TextFieldValue(text = "")
+                            // setSettingsTSAUrl("")
+                            tsaUrlValue = defaultTsaUrlValue
+                        }
+                    },
+                    value = fieldValueSettingsAccessToTimeStampingService,
+                    onValueChange = {
+                        fieldValueSettingsAccessToTimeStampingService = it
                     },
                 )
             }
@@ -177,12 +319,13 @@ fun SettingsSigningScreen(
         Column(
             modifier = modifier.padding(innerPadding).verticalScroll(rememberScrollState()),
         ) {
-            var checkedAskRoleAndAddress by remember { mutableStateOf(true) }
+            var checkedAskRoleAndAddress by remember { mutableStateOf(getIsRoleAskingEnabled()) }
             SettingsSwitchItem(
                 modifier = modifier,
                 checked = checkedAskRoleAndAddress,
                 onCheckedChange = {
                     checkedAskRoleAndAddress = it
+                    setIsRoleAskingEnabled(it)
                 },
                 title = stringResource(id = R.string.main_settings_ask_role_and_address_title),
                 contentDescription = stringResource(id = R.string.main_settings_ask_role_and_address_title).lowercase(),

@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import ee.ria.DigiDoc.configuration.domain.model.ConfigurationViewModel
 import ee.ria.DigiDoc.fragment.screen.SettingsSigningScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.viewmodel.SettingsViewModel
@@ -22,6 +23,7 @@ fun SettingsSigningFragment(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     settingsViewModel: SettingsViewModel = hiltViewModel(),
+    configurationViewModel: ConfigurationViewModel = ConfigurationViewModel(),
 ) {
     settingsViewModel.getListState()
     Surface(
@@ -31,7 +33,23 @@ fun SettingsSigningFragment(
         SettingsSigningScreen(
             navController = navController,
             modifier = modifier,
-            someList = settingsViewModel.listState,
+            getIsRoleAskingEnabled = settingsViewModel.dataStore::getSettingsAskRoleAndAddress,
+            setIsRoleAskingEnabled = settingsViewModel.dataStore::setSettingsAskRoleAndAddress,
+            getSettingsUUID = settingsViewModel.dataStore::getSettingsUUID,
+            setSettingsUUID = settingsViewModel.dataStore::setSettingsUUID,
+            getSettingsTSAUrl = settingsViewModel.dataStore::getSettingsTSAUrl,
+            setSettingsTSAUrl = settingsViewModel.dataStore::setSettingsTSAUrl,
+            getProxySetting = settingsViewModel.dataStore::getProxySetting,
+            setProxySetting = settingsViewModel.dataStore::setProxySetting,
+            getProxyHost = settingsViewModel.dataStore::getProxyHost,
+            setProxyHost = settingsViewModel.dataStore::setProxyHost,
+            getProxyPort = settingsViewModel.dataStore::getProxyPort,
+            setProxyPort = settingsViewModel.dataStore::setProxyPort,
+            getProxyUsername = settingsViewModel.dataStore::getProxyUsername,
+            setProxyUsername = settingsViewModel.dataStore::setProxyUsername,
+            getProxyPassword = settingsViewModel.dataStore::getProxyPassword,
+            setProxyPassword = settingsViewModel.dataStore::setProxyPassword,
+            configurationWorkerResult = configurationViewModel.workerResult,
         )
     }
 }

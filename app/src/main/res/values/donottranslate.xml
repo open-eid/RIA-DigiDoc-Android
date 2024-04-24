@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="mobile_id_country_code_and_phone_number_placeholder">372XXXXXXXX</string>
+    <string name="main_home_menu_locale_et">Eesti keel</string>
+    <string name="main_home_menu_locale_ru">Русский</string>
+    <string name="main_home_menu_locale_en">English</string>
+
+    <string name="main_settings_signature_add_method_key">mainSettingsSignatureAddMethod</string>
+    <string name="main_settings_uuid_key">mainSettingsUUID</string>
+    <string name="main_settings_phone_no_key">mainSettingsMobileNr</string>
+    <string name="main_settings_personal_code_key">mainSettingsPersonalCode</string>
+    <string name="main_settings_sid_personal_code_key">mainSettingsSmartIdPersonalCode</string>
+    <string name="main_settings_smartid_country_key">mainSettingsSmartIdCountry</string>
+    <string name="main_settings_tsa_url_key">mainSettingsTSAUrl</string>
+    <string name="main_settings_role_key">mainSettingsRole</string>
+    <string name="main_settings_city_key">mainSettingsCity</string>
+    <string name="main_settings_county_key">mainSettingsCounty</string>
+    <string name="main_settings_country_key">mainSettingsCountry</string>
+    <string name="main_settings_postal_code_key">mainSettingsPostalCode</string>
+    <string name="main_settings_open_all_filetypes_key">mainSettingsOpenAllFilesTypes</string>
+    <string name="main_settings_allow_screenshots_key">mainSettingsAllowScreenshots</string>
+    <string name="main_settings_ask_role_and_address_key">mainSettingsAskRoleAndAddress</string>
+    <string name="main_settings_tsa_cert_view">mainSettingsTSACertView</string>
 </resources>

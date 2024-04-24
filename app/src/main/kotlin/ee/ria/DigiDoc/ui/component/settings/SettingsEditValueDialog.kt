@@ -12,10 +12,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
@@ -37,7 +33,11 @@ fun SettingsEditValueDialog(
     cancelButtonClick: () -> Unit = {},
     okButtonClick: () -> Unit = {},
     placeHolderText: String,
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit = {},
     title: String,
+    useDefaultChecked: Boolean = true,
+    useDefaultCheckedChange: (Boolean) -> Unit = {},
 ) {
     Column(
         modifier = modifier.padding(alertDialogInnerPadding),
@@ -50,18 +50,16 @@ fun SettingsEditValueDialog(
             text = title,
             style = MaterialTheme.typography.titleLarge,
         )
-        var tsaUrl by remember { mutableStateOf(TextFieldValue(text = "")) }
         TextField(
             modifier =
                 modifier
                     .padding(vertical = settingsItemEndPadding)
                     .fillMaxWidth()
                     .height(textFieldHeight),
-            value = tsaUrl,
+            value = value,
+            enabled = !useDefaultChecked,
             shape = RectangleShape,
-            onValueChange = {
-                tsaUrl = it
-            },
+            onValueChange = onValueChange,
             placeholder = {
                 Text(text = placeHolderText)
             },
@@ -70,10 +68,9 @@ fun SettingsEditValueDialog(
             textStyle = MaterialTheme.typography.titleLarge,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         )
-        val useDefaultCheckedState = remember { mutableStateOf(true) }
         TextCheckBox(
-            checked = useDefaultCheckedState.value,
-            onCheckedChange = { useDefaultCheckedState.value = it },
+            checked = useDefaultChecked,
+            onCheckedChange = useDefaultCheckedChange,
             title = stringResource(id = R.string.main_settings_tsa_url_use_default),
             contentDescription = stringResource(id = R.string.signature_update_mobile_id_remember_me).lowercase(),
         )
@@ -96,6 +93,7 @@ fun SettingsAccessToTimeStampingServiceDialogPreview() {
         SettingsEditValueDialog(
             title = "Option setting edit ".repeat(2),
             placeHolderText = "some value placeholder",
+            value = TextFieldValue("some value"),
         )
     }
 }

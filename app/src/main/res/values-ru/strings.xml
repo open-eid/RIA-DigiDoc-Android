@@ -95,6 +95,8 @@
     <string name="main_home_menu_accessibility_accessibility">Доступность</string>
 
     <string name="close_menu">Закрыть меню</string>
+    <string name="hide_password">Спрятать пароль</string>
+    <string name="show_password">Показать пароль</string>
 
     <!-- Main Settings -->
     <string name="main_settings_title">Настройки</string>
@@ -138,5 +140,7 @@
 
     <!-- Voice Control -->
     <string name="signing_container_name_update_button_voice">Изменить</string>
+
+    <string name="signature_update_mobile_id_error_general_client">Что-то пошло не так, попробуйте снова</string>
 
 </resources>
