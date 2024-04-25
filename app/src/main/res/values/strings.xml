@@ -3,6 +3,7 @@
 
     <string name="back">Back</string>
 
+    <!-- Container -->
     <string name="container_title">CONTAINER:</string>
     <string name="documents_add_button">+ ADD MORE FILES</string>
     <string name="documents_add_button_accessibility">Add more files</string>
@@ -14,6 +15,8 @@
     <string name="document_cancel_removal_button">Cancel file removal</string>
     <string name="document_confirm_removal_button">Confirm file removal</string>
     <string name="signature_remove_button">Remove signature</string>
+    <string name="container_open_file_error">Could not load selected files</string>
+    <string name="empty_file_error">Cannot add empty file to the container.</string>
 
     <!-- Libdigidocpp -->
     <string name="libdigidocpp_initialization_failed">Failed to initialize Libdigidocpp</string>
@@ -44,6 +47,7 @@
     <string name="signing_container_documents_title">Container files</string>
     <string name="signing_container_signatures_title">Container signatures</string>
     <string name="signing_container_signatures_empty">Container is not signed</string>
+    <string name="signing_container_signature_created_at">Signed %1$s</string>
 
     <!-- Signature Add -->
     <string name="signature_update_signature_add_method_mobile_id">Mobile-ID</string>

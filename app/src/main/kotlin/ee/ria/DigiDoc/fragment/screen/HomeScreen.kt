@@ -18,7 +18,7 @@ fun HomeScreen(
     navController: NavHostController,
     signatureAddController: NavHostController,
     onClickToMenuScreen: () -> Unit = {},
-    onClickToSigningScreen: () -> Unit = {},
+    onClickToFileChoosingScreen: () -> Unit = {},
     someList: List<SomeObject>? = listOf(SomeObject()),
 ) {
     HomeNavigation(
@@ -26,7 +26,7 @@ fun HomeScreen(
         navController = navController,
         signatureAddController = signatureAddController,
         onClickMenu = onClickToMenuScreen,
-        onClickToSigningScreen = onClickToSigningScreen,
+        onClickToFileChoosingScreen = onClickToFileChoosingScreen,
     )
 }
 

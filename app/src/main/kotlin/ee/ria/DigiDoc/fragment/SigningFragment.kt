@@ -15,15 +15,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.fragment.screen.SigningScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.viewmodel.SigningViewModel
+import ee.ria.DigiDoc.viewmodel.SharedContainerViewModel
 
 @Composable
 fun SigningFragment(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    signingViewModel: SigningViewModel = hiltViewModel(),
+    sharedContainerViewModel: SharedContainerViewModel,
 ) {
-    signingViewModel.getListState()
     Surface(
         modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         color = MaterialTheme.colorScheme.background,
@@ -31,7 +30,7 @@ fun SigningFragment(
         SigningScreen(
             navController = navController,
             modifier = modifier,
-            someList = signingViewModel.listState,
+            sharedContainerViewModel = sharedContainerViewModel,
         )
     }
 }
@@ -41,7 +40,8 @@ fun SigningFragment(
 @Composable
 fun SigningFragmentPreview() {
     val navController = rememberNavController()
+    val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
     RIADigiDocTheme {
-        SigningFragment(navController)
+        SigningFragment(navController, sharedContainerViewModel = sharedContainerViewModel)
     }
 }

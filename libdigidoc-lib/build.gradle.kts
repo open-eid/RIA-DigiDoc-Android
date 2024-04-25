@@ -44,6 +44,11 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+
+    implementation(libs.pdfbox.android) {
+        exclude(group = "org.bouncycastle")
+    }
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.mockito.android)
     androidTestImplementation(libs.kotlinx.coroutines.test)
@@ -54,4 +59,5 @@ dependencies {
     implementation(files("libs/libdigidocpp.jar"))
 
     implementation(project(":utils-lib"))
+    implementation(project(":commons-lib"))
 }

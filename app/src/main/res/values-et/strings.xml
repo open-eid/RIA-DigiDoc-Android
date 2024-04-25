@@ -15,6 +15,8 @@
     <string name="document_cancel_removal_button">Katkesta faili eemaldamine</string>
     <string name="document_confirm_removal_button">Kinnita faili eemaldamine</string>
     <string name="signature_remove_button">Eemalda allkiri</string>
+    <string name="container_open_file_error">Failide laadimine ebaõnnestus</string>
+    <string name="empty_file_error">Tühja faili ei saa lisada ümbrikusse.</string>
 
 
     <!-- Libdigidocpp -->
@@ -46,6 +48,7 @@
     <string name="signing_container_documents_title">Ümbriku sisu</string>
     <string name="signing_container_signatures_title">Ümbriku allkirjad</string>
     <string name="signing_container_signatures_empty">Allkirjad puuduvad</string>
+    <string name="signing_container_signature_created_at">Allkirjastatud %1$s</string>
 
     <!-- Signature Add -->
     <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>

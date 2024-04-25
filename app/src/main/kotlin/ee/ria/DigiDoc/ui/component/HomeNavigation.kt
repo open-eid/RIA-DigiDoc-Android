@@ -25,7 +25,7 @@ fun HomeNavigation(
     navController: NavHostController,
     signatureAddController: NavHostController,
     onClickMenu: () -> Unit = {},
-    onClickToSigningScreen: () -> Unit = {},
+    onClickToFileChoosingScreen: () -> Unit = {},
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -51,7 +51,7 @@ fun HomeNavigation(
                 SignatureScreen(
                     navController = navController,
                     signatureAddController = signatureAddController,
-                    onClickToSigningScreen = onClickToSigningScreen,
+                    onClickToFileChoosingScreen = onClickToFileChoosingScreen,
                     isDialogOpen = true,
                 )
             }

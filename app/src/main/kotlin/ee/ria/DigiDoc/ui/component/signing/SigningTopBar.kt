@@ -26,6 +26,7 @@ import ee.ria.DigiDoc.ui.component.shared.PreventResize
 fun SigningTopBar(
     navController: NavHostController,
     modifier: Modifier,
+    onBackButtonClick: () -> Unit = {},
 ) {
     CenterAlignedTopAppBar(
         colors =
@@ -48,7 +49,7 @@ fun SigningTopBar(
             }
         },
         navigationIcon = {
-            IconButton(onClick = { navController.popBackStack() }) {
+            IconButton(onClick = onBackButtonClick) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = stringResource(id = R.string.back),

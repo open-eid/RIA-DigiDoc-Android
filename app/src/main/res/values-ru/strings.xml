@@ -3,6 +3,7 @@
 
     <string name="back">Назад</string>
 
+    <!-- Container -->
     <string name="container_title">КОНТЕЙНЕР:</string>
     <string name="documents_add_button">+ ДОБАВИТЬ БОЛЬШЕ ФАЙЛОВ</string>
     <string name="documents_add_button_accessibility">Добавить больше файлов</string>
@@ -14,6 +15,8 @@
     <string name="document_cancel_removal_button">Отменить удаление файла</string>
     <string name="document_confirm_removal_button">Подтвердите удаление файла</string>
     <string name="signature_remove_button">Удалить подпись</string>
+    <string name="container_open_file_error">Не удалось загрузить выбранные файлы</string>
+    <string name="empty_file_error">Пустой файл нельзя добавить в контейнер.</string>
 
     <!-- Libdigidocpp -->
     <string name="libdigidocpp_initialization_failed">Не удалось инициализировать Libdigidocpp</string>
@@ -44,6 +47,7 @@
     <string name="signing_container_documents_title">Файлы контейнера</string>
     <string name="signing_container_signatures_title">Подписи контейнера</string>
     <string name="signing_container_signatures_empty">Контейнер не подписан</string>
+    <string name="signing_container_signature_created_at">Подписано %1$s</string>
 
     <!-- Signature Add -->
     <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>
