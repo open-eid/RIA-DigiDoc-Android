@@ -12,6 +12,8 @@ import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
 import ee.ria.DigiDoc.common.Constant.RESTRICTED_FILENAME_CHARACTERS_AND_RTL_CHARACTERS_AS_STRING
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.infoLog
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.StringUtils
@@ -42,12 +44,17 @@ object FileUtil {
      * @return Boolean indicating if file is in the cache directory.
      */
     @Throws(IOException::class)
-    fun getFileInDirectory(
+    suspend fun getFileInDirectory(
         file: File,
         directory: File,
     ): File {
         if (!file.toPath().normalize().startsWith(directory.toPath())) {
-            throw IOException("Invalid path: " + file.getCanonicalPath())
+            throw IOException(
+                "Invalid path: " +
+                    withContext(Dispatchers.IO) {
+                        file.getCanonicalPath()
+                    },
+            )
         }
         return file
     }
@@ -384,5 +391,9 @@ object FileUtil {
         } catch (e: IOException) {
             errorLog(LOG_TAG, "Failed to open file: $fileName", e)
         }
+    }
+
+    fun getNameFromFileName(fileName: String): String? {
+        return FilenameUtils.getName(fileName)
     }
 }

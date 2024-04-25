@@ -5,9 +5,11 @@ package ee.ria.DigiDoc
 import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import ee.ria.DigiDoc.fragment.FileOpeningFragment
 import ee.ria.DigiDoc.fragment.HomeFragment
 import ee.ria.DigiDoc.fragment.MenuFragment
 import ee.ria.DigiDoc.fragment.SettingsFragment
@@ -16,12 +18,14 @@ import ee.ria.DigiDoc.fragment.SettingsSigningFragment
 import ee.ria.DigiDoc.fragment.SigningFragment
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.viewmodel.SharedContainerViewModel
 
 @Composable
 fun RIADigiDocAppScreen() {
     val navController = rememberNavController()
     val navBarNavController = rememberNavController()
     val signatureAddController = rememberNavController()
+    val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
     NavHost(
         navController = navController,
         startDestination = Route.Home.route,
@@ -41,6 +45,7 @@ fun RIADigiDocAppScreen() {
         composable(route = Route.Signing.route) {
             SigningFragment(
                 navController = navController,
+                sharedContainerViewModel = sharedContainerViewModel,
             )
         }
         composable(route = Route.Settings.route) {
@@ -56,6 +61,12 @@ fun RIADigiDocAppScreen() {
         composable(route = Route.SettingsSigning.route) {
             SettingsSigningFragment(
                 navController = navController,
+            )
+        }
+        composable(route = Route.FileChoosing.route) {
+            FileOpeningFragment(
+                navController = navController,
+                sharedContainerViewModel = sharedContainerViewModel,
             )
         }
     }

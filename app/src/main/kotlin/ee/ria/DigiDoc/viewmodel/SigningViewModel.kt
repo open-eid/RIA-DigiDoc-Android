@@ -2,26 +2,35 @@
 
 package ee.ria.DigiDoc.viewmodel
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
-import ee.ria.DigiDoc.domain.model.SomeObject
-import ee.ria.DigiDoc.domain.repository.SomeRepository
-import ee.ria.DigiDoc.utils.flattenToList
-import kotlinx.coroutines.launch
+import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import javax.inject.Inject
 
 @HiltViewModel
 class SigningViewModel
     @Inject
-    constructor(
-        private val someRepository: SomeRepository,
-    ) : ViewModel() {
-        var listState: List<SomeObject> = listOf(SomeObject())
+    constructor() : ViewModel() {
+        var shouldResetSignedContainer = mutableStateOf(false)
 
-        fun getListState() {
-            viewModelScope.launch {
-                listState = someRepository.getAllObjects().flattenToList()
-            }
+        fun handleBackButton(navController: NavController) {
+            navController.popBackStack(navController.graph.findStartDestination().id, false)
+            shouldResetSignedContainer.value = true
+        }
+
+        fun isExistingContainerNoSignatures(signedContainer: SignedContainer?): Boolean {
+            return isContainerWithoutSignatures(signedContainer) &&
+                signedContainer?.isExistingContainer() == true
+        }
+
+        fun isExistingContainer(signedContainer: SignedContainer?): Boolean {
+            return signedContainer?.isExistingContainer() == true
+        }
+
+        fun isContainerWithoutSignatures(signedContainer: SignedContainer?): Boolean {
+            return signedContainer?.getSignatures()?.isEmpty() == true
         }
     }

@@ -1,0 +1,187 @@
+@file:Suppress("PackageName")
+
+package ee.ria.DigiDoc.libdigidoclib
+
+import android.content.Context
+import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
+import com.tom_roush.pdfbox.pdmodel.PDDocument
+import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
+import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
+import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileWrapper
+import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
+import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureWrapper
+import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
+import ee.ria.DigiDoc.libdigidoclib.exceptions.SSLHandshakeException
+import ee.ria.DigiDoc.utilsLib.extensions.isContainer
+import ee.ria.DigiDoc.utilsLib.extensions.isPDF
+import ee.ria.DigiDoc.utilsLib.extensions.mimeType
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.libdigidocpp.Container
+import ee.ria.libdigidocpp.DataFiles
+import ee.ria.libdigidocpp.Signatures
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.IOException
+
+private const val LOG_TAG = "SignedContainer"
+
+class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<SignatureInterface>) {
+    fun getDataFiles(): List<DataFileInterface> {
+        return container?.dataFiles()?.mapNotNull { DataFileWrapper(it) } ?: emptyList()
+    }
+
+    fun getSignatures(): List<SignatureInterface> {
+        return container?.signatures()?.mapNotNull { SignatureWrapper(it) } ?: emptyList()
+    }
+
+    fun getName(): String {
+        return containerFile?.name ?: DEFAULT_FILENAME
+    }
+
+    fun isExistingContainer(): Boolean {
+        return isExistingContainer
+    }
+
+    companion object {
+        private const val SIGNED_CONTAINER_LOG_TAG = "SignedContainer"
+        private var container: Container? = null
+        private var containerFile: File? = null
+        private var isExistingContainer: Boolean = false
+
+        @Throws(Exception::class)
+        suspend fun openOrCreate(
+            context: Context,
+            file: File,
+            dataFiles: List<File?>?,
+        ): SignedContainer {
+            val isFirstDataFileContainer =
+                dataFiles?.firstOrNull()?.run {
+                    isContainer || (isPDF && isSignedPDF(context, this))
+                } ?: false
+
+            containerFile = file
+
+            return if (dataFiles != null && dataFiles.size == 1 && isFirstDataFileContainer) {
+                isExistingContainer = true
+                open(context, file)
+            } else {
+                isExistingContainer = false
+                create(context, file, dataFiles)
+            }
+        }
+
+        @Throws(Exception::class)
+        private suspend fun create(
+            context: Context,
+            file: File,
+            dataFiles: List<File?>?,
+        ): SignedContainer {
+            if (dataFiles.isNullOrEmpty()) {
+                throw NoSuchElementException("Cannot create an empty container")
+            }
+
+            container =
+                try {
+                    withContext(Dispatchers.IO) {
+                        Container.create(file.path)
+                    }
+                } catch (e: Exception) {
+                    handleContainerException(context, e)
+                } ?: throw IOException("Container.open returned null")
+
+            dataFiles.forEachIndexed { index, dataFile ->
+                dataFile?.let {
+                    debugLog(LOG_TAG, "Adding datafile ${dataFile.name}. ${index + 1} / ${dataFiles.size}")
+                    container?.addDataFile(it.absolutePath, it.mimeType)
+                } ?: run {
+                    errorLog(LOG_TAG, "Unable to add file to container")
+                }
+            }
+
+            container?.save()
+
+            return SignedContainer(
+                createDataFilesList(container?.dataFiles()),
+                createSignaturesList(container?.signatures()),
+            )
+        }
+
+        @Throws(Exception::class)
+        private suspend fun open(
+            context: Context,
+            file: File,
+        ): SignedContainer {
+            return try {
+                val openedContainer =
+                    withContext(Dispatchers.IO) {
+                        Container.open(file.path)
+                    }
+                container = openedContainer
+                containerFile = file
+                SignedContainer(
+                    createDataFilesList(openedContainer.dataFiles()),
+                    createSignaturesList(openedContainer.signatures()),
+                )
+            } catch (e: Exception) {
+                handleContainerException(context, e)
+            }
+        }
+
+        @Throws(Exception::class)
+        fun container(): SignedContainer {
+            container?.let {
+                return SignedContainer(createDataFilesList(it.dataFiles()), createSignaturesList(it.signatures()))
+            }
+            throw IllegalStateException("Container is not initialized")
+        }
+
+        private fun isSignedPDF(
+            context: Context,
+            file: File,
+        ): Boolean {
+            PDFBoxResourceLoader.init(context)
+            return try {
+                PDDocument.load(file).use { document ->
+                    document.getSignatureDictionaries().any { signature ->
+                        signature.filter == "Adobe.PPKLite" ||
+                            signature.subFilter == "ETSI.CAdES.detached" ||
+                            signature.subFilter == "adbe.pkcs7.detached"
+                    }
+                }
+            } catch (e: IOException) {
+                errorLog(SIGNED_CONTAINER_LOG_TAG, "Unable to check if PDF is signed", e)
+                false
+            }
+        }
+
+        private fun handleContainerException(
+            context: Context,
+            e: Exception,
+        ): Nothing {
+            val message = e.message ?: ""
+
+            when {
+                message.startsWith("Failed to connect to host") ||
+                    message.startsWith("Failed to create proxy connection with host") -> {
+                    throw NoInternetConnectionException(context)
+                }
+                message.startsWith("Failed to create ssl connection with host") -> {
+                    throw SSLHandshakeException(context)
+                }
+                else -> {
+                    throw IOException(e.message)
+                }
+            }
+        }
+
+        private fun createDataFilesList(dataFiles: DataFiles?): List<DataFileInterface> {
+            return dataFiles?.map { DataFileWrapper(it) } ?: emptyList()
+        }
+
+        private fun createSignaturesList(signatures: Signatures?): List<SignatureInterface> {
+            return signatures?.map { SignatureWrapper(it) } ?: emptyList()
+        }
+    }
+}

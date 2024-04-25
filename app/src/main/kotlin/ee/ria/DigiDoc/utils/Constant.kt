@@ -14,6 +14,7 @@ object Constant {
         const val SMART_ID_SCREEN = "smart_id_route"
         const val ID_CARD_SCREEN = "id_card_route"
         const val NFC_SCREEN = "nfc_route"
+        const val FILE_CHOOSING_SCREEN = "file_choosing_route"
         const val SIGNING_SCREEN = "signing_route"
         const val SETTINGS_SCREEN = "settings_route"
         const val SETTINGS_RIGHTS_SCREEN = "settings_rights_route"

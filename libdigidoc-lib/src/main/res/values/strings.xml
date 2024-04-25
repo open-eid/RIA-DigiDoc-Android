@@ -1,2 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="signing_container_signature_status_valid">Signature is valid</string>
+    <string name="signing_container_signature_status_warning">(Warnings)</string>
+    <string name="signing_container_signature_status_non_qscd">(Restrictions)</string>
+    <string name="signing_container_signature_status_invalid">Signature is invalid</string>
+    <string name="signing_container_signature_status_unknown">Signature is unknown</string>
 </resources>

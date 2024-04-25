@@ -20,25 +20,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.domain.model.SignatureItem
+import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.ui.theme.Dimensions
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewHorizontalPadding
-import java.text.SimpleDateFormat
-import java.util.Locale
+import ee.ria.DigiDoc.ui.theme.Red500
+import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil.getSignatureStatusText
+import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatName
+import ee.ria.DigiDoc.utilsLib.date.DateUtil.signedDateTimeString
 
 @Composable
 fun SignatureComponent(
     modifier: Modifier = Modifier,
-    signature: SignatureItem,
+    signature: SignatureInterface,
 ) {
-    val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
-
     Row(
         modifier =
             modifier
@@ -68,15 +70,25 @@ fun SignatureComponent(
                     .clickable { /* TODO */ },
         ) {
             Text(
-                text = signature.name,
+                text = formatName(signature.signedBy),
                 modifier = modifier.focusable(),
+                fontWeight = FontWeight.Bold,
+            )
+            ColoredSignedStatusText(
+                text =
+                    getSignatureStatusText(
+                        LocalContext.current,
+                        signature.validator.status,
+                    ),
+                status = signature.validator.status,
+                modifier = modifier,
             )
             Text(
-                text = signature.status,
-                modifier = modifier.focusable(),
-            )
-            Text(
-                text = "Signed ${dateFormat.format(signature.signedDate)}",
+                text =
+                    stringResource(
+                        R.string.signing_container_signature_created_at,
+                        signedDateTimeString(signature.trustedSigningTime),
+                    ),
                 modifier = modifier.focusable(),
             )
         }
@@ -87,7 +99,8 @@ fun SignatureComponent(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                     contentDescription = "${stringResource(
                         id = R.string.signature_remove_button,
-                    )} ${signature.name}",
+                    )} ${signature.signedBy}",
+                    tint = Red500,
                 )
             },
             modifier =

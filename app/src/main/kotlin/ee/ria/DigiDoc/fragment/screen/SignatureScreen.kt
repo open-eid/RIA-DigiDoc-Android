@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -47,13 +46,13 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.textVerticalPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignatureScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     signatureAddController: NavHostController,
-    onClickToSigningScreen: () -> Unit = {},
+    onClickToFileChoosingScreen: () -> Unit = {},
     isDialogOpen: Boolean = true,
 ) {
     val openSignatureDialog = remember { mutableStateOf(isDialogOpen) }
@@ -139,7 +138,7 @@ fun SignatureScreen(
                 PrimaryButton(
                     title = R.string.signature_home_create_button,
                     contentDescription = stringResource(id = R.string.signature_home_create_text),
-                    onClickItem = onClickToSigningScreen,
+                    onClickItem = onClickToFileChoosingScreen,
                 )
             }
         }

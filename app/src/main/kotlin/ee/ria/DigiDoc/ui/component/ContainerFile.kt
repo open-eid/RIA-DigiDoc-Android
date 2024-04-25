@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -23,16 +24,20 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
+import ee.ria.DigiDoc.ui.theme.Blue500
 import ee.ria.DigiDoc.ui.theme.Dimensions
 import ee.ria.DigiDoc.ui.theme.Dimensions.containerButtonHorizontalPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewHorizontalPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewVerticalPadding
+import ee.ria.DigiDoc.ui.theme.Red500
 
 @Composable
 fun ContainerFile(
     modifier: Modifier = Modifier,
-    fileName: String,
+    dataFile: DataFileInterface,
 ) {
     val fileText = stringResource(id = R.string.file)
     Row(
@@ -51,23 +56,25 @@ fun ContainerFile(
                     .align(Alignment.CenterVertically)
                     .weight(1f)
                     .semantics {
-                        contentDescription = "${fileText.lowercase()} ${fileName.lowercase()}"
+                        contentDescription = "${fileText.lowercase()} ${dataFile.fileName.lowercase()}"
                     },
         ) {
             Text(
-                text = fileName,
+                text = dataFile.fileName,
                 textAlign = TextAlign.Start,
+                style = MaterialTheme.typography.titleMedium,
                 modifier = modifier.fillMaxWidth(),
             )
         }
 
         IconButton(
             onClick = { /* TODO */ },
-            modifier = modifier.size(Dimensions.iconSize),
+            modifier = modifier.size(iconSize),
             content = {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                    contentDescription = "${stringResource(id = R.string.document_remove_button)} $fileName",
+                    contentDescription = "${stringResource(id = R.string.document_remove_button)} ${dataFile.fileName}",
+                    tint = Red500,
                 )
             },
         )
@@ -78,7 +85,8 @@ fun ContainerFile(
             content = {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_icon_save),
-                    contentDescription = "${stringResource(id = R.string.document_save_button)} $fileName",
+                    contentDescription = "${stringResource(id = R.string.document_save_button)} ${dataFile.fileName}",
+                    tint = Blue500,
                 )
             },
         )

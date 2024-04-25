@@ -64,6 +64,18 @@ val Green200 = Color(0xFF9ab2a5)
 val Green100 = Color(0xFFbbcbc2)
 val Green50 = Color(0xFFe9eeeb)
 
+// blue
+val Blue50 = Color(0xFFEAF1F8)
+val Blue100 = Color(0xFFBFD3E8)
+val Blue200 = Color(0xFF9FBDDD)
+val Blue300 = Color(0xFF749FCE)
+val Blue400 = Color(0xFF598DC5)
+val Blue500 = Color(0xFF2F70B6)
+val Blue600 = Color(0xFF2B66A6)
+val Blue700 = Color(0xFF215081)
+val Blue800 = Color(0xFF1A3E64)
+val Blue900 = Color(0xFF142F4C)
+
 // surface
 val White = Color.White
 val WhiteHover = Color(0xFFf3f5f7)

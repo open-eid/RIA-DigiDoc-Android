@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.theme.Blue500
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewHorizontalPadding
 
@@ -28,6 +29,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewHorizontalPadding
 fun ContainerName(
     modifier: Modifier = Modifier,
     name: String,
+    isContainerSigned: Boolean,
 ) {
     Row(
         modifier =
@@ -41,6 +43,7 @@ fun ContainerName(
         Column(
             modifier =
                 modifier
+                    .weight(1f)
                     .semantics(mergeDescendants = true) {},
         ) {
             Text(
@@ -49,24 +52,41 @@ fun ContainerName(
             )
             Text(
                 text = name,
-                modifier = modifier.focusable(),
+                modifier =
+                    modifier
+                        .fillMaxWidth()
+                        .focusable(),
             )
         }
 
-        // To use Download / Save icon:
-        // imageVector = ImageVector.vectorResource(R.drawable.icon_save),
-        // contentDescription = stringResource(id = R.string.signing_container_name_update_button),
-        IconButton(
-            onClick = { /* TODO */ },
-            content = {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_icon_edit),
-                    contentDescription = stringResource(id = R.string.signing_container_name_update_button),
-                )
-            },
-            modifier =
-                modifier
-                    .size(iconSize),
-        )
+        if (isContainerSigned) {
+            IconButton(
+                onClick = { /* TODO */ },
+                content = {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_save),
+                        contentDescription = stringResource(id = R.string.document_save_button),
+                        tint = Blue500,
+                    )
+                },
+                modifier =
+                    modifier
+                        .size(iconSize),
+            )
+        } else {
+            IconButton(
+                onClick = { /* TODO */ },
+                content = {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_edit),
+                        contentDescription = stringResource(id = R.string.signing_container_name_update_button),
+                        tint = Blue500,
+                    )
+                },
+                modifier =
+                    modifier
+                        .size(iconSize),
+            )
+        }
     }
 }

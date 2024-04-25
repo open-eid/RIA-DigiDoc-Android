@@ -40,9 +40,9 @@ fun HomeFragment(
                     Route.Menu.route,
                 )
             },
-            onClickToSigningScreen = {
+            onClickToFileChoosingScreen = {
                 navController.navigate(
-                    Route.Signing.route,
+                    Route.FileChoosing.route,
                 )
             },
             someList = homeViewModel.listState,
