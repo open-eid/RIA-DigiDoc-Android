@@ -67,7 +67,7 @@ fun CancelAndOkButtonRow(
         Button(
             modifier = modifier.weight(1f),
             shape = RectangleShape,
-            enabled = false,
+            enabled = true,
             colors =
                 ButtonColors(
                     containerColor = Color.Transparent,

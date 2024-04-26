@@ -95,6 +95,8 @@
     <string name="main_home_menu_accessibility_accessibility">Accessibility</string>
 
     <string name="close_menu">Close menu</string>
+    <string name="hide_password">Hide password</string>
+    <string name="show_password">Show password</string>
 
     <!-- Main Settings -->
     <string name="main_settings_title">Settings</string>
@@ -139,5 +141,7 @@
 
     <!-- Voice Control -->
     <string name="signing_container_name_update_button_voice">Edit</string>
+
+    <string name="signature_update_mobile_id_error_general_client">Something went wrong, try again</string>
 
 </resources>

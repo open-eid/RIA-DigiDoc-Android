@@ -31,7 +31,10 @@ fun SettingsRightsFragment(
         SettingsRightsScreen(
             navController = navController,
             modifier = modifier,
-            someList = settingsViewModel.listState,
+            getIsScreenshotAllowed = settingsViewModel.dataStore::getSettingsAllowScreenshots,
+            setIsScreenshotAllowed = settingsViewModel.dataStore::setSettingsAllowScreenshots,
+            getIsOpenAllFileTypesEnabled = settingsViewModel.dataStore::getSettingsOpenAllFileTypes,
+            setIsOpenAllFileTypesEnabled = settingsViewModel.dataStore::setSettingsOpenAllFileTypes,
         )
     }
 }

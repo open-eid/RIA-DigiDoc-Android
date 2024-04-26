@@ -8,15 +8,15 @@ versionName = "3.0.0"
 agp = "8.3.2"
 algp = "8.3.2"
 kotlin = "1.9.0"
-coreKtx = "1.12.0"
+coreKtx = "1.13.0"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
-activityCompose = "1.8.2"
+activityCompose = "1.9.0"
 lifecycleRuntimeKtx = "2.7.0"
 navigationCompose = "2.7.7"
 constraintlayoutCompose = "1.0.1"
-composeBom = "2024.04.00"
+composeBom = "2024.04.01"
 jlleitschuhKtlint = "12.1.0"
 dagger = "2.49"
 hilt = "1.2.0"
@@ -33,6 +33,7 @@ bouncy-castle = "1.78"
 okhttp = "4.12.0"
 preferencex = "1.1.0"
 androidx-security-crypto = "1.0.0"
+work = "2.9.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -66,6 +67,7 @@ bouncy-castle = { group = "org.bouncycastle", name = "bcpkix-jdk18on", version.r
 okhttp3 = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 preferencex = { group = "com.takisoft.preferencex", name = "preferencex", version.ref = "preferencex" }
 androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "androidx-security-crypto" }
+work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
