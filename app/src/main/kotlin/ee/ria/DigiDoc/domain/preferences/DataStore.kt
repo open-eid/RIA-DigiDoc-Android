@@ -211,11 +211,11 @@ class DataStore
                 EncryptedPreferences.getEncryptedPreferences(context)
             } catch (e: GeneralSecurityException) {
                 errorLog(LOG_TAG, "Unable to get encrypted preferences", e)
-                ToastUtil.showError(context, R.string.signature_update_mobile_id_error_general_client)
+                ToastUtil.showMessage(context, R.string.signature_update_mobile_id_error_general_client)
                 null
             } catch (e: IOException) {
                 errorLog(LOG_TAG, "Unable to get encrypted preferences", e)
-                ToastUtil.showError(context, R.string.signature_update_mobile_id_error_general_client)
+                ToastUtil.showMessage(context, R.string.signature_update_mobile_id_error_general_client)
                 null
             }
         }

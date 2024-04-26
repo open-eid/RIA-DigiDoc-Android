@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.ui.component.shared
 
 import android.content.res.Configuration
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.buttonCornerShapeSize
+import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
@@ -36,6 +38,7 @@ fun PrimaryButton(
             modifier
                 .fillMaxWidth(),
         shape = RoundedCornerShape(buttonCornerShapeSize),
+        contentPadding = PaddingValues(zeroPadding),
         colors =
             ButtonColors(
                 containerColor = MaterialTheme.colorScheme.primary,

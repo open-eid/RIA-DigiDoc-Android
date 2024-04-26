@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -18,7 +17,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -29,8 +27,8 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.domain.model.SomeObject
 import ee.ria.DigiDoc.ui.component.settings.SettingsItem
 import ee.ria.DigiDoc.ui.component.shared.BackButton
+import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
 import ee.ria.DigiDoc.ui.theme.Dimensions.settingsItemStartPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.settingsItemVerticalPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 
@@ -67,7 +65,10 @@ fun SettingsScreen(
         },
     ) { innerPadding ->
         Column(
-            modifier = modifier.padding(innerPadding).verticalScroll(rememberScrollState()),
+            modifier =
+                modifier
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState()),
         ) {
             SettingsItem(
                 modifier = modifier,
@@ -91,19 +92,17 @@ fun SettingsScreen(
                 title = stringResource(id = R.string.main_settings_rights),
                 contentDescription = stringResource(id = R.string.main_settings_rights).lowercase(),
             )
-            Button(
-                modifier =
-                    modifier.fillMaxWidth().wrapContentHeight().padding(
-                        horizontal = settingsItemStartPadding,
-                        vertical = settingsItemVerticalPadding,
-                    ),
-                shape = RectangleShape,
-                onClick = { /* TODO */ },
-            ) {
-                Text(
-                    text = stringResource(id = R.string.main_settings_use_default_settings_button_title),
-                )
-            }
+            PrimaryButton(
+                modifier.fillMaxWidth().wrapContentHeight().padding(
+                    horizontal = settingsItemStartPadding,
+                ),
+                contentDescription =
+                    stringResource(
+                        id = R.string.main_settings_use_default_settings_button_title,
+                    ).lowercase(),
+                title = R.string.main_settings_use_default_settings_button_title,
+                onClickItem = { /* TODO */ },
+            )
         }
     }
 }

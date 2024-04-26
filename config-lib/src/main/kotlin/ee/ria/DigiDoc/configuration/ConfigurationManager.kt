@@ -155,10 +155,14 @@ class ConfigurationManager(
             }
             confSignatureVerifier = ConfigurationSignatureVerifier(publicKey)
         }
-        confSignatureVerifier!!.verifyConfigurationSignature(
-            configurationLoader.configurationJson!!,
-            configurationLoader.configurationSignature!!,
-        )
+        configurationLoader.configurationJson?.let { json ->
+            configurationLoader.configurationSignature?.let { signature ->
+                confSignatureVerifier!!.verifyConfigurationSignature(
+                    json,
+                    signature,
+                )
+            }
+        }
     }
 
     private fun isCachedConfUpToDate(centralConfigurationSignature: ByteArray?): Boolean {

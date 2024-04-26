@@ -5,16 +5,23 @@ package ee.ria.DigiDoc.ui.component.shared
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LocalMinimumInteractiveComponentEnforcement
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewHorizontalPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewVerticalPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TextCheckBox(
     modifier: Modifier = Modifier,
@@ -27,14 +34,21 @@ fun TextCheckBox(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Checkbox(
-            modifier =
-                modifier.semantics {
-                    this.contentDescription = contentDescription
-                },
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-        )
+        CompositionLocalProvider(LocalMinimumInteractiveComponentEnforcement provides false) {
+            Checkbox(
+                modifier =
+                    modifier.semantics {
+                        this.contentDescription = contentDescription
+                    }
+                        .padding(
+                            top = screenViewVerticalPadding,
+                            bottom = screenViewVerticalPadding,
+                            end = screenViewHorizontalPadding,
+                        ),
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+            )
+        }
         Text(text = title)
     }
 }

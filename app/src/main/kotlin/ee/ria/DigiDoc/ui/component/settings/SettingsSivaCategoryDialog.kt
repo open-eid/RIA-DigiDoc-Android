@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -26,8 +25,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.BackButton
+import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
 import ee.ria.DigiDoc.ui.component.shared.TextRadioButton
-import ee.ria.DigiDoc.ui.theme.Dimensions
 import ee.ria.DigiDoc.ui.theme.Dimensions.alertDialogInnerPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.settingsItemEndPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.settingsItemStartPadding
@@ -110,32 +109,30 @@ fun SettingsSivaCategoryDialog(
                     .fillMaxWidth(),
             text = stringResource(id = R.string.main_settings_timestamp_cert_valid_to_title),
         )
-        Button(
+        PrimaryButton(
             modifier =
                 modifier.fillMaxWidth().wrapContentHeight().padding(
                     horizontal = settingsItemStartPadding,
-                    vertical = Dimensions.settingsItemEndPadding,
                 ),
-            shape = RectangleShape,
-            onClick = { /* TODO */ },
-        ) {
-            Text(
-                text = stringResource(id = R.string.main_settings_timestamp_cert_add_certificate_button),
-            )
-        }
-        Button(
+            contentDescription =
+                stringResource(
+                    id = R.string.main_settings_timestamp_cert_add_certificate_button,
+                ).lowercase(),
+            title = R.string.main_settings_timestamp_cert_add_certificate_button,
+            onClickItem = { /* TODO */ },
+        )
+        PrimaryButton(
             modifier =
                 modifier.fillMaxWidth().wrapContentHeight().padding(
                     horizontal = settingsItemStartPadding,
-                    vertical = Dimensions.settingsItemEndPadding,
                 ),
-            shape = RectangleShape,
-            onClick = { /* TODO */ },
-        ) {
-            Text(
-                text = stringResource(id = R.string.main_settings_timestamp_cert_show_certificate_button),
-            )
-        }
+            contentDescription =
+                stringResource(
+                    id = R.string.main_settings_timestamp_cert_show_certificate_button,
+                ).lowercase(),
+            title = R.string.main_settings_timestamp_cert_show_certificate_button,
+            onClickItem = { /* TODO */ },
+        )
     }
 }
 

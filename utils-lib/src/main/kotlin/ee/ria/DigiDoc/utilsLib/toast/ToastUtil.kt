@@ -7,7 +7,7 @@ import android.widget.Toast
 import androidx.annotation.StringRes
 
 object ToastUtil {
-    fun showError(
+    fun showMessage(
         context: Context,
         @StringRes message: Int,
     ) {

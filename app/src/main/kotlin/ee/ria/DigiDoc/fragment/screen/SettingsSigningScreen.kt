@@ -36,12 +36,11 @@ import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.configuration.ConfigurationProvider
 import ee.ria.DigiDoc.network.proxy.ProxySetting
-import ee.ria.DigiDoc.ui.component.settings.SettingsEditValueDialog
-import ee.ria.DigiDoc.ui.component.settings.SettingsInputItem
 import ee.ria.DigiDoc.ui.component.settings.SettingsItem
 import ee.ria.DigiDoc.ui.component.settings.SettingsProxyCategoryDialog
 import ee.ria.DigiDoc.ui.component.settings.SettingsSivaCategoryDialog
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
+import ee.ria.DigiDoc.ui.component.settings.SettingsTextField
 import ee.ria.DigiDoc.ui.component.shared.BackButton
 import ee.ria.DigiDoc.ui.theme.Dimensions
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
@@ -164,7 +163,6 @@ fun SettingsSigningScreen(
     if (!TextUtils.isEmpty(getSettingsUUID())) {
         uuidValue = getSettingsUUID()
     }
-    val openSettingsAccessToSigningServiceDialog = remember { mutableStateOf(false) }
     val useDefaultCheckedSettingsAccessToSigningService =
         remember { mutableStateOf(TextUtils.isEmpty(getSettingsUUID())) }
     var fieldValueSettingsAccessToSigningService by remember {
@@ -172,123 +170,18 @@ fun SettingsSigningScreen(
             TextFieldValue(text = getSettingsUUID()),
         )
     }
-    val dismissSettingsAccessToSigningServiceDialog = {
-        openSettingsAccessToSigningServiceDialog.value = false
-        useDefaultCheckedSettingsAccessToSigningService.value = TextUtils.isEmpty(getSettingsUUID())
-        fieldValueSettingsAccessToSigningService = TextFieldValue(text = getSettingsUUID())
-    }
-    if (openSettingsAccessToSigningServiceDialog.value) {
-        BasicAlertDialog(
-            onDismissRequest = dismissSettingsAccessToSigningServiceDialog,
-        ) {
-            Surface(
-                modifier =
-                    modifier
-                        .wrapContentHeight()
-                        .wrapContentWidth()
-                        .verticalScroll(rememberScrollState())
-                        .padding(Dimensions.alertDialogOuterPadding),
-            ) {
-                SettingsEditValueDialog(
-                    title = stringResource(id = R.string.main_settings_uuid_title),
-                    placeHolderText = DEFAULT_UUID_VALUE,
-                    cancelButtonClick = dismissSettingsAccessToSigningServiceDialog,
-                    okButtonClick = {
-                        if (TextUtils.isEmpty(fieldValueSettingsAccessToSigningService.text) &&
-                            !useDefaultCheckedSettingsAccessToSigningService.value
-                        ) {
-                            fieldValueSettingsAccessToSigningService = TextFieldValue(text = DEFAULT_UUID_VALUE)
-                        }
-                        if (useDefaultCheckedSettingsAccessToSigningService.value) {
-                            fieldValueSettingsAccessToSigningService = TextFieldValue(text = "")
-                            setSettingsUUID("")
-                            uuidValue = DEFAULT_UUID_VALUE
-                        }
-                        setSettingsUUID(fieldValueSettingsAccessToSigningService.text)
-                        openSettingsAccessToSigningServiceDialog.value = false
-                    },
-                    useDefaultChecked = useDefaultCheckedSettingsAccessToSigningService.value,
-                    useDefaultCheckedChange = {
-                        useDefaultCheckedSettingsAccessToSigningService.value = it
-                        if (it) {
-                            fieldValueSettingsAccessToSigningService = TextFieldValue(text = "")
-                            // setSettingsUUID("")
-                            uuidValue = DEFAULT_UUID_VALUE
-                        }
-                    },
-                    value = fieldValueSettingsAccessToSigningService,
-                    onValueChange = {
-                        fieldValueSettingsAccessToSigningService = it
-                    },
-                )
-            }
-        }
-    }
     var defaultTsaUrlValue = DEFAULT_TSA_URL_VALUE
     var tsaUrlValue = defaultTsaUrlValue
-    configurationWorkerResult.observe(lifecycleOwner) {
-        it.tsaUrl.let { defaultTsaUrlValue = it }
+    configurationWorkerResult.observe(lifecycleOwner) { configurationProvider ->
+        configurationProvider.tsaUrl.let { defaultTsaUrlValue = it }
     }
     if (!TextUtils.isEmpty(getSettingsTSAUrl())) {
         tsaUrlValue = getSettingsTSAUrl()
     }
-    val openSettingsAccessToTimeStampingServiceDialog = remember { mutableStateOf(false) }
     val useDefaultCheckedSettingsAccessToTimeStampingService =
         remember { mutableStateOf(TextUtils.isEmpty(getSettingsTSAUrl())) }
     var fieldValueSettingsAccessToTimeStampingService by remember {
         mutableStateOf(TextFieldValue(text = getSettingsTSAUrl()))
-    }
-    val dismissSettingsAccessToTimeStampingServiceDialog = {
-        openSettingsAccessToTimeStampingServiceDialog.value = false
-        useDefaultCheckedSettingsAccessToTimeStampingService.value = TextUtils.isEmpty(getSettingsTSAUrl())
-        fieldValueSettingsAccessToTimeStampingService = TextFieldValue(text = getSettingsTSAUrl())
-    }
-    if (openSettingsAccessToTimeStampingServiceDialog.value) {
-        BasicAlertDialog(
-            onDismissRequest = dismissSettingsAccessToTimeStampingServiceDialog,
-        ) {
-            Surface(
-                modifier =
-                    modifier
-                        .wrapContentHeight()
-                        .wrapContentWidth()
-                        .verticalScroll(rememberScrollState())
-                        .padding(Dimensions.alertDialogOuterPadding),
-            ) {
-                SettingsEditValueDialog(
-                    title = stringResource(id = R.string.main_settings_tsa_url_title),
-                    placeHolderText = defaultTsaUrlValue,
-                    cancelButtonClick = dismissSettingsAccessToTimeStampingServiceDialog,
-                    okButtonClick = {
-                        if (TextUtils.isEmpty(fieldValueSettingsAccessToTimeStampingService.text) &&
-                            !useDefaultCheckedSettingsAccessToTimeStampingService.value
-                        ) {
-                            fieldValueSettingsAccessToTimeStampingService = TextFieldValue(text = defaultTsaUrlValue)
-                        }
-                        if (useDefaultCheckedSettingsAccessToTimeStampingService.value) {
-                            fieldValueSettingsAccessToTimeStampingService = TextFieldValue(text = "")
-                            setSettingsTSAUrl("")
-                            tsaUrlValue = defaultTsaUrlValue
-                        }
-                        setSettingsTSAUrl(fieldValueSettingsAccessToTimeStampingService.text)
-                        openSettingsAccessToTimeStampingServiceDialog.value = false
-                    },
-                    useDefaultChecked = useDefaultCheckedSettingsAccessToTimeStampingService.value,
-                    useDefaultCheckedChange = {
-                        useDefaultCheckedSettingsAccessToTimeStampingService.value = it
-                        if (it) {
-                            fieldValueSettingsAccessToTimeStampingService = TextFieldValue(text = "")
-                            // setSettingsTSAUrl("")
-                            tsaUrlValue = defaultTsaUrlValue
-                        }
-                    },
-                    value = fieldValueSettingsAccessToTimeStampingService,
-                    onValueChange = {
-                        fieldValueSettingsAccessToTimeStampingService = it
-                    },
-                )
-            }
-        }
     }
 
     Scaffold(
@@ -330,18 +223,40 @@ fun SettingsSigningScreen(
                 title = stringResource(id = R.string.main_settings_ask_role_and_address_title),
                 contentDescription = stringResource(id = R.string.main_settings_ask_role_and_address_title).lowercase(),
             )
-            SettingsInputItem(
-                value = uuidValue,
-                onClickItem = {
-                    openSettingsAccessToSigningServiceDialog.value = true
+            SettingsTextField(
+                defaultValue = uuidValue,
+                value = fieldValueSettingsAccessToSigningService,
+                onValueChange = {
+                    fieldValueSettingsAccessToSigningService = it
+                    setSettingsUUID(fieldValueSettingsAccessToSigningService.text)
+                },
+                useDefaultChecked = useDefaultCheckedSettingsAccessToSigningService.value,
+                useDefaultCheckedChange = {
+                    useDefaultCheckedSettingsAccessToSigningService.value = it
+                    if (it) {
+                        fieldValueSettingsAccessToSigningService = TextFieldValue(text = "")
+                        setSettingsUUID("")
+                        uuidValue = DEFAULT_UUID_VALUE
+                    }
                 },
                 title = stringResource(id = R.string.main_settings_uuid_title),
                 contentDescription = stringResource(id = R.string.main_settings_uuid_title).lowercase(),
             )
-            SettingsInputItem(
-                value = tsaUrlValue,
-                onClickItem = {
-                    openSettingsAccessToTimeStampingServiceDialog.value = true
+            SettingsTextField(
+                defaultValue = tsaUrlValue,
+                value = fieldValueSettingsAccessToTimeStampingService,
+                onValueChange = {
+                    fieldValueSettingsAccessToTimeStampingService = it
+                    setSettingsTSAUrl(fieldValueSettingsAccessToTimeStampingService.text)
+                },
+                useDefaultChecked = useDefaultCheckedSettingsAccessToTimeStampingService.value,
+                useDefaultCheckedChange = {
+                    useDefaultCheckedSettingsAccessToTimeStampingService.value = it
+                    if (it) {
+                        fieldValueSettingsAccessToTimeStampingService = TextFieldValue(text = "")
+                        setSettingsTSAUrl("")
+                        tsaUrlValue = defaultTsaUrlValue
+                    }
                 },
                 title = stringResource(id = R.string.main_settings_tsa_url_title),
                 contentDescription = stringResource(id = R.string.main_settings_tsa_url_title).lowercase(),
