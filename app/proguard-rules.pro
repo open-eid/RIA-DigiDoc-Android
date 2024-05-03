@@ -11,3 +11,5 @@
     public static int d(...);
     public static int e(...);
 }
+# Ignore Missing classes detected while running R8 warning.
+-dontwarn com.gemalto.jp2.JP2Decoder

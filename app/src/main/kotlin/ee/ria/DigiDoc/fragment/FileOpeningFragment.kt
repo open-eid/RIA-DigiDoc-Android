@@ -24,9 +24,10 @@ fun FileOpeningFragment(
     sharedContainerViewModel: SharedContainerViewModel,
 ) {
     Surface(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
         color = MaterialTheme.colorScheme.background,
     ) {
         FileOpeningScreen(
@@ -46,7 +47,7 @@ fun FileOpeningFragmentPreview() {
     RIADigiDocTheme {
         FileOpeningFragment(
             navController = navController,
-            sharedContainerViewModel = sharedContainerViewModel
+            sharedContainerViewModel = sharedContainerViewModel,
         )
     }
 }
