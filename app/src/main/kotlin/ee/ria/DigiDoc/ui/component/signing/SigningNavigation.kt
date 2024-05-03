@@ -82,10 +82,10 @@ fun SigningNavigation(
     ) { innerPadding ->
         Surface(
             modifier =
-            modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .focusGroup(),
+                modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .focusGroup(),
         ) {
             Column {
                 // Added top bar here instead of Scaffold -> topBar
@@ -99,12 +99,12 @@ fun SigningNavigation(
                 )
                 Column(
                     modifier =
-                    modifier
-                        .padding(
-                            horizontal = screenViewHorizontalPadding,
-                            vertical = screenViewVerticalPadding,
-                        )
-                        .verticalScroll(rememberScrollState()),
+                        modifier
+                            .padding(
+                                horizontal = screenViewHorizontalPadding,
+                                vertical = screenViewVerticalPadding,
+                            )
+                            .verticalScroll(rememberScrollState()),
                 ) {
                     ContainerName(
                         name = signedContainer?.getName() ?: "",
