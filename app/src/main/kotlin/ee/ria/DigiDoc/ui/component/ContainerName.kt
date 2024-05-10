@@ -29,6 +29,8 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewHorizontalPadding
 fun ContainerName(
     modifier: Modifier = Modifier,
     name: String,
+    onEditNameClick: () -> Unit = {},
+    onSaveContainerClick: () -> Unit = {},
     isContainerSigned: Boolean,
 ) {
     Row(
@@ -61,7 +63,7 @@ fun ContainerName(
 
         if (isContainerSigned) {
             IconButton(
-                onClick = { /* TODO */ },
+                onClick = onSaveContainerClick,
                 content = {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_save),
@@ -75,7 +77,7 @@ fun ContainerName(
             )
         } else {
             IconButton(
-                onClick = { /* TODO */ },
+                onClick = onEditNameClick,
                 content = {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_edit),

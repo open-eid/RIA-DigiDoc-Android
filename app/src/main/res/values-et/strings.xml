@@ -8,6 +8,8 @@
     <string name="documents_add_button">+ LISA VEEL FAILE</string>
     <string name="documents_add_button_accessibility">Lisa veel faile</string>
     <string name="file">Fail</string>
+    <string name="file_saved">Fail salvestatud</string>
+    <string name="file_saved_error">Faili salvestamine ebaõnnestus</string>
     <string name="document_remove_button">Eemalda dokument</string>
     <string name="document_save_button">Salvesta fail ümbrikust</string>
     <string name="document_remove_confirmation_message">Soovid eemaldada faili ümbrikust?</string>
@@ -51,6 +53,9 @@
     <string name="signing_container_signature_created_at">Allkirjastatud %1$s</string>
 
     <!-- Signature Add -->
+    <string name="signature_update_name_update_name">Ümbriku nimi</string>
+    <string name="signature_update_documents_add_error_exists">Fail on juba ümbrikus olemas</string>
+
     <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
     <string name="signature_update_signature_add_method_id_card">ID-kaart</string>
@@ -73,6 +78,9 @@
     <string name="signature_update_smart_id_country">Riik</string>
 
     <string name="signature_update_id_card_progress_message_initial">Ühenda kaardilugeja nutiseadmega ja sisesta ID-kaart lugejasse</string>
+
+    <string name="signature_update_remove_last_document_confirmation_message">Oled kustutamas viimast faili ümbrikus, koos sellega eemaldatakse ka ümbrik.</string>
+    <string name="signature_update_remove_document_confirmation_message">Soovid eemaldada faili ümbrikust?</string>
 
     <string name="sign_button">ALLKIRJASTA</string>
     <string name="share_button">JAGA</string>

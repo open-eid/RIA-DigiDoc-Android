@@ -33,6 +33,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.commons.io)
     implementation(libs.commons.text)
+    implementation(libs.guava)
     testImplementation(libs.junit)
     androidTestImplementation(libs.mockito.android)
     androidTestImplementation(libs.androidx.junit)

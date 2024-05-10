@@ -95,6 +95,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.preferencex)
     implementation(libs.google.dagger.hilt.android)
+    implementation(libs.guava)
     kapt(libs.google.dagger.hilt.android.compile)
     implementation(libs.androidx.hilt)
     testImplementation(libs.junit)

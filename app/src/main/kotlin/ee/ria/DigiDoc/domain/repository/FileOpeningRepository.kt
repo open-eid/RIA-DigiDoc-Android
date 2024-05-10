@@ -7,6 +7,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
+import ee.ria.DigiDoc.utilsLib.file.FileStream
 import java.io.File
 
 interface FileOpeningRepository {
@@ -27,6 +28,12 @@ interface FileOpeningRepository {
         context: Context,
         contentResolver: ContentResolver,
         uris: List<Uri>,
+    ): SignedContainer
+
+    suspend fun addFilesToContainer(
+        context: Context,
+        existingSignedContainer: SignedContainer?,
+        documentStreams: List<FileStream>,
     ): SignedContainer
 
     suspend fun checkForValidFiles(files: List<File>)

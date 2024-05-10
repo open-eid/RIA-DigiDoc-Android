@@ -21,4 +21,6 @@
     <string name="main_settings_allow_screenshots_key">mainSettingsAllowScreenshots</string>
     <string name="main_settings_ask_role_and_address_key">mainSettingsAskRoleAndAddress</string>
     <string name="main_settings_tsa_cert_view">mainSettingsTSACertView</string>
+
+    <string name="file_provider_authority">ee.ria.digidoc.debug.fileprovider</string>
 </resources>

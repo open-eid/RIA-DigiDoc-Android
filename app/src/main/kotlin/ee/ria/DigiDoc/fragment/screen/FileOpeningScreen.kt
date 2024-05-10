@@ -29,11 +29,11 @@ fun FileOpeningScreen(
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun FileOpeningScreen() {
+fun FileOpeningScreenPreview() {
     val navController = rememberNavController()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
     RIADigiDocTheme {
-        SigningScreen(
+        FileOpeningScreen(
             navController = navController,
             sharedContainerViewModel = sharedContainerViewModel,
         )

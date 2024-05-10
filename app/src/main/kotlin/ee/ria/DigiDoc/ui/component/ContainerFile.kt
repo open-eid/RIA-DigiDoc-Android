@@ -26,7 +26,6 @@ import androidx.compose.ui.text.style.TextAlign
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.ui.theme.Blue500
-import ee.ria.DigiDoc.ui.theme.Dimensions
 import ee.ria.DigiDoc.ui.theme.Dimensions.containerButtonHorizontalPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
@@ -38,6 +37,9 @@ import ee.ria.DigiDoc.ui.theme.Red500
 fun ContainerFile(
     modifier: Modifier = Modifier,
     dataFile: DataFileInterface,
+    onClickView: () -> Unit = {},
+    onClickRemove: () -> Unit = {},
+    onClickSave: () -> Unit = {},
 ) {
     val fileText = stringResource(id = R.string.file)
     Row(
@@ -49,7 +51,7 @@ fun ContainerFile(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         TextButton(
-            onClick = { /* TODO */ },
+            onClick = onClickView,
             modifier =
                 modifier
                     .padding(start = containerButtonHorizontalPadding, end = screenViewVerticalPadding)
@@ -68,7 +70,7 @@ fun ContainerFile(
         }
 
         IconButton(
-            onClick = { /* TODO */ },
+            onClick = onClickRemove,
             modifier = modifier.size(iconSize),
             content = {
                 Icon(
@@ -80,8 +82,8 @@ fun ContainerFile(
         )
         Spacer(modifier = modifier.width(itemSpacingPadding))
         IconButton(
-            onClick = { /* TODO */ },
-            modifier = modifier.size(Dimensions.iconSize),
+            onClick = onClickSave,
+            modifier = modifier.size(iconSize),
             content = {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_icon_save),
