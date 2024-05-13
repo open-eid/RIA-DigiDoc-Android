@@ -55,12 +55,9 @@ fun EditValueDialog(
             shape = RectangleShape,
             value = editValue,
             onValueChange = onEditValueChange,
-            label = {
-                Text(text = title)
-            },
             maxLines = 1,
             singleLine = true,
-            textStyle = MaterialTheme.typography.titleLarge,
+            textStyle = MaterialTheme.typography.titleSmall,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
         )
         CancelAndOkButtonRow(

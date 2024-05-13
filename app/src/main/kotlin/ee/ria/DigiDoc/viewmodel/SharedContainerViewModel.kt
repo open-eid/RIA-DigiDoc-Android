@@ -50,11 +50,11 @@ class SharedContainerViewModel
             )
         }
 
-        suspend fun removeContainerDataFile(
+        fun removeContainerDataFile(
             signedContainer: SignedContainer?,
             dataFile: DataFileInterface?,
         ): SignedContainer? {
-            return dataFile?.let { signedContainer?.removeDataFile(context, it) }
+            return dataFile?.let { signedContainer?.removeDataFile(it) }
         }
 
         fun saveContainerFile(

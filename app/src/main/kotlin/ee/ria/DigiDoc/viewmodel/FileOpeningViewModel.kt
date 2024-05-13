@@ -27,7 +27,6 @@ import ee.ria.DigiDoc.utilsLib.file.FileStream
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.normalizeString
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.DigiDoc.utilsLib.toast.ToastUtil.showMessage
-import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -71,7 +70,6 @@ class FileOpeningViewModel
                 val filesNotInContainer: List<FileStream> =
                     getFilesNotInContainer(
                         validFiles,
-                        existingSignedContainer.getContainerFile(),
                     )
                 if (filesNotInContainer.isEmpty()) {
                     Handler(Looper.getMainLooper()).post {
@@ -115,16 +113,13 @@ class FileOpeningViewModel
         }
 
         @Throws(Exception::class)
-        private suspend fun getFilesNotInContainer(
-            validFiles: List<FileStream>,
-            container: File?,
-        ): List<FileStream> {
+        private fun getFilesNotInContainer(validFiles: List<FileStream>): List<FileStream> {
             val filesNotInContainer: MutableList<FileStream> = ArrayList()
             val containerDataFileNames: MutableList<String> = ArrayList()
             if (validFiles.isNotEmpty()) {
-                val signedContainer = container?.let { SignedContainer.open(context, it) }
+                val signedContainer = SignedContainer.container()
                 val dataFiles: List<DataFileInterface> =
-                    signedContainer?.getDataFiles() ?: emptyList()
+                    signedContainer.getDataFiles()
                 for (dataFile in dataFiles) {
                     containerDataFileNames.add(normalizeString(dataFile.fileName))
                 }

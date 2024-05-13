@@ -63,17 +63,14 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
     }
 
     @Throws(Exception::class)
-    suspend fun addDataFiles(
-        context: Context,
-        dataFiles: List<File?>,
-    ): SignedContainer {
+    fun addDataFiles(dataFiles: List<File?>): SignedContainer {
         for (dataFile in dataFiles) {
             if (dataFile != null) {
                 container?.addDataFile(dataFile.absolutePath, mimeType(dataFile))
             }
         }
         container?.save()
-        return open(context, containerFile)
+        return container()
     }
 
     @Throws(Exception::class)
@@ -101,10 +98,7 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
     }
 
     @Throws(Exception::class)
-    suspend fun removeDataFile(
-        context: Context,
-        dataFile: DataFileInterface,
-    ): SignedContainer {
+    fun removeDataFile(dataFile: DataFileInterface): SignedContainer {
         if ((container?.dataFiles()?.size ?: 0) == 1) {
             throw ContainerDataFilesEmptyException()
         }
@@ -118,7 +112,7 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
             }
         }
         container?.save()
-        return open(context, containerFile)
+        return container()
     }
 
     companion object {
@@ -186,7 +180,7 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
         }
 
         @Throws(Exception::class)
-        suspend fun open(
+        private suspend fun open(
             context: Context,
             file: File?,
         ): SignedContainer {

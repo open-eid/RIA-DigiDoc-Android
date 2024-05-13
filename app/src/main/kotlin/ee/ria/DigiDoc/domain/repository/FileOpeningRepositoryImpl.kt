@@ -50,12 +50,11 @@ class FileOpeningRepositoryImpl
             existingSignedContainer: SignedContainer?,
             documentStreams: List<FileStream>,
         ): SignedContainer {
-            return SignedContainer.open(context, existingSignedContainer?.getContainerFile())
+            return SignedContainer.container()
                 .addDataFiles(
-                    context,
                     cacheFileStreams(
                         context,
-                        getContainerFiles(context, existingSignedContainer?.getContainerFile(), documentStreams),
+                        getContainerFiles(documentStreams),
                     ),
                 )
         }
@@ -94,13 +93,9 @@ class FileOpeningRepositoryImpl
         }
 
         @Throws(Exception::class)
-        private suspend fun getContainerFiles(
-            context: Context,
-            containerFile: File?,
-            documentStreams: List<FileStream>,
-        ): List<FileStream> {
+        private fun getContainerFiles(documentStreams: List<FileStream>): List<FileStream> {
             val fileStreamList: ArrayList<FileStream> = ArrayList()
-            val fileNamesInContainer: List<String> = getFileNamesInContainer(context, containerFile)
+            val fileNamesInContainer: List<String> = getFileNamesInContainer()
             val fileNamesToAdd: List<String> = getFileNamesToAddToContainer(documentStreams)
             for (i in fileNamesToAdd.indices) {
                 if (!fileNamesInContainer.contains(fileNamesToAdd[i])) {
@@ -116,13 +111,10 @@ class FileOpeningRepositoryImpl
         }
 
         @Throws(Exception::class)
-        private suspend fun getFileNamesInContainer(
-            context: Context,
-            containerFile: File?,
-        ): List<String> {
+        private fun getFileNamesInContainer(): List<String> {
             val containerFileNames: MutableList<String> = java.util.ArrayList()
             val dataFiles: List<DataFileInterface> =
-                SignedContainer.open(context, containerFile).getDataFiles()
+                SignedContainer.container().getDataFiles()
 
             for (i in dataFiles.indices) {
                 containerFileNames.add(dataFiles[i].fileName)
