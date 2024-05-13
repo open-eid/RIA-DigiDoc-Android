@@ -7,9 +7,10 @@ import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
 import com.google.common.io.ByteStreams
+import ee.ria.DigiDoc.common.Constant.CONTAINER_EXTENSIONS
 import ee.ria.DigiDoc.common.Constant.DATA_FILE_DIR
+import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
 import ee.ria.DigiDoc.common.Constant.DIR_SIGNATURE_CONTAINERS
-import ee.ria.DigiDoc.common.Constant.SIGNATURE_CONTAINER_EXT
 import ee.ria.DigiDoc.utilsLib.file.FileStream
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.getFileInDirectory
@@ -30,8 +31,7 @@ object ContainerUtil {
         context: Context,
         file: File,
     ): File {
-        val containerName = addExtensionToContainerFilename(file.name)
-        val containerFile = generateSignatureContainerFile(context, containerName)
+        val containerFile = generateSignatureContainerFile(context, file.name)
         file.inputStream().use { inputStream ->
             containerFile.outputStream().use { outputStream ->
                 inputStream.copyTo(outputStream)
@@ -248,12 +248,17 @@ object ContainerUtil {
                     "",
                 ),
             )
+        if (FilenameUtils.getExtension(normalizedDisplayName).isNotEmpty() &&
+            FilenameUtils.isExtension(normalizedDisplayName, CONTAINER_EXTENSIONS)
+        ) {
+            return normalizedDisplayName
+        }
         val containerName =
             java.lang.String.format(
                 Locale.US,
                 "%s.%s",
                 FilenameUtils.removeExtension(normalizedDisplayName),
-                SIGNATURE_CONTAINER_EXT,
+                DEFAULT_CONTAINER_EXTENSION,
             )
 
         return containerName

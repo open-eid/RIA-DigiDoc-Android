@@ -9,6 +9,7 @@ import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import ee.ria.DigiDoc.common.Constant.CONTAINER_EXTENSIONS
 import ee.ria.DigiDoc.common.Constant.CONTAINER_MIME_TYPE
+import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
 import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
 import ee.ria.DigiDoc.common.Constant.DEFAULT_MIME_TYPE
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
@@ -132,7 +133,11 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
                     isContainer || (isPDF && isSignedPDF(context, this))
                 } ?: false
 
-            containerFile = file
+            var containerFileWithExtension = file
+            if (!isFirstDataFileContainer && !file.path.endsWith(".asice")) {
+                containerFileWithExtension = File(file.path.plus(".$DEFAULT_CONTAINER_EXTENSION"))
+            }
+            containerFile = containerFileWithExtension
 
             return if (dataFiles != null && dataFiles.size == 1 && isFirstDataFileContainer) {
                 isExistingContainer = true
