@@ -61,6 +61,17 @@ fun FileOpeningNavigation(
             },
         )
 
+    LaunchedEffect(fileOpeningViewModel.errorState) {
+        fileOpeningViewModel.errorState.asFlow().collect { errorState ->
+            errorState?.let {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, errorState, Toast.LENGTH_LONG).show()
+                    navController.popBackStack()
+                }
+            }
+        }
+    }
+
     BackHandler {
         navController.popBackStack()
     }

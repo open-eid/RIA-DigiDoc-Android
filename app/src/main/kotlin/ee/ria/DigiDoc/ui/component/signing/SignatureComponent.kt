@@ -34,11 +34,12 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewHorizontalPadding
 import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil.getSignatureStatusText
 import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatName
-import ee.ria.DigiDoc.utilsLib.date.DateUtil.signedDateTimeString
+import ee.ria.DigiDoc.viewmodel.SigningViewModel
 
 @Composable
 fun SignatureComponent(
     modifier: Modifier = Modifier,
+    signingViewModel: SigningViewModel,
     signature: SignatureInterface,
 ) {
     Row(
@@ -87,7 +88,7 @@ fun SignatureComponent(
                 text =
                     stringResource(
                         R.string.signing_container_signature_created_at,
-                        signedDateTimeString(signature.trustedSigningTime),
+                        signingViewModel.getFormattedDate(signature.trustedSigningTime),
                     ),
                 modifier = modifier.focusable(),
             )

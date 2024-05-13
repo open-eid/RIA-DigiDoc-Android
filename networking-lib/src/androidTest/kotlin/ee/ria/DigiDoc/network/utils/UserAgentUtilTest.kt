@@ -7,6 +7,7 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
+import android.os.Build
 import ee.ria.DigiDoc.common.BuildVersionProvider
 import ee.ria.DigiDoc.network.utils.UserAgentUtil.getUserAgent
 import junit.framework.TestCase.assertEquals
@@ -54,6 +55,9 @@ class UserAgentUtilTest {
 
         val userAgentString = getUserAgent(context, buildVersionProvider)
 
-        assertEquals(userAgentString, "riadigidoc/3.0.0.1234 (Android 13) Lang: en Devices: Smart Card Reader 1")
+        assertEquals(
+            userAgentString,
+            "riadigidoc/3.0.0.1234 (Android ${Build.VERSION.RELEASE}) Lang: en Devices: Smart Card Reader 1",
+        )
     }
 }

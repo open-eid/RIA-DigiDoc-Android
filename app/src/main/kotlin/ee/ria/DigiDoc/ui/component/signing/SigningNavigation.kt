@@ -54,6 +54,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
@@ -94,7 +95,7 @@ fun SigningNavigation(
     val shouldResetContainer by signingViewModel.shouldResetSignedContainer
     val context = LocalContext.current
     BackHandler {
-        signingViewModel.handleBackButton(navController)
+        handleBackButtonClick(navController, signingViewModel)
     }
 
     DisposableEffect(shouldResetContainer) {
@@ -145,7 +146,7 @@ fun SigningNavigation(
                     navController,
                     modifier = modifier,
                     onBackButtonClick = {
-                        signingViewModel.handleBackButton(navController)
+                        handleBackButtonClick(navController, signingViewModel)
                     },
                 )
                 Column(
@@ -349,7 +350,7 @@ fun SigningNavigation(
                         }
 
                         signedContainer?.getSignatures()?.forEach { signature ->
-                            SignatureComponent(signature = signature)
+                            SignatureComponent(signature = signature, signingViewModel = signingViewModel)
                         }
                     }
                 }
@@ -424,6 +425,14 @@ fun SigningNavigation(
             }
         }
     }
+}
+
+fun handleBackButtonClick(
+    navController: NavHostController,
+    signingViewModel: SigningViewModel,
+) {
+    navController.popBackStack(navController.graph.findStartDestination().id, false)
+    signingViewModel.handleBackButton()
 }
 
 @Preview(showBackground = true)

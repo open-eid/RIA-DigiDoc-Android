@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -47,7 +48,7 @@ class FileOpeningViewModel
 
         var launchFilePicker = mutableStateOf(true)
 
-        suspend fun showFileChooser(fileChooser: ManagedActivityResultLauncher<String, List<Uri>>) {
+        suspend fun showFileChooser(fileChooser: ActivityResultLauncher<String>) {
             fileOpeningRepository.showFileChooser(fileChooser, "*/*")
             // Do not launch file picker again after user presses the back button
             launchFilePicker.value = false

@@ -24,6 +24,13 @@ android {
     buildFeatures {
         buildConfig = true
     }
+
+    buildTypes {
+        debug {
+            enableUnitTestCoverage = true
+            enableAndroidTestCoverage = true
+        }
+    }
 }
 
 dependencies {
@@ -35,6 +42,10 @@ dependencies {
     implementation(libs.commons.text)
     implementation(libs.guava)
     testImplementation(libs.junit)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.androidx.junit)
+    testImplementation(libs.androidx.espresso.core)
+
     androidTestImplementation(libs.mockito.android)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
