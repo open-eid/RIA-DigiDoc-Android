@@ -1,0 +1,355 @@
+@file:Suppress("PackageName")
+
+package ee.ria.DigiDoc.libdigidoclib
+
+import android.content.Context
+import android.graphics.pdf.PdfDocument
+import androidx.test.platform.app.InstrumentationRegistry
+import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
+import ee.ria.DigiDoc.common.test.AssetFile
+import ee.ria.DigiDoc.libdigidoclib.SignedContainer.Companion.openOrCreate
+import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
+import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
+import ee.ria.DigiDoc.libdigidoclib.init.Initialization
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNotSame
+import org.junit.Before
+import org.junit.BeforeClass
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnitRunner
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+
+@RunWith(MockitoJUnitRunner::class)
+class SignedContainerTest {
+    companion object {
+        @JvmStatic
+        @BeforeClass
+        fun setupOnce() {
+            runBlocking {
+                try {
+                    Initialization.init(InstrumentationRegistry.getInstrumentation().targetContext)
+                } catch (_: Exception) {
+                }
+            }
+        }
+    }
+
+    private lateinit var context: Context
+
+    private lateinit var testFile: File
+    private lateinit var dataFile1: File
+    private lateinit var dataFile2: File
+    private lateinit var dataFile3: File
+    private lateinit var container: File
+
+    @Before
+    fun setup() {
+        MockitoAnnotations.openMocks(this)
+        context = InstrumentationRegistry.getInstrumentation().targetContext
+        testFile = File.createTempFile("testFile", ".txt", context.filesDir)
+        dataFile1 = File.createTempFile("dataFile1", ".txt", context.filesDir)
+        dataFile2 = File.createTempFile("dataFile2", ".txt", context.filesDir)
+        dataFile3 = File.createTempFile("dataFile3", ".txt", context.filesDir)
+        container = AssetFile.getResourceFileAsFile(context, "example.asice", ee.ria.DigiDoc.common.R.raw.example)
+    }
+
+    @After
+    fun tearDown() {
+        testFile.delete()
+        dataFile1.delete()
+        dataFile2.delete()
+        dataFile3.delete()
+        SignedContainer.cleanup()
+    }
+
+    @Test
+    fun signedContainer_openOrCreate_successWhenCreatingContainerWithSingleDataFile() =
+        runTest {
+            val dataFiles = listOf(testFile)
+
+            val signedContainer = openOrCreate(context, testFile, dataFiles)
+
+            assertEquals(1, signedContainer.getDataFiles().size)
+            assertEquals(dataFiles[0].name, signedContainer.getDataFiles()[0].fileName)
+            assertEquals(emptyList<SignatureInterface>(), signedContainer.getSignatures())
+        }
+
+    @Test
+    fun signedContainer_openOrCreate_successWhenCreatingContainerWithMultipleDataFiles() =
+        runTest {
+            val dataFiles =
+                listOf(
+                    dataFile1,
+                    dataFile2,
+                    dataFile3,
+                )
+
+            val signedContainer = openOrCreate(context, testFile, dataFiles)
+
+            dataFiles.forEach { file ->
+                file.delete()
+            }
+
+            assertEquals(3, signedContainer.getDataFiles().size)
+            dataFiles.zip(signedContainer.getDataFiles()).forEach { (file1, file2) ->
+                assertEquals(file1.name, file2.fileName)
+            }
+            assertEquals(emptyList<SignatureInterface>(), signedContainer.getSignatures())
+        }
+
+    @Test
+    fun signedContainer_openOrCreate_successWhenOpeningExistingContainer() =
+        runTest {
+            val signedContainer = openOrCreate(context, container, listOf(container))
+
+            assertEquals(true, signedContainer.isExistingContainer())
+            assertEquals(1, signedContainer.getDataFiles().size)
+            assertEquals(2, signedContainer.getSignatures().size)
+        }
+
+    @Test(expected = NoSuchElementException::class)
+    fun signedContainer_openOrCreate_throwExceptionWhenCreatingContainerWithEmptyDataFiles() =
+        runTest {
+            openOrCreate(context, testFile, emptyList())
+        }
+
+    @Test(expected = Exception::class)
+    fun signedContainer_openOrCreate_throwExceptionWhenCreatingContainerWithInvalidDataFile() =
+        runTest {
+            openOrCreate(context, testFile, listOf(File("testDataFile")))
+        }
+
+    @Test(expected = IOException::class)
+    fun signedContainer_openOrCreate_throwExceptionWhenOpeningInvalidContainer() =
+        runTest {
+            val invalidContainer = File.createTempFile("testFile", ".asice", context.filesDir)
+            openOrCreate(context, invalidContainer, listOf(invalidContainer))
+            invalidContainer.delete()
+        }
+
+    @Test
+    fun signedContainer_openOrCreate_successWhenCreatingContainerAndFilteringDuplicateDataFiles() =
+        runTest {
+            val createdContainer = openOrCreate(context, testFile, listOf(dataFile1, dataFile1))
+
+            assertEquals(1, createdContainer.getDataFiles().size)
+        }
+
+    @Test(expected = NoSuchElementException::class)
+    fun signedContainer_openOrCreate_throwExceptionWhenOpeningNonExistentContainer() =
+        runTest {
+            openOrCreate(context, File("nonExistentFile"), listOf(File("nonExistentDataFile")))
+        }
+
+    @Test
+    fun signedContainer_openOrCreate_successWhenCreatingContainerWithCustomFileName() =
+        runTest {
+            val customFileName = File.createTempFile("customTestFile", ".qwerty", context.filesDir)
+
+            val signedContainer = openOrCreate(context, customFileName, listOf(dataFile1))
+
+            customFileName.delete()
+
+            assertEquals("${customFileName.name}.$DEFAULT_CONTAINER_EXTENSION", signedContainer.getName())
+        }
+
+    @Test
+    fun signedContainer_openOrCreate_successWhenCreatingContainerWithSpecialCharacters() =
+        runTest {
+            val testDataFile = File.createTempFile("dataFile1!@#$€%&=?", ".txt", context.filesDir)
+
+            val createdContainer = openOrCreate(context, testFile, listOf(testDataFile))
+
+            testDataFile.delete()
+
+            assertNotNull(createdContainer)
+            assertEquals(testDataFile.name, createdContainer.getDataFiles().first().fileName)
+        }
+
+    @Test
+    fun signedContainer_openOrCreate_successWhenCreatingContainerWithNoExtensionDataFile() =
+        runTest {
+            val testDataFile = File.createTempFile("dataFile1", "", context.filesDir)
+
+            val signedContainer = openOrCreate(context, testDataFile, listOf(testDataFile))
+
+            testDataFile.delete()
+
+            assertEquals("${testDataFile.name}.$DEFAULT_CONTAINER_EXTENSION", signedContainer.getName())
+        }
+
+    @Test
+    fun signedContainer_container_successWhenGettingNewlyCreatedInitializedContainer() =
+        runTest {
+            openOrCreate(context, testFile, listOf(dataFile1))
+
+            val initializedContainer = SignedContainer.container()
+
+            assertEquals(false, initializedContainer.isExistingContainer())
+            assertEquals("${testFile.name}.$DEFAULT_CONTAINER_EXTENSION", initializedContainer.getName())
+            assertEquals(1, initializedContainer.getDataFiles().size)
+            assertEquals(0, initializedContainer.getSignatures().size)
+        }
+
+    @Test
+    fun signedContainer_container_successWhenGettingExistingInitializedContainer() =
+        runTest {
+            openOrCreate(context, container, listOf(container))
+
+            val initializedContainer = SignedContainer.container()
+
+            assertEquals(true, initializedContainer.isExistingContainer())
+            assertEquals("example.asice", initializedContainer.getName())
+            assertEquals(1, initializedContainer.getDataFiles().size)
+            assertEquals(2, initializedContainer.getSignatures().size)
+        }
+
+    @Test(expected = IllegalStateException::class)
+    fun signedContainer_container_throwExceptionWhenGettingUninitializedContainer() =
+        runTest {
+            SignedContainer.container()
+        }
+
+    @Test
+    fun signedContainer_container_matchesContainerSignatureData() =
+        runTest {
+            openOrCreate(context, container, listOf(container))
+            val signedContainer = SignedContainer.container()
+
+            assertEquals(
+                "O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001019906",
+                signedContainer.getSignatures().first().signedBy,
+            )
+            assertEquals("2022-03-21T12:03:12Z", signedContainer.getSignatures().first().claimedSigningTime)
+            assertEquals("2022-03-21T12:03:22Z", signedContainer.getSignatures().first().trustedSigningTime)
+            assertEquals(
+                "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256",
+                signedContainer.getSignatures().first().signatureMethod,
+            )
+            assertNotNull(signedContainer.getSignatures().first().dataToSign)
+            assertEquals("", signedContainer.getSignatures().first().policy)
+            assertEquals("", signedContainer.getSignatures().first().spUri)
+            assertEquals("BES/time-stamp", signedContainer.getSignatures().first().profile)
+            assertEquals("Linn", signedContainer.getSignatures().first().city)
+            assertEquals("Maakond", signedContainer.getSignatures().first().stateOrProvince)
+            assertEquals("12345", signedContainer.getSignatures().first().postalCode)
+            assertEquals("EE", signedContainer.getSignatures().first().countryName)
+            assertEquals(1, signedContainer.getSignatures().first().signerRoles.size)
+            assertEquals("Roll", signedContainer.getSignatures().first().signerRoles[0])
+            assertEquals("2022-03-21T12:03:23Z", signedContainer.getSignatures().first().ocspProducedAt)
+            assertEquals("2022-03-21T12:03:22Z", signedContainer.getSignatures().first().timeStampTime)
+            assertEquals("", signedContainer.getSignatures().first().archiveTimeStampTime)
+            assertEquals("", signedContainer.getSignatures().first().streetAddress)
+            assertNotNull(signedContainer.getSignatures().first().messageImprint)
+            assertNotNull(signedContainer.getSignatures().first().signingCertificateDer)
+            assertNotNull(signedContainer.getSignatures().first().ocspCertificateDer)
+            assertNotNull(signedContainer.getSignatures().first().timeStampCertificateDer)
+            assertNotNull(signedContainer.getSignatures().first().archiveTimeStampCertificateDer)
+        }
+
+    @Test
+    fun signedContainer_container_matchesContainerDataFileData() =
+        runTest {
+            openOrCreate(context, container, listOf(container))
+            val signedContainer = SignedContainer.container()
+
+            assertEquals("text.txt", signedContainer.getDataFiles().first().fileName)
+            assertEquals(3, signedContainer.getDataFiles().first().fileSize)
+            assertEquals("application/octet-stream", signedContainer.getDataFiles().first().mediaType)
+        }
+
+    @Test
+    fun signedContainer_container_matchesContainerValidatorData() =
+        runTest {
+            openOrCreate(context, container, listOf(container))
+            val signedContainer = SignedContainer.container()
+
+            assertEquals(ValidatorInterface.Status.Unknown, signedContainer.getSignatures().first().validator.status)
+            assertNotSame("", signedContainer.getSignatures().first().validator.diagnostics)
+        }
+
+    @Test
+    fun signedContainer_openOrCreate_successCreatingNewContainerWithPDFNoSignatures() =
+        runTest {
+            val pdfDocument = PdfDocument()
+
+            val pageInfo = PdfDocument.PageInfo.Builder(100, 100, 1).create()
+            val page = pdfDocument.startPage(pageInfo)
+            pdfDocument.finishPage(page)
+
+            val testPDFFile = File(context.filesDir, "testFile.pdf")
+            try {
+                val fileOutputStream = FileOutputStream(testPDFFile)
+                pdfDocument.writeTo(fileOutputStream)
+                fileOutputStream.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            } finally {
+                pdfDocument.close()
+            }
+
+            val signedContainer = openOrCreate(context, testPDFFile, listOf(testPDFFile))
+
+            testPDFFile.delete()
+
+            assertFalse(signedContainer.getName().endsWith("pdf"))
+        }
+
+    // TODO: Try if possible to run after central configuration implementation
+
+    /*@Test
+    fun signedContainer_openOrCreate_successCreatingNewContainerWithPDFSignatures() =
+        runTest {
+            val pdfDocument = PdfDocument()
+
+            val pageInfo = PdfDocument.PageInfo.Builder(100, 100, 1).create()
+            val page = pdfDocument.startPage(pageInfo)
+            pdfDocument.finishPage(page)
+
+            val testPDFFile = File(context.filesDir, "testFile.pdf")
+            val signedTestPDFFile = File(context.filesDir, "signedTestFile.pdf")
+            try {
+                val fileOutputStream = FileOutputStream(testPDFFile)
+                pdfDocument.writeTo(fileOutputStream)
+                fileOutputStream.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            } finally {
+                pdfDocument.close()
+            }
+
+            try {
+                val document = PDDocument.load(testPDFFile)
+
+                val signature = PDSignature()
+                signature.setFilter(PDSignature.FILTER_ADOBE_PPKLITE)
+                signature.setSubFilter(PDSignature.SUBFILTER_ADBE_PKCS7_DETACHED)
+                signature.name = "Test Signature"
+                signature.location = "Location"
+                signature.reason = "Reason"
+
+                document.addSignature(signature)
+
+                document.save(signedTestPDFFile)
+                document.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+
+            val pdfContainer = openOrCreate(context, signedTestPDFFile, listOf(signedTestPDFFile))
+
+            testPDFFile.delete()
+            signedTestPDFFile.delete()
+
+            assertTrue(pdfContainer.getName().endsWith("pdf"))
+        }*/
+}

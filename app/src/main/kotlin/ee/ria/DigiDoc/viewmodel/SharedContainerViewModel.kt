@@ -32,6 +32,7 @@ class SharedContainerViewModel
         }
 
         fun resetSignedContainer() {
+            SignedContainer.cleanup()
             _signedContainer.postValue(null)
         }
 

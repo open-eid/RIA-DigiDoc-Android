@@ -132,11 +132,12 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
                 dataFiles?.firstOrNull()?.run {
                     isContainer || (isPDF && isSignedPDF(context, this))
                 } ?: false
-
             var containerFileWithExtension = file
-            if (!isFirstDataFileContainer && !file.path.endsWith(".asice")) {
-                containerFileWithExtension = File(file.path.plus(".$DEFAULT_CONTAINER_EXTENSION"))
+
+            if (!isFirstDataFileContainer && !file.path.endsWith(".$DEFAULT_CONTAINER_EXTENSION")) {
+                containerFileWithExtension = File("${file.path}.$DEFAULT_CONTAINER_EXTENSION")
             }
+
             containerFile = containerFileWithExtension
 
             return if (dataFiles != null && dataFiles.size == 1 && isFirstDataFileContainer) {
@@ -164,16 +165,26 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
                         Container.create(file.path)
                     }
                 } catch (e: Exception) {
+                    container = null
                     handleContainerException(context, e)
                 } ?: throw IOException("Container.open returned null")
 
             dataFiles.forEachIndexed { index, dataFile ->
                 dataFile?.let {
-                    debugLog(LOG_TAG, "Adding datafile ${dataFile.name}. ${index + 1} / ${dataFiles.size}")
-                    container?.addDataFile(it.absolutePath, it.mimeType)
+                    debugLog(LOG_TAG, "Adding datafile '${dataFile.name}'. File ${index + 1} / ${dataFiles.size}")
+                    try {
+                        container?.addDataFile(it.absolutePath, it.mimeType)
+                    } catch (e: Exception) {
+                        errorLog(LOG_TAG, "Unable to add file to container. ${e.localizedMessage}")
+                    }
                 } ?: run {
                     errorLog(LOG_TAG, "Unable to add file to container")
                 }
+            }
+
+            if (container?.dataFiles()?.size == 0) {
+                container = null
+                throw NoSuchElementException("No valid data files")
             }
 
             container?.save()
@@ -201,14 +212,18 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
                     createSignaturesList(openedContainer.signatures()),
                 )
             } catch (e: Exception) {
+                container = null
                 handleContainerException(context, e)
             }
         }
 
-        @Throws(Exception::class)
+        @Throws(IllegalStateException::class)
         fun container(): SignedContainer {
             container?.let {
-                return SignedContainer(createDataFilesList(it.dataFiles()), createSignaturesList(it.signatures()))
+                val dataFiles = it.dataFiles()
+                if (dataFiles.isNotEmpty()) {
+                    return SignedContainer(createDataFilesList(dataFiles), createSignaturesList(it.signatures()))
+                }
             }
             throw IllegalStateException("Container is not initialized")
         }
@@ -221,6 +236,15 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
             }
             val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
             return mimeType ?: DEFAULT_MIME_TYPE
+        }
+
+        /**
+         * Reset SignedContainer instance
+         */
+        fun cleanup() {
+            container = null
+            containerFile = null
+            isExistingContainer = false
         }
 
         private fun isSignedPDF(

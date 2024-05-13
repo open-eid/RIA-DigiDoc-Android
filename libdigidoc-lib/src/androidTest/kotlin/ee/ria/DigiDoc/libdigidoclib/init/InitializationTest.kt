@@ -5,7 +5,8 @@ package ee.ria.DigiDoc.libdigidoclib.init
 import android.content.Context
 import android.content.res.Resources
 import android.content.res.Resources.NotFoundException
-import androidx.test.core.app.ApplicationProvider
+import androidx.test.platform.app.InstrumentationRegistry
+import ee.ria.DigiDoc.libdigidoclib.exceptions.AlreadyInitializedException
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
 import org.junit.Assert.fail
@@ -20,7 +21,7 @@ class InitializationTest {
 
     @Before
     fun setup() {
-        context = ApplicationProvider.getApplicationContext()
+        context = InstrumentationRegistry.getInstrumentation().targetContext
         resetInitialization()
     }
 
@@ -69,12 +70,12 @@ class InitializationTest {
     }
 
     @Test
-    fun testInit_initTwice_throwsIllegalStateException() {
+    fun testInit_initTwice_throwsAlreadyInitializedException() {
         val mockContext = mock(Context::class.java)
         `when`(mockContext.resources).thenReturn(context.resources)
         `when`(mockContext.cacheDir).thenReturn(context.cacheDir)
 
-        assertThrows(IllegalStateException::class.java) {
+        assertThrows(AlreadyInitializedException::class.java) {
             runTest {
                 Initialization.init(mockContext)
                 Initialization.init(mockContext)

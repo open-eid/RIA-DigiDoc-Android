@@ -26,5 +26,5 @@ val File.mimeType: String
             return CONTAINER_MIME_TYPE
         }
         val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
-        return mimeType ?: DEFAULT_MIME_TYPE
+        return mimeType?.takeIf { it.isNotEmpty() } ?: DEFAULT_MIME_TYPE
     }

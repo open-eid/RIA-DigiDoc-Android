@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.utilsLib.date
 
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -10,6 +11,7 @@ object DateUtil {
     val dateFormat: SimpleDateFormat
         get() = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
 
+    @Throws(ParseException::class)
     fun signedDateTimeString(signedDateString: String): String {
         val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
         val date: Date? = inputFormat.parse(signedDateString)

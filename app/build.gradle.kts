@@ -48,6 +48,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            enableUnitTestCoverage = true
+            enableAndroidTestCoverage = true
         }
 
         release {
@@ -96,6 +98,7 @@ dependencies {
     implementation(libs.preferencex)
     implementation(libs.google.dagger.hilt.android)
     implementation(libs.guava)
+    implementation(libs.core.ktx)
     kapt(libs.google.dagger.hilt.android.compile)
     implementation(libs.androidx.hilt)
     testImplementation(libs.junit)
@@ -107,6 +110,11 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    androidTestImplementation(libs.mockito.android)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.androidx.lifecycle.runtime.ktx)
+    androidTestImplementation(libs.androidx.arch.core.testing)
 
     implementation(project(":libdigidoc-lib"))
     implementation(project(":mobile-id-lib"))

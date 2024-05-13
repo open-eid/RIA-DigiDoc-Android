@@ -59,9 +59,7 @@ object FileUtils {
                 while (zipInputStream.nextEntry.also { entry = it } != null) {
                     val entryName = entry?.name ?: throw ZipException("Zip entry name is null")
                     val entryFile = File(schemaDir, entryName)
-                    if (!entryFile.toPath().normalize().startsWith(schemaDir.toPath()) ||
-                        !isChild(schemaDir, entryFile)
-                    ) {
+                    if (!isChild(schemaDir, entryFile)) {
                         throw ZipException("Bad zip entry: $entryName")
                     }
                     Files.copy(zipInputStream, Paths.get(entryFile.toURI()), StandardCopyOption.REPLACE_EXISTING)

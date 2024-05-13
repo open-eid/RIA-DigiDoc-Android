@@ -5,9 +5,11 @@ package ee.ria.DigiDoc.domain.repository
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
-import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.result.ActivityResultLauncher
+import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.utilsLib.file.FileStream
+import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import java.io.File
 
 interface FileOpeningRepository {
@@ -20,10 +22,16 @@ interface FileOpeningRepository {
     ): File
 
     suspend fun showFileChooser(
-        fileChooser: ManagedActivityResultLauncher<String, List<Uri>>,
+        fileChooser: ActivityResultLauncher<String>,
         contractType: String,
     )
 
+    @Throws(
+        EmptyFileException::class,
+        NoSuchElementException::class,
+        NoInternetConnectionException::class,
+        Exception::class,
+    )
     suspend fun openOrCreateContainer(
         context: Context,
         contentResolver: ContentResolver,

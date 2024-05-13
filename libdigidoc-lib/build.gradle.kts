@@ -37,6 +37,13 @@ android {
     buildFeatures {
         buildConfig = true
     }
+
+    buildTypes {
+        debug {
+            enableUnitTestCoverage = true
+            enableAndroidTestCoverage = true
+        }
+    }
 }
 
 dependencies {
