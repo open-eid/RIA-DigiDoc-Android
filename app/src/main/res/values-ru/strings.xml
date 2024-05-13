@@ -8,6 +8,8 @@
     <string name="documents_add_button">+ ДОБАВИТЬ БОЛЬШЕ ФАЙЛОВ</string>
     <string name="documents_add_button_accessibility">Добавить больше файлов</string>
     <string name="file">Файл</string>
+    <string name="file_saved">Файл сохранен</string>
+    <string name="file_saved_error">Не удалось сохранить файл</string>
     <string name="document_remove_button">Удалить файл</string>
     <string name="document_save_button">Сохраните файл</string>
     <string name="document_remove_confirmation_message">Удалить файл из контейнера?</string>
@@ -50,6 +52,9 @@
     <string name="signing_container_signature_created_at">Подписано %1$s</string>
 
     <!-- Signature Add -->
+    <string name="signature_update_name_update_name">Название контейнера</string>
+    <string name="signature_update_documents_add_error_exists">Файл уже существует в контейнере</string>
+
     <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
     <string name="signature_update_signature_add_method_id_card">ID-карта</string>
@@ -72,6 +77,9 @@
     <string name="signature_update_smart_id_country">Страна</string>
 
     <string name="signature_update_id_card_progress_message_initial">Подключите считыватель карты и вставьте в него Вашу ID-карту</string>
+
+    <string name="signature_update_remove_last_document_confirmation_message">Вы собираетесь удалить последний файл в контейнере, он удаляется вместе с контейнером.</string>
+    <string name="signature_update_remove_document_confirmation_message">Удалить файл из контейнера?</string>
 
     <string name="sign_button">ПОДПИСАТЬ</string>
     <string name="share_button">ПОДЕЛИТЬСЯ</string>

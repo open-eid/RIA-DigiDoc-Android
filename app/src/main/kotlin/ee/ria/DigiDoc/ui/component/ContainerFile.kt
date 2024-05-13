@@ -17,6 +17,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -26,7 +27,6 @@ import androidx.compose.ui.text.style.TextAlign
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.ui.theme.Blue500
-import ee.ria.DigiDoc.ui.theme.Dimensions
 import ee.ria.DigiDoc.ui.theme.Dimensions.containerButtonHorizontalPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
@@ -38,6 +38,9 @@ import ee.ria.DigiDoc.ui.theme.Red500
 fun ContainerFile(
     modifier: Modifier = Modifier,
     dataFile: DataFileInterface,
+    onClickView: () -> Unit = {},
+    onClickRemove: () -> Unit = {},
+    onClickSave: () -> Unit = {},
 ) {
     val fileText = stringResource(id = R.string.file)
     Row(
@@ -49,7 +52,8 @@ fun ContainerFile(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         TextButton(
-            onClick = { /* TODO */ },
+            onClick = onClickView,
+            shape = RectangleShape,
             modifier =
                 modifier
                     .padding(start = containerButtonHorizontalPadding, end = screenViewVerticalPadding)
@@ -68,7 +72,7 @@ fun ContainerFile(
         }
 
         IconButton(
-            onClick = { /* TODO */ },
+            onClick = onClickRemove,
             modifier = modifier.size(iconSize),
             content = {
                 Icon(
@@ -80,8 +84,8 @@ fun ContainerFile(
         )
         Spacer(modifier = modifier.width(itemSpacingPadding))
         IconButton(
-            onClick = { /* TODO */ },
-            modifier = modifier.size(Dimensions.iconSize),
+            onClick = onClickSave,
+            modifier = modifier.size(iconSize),
             content = {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_icon_save),

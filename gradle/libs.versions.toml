@@ -35,6 +35,7 @@ preferencex = "1.1.0"
 androidx-security-crypto = "1.0.0"
 work = "2.9.0"
 pdfbox-android = "2.0.27.0"
+guava = "33.0.0-jre"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -70,6 +71,7 @@ preferencex = { group = "com.takisoft.preferencex", name = "preferencex", versio
 androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "androidx-security-crypto" }
 work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
 pdfbox-android = { group = "com.tom-roush", name = "pdfbox-android", version.ref = "pdfbox-android" }
+guava = {group = "com.google.guava", name = "guava", version.ref = "guava" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

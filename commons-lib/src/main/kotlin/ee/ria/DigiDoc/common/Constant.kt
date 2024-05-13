@@ -11,8 +11,10 @@ object Constant {
     const val ALLOWED_URL_CHARACTERS =
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_,.:/%;+=@?&!()"
 
+    const val DATA_FILE_DIR = "%s-data-files"
     const val DIR_SIGNATURE_CONTAINERS = "signed_containers"
     const val DIR_EXTERNALLY_OPENED_FILES = "external_files"
+    const val DEFAULT_CONTAINER_EXTENSION = "asice"
     const val CONTAINER_MIME_TYPE = "application/octet-stream"
     const val DEFAULT_MIME_TYPE = "text/plain"
     val ASICS_CONTAINER_EXTENSIONS: Set<String> = setOf("asics", "scs")

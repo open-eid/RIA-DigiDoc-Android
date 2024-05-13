@@ -43,12 +43,13 @@ fun FileOpeningNavigation(
 ) {
     val context = LocalContext.current
     val errorState by fileOpeningViewModel.errorState.asFlow().collectAsState(null)
+    val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
     val filePicker =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetMultipleContents(),
             onResult = { uri ->
                 CoroutineScope(Dispatchers.IO).launch {
-                    fileOpeningViewModel.handleFiles(uri)
+                    fileOpeningViewModel.handleFiles(uri, signedContainer)
 
                     withContext(Dispatchers.Main) {
                         errorState?.let {

@@ -3,18 +3,27 @@
 package ee.ria.DigiDoc.libdigidoclib
 
 import android.content.Context
+import android.webkit.MimeTypeMap
+import com.google.common.io.Files.getFileExtension
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
 import com.tom_roush.pdfbox.pdmodel.PDDocument
+import ee.ria.DigiDoc.common.Constant.CONTAINER_EXTENSIONS
+import ee.ria.DigiDoc.common.Constant.CONTAINER_MIME_TYPE
+import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
 import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
+import ee.ria.DigiDoc.common.Constant.DEFAULT_MIME_TYPE
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureWrapper
+import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerDataFilesEmptyException
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import ee.ria.DigiDoc.libdigidoclib.exceptions.SSLHandshakeException
+import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import ee.ria.DigiDoc.utilsLib.extensions.isContainer
 import ee.ria.DigiDoc.utilsLib.extensions.isPDF
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
+import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.libdigidocpp.Container
@@ -24,6 +33,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
+import java.util.Locale
 
 private const val LOG_TAG = "SignedContainer"
 
@@ -40,8 +50,70 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
         return containerFile?.name ?: DEFAULT_FILENAME
     }
 
+    fun setName(filename: String) {
+        val containerName = ContainerUtil.addExtensionToContainerFilename(filename)
+        containerFile = File(containerFile?.parent, containerName)
+    }
+
     fun isExistingContainer(): Boolean {
         return isExistingContainer
+    }
+
+    fun getContainerFile(): File? {
+        return containerFile
+    }
+
+    @Throws(Exception::class)
+    fun addDataFiles(dataFiles: List<File?>): SignedContainer {
+        for (dataFile in dataFiles) {
+            if (dataFile != null) {
+                container?.addDataFile(dataFile.absolutePath, mimeType(dataFile))
+            }
+        }
+        container?.save()
+        return container()
+    }
+
+    @Throws(Exception::class)
+    fun getDataFile(
+        dataFile: DataFileInterface,
+        directory: File?,
+    ): File? {
+        val file = sanitizeString(dataFile.fileName, "")?.let { File(directory, it) }
+        val dataFiles = container?.dataFiles()
+        if (dataFiles != null) {
+            for (i in dataFiles.indices) {
+                val containerDataFile = dataFiles[i]
+                if (dataFile.id == containerDataFile.id()) {
+                    if (file != null) {
+                        containerDataFile.saveAs(file.absolutePath)
+                    }
+                    return file
+                }
+            }
+        }
+        throw IllegalArgumentException(
+            ("Could not find file " + dataFile.id) +
+                " in container " + containerFile?.name,
+        )
+    }
+
+    @Throws(Exception::class)
+    fun removeDataFile(dataFile: DataFileInterface): SignedContainer {
+        if ((container?.dataFiles()?.size ?: 0) == 1) {
+            throw ContainerDataFilesEmptyException()
+        }
+        val dataFiles = container?.dataFiles()
+        if (dataFiles != null) {
+            for (i in dataFiles.indices) {
+                if (dataFile.id == dataFiles[i].id()) {
+                    container?.removeDataFile(i.toLong())
+                    break
+                }
+            }
+        }
+        container?.save()
+        return container()
     }
 
     companion object {
@@ -61,7 +133,11 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
                     isContainer || (isPDF && isSignedPDF(context, this))
                 } ?: false
 
-            containerFile = file
+            var containerFileWithExtension = file
+            if (!isFirstDataFileContainer && !file.path.endsWith(".asice")) {
+                containerFileWithExtension = File(file.path.plus(".$DEFAULT_CONTAINER_EXTENSION"))
+            }
+            containerFile = containerFileWithExtension
 
             return if (dataFiles != null && dataFiles.size == 1 && isFirstDataFileContainer) {
                 isExistingContainer = true
@@ -111,12 +187,12 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
         @Throws(Exception::class)
         private suspend fun open(
             context: Context,
-            file: File,
+            file: File?,
         ): SignedContainer {
             return try {
                 val openedContainer =
                     withContext(Dispatchers.IO) {
-                        Container.open(file.path)
+                        Container.open(file?.path ?: "")
                     }
                 container = openedContainer
                 containerFile = file
@@ -135,6 +211,16 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
                 return SignedContainer(createDataFilesList(it.dataFiles()), createSignaturesList(it.signatures()))
             }
             throw IllegalStateException("Container is not initialized")
+        }
+
+        fun mimeType(file: File): String {
+            val extension: String =
+                getFileExtension(file.name).lowercase(Locale.getDefault())
+            if (CONTAINER_EXTENSIONS.contains(extension)) {
+                return CONTAINER_MIME_TYPE
+            }
+            val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+            return mimeType ?: DEFAULT_MIME_TYPE
         }
 
         private fun isSignedPDF(

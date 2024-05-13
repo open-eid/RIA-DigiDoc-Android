@@ -2,14 +2,24 @@
 
 package ee.ria.DigiDoc.utilsLib.container
 
+import android.content.ContentResolver
 import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
+import com.google.common.io.ByteStreams
+import ee.ria.DigiDoc.common.Constant.CONTAINER_EXTENSIONS
+import ee.ria.DigiDoc.common.Constant.DATA_FILE_DIR
+import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
 import ee.ria.DigiDoc.common.Constant.DIR_SIGNATURE_CONTAINERS
+import ee.ria.DigiDoc.utilsLib.file.FileStream
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
+import ee.ria.DigiDoc.utilsLib.file.FileUtil.getFileInDirectory
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.util.Locale
 
@@ -44,7 +54,7 @@ object ContainerUtil {
                     ),
                 ),
             )
-        val fileInDirectory: File = FileUtil.getFileInDirectory(file, signatureContainersDir(context))
+        val fileInDirectory: File = getFileInDirectory(file, signatureContainersDir(context))
         fileInDirectory.parentFile?.mkdirs()
         return file
     }
@@ -64,14 +74,193 @@ object ContainerUtil {
         }
     }
 
-    private suspend fun signatureContainersDir(context: Context): File {
-        return withContext(Dispatchers.IO) {
-            val dir = File(context.filesDir, DIR_SIGNATURE_CONTAINERS)
-            val isDirsCreated = dir.mkdirs()
-            if (isDirsCreated) {
-                debugLog(LOG_TAG, "Directories created for ${dir.path}")
+    @Throws(IOException::class)
+    suspend fun cache(
+        context: Context,
+        fileStream: FileStream,
+    ): File? {
+        val file: File? = fileStream.displayName?.let { getCacheFile(context, it) }
+        fileStream.source?.openStream().use { inputStream ->
+            FileOutputStream(file).use { outputStream ->
+                if (inputStream != null) {
+                    ByteStreams.copy(inputStream, outputStream)
+                }
             }
-            dir
         }
+        return file
+    }
+
+    @Throws(IOException::class)
+    private suspend fun getCacheFile(
+        context: Context,
+        name: String,
+    ): File {
+        val cacheFile =
+            File(
+                context.cacheDir,
+                String.format(
+                    Locale.US,
+                    "%s",
+                    FilenameUtils.getName(FileUtil.sanitizeString(name, "")),
+                ),
+            )
+        return getFileInDirectory(cacheFile, context.cacheDir)
+    }
+
+    fun getContainerDataFilesDir(
+        context: Context,
+        containerFile: File,
+    ): File {
+        val directory: File =
+            if (containerFile.parentFile == signatureContainersDir(context)) {
+                createDataFileDirectory(
+                    context.cacheDir,
+                    containerFile,
+                )
+            } else {
+                createDataFileDirectory(
+                    containerFile.parentFile,
+                    containerFile,
+                )
+            }
+        return directory
+    }
+
+    private fun createDataFileDirectory(
+        directory: File?,
+        container: File,
+    ): File {
+        var dir: File
+        var i = 0
+        while (true) {
+            val name =
+                StringBuilder(
+                    String.format(
+                        Locale.US,
+                        DATA_FILE_DIR,
+                        container.name,
+                    ),
+                )
+            if (i > 0) {
+                name.append(i)
+            }
+            dir = File(directory, name.toString())
+            if (dir.isDirectory || !dir.exists()) {
+                break
+            }
+            i++
+        }
+        val isDirsCreated = dir.mkdirs()
+        val isDirCreated = dir.mkdir()
+
+        if (isDirsCreated || isDirCreated) {
+            if (directory != null) {
+                debugLog(LOG_TAG, "Directories created for " + directory.path)
+            }
+        }
+
+        return dir
+    }
+
+    fun isEmptyFileInList(fileStreams: List<FileStream>): Boolean {
+        for (fileStream in fileStreams) {
+            if (fileStream.fileSize?.toInt() == 0) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    @Throws(IOException::class)
+    fun getFilesWithValidSize(fileStreams: List<FileStream>): List<FileStream> {
+        val validFileStreams: MutableList<FileStream> = ArrayList()
+        for (fileStream in fileStreams) {
+            if (fileStream.fileSize?.toInt() != 0) {
+                validFileStreams.add(fileStream)
+            }
+        }
+
+        return validFileStreams
+    }
+
+    fun parseUris(
+        contentResolver: ContentResolver?,
+        uris: List<Uri>,
+    ): List<FileStream> {
+        val list: ArrayList<FileStream> = ArrayList()
+        for (i in uris.indices) {
+            val uri = uris[i]
+            list.add(
+                FileStream.create(
+                    contentResolver,
+                    uri,
+                    contentResolver?.let {
+                        FileUtil.normalizeUri(uri)
+                            ?.let { uri -> getFileSize(it, uri) }
+                    },
+                ),
+            )
+        }
+
+        return list
+    }
+
+    private fun getFileSize(
+        contentResolver: ContentResolver?,
+        uri: Uri,
+    ): Long {
+        val cursor =
+            FileUtil.normalizeUri(uri)?.let { contentResolver?.query(it, null, null, null, null) }
+        var fileSize: Long = 0
+        if (cursor != null) {
+            val columnIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+            if (cursor.moveToFirst() && !cursor.isNull(columnIndex)) {
+                fileSize = cursor.getLong(columnIndex)
+            }
+            cursor.close()
+            return fileSize
+        }
+        @Suppress("KotlinConstantConditions")
+        return fileSize
+    }
+
+    private fun signatureContainersDir(context: Context): File {
+        val dir = File(context.filesDir, DIR_SIGNATURE_CONTAINERS)
+        val isDirsCreated = dir.mkdirs()
+        if (isDirsCreated) {
+            debugLog(LOG_TAG, "Directories created for ${dir.path}")
+        }
+        return dir
+    }
+
+    fun removeExtensionFromContainerFilename(filename: String): String {
+        return FilenameUtils.removeExtension(filename)
+    }
+
+    fun addExtensionToContainerFilename(filename: String): String {
+        val normalizedDisplayName =
+            FilenameUtils.getName(
+                FileUtil.sanitizeString(
+                    FileUtil.normalizePath(
+                        filename,
+                    ).path,
+                    "",
+                ),
+            )
+        if (FilenameUtils.getExtension(normalizedDisplayName).isNotEmpty() &&
+            FilenameUtils.isExtension(normalizedDisplayName, CONTAINER_EXTENSIONS)
+        ) {
+            return normalizedDisplayName
+        }
+        val containerName =
+            java.lang.String.format(
+                Locale.US,
+                "%s.%s",
+                FilenameUtils.removeExtension(normalizedDisplayName),
+                DEFAULT_CONTAINER_EXTENSION,
+            )
+
+        return containerName
     }
 }
