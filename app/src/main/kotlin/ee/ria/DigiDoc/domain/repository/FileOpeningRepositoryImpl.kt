@@ -12,7 +12,6 @@ import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
-import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.cache
 import ee.ria.DigiDoc.utilsLib.file.FileStream
 import java.io.File
 import java.io.IOException
@@ -93,6 +92,21 @@ class FileOpeningRepositoryImpl
             }
         }
 
+        override fun isEmptyFileInList(fileStreams: List<FileStream>): Boolean {
+            return ContainerUtil.isEmptyFileInList(fileStreams)
+        }
+
+        override fun parseUris(
+            contentResolver: ContentResolver?,
+            uris: List<Uri>,
+        ): List<FileStream> {
+            return ContainerUtil.parseUris(contentResolver, uris)
+        }
+
+        override fun getFilesWithValidSize(fileStreams: List<FileStream>): List<FileStream> {
+            return ContainerUtil.getFilesWithValidSize(fileStreams)
+        }
+
         @Throws(Exception::class)
         private fun getContainerFiles(documentStreams: List<FileStream>): List<FileStream> {
             val fileStreamList: ArrayList<FileStream> = ArrayList()
@@ -140,7 +154,7 @@ class FileOpeningRepositoryImpl
         ): List<File> {
             val fileBuilder: ArrayList<File> = ArrayList()
             for (fileStream in fileStreams) {
-                cache(context, fileStream)?.let { fileBuilder.add(it) }
+                ContainerUtil.cache(context, fileStream)?.let { fileBuilder.add(it) }
             }
             return fileBuilder
         }

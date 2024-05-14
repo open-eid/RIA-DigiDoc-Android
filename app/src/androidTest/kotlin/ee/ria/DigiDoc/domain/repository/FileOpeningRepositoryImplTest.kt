@@ -11,6 +11,7 @@ import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
 import ee.ria.DigiDoc.domain.service.FileOpeningService
 import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
+import ee.ria.DigiDoc.utilsLib.file.FileStream
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -96,10 +97,89 @@ class FileOpeningRepositoryImplTest {
         }
 
     @Test
+    fun fileOpeningRepository_addFilesToContainer_validFileSuccess() =
+        runBlocking {
+            val uris = listOf(mock(Uri::class.java))
+            val file = createTempFileWithStringContent("test", "Test content")
+            val fileStreams =
+                listOf(FileStream.create(createTempFileWithStringContent("test2", "Another test file content")))
+            val mockContext = mock(Context::class.java)
+
+            `when`(mockContext.filesDir).thenReturn(createTempDirectory("tempDirectory").toFile())
+            `when`(mockContext.cacheDir).thenReturn(createTempDirectory("cacheDirectory").toFile())
+            `when`(fileOpeningService.uriToFile(mockContext, contentResolver, uris.first())).thenReturn(file)
+            `when`(fileOpeningService.isFileSizeValid(file)).thenReturn(true)
+
+            val existingSignedContainer =
+                runBlocking {
+                    fileOpeningRepository.openOrCreateContainer(mockContext, contentResolver, uris)
+                }
+
+            val signedContainer =
+                runBlocking {
+                    fileOpeningRepository.addFilesToContainer(mockContext, existingSignedContainer, fileStreams)
+                }
+
+            assertEquals(2, signedContainer.getDataFiles().size)
+        }
+
+    @Test
+    fun fileOpeningRepository_addFilesToContainer_skipFileWithNoFilename() =
+        runBlocking {
+            val uris = listOf(mock(Uri::class.java))
+            val file = createTempFileWithStringContent("test", "Test content")
+            val fileStreams = listOf(FileStream(null, com.google.common.io.Files.asByteSource(file), file.length()))
+            val mockContext = mock(Context::class.java)
+
+            `when`(mockContext.filesDir).thenReturn(createTempDirectory("tempDirectory").toFile())
+            `when`(mockContext.cacheDir).thenReturn(createTempDirectory("cacheDirectory").toFile())
+            `when`(fileOpeningService.uriToFile(mockContext, contentResolver, uris.first())).thenReturn(file)
+            `when`(fileOpeningService.isFileSizeValid(file)).thenReturn(true)
+
+            val existingSignedContainer =
+                runBlocking {
+                    fileOpeningRepository.openOrCreateContainer(mockContext, contentResolver, uris)
+                }
+
+            val signedContainer =
+                runBlocking {
+                    fileOpeningRepository.addFilesToContainer(mockContext, existingSignedContainer, fileStreams)
+                }
+
+            assertEquals(1, signedContainer.getDataFiles().size)
+        }
+
+    @Test(expected = RuntimeException::class)
+    fun fileOpeningRepository_addFilesToContainer_throwAlreadyFileExistsException() =
+        runBlocking {
+            val uris = listOf(mock(Uri::class.java))
+            val file = createTempFileWithStringContent("test", "Test content")
+            val fileStreams = listOf(FileStream.create(file))
+            val mockContext = mock(Context::class.java)
+
+            `when`(mockContext.filesDir).thenReturn(createTempDirectory("tempDirectory").toFile())
+            `when`(mockContext.cacheDir).thenReturn(createTempDirectory("cacheDirectory").toFile())
+            `when`(fileOpeningService.uriToFile(mockContext, contentResolver, uris.first())).thenReturn(file)
+            `when`(fileOpeningService.isFileSizeValid(file)).thenReturn(true)
+
+            val existingSignedContainer =
+                runBlocking {
+                    fileOpeningRepository.openOrCreateContainer(mockContext, contentResolver, uris)
+                }
+
+            val signedContainer =
+                runBlocking {
+                    fileOpeningRepository.addFilesToContainer(mockContext, existingSignedContainer, fileStreams)
+                }
+
+            assertEquals(1, signedContainer.getDataFiles().size)
+        }
+
+    @Test
     fun fileOpeningRepository_openOrCreateContainer_validFilesSuccess() =
         runBlocking {
             val uris = listOf(mock(Uri::class.java))
-            val file = createTempFile()
+            val file = createTempFileWithStringContent("test", "Test content")
             val mockContext = mock(Context::class.java)
 
             `when`(mockContext.filesDir).thenReturn(createTempDirectory("tempDirectory").toFile())
@@ -119,8 +199,8 @@ class FileOpeningRepositoryImplTest {
     fun fileOpeningRepository_openOrCreateContainer_validFilesFilterValidFileSuccess() =
         runBlocking {
             val uris = listOf(mock(Uri::class.java), mock(Uri::class.java))
-            val validFile = createTempFile()
-            val invalidFile = createTempFile()
+            val validFile = createTempFileWithStringContent("test", "Test content")
+            val invalidFile = createTempFileWithStringContent("test2", "Test content 2")
             val mockContext = mock(Context::class.java)
 
             `when`(mockContext.filesDir).thenReturn(createTempDirectory("tempDirectory").toFile())
@@ -163,9 +243,30 @@ class FileOpeningRepositoryImplTest {
         runBlocking { fileOpeningRepository.checkForValidFiles(files) }
     }
 
-    private fun createTempFile(): File {
-        val tempFile = File.createTempFile("test", ".txt", context.cacheDir)
-        Files.write(tempFile.toPath(), "Temp file".toByteArray(Charset.defaultCharset()))
+    @Test
+    fun fileOpeningRepository_isEmptyFileInList_success() {
+        val fileStreams = listOf(FileStream.create(mock(File::class.java)))
+        fileOpeningRepository.isEmptyFileInList(fileStreams)
+    }
+
+    @Test
+    fun fileOpeningRepository_parseUris_success() {
+        val uris = listOf(mock(Uri::class.java))
+        fileOpeningRepository.parseUris(contentResolver, uris)
+    }
+
+    @Test
+    fun fileOpeningRepository_getFilesWithValidSize_success() {
+        val fileStreams = listOf(FileStream.create(mock(File::class.java)))
+        fileOpeningRepository.getFilesWithValidSize(fileStreams)
+    }
+
+    private fun createTempFileWithStringContent(
+        filename: String,
+        content: String,
+    ): File {
+        val tempFile = File.createTempFile(filename, ".txt", context.cacheDir)
+        Files.write(tempFile.toPath(), content.toByteArray(Charset.defaultCharset()))
         return tempFile
     }
 }

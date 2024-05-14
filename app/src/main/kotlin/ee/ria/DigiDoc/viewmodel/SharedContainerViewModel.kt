@@ -8,6 +8,7 @@ import androidx.activity.result.ActivityResult
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.common.io.ByteStreams
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
@@ -67,7 +68,7 @@ class SharedContainerViewModel
                     contentResolver
                         .openOutputStream(it).use { outputStream ->
                             if (outputStream != null) {
-                                com.google.common.io.ByteStreams.copy(inputStream, outputStream)
+                                ByteStreams.copy(inputStream, outputStream)
                             }
                         }
                 }
