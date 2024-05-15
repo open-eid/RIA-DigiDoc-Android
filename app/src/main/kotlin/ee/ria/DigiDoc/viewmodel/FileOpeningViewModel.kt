@@ -7,7 +7,6 @@ import android.content.Context
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
@@ -21,9 +20,6 @@ import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
-import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
-import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.getFilesWithValidSize
-import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.parseUris
 import ee.ria.DigiDoc.utilsLib.file.FileStream
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.normalizeString
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
@@ -60,10 +56,10 @@ class FileOpeningViewModel
         ) {
             if (existingSignedContainer != null) {
                 val validFiles: List<FileStream> =
-                    getFilesWithValidSize(
-                        parseUris(contentResolver, uris),
+                    fileOpeningRepository.getFilesWithValidSize(
+                        fileOpeningRepository.parseUris(contentResolver, uris),
                     )
-                if (ContainerUtil.isEmptyFileInList(validFiles)) {
+                if (fileOpeningRepository.isEmptyFileInList(validFiles)) {
                     Handler(Looper.getMainLooper()).post {
                         showMessage(context, R.string.empty_file_error)
                     }
@@ -88,6 +84,7 @@ class FileOpeningViewModel
                     _signedContainer.postValue(container)
                 } catch (e: Exception) {
                     _signedContainer.postValue(existingSignedContainer)
+                    _errorState.postValue(e.message)
                     errorLog(logTag, "Unable to add file to container", e)
                 }
             } else {

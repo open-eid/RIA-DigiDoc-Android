@@ -80,6 +80,9 @@ object ContainerUtil {
         fileStream: FileStream,
     ): File? {
         val file: File? = fileStream.displayName?.let { getCacheFile(context, it) }
+        if (file == null) {
+            return null
+        }
         fileStream.source?.openStream().use { inputStream ->
             FileOutputStream(file).use { outputStream ->
                 if (inputStream != null) {
