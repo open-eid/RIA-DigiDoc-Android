@@ -2,30 +2,31 @@
 
 package ee.ria.DigiDoc.configuration
 
+import com.google.gson.annotations.SerializedName
 import java.util.Date
 
 data class ConfigurationProvider(
-    val metaInf: MetaInf,
-    val configUrl: String,
-    val sivaUrl: String,
-    val tslUrl: String,
-    val tslCerts: List<String>,
-    val tsaUrl: String,
-    val ldapPersonUrl: String,
-    val ldapCorpUrl: String,
-    val midRestUrl: String,
-    val midSkRestUrl: String,
-    val sidV2RestUrl: String,
-    val sidV2SkRestUrl: String,
-    val ocspUrls: Map<String, String>,
-    val certBundle: List<String>,
-    val configurationLastUpdateCheckDate: Date?,
-    val configurationUpdateDate: Date?,
+    @SerializedName("META-INF") val metaInf: MetaInf,
+    @SerializedName("CONFIG-URL") val configUrl: String,
+    @SerializedName("SIVA-URL") val sivaUrl: String,
+    @SerializedName("TSL-URL") val tslUrl: String,
+    @SerializedName("TSL-CERTS") val tslCerts: List<String>,
+    @SerializedName("TSA-URL") val tsaUrl: String,
+    @SerializedName("OCSP-URL-ISSUER") val ocspUrls: Map<String, String>,
+    @SerializedName("LDAP-PERSON-URL") val ldapPersonUrl: String,
+    @SerializedName("LDAP-CORP-URL") val ldapCorpUrl: String,
+    @SerializedName("MID-PROXY-URL") val midRestUrl: String,
+    @SerializedName("MID-SK-URL") val midSkRestUrl: String,
+    @SerializedName("SIDV2-PROXY-URL") val sidV2RestUrl: String,
+    @SerializedName("SIDV2-SK-URL") val sidV2SkRestUrl: String,
+    @SerializedName("CERT-BUNDLE") val certBundle: List<String>,
+    var configurationLastUpdateCheckDate: Date?,
+    var configurationUpdateDate: Date?,
 ) {
     data class MetaInf(
-        val url: String,
-        val date: String,
-        val serial: Int,
-        val version: Int,
+        @SerializedName("URL") val url: String,
+        @SerializedName("DATE") val date: String,
+        @SerializedName("SERIAL") val serial: Int,
+        @SerializedName("VER") val version: Int,
     )
 }

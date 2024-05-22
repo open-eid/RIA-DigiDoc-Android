@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.mobileId
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
+import ee.ria.DigiDoc.libdigidoclib.domain.model.MobileIdServiceResponse
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.libdigidoclib.exceptions.SigningCancelledException
 import ee.ria.DigiDoc.mobileId.utils.VerificationCodeUtil
@@ -18,7 +19,6 @@ import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessState
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureSessionResponse
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureSessionStatusResponse
-import ee.ria.DigiDoc.network.mid.dto.response.MobileIdServiceResponse
 import ee.ria.DigiDoc.network.mid.dto.response.RESTServiceFault
 import ee.ria.DigiDoc.network.mid.rest.MIDRestServiceClient
 import ee.ria.DigiDoc.network.mid.rest.ServiceGenerator

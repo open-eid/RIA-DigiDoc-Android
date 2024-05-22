@@ -3,6 +3,8 @@
 
     <string name="back">Назад</string>
 
+    <string name="configuration_initialization_failed">Не удалось инициализировать конфигурация</string>
+
     <!-- Container -->
     <string name="container_title">КОНТЕЙНЕР:</string>
     <string name="documents_add_button">+ ДОБАВИТЬ БОЛЬШЕ ФАЙЛОВ</string>
@@ -59,6 +61,7 @@
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
     <string name="signature_update_signature_add_method_id_card">ID-карта</string>
     <string name="signature_update_signature_add_method_nfc">NFC</string>
+    <string name="signature_update_signature_add_success">ПОДПИСЬ ДОБАВЛЕНА</string>
 
     <string name="signature_update_signature_selected_method_mobile_id">Метод подписи – Mobiil-ID, вкладка %1$d из %2$d</string>
     <string name="signature_update_signature_selected_method_smart_id">Метод подписи – Smart-ID, вкладка %1$d из %2$d</string>

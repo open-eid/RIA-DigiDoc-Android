@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -38,7 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.configuration.domain.model.ConfigurationViewModel
+import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
 import ee.ria.DigiDoc.ui.theme.Dimensions
@@ -60,13 +59,20 @@ fun MobileIdView(
     cancelButtonClick: () -> Unit = {},
     mobileIdViewModel: MobileIdViewModel = hiltViewModel(),
     settingsViewModel: SettingsViewModel = hiltViewModel(),
-    configurationViewModel: ConfigurationViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
 ) {
     val context = LocalContext.current
-    val errorState by mobileIdViewModel.errorState.asFlow().collectAsState(null)
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
-    val configurationProvider by configurationViewModel.workerResult.asFlow().collectAsState(null)
+
+    LaunchedEffect(mobileIdViewModel.status) {
+        mobileIdViewModel.status.asFlow().collect { status ->
+            status?.let {
+                if (status == MobileCreateSignatureProcessStatus.OK) {
+                    sharedContainerViewModel.setSignedStatus(status)
+                }
+            }
+        }
+    }
 
     LaunchedEffect(mobileIdViewModel.errorState) {
         mobileIdViewModel.errorState.asFlow().collect { errorState ->
@@ -135,16 +141,7 @@ fun MobileIdView(
             value = countryCodeAndPhoneText,
             shape = RectangleShape,
             onValueChange = {
-                countryCodeAndPhoneText =
-                    if (countryCodeAndPhoneText.text == "") {
-                        val value = "372" + it.text
-                        TextFieldValue(
-                            text = value,
-                            selection = TextRange(value.length),
-                        )
-                    } else {
-                        it
-                    }
+                countryCodeAndPhoneText = it
             },
             maxLines = 1,
             singleLine = true,
@@ -203,7 +200,6 @@ fun MobileIdView(
                         container = signedContainer,
                         personalCode = personalCodeText.text,
                         phoneNumber = countryCodeAndPhoneText.text,
-                        configurationProvider = configurationProvider,
                         roleData = null,
                     )
                 }
@@ -217,12 +213,10 @@ fun MobileIdView(
 @Composable
 fun MobileIdViewPreview() {
     val mobileIdViewModel: MobileIdViewModel = hiltViewModel()
-    val configurationViewModel: ConfigurationViewModel = hiltViewModel()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
     RIADigiDocTheme {
         MobileIdView(
             mobileIdViewModel = mobileIdViewModel,
-            configurationViewModel = configurationViewModel,
             sharedContainerViewModel = sharedContainerViewModel,
         )
     }

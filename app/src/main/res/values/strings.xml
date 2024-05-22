@@ -3,6 +3,8 @@
 
     <string name="back">Back</string>
 
+    <string name="configuration_initialization_failed">Failed to initialize configuration</string>
+
     <!-- Container -->
     <string name="container_title">CONTAINER:</string>
     <string name="documents_add_button">+ ADD MORE FILES</string>
@@ -59,6 +61,7 @@
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
     <string name="signature_update_signature_add_method_id_card">ID-card</string>
     <string name="signature_update_signature_add_method_nfc">NFC</string>
+    <string name="signature_update_signature_add_success">SIGNATURE ADDED</string>
 
     <string name="signature_update_signature_selected_method_mobile_id">Signing option Mobile-ID, tab %1$d of %2$d</string>
     <string name="signature_update_signature_selected_method_smart_id">Signing option Smart-ID, tab %1$d of %2$d</string>

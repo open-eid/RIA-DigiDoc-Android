@@ -66,8 +66,6 @@ fun AddSignatureView(
                     MobileIdView(
                         cancelButtonClick = dismissDialog,
                         sharedContainerViewModel = sharedContainerViewModel,
-                        // TODO: Inject configurationViewModel
-                        configurationViewModel = hiltViewModel(),
                     )
                 }
                 composable(route = Route.SmartId.route) {

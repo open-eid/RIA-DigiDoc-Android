@@ -1,7 +1,8 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.network.mid.dto.response
+package ee.ria.DigiDoc.libdigidoclib.domain.model
 
+import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.libdigidocpp.Container
 
 class MobileIdServiceResponse {

@@ -27,6 +27,7 @@ import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.libdigidocpp.Container
+import ee.ria.libdigidocpp.ContainerOpenCB
 import ee.ria.libdigidocpp.DataFiles
 import ee.ria.libdigidocpp.Signatures
 import kotlinx.coroutines.Dispatchers
@@ -157,7 +158,7 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
 
             return if (dataFiles != null && dataFiles.size == 1 && isFirstDataFileContainer) {
                 isExistingContainer = true
-                open(context, file)
+                open(context, containerFileWithExtension)
             } else {
                 isExistingContainer = false
                 create(context, containerFileWithExtension, dataFiles)
@@ -218,7 +219,7 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
             return try {
                 val openedContainer =
                     withContext(Dispatchers.IO) {
-                        Container.open(file?.path ?: "")
+                        Container.open(file?.path ?: "", DigidocContainerOpenCB(true))
                     }
                 container = openedContainer
                 containerFile = file
@@ -308,5 +309,11 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
         private fun createSignaturesList(signatures: Signatures?): List<SignatureInterface> {
             return signatures?.map { SignatureWrapper(it) } ?: emptyList()
         }
+    }
+}
+
+class DigidocContainerOpenCB(private val validate: Boolean) : ContainerOpenCB() {
+    override fun validateOnline(): Boolean {
+        return validate
     }
 }

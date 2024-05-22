@@ -44,7 +44,6 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.lifecycle.runtime.ktx)
 
-    implementation(project(":libdigidoc-lib"))
     debugImplementation(project(":utils-lib", "debugRuntimeElements"))
     releaseImplementation(project(":utils-lib", "releaseRuntimeElements"))
     debugImplementation(project(":commons-lib", "debugRuntimeElements"))

@@ -3,7 +3,7 @@
 package ee.ria.DigiDoc.configuration.task
 
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifier
-import ee.ria.DigiDoc.configuration.loader.CentralConfigurationLoader
+import ee.ria.DigiDoc.configuration.domain.model.ConfigurationData
 import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
 import ee.ria.DigiDoc.configuration.utils.Constant.CENTRAL_CONFIGURATION_SERVICE_URL_PROPERTY
 import ee.ria.DigiDoc.configuration.utils.Constant.CENTRAL_CONF_SERVICE_URL_NAME
@@ -20,6 +20,7 @@ import ee.ria.DigiDoc.configuration.utils.Parser
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import kotlinx.coroutines.runBlocking
 import java.io.FileInputStream
 import java.io.IOException
 import java.util.Date
@@ -33,27 +34,29 @@ object FetchAndPackageDefaultConfigurationTask {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        loadResourcesProperties()
-        loadAndStoreDefaultConfiguration(args)
+        runBlocking {
+            loadResourcesProperties()
+            loadAndStoreDefaultConfiguration(args)
+        }
     }
 
-    private fun loadAndStoreDefaultConfiguration(args: Array<String>) {
+    @Throws(Exception::class)
+    private suspend fun loadAndStoreDefaultConfiguration(args: Array<String>) {
         buildVariant = "main"
         val configurationServiceUrl = determineCentralConfigurationServiceUrl(args)
-        val confLoader = CentralConfigurationLoader(null, configurationServiceUrl, "Jenkins")
+        val confLoader = ConfigurationLoader.loadCentralConfigurationData(configurationServiceUrl, "Jenkins")
         loadAndAssertConfiguration(confLoader, configurationServiceUrl, args)
     }
 
     private fun loadAndAssertConfiguration(
-        confLoader: CentralConfigurationLoader,
+        confData: ConfigurationData,
         confServiceUrl: String,
         args: Array<String>,
     ) {
-        confLoader.load()
-        verifyConfigurationSignature(confLoader)
-        assertConfigurationLoaded(confLoader)
-        storeAsDefaultConfiguration(confLoader)
-        val configurationParser = Parser(confLoader.configurationJson)
+        verifyConfigurationSignature(confData)
+        assertConfigurationLoaded(confData)
+        storeAsDefaultConfiguration(confData)
+        val configurationParser = Parser(confData.configurationJson)
         val confVersionSerial: Int = configurationParser.parseIntValue("META-INF", "SERIAL")
         storeApplicationProperties(
             confServiceUrl,
@@ -73,9 +76,9 @@ object FetchAndPackageDefaultConfigurationTask {
     private fun loadResourcesProperties() {
         properties = Properties()
         try {
+            val userDir = System.getProperty("user.dir") ?: throw IllegalStateException("User directory is not set")
             FileInputStream(
-                (System.getProperty("user.dir")?.plus("/src/main/resources/") ?: "") +
-                    DEFAULT_CONFIGURATION_PROPERTIES_FILE_NAME,
+                "$userDir/src/main/resources/$DEFAULT_CONFIGURATION_PROPERTIES_FILE_NAME",
             ).use {
                     propsInputStream ->
                 properties.load(propsInputStream)
@@ -102,22 +105,22 @@ object FetchAndPackageDefaultConfigurationTask {
         }
     }
 
-    private fun assertConfigurationLoaded(confLoader: CentralConfigurationLoader) {
+    private fun assertConfigurationLoaded(confData: ConfigurationData) {
         check(
             !(
-                confLoader.configurationJson == null ||
-                    confLoader.configurationSignature == null ||
-                    confLoader.configurationSignaturePublicKey == null
+                confData.configurationJson == null ||
+                    confData.configurationSignature == null ||
+                    confData.configurationSignaturePublicKey == null
             ),
         ) {
             "Configuration loading has failed"
         }
     }
 
-    private fun storeAsDefaultConfiguration(confLoader: CentralConfigurationLoader) {
-        confLoader.configurationJson?.let { storeFile(DEFAULT_CONFIG_JSON, it) }
-        confLoader.configurationSignature?.let { storeFile(DEFAULT_CONFIG_RSA, it) }
-        confLoader.configurationSignaturePublicKey?.let { storeFile(DEFAULT_CONFIG_PUB, it) }
+    private fun storeAsDefaultConfiguration(confData: ConfigurationData) {
+        confData.configurationJson?.let { storeFile(DEFAULT_CONFIG_JSON, it) }
+        confData.configurationSignature?.let { storeFile(DEFAULT_CONFIG_RSA, it) }
+        confData.configurationSignaturePublicKey?.let { storeFile(DEFAULT_CONFIG_PUB, it) }
     }
 
     private fun storeApplicationProperties(
@@ -161,19 +164,27 @@ object FetchAndPackageDefaultConfigurationTask {
     }
 
     private fun configFileDir(filename: String): String {
-        return (System.getProperty("user.dir")?.plus("/src/") ?: "") + buildVariant + "/assets/config/" + filename
+        val userDir = System.getProperty("user.dir") ?: throw IllegalStateException("User directory is not set")
+        return "$userDir/src/$buildVariant/assets/config/$filename"
     }
 
-    private fun verifyConfigurationSignature(configurationLoader: ConfigurationLoader) {
+    private fun verifyConfigurationSignature(configurationData: ConfigurationData) {
         val configurationSignatureVerifier =
-            configurationLoader.configurationSignaturePublicKey?.let {
+            configurationData.configurationSignaturePublicKey?.let {
                 ConfigurationSignatureVerifier(
                     it,
                 )
             }
-        if (configurationSignatureVerifier != null) {
-            configurationLoader.configurationJson?.let {
-                configurationLoader.configurationSignature?.let { signature ->
+        if (configurationSignatureVerifier == null ||
+            configurationData.configurationJson == null ||
+            configurationData.configurationSignature == null
+        ) {
+            throw UninitializedPropertyAccessException(
+                "Unable to verify signature. Needed configuration property is null",
+            )
+        } else {
+            configurationData.configurationJson.let {
+                configurationData.configurationSignature.let { signature ->
                     configurationSignatureVerifier.verifyConfigurationSignature(
                         it,
                         signature,

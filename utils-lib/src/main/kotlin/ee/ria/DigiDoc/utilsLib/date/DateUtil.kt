@@ -19,4 +19,9 @@ object DateUtil {
 
         return date?.let { outputFormat.format(it) } ?: ""
     }
+
+    @Throws(ParseException::class)
+    fun stringToDate(dateString: String): Date? {
+        return dateFormat.parse(dateString)
+    }
 }

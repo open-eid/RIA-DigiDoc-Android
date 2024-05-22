@@ -3,6 +3,8 @@
 
     <string name="back">Tagasi</string>
 
+    <string name="configuration_initialization_failed">Konfiguratsiooni initsialiseerimine ebaõnnestus</string>
+
     <!-- Container -->
     <string name="container_title">ÜMBRIK:</string>
     <string name="documents_add_button">+ LISA VEEL FAILE</string>
@@ -60,6 +62,7 @@
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
     <string name="signature_update_signature_add_method_id_card">ID-kaart</string>
     <string name="signature_update_signature_add_method_nfc">NFC</string>
+    <string name="signature_update_signature_add_success">ALLKIRI LISATUD</string>
 
     <string name="signature_update_signature_selected_method_mobile_id">Allkirjastamise viisiks on Mobiil-ID, vahekaart %1$d / %2$d</string>
     <string name="signature_update_signature_selected_method_smart_id">Allkirjastamise viisiks on Smart-ID, vahekaart %1$d / %2$d</string>
