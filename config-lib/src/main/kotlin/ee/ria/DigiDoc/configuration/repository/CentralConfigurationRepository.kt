@@ -3,7 +3,6 @@
 package ee.ria.DigiDoc.configuration.repository
 
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationService
-import kotlin.jvm.Throws
 
 class CentralConfigurationRepository(private val apiService: CentralConfigurationService) {
     @Throws(Exception::class)

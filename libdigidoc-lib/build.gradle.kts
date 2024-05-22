@@ -52,11 +52,12 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.guava)
+    implementation(libs.gson)
+    implementation(libs.bouncy.castle)
 
     implementation(libs.pdfbox.android) {
         exclude(group = "org.bouncycastle")
     }
-    implementation(project(":networking-lib"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.mockito.android)
@@ -65,8 +66,9 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.lifecycle.runtime.ktx)
 
-    implementation(files("libs/libdigidocpp.jar"))
+    api(files("libs/libdigidocpp.jar"))
 
+    implementation(project(":networking-lib"))
     implementation(project(":utils-lib"))
     implementation(project(":commons-lib"))
     implementation(project(":config-lib"))

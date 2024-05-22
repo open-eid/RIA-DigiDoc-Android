@@ -10,6 +10,7 @@ import ee.ria.DigiDoc.domain.service.FileOpeningService
 import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
+import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import ee.ria.DigiDoc.utilsLib.file.FileStream
@@ -43,10 +44,13 @@ class FileOpeningRepositoryImpl
             return fileChooser.launch(contractType)
         }
 
+        override suspend fun removeSignature(signature: SignatureInterface): SignedContainer {
+            return SignedContainer.container().removeSignature(signature)
+        }
+
         @Throws(Exception::class)
         override suspend fun addFilesToContainer(
             context: Context,
-            existingSignedContainer: SignedContainer?,
             documentStreams: List<FileStream>,
         ): SignedContainer {
             return SignedContainer.container()

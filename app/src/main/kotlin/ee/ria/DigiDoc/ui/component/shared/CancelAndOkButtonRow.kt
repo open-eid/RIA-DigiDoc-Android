@@ -29,6 +29,8 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 @Composable
 fun CancelAndOkButtonRow(
     modifier: Modifier = Modifier,
+    cancelButtonEnabled: Boolean = true,
+    okButtonEnabled: Boolean = true,
     cancelButtonClick: () -> Unit = {},
     okButtonClick: () -> Unit = {},
     cancelButtonTitle: String,
@@ -42,6 +44,7 @@ fun CancelAndOkButtonRow(
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
         Button(
+            enabled = cancelButtonEnabled,
             modifier = modifier.weight(1f),
             shape = RectangleShape,
             colors =
@@ -65,9 +68,9 @@ fun CancelAndOkButtonRow(
             )
         }
         Button(
+            enabled = okButtonEnabled,
             modifier = modifier.weight(1f),
             shape = RectangleShape,
-            enabled = true,
             colors =
                 ButtonColors(
                     containerColor = Color.Transparent,

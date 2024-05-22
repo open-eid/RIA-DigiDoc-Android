@@ -12,7 +12,6 @@ import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
-import kotlin.jvm.Throws
 
 object ConfigurationUtil {
     @Throws(Exception::class)

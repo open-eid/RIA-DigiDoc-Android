@@ -9,6 +9,7 @@ object Dimensions {
     val buttonHeight = 48.dp
     val menuItemHeight = 48.dp
     val toolbarHeight = 48.dp
+    val notificationViewHeight = 64.dp
     val radioGroupBarHeight = 48.dp
     val navigationBarHeight = 64.dp
     val textFieldHeight = 64.dp

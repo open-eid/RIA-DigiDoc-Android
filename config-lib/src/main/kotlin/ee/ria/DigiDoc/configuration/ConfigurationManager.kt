@@ -11,7 +11,6 @@ import ee.ria.DigiDoc.configuration.utils.Constant.CACHE_CONFIG_FOLDER
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.io.File
-import kotlin.jvm.Throws
 
 object ConfigurationManager {
     private val configurationFlow = MutableStateFlow<ConfigurationProvider?>(null)

@@ -1,10 +1,55 @@
-@file:Suppress("PackageName")
+@file:Suppress("PackageName", "unused")
 
 package ee.ria.DigiDoc.common
 
 object Constant {
-    const val RESTRICTED_FILENAME_CHARACTERS_AS_STRING = "@%:^?[]\\'\"”’{}#&`\\\\~«»/´"
-    const val RTL_CHARACTERS_AS_STRING = "" + '\u200E' + '\u200F' + '\u202E' + '\u202A' + '\u202B'
+    object SignatureRequest {
+        const val SIGNATURE_PROFILE_TS = "time-stamp"
+        private const val ESTONIAN_PHONE_CODE = "372"
+        const val PLUS_PREFIXED_ESTONIAN_PHONE_CODE = "+$ESTONIAN_PHONE_CODE"
+        const val FIRST_NUMBER_IN_ESTONIAN_MOBILE_NUMBER = "5"
+
+        const val MAX_DISPLAY_MESSAGE_BYTES = 40
+
+        const val DEFAULT_LANGUAGE = "ENG"
+        val SUPPORTED_LANGUAGES: Set<String> =
+            setOf(DEFAULT_LANGUAGE, "EST", "RUS", "LIT")
+
+        const val DIGEST_TYPE = "SHA256"
+
+        const val RELYING_PARTY_NAME = "RIA DigiDoc"
+        const val RELYING_PARTY_UUID = "00000000-0000-0000-0000-000000000000"
+        const val DISPLAY_TEXT_FORMAT = "GSM-7"
+        const val ALTERNATIVE_DISPLAY_TEXT_FORMAT = "UCS-2"
+    }
+
+    object MobileIdConstants {
+        const val MID_BROADCAST_ACTION: String = "ee.ria.mopp.androidmobileid.MID_BROADCAST_ACTION"
+        const val MID_BROADCAST_TYPE_KEY: String =
+            "ee.ria.mopp.androidmobileid.MID_BROADCAST_TYPE_KEY"
+
+        const val SIGNING_ROLE_DATA: String = "ee.ria.mopp.androidmobileid.SIGNING_ROLE_DATA"
+
+        const val CREATE_SIGNATURE_REQUEST: String =
+            "ee.ria.mopp.androidmobileid.CREATE_SIGNATURE_REQUEST"
+        const val ACCESS_TOKEN_PASS: String = "ee.ria.mopp.androidmobileid.ACCESS_TOKEN_PASS"
+        const val ACCESS_TOKEN_PATH: String = "ee.ria.mopp.androidmobileid.ACCESS_TOKEN_PATH"
+        const val CERTIFICATE_CERT_BUNDLE: String =
+            "ee.ria.mopp.androidmobileid.CERTIFICATE_CERT_BUNDLE"
+        const val CREATE_SIGNATURE_CHALLENGE: String = "ee.ria.mopp.androidmobileid.MID_CHALLENGE"
+        const val CREATE_SIGNATURE_STATUS: String =
+            "ee.ria.mopp.androidmobileid.CREATE_SIGNATURE_STATUS"
+        const val SERVICE_FAULT: String = "ee.ria.mopp.androidmobileid.SERVICE_FAULT"
+        const val CONFIG_URL: String = "ee.ria.mopp.androidmobileid.CONFIG_URL"
+        const val PROXY_SETTING: String = "ee.ria.mopp.androidmobileid.PROXY_SETTING"
+        const val MANUAL_PROXY_HOST: String = "ee.ria.mopp.androidmobileid.HOST"
+        const val MANUAL_PROXY_PORT: String = "ee.ria.mopp.androidmobileid.PORT"
+        const val MANUAL_PROXY_USERNAME: String = "ee.ria.mopp.androidmobileid.USERNAME"
+        const val MANUAL_PROXY_PASSWORD: String = "ee.ria.mopp.androidmobileid.PASSWORD"
+    }
+
+    private const val RESTRICTED_FILENAME_CHARACTERS_AS_STRING = "@%:^?[]\\'\"”’{}#&`\\\\~«»/´"
+    private const val RTL_CHARACTERS_AS_STRING = "" + '\u200E' + '\u200F' + '\u202E' + '\u202A' + '\u202B'
     const val RESTRICTED_FILENAME_CHARACTERS_AND_RTL_CHARACTERS_AS_STRING =
         RESTRICTED_FILENAME_CHARACTERS_AS_STRING + RTL_CHARACTERS_AS_STRING
     const val DEFAULT_FILENAME = "newFile"
@@ -17,7 +62,7 @@ object Constant {
     const val DEFAULT_CONTAINER_EXTENSION = "asice"
     const val CONTAINER_MIME_TYPE = "application/octet-stream"
     const val DEFAULT_MIME_TYPE = "text/plain"
-    val ASICS_CONTAINER_EXTENSIONS: Set<String> = setOf("asics", "scs")
+    private val ASICS_CONTAINER_EXTENSIONS: Set<String> = setOf("asics", "scs")
 
     val CONTAINER_EXTENSIONS: Set<String> =
         setOf("asice", "sce", "adoc", "bdoc", "ddoc", "edoc")
@@ -27,4 +72,10 @@ object Constant {
         setOf("asice", "sce", "bdoc")
 
     const val PDF_EXTENSION = "pdf"
+
+    const val MAXIMUM_PERSONAL_CODE_LENGTH: Int = 11
+
+    // Country code (3 numbers) + phone number (7 or more numbers)
+    const val MINIMUM_PHONE_NUMBER_LENGTH = 10
+    val ALLOWED_PHONE_NUMBER_COUNTRY_CODES = listOf("370", "372")
 }

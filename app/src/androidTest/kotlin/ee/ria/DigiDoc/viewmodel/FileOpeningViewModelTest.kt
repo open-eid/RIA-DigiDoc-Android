@@ -33,7 +33,6 @@ import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
-import org.mockito.kotlin.eq
 import java.io.File
 import java.nio.charset.Charset
 import java.nio.file.Files
@@ -98,13 +97,13 @@ class FileOpeningViewModelTest {
 
             val signedContainer =
                 runBlocking {
-                    fileOpeningRepository.addFilesToContainer(context, existingSignedContainer, newFileStreams)
+                    fileOpeningRepository.addFilesToContainer(context, newFileStreams)
                 }
 
             `when`(
                 fileOpeningRepository.isEmptyFileInList(anyList()),
             )
-                .thenReturn(true)
+                .thenReturn(false)
 
             `when`(
                 fileOpeningRepository.getFilesWithValidSize(anyList()),
@@ -114,7 +113,6 @@ class FileOpeningViewModelTest {
             `when`(
                 fileOpeningRepository.addFilesToContainer(
                     any(),
-                    eq(existingSignedContainer),
                     anyList(),
                 ),
             )
@@ -131,14 +129,26 @@ class FileOpeningViewModelTest {
             val uri: Uri = mock()
             val uris = listOf(uri)
             val file = createTempFileWithStringContent("test", "Test content")
+            val anotherFile = createTempFileWithStringContent("test2", "Another file")
+            val newFileStreams = listOf(FileStream.create(anotherFile))
+
             val existingSignedContainer = SignedContainer.openOrCreate(context, file, listOf(file))
 
             val exception = Exception("Could not add files to container")
 
             `when`(
+                fileOpeningRepository.isEmptyFileInList(anyList()),
+            )
+                .thenReturn(false)
+
+            `when`(
+                fileOpeningRepository.getFilesWithValidSize(anyList()),
+            )
+                .thenReturn(newFileStreams)
+
+            `when`(
                 fileOpeningRepository.addFilesToContainer(
                     any(),
-                    eq(existingSignedContainer),
                     anyList(),
                 ),
             )
@@ -148,6 +158,58 @@ class FileOpeningViewModelTest {
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(existingSignedContainer)
             verify(errorStateObserver, atLeastOnce()).onChanged(exception.message)
+        }
+
+    @Test
+    fun fileOpeningViewModel_handleFilesWithExistingContainer_throwEmptyFileException() =
+        runTest {
+            val uri: Uri = mock()
+            val uris = listOf(uri)
+            val file = createTempFileWithStringContent("test", "Test content")
+            val newFileStreams = emptyList<FileStream>()
+
+            val existingSignedContainer = SignedContainer.openOrCreate(context, file, listOf(file))
+
+            `when`(
+                fileOpeningRepository.isEmptyFileInList(anyList()),
+            )
+                .thenReturn(true)
+
+            `when`(
+                fileOpeningRepository.getFilesWithValidSize(anyList()),
+            )
+                .thenReturn(newFileStreams)
+
+            viewModel.handleFiles(uris, existingSignedContainer)
+
+            verify(signedContainerObserver, atLeastOnce()).onChanged(existingSignedContainer)
+            verify(errorStateObserver, atLeastOnce()).onChanged("Cannot add empty file to the container.")
+        }
+
+    @Test
+    fun fileOpeningViewModel_handleFilesWithExistingContainer_throwFileAlreadyExistsException() =
+        runTest {
+            val uri: Uri = mock()
+            val uris = listOf(uri)
+            val file = createTempFileWithStringContent("test", "Test content")
+            val newFileStreams = emptyList<FileStream>()
+
+            val existingSignedContainer = SignedContainer.openOrCreate(context, file, listOf(file))
+
+            `when`(
+                fileOpeningRepository.isEmptyFileInList(anyList()),
+            )
+                .thenReturn(false)
+
+            `when`(
+                fileOpeningRepository.getFilesWithValidSize(anyList()),
+            )
+                .thenReturn(newFileStreams)
+
+            viewModel.handleFiles(uris, existingSignedContainer)
+
+            verify(signedContainerObserver, atLeastOnce()).onChanged(existingSignedContainer)
+            verify(errorStateObserver, atLeastOnce()).onChanged("File already exists in the container")
         }
 
     @Test

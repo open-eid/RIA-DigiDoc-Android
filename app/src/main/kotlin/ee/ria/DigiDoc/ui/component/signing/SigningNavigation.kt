@@ -33,6 +33,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -61,6 +63,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.utils.FileUtils.getDataFileMimetype
+import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.ui.component.ContainerFile
 import ee.ria.DigiDoc.ui.component.ContainerName
 import ee.ria.DigiDoc.ui.component.settings.EditValueDialog
@@ -70,8 +73,12 @@ import ee.ria.DigiDoc.ui.theme.Blue500
 import ee.ria.DigiDoc.ui.theme.Dimensions
 import ee.ria.DigiDoc.ui.theme.Dimensions.dividerHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
+import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.notificationViewHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewHorizontalPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewVerticalPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.toolbarHeight
+import ee.ria.DigiDoc.ui.theme.Green200
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.removeExtensionFromContainerFilename
@@ -81,12 +88,15 @@ import ee.ria.DigiDoc.viewmodel.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.SigningViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SigningNavigation(
     navController: NavHostController,
+    signatureAddController: NavHostController,
     modifier: Modifier = Modifier,
     sharedContainerViewModel: SharedContainerViewModel,
     signingViewModel: SigningViewModel = hiltViewModel(),
@@ -94,6 +104,7 @@ fun SigningNavigation(
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
     val shouldResetContainer by signingViewModel.shouldResetSignedContainer
     val context = LocalContext.current
+    val signatureAddedSuccess = remember { mutableStateOf(false) }
     BackHandler {
         handleBackButtonClick(navController, signingViewModel)
     }
@@ -106,9 +117,59 @@ fun SigningNavigation(
         }
     }
 
+    LaunchedEffect(sharedContainerViewModel.signedStatus) {
+        sharedContainerViewModel.signedStatus.asFlow().collect { status ->
+            status?.let {
+                if (status == MobileCreateSignatureProcessStatus.OK) {
+                    withContext(Dispatchers.Main) {
+                        signatureAddedSuccess.value = true
+                        delay(10000)
+                        signatureAddedSuccess.value = false
+                        sharedContainerViewModel.setSignedStatus(null)
+                    }
+                }
+            }
+        }
+    }
+
+    val openSignatureDialog = remember { mutableStateOf(false) }
+    val dismissDialog = {
+        signatureAddController.navigate(Route.MobileId.route) {
+            popUpTo(signatureAddController.graph.findStartDestination().id) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+            openSignatureDialog.value = false
+        }
+    }
+
+    if (openSignatureDialog.value) {
+        BasicAlertDialog(
+            onDismissRequest = dismissDialog,
+        ) {
+            AddSignatureView(
+                signatureAddController = signatureAddController,
+                dismissDialog = dismissDialog,
+                sharedContainerViewModel = sharedContainerViewModel,
+            )
+        }
+    }
+
     Scaffold(
         bottomBar = {
-            SigningBottomBar(modifier = modifier)
+            SigningBottomBar(
+                modifier = modifier,
+                onSignClick = {
+                    openSignatureDialog.value = true
+                },
+                onEncryptClick = {
+                    // TODO: Implement encrypt click
+                },
+                onShareClick = {
+                    // TODO: Implement share click
+                },
+            )
         },
     ) { innerPadding ->
         Surface(
@@ -149,6 +210,33 @@ fun SigningNavigation(
                         handleBackButtonClick(navController, signingViewModel)
                     },
                 )
+                if (signatureAddedSuccess.value) {
+                    Column(
+                        modifier =
+                            modifier
+                                .fillMaxWidth()
+                                .height(toolbarHeight),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Surface(
+                            modifier =
+                                modifier
+                                    .fillMaxWidth()
+                                    .height(notificationViewHeight),
+                            color = Green200,
+                        ) {
+                            Text(
+                                modifier = modifier.padding(vertical = itemSpacingPadding),
+                                text = stringResource(id = R.string.signature_update_signature_add_success),
+                                textAlign = TextAlign.Center,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.titleLarge,
+                            )
+                        }
+                    }
+                }
+
                 Column(
                     modifier =
                         modifier
@@ -229,16 +317,18 @@ fun SigningNavigation(
                             onClickView = {
                                 try {
                                     val uri =
-                                        FileProvider.getUriForFile(
-                                            context,
-                                            context.getString(R.string.file_provider_authority),
-                                            file!!,
-                                        )
+                                        file?.let {
+                                            FileProvider.getUriForFile(
+                                                context,
+                                                context.getString(R.string.file_provider_authority),
+                                                it,
+                                            )
+                                        }
                                     val shareIntent = Intent()
                                     shareIntent.setAction(Intent.ACTION_VIEW)
                                     shareIntent.setDataAndType(
                                         uri,
-                                        file.let { SignedContainer.mimeType(it) },
+                                        file?.let { SignedContainer.mimeType(it) },
                                     )
                                     shareIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                                     ContextCompat.startActivity(context, shareIntent, null)
@@ -440,8 +530,13 @@ fun handleBackButtonClick(
 @Composable
 fun SigningNavigationPreview() {
     val navController = rememberNavController()
+    val signatureAddController = rememberNavController()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
     RIADigiDocTheme {
-        SigningNavigation(navController, sharedContainerViewModel = sharedContainerViewModel)
+        SigningNavigation(
+            navController = navController,
+            signatureAddController = signatureAddController,
+            sharedContainerViewModel = sharedContainerViewModel,
+        )
     }
 }

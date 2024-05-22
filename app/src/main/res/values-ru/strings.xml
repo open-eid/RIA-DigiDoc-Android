@@ -61,6 +61,7 @@
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
     <string name="signature_update_signature_add_method_id_card">ID-карта</string>
     <string name="signature_update_signature_add_method_nfc">NFC</string>
+    <string name="signature_update_signature_add_success">ПОДПИСЬ ДОБАВЛЕНА</string>
 
     <string name="signature_update_signature_selected_method_mobile_id">Метод подписи – Mobiil-ID, вкладка %1$d из %2$d</string>
     <string name="signature_update_signature_selected_method_smart_id">Метод подписи – Smart-ID, вкладка %1$d из %2$d</string>
@@ -74,6 +75,58 @@
     <string name="signature_update_mobile_id_phone_no">Код страны и телефонный номер</string>
     <string name="signature_update_mobile_id_personal_code">Личный код</string>
     <string name="signature_update_mobile_id_remember_me">Запомни меня</string>
+    <string name="signature_update_mobile_id_info">Убедитесь в правильности контрольного кодa и введите PIN2-код для mobiil-ID</string>
+    <string name="signature_update_mobile_id_display_message">Подписать документ</string>
+
+    <string name="signature_update_mobile_id_invalid_country_code">Неверный код страны.</string>
+    <string name="signature_update_mobile_id_invalid_phone_number">Телефонный номер не действителен.</string>
+    <string name="signature_update_mobile_id_invalid_personal_code">Личный код недействителен.</string>
+
+    <string name="signature_update_mobile_id_status_request_sent">Запрос на подпись отправлен</string>
+    <string name="signature_update_mobile_id_status_request_ok">Запрос принят</string>
+    <string name="signature_update_mobile_id_status_no_country_code">Номер телефона должен содержать код страны</string>
+    <string name="signature_update_mobile_id_status_expired_transaction">Срок действия вашей транзакции mobiil-ID истек. Пожалуйста, попробуйте еще раз.</string>
+    <string name="signature_update_mobile_id_status_user_cancel">Пользователю отказано</string>
+    <string name="signature_update_mobile_id_status_signature">Подпись получена</string>
+    <string name="signature_update_mobile_id_status_outstanding_transaction">Запрос в ожидании</string>
+    <string name="signature_update_mobile_id_status_mid_not_ready">Mobiil-ID не готов, попробуйте позже</string>
+    <string name="signature_update_mobile_id_status_phone_absent">телефон вне сети</string>
+    <string name="signature_update_mobile_id_status_delivery_error">Ошибка запроса</string>
+    <string name="signature_update_mobile_id_status_sim_error">Ошибка SIM карты</string>
+    <string name="signature_update_mobile_id_status_not_valid">Подпись недействительна</string>
+    <string name="signature_update_mobile_id_status_revoked_certificate">Сертификаты отозваны</string>
+    <string name="signature_update_mobile_id_status_signature_hash_mismatch">Не удалось выполнить операцию mobiil-ID. Пожалуйста, свяжитесь со своим мобильным оператором.</string>
+    <string name="signature_update_mobile_id_status_internal_error">Техническая ошибка</string>
+
+    <string name="signature_update_signature_error_message_exceeded_unsuccessful_requests">Не удалось отправить запрос. Превышено количество неудачных запросов с этого IP-адреса. Пожалуйста, попробуйте позже.</string>
+    <string name="signature_update_signature_error_message_invalid_time_slot">Пожалуйста, проверьте время на своем смарт-устройстве. https://www.id.ee/ru/artikkel/oshibka-ria-digidoc-pozhalujsta-proverte-vremya-na-svoem-smart-ustrojstve/</string>
+    <string name="signature_update_signature_error_message_certificate_revoked">Сертификат недействителен</string>
+
+    <string name="no_internet_connection">Пожалуйста проверьте подключение к интернету</string>
+    <string name="invalid_ssl_handshake">Не удалось создать SSL канал передачи данных. Проверьте настройки вашего приложения или обновления программного обеспечения.</string>
+    <string name="signature_update_signature_error_message_too_many_requests">Ваш месячный лимит бесплатных подписей для %1$s превышен. https://www.id.ee/ru/artikkel/dlya-uchrezhdenij-v-kotoryh-v-bolshom-obeme-podpisyvayutsya-dokumenty-s-pomoshhyu-digidoc4-klienta/</string>
+
+    <string name="signature_update_mobile_id_error_unknown">Неизвестная ошибка при подписании с помощю mobiil-ID</string>
+    <string name="signature_update_mobile_id_error_local_service_exception">Что-то пошло не так, попробуйте позже</string>
+    <string name="signature_update_mobile_id_error_general_client">Что-то пошло не так, попробуйте снова</string>
+    <string name="signature_update_mobile_id_error_incorrect_input_parameters">Неверный номер телефона и/или личный код, не эстонские номера телефонов должны начинаться с кода страны</string>
+    <string name="signature_update_mobile_id_error_missing_input_parameters">Отсутствует номер телефона и/или личный код</string>
+    <string name="signature_update_mobile_id_error_ocsp_unauthorized">Сервис мобильной подписи недоступен</string>
+    <string name="signature_update_mobile_id_error_general_service">Ошибка сервиса DigiDoc, попробуйте позже</string>
+    <string name="signature_update_mobile_id_error_missing_user_certificate">Отсутствует сертификат пользователя</string>
+    <string name="signature_update_mobile_id_error_certificate_validity_unknown">Не удалось проверить действительность сертификата</string>
+    <string name="signature_update_mobile_id_error_session_locked">Сессия мобильной подписи заблокирована, попробуйте позже</string>
+    <string name="signature_update_mobile_id_error_general_user">Ошабка приложения mobiil-ID в телефоне пользователя</string>
+    <string name="signature_update_mobile_id_error_not_mobile_id_user">Пользователь не является клиентом mobiil-ID</string>
+    <string name="signature_update_mobile_id_error_user_certificate_revoked">Ваш сертификат цифровой подписи отозван</string>
+    <string name="signature_update_mobile_id_error_user_certificate_status_unknown">Статус Вашего сертификата цифровой подписи неизвестен</string>
+    <string name="signature_update_mobile_id_error_user_certificate_suspended">Ваш сертификат цифровой подписи временно приостановлен</string>
+    <string name="signature_update_mobile_id_error_user_certificate_expired">Срок действительности Вашего сертификата цифровой подписи истек</string>
+    <string name="signature_update_mobile_id_error_message_exceeds_volume_limit">Слишком много файлов в контейнере</string>
+    <string name="signature_update_mobile_id_error_message_access_rights">Не удалось подписать контейнер. Проверьте настройки доступа услуги mobiil-ID. https://www.id.ee/ru/artikkel/dlya-uchrezhdenij-v-kotoryh-v-bolshom-obeme-podpisyvayutsya-dokumenty-s-pomoshhyu-digidoc4-klienta/</string>
+    <string name="signature_update_mobile_id_error_simultaneous_requests_limit_exceeded">Превышен лимит одновременных запросов</string>
+    <string name="signature_update_mobile_id_error_technical_error">Не удалось отправить запрос. Технический сбой услуги mobiil-ID. Пожалуйста, попробуйте позже.</string>
+
 
     <string name="signature_update_smart_id_message">Введите свой личный код для подписи с Smart-ID</string>
     <string name="signature_update_smart_id_country">Страна</string>
@@ -154,7 +207,5 @@
 
     <!-- Voice Control -->
     <string name="signing_container_name_update_button_voice">Изменить</string>
-
-    <string name="signature_update_mobile_id_error_general_client">Что-то пошло не так, попробуйте снова</string>
 
 </resources>

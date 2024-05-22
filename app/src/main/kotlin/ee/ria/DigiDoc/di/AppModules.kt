@@ -16,6 +16,8 @@ import ee.ria.DigiDoc.domain.service.FileOpeningService
 import ee.ria.DigiDoc.domain.service.FileOpeningServiceImpl
 import ee.ria.DigiDoc.domain.service.SomeService
 import ee.ria.DigiDoc.domain.service.SomeServiceImpl
+import ee.ria.DigiDoc.mobileId.MobileSignService
+import ee.ria.DigiDoc.mobileId.MobileSignServiceImpl
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -42,4 +44,7 @@ class AppModules {
         FileOpeningRepositoryImpl(
             fileOpeningService = fileOpeningService,
         )
+
+    @Provides
+    fun provideMobileSignService(): MobileSignService = MobileSignServiceImpl()
 }

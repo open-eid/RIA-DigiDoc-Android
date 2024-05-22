@@ -33,7 +33,6 @@ import org.bouncycastle.util.encoders.Base64
 import java.io.File
 import java.util.Date
 import java.util.Properties
-import kotlin.jvm.Throws
 
 object ConfigurationLoader {
     private val gson = Gson()

@@ -62,6 +62,7 @@
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
     <string name="signature_update_signature_add_method_id_card">ID-kaart</string>
     <string name="signature_update_signature_add_method_nfc">NFC</string>
+    <string name="signature_update_signature_add_success">ALLKIRI LISATUD</string>
 
     <string name="signature_update_signature_selected_method_mobile_id">Allkirjastamise viisiks on Mobiil-ID, vahekaart %1$d / %2$d</string>
     <string name="signature_update_signature_selected_method_smart_id">Allkirjastamise viisiks on Smart-ID, vahekaart %1$d / %2$d</string>
@@ -75,6 +76,8 @@
     <string name="signature_update_mobile_id_phone_no">Riigikood ja telefoninumber</string>
     <string name="signature_update_mobile_id_personal_code">Isikukood</string>
     <string name="signature_update_mobile_id_remember_me">Pea mind meeles</string>
+    <string name="signature_update_mobile_id_info">Veendu kontrollkoodi õigsuses ja sisesta telefonil mobiil-ID PIN2-kood.</string>
+    <string name="signature_update_mobile_id_display_message">Allkirjasta dokument</string>
 
     <string name="signature_update_smart_id_message">Sisesta oma isikukood Smart-IDga allkirjastamiseks</string>
     <string name="signature_update_smart_id_country">Riik</string>
@@ -83,6 +86,56 @@
 
     <string name="signature_update_remove_last_document_confirmation_message">Oled kustutamas viimast faili ümbrikus, koos sellega eemaldatakse ka ümbrik.</string>
     <string name="signature_update_remove_document_confirmation_message">Soovid eemaldada faili ümbrikust?</string>
+
+    <string name="signature_update_mobile_id_invalid_country_code">Vigane riigikood.</string>
+    <string name="signature_update_mobile_id_invalid_phone_number">Telefoninumber pole korrektne.</string>
+    <string name="signature_update_mobile_id_invalid_personal_code">Isikukood pole korrektne.</string>
+
+    <string name="signature_update_mobile_id_status_request_sent">Allkirjastamispäring saadetud</string>
+    <string name="signature_update_mobile_id_status_request_ok">Päring vastuvõetud</string>
+    <string name="signature_update_mobile_id_status_no_country_code">Telefoninumber peab sisaldama riigikoodi</string>
+    <string name="signature_update_mobile_id_status_expired_transaction">Sinu mobiil-ID toiming aegus. Palun proovi uuesti.</string>
+    <string name="signature_update_mobile_id_status_user_cancel">Kasutaja keeldus või katkestas</string>
+    <string name="signature_update_mobile_id_status_signature">Allkiri saadud</string>
+    <string name="signature_update_mobile_id_status_outstanding_transaction">Päring käimas</string>
+    <string name="signature_update_mobile_id_status_mid_not_ready">Mobiil-ID pole saadaval, proovi hiljem uuesti</string>
+    <string name="signature_update_mobile_id_status_phone_absent">Telefon ei ole levis</string>
+    <string name="signature_update_mobile_id_status_delivery_error">Päringu saatmise viga</string>
+    <string name="signature_update_mobile_id_status_sim_error">SIM-kaardi viga</string>
+    <string name="signature_update_mobile_id_status_not_valid">Allkiri ei ole kehtiv</string>
+    <string name="signature_update_mobile_id_status_revoked_certificate">Sertifikaat tühistatud</string>
+    <string name="signature_update_mobile_id_status_signature_hash_mismatch">Sinu mobiil-ID toiming ebaõnnestus. Palun võta ühendust enda mobiilioperaatoriga.</string>
+    <string name="signature_update_mobile_id_status_internal_error">Tehniline viga</string>
+
+    <string name="signature_update_signature_error_message_exceeded_unsuccessful_requests">Päringu saatmine ebaõnnestus. Sellelt IP-aadressilt on ebaõnnestunud päringute arv ületatud. Palun proovige mõne aja pärast uuesti.</string>
+    <string name="signature_update_signature_error_message_invalid_time_slot">Palun kontrolli oma nutiseadme kellaaega. https://www.id.ee/artikkel/ria-digidoc-viga-palun-kontrollige-oma-nutiseadme-kellaaega/</string>
+    <string name="signature_update_signature_error_message_certificate_revoked">Sertifikaat on kehtetu</string>
+
+    <string name="no_internet_connection">Palun kontrolli internetiühendust</string>
+    <string name="invalid_ssl_handshake">SSL ühenduskanali loomine ebaõnnestus. Kontrolli rakenduse seadeid või tarkvara uuendusi</string>
+    <string name="signature_update_signature_error_message_too_many_requests">Sinu %1$s tasuta allkirjade kuulimiit on ületatud. https://www.id.ee/artikkel/asutustele-kus-allkirjastatakse-digidoc4-kliendi-kaudu-suuremates-kogustes-dokumente/</string>
+
+    <string name="signature_update_mobile_id_error_unknown">Tundmatu viga mobiil-IDga allkirjastamisel</string>
+    <string name="signature_update_mobile_id_error_local_service_exception">Midagi läks valesti, proovi hiljem uuesti</string>
+    <string name="signature_update_mobile_id_error_general_client">Midagi läks valesti, proovi uuesti</string>
+    <string name="signature_update_mobile_id_error_incorrect_input_parameters">Vigane telefoninumber ja/või isikukood, välismaa telefoninumber peab algama riigikoodiga</string>
+    <string name="signature_update_mobile_id_error_missing_input_parameters">Puudub telefoninumber ja/või isikukood</string>
+    <string name="signature_update_mobile_id_error_ocsp_unauthorized">Mobiilse allkirjastamise teenusele ei õnnestu ligi pääseda</string>
+    <string name="signature_update_mobile_id_error_general_service">Viga Digidoc teenusega, proovi hiljem uuesti</string>
+    <string name="signature_update_mobile_id_error_missing_user_certificate">Kasutaja sertifikaat puudub</string>
+    <string name="signature_update_mobile_id_error_certificate_validity_unknown">Sertifikaadi kehtivust ei õnnestu kontrollida</string>
+    <string name="signature_update_mobile_id_error_session_locked">Mobiilse allkirjastamise sessioon on lukustunud, proovi hiljem uuesti</string>
+    <string name="signature_update_mobile_id_error_general_user">Viga mobiil-ID kasutamisel kasutaja telefonis</string>
+    <string name="signature_update_mobile_id_error_not_mobile_id_user">Kasutaja ei ole mobiil-ID klient</string>
+    <string name="signature_update_mobile_id_error_user_certificate_revoked">Sinu mobiil-ID allkirjastamise sertifikaat on tühistatud</string>
+    <string name="signature_update_mobile_id_error_user_certificate_status_unknown">Sinu mobiil-ID allkirjastamise sertifikaadi olek on teadmata</string>
+    <string name="signature_update_mobile_id_error_user_certificate_suspended">Sinu mobiil-ID allkirjastamise sertifikaadi kehtivus on peatatud</string>
+    <string name="signature_update_mobile_id_error_user_certificate_expired">Sinu mobiil-ID allkirjastamise sertifikaat on aegunud</string>
+    <string name="signature_update_mobile_id_error_message_exceeds_volume_limit">Liiga palju faile ühes konteineris</string>
+    <string name="signature_update_mobile_id_error_message_access_rights">Ümbriku allkirjastamine ebaõnnestus. Kontrolli mobiil-ID teenuse ligipääsu seadeid. https://www.id.ee/artikkel/asutustele-kus-allkirjastatakse-digidoc4-kliendi-kaudu-suuremates-kogustes-dokumente/</string>
+    <string name="signature_update_mobile_id_error_simultaneous_requests_limit_exceeded">Samaaegsete pöördumiste limiit ületatud</string>
+    <string name="signature_update_mobile_id_error_technical_error">Päringu saatmine ebaõnnestus. Mobiil-ID teenuses esinevad tehnilised tõrked. Palun proovige mõne aja pärast uuesti.</string>
+
 
     <string name="sign_button">ALLKIRJASTA</string>
     <string name="share_button">JAGA</string>
@@ -155,7 +208,5 @@
 
     <!-- Voice Control -->
     <string name="signing_container_name_update_button_voice">Muuda</string>
-
-    <string name="signature_update_mobile_id_error_general_client">Midagi läks valesti, proovi uuesti</string>
 
 </resources>

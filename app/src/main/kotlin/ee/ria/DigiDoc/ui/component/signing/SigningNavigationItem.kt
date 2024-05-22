@@ -7,35 +7,38 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.component.HomeNavigationItem
-import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.ui.component.SignatureBottomBarItem
 
 @Composable
-fun SigningBottomNavigationItems(): List<HomeNavigationItem> {
+fun signingBottomNavigationItems(
+    onSignClick: () -> Unit = {},
+    onEncryptClick: () -> Unit = {},
+    onShareClick: () -> Unit = {},
+): List<SignatureBottomBarItem> {
     return listOf(
-        HomeNavigationItem(
+        SignatureBottomBarItem(
             label = stringResource(id = R.string.sign_button),
             icon = ImageVector.vectorResource(id = R.drawable.ic_icon_signature),
-            route = Route.Signing.route,
             contentDescription =
                 stringResource(
                     id = R.string.sign_button,
                 ).lowercase(),
+            onClick = onSignClick,
         ),
-        HomeNavigationItem(
+        SignatureBottomBarItem(
             label = stringResource(id = R.string.crypto_button),
             icon = ImageVector.vectorResource(id = R.drawable.ic_icon_crypto),
-            route = Route.Signing.route,
             contentDescription =
                 stringResource(
                     id = R.string.crypto_button_accessibility,
                 ),
+            onClick = onEncryptClick,
         ),
-        HomeNavigationItem(
+        SignatureBottomBarItem(
             label = stringResource(id = R.string.share_button),
             icon = ImageVector.vectorResource(id = R.drawable.ic_icon_share),
-            route = Route.Signing.route,
             contentDescription = stringResource(id = R.string.share_button),
+            onClick = onShareClick,
         ),
     )
 }

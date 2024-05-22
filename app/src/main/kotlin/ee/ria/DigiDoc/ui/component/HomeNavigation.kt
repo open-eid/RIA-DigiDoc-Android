@@ -23,7 +23,6 @@ import ee.ria.DigiDoc.utils.Route
 fun HomeNavigation(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    signatureAddController: NavHostController,
     onClickMenu: () -> Unit = {},
     onClickToFileChoosingScreen: () -> Unit = {},
 ) {
@@ -49,10 +48,7 @@ fun HomeNavigation(
         ) {
             composable(Route.Signature.route) {
                 SignatureScreen(
-                    navController = navController,
-                    signatureAddController = signatureAddController,
                     onClickToFileChoosingScreen = onClickToFileChoosingScreen,
-                    isDialogOpen = true,
                 )
             }
             composable(Route.Crypto.route) {
@@ -70,11 +66,9 @@ fun HomeNavigation(
 @Composable
 fun HomeNavigationPreview() {
     val navController = rememberNavController()
-    val signatureAddController = rememberNavController()
     RIADigiDocTheme {
         HomeNavigation(
             navController = navController,
-            signatureAddController = signatureAddController,
         )
     }
 }

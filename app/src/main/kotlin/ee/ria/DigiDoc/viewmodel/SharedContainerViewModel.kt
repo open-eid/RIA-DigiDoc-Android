@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
+import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import java.io.File
 import java.io.FileInputStream
@@ -27,6 +28,13 @@ class SharedContainerViewModel
     ) : ViewModel() {
         private val _signedContainer = MutableLiveData<SignedContainer?>()
         val signedContainer: LiveData<SignedContainer?> = _signedContainer
+
+        private val _signedStatus = MutableLiveData<MobileCreateSignatureProcessStatus?>(null)
+        val signedStatus: LiveData<MobileCreateSignatureProcessStatus?> = _signedStatus
+
+        fun setSignedStatus(signedStatus: MobileCreateSignatureProcessStatus?) {
+            _signedStatus.postValue(signedStatus)
+        }
 
         fun setSignedContainer(signedContainer: SignedContainer?) {
             _signedContainer.postValue(signedContainer)

@@ -6,15 +6,20 @@ import android.content.Context
 import ee.ria.DigiDoc.configuration.ConfigurationManager
 import ee.ria.DigiDoc.configuration.ConfigurationProvider
 import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class ConfigurationRepository {
-    fun getConfiguration(): ConfigurationProvider? {
-        return ConfigurationManager.getConfigurationFlow().value
-    }
+@Singleton
+class ConfigurationRepository
+    @Inject
+    constructor() {
+        fun getConfiguration(): ConfigurationProvider? {
+            return ConfigurationManager.getConfigurationFlow().value
+        }
 
-    @Throws(Exception::class)
-    suspend fun getCentralConfiguration(context: Context): ConfigurationProvider? {
-        ConfigurationLoader.loadCentralConfiguration(context)
-        return getConfiguration()
+        @Throws(Exception::class)
+        suspend fun getCentralConfiguration(context: Context): ConfigurationProvider? {
+            ConfigurationLoader.loadCentralConfiguration(context)
+            return getConfiguration()
+        }
     }
-}

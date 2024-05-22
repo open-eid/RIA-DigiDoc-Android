@@ -17,11 +17,13 @@ import ee.ria.DigiDoc.viewmodel.SharedContainerViewModel
 fun SigningScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    signatureAddController: NavHostController,
     sharedContainerViewModel: SharedContainerViewModel,
 ) {
     SigningNavigation(
         modifier = modifier,
         navController = navController,
+        signatureAddController = signatureAddController,
         sharedContainerViewModel = sharedContainerViewModel,
     )
 }
@@ -31,10 +33,12 @@ fun SigningScreen(
 @Composable
 fun SigningScreenPreview() {
     val navController = rememberNavController()
+    val signatureAddController = rememberNavController()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
     RIADigiDocTheme {
         SigningScreen(
             navController = navController,
+            signatureAddController = signatureAddController,
             sharedContainerViewModel = sharedContainerViewModel,
         )
     }
