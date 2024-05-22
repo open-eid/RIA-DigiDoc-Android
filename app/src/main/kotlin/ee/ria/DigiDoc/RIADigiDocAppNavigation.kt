@@ -34,7 +34,6 @@ fun RIADigiDocAppScreen() {
             HomeFragment(
                 navController = navController,
                 navBarNavController = navBarNavController,
-                signatureAddController = signatureAddController,
             )
         }
         composable(route = Route.Menu.route) {
@@ -45,6 +44,7 @@ fun RIADigiDocAppScreen() {
         composable(route = Route.Signing.route) {
             SigningFragment(
                 navController = navController,
+                signatureAddController = signatureAddController,
                 sharedContainerViewModel = sharedContainerViewModel,
             )
         }

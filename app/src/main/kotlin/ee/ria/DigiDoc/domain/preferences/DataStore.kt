@@ -11,10 +11,12 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.preferences.EncryptedPreferences
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
+import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.DigiDoc.utilsLib.toast.ToastUtil
 import java.io.IOException
 import java.security.GeneralSecurityException
+import java.util.Arrays
 import javax.inject.Inject
 
 class DataStore
@@ -29,6 +31,92 @@ class DataStore
         init {
             preferences = PreferenceManager.getDefaultSharedPreferences(application)
             resources = application.resources
+        }
+
+        fun getSignatureAddMethod(): String {
+            val signatureAddMethod =
+                preferences.getString(
+                    resources.getString(R.string.main_settings_signature_add_method_key),
+                    Route.MobileId.route,
+                ) ?: Route.MobileId.route
+            val signatureAddMethods =
+                arrayOf(
+                    Route.MobileId.route,
+                    Route.SmartId.route,
+                    Route.IdCard.route,
+                    Route.NFC.route,
+                )
+            if (!Arrays.asList(*signatureAddMethods).contains(signatureAddMethod)) {
+                return Route.MobileId.route
+            }
+            return signatureAddMethod
+        }
+
+        fun setSignatureAddMethod(method: String) {
+            val editor = preferences.edit()
+            editor.putString(resources.getString(R.string.main_settings_signature_add_method_key), method)
+            editor.apply()
+        }
+
+        fun getPhoneNo(): String {
+            return preferences.getString(
+                resources.getString(R.string.main_settings_phone_no_key),
+                "",
+            ) ?: ""
+        }
+
+        fun setPhoneNo(phoneNo: String) {
+            val editor = preferences.edit()
+            editor.putString(resources.getString(R.string.main_settings_phone_no_key), phoneNo)
+            editor.apply()
+        }
+
+        fun getPersonalCode(): String {
+            return preferences.getString(
+                resources.getString(R.string.main_settings_personal_code_key),
+                "",
+            ) ?: ""
+        }
+
+        fun setPersonalCode(personalCode: String) {
+            val editor = preferences.edit()
+            editor.putString(
+                resources.getString(R.string.main_settings_personal_code_key),
+                personalCode,
+            )
+            editor.apply()
+        }
+
+        fun getSidPersonalCode(): String {
+            return preferences.getString(
+                resources.getString(R.string.main_settings_sid_personal_code_key),
+                "",
+            ) ?: ""
+        }
+
+        fun setSidPersonalCode(personalCode: String) {
+            val editor = preferences.edit()
+            editor.putString(
+                resources.getString(R.string.main_settings_sid_personal_code_key),
+                personalCode,
+            )
+            editor.apply()
+        }
+
+        fun getCountry(): String {
+            return preferences.getString(
+                resources.getString(R.string.main_settings_smartid_country_key),
+                "EE",
+            ) ?: "EE"
+        }
+
+        fun setCountry(country: String) {
+            val editor = preferences.edit()
+            editor.putString(
+                resources.getString(R.string.main_settings_smartid_country_key),
+                country,
+            )
+            editor.apply()
         }
 
         fun getSettingsUUID(): String {

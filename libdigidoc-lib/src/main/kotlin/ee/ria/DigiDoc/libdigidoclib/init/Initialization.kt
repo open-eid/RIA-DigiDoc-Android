@@ -100,6 +100,7 @@ object Initialization {
         // TODO: Override values from central configuration
 
         DigiDocConf.instance().setTSLUrl("https://ec.europa.eu/tools/lotl/eu-lotl.xml")
+        DigiDocConf.instance().setTSUrl("https://eid-dd.ria.ee/ts")
         val tslCerts =
             arrayOf(
                 """MIIG7zCCBNegAwIBAgIQEAAAAAAAnuXHXttK9Tyf2zANBgkqhkiG9w0BAQsFADBkMQswCQYDVQQGEwJCRTERMA8GA1UEBxMIQnJ1c3NlbHMxHDAaBg

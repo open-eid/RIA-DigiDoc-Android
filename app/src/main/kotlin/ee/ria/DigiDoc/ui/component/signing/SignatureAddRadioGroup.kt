@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -26,33 +27,43 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.radioButtonHorizontalPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.radioGroupBarHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.viewmodel.SettingsViewModel
 
 @Composable
 fun SignatureAddRadioGroup(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    selectedRadioItem: Int = 0,
+    selectedRadioItem: String,
+    settingsViewModel: SettingsViewModel,
 ) {
-    var selectedItem by remember { mutableIntStateOf(selectedRadioItem) }
+    var selectedItem by remember { mutableStateOf(selectedRadioItem) }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly,
         modifier =
-            modifier.wrapContentHeight().fillMaxWidth().padding(
-                horizontal = radioButtonHorizontalPadding,
-                vertical = zeroPadding,
-            ),
+            modifier
+                .wrapContentHeight()
+                .fillMaxWidth()
+                .padding(
+                    horizontal = radioButtonHorizontalPadding,
+                    vertical = zeroPadding,
+                ),
     ) {
-        SignatureAddRadioItem().radioItems().forEachIndexed { index, navigationItem ->
+        SignatureAddRadioItem().radioItems().forEachIndexed { _, navigationItem ->
             SignatureAddRadioButton(
                 modifier =
-                    modifier.height(radioGroupBarHeight).semantics {
-                        contentDescription = navigationItem.contentDescription
-                    }.fillMaxWidth(),
-                selected = index == selectedItem,
+                    modifier
+                        .height(radioGroupBarHeight)
+                        .semantics {
+                            contentDescription = navigationItem.contentDescription
+                        }
+                        .fillMaxWidth(),
+                selected = navigationItem.route == selectedItem,
                 label = navigationItem.label,
                 onClick = {
-                    selectedItem = index
+                    selectedItem = navigationItem.route
+                    settingsViewModel.dataStore.setSignatureAddMethod(selectedItem)
                     navController.navigate(navigationItem.route) {
                         popUpTo(navController.graph.findStartDestination().id) {
                             saveState = true
@@ -71,11 +82,13 @@ fun SignatureAddRadioGroup(
 @Composable
 fun SignatureAddRadioGroupPreview() {
     val navController = rememberNavController()
+    val settingsViewModel: SettingsViewModel = hiltViewModel()
     RIADigiDocTheme {
-        val selected by remember { mutableIntStateOf(1) }
+        val selected by remember { mutableStateOf(Route.SmartId.route) }
         SignatureAddRadioGroup(
             selectedRadioItem = selected,
             navController = navController,
+            settingsViewModel = settingsViewModel,
         )
     }
 }

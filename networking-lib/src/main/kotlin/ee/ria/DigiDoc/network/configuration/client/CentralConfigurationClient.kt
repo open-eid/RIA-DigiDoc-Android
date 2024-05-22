@@ -30,13 +30,8 @@ class CentralConfigurationClient(
     private val centralConfigurationServiceUrl: String,
     private val userAgent: String,
 ) {
-    @Suppress("PropertyName")
-    private val LOG_TAG = javaClass.simpleName
-    private val httpClient: OkHttpClient?
-
-    init {
-        httpClient = constructHttpClient(context)
-    }
+    private val logTag = javaClass.simpleName
+    private val httpClient: OkHttpClient = constructHttpClient(context)
 
     val configuration: String
         get() {
@@ -45,7 +40,7 @@ class CentralConfigurationClient(
                     "$centralConfigurationServiceUrl/config.json",
                 )
             future.exceptionally { e: Throwable ->
-                errorLog(LOG_TAG, String.format("%s %s", "Unable to get configuration", e.localizedMessage), e)
+                errorLog(logTag, String.format("%s %s", "Unable to get configuration", e.localizedMessage), e)
                 Handler(Looper.getMainLooper()).post {
                     Toast.makeText(
                         context,
@@ -65,7 +60,7 @@ class CentralConfigurationClient(
                 )
             future.exceptionally { e: Throwable ->
                 errorLog(
-                    LOG_TAG,
+                    logTag,
                     String.format("%s %s", "Unable to get configuration signature", e.localizedMessage),
                     e,
                 )
@@ -88,7 +83,7 @@ class CentralConfigurationClient(
                 )
             future.exceptionally { e: Throwable ->
                 errorLog(
-                    LOG_TAG,
+                    logTag,
                     String.format("%s %s", "Unable to get configuration public key", e.localizedMessage),
                     e,
                 )
@@ -112,35 +107,33 @@ class CentralConfigurationClient(
                 .addHeader("Content-Type", "application/json")
                 .addHeader("User-Agent", userAgent)
                 .build()
-        if (httpClient != null) {
-            CompletableFuture.runAsync {
-                val call = httpClient.newCall(request)
-                try {
-                    val response = call.execute()
-                    if (response.code != 200) {
-                        result.completeExceptionally(
-                            CentralConfigurationException("Service responded with not OK status code " + response.code),
-                        )
-                        return@runAsync
-                    }
-                    val responseBody = response.body
-                    if (responseBody == null) {
-                        result.completeExceptionally(CentralConfigurationException("Service responded with empty body"))
-                        return@runAsync
-                    }
-                    result.complete(responseBody.string())
-                } catch (e: IOException) {
+
+        CompletableFuture.runAsync {
+            val call = httpClient.newCall(request)
+            try {
+                val response = call.execute()
+                if (response.code != 200) {
                     result.completeExceptionally(
-                        CentralConfigurationException(
-                            "Something went wrong during fetching configuration",
-                            e,
-                        ),
+                        CentralConfigurationException("Service responded with not OK status code " + response.code),
                     )
+                    return@runAsync
                 }
+                val responseBody = response.body
+                if (responseBody == null) {
+                    result.completeExceptionally(CentralConfigurationException("Service responded with empty body"))
+                    return@runAsync
+                }
+                result.complete(responseBody.string())
+            } catch (e: IOException) {
+                result.completeExceptionally(
+                    CentralConfigurationException(
+                        "Something went wrong during fetching configuration",
+                        e,
+                    ),
+                )
             }
-        } else {
-            result.completeExceptionally(CentralConfigurationException("Unable to fetch configuration"))
         }
+
         return result
     }
 

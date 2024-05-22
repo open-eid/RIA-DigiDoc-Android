@@ -87,6 +87,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SigningNavigation(
     navController: NavHostController,
+    signatureAddController: NavHostController,
     modifier: Modifier = Modifier,
     sharedContainerViewModel: SharedContainerViewModel,
     signingViewModel: SigningViewModel = hiltViewModel(),
@@ -94,6 +95,7 @@ fun SigningNavigation(
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
     val shouldResetContainer by signingViewModel.shouldResetSignedContainer
     val context = LocalContext.current
+
     BackHandler {
         handleBackButtonClick(navController, signingViewModel)
     }
@@ -106,9 +108,44 @@ fun SigningNavigation(
         }
     }
 
+    val openSignatureDialog = remember { mutableStateOf(false) }
+    val dismissDialog = {
+        signatureAddController.navigate(Route.MobileId.route) {
+            popUpTo(signatureAddController.graph.findStartDestination().id) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+            openSignatureDialog.value = false
+        }
+    }
+
+    if (openSignatureDialog.value) {
+        BasicAlertDialog(
+            onDismissRequest = dismissDialog,
+        ) {
+            AddSignatureView(
+                signatureAddController = signatureAddController,
+                dismissDialog = dismissDialog,
+                sharedContainerViewModel = sharedContainerViewModel,
+            )
+        }
+    }
+
     Scaffold(
         bottomBar = {
-            SigningBottomBar(modifier = modifier)
+            SigningBottomBar(
+                modifier = modifier,
+                onSignClick = {
+                    openSignatureDialog.value = true
+                },
+                onEncryptClick = {
+                    // TODO: Implement encrypt click
+                },
+                onShareClick = {
+                    // TODO: Implement share click
+                },
+            )
         },
     ) { innerPadding ->
         Surface(
@@ -440,8 +477,13 @@ fun handleBackButtonClick(
 @Composable
 fun SigningNavigationPreview() {
     val navController = rememberNavController()
+    val signatureAddController = rememberNavController()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
     RIADigiDocTheme {
-        SigningNavigation(navController, sharedContainerViewModel = sharedContainerViewModel)
+        SigningNavigation(
+            navController = navController,
+            signatureAddController = signatureAddController,
+            sharedContainerViewModel = sharedContainerViewModel,
+        )
     }
 }

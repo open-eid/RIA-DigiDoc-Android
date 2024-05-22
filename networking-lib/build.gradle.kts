@@ -25,11 +25,18 @@ android {
 dependencies {
 
     api(libs.okhttp3)
+    api(libs.okhttp3.logging.interceptor)
+    api(libs.retrofit)
+    api(libs.retrofit.converter.scalars)
+    api(libs.retrofit.converter.gson)
+    api(libs.bouncy.castle)
+    api(libs.jackson.databind)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.commons.text)
     implementation(libs.preferencex)
+    implementation(libs.bouncy.castle)
     testImplementation(libs.junit)
     androidTestImplementation(libs.mockito.android)
     androidTestImplementation(libs.kotlinx.coroutines.test)
@@ -37,6 +44,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.lifecycle.runtime.ktx)
 
+    implementation(project(":libdigidoc-lib"))
     debugImplementation(project(":utils-lib", "debugRuntimeElements"))
     releaseImplementation(project(":utils-lib", "releaseRuntimeElements"))
     debugImplementation(project(":commons-lib", "debugRuntimeElements"))

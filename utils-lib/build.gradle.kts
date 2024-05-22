@@ -41,6 +41,8 @@ dependencies {
     implementation(libs.commons.io)
     implementation(libs.commons.text)
     implementation(libs.guava)
+    implementation(libs.gson)
+    implementation(libs.threegpp.telecom.charsets)
     testImplementation(libs.junit)
     testImplementation(libs.mockito.core)
     testImplementation(libs.androidx.junit)

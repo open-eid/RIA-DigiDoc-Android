@@ -1,0 +1,24 @@
+@file:Suppress("PackageName")
+
+package ee.ria.DigiDoc.network.mid.dto.response
+
+enum class MobileCreateSignatureProcessStatus {
+    OK,
+    TIMEOUT,
+    NOT_MID_CLIENT,
+    USER_CANCELLED,
+    SIGNATURE_HASH_MISMATCH,
+    PHONE_ABSENT,
+    DELIVERY_ERROR,
+    SIM_ERROR,
+    TOO_MANY_REQUESTS,
+    EXCEEDED_UNSUCCESSFUL_REQUESTS,
+    INVALID_ACCESS_RIGHTS,
+    OCSP_INVALID_TIME_SLOT,
+    CERTIFICATE_REVOKED,
+    GENERAL_ERROR,
+    NO_RESPONSE,
+    INVALID_COUNTRY_CODE,
+    INVALID_SSL_HANDSHAKE,
+    TECHNICAL_ERROR,
+}

@@ -52,6 +52,8 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.guava)
+    implementation(libs.gson)
+    implementation(libs.bouncy.castle)
 
     implementation(libs.pdfbox.android) {
         exclude(group = "org.bouncycastle")
@@ -64,7 +66,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.lifecycle.runtime.ktx)
 
-    implementation(files("libs/libdigidocpp.jar"))
+    api(files("libs/libdigidocpp.jar"))
 
     implementation(project(":utils-lib"))
     implementation(project(":commons-lib"))

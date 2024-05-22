@@ -24,7 +24,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import ee.ria.DigiDoc.ui.component.shared.PreventResize
 
 @Composable
-fun SigningBottomBar(modifier: Modifier) {
+fun SigningBottomBar(
+    modifier: Modifier,
+    onSignClick: () -> Unit = {},
+    onEncryptClick: () -> Unit = {},
+    onShareClick: () -> Unit = {},
+) {
     BottomAppBar(
         containerColor = MaterialTheme.colorScheme.primary,
         contentColor = MaterialTheme.colorScheme.background,
@@ -32,7 +37,11 @@ fun SigningBottomBar(modifier: Modifier) {
             modifier
                 .fillMaxWidth(),
     ) {
-        SigningBottomNavigationItems().forEachIndexed { index, navigationItem ->
+        signingBottomNavigationItems(
+            onSignClick = onSignClick,
+            onEncryptClick = onEncryptClick,
+            onShareClick = onShareClick,
+        ).forEachIndexed { _, navigationItem ->
             Box(
                 modifier
                     .weight(1f)
@@ -40,7 +49,10 @@ fun SigningBottomBar(modifier: Modifier) {
                         this.contentDescription = navigationItem.contentDescription
                     }
                     .focusGroup()
-                    .clickable { /* TODO */ },
+                    .clickable(
+                        enabled = true,
+                        onClick = navigationItem.onClick,
+                    ),
             ) {
                 Column(
                     modifier =

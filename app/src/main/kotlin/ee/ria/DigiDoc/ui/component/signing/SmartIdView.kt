@@ -24,6 +24,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.SelectionSpinner
@@ -31,11 +32,13 @@ import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
 import ee.ria.DigiDoc.ui.theme.Dimensions
 import ee.ria.DigiDoc.ui.theme.Dimensions.textVerticalPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.viewmodel.SettingsViewModel
 
 @Composable
 fun SmartIdView(
     modifier: Modifier = Modifier,
     cancelButtonClick: () -> Unit = {},
+    settingsViewModel: SettingsViewModel = hiltViewModel(),
 ) {
     Column {
         Text(

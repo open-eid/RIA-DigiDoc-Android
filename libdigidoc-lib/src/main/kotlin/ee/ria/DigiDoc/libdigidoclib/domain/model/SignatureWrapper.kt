@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.libdigidoclib.domain.model
 import ee.ria.libdigidocpp.Signature
 
 class SignatureWrapper(signature: Signature) : SignatureInterface {
+    override val id: String = signature.id()
     override val claimedSigningTime: String = signature.claimedSigningTime()
     override val trustedSigningTime: String = signature.trustedSigningTime()
     override val signatureMethod: String = signature.signatureMethod()

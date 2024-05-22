@@ -3,6 +3,7 @@
 package ee.ria.DigiDoc.libdigidoclib.domain.model
 
 interface SignatureInterface {
+    val id: String
     val claimedSigningTime: String
     val trustedSigningTime: String
     val signatureMethod: String

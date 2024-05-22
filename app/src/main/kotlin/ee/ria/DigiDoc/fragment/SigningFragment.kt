@@ -20,6 +20,7 @@ import ee.ria.DigiDoc.viewmodel.SharedContainerViewModel
 @Composable
 fun SigningFragment(
     navController: NavHostController,
+    signatureAddController: NavHostController,
     modifier: Modifier = Modifier,
     sharedContainerViewModel: SharedContainerViewModel,
 ) {
@@ -29,6 +30,7 @@ fun SigningFragment(
     ) {
         SigningScreen(
             navController = navController,
+            signatureAddController = signatureAddController,
             modifier = modifier,
             sharedContainerViewModel = sharedContainerViewModel,
         )
@@ -40,8 +42,13 @@ fun SigningFragment(
 @Composable
 fun SigningFragmentPreview() {
     val navController = rememberNavController()
+    val signatureAddController = rememberNavController()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
     RIADigiDocTheme {
-        SigningFragment(navController, sharedContainerViewModel = sharedContainerViewModel)
+        SigningFragment(
+            navController = navController,
+            signatureAddController = signatureAddController,
+            sharedContainerViewModel = sharedContainerViewModel,
+        )
     }
 }

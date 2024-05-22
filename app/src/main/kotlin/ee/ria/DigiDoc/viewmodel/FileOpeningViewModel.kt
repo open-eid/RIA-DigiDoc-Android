@@ -5,8 +5,6 @@ package ee.ria.DigiDoc.viewmodel
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
-import android.os.Handler
-import android.os.Looper
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
@@ -17,13 +15,13 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.domain.repository.FileOpeningRepository
 import ee.ria.DigiDoc.exceptions.EmptyFileException
+import ee.ria.DigiDoc.exceptions.FileAlreadyExistsException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import ee.ria.DigiDoc.utilsLib.file.FileStream
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.normalizeString
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
-import ee.ria.DigiDoc.utilsLib.toast.ToastUtil.showMessage
 import javax.inject.Inject
 
 @HiltViewModel
@@ -55,30 +53,24 @@ class FileOpeningViewModel
             existingSignedContainer: SignedContainer?,
         ) {
             if (existingSignedContainer != null) {
-                val validFiles: List<FileStream> =
-                    fileOpeningRepository.getFilesWithValidSize(
-                        fileOpeningRepository.parseUris(contentResolver, uris),
-                    )
-                if (fileOpeningRepository.isEmptyFileInList(validFiles)) {
-                    Handler(Looper.getMainLooper()).post {
-                        showMessage(context, R.string.empty_file_error)
-                    }
-                }
-                val filesNotInContainer: List<FileStream> =
-                    getFilesNotInContainer(
-                        validFiles,
-                    )
-                if (filesNotInContainer.isEmpty()) {
-                    Handler(Looper.getMainLooper()).post {
-                        showMessage(context, R.string.signature_update_documents_add_error_exists)
-                    }
-                }
-
                 try {
+                    val validFiles: List<FileStream> =
+                        fileOpeningRepository.getFilesWithValidSize(
+                            fileOpeningRepository.parseUris(contentResolver, uris),
+                        )
+                    if (fileOpeningRepository.isEmptyFileInList(validFiles)) {
+                        throw EmptyFileException(context)
+                    }
+                    val filesNotInContainer: List<FileStream> =
+                        getFilesNotInContainer(
+                            validFiles,
+                        )
+                    if (filesNotInContainer.isEmpty()) {
+                        throw FileAlreadyExistsException(context)
+                    }
                     val container =
                         fileOpeningRepository.addFilesToContainer(
                             context,
-                            existingSignedContainer,
                             filesNotInContainer,
                         )
                     _signedContainer.postValue(container)

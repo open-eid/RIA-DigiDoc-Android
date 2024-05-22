@@ -64,6 +64,21 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
     }
 
     @Throws(Exception::class)
+    fun removeSignature(signature: SignatureInterface): SignedContainer {
+        val signatures = container?.signatures()
+        if (signatures != null) {
+            for (i in signatures.indices) {
+                if (signature.id == signatures[i].id()) {
+                    container?.removeSignature(i.toLong())
+                    break
+                }
+            }
+        }
+        container?.save()
+        return container()
+    }
+
+    @Throws(Exception::class)
     fun addDataFiles(dataFiles: List<File?>): SignedContainer {
         for (dataFile in dataFiles) {
             if (dataFile != null) {
@@ -145,7 +160,7 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
                 open(context, file)
             } else {
                 isExistingContainer = false
-                create(context, file, dataFiles)
+                create(context, containerFileWithExtension, dataFiles)
             }
         }
 
