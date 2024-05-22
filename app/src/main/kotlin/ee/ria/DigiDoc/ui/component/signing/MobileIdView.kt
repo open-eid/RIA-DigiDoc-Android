@@ -148,7 +148,7 @@ fun MobileIdView(
             },
             maxLines = 1,
             singleLine = true,
-            placeholder = {
+            label = {
                 Text(text = stringResource(id = R.string.mobile_id_country_code_and_phone_number_placeholder))
             },
             textStyle = MaterialTheme.typography.titleLarge,
@@ -199,20 +199,13 @@ fun MobileIdView(
                     settingsViewModel.dataStore.setPersonalCode(personalCodeText.text)
                 }
                 CoroutineScope(Dispatchers.IO).launch {
-                    withContext(Dispatchers.IO) {
-                        mobileIdViewModel.performMobileIdWorkRequest(
-                            container = signedContainer,
-                            personalCode = personalCodeText.text,
-                            phoneNumber = countryCodeAndPhoneText.text,
-                            configurationProvider = configurationProvider,
-                            roleData = null,
-                        )
-                    }
-                    withContext(Dispatchers.Main) {
-                        errorState?.let {
-                            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
-                        }
-                    }
+                    mobileIdViewModel.performMobileIdWorkRequest(
+                        container = signedContainer,
+                        personalCode = personalCodeText.text,
+                        phoneNumber = countryCodeAndPhoneText.text,
+                        configurationProvider = configurationProvider,
+                        roleData = null,
+                    )
                 }
             },
         )

@@ -74,7 +74,8 @@ object FetchAndPackageDefaultConfigurationTask {
         properties = Properties()
         try {
             FileInputStream(
-                System.getProperty("user.dir")!! + "/src/main/resources/" + DEFAULT_CONFIGURATION_PROPERTIES_FILE_NAME,
+                (System.getProperty("user.dir")?.plus("/src/main/resources/") ?: "") +
+                    DEFAULT_CONFIGURATION_PROPERTIES_FILE_NAME,
             ).use {
                     propsInputStream ->
                 properties.load(propsInputStream)
@@ -160,7 +161,7 @@ object FetchAndPackageDefaultConfigurationTask {
     }
 
     private fun configFileDir(filename: String): String {
-        return System.getProperty("user.dir")!! + "/src/" + buildVariant + "/assets/config/" + filename
+        return (System.getProperty("user.dir")?.plus("/src/") ?: "") + buildVariant + "/assets/config/" + filename
     }
 
     private fun verifyConfigurationSignature(configurationLoader: ConfigurationLoader) {

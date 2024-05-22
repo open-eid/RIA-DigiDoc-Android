@@ -266,16 +266,18 @@ fun SigningNavigation(
                             onClickView = {
                                 try {
                                     val uri =
-                                        FileProvider.getUriForFile(
-                                            context,
-                                            context.getString(R.string.file_provider_authority),
-                                            file!!,
-                                        )
+                                        file?.let {
+                                            FileProvider.getUriForFile(
+                                                context,
+                                                context.getString(R.string.file_provider_authority),
+                                                it,
+                                            )
+                                        }
                                     val shareIntent = Intent()
                                     shareIntent.setAction(Intent.ACTION_VIEW)
                                     shareIntent.setDataAndType(
                                         uri,
-                                        file.let { SignedContainer.mimeType(it) },
+                                        file?.let { SignedContainer.mimeType(it) },
                                     )
                                     shareIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                                     ContextCompat.startActivity(context, shareIntent, null)

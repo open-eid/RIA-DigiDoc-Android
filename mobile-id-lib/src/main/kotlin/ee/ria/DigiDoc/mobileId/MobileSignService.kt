@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.mobileId
 
 import androidx.lifecycle.LiveData
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
+import ee.ria.DigiDoc.network.mid.dto.MobileCertificateResultType
 import ee.ria.DigiDoc.network.mid.dto.request.MobileCreateSignatureRequest
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.network.mid.dto.response.MobileIdServiceResponse
@@ -14,10 +15,13 @@ interface MobileSignService {
     val response: LiveData<MobileIdServiceResponse?>
     val challenge: LiveData<String?>
     val status: LiveData<MobileCreateSignatureProcessStatus?>
+    val result: LiveData<MobileCertificateResultType?>
     val errorState: LiveData<String?>
     val cancelled: LiveData<Boolean?>
 
     fun setCancelled(cancelled: Boolean?)
+
+    fun resetValues()
 
     suspend fun processMobileIdRequest(
         request: MobileCreateSignatureRequest?,

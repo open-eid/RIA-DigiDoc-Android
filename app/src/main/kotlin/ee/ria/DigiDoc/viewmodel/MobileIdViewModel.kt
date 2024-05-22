@@ -23,6 +23,7 @@ import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.mobileId.MobileSignService
 import ee.ria.DigiDoc.mobileId.utils.MobileCreateSignatureRequestHelper
+import ee.ria.DigiDoc.network.mid.dto.MobileCertificateResultType
 import ee.ria.DigiDoc.network.mid.dto.request.MobileCreateSignatureRequest
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.network.proxy.ManualProxy
@@ -56,7 +57,21 @@ class MobileIdViewModel
         private val _challenge = MutableLiveData<String?>(null)
         val challenge: LiveData<String?> = _challenge
         private val _status = MutableLiveData<MobileCreateSignatureProcessStatus?>(null)
+
+        @Suppress("unused")
         val status: LiveData<MobileCreateSignatureProcessStatus?> = _status
+
+        private val faults: ImmutableMap<MobileCertificateResultType, Int> =
+            ImmutableMap.builder<MobileCertificateResultType, Int>()
+                .put(
+                    MobileCertificateResultType.NOT_FOUND,
+                    R.string.signature_update_mobile_id_error_not_mobile_id_user,
+                )
+                .put(
+                    MobileCertificateResultType.NOT_ACTIVE,
+                    R.string.signature_update_mobile_id_error_not_mobile_id_user,
+                )
+                .build()
 
         private val messages: ImmutableMap<MobileCreateSignatureProcessStatus, Int> =
             ImmutableMap.builder<MobileCreateSignatureProcessStatus, Int>()
@@ -136,6 +151,13 @@ class MobileIdViewModel
             mobileSignService.setCancelled(true)
         }
 
+        private fun resetValues() {
+            _errorState.postValue(null)
+            _challenge.postValue(null)
+            _status.postValue(null)
+            mobileSignService.resetValues()
+        }
+
         suspend fun performMobileIdWorkRequest(
             container: SignedContainer?,
             personalCode: String,
@@ -143,6 +165,7 @@ class MobileIdViewModel
             @Suppress("UNUSED_PARAMETER") configurationProvider: ConfigurationProvider?,
             roleData: RoleData?,
         ) {
+            resetValues()
             val uuid = dataStore.getSettingsUUID()
             val proxySetting: ProxySetting = dataStore.getProxySetting()
             val manualProxySettings: ManualProxy = dataStore.getManualProxySettings(context)
@@ -620,6 +643,16 @@ class MobileIdViewModel
                         _challenge.postValue(challenge)
                     }
                 }
+                mobileSignService.result.observeForever {
+                    if (it != null) {
+                        _errorState.postValue(
+                            context.getString(
+                                faults[it]
+                                    ?: R.string.signature_update_mobile_id_error_general_client,
+                            ),
+                        )
+                    }
+                }
                 mobileSignService.status.observeForever {
                     if (it != null) {
                         _status.postValue(it)
@@ -692,6 +725,14 @@ class MobileIdViewModel
                 Objects.requireNonNull(Conf.instance()).PKCS12Cert(),
                 Objects.requireNonNull(Conf.instance()).PKCS12Pass(),
             )
+
+            withContext(Dispatchers.Main) {
+                mobileSignService.errorState.removeObserver {}
+                mobileSignService.challenge.removeObserver {}
+                mobileSignService.status.removeObserver {}
+                mobileSignService.result.removeObserver {}
+                mobileSignService.response.removeObserver {}
+            }
         }
 
         fun positiveButtonEnabled(

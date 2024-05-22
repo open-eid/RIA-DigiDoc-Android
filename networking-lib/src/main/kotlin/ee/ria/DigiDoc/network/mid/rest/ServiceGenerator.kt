@@ -38,7 +38,7 @@ object ServiceGenerator {
     private const val CERT_PEM_HEADER = "-----BEGIN CERTIFICATE-----"
     private const val CERT_PEM_FOOTER = "-----END CERTIFICATE-----"
 
-    private var loggingInterceptor: HttpLoggingInterceptor? = null
+    private lateinit var loggingInterceptor: HttpLoggingInterceptor
 
     @Throws(CertificateException::class, NoSuchAlgorithmException::class)
     fun <S> createService(
@@ -110,12 +110,10 @@ object ServiceGenerator {
     private fun addLoggingInterceptor(httpClientBuilder: OkHttpClient.Builder) {
         if (BuildConfig.DEBUG) { // TODO: isLoggingEnabled(context) should be used here
             debugLog(logTag, "Adding logging interceptor to HTTP client")
-            if (loggingInterceptor == null) {
-                loggingInterceptor = HttpLoggingInterceptor()
-                loggingInterceptor!!.level = HttpLoggingInterceptor.Level.BODY
-            }
-            if (!httpClientBuilder.interceptors().contains(loggingInterceptor!!)) {
-                httpClientBuilder.interceptors().add(loggingInterceptor!!)
+            loggingInterceptor = HttpLoggingInterceptor()
+            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+            if (!httpClientBuilder.interceptors().contains(loggingInterceptor)) {
+                httpClientBuilder.interceptors().add(loggingInterceptor)
             }
             httpClientBuilder.addInterceptor(
                 Interceptor { chain: Interceptor.Chain ->

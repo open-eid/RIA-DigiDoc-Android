@@ -65,9 +65,20 @@ class MobileSignServiceImpl : MobileSignService {
     override val challenge: LiveData<String?> = _challenge
     private val _status = MutableLiveData<MobileCreateSignatureProcessStatus?>(null)
     override val status: LiveData<MobileCreateSignatureProcessStatus?> = _status
+    private val _result = MutableLiveData<MobileCertificateResultType?>(null)
+    override val result: LiveData<MobileCertificateResultType?> = _result
 
     private val _cancelled = MutableLiveData(false)
     override val cancelled: LiveData<Boolean?> = _cancelled
+
+    override fun resetValues() {
+        _response.postValue(null)
+        _errorState.postValue(null)
+        _challenge.postValue(null)
+        _status.postValue(null)
+        _result.postValue(null)
+        _cancelled.postValue(false)
+    }
 
     override fun setCancelled(cancelled: Boolean?) {
         _cancelled.postValue(cancelled)
@@ -89,6 +100,10 @@ class MobileSignServiceImpl : MobileSignService {
         _status.postValue(status)
     }
 
+    private fun setResult(result: MobileCertificateResultType?) {
+        _result.postValue(result)
+    }
+
     override suspend fun processMobileIdRequest(
         request: MobileCreateSignatureRequest?,
         roleDataRequest: RoleData?,
@@ -99,6 +114,12 @@ class MobileSignServiceImpl : MobileSignService {
         accessTokenPass: String?,
     ) {
         debugLog(logTag, "Handling mobile sign service")
+
+        setResponse(null)
+        setStatus(null)
+        setResult(null)
+        setChallenge(null)
+        setErrorState(null)
 
         val trustManagers: Array<TrustManager>
         try {
@@ -594,6 +615,7 @@ class MobileSignServiceImpl : MobileSignService {
         setResponse(null)
         setErrorState(null)
         setStatus(fault.status)
+        setResult(fault.result)
         setChallenge(null)
     }
 
@@ -684,7 +706,7 @@ class MobileSignServiceImpl : MobileSignService {
                 val certificateResponse: MobileCreateSignatureCertificateResponse? =
                     response as MobileCreateSignatureCertificateResponse?
                 if (certificateResponse != null) {
-                    if (!certificateResponse.result?.equals(MobileCertificateResultType.OK)!!) {
+                    if (certificateResponse.result != MobileCertificateResultType.OK) {
                         val fault =
                             RESTServiceFault(
                                 httpResponse.code(),
@@ -705,9 +727,7 @@ class MobileSignServiceImpl : MobileSignService {
                 val sessionStatusResponse: MobileCreateSignatureSessionStatusResponse? =
                     response as MobileCreateSignatureSessionStatusResponse?
                 if (sessionStatusResponse != null) {
-                    if (!sessionStatusResponse.result
-                            ?.equals(MobileCreateSignatureProcessStatus.OK)!!
-                    ) {
+                    if (sessionStatusResponse.result != MobileCreateSignatureProcessStatus.OK) {
                         val restServiceFault =
                             RESTServiceFault(
                                 httpResponse.code(),
@@ -773,7 +793,9 @@ class MobileSignServiceImpl : MobileSignService {
                 val keyStoreType = "PKCS12"
                 val keyStore =
                     KeyStore.getInstance(keyStoreType)
-                keyStore.load(key, accessTokenPass!!.toCharArray())
+                if (accessTokenPass != null) {
+                    keyStore.load(key, accessTokenPass.toCharArray())
+                }
                 val kmf =
                     KeyManagerFactory.getInstance("X509")
                 kmf.init(keyStore, null)

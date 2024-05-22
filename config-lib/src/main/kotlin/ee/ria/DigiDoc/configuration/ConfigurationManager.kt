@@ -36,7 +36,7 @@ class ConfigurationManager(
     private val centralConfigurationLoader: CentralConfigurationLoader
     private val defaultConfigurationLoader: DefaultConfigurationLoader
     private val cachedConfigurationLoader: CachedConfigurationLoader
-    private var confSignatureVerifier: ConfigurationSignatureVerifier? = null
+    private lateinit var confSignatureVerifier: ConfigurationSignatureVerifier
     private val context: Context
 
     init {
@@ -148,16 +148,14 @@ class ConfigurationManager(
     }
 
     private fun verifyConfigurationSignature(configurationLoader: ConfigurationLoader) {
-        if (confSignatureVerifier == null) {
-            var publicKey = defaultConfigurationLoader.configurationSignaturePublicKey
-            if (publicKey == null) {
-                publicKey = defaultConfigurationLoader.loadConfigurationSignaturePublicKey()
-            }
-            confSignatureVerifier = ConfigurationSignatureVerifier(publicKey)
+        var publicKey = defaultConfigurationLoader.configurationSignaturePublicKey
+        if (publicKey == null) {
+            publicKey = defaultConfigurationLoader.loadConfigurationSignaturePublicKey()
         }
+        confSignatureVerifier = ConfigurationSignatureVerifier(publicKey)
         configurationLoader.configurationJson?.let { json ->
             configurationLoader.configurationSignature?.let { signature ->
-                confSignatureVerifier!!.verifyConfigurationSignature(
+                confSignatureVerifier.verifyConfigurationSignature(
                     json,
                     signature,
                 )

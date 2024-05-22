@@ -14,6 +14,6 @@ internal class ContentResolverUriSource(
 ) : ByteSource() {
     @Throws(IOException::class)
     override fun openStream(): InputStream {
-        return uri?.let { contentResolver?.openInputStream(it) }!!
+        return uri?.let { contentResolver?.openInputStream(it) } ?: throw IOException("Uri is null")
     }
 }

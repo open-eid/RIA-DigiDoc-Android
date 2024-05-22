@@ -17,14 +17,16 @@ object MessageUtil {
         maxDisplayMessageBytes: Int,
         charset: Charset?,
     ): String {
-        val displayMessagesBytes = displayMessage.toByteArray(charset!!)
-        if (displayMessagesBytes.size > maxDisplayMessageBytes) {
-            val bytesPerChar =
-                displayMessagesBytes.size.toDouble() / displayMessage.length.toDouble()
-            return displayMessage.substring(
-                0,
-                ((maxDisplayMessageBytes - 4) / bytesPerChar).toInt(),
-            ) + "..."
+        val displayMessagesBytes = charset?.let { displayMessage.toByteArray(it) }
+        if (displayMessagesBytes != null) {
+            if (displayMessagesBytes.size > maxDisplayMessageBytes) {
+                val bytesPerChar =
+                    displayMessagesBytes.size.toDouble() / displayMessage.length.toDouble()
+                return displayMessage.substring(
+                    0,
+                    ((maxDisplayMessageBytes - 4) / bytesPerChar).toInt(),
+                ) + "..."
+            }
         }
         return displayMessage
     }

@@ -62,6 +62,14 @@ fun SignatureUpdateContainer(
         }
     }
 
+    LaunchedEffect(mobileIdViewModel.errorState) {
+        mobileIdViewModel.errorState.asFlow().collect { error ->
+            error?.let {
+                onCancelButtonClick()
+            }
+        }
+    }
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,

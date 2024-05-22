@@ -13,7 +13,6 @@ import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnitRunner
 import java.io.IOException
-import java.io.InputStream
 import java.util.Objects
 import java.util.Optional
 
@@ -32,18 +31,20 @@ class ConfigurationPropertiesTest {
                         "Unable to get ClassLoader",
                     )
                 }
-        Objects.requireNonNull<InputStream>(
+        Objects.requireNonNull(
             classLoader.getResourceAsStream(PROPERTIES_FILE_NAME),
             "Unable to open properties file",
         ).use { inputStream ->
-            `when`(assetManager!!.open(anyString())).thenReturn(inputStream)
-            val configurationProperties =
-                ConfigurationProperties(assetManager)
-            assertEquals(
-                "https://id.eesti.ee/",
-                configurationProperties.centralConfigurationServiceUrl,
-            )
-            assertSame(4, configurationProperties.configurationUpdateInterval)
+            if (assetManager != null) {
+                `when`(assetManager.open(anyString())).thenReturn(inputStream)
+                val configurationProperties =
+                    ConfigurationProperties(assetManager)
+                assertEquals(
+                    "https://id.eesti.ee/",
+                    configurationProperties.centralConfigurationServiceUrl,
+                )
+                assertSame(4, configurationProperties.configurationUpdateInterval)
+            }
         }
     }
 }

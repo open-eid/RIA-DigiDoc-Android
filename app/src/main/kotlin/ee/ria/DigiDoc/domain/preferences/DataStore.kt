@@ -61,8 +61,8 @@ class DataStore
         fun getPhoneNo(): String {
             return preferences.getString(
                 resources.getString(R.string.main_settings_phone_no_key),
-                "",
-            ) ?: ""
+                "372",
+            ) ?: "372"
         }
 
         fun setPhoneNo(phoneNo: String) {

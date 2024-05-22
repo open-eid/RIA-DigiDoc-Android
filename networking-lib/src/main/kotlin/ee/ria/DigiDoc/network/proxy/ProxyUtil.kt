@@ -42,7 +42,10 @@ object ProxyUtil {
                                 return@Authenticator null
                             }
                             val credential =
-                                basic(systemProxy.username!!, systemProxy.password!!)
+                                basic(
+                                    systemProxy.username ?: "",
+                                    systemProxy.password ?: "",
+                                )
                             response.request.newBuilder()
                                 .header("Proxy-Authorization", credential)
                                 .header("Authorization", credential)

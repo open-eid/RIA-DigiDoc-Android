@@ -10,10 +10,10 @@ import ee.ria.DigiDoc.network.mid.dto.MobileCertificateResultType
 class RESTServiceFault : DetailMessageSource {
     private var httpStatus: Int = 0
     private var state: MobileCreateSignatureProcessState? = null
-    private var result: MobileCertificateResultType? = null
     private var time: String? = null
     private var traceId: String? = null
     var status: MobileCreateSignatureProcessStatus? = null
+    var result: MobileCertificateResultType? = null
     var error: String? = null
 
     override var detailMessage: String? = null
