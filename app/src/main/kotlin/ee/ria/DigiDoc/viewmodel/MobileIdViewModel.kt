@@ -142,6 +142,10 @@ class MobileIdViewModel
                 )
                 .build()
 
+        fun resetStatus() {
+            _status.postValue(null)
+        }
+
         fun resetSignedContainer() {
             _signedContainer.postValue(null)
         }

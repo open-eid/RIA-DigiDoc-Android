@@ -69,6 +69,7 @@ fun MobileIdView(
             status?.let {
                 if (status == MobileCreateSignatureProcessStatus.OK) {
                     sharedContainerViewModel.setSignedStatus(status)
+                    mobileIdViewModel.resetStatus()
                 }
             }
         }

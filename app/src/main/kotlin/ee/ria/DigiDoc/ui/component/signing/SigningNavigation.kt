@@ -125,6 +125,7 @@ fun SigningNavigation(
                         signatureAddedSuccess.value = true
                         delay(10000)
                         signatureAddedSuccess.value = false
+                        sharedContainerViewModel.setSignedStatus(null)
                     }
                 }
             }
