@@ -30,11 +30,13 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.MutableLiveData
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.LiveData
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.configuration.ConfigurationProvider
+import ee.ria.DigiDoc.configuration.domain.model.ConfigurationViewModel
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.ui.component.settings.SettingsItem
 import ee.ria.DigiDoc.ui.component.settings.SettingsProxyCategoryDialog
@@ -68,7 +70,7 @@ fun SettingsSigningScreen(
     setProxyUsername: (String) -> Unit = {},
     getProxyPassword: (context: Context) -> String = { "" },
     setProxyPassword: (context: Context, password: String) -> Unit = { _: Context, _: String -> },
-    configurationWorkerResult: MutableLiveData<ConfigurationProvider> = MutableLiveData(),
+    configuration: LiveData<ConfigurationProvider>,
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
@@ -172,7 +174,7 @@ fun SettingsSigningScreen(
     }
     var defaultTsaUrlValue = DEFAULT_TSA_URL_VALUE
     var tsaUrlValue = defaultTsaUrlValue
-    configurationWorkerResult.observe(lifecycleOwner) { configurationProvider ->
+    configuration.observe(lifecycleOwner) { configurationProvider ->
         configurationProvider.tsaUrl.let { defaultTsaUrlValue = it }
     }
     if (!TextUtils.isEmpty(getSettingsTSAUrl())) {
@@ -288,9 +290,11 @@ fun SettingsSigningScreen(
 @Composable
 fun SettingsSigningScreenPreview() {
     val navController = rememberNavController()
+    val configurationViewModel: ConfigurationViewModel = hiltViewModel()
     RIADigiDocTheme {
         SettingsSigningScreen(
             navController = navController,
+            configuration = configurationViewModel.configuration,
         )
     }
 }

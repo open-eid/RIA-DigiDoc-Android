@@ -3,6 +3,8 @@
 
     <string name="back">Tagasi</string>
 
+    <string name="configuration_initialization_failed">Konfiguratsiooni initsialiseerimine ebaõnnestus</string>
+
     <!-- Container -->
     <string name="container_title">ÜMBRIK:</string>
     <string name="documents_add_button">+ LISA VEEL FAILE</string>

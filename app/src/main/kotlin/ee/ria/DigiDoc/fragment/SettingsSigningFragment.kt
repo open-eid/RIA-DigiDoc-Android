@@ -23,11 +23,14 @@ fun SettingsSigningFragment(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     settingsViewModel: SettingsViewModel = hiltViewModel(),
-    configurationViewModel: ConfigurationViewModel = ConfigurationViewModel(),
+    configurationViewModel: ConfigurationViewModel = hiltViewModel(),
 ) {
     settingsViewModel.getListState()
     Surface(
-        modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
         color = MaterialTheme.colorScheme.background,
     ) {
         SettingsSigningScreen(
@@ -49,7 +52,7 @@ fun SettingsSigningFragment(
             setProxyUsername = settingsViewModel.dataStore::setProxyUsername,
             getProxyPassword = settingsViewModel.dataStore::getProxyPassword,
             setProxyPassword = settingsViewModel.dataStore::setProxyPassword,
-            configurationWorkerResult = configurationViewModel.workerResult,
+            configuration = configurationViewModel.configuration,
         )
     }
 }

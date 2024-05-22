@@ -3,6 +3,8 @@
 
     <string name="back">Back</string>
 
+    <string name="configuration_initialization_failed">Failed to initialize configuration</string>
+
     <!-- Container -->
     <string name="container_title">CONTAINER:</string>
     <string name="documents_add_button">+ ADD MORE FILES</string>

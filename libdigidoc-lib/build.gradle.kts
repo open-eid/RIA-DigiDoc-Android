@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.pdfbox.android) {
         exclude(group = "org.bouncycastle")
     }
+    implementation(project(":networking-lib"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.mockito.android)
@@ -68,4 +69,5 @@ dependencies {
 
     implementation(project(":utils-lib"))
     implementation(project(":commons-lib"))
+    implementation(project(":config-lib"))
 }

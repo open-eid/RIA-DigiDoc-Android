@@ -25,7 +25,11 @@ android {
 dependencies {
 
     api(libs.okhttp3)
-    implementation(libs.androidx.core.ktx)
+    api(libs.retrofit)
+    api(libs.logging.interceptor)
+    api(libs.converter.scalars)
+    api(libs.converter.gson)
+    api(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.commons.text)

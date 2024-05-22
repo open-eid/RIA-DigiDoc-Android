@@ -199,7 +199,7 @@ object FileUtil {
             val files =
                 if (logsDirectory.listFiles() != null) logsDirectory.listFiles() else arrayOf()
             val combinedLogFile =
-                File(logsDirectory.toString() + File.separator + diagnosticsLogsFileName)
+                File(logsDirectory, diagnosticsLogsFileName)
             if (combinedLogFile.exists()) {
                 Files.delete(combinedLogFile.toPath())
             }
@@ -359,8 +359,8 @@ object FileUtil {
         }
     }
 
-    fun fileExists(filePath: String?): Boolean? {
-        return filePath?.let { File(it).exists() }
+    fun fileExists(filePath: String?): Boolean {
+        return filePath?.let { File(it).exists() } ?: false
     }
 
     fun removeFile(filePath: String) {
@@ -378,18 +378,19 @@ object FileUtil {
         destinationPath: String,
         fileName: String,
     ) {
+        val file = File(destinationPath, fileName)
+
         try {
-            FileOutputStream(File(destinationPath + File.separator + fileName)).use { fileStream ->
-                OutputStreamWriter(fileStream, StandardCharsets.UTF_8)
-                    .use { writer ->
-                        var fileLine: String
-                        while (reader.readLine().also { fileLine = it } != null) {
-                            writer.write(fileLine + System.getProperty("line.separator"))
-                        }
+            file.outputStream().use { fileStream ->
+                OutputStreamWriter(fileStream, StandardCharsets.UTF_8).use { writer ->
+                    reader.forEachLine { line ->
+                        writer.write(line)
+                        writer.write(System.lineSeparator())
                     }
+                }
             }
         } catch (e: IOException) {
-            errorLog(LOG_TAG, "Failed to open file: $fileName", e)
+            errorLog(LOG_TAG, "Failed to write to file: $fileName", e)
         }
     }
 
