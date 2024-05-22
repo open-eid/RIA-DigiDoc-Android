@@ -26,6 +26,7 @@ object Constant {
     const val CACHED_CONFIG_RSA = "active-config.rsa"
     const val CACHED_CONFIG_PUB = "active-config.pub"
 
+    const val CONFIGURATION_PREFERENCES = "ConfigurationPreferences"
     const val CACHE_CONFIG_FOLDER = "/config/"
     const val CONFIGURATION_INFO_FILE_NAME = "configuration-info.properties"
     const val CONFIGURATION_LAST_UPDATE_CHECK_DATE_PROPERTY_NAME =

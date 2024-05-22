@@ -8,8 +8,8 @@ import android.net.Uri
 import androidx.activity.result.ActivityResultLauncher
 import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
-import ee.ria.DigiDoc.utilsLib.file.FileStream
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
+import ee.ria.DigiDoc.utilsLib.file.FileStream
 import java.io.File
 
 interface FileOpeningRepository {

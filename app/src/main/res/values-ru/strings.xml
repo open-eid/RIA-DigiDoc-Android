@@ -3,6 +3,8 @@
 
     <string name="back">Назад</string>
 
+    <string name="configuration_initialization_failed">Не удалось инициализировать конфигурация</string>
+
     <!-- Container -->
     <string name="container_title">КОНТЕЙНЕР:</string>
     <string name="documents_add_button">+ ДОБАВИТЬ БОЛЬШЕ ФАЙЛОВ</string>

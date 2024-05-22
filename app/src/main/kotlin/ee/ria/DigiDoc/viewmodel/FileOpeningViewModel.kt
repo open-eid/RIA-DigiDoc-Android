@@ -7,7 +7,6 @@ import android.content.Context
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData

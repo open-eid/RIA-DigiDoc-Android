@@ -2,7 +2,7 @@
 compileSdkVersion = "34"
 minSdkVersion = "30"
 targetSdkVersion = "34"
-versionCode = "47"
+versionCode = "49"
 versionName = "3.0.0"
 
 agp = "8.4.0"
@@ -39,6 +39,10 @@ pdfbox-android = "2.0.27.0"
 guava = "33.0.0-jre"
 coreKtxVersion = "1.5.0"
 androidx-arch-core-testing = "2.2.0"
+retrofit = "2.11.0"
+converter-scalars = "2.11.0"
+converter-gson = "2.11.0"
+logging-interceptor = "4.12.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -78,6 +82,10 @@ pdfbox-android = { group = "com.tom-roush", name = "pdfbox-android", version.ref
 guava = {group = "com.google.guava", name = "guava", version.ref = "guava" }
 core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "coreKtxVersion" }
 androidx-arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "androidx-arch-core-testing" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+converter-scalars = { group = "com.squareup.retrofit2", name = "converter-scalars", version.ref = "converter-scalars" }
+converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "converter-gson" }
+logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "logging-interceptor" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
