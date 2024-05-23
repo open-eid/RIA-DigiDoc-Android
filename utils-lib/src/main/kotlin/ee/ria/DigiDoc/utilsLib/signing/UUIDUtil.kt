@@ -1,6 +1,6 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.utilsLib.certificate
+package ee.ria.DigiDoc.utilsLib.signing
 
 object UUIDUtil {
     private const val UUID_REGEX =

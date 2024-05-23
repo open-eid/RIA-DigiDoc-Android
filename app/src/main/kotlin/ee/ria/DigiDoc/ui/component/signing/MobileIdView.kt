@@ -68,7 +68,7 @@ fun MobileIdView(
         mobileIdViewModel.status.asFlow().collect { status ->
             status?.let {
                 if (status == MobileCreateSignatureProcessStatus.OK) {
-                    sharedContainerViewModel.setSignedStatus(status)
+                    sharedContainerViewModel.setSignedMidStatus(status)
                     mobileIdViewModel.resetStatus()
                 }
             }
@@ -110,7 +110,7 @@ fun MobileIdView(
                         .verticalScroll(rememberScrollState())
                         .padding(Dimensions.alertDialogOuterPadding),
             ) {
-                SignatureUpdateContainer(
+                MobileIdSignatureUpdateContainer(
                     mobileIdViewModel = mobileIdViewModel,
                     onCancelButtonClick = {
                         dismissSignatureUpdateContainerDialog()
@@ -213,11 +213,9 @@ fun MobileIdView(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun MobileIdViewPreview() {
-    val mobileIdViewModel: MobileIdViewModel = hiltViewModel()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
     RIADigiDocTheme {
         MobileIdView(
-            mobileIdViewModel = mobileIdViewModel,
             sharedContainerViewModel = sharedContainerViewModel,
         )
     }

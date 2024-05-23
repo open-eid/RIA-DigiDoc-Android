@@ -36,8 +36,8 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 @Composable
 fun SelectionSpinner(
     list: Array<String>,
-    preselected: String,
-    onSelectionChanged: (item: String) -> Unit,
+    preselected: Int,
+    onSelectionChanged: (item: Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var selected by remember { mutableStateOf(preselected) }
@@ -56,7 +56,7 @@ fun SelectionSpinner(
             verticalAlignment = Alignment.Top,
         ) {
             Text(
-                text = selected,
+                text = list.get(selected),
                 style = MaterialTheme.typography.titleLarge,
                 modifier =
                     modifier
@@ -70,11 +70,11 @@ fun SelectionSpinner(
                 onDismissRequest = { expanded = false },
                 modifier = modifier.fillMaxWidth(),
             ) {
-                list.forEach { listEntry ->
+                list.forEachIndexed { index, listEntry ->
 
                     DropdownMenuItem(
                         onClick = {
-                            selected = listEntry
+                            selected = index
                             expanded = false
                             onSelectionChanged(selected)
                         },
@@ -104,7 +104,7 @@ fun SpinnerSample_Preview() {
 
         SelectionSpinner(
             list,
-            preselected = list.first(),
+            preselected = 1,
             onSelectionChanged = { },
             modifier = Modifier.fillMaxWidth(),
         )

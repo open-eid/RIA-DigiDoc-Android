@@ -64,6 +64,7 @@ import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.utils.FileUtils.getDataFileMimetype
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
+import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
 import ee.ria.DigiDoc.ui.component.ContainerFile
 import ee.ria.DigiDoc.ui.component.ContainerName
 import ee.ria.DigiDoc.ui.component.settings.EditValueDialog
@@ -117,15 +118,30 @@ fun SigningNavigation(
         }
     }
 
-    LaunchedEffect(sharedContainerViewModel.signedStatus) {
-        sharedContainerViewModel.signedStatus.asFlow().collect { status ->
+    LaunchedEffect(sharedContainerViewModel.signedMidStatus) {
+        sharedContainerViewModel.signedMidStatus.asFlow().collect { status ->
             status?.let {
                 if (status == MobileCreateSignatureProcessStatus.OK) {
                     withContext(Dispatchers.Main) {
                         signatureAddedSuccess.value = true
                         delay(10000)
                         signatureAddedSuccess.value = false
-                        sharedContainerViewModel.setSignedStatus(null)
+                        sharedContainerViewModel.setSignedMidStatus(null)
+                    }
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(sharedContainerViewModel.signedSidStatus) {
+        sharedContainerViewModel.signedSidStatus.asFlow().collect { status ->
+            status?.let {
+                if (status == SessionStatusResponseProcessStatus.OK) {
+                    withContext(Dispatchers.Main) {
+                        signatureAddedSuccess.value = true
+                        delay(10000)
+                        signatureAddedSuccess.value = false
+                        sharedContainerViewModel.setSignedSidStatus(null)
                     }
                 }
             }

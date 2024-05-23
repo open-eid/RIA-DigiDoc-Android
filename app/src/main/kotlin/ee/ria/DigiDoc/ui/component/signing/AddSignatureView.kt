@@ -69,7 +69,10 @@ fun AddSignatureView(
                     )
                 }
                 composable(route = Route.SmartId.route) {
-                    SmartIdView(cancelButtonClick = dismissDialog)
+                    SmartIdView(
+                        cancelButtonClick = dismissDialog,
+                        sharedContainerViewModel = sharedContainerViewModel,
+                    )
                 }
                 composable(route = Route.IdCard.route) {
                     IdCardView(cancelButtonClick = dismissDialog)

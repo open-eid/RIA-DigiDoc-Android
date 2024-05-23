@@ -10,7 +10,7 @@ object Constant {
         const val FIRST_NUMBER_IN_ESTONIAN_MOBILE_NUMBER = "5"
 
         const val MAX_DISPLAY_MESSAGE_BYTES = 40
-
+        const val MAX_DISPLAY_MESSAGE_LENGTH: Int = 200
         const val DEFAULT_LANGUAGE = "ENG"
         val SUPPORTED_LANGUAGES: Set<String> =
             setOf(DEFAULT_LANGUAGE, "EST", "RUS", "LIT")
@@ -21,6 +21,36 @@ object Constant {
         const val RELYING_PARTY_UUID = "00000000-0000-0000-0000-000000000000"
         const val DISPLAY_TEXT_FORMAT = "GSM-7"
         const val ALTERNATIVE_DISPLAY_TEXT_FORMAT = "UCS-2"
+    }
+
+    object SmartIdConstants {
+        const val SID_BROADCAST_ACTION: String = "ee.ria.mopp.android.smartid.SID_BROADCAST_ACTION"
+        const val SID_BROADCAST_TYPE_KEY: String =
+            "ee.ria.mopp.android.smartid.SID_BROADCAST_TYPE_KEY"
+
+        const val SIGNING_ROLE_DATA: String = "ee.ria.mopp.android.smartid.SIGNING_ROLE_DATA"
+
+        const val CREATE_SIGNATURE_REQUEST: String =
+            "ee.ria.mopp.android.smartid.CREATE_SIGNATURE_REQUEST"
+        const val CERTIFICATE_CERT_BUNDLE: String =
+            "ee.ria.mopp.android.smartid.CERTIFICATE_CERT_BUNDLE"
+        const val CREATE_SIGNATURE_DEVICE: String = "ee.ria.mopp.android.smartid.SID_DEVICE"
+        const val CREATE_SIGNATURE_CHALLENGE: String = "ee.ria.mopp.android.smartid.SID_CHALLENGE"
+        const val CREATE_SIGNATURE_STATUS: String =
+            "ee.ria.mopp.android.smartid.CREATE_SIGNATURE_STATUS"
+        const val SERVICE_FAULT: String = "ee.ria.mopp.android.smartid.SERVICE_FAULT"
+        const val PROXY_SETTING: String = "ee.ria.mopp.smartid.PROXY_SETTING"
+        const val MANUAL_PROXY_HOST: String = "ee.ria.mopp.smartid.HOST"
+        const val MANUAL_PROXY_PORT: String = "ee.ria.mopp.smartid.PORT"
+        const val MANUAL_PROXY_USERNAME: String = "ee.ria.mopp.smartid.USERNAME"
+        const val MANUAL_PROXY_PASSWORD: String = "ee.ria.mopp.smartid.PASSWORD"
+
+        const val NOTIFICATION_CHANNEL: String = "SMART_ID_CHANNEL"
+        const val NOTIFICATION_PERMISSION_CODE: Int = 1
+
+        const val NOTIFICATION_NAME = "Smart-ID"
+        const val PEM_BEGIN_CERT = "-----BEGIN CERTIFICATE-----"
+        const val PEM_END_CERT = "-----END CERTIFICATE-----"
     }
 
     object MobileIdConstants {

@@ -14,6 +14,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
+import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import java.io.File
 import java.io.FileInputStream
@@ -29,11 +30,18 @@ class SharedContainerViewModel
         private val _signedContainer = MutableLiveData<SignedContainer?>()
         val signedContainer: LiveData<SignedContainer?> = _signedContainer
 
-        private val _signedStatus = MutableLiveData<MobileCreateSignatureProcessStatus?>(null)
-        val signedStatus: LiveData<MobileCreateSignatureProcessStatus?> = _signedStatus
+        private val _signedMidStatus = MutableLiveData<MobileCreateSignatureProcessStatus?>(null)
+        val signedMidStatus: LiveData<MobileCreateSignatureProcessStatus?> = _signedMidStatus
 
-        fun setSignedStatus(signedStatus: MobileCreateSignatureProcessStatus?) {
-            _signedStatus.postValue(signedStatus)
+        private val _signedSidStatus = MutableLiveData<SessionStatusResponseProcessStatus?>(null)
+        val signedSidStatus: LiveData<SessionStatusResponseProcessStatus?> = _signedSidStatus
+
+        fun setSignedSidStatus(signedStatus: SessionStatusResponseProcessStatus?) {
+            _signedSidStatus.postValue(signedStatus)
+        }
+
+        fun setSignedMidStatus(signedStatus: MobileCreateSignatureProcessStatus?) {
+            _signedMidStatus.postValue(signedStatus)
         }
 
         fun setSignedContainer(signedContainer: SignedContainer?) {

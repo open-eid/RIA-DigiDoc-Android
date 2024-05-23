@@ -18,6 +18,8 @@ import ee.ria.DigiDoc.domain.service.SomeService
 import ee.ria.DigiDoc.domain.service.SomeServiceImpl
 import ee.ria.DigiDoc.mobileId.MobileSignService
 import ee.ria.DigiDoc.mobileId.MobileSignServiceImpl
+import ee.ria.DigiDoc.smartId.SmartSignService
+import ee.ria.DigiDoc.smartId.SmartSignServiceImpl
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -47,4 +49,7 @@ class AppModules {
 
     @Provides
     fun provideMobileSignService(): MobileSignService = MobileSignServiceImpl()
+
+    @Provides
+    fun provideSmartSignService(): SmartSignService = SmartSignServiceImpl()
 }
