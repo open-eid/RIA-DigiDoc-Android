@@ -97,11 +97,11 @@ import kotlinx.coroutines.withContext
 @Composable
 fun SigningNavigation(
     navController: NavHostController,
-    signatureAddController: NavHostController,
     modifier: Modifier = Modifier,
     sharedContainerViewModel: SharedContainerViewModel,
     signingViewModel: SigningViewModel = hiltViewModel(),
 ) {
+    val signatureAddController = rememberNavController()
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
     val shouldResetContainer by signingViewModel.shouldResetSignedContainer
     val context = LocalContext.current
@@ -150,14 +150,7 @@ fun SigningNavigation(
 
     val openSignatureDialog = remember { mutableStateOf(false) }
     val dismissDialog = {
-        signatureAddController.navigate(Route.MobileId.route) {
-            popUpTo(signatureAddController.graph.findStartDestination().id) {
-                saveState = true
-            }
-            launchSingleTop = true
-            restoreState = true
-            openSignatureDialog.value = false
-        }
+        openSignatureDialog.value = false
     }
 
     if (openSignatureDialog.value) {
@@ -537,8 +530,8 @@ fun handleBackButtonClick(
     navController: NavHostController,
     signingViewModel: SigningViewModel,
 ) {
-    navController.popBackStack(navController.graph.findStartDestination().id, false)
     signingViewModel.handleBackButton()
+    navController.popBackStack(navController.graph.findStartDestination().id, false, true)
 }
 
 @Preview(showBackground = true)
@@ -546,12 +539,10 @@ fun handleBackButtonClick(
 @Composable
 fun SigningNavigationPreview() {
     val navController = rememberNavController()
-    val signatureAddController = rememberNavController()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
     RIADigiDocTheme {
         SigningNavigation(
             navController = navController,
-            signatureAddController = signatureAddController,
             sharedContainerViewModel = sharedContainerViewModel,
         )
     }

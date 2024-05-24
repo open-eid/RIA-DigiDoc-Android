@@ -34,7 +34,6 @@ fun AddSignatureView(
     sharedContainerViewModel: SharedContainerViewModel,
     settingsViewModel: SettingsViewModel = hiltViewModel(),
 ) {
-    val signatureAddMethod = settingsViewModel.dataStore.getSignatureAddMethod()
     Surface(
         modifier =
             modifier
@@ -55,12 +54,12 @@ fun AddSignatureView(
             SignatureAddRadioGroup(
                 modifier = modifier,
                 navController = signatureAddController,
-                selectedRadioItem = signatureAddMethod,
+                selectedRadioItem = settingsViewModel.dataStore.getSignatureAddMethod(),
                 settingsViewModel = settingsViewModel,
             )
             NavHost(
                 navController = signatureAddController,
-                startDestination = signatureAddMethod,
+                startDestination = settingsViewModel.dataStore.getSignatureAddMethod(),
             ) {
                 composable(route = Route.MobileId.route) {
                     MobileIdView(
