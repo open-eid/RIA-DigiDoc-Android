@@ -24,7 +24,6 @@ import ee.ria.DigiDoc.viewmodel.SharedContainerViewModel
 fun RIADigiDocAppScreen() {
     val navController = rememberNavController()
     val navBarNavController = rememberNavController()
-    val signatureAddController = rememberNavController()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
     NavHost(
         navController = navController,
@@ -44,7 +43,6 @@ fun RIADigiDocAppScreen() {
         composable(route = Route.Signing.route) {
             SigningFragment(
                 navController = navController,
-                signatureAddController = signatureAddController,
                 sharedContainerViewModel = sharedContainerViewModel,
             )
         }

@@ -2,20 +2,18 @@
 
 package ee.ria.DigiDoc.network.mid.dto.request
 
-class MobileCreateSignatureRequest {
-    var relyingPartyName: String? = null
-    var relyingPartyUUID: String? = null
-    var url: String? = null
-    var phoneNumber: String? = null
-    var nationalIdentityNumber: String? = null
-
-    var containerPath: String? = null
-
-    var hashType: String? = null
-    var language: String? = null
-    var displayText: String? = null
-    var displayTextFormat: String? = null
-
+data class MobileCreateSignatureRequest(
+    var relyingPartyName: String?,
+    var relyingPartyUUID: String?,
+    var url: String?,
+    var phoneNumber: String?,
+    var nationalIdentityNumber: String?,
+    var containerPath: String?,
+    var hashType: String?,
+    var language: String?,
+    var displayText: String?,
+    var displayTextFormat: String?,
+) {
     override fun toString(): String {
         return "MobileCreateSignatureRequest{" +
             "relyingPartyName='" + relyingPartyName + '\'' +

@@ -103,16 +103,16 @@ class DataStore
             editor.apply()
         }
 
-        fun getCountry(): String {
-            return preferences.getString(
+        fun getCountry(): Int {
+            return preferences.getInt(
                 resources.getString(R.string.main_settings_smartid_country_key),
-                "EE",
-            ) ?: "EE"
+                0,
+            )
         }
 
-        fun setCountry(country: String) {
+        fun setCountry(country: Int) {
             val editor = preferences.edit()
-            editor.putString(
+            editor.putInt(
                 resources.getString(R.string.main_settings_smartid_country_key),
                 country,
             )

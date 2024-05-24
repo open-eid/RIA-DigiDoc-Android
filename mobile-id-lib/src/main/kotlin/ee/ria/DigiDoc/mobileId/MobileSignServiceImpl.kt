@@ -24,10 +24,10 @@ import ee.ria.DigiDoc.network.mid.rest.MIDRestServiceClient
 import ee.ria.DigiDoc.network.mid.rest.ServiceGenerator
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
-import ee.ria.DigiDoc.utilsLib.certificate.TrustManagerUtil
-import ee.ria.DigiDoc.utilsLib.certificate.UUIDUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.signing.TrustManagerUtil
+import ee.ria.DigiDoc.utilsLib.signing.UUIDUtil
 import ee.ria.DigiDoc.utilsLib.text.MessageUtil
 import ee.ria.libdigidocpp.Container
 import kotlinx.coroutines.delay
@@ -115,11 +115,7 @@ class MobileSignServiceImpl : MobileSignService {
     ) {
         debugLog(logTag, "Handling mobile sign service")
 
-        setResponse(null)
-        setStatus(null)
-        setResult(null)
-        setChallenge(null)
-        setErrorState(null)
+        resetValues()
 
         val trustManagers: Array<TrustManager>
         try {

@@ -10,7 +10,7 @@ object Constant {
         const val FIRST_NUMBER_IN_ESTONIAN_MOBILE_NUMBER = "5"
 
         const val MAX_DISPLAY_MESSAGE_BYTES = 40
-
+        const val MAX_DISPLAY_MESSAGE_LENGTH: Int = 200
         const val DEFAULT_LANGUAGE = "ENG"
         val SUPPORTED_LANGUAGES: Set<String> =
             setOf(DEFAULT_LANGUAGE, "EST", "RUS", "LIT")
@@ -23,29 +23,59 @@ object Constant {
         const val ALTERNATIVE_DISPLAY_TEXT_FORMAT = "UCS-2"
     }
 
-    object MobileIdConstants {
-        const val MID_BROADCAST_ACTION: String = "ee.ria.mopp.androidmobileid.MID_BROADCAST_ACTION"
-        const val MID_BROADCAST_TYPE_KEY: String =
-            "ee.ria.mopp.androidmobileid.MID_BROADCAST_TYPE_KEY"
+    object SmartIdConstants {
+        const val SID_BROADCAST_ACTION: String = "ee.ria.DigiDoc.android.smartid.SID_BROADCAST_ACTION"
+        const val SID_BROADCAST_TYPE_KEY: String =
+            "ee.ria.DigiDoc.android.smartid.SID_BROADCAST_TYPE_KEY"
 
-        const val SIGNING_ROLE_DATA: String = "ee.ria.mopp.androidmobileid.SIGNING_ROLE_DATA"
+        const val SIGNING_ROLE_DATA: String = "ee.ria.DigiDoc.android.smartid.SIGNING_ROLE_DATA"
 
         const val CREATE_SIGNATURE_REQUEST: String =
-            "ee.ria.mopp.androidmobileid.CREATE_SIGNATURE_REQUEST"
-        const val ACCESS_TOKEN_PASS: String = "ee.ria.mopp.androidmobileid.ACCESS_TOKEN_PASS"
-        const val ACCESS_TOKEN_PATH: String = "ee.ria.mopp.androidmobileid.ACCESS_TOKEN_PATH"
+            "ee.ria.DigiDoc.android.smartid.CREATE_SIGNATURE_REQUEST"
         const val CERTIFICATE_CERT_BUNDLE: String =
-            "ee.ria.mopp.androidmobileid.CERTIFICATE_CERT_BUNDLE"
-        const val CREATE_SIGNATURE_CHALLENGE: String = "ee.ria.mopp.androidmobileid.MID_CHALLENGE"
+            "ee.ria.DigiDoc.android.smartid.CERTIFICATE_CERT_BUNDLE"
+        const val CREATE_SIGNATURE_DEVICE: String = "ee.ria.DigiDoc.android.smartid.SID_DEVICE"
+        const val CREATE_SIGNATURE_CHALLENGE: String = "ee.ria.DigiDoc.android.smartid.SID_CHALLENGE"
         const val CREATE_SIGNATURE_STATUS: String =
-            "ee.ria.mopp.androidmobileid.CREATE_SIGNATURE_STATUS"
-        const val SERVICE_FAULT: String = "ee.ria.mopp.androidmobileid.SERVICE_FAULT"
-        const val CONFIG_URL: String = "ee.ria.mopp.androidmobileid.CONFIG_URL"
-        const val PROXY_SETTING: String = "ee.ria.mopp.androidmobileid.PROXY_SETTING"
-        const val MANUAL_PROXY_HOST: String = "ee.ria.mopp.androidmobileid.HOST"
-        const val MANUAL_PROXY_PORT: String = "ee.ria.mopp.androidmobileid.PORT"
-        const val MANUAL_PROXY_USERNAME: String = "ee.ria.mopp.androidmobileid.USERNAME"
-        const val MANUAL_PROXY_PASSWORD: String = "ee.ria.mopp.androidmobileid.PASSWORD"
+            "ee.ria.DigiDoc.android.smartid.CREATE_SIGNATURE_STATUS"
+        const val SERVICE_FAULT: String = "ee.ria.DigiDoc.android.smartid.SERVICE_FAULT"
+        const val PROXY_SETTING: String = "ee.ria.DigiDoc.smartid.PROXY_SETTING"
+        const val MANUAL_PROXY_HOST: String = "ee.ria.DigiDoc.smartid.HOST"
+        const val MANUAL_PROXY_PORT: String = "ee.ria.DigiDoc.smartid.PORT"
+        const val MANUAL_PROXY_USERNAME: String = "ee.ria.DigiDoc.smartid.USERNAME"
+        const val MANUAL_PROXY_PASSWORD: String = "ee.ria.DigiDoc.smartid.PASSWORD"
+
+        const val NOTIFICATION_CHANNEL: String = "SMART_ID_CHANNEL"
+        const val NOTIFICATION_PERMISSION_CODE: Int = 1
+
+        const val NOTIFICATION_NAME = "Smart-ID"
+        const val PEM_BEGIN_CERT = "-----BEGIN CERTIFICATE-----"
+        const val PEM_END_CERT = "-----END CERTIFICATE-----"
+    }
+
+    object MobileIdConstants {
+        const val MID_BROADCAST_ACTION: String = "ee.ria.DigiDoc.androidmobileid.MID_BROADCAST_ACTION"
+        const val MID_BROADCAST_TYPE_KEY: String =
+            "ee.ria.DigiDoc.androidmobileid.MID_BROADCAST_TYPE_KEY"
+
+        const val SIGNING_ROLE_DATA: String = "ee.ria.DigiDoc.androidmobileid.SIGNING_ROLE_DATA"
+
+        const val CREATE_SIGNATURE_REQUEST: String =
+            "ee.ria.DigiDoc.androidmobileid.CREATE_SIGNATURE_REQUEST"
+        const val ACCESS_TOKEN_PASS: String = "ee.ria.DigiDoc.androidmobileid.ACCESS_TOKEN_PASS"
+        const val ACCESS_TOKEN_PATH: String = "ee.ria.DigiDoc.androidmobileid.ACCESS_TOKEN_PATH"
+        const val CERTIFICATE_CERT_BUNDLE: String =
+            "ee.ria.DigiDoc.androidmobileid.CERTIFICATE_CERT_BUNDLE"
+        const val CREATE_SIGNATURE_CHALLENGE: String = "ee.ria.DigiDoc.androidmobileid.MID_CHALLENGE"
+        const val CREATE_SIGNATURE_STATUS: String =
+            "ee.ria.DigiDoc.androidmobileid.CREATE_SIGNATURE_STATUS"
+        const val SERVICE_FAULT: String = "ee.ria.DigiDoc.androidmobileid.SERVICE_FAULT"
+        const val CONFIG_URL: String = "ee.ria.DigiDoc.androidmobileid.CONFIG_URL"
+        const val PROXY_SETTING: String = "ee.ria.DigiDoc.androidmobileid.PROXY_SETTING"
+        const val MANUAL_PROXY_HOST: String = "ee.ria.DigiDoc.androidmobileid.HOST"
+        const val MANUAL_PROXY_PORT: String = "ee.ria.DigiDoc.androidmobileid.PORT"
+        const val MANUAL_PROXY_USERNAME: String = "ee.ria.DigiDoc.androidmobileid.USERNAME"
+        const val MANUAL_PROXY_PASSWORD: String = "ee.ria.DigiDoc.androidmobileid.PASSWORD"
     }
 
     private const val RESTRICTED_FILENAME_CHARACTERS_AS_STRING = "@%:^?[]\\'\"”’{}#&`\\\\~«»/´"

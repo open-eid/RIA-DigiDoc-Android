@@ -33,37 +33,53 @@ import androidx.lifecycle.asFlow
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.viewmodel.MobileIdViewModel
+import ee.ria.DigiDoc.viewmodel.SmartIdViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun SignatureUpdateContainer(
+fun SmartIdSignatureUpdateContainer(
     modifier: Modifier = Modifier,
-    mobileIdViewModel: MobileIdViewModel,
+    smartIdViewModel: SmartIdViewModel,
     onCancelButtonClick: () -> Unit = {},
 ) {
     var currentProgress by remember { mutableFloatStateOf(0f) }
     var loading by remember { mutableStateOf(false) }
 
     var challengeText by remember { mutableStateOf("") }
-
+    var infoText by remember { mutableStateOf("") }
+    val challengeInfoText = stringResource(id = R.string.signature_update_smart_id_info)
+    val selectDeviceInfoText = stringResource(id = R.string.signature_update_smart_id_select_device)
     LaunchedEffect(loading) {
-        loadProgress { progress ->
+        loadSmartIdProgress { progress ->
             currentProgress = progress
         }
         loading = false
     }
 
-    LaunchedEffect(mobileIdViewModel.challenge) {
-        mobileIdViewModel.challenge.asFlow().collect { challenge ->
+    LaunchedEffect(smartIdViewModel.selectDevice) {
+        smartIdViewModel.selectDevice.asFlow().collect { selectDevice ->
+            selectDevice?.let {
+                infoText = ""
+                if (selectDevice) {
+                    infoText = selectDeviceInfoText
+                }
+                if (challengeText.isNotEmpty()) {
+                    infoText = challengeInfoText
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(smartIdViewModel.challenge) {
+        smartIdViewModel.challenge.asFlow().collect { challenge ->
             challenge?.let {
                 challengeText = challenge
             }
         }
     }
 
-    LaunchedEffect(mobileIdViewModel.errorState) {
-        mobileIdViewModel.errorState.asFlow().collect { error ->
+    LaunchedEffect(smartIdViewModel.errorState) {
+        smartIdViewModel.errorState.asFlow().collect { error ->
             error?.let {
                 onCancelButtonClick()
             }
@@ -85,7 +101,7 @@ fun SignatureUpdateContainer(
             modifier = modifier.fillMaxWidth(),
         )
         Text(
-            text = stringResource(id = R.string.signature_update_mobile_id_info),
+            text = infoText,
             style = MaterialTheme.typography.titleSmall,
         )
 
@@ -118,16 +134,16 @@ fun SignatureUpdateContainer(
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun SignatureUpdateContainerPreview() {
-    val mobileIdViewModel: MobileIdViewModel = hiltViewModel()
+fun SmartIdSignatureUpdateContainerPreview() {
+    val smartIdViewModel: SmartIdViewModel = hiltViewModel()
     RIADigiDocTheme {
-        SignatureUpdateContainer(
-            mobileIdViewModel = mobileIdViewModel,
+        SmartIdSignatureUpdateContainer(
+            smartIdViewModel = smartIdViewModel,
         )
     }
 }
 
-suspend fun loadProgress(updateProgress: (Float) -> Unit) {
+suspend fun loadSmartIdProgress(updateProgress: (Float) -> Unit) {
     for (i in 1..100) {
         updateProgress(i.toFloat() / 100)
         delay(1000)

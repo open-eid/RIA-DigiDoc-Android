@@ -1,6 +1,6 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.utilsLib.certificate
+package ee.ria.DigiDoc.utilsLib.signing
 
 import java.security.KeyStore
 import java.security.KeyStoreException

@@ -3,7 +3,7 @@
 package ee.ria.DigiDoc.libdigidoclib.domain.model
 
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.SIGNATURE_PROFILE_TS
-import ee.ria.DigiDoc.utilsLib.certificate.CertificateUtil
+import ee.ria.DigiDoc.utilsLib.signing.CertificateUtil
 import ee.ria.DigiDoc.utilsLib.text.TextUtil.removeEmptyStrings
 import ee.ria.libdigidocpp.Container
 import ee.ria.libdigidocpp.Signature

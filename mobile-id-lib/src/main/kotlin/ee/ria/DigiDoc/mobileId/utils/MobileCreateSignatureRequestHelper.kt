@@ -29,20 +29,24 @@ object MobileCreateSignatureRequestHelper {
         phoneNo: String,
         displayMessage: String?,
     ): MobileCreateSignatureRequest {
-        val request = MobileCreateSignatureRequest()
-        request.relyingPartyName = RELYING_PARTY_NAME
-        request.relyingPartyUUID = if (uuid.isNullOrEmpty()) RELYING_PARTY_UUID else uuid
-        request.url = if (uuid.isNullOrEmpty()) proxyUrl else skUrl
-        request.phoneNumber = "+$phoneNo"
-        request.nationalIdentityNumber = personalCode
-        if (container != null) {
-            request.containerPath = container.getContainerFile()?.path
-        }
-        request.hashType = DIGEST_TYPE
-        val language = getLanguage(locale)
-        request.language = language
-        request.displayText = getDisplayText(displayMessage, language)
-        request.displayTextFormat = if (language == "RUS") ALTERNATIVE_DISPLAY_TEXT_FORMAT else DISPLAY_TEXT_FORMAT
+        val request =
+            MobileCreateSignatureRequest(
+                relyingPartyName = RELYING_PARTY_NAME,
+                relyingPartyUUID = if (uuid.isNullOrEmpty()) RELYING_PARTY_UUID else uuid,
+                url = if (uuid.isNullOrEmpty()) proxyUrl else skUrl,
+                phoneNumber = "+$phoneNo",
+                nationalIdentityNumber = personalCode,
+                containerPath = container?.getContainerFile()?.path,
+                hashType = DIGEST_TYPE,
+                language = getLanguage(locale),
+                displayText = getDisplayText(displayMessage, getLanguage(locale)),
+                displayTextFormat =
+                    if (getLanguage(locale) == "RUS") {
+                        ALTERNATIVE_DISPLAY_TEXT_FORMAT
+                    } else {
+                        DISPLAY_TEXT_FORMAT
+                    },
+            )
         return request
     }
 

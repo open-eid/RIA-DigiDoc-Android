@@ -2,10 +2,16 @@
 
 package ee.ria.DigiDoc.libdigidoclib.domain.model
 
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.libdigidocpp.Signature
+import okio.ByteString
+import java.io.IOException
 
 class SignatureWrapper(signature: Signature) : SignatureInterface {
+    private val logTag = javaClass.simpleName
+
     override val id: String = signature.id()
+    override val name: String = signatureName(signature)
     override val claimedSigningTime: String = signature.claimedSigningTime()
     override val trustedSigningTime: String = signature.trustedSigningTime()
     override val signatureMethod: String = signature.signatureMethod()
@@ -35,4 +41,17 @@ class SignatureWrapper(signature: Signature) : SignatureInterface {
     override val archiveTimeStampCertificateDer: ByteArray = signature.ArchiveTimeStampCertificateDer()
 
     override val validator: ValidatorInterface = ValidatorWrapper(Signature.Validator(signature))
+
+    private fun signatureName(signature: Signature): String {
+        var commonName: String?
+        try {
+            commonName =
+                Certificate.create(ByteString.of(*signature.signingCertificateDer()))
+                    .friendlyName
+        } catch (e: IOException) {
+            errorLog(logTag, "Can't parse certificate to get CN", e)
+            commonName = null
+        }
+        return commonName ?: signature.signedBy()
+    }
 }

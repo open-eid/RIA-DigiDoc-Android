@@ -279,7 +279,6 @@ class MobileIdViewModel
                 roleData,
                 proxySetting,
                 manualProxySettings,
-                // TODO: configurationProvider?.certBundle,
                 certBundle,
                 Objects.requireNonNull(Conf.instance()).PKCS12Cert(),
                 Objects.requireNonNull(Conf.instance()).PKCS12Pass(),

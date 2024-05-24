@@ -62,8 +62,10 @@ import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
+import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.utils.FileUtils.getDataFileMimetype
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
+import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
 import ee.ria.DigiDoc.ui.component.ContainerFile
 import ee.ria.DigiDoc.ui.component.ContainerName
 import ee.ria.DigiDoc.ui.component.settings.EditValueDialog
@@ -96,11 +98,11 @@ import kotlinx.coroutines.withContext
 @Composable
 fun SigningNavigation(
     navController: NavHostController,
-    signatureAddController: NavHostController,
     modifier: Modifier = Modifier,
     sharedContainerViewModel: SharedContainerViewModel,
     signingViewModel: SigningViewModel = hiltViewModel(),
 ) {
+    val signatureAddController = rememberNavController()
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
     val shouldResetContainer by signingViewModel.shouldResetSignedContainer
     val context = LocalContext.current
@@ -117,15 +119,30 @@ fun SigningNavigation(
         }
     }
 
-    LaunchedEffect(sharedContainerViewModel.signedStatus) {
-        sharedContainerViewModel.signedStatus.asFlow().collect { status ->
+    LaunchedEffect(sharedContainerViewModel.signedMidStatus) {
+        sharedContainerViewModel.signedMidStatus.asFlow().collect { status ->
             status?.let {
                 if (status == MobileCreateSignatureProcessStatus.OK) {
                     withContext(Dispatchers.Main) {
                         signatureAddedSuccess.value = true
                         delay(10000)
                         signatureAddedSuccess.value = false
-                        sharedContainerViewModel.setSignedStatus(null)
+                        sharedContainerViewModel.setSignedMidStatus(null)
+                    }
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(sharedContainerViewModel.signedSidStatus) {
+        sharedContainerViewModel.signedSidStatus.asFlow().collect { status ->
+            status?.let {
+                if (status == SessionStatusResponseProcessStatus.OK) {
+                    withContext(Dispatchers.Main) {
+                        signatureAddedSuccess.value = true
+                        delay(10000)
+                        signatureAddedSuccess.value = false
+                        sharedContainerViewModel.setSignedSidStatus(null)
                     }
                 }
             }
@@ -134,14 +151,7 @@ fun SigningNavigation(
 
     val openSignatureDialog = remember { mutableStateOf(false) }
     val dismissDialog = {
-        signatureAddController.navigate(Route.MobileId.route) {
-            popUpTo(signatureAddController.graph.findStartDestination().id) {
-                saveState = true
-            }
-            launchSingleTop = true
-            restoreState = true
-            openSignatureDialog.value = false
-        }
+        openSignatureDialog.value = false
     }
 
     if (openSignatureDialog.value) {
@@ -180,6 +190,7 @@ fun SigningNavigation(
                     .focusGroup(),
         ) {
             var actionDataFile by remember { mutableStateOf<DataFileInterface?>(null) }
+            var actionSignature by remember { mutableStateOf<SignatureInterface?>(null) }
             val saveFileLauncher =
                 rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                     if (result.resultCode == Activity.RESULT_OK) {
@@ -194,6 +205,11 @@ fun SigningNavigation(
             val dismissRemoveFileDialog = {
                 openRemoveFileDialog.value = false
             }
+            val openRemoveSignatureDialog = remember { mutableStateOf(false) }
+            val dismissRemoveSignatureDialog = {
+                openRemoveSignatureDialog.value = false
+            }
+
             val openEditContainerNameDialog = remember { mutableStateOf(false) }
             val dismissEditContainerNameDialog = {
                 openEditContainerNameDialog.value = false
@@ -440,7 +456,14 @@ fun SigningNavigation(
                         }
 
                         signedContainer?.getSignatures()?.forEach { signature ->
-                            SignatureComponent(signature = signature, signingViewModel = signingViewModel)
+                            SignatureComponent(
+                                signature = signature,
+                                signingViewModel = signingViewModel,
+                                onRemoveButtonClick = {
+                                    actionSignature = signature
+                                    openRemoveSignatureDialog.value = true
+                                },
+                            )
                         }
                     }
                 }
@@ -478,6 +501,8 @@ fun SigningNavigation(
                 removeFileDialogTitle =
                     stringResource(id = R.string.signature_update_remove_last_document_confirmation_message)
             }
+            val removeSignatureDialogTitle =
+                stringResource(id = R.string.signature_update_signature_remove_confirmation_message)
             if (openRemoveFileDialog.value) {
                 BasicAlertDialog(
                     onDismissRequest = dismissRemoveFileDialog,
@@ -499,15 +524,41 @@ fun SigningNavigation(
                                     sharedContainerViewModel.resetSignedContainer()
                                 } else {
                                     CoroutineScope(Dispatchers.IO).launch {
-                                        sharedContainerViewModel.setSignedContainer(
-                                            sharedContainerViewModel.removeContainerDataFile(
-                                                signedContainer,
-                                                actionDataFile,
-                                            ),
+                                        sharedContainerViewModel.removeContainerDataFile(
+                                            signedContainer,
+                                            actionDataFile,
                                         )
                                     }
                                 }
-                                openRemoveFileDialog.value = false
+                                dismissRemoveFileDialog()
+                            },
+                        )
+                    }
+                }
+            }
+            if (openRemoveSignatureDialog.value) {
+                BasicAlertDialog(
+                    onDismissRequest = dismissRemoveSignatureDialog,
+                ) {
+                    Surface(
+                        modifier =
+                            modifier
+                                .wrapContentHeight()
+                                .wrapContentWidth()
+                                .verticalScroll(rememberScrollState())
+                                .padding(Dimensions.alertDialogOuterPadding),
+                    ) {
+                        MessageDialog(
+                            title = removeSignatureDialogTitle,
+                            cancelButtonClick = dismissRemoveSignatureDialog,
+                            okButtonClick = {
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    sharedContainerViewModel.removeSignature(
+                                        signedContainer,
+                                        actionSignature,
+                                    )
+                                }
+                                dismissRemoveSignatureDialog()
                             },
                         )
                     }
@@ -521,8 +572,12 @@ fun handleBackButtonClick(
     navController: NavHostController,
     signingViewModel: SigningViewModel,
 ) {
-    navController.popBackStack(navController.graph.findStartDestination().id, false)
     signingViewModel.handleBackButton()
+    navController.popBackStack(
+        destinationId = navController.graph.findStartDestination().id,
+        inclusive = false,
+        saveState = true,
+    )
 }
 
 @Preview(showBackground = true)
@@ -530,12 +585,10 @@ fun handleBackButtonClick(
 @Composable
 fun SigningNavigationPreview() {
     val navController = rememberNavController()
-    val signatureAddController = rememberNavController()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
     RIADigiDocTheme {
         SigningNavigation(
             navController = navController,
-            signatureAddController = signatureAddController,
             sharedContainerViewModel = sharedContainerViewModel,
         )
     }
