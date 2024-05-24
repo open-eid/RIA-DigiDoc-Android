@@ -11,8 +11,10 @@ import androidx.lifecycle.ViewModel
 import com.google.common.io.ByteStreams
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import ee.ria.DigiDoc.domain.repository.FileOpeningRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
+import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
@@ -26,6 +28,7 @@ class SharedContainerViewModel
     constructor(
         @ApplicationContext private val context: Context,
         private val contentResolver: ContentResolver,
+        private val fileOpeningRepository: FileOpeningRepository,
     ) : ViewModel() {
         private val _signedContainer = MutableLiveData<SignedContainer?>()
         val signedContainer: LiveData<SignedContainer?> = _signedContainer
@@ -71,8 +74,9 @@ class SharedContainerViewModel
         fun removeContainerDataFile(
             signedContainer: SignedContainer?,
             dataFile: DataFileInterface?,
-        ): SignedContainer? {
-            return dataFile?.let { signedContainer?.removeDataFile(it) }
+        ) {
+            val container = dataFile?.let { signedContainer?.removeDataFile(it) }
+            _signedContainer.postValue(container)
         }
 
         fun saveContainerFile(
@@ -89,5 +93,13 @@ class SharedContainerViewModel
                         }
                 }
             }
+        }
+
+        fun removeSignature(
+            signedContainer: SignedContainer?,
+            signature: SignatureInterface?,
+        ) {
+            val container = signature?.let { signedContainer?.removeSignature(it) }
+            _signedContainer.postValue(container)
         }
     }

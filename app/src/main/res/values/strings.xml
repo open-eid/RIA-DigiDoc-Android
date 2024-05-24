@@ -74,6 +74,8 @@
     <string name="signature_update_signature_chosen_method_smart_id">Signing method Smart-ID, selected</string>
     <string name="signature_update_signature_chosen_method_id_card">Signing method ID-Card, selected</string>
 
+    <string name="signature_update_signature_remove_confirmation_message">Remove signature from container?</string>
+
     <string name="signature_update_mobile_id_message">Enter your mobile number and personal code to sign with mobile-ID</string>
     <string name="signature_update_mobile_id_phone_no">Country code and phone number</string>
     <string name="signature_update_mobile_id_personal_code">Personal code</string>

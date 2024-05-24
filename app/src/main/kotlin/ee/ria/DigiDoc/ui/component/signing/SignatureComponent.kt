@@ -41,6 +41,7 @@ fun SignatureComponent(
     modifier: Modifier = Modifier,
     signingViewModel: SigningViewModel,
     signature: SignatureInterface,
+    onRemoveButtonClick: () -> Unit = {},
 ) {
     Row(
         modifier =
@@ -94,7 +95,7 @@ fun SignatureComponent(
             )
         }
         IconButton(
-            onClick = { /* TODO */ },
+            onClick = onRemoveButtonClick,
             content = {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
