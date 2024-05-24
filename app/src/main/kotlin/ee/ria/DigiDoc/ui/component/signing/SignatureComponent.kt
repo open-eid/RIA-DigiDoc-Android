@@ -71,7 +71,7 @@ fun SignatureComponent(
                     .clickable { /* TODO */ },
         ) {
             Text(
-                text = formatName(signature.signedBy),
+                text = formatName(signature.name),
                 modifier = modifier.focusable(),
                 fontWeight = FontWeight.Bold,
             )
