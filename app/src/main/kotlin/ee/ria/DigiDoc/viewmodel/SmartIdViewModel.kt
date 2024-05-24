@@ -247,7 +247,7 @@ class SmartIdViewModel
                             )
                         }
                         val challengeTitle: String = context.getString(R.string.smart_id_challenge)
-                        val notification: Notification =
+                        val notification: Notification? =
                             NotificationUtil.createNotification(
                                 context,
                                 NOTIFICATION_CHANNEL,
@@ -258,7 +258,9 @@ class SmartIdViewModel
                                 false,
                             )
                         try {
-                            sendNotification(context, challenge, notification)
+                            if (notification != null) {
+                                sendNotification(context, challenge, notification)
+                            }
                         } catch (nfe: NumberFormatException) {
                             errorLog(logTag, "Unable to send notification", nfe)
                         }

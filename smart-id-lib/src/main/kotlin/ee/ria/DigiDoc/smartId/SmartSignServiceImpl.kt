@@ -368,7 +368,7 @@ class SmartSignServiceImpl : SmartSignService {
 
     private fun showEmptyNotification(context: Context) {
         createNotificationChannel(context)
-        val notification: Notification =
+        val notification: Notification? =
             NotificationUtil.createNotification(
                 context,
                 NOTIFICATION_CHANNEL,

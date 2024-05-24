@@ -110,14 +110,13 @@ class FileOpeningRepositoryImplTest {
             `when`(fileOpeningService.uriToFile(mockContext, contentResolver, uris.first())).thenReturn(file)
             `when`(fileOpeningService.isFileSizeValid(file)).thenReturn(true)
 
-            val existingSignedContainer =
-                runBlocking {
-                    fileOpeningRepository.openOrCreateContainer(mockContext, contentResolver, uris)
-                }
+            runBlocking {
+                fileOpeningRepository.openOrCreateContainer(mockContext, contentResolver, uris)
+            }
 
             val signedContainer =
                 runBlocking {
-                    fileOpeningRepository.addFilesToContainer(mockContext, existingSignedContainer, fileStreams)
+                    fileOpeningRepository.addFilesToContainer(mockContext, fileStreams)
                 }
 
             assertEquals(2, signedContainer.getDataFiles().size)
@@ -136,14 +135,13 @@ class FileOpeningRepositoryImplTest {
             `when`(fileOpeningService.uriToFile(mockContext, contentResolver, uris.first())).thenReturn(file)
             `when`(fileOpeningService.isFileSizeValid(file)).thenReturn(true)
 
-            val existingSignedContainer =
-                runBlocking {
-                    fileOpeningRepository.openOrCreateContainer(mockContext, contentResolver, uris)
-                }
+            runBlocking {
+                fileOpeningRepository.openOrCreateContainer(mockContext, contentResolver, uris)
+            }
 
             val signedContainer =
                 runBlocking {
-                    fileOpeningRepository.addFilesToContainer(mockContext, existingSignedContainer, fileStreams)
+                    fileOpeningRepository.addFilesToContainer(mockContext, fileStreams)
                 }
 
             assertEquals(1, signedContainer.getDataFiles().size)
@@ -162,14 +160,9 @@ class FileOpeningRepositoryImplTest {
             `when`(fileOpeningService.uriToFile(mockContext, contentResolver, uris.first())).thenReturn(file)
             `when`(fileOpeningService.isFileSizeValid(file)).thenReturn(true)
 
-            val existingSignedContainer =
-                runBlocking {
-                    fileOpeningRepository.openOrCreateContainer(mockContext, contentResolver, uris)
-                }
-
             val signedContainer =
                 runBlocking {
-                    fileOpeningRepository.addFilesToContainer(mockContext, existingSignedContainer, fileStreams)
+                    fileOpeningRepository.addFilesToContainer(mockContext, fileStreams)
                 }
 
             assertEquals(1, signedContainer.getDataFiles().size)

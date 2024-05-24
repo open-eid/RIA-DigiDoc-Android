@@ -35,24 +35,31 @@ object NotificationUtil {
         text: String?,
         priority: Int,
         isSilent: Boolean,
-    ): Notification {
+    ): Notification? {
         val notification =
-            NotificationCompat.Builder(
-                context!!,
-                notificationChannel!!,
-            )
-                .setSmallIcon(smallIcon)
-                .setContentTitle(title)
-                .setContentText(text)
-                .setPriority(priority)
-                .setCategory(NotificationCompat.CATEGORY_SERVICE)
-                .setAutoCancel(true)
-                .setSilent(isSilent)
-        if (PowerUtil.isPowerSavingMode(context)) {
-            notification.setSound(null)
-                .setVibrate(null)
-                .setLights(0, 0, 0)
+            context?.let {
+                if (notificationChannel != null) {
+                    NotificationCompat.Builder(
+                        it,
+                        notificationChannel,
+                    )
+                        .setSmallIcon(smallIcon)
+                        .setContentTitle(title)
+                        .setContentText(text)
+                        .setPriority(priority)
+                        .setCategory(NotificationCompat.CATEGORY_SERVICE)
+                        .setAutoCancel(true)
+                        .setSilent(isSilent)
+                } else {
+                    null
+                }
+            }
+        if (context?.let { PowerUtil.isPowerSavingMode(it) } == true) {
+            notification?.setSound(null)?.setVibrate(null)?.setLights(0, 0, 0)
         }
-        return notification.build()
+        if (notification != null) {
+            return notification.build()
+        }
+        return null
     }
 }

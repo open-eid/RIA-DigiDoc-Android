@@ -32,6 +32,7 @@ class InitializationTest {
 
             `when`(mockContext.resources).thenReturn(context.resources)
             `when`(mockContext.cacheDir).thenReturn(context.cacheDir)
+            `when`(mockContext.filesDir).thenReturn(context.filesDir)
 
             runTest {
                 Initialization.init(mockContext)
@@ -47,6 +48,7 @@ class InitializationTest {
 
         `when`(mockContext.resources).thenReturn(context.resources)
         `when`(mockContext.cacheDir).thenReturn(null)
+        `when`(mockContext.filesDir).thenReturn(context.filesDir)
 
         assertThrows(IllegalArgumentException::class.java) {
             runTest {
@@ -61,6 +63,7 @@ class InitializationTest {
         val mockContext = mock(Context::class.java)
         `when`(mockContext.resources).thenReturn(Resources.getSystem())
         `when`(mockContext.cacheDir).thenReturn(cacheDir)
+        `when`(mockContext.filesDir).thenReturn(context.filesDir)
 
         assertThrows(NotFoundException::class.java) {
             runTest {
@@ -74,6 +77,7 @@ class InitializationTest {
         val mockContext = mock(Context::class.java)
         `when`(mockContext.resources).thenReturn(context.resources)
         `when`(mockContext.cacheDir).thenReturn(context.cacheDir)
+        `when`(mockContext.filesDir).thenReturn(context.filesDir)
 
         assertThrows(AlreadyInitializedException::class.java) {
             runTest {
