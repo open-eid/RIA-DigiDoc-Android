@@ -8,7 +8,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
@@ -27,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
+import ee.ria.DigiDoc.ui.theme.Dimensions.buttonHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.countryHorizontalPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.countryIconPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.countryVerticalPadding
@@ -56,7 +59,7 @@ fun SelectionSpinner(
             verticalAlignment = Alignment.Top,
         ) {
             Text(
-                text = list.get(selected),
+                text = list[selected],
                 style = MaterialTheme.typography.titleLarge,
                 modifier =
                     modifier
@@ -68,11 +71,12 @@ fun SelectionSpinner(
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
-                modifier = modifier.fillMaxWidth(),
+                modifier = modifier.fillMaxWidth().wrapContentHeight(),
             ) {
                 list.forEachIndexed { index, listEntry ->
 
                     DropdownMenuItem(
+                        modifier = modifier.fillMaxWidth().height(buttonHeight),
                         onClick = {
                             selected = index
                             expanded = false

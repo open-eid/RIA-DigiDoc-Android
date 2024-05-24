@@ -31,7 +31,6 @@ fun SigningScreen(
 @Composable
 fun SigningScreenPreview() {
     val navController = rememberNavController()
-    val signatureAddController = rememberNavController()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
     RIADigiDocTheme {
         SigningScreen(

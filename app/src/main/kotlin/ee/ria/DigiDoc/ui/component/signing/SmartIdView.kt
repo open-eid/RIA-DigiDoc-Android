@@ -142,7 +142,7 @@ fun SmartIdView(
             onSelectionChanged = {
                 selectedCountry = it
             },
-            modifier = modifier.fillMaxWidth().height(Dimensions.textFieldHeight),
+            modifier = modifier,
         )
         Text(
             text = stringResource(id = R.string.signature_update_mobile_id_personal_code),
