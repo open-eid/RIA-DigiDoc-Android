@@ -3,12 +3,15 @@
 package ee.ria.DigiDoc.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,73 +29,93 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
+import ee.ria.DigiDoc.ui.theme.Black
 import ee.ria.DigiDoc.ui.theme.Blue500
-import ee.ria.DigiDoc.ui.theme.Dimensions.containerButtonHorizontalPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.dividerHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewHorizontalPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewVerticalPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Red500
 
 @Composable
 fun ContainerFile(
     modifier: Modifier = Modifier,
     dataFile: DataFileInterface,
+    showRemoveButton: Boolean,
     onClickView: () -> Unit = {},
     onClickRemove: () -> Unit = {},
     onClickSave: () -> Unit = {},
 ) {
     val fileText = stringResource(id = R.string.file)
-    Row(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .padding(end = screenViewHorizontalPadding),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        TextButton(
-            onClick = onClickView,
-            shape = RectangleShape,
+    Column(modifier = modifier.fillMaxWidth()) {
+        Row(
             modifier =
                 modifier
-                    .padding(start = containerButtonHorizontalPadding, end = screenViewVerticalPadding)
-                    .align(Alignment.CenterVertically)
-                    .weight(1f)
-                    .semantics {
-                        contentDescription = "${fileText.lowercase()} ${dataFile.fileName.lowercase()}"
-                    },
+                    .fillMaxWidth()
+                    .padding(start = itemSpacingPadding, end = screenViewLargePadding),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = dataFile.fileName,
-                textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = modifier.fillMaxWidth(),
+            TextButton(
+                onClick = onClickView,
+                shape = RectangleShape,
+                modifier =
+                    modifier
+                        .align(Alignment.CenterVertically)
+                        .weight(1f)
+                        .semantics {
+                            contentDescription = "${fileText.lowercase()} ${dataFile.fileName.lowercase()}"
+                        },
+            ) {
+                Text(
+                    text = dataFile.fileName,
+                    textAlign = TextAlign.Start,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Black,
+                    modifier = modifier.fillMaxWidth(),
+                )
+            }
+
+            if (showRemoveButton) {
+                IconButton(
+                    onClick = onClickRemove,
+                    modifier = modifier.size(iconSize),
+                    content = {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
+                            contentDescription = "${
+                                stringResource(
+                                    id = R.string.document_remove_button,
+                                )
+                            } ${dataFile.fileName.lowercase()}",
+                            tint = Red500,
+                        )
+                    },
+                )
+            }
+
+            Spacer(modifier = modifier.width(itemSpacingPadding))
+
+            IconButton(
+                onClick = onClickSave,
+                modifier = modifier.size(iconSize),
+                content = {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_save),
+                        contentDescription = "${stringResource(
+                            id = R.string.document_save_button,
+                        )} ${dataFile.fileName.lowercase()}",
+                        tint = Blue500,
+                    )
+                },
             )
         }
-
-        IconButton(
-            onClick = onClickRemove,
-            modifier = modifier.size(iconSize),
-            content = {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                    contentDescription = "${stringResource(id = R.string.document_remove_button)} ${dataFile.fileName}",
-                    tint = Red500,
-                )
-            },
-        )
-        Spacer(modifier = modifier.width(itemSpacingPadding))
-        IconButton(
-            onClick = onClickSave,
-            modifier = modifier.size(iconSize),
-            content = {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_icon_save),
-                    contentDescription = "${stringResource(id = R.string.document_save_button)} ${dataFile.fileName}",
-                    tint = Blue500,
-                )
-            },
+        HorizontalDivider(
+            modifier =
+                modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = screenViewLargePadding, vertical = itemSpacingPadding)
+                    .height(dividerHeight),
         )
     }
 }

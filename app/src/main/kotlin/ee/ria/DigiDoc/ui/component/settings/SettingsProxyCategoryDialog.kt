@@ -5,7 +5,6 @@ package ee.ria.DigiDoc.ui.component.settings
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
@@ -32,10 +31,8 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.ui.component.shared.BackButton
 import ee.ria.DigiDoc.ui.component.shared.TextRadioButton
-import ee.ria.DigiDoc.ui.theme.Dimensions
-import ee.ria.DigiDoc.ui.theme.Dimensions.settingsItemEndPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.settingsItemStartPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.textFieldHeight
+import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
@@ -56,7 +53,7 @@ fun SettingsProxyCategoryDialog(
     onClickSystemProxy: () -> Unit = {},
 ) {
     Column(
-        modifier = modifier.padding(Dimensions.alertDialogInnerPadding),
+        modifier = modifier.padding(itemSpacingPadding),
     ) {
         BackButton(
             onClickBack = onClickBack,
@@ -64,7 +61,7 @@ fun SettingsProxyCategoryDialog(
         Text(
             modifier =
                 modifier
-                    .padding(horizontal = settingsItemStartPadding, vertical = settingsItemEndPadding)
+                    .padding(horizontal = screenViewLargePadding, vertical = screenViewLargePadding)
                     .fillMaxWidth(),
             text = stringResource(id = R.string.main_settings_proxy_title),
             style = MaterialTheme.typography.titleLarge,
@@ -91,9 +88,8 @@ fun SettingsProxyCategoryDialog(
             enabled = proxyChoice == ProxySetting.MANUAL_PROXY.name,
             modifier =
                 modifier
-                    .padding(vertical = settingsItemEndPadding)
-                    .fillMaxWidth()
-                    .height(textFieldHeight),
+                    .padding(vertical = screenViewLargePadding)
+                    .fillMaxWidth(),
             shape = RectangleShape,
             value = proxyHostValue,
             onValueChange = onProxyHostValueChange,
@@ -109,9 +105,8 @@ fun SettingsProxyCategoryDialog(
             enabled = proxyChoice == ProxySetting.MANUAL_PROXY.name,
             modifier =
                 modifier
-                    .padding(vertical = settingsItemEndPadding)
-                    .fillMaxWidth()
-                    .height(textFieldHeight),
+                    .padding(vertical = screenViewLargePadding)
+                    .fillMaxWidth(),
             shape = RectangleShape,
             value = proxyPortValue,
             onValueChange = onProxyPortValueChange,
@@ -127,9 +122,8 @@ fun SettingsProxyCategoryDialog(
             enabled = proxyChoice == ProxySetting.MANUAL_PROXY.name,
             modifier =
                 modifier
-                    .padding(vertical = settingsItemEndPadding)
-                    .fillMaxWidth()
-                    .height(textFieldHeight),
+                    .padding(vertical = screenViewLargePadding)
+                    .fillMaxWidth(),
             shape = RectangleShape,
             value = proxyUsernameValue,
             onValueChange = onProxyUsernameValueChange,
@@ -146,9 +140,8 @@ fun SettingsProxyCategoryDialog(
             enabled = proxyChoice == ProxySetting.MANUAL_PROXY.name,
             modifier =
                 modifier
-                    .padding(vertical = settingsItemEndPadding)
-                    .fillMaxWidth()
-                    .height(textFieldHeight),
+                    .padding(vertical = screenViewLargePadding)
+                    .fillMaxWidth(),
             shape = RectangleShape,
             value = proxyPasswordValue,
             onValueChange = onProxyPasswordValueChange,

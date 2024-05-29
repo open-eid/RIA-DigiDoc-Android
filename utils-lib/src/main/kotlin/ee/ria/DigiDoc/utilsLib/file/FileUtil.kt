@@ -322,8 +322,8 @@ object FileUtil {
             infoLog(LOG_TAG, "Directories created for $filePath")
         }
         try {
-            FileOutputStream(file.getAbsoluteFile()).use { fileStream ->
-                OutputStreamWriter(fileStream, StandardCharsets.UTF_8)
+            FileOutputStream(file.getAbsoluteFile()).use { outputStream ->
+                OutputStreamWriter(outputStream, StandardCharsets.UTF_8)
                     .use { writer ->
                         writer.write(content)
                     }
@@ -381,8 +381,8 @@ object FileUtil {
         val file = File(destinationPath, fileName)
 
         try {
-            file.outputStream().use { fileStream ->
-                OutputStreamWriter(fileStream, StandardCharsets.UTF_8).use { writer ->
+            file.outputStream().use { outputStream ->
+                OutputStreamWriter(outputStream, StandardCharsets.UTF_8).use { writer ->
                     reader.forEachLine { line ->
                         writer.write(line)
                         writer.write(System.lineSeparator())

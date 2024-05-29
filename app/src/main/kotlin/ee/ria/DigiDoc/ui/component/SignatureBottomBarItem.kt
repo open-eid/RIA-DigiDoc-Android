@@ -2,13 +2,12 @@
 
 package ee.ria.DigiDoc.ui.component
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.annotation.StringRes
 
 data class SignatureBottomBarItem(
-    val label: String = "",
-    val icon: ImageVector = Icons.Filled.Home,
+    @StringRes val label: Int,
     val contentDescription: String = "",
+    val isSubButton: Boolean,
+    val showButton: Boolean,
     val onClick: () -> Unit = {},
 )

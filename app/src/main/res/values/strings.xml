@@ -6,8 +6,8 @@
     <string name="configuration_initialization_failed">Failed to initialize configuration</string>
 
     <!-- Container -->
-    <string name="container_title">CONTAINER:</string>
-    <string name="documents_add_button">+ ADD MORE FILES</string>
+    <string name="container_title">Container:</string>
+    <string name="documents_add_button">+ Add more files</string>
     <string name="documents_add_button_accessibility">Add more files</string>
     <string name="file">File</string>
     <string name="file_saved">File saved</string>
@@ -22,6 +22,7 @@
     <string name="container_open_file_error">Could not load selected files</string>
     <string name="empty_file_error">Cannot add empty file to the container.</string>
 
+    <string name="challenge_code_text">Control code:</string>
     <string name="mobile_id_challenge">Mobile-ID signing control code</string>
     <string name="smart_id_challenge">Smart-ID signing control code</string>
 
@@ -37,7 +38,7 @@
     <string name="main_home_menu_button">Menu</string>
 
     <string name="signature_home_create_text">Choose a file to sign or validate</string>
-    <string name="signature_home_create_button">CHOOSE FILE</string>
+    <string name="signature_home_create_button">Choose file</string>
 
     <string name="main_home_menu_help">HELP</string>
     <string name="main_home_menu_accessibility">ACCESSIBILITY</string>
@@ -64,7 +65,7 @@
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
     <string name="signature_update_signature_add_method_id_card">ID-card</string>
     <string name="signature_update_signature_add_method_nfc">NFC</string>
-    <string name="signature_update_signature_add_success">SIGNATURE ADDED</string>
+    <string name="signature_update_signature_add_success">Signature added</string>
 
     <string name="signature_update_signature_selected_method_mobile_id">Signing option Mobile-ID, tab %1$d of %2$d</string>
     <string name="signature_update_signature_selected_method_smart_id">Signing option Smart-ID, tab %1$d of %2$d</string>
@@ -76,10 +77,11 @@
 
     <string name="signature_update_signature_remove_confirmation_message">Remove signature from container?</string>
 
+    <string name="signature_update_remember_me">Remember me</string>
+
     <string name="signature_update_mobile_id_message">Enter your mobile number and personal code to sign with mobile-ID</string>
     <string name="signature_update_mobile_id_phone_no">Country code and phone number</string>
     <string name="signature_update_mobile_id_personal_code">Personal code</string>
-    <string name="signature_update_mobile_id_remember_me">Remember me</string>
     <string name="signature_update_mobile_id_info">Make sure the control code matches the one on phone screen and enter mobile-ID PIN2 code</string>
     <string name="signature_update_mobile_id_display_message">Sign document</string>
 
@@ -98,9 +100,6 @@
     <string name="signature_update_smart_id_error_technical_error">Failed to send request. Smart-ID service has encountered technical errors. Please try again later.</string>
 
     <string name="signature_update_id_card_progress_message_initial">Connect the card reader and insert your ID-card into the reader</string>
-
-    <string name="signature_update_remove_last_document_confirmation_message">You are about to remove the last file in the container, it is removed along with the container.</string>
-    <string name="signature_update_remove_document_confirmation_message">Remove file from container?</string>
 
     <string name="signature_update_mobile_id_invalid_country_code">Invalid country code.</string>
     <string name="signature_update_mobile_id_invalid_phone_number">Phone number is not valid.</string>
@@ -152,17 +151,29 @@
     <string name="signature_update_mobile_id_error_technical_error">Failed to send request. Mobile-ID service has encountered technical errors. Please try again later.</string>
 
 
-    <string name="sign_button">SIGN</string>
-    <string name="share_button">SHARE</string>
+    <string name="sign_button">Sign</string>
+    <string name="share_button">Share</string>
     <string name="yes_button">YES</string>
-    <string name="cancel_button">CANCEL</string>
+    <string name="cancel_button">Cancel</string>
     <string name="ok_button">OK</string>
 
     <!-- Crypto -->
-    <string name="crypto_button">ENCRYPT</string>
+    <string name="crypto_button">Encrypt</string>
     <string name="crypto_button_accessibility">Encrypt document</string>
 
     <!-- Accessibility -->
+    <string name="file_added">File added</string>
+    <string name="files_added">Files added</string>
+    <string name="container_name_changed">Container name changed</string>
+    <string name="container_name_change_cancelled">Container name change cancelled</string>
+    <string name="document_removed">Document removed</string>
+    <string name="document_removal_cancelled">Document removal cancelled</string>
+    <string name="signature_removed">Signature removed</string>
+    <string name="signature_removal_cancelled">Signature removal cancelled</string>
+    <string name="signing_cancelled">Signing cancelled</string>
+    <string name="button_name">Button</string>
+    <string name="signature_method">Signing method</string>
+    <string name="signature_method_selected">Signing method selected</string>
 
     <!-- Home -->
     <string name="main_home_navigation_signature_accessibility">Signature</string>

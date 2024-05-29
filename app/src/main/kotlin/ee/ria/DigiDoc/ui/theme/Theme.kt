@@ -27,10 +27,10 @@ private val DarkColorScheme =
 
 private val LightColorScheme =
     lightColorScheme(
-        primary = Primary900,
-        secondary = Primary500,
+        primary = Primary500,
+        secondary = Primary300,
         tertiary = Primary200,
-        background = Primary50,
+        background = White,
     /* Other default colors to override
     background = Color(0xFFFFFFFF),
     surface = Color(0xFFFFFBFE),
@@ -70,7 +70,7 @@ fun RIADigiDocTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = getTypography(LocalContext.current),
         content = content,
     )
 }

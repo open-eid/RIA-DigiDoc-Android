@@ -1,0 +1,50 @@
+@file:Suppress("PackageName", "FunctionName")
+
+package ee.ria.DigiDoc.ui.component.shared
+
+import android.content.res.Configuration
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
+import ee.ria.DigiDoc.ui.theme.Green50
+import ee.ria.DigiDoc.ui.theme.Green800
+import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+
+@Composable
+fun TagBadge(
+    text: String,
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = Green50,
+    contentColor: Color = Green800,
+) {
+    Box(
+        modifier =
+            modifier
+                .background(color = backgroundColor, shape = RoundedCornerShape(screenViewLargePadding))
+                .padding(horizontal = itemSpacingPadding),
+    ) {
+        Text(
+            text = text,
+            color = contentColor,
+            fontWeight = FontWeight.Normal,
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun TagBadge_Preview() {
+    RIADigiDocTheme {
+        TagBadge(text = "TagText")
+    }
+}

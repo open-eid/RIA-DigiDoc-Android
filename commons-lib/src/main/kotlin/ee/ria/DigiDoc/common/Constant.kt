@@ -103,6 +103,14 @@ object Constant {
 
     const val PDF_EXTENSION = "pdf"
 
+    val NO_REMOVE_SIGNATURE_BUTTON_FILE_EXTENSIONS: Set<String> =
+        setOf("adoc", "ddoc")
+            .plus(ASICS_CONTAINER_EXTENSIONS)
+            .plus(PDF_EXTENSION)
+
+    val UNSIGNABLE_CONTAINER_EXTENSIONS: Set<String> =
+        setOf("adoc", "ddoc").plus(ASICS_CONTAINER_EXTENSIONS)
+
     const val MAXIMUM_PERSONAL_CODE_LENGTH: Int = 11
 
     // Country code (3 numbers) + phone number (7 or more numbers)

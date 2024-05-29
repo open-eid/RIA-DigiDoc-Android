@@ -3,65 +3,52 @@
 package ee.ria.DigiDoc.ui.component.signing
 
 import android.content.res.Configuration
+import androidx.annotation.StringRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import ee.ria.DigiDoc.ui.theme.Dimensions.radioButtonPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
+import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
 fun SignatureAddRadioButton(
     modifier: Modifier = Modifier,
     selected: Boolean,
-    label: String,
+    @StringRes label: Int,
+    contentDescription: String,
     onClick: (() -> Unit)?,
     enabled: Boolean = true,
 ) {
     val radioColor = radioColor(enabled, selected)
     val textColor = textColor(enabled, selected)
-    Button(
-        modifier = modifier.padding(zeroPadding),
-        shape = RectangleShape,
-        colors =
-            ButtonColors(
-                containerColor = radioColor.value,
-                contentColor = textColor.value,
-                disabledContainerColor = radioColor.value,
-                disabledContentColor = textColor.value,
-            ),
-        contentPadding = PaddingValues(zeroPadding),
-        onClick = {
+
+    PrimaryButton(
+        modifier = modifier,
+        title = label,
+        contentDescription =
+            if (selected) {
+                "$contentDescription ${stringResource(id = R.string.signature_method_selected)}"
+            } else {
+                "${stringResource(id = R.string.signature_method)} $contentDescription"
+            },
+        isSubButton = !selected,
+        containerColor = radioColor.value,
+        contentColor = textColor.value,
+        onClickItem = {
             if (onClick != null) {
                 onClick()
             }
         },
-    ) {
-        Text(
-            modifier =
-                modifier
-                    .wrapContentHeight(align = Alignment.CenterVertically)
-                    .padding(horizontal = radioButtonPadding, vertical = zeroPadding),
-            text = label,
-            textAlign = TextAlign.Center,
-        )
-    }
+    )
 }
 
 @Composable
@@ -115,12 +102,14 @@ fun SignatureAddRadioButtonPreview() {
             SignatureAddRadioButton(
                 selected = true,
                 onClick = null,
-                label = "Test",
+                label = R.string.signature_update_signature_add_method_mobile_id,
+                contentDescription = "Mobile-ID",
             )
             SignatureAddRadioButton(
                 selected = false,
                 onClick = null,
-                label = "Tested",
+                label = R.string.signature_update_signature_add_method_smart_id,
+                contentDescription = "Smart-ID",
             )
         }
     }

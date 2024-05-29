@@ -27,7 +27,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.settings.SettingsItem
 import ee.ria.DigiDoc.ui.component.shared.BackButton
 import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
-import ee.ria.DigiDoc.ui.theme.Dimensions.settingsItemStartPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 
@@ -92,7 +92,7 @@ fun SettingsScreen(
             )
             PrimaryButton(
                 modifier.fillMaxWidth().wrapContentHeight().padding(
-                    horizontal = settingsItemStartPadding,
+                    horizontal = screenViewLargePadding,
                 ),
                 contentDescription =
                     stringResource(

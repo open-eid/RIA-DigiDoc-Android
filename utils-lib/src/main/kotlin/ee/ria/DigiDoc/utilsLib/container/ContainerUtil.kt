@@ -10,8 +10,8 @@ import com.google.common.io.ByteStreams
 import ee.ria.DigiDoc.common.Constant.CONTAINER_EXTENSIONS
 import ee.ria.DigiDoc.common.Constant.DATA_FILE_DIR
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
+import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
 import ee.ria.DigiDoc.common.Constant.DIR_SIGNATURE_CONTAINERS
-import ee.ria.DigiDoc.utilsLib.file.FileStream
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.getFileInDirectory
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
@@ -77,20 +77,15 @@ object ContainerUtil {
     @Throws(IOException::class)
     suspend fun cache(
         context: Context,
-        fileStream: FileStream,
-    ): File? {
-        val file: File? = fileStream.displayName?.let { getCacheFile(context, it) }
-        if (file == null) {
-            return null
-        }
-        fileStream.source?.openStream().use { inputStream ->
-            FileOutputStream(file).use { outputStream ->
-                if (inputStream != null) {
-                    ByteStreams.copy(inputStream, outputStream)
-                }
+        file: File,
+    ): File {
+        val cachedFile = getCacheFile(context, file.name)
+        cachedFile.inputStream().use { inputStream ->
+            FileOutputStream(cachedFile).use { outputStream ->
+                ByteStreams.copy(inputStream, outputStream)
             }
         }
-        return file
+        return cachedFile
     }
 
     @Throws(IOException::class)
@@ -165,9 +160,9 @@ object ContainerUtil {
         return dir
     }
 
-    fun isEmptyFileInList(fileStreams: List<FileStream>): Boolean {
-        for (fileStream in fileStreams) {
-            if (fileStream.fileSize?.toInt() == 0) {
+    fun isEmptyFileInList(files: List<File>): Boolean {
+        for (file in files) {
+            if (file.length().toInt() == 0) {
                 return true
             }
         }
@@ -176,37 +171,15 @@ object ContainerUtil {
     }
 
     @Throws(IOException::class)
-    fun getFilesWithValidSize(fileStreams: List<FileStream>): List<FileStream> {
-        val validFileStreams: MutableList<FileStream> = ArrayList()
-        for (fileStream in fileStreams) {
-            if (fileStream.fileSize?.toInt() != 0) {
-                validFileStreams.add(fileStream)
+    fun getFilesWithValidSize(files: List<File>): List<File> {
+        val validFiles: MutableList<File> = ArrayList()
+        for (file in files) {
+            if (file.length().toInt() != 0) {
+                validFiles.add(file)
             }
         }
 
-        return validFileStreams
-    }
-
-    fun parseUris(
-        contentResolver: ContentResolver?,
-        uris: List<Uri>,
-    ): List<FileStream> {
-        val list: ArrayList<FileStream> = ArrayList()
-        for (i in uris.indices) {
-            val uri = uris[i]
-            list.add(
-                FileStream.create(
-                    contentResolver,
-                    uri,
-                    contentResolver?.let {
-                        FileUtil.normalizeUri(uri)
-                            ?.let { uri -> getFileSize(it, uri) }
-                    },
-                ),
-            )
-        }
-
-        return list
+        return validFiles
     }
 
     private fun getFileSize(
@@ -242,28 +215,19 @@ object ContainerUtil {
     }
 
     fun addExtensionToContainerFilename(filename: String): String {
-        val normalizedDisplayName =
-            FilenameUtils.getName(
-                FileUtil.sanitizeString(
-                    FileUtil.normalizePath(
-                        filename,
-                    ).path,
-                    "",
-                ),
-            )
-        if (FilenameUtils.getExtension(normalizedDisplayName).isNotEmpty() &&
-            FilenameUtils.isExtension(normalizedDisplayName, CONTAINER_EXTENSIONS)
-        ) {
-            return normalizedDisplayName
-        }
-        val containerName =
-            java.lang.String.format(
-                Locale.US,
-                "%s.%s",
-                FilenameUtils.removeExtension(normalizedDisplayName),
-                DEFAULT_CONTAINER_EXTENSION,
-            )
+        val normalizedFilename = FileUtil.normalizePath(filename).path
+        val sanitizedFilename = FileUtil.sanitizeString(normalizedFilename, "")
+        val displayName = FilenameUtils.getName(sanitizedFilename)
 
-        return containerName
+        return when {
+            displayName.isNotEmpty() && FilenameUtils.isExtension(displayName, CONTAINER_EXTENSIONS) ->
+                displayName
+            else ->
+                if (displayName.isNotEmpty()) {
+                    "$displayName.$DEFAULT_CONTAINER_EXTENSION"
+                } else {
+                    "$DEFAULT_FILENAME.$DEFAULT_CONTAINER_EXTENSION"
+                }
+        }
     }
 }

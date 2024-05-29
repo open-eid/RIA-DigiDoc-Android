@@ -10,6 +10,7 @@ import ee.ria.DigiDoc.common.test.AssetFile
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer.Companion.openOrCreate
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
+import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerUninitializedException
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -213,7 +214,7 @@ class SignedContainerTest {
             assertEquals(2, initializedContainer.getSignatures().size)
         }
 
-    @Test(expected = IllegalStateException::class)
+    @Test(expected = ContainerUninitializedException::class)
     fun signedContainer_container_throwExceptionWhenGettingUninitializedContainer() =
         runTest {
             SignedContainer.container()

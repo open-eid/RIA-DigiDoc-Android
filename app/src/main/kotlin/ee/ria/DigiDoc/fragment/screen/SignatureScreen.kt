@@ -6,38 +6,66 @@ import android.content.res.Configuration
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewHorizontalPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewVerticalPadding
+import ee.ria.DigiDoc.ui.theme.Black
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignatureScreen(
     modifier: Modifier = Modifier,
+    focusRequester: FocusRequester = FocusRequester(),
     onClickToFileChoosingScreen: () -> Unit = {},
 ) {
+    val buttonFocusRequester = remember { focusRequester }
+
+    LaunchedEffect(Unit) {
+        buttonFocusRequester.requestFocus()
+    }
+
+    val chooseFileText = "${stringResource(
+        id = R.string.signature_home_create_text,
+    )
+    }, ${stringResource(
+        id = R.string.button_name,
+    )
+    }"
+
     RIADigiDocTheme {
         Column(
             modifier =
                 modifier
                     .fillMaxSize()
                     .padding(
-                        horizontal = screenViewHorizontalPadding,
-                        vertical = screenViewVerticalPadding,
-                    ),
+                        horizontal = screenViewLargePadding,
+                        vertical = screenViewExtraLargePadding,
+                    )
+                    .focusable(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -45,17 +73,30 @@ fun SignatureScreen(
                 stringResource(id = R.string.signature_home_create_text),
                 modifier =
                     modifier
-                        .focusable(false)
-                        .clearAndSetSemantics {},
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold,
+                        .padding(vertical = screenViewLargePadding)
+                        .notAccessible(),
+                color = Black,
+                fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center,
             )
-            PrimaryButton(
-                title = R.string.signature_home_create_button,
-                contentDescription = stringResource(id = R.string.signature_home_create_text),
-                onClickItem = onClickToFileChoosingScreen,
-            )
+            Row(
+                modifier =
+                    modifier
+                        .focusProperties { canFocus = true }
+                        .focusTarget()
+                        .focusRequester(buttonFocusRequester)
+                        .focusable()
+                        .semantics {
+                            this.text = AnnotatedString(chooseFileText)
+                        },
+            ) {
+                PrimaryButton(
+                    title = R.string.signature_home_create_button,
+                    contentDescription = stringResource(id = R.string.signature_home_create_text),
+                    onClickItem = onClickToFileChoosingScreen,
+                    isFocusable = true,
+                )
+            }
         }
     }
 }
@@ -65,6 +106,6 @@ fun SignatureScreen(
 @Composable
 fun SignatureScreenPreview() {
     RIADigiDocTheme {
-        SignatureScreen()
+        SignatureScreen {}
     }
 }

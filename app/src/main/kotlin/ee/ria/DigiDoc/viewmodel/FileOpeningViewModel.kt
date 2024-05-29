@@ -16,11 +16,11 @@ import ee.ria.DigiDoc.domain.repository.FileOpeningRepository
 import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.exceptions.FileAlreadyExistsException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
-import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
+import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerUninitializedException
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
-import ee.ria.DigiDoc.utilsLib.file.FileStream
-import ee.ria.DigiDoc.utilsLib.file.FileUtil.normalizeString
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import java.io.File
+import java.io.FileNotFoundException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,6 +41,17 @@ class FileOpeningViewModel
 
         private val _launchFilePicker = MutableLiveData(true)
         val launchFilePicker: LiveData<Boolean?> = _launchFilePicker
+        private val _filesAdded = MutableLiveData<List<File>?>(null)
+        val filesAdded: LiveData<List<File>?> = _filesAdded
+
+        suspend fun resetContainer() {
+            SignedContainer.cleanup()
+            _signedContainer.postValue(null)
+        }
+
+        suspend fun resetFilesAdded() {
+            _filesAdded.postValue(null)
+        }
 
         suspend fun showFileChooser(fileChooser: ActivityResultLauncher<String>) {
             fileOpeningRepository.showFileChooser(fileChooser, "*/*")
@@ -48,32 +59,56 @@ class FileOpeningViewModel
             _launchFilePicker.postValue(false)
         }
 
+        @Throws(FileNotFoundException::class)
+        suspend fun urisToFile(
+            context: Context,
+            contentResolver: ContentResolver,
+            uris: List<Uri>,
+        ): List<File> {
+            val files = mutableListOf<File>()
+            for (uri in uris) {
+                files.add(fileOpeningRepository.uriToFile(context, contentResolver, uri))
+            }
+
+            return files
+        }
+
         suspend fun handleFiles(
             uris: List<Uri>,
-            existingSignedContainer: SignedContainer?,
+            existingSignedContainer: SignedContainer? = null,
         ) {
             if (existingSignedContainer != null) {
                 try {
-                    val validFiles: List<FileStream> =
-                        fileOpeningRepository.getFilesWithValidSize(
-                            fileOpeningRepository.parseUris(contentResolver, uris),
-                        )
-                    if (fileOpeningRepository.isEmptyFileInList(validFiles)) {
-                        throw EmptyFileException(context)
+                    val files = urisToFile(context, contentResolver, uris)
+
+                    if (files.size == 1) {
+                        if (!fileOpeningRepository.isFileSizeValid(files.first())) {
+                            throw EmptyFileException(context)
+                        }
+                        val isFileAlreadyInContainer =
+                            fileOpeningRepository.isFileAlreadyInContainer(
+                                files.first(),
+                                existingSignedContainer,
+                            )
+
+                        if (isFileAlreadyInContainer) {
+                            throw FileAlreadyExistsException(context)
+                        }
                     }
-                    val filesNotInContainer: List<FileStream> =
-                        getFilesNotInContainer(
-                            validFiles,
-                        )
-                    if (filesNotInContainer.isEmpty()) {
-                        throw FileAlreadyExistsException(context)
-                    }
+
+                    val validFiles: List<File> =
+                        fileOpeningRepository.getValidFiles(files, existingSignedContainer)
+
                     val container =
                         fileOpeningRepository.addFilesToContainer(
                             context,
-                            filesNotInContainer,
+                            validFiles,
                         )
                     _signedContainer.postValue(container)
+                    _filesAdded.postValue(validFiles)
+                } catch (cue: ContainerUninitializedException) {
+                    errorLog(logTag, "Container uninitialized. Creating new container", cue)
+                    handleFiles(uris)
                 } catch (e: Exception) {
                     _signedContainer.postValue(existingSignedContainer)
                     _errorState.postValue(e.message)
@@ -88,6 +123,7 @@ class FileOpeningViewModel
                             uris,
                         )
                     _signedContainer.postValue(container)
+                    _filesAdded.postValue(urisToFile(context, contentResolver, uris))
                 } catch (e: Exception) {
                     _signedContainer.postValue(null)
                     errorLog(logTag, "Unable to open or create container", e)
@@ -100,29 +136,5 @@ class FileOpeningViewModel
                     }
                 }
             }
-        }
-
-        @Throws(Exception::class)
-        private fun getFilesNotInContainer(validFiles: List<FileStream>): List<FileStream> {
-            val filesNotInContainer: MutableList<FileStream> = ArrayList()
-            val containerDataFileNames: MutableList<String> = ArrayList()
-            if (validFiles.isNotEmpty()) {
-                val signedContainer = SignedContainer.container()
-                val dataFiles: List<DataFileInterface> =
-                    signedContainer.getDataFiles()
-                for (dataFile in dataFiles) {
-                    containerDataFileNames.add(normalizeString(dataFile.fileName))
-                }
-
-                for (validFile in validFiles) {
-                    if (!containerDataFileNames.contains(normalizeString(validFile.displayName))) {
-                        filesNotInContainer.add(validFile)
-                    }
-                }
-
-                return filesNotInContainer
-            }
-
-            return validFiles
         }
     }

@@ -237,7 +237,7 @@ class MobileSignServiceImpl : MobileSignService {
                     ) {
                         return
                     }
-                    containerWrapper = ContainerWrapper(request.containerPath)
+                    containerWrapper = ContainerWrapper()
                     val base64Hash: String =
                         containerWrapper.prepareSignature(
                             getCertificatePem(response.cert),
@@ -315,10 +315,9 @@ class MobileSignServiceImpl : MobileSignService {
                         }",
                     e,
                 )
-                postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.USER_CANCELLED))
                 return
             } catch (e: Exception) {
-                if (e.message != null && e.message!!.contains("Too Many Requests")) {
+                if (!e.message.isNullOrEmpty() && e.message?.contains("Too Many Requests") == true) {
                     errorLog(
                         logTag,
                         "Failed to sign with Mobile-ID - Too Many Requests. " +
@@ -327,7 +326,10 @@ class MobileSignServiceImpl : MobileSignService {
                         e,
                     )
                     postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.TOO_MANY_REQUESTS))
-                } else if (e.message != null && e.message!!.contains("OCSP response not in valid time slot")) {
+                } else if (!e.message.isNullOrEmpty() && e.message?.contains(
+                        "OCSP response not in valid time slot",
+                    ) == true
+                ) {
                     errorLog(
                         logTag,
                         "Failed to sign with Mobile-ID - OCSP response not in valid time slot. " +
@@ -336,7 +338,7 @@ class MobileSignServiceImpl : MobileSignService {
                         e,
                     )
                     postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.OCSP_INVALID_TIME_SLOT))
-                } else if (e.message != null && e.message!!.contains("Certificate status: revoked")) {
+                } else if (!e.message.isNullOrEmpty() && e.message?.contains("Certificate status: revoked") == true) {
                     errorLog(
                         logTag,
                         "Failed to sign with Mobile-ID - Certificate status: revoked. " +
@@ -345,7 +347,7 @@ class MobileSignServiceImpl : MobileSignService {
                         e,
                     )
                     postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.CERTIFICATE_REVOKED))
-                } else if (e.message != null && e.message!!.contains("Failed to connect")) {
+                } else if (!e.message.isNullOrEmpty() && e.message?.contains("Failed to connect") == true) {
                     errorLog(
                         logTag,
                         "Failed to sign with Mobile-ID - Failed to connect to host. " +
@@ -354,7 +356,9 @@ class MobileSignServiceImpl : MobileSignService {
                         e,
                     )
                     postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.NO_RESPONSE))
-                } else if (e.message != null && e.message!!.startsWith("Failed to create ssl connection with host")) {
+                } else if (!e.message.isNullOrEmpty() &&
+                    e.message?.startsWith("Failed to create ssl connection with host") == true
+                ) {
                     errorLog(
                         logTag,
                         "Failed to sign with Mobile-ID - Failed to create ssl connection with host. " +
@@ -428,7 +432,12 @@ class MobileSignServiceImpl : MobileSignService {
             debugLog(logTag, "Finalizing signature...")
             containerWrapper.finalizeSignature(response.signature?.value)
             debugLog(logTag, "Posting create signature status response")
-            postMobileCreateSignatureStatusResponse(response, containerWrapper.container)
+            containerWrapper.container?.let {
+                postMobileCreateSignatureStatusResponse(
+                    response,
+                    it,
+                )
+            }
             return
         } else {
             if (timeout > TIMEOUT_CANCEL) {

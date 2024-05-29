@@ -31,4 +31,6 @@ enum class SessionStatusResponseProcessStatus {
     NO_RESPONSE,
     INVALID_SSL_HANDSHAKE,
     TECHNICAL_ERROR,
+
+    USER_CANCELLED,
 }

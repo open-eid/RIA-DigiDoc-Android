@@ -11,6 +11,7 @@ import android.hardware.usb.UsbManager
 import android.os.Build
 import android.text.TextUtils
 import ee.ria.DigiDoc.common.BuildVersionProvider
+import ee.ria.DigiDoc.common.BuildVersionProviderImpl
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import java.util.Locale
 import java.util.Objects
@@ -22,7 +23,7 @@ object UserAgentUtil {
 
     fun getUserAgent(
         context: Context?,
-        buildVersionProvider: BuildVersionProvider,
+        buildVersionProvider: BuildVersionProvider = BuildVersionProviderImpl(),
     ): String {
         val deviceProductNames = ArrayList<String?>()
         val initializingMessage = StringBuilder()

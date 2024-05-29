@@ -136,7 +136,7 @@ class SmartIdViewModelTest {
     }
 
     @Test
-    fun smartIdViewModel_performMobileIdWorkRequest_errorState() =
+    fun smartIdViewModel_performSmartIdWorkRequest_errorState() =
         runTest {
             val container =
                 AssetFile.getResourceFileAsFile(
@@ -158,7 +158,7 @@ class SmartIdViewModelTest {
             `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(null))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>("Some error occurred"))
 
-            viewModel.performMobileIdWorkRequest(signedContainer, "45611283812", 0, null)
+            viewModel.performSmartIdWorkRequest(signedContainer, "45611283812", 0, null)
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -173,7 +173,7 @@ class SmartIdViewModelTest {
         }
 
     @Test
-    fun smartIdViewModel_performMobileIdWorkRequest_responseStatusOK() =
+    fun smartIdViewModel_performSmartIdWorkRequest_responseStatusOK() =
         runTest {
             val container =
                 AssetFile.getResourceFileAsFile(
@@ -207,7 +207,7 @@ class SmartIdViewModelTest {
             `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(false))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performMobileIdWorkRequest(signedContainer, "45611283812", 0, null)
+            viewModel.performSmartIdWorkRequest(signedContainer, "45611283812", 0, null)
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -215,14 +215,14 @@ class SmartIdViewModelTest {
                 atLeastOnce(),
             ).processSmartIdRequest(eq(context), any(), eq(null), any(), any(), any(), any(), any())
             verify(errorStateObserver, atLeastOnce()).onChanged(null)
-            verify(signedContainterObserver, atLeastOnce()).onChanged(signedContainer)
+            verify(signedContainterObserver, atLeastOnce()).onChanged(any<SignedContainer>())
             verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.OK)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
             verify(selectDeviceObserver, atLeastOnce()).onChanged(false)
         }
 
     @Test
-    fun smartIdViewModel_performMobileIdWorkRequest_responseStatusElse() =
+    fun smartIdViewModel_performSmartIdWorkRequest_responseStatusElse() =
         runTest {
             val container =
                 AssetFile.getResourceFileAsFile(
@@ -252,7 +252,7 @@ class SmartIdViewModelTest {
             `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(true))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performMobileIdWorkRequest(signedContainer, "45611283812", 0, null)
+            viewModel.performSmartIdWorkRequest(signedContainer, "45611283812", 0, null)
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -267,7 +267,7 @@ class SmartIdViewModelTest {
         }
 
     @Test
-    fun smartIdViewModel_performMobileIdWorkRequest_responseStatusUserCancelled() =
+    fun smartIdViewModel_performSmartIdWorkRequest_responseStatusUserCancelled() =
         runTest {
             val container =
                 AssetFile.getResourceFileAsFile(
@@ -297,7 +297,7 @@ class SmartIdViewModelTest {
             `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(true))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performMobileIdWorkRequest(signedContainer, "45611283812", 0, null)
+            viewModel.performSmartIdWorkRequest(signedContainer, "45611283812", 0, null)
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(

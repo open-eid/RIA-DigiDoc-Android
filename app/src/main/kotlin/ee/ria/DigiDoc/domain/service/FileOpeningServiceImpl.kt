@@ -12,6 +12,7 @@ import ee.ria.DigiDoc.utilsLib.file.FileUtil.normalizeUri
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.InputStream
 import java.io.OutputStream
 import javax.inject.Singleton
@@ -29,6 +30,7 @@ class FileOpeningServiceImpl : FileOpeningService {
         }
     }
 
+    @Throws(FileNotFoundException::class)
     override suspend fun uriToFile(
         context: Context,
         contentResolver: ContentResolver,

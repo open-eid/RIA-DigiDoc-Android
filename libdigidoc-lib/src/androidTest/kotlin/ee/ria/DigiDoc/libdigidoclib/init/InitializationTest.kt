@@ -28,14 +28,8 @@ class InitializationTest {
     @Test
     fun testInit_success() {
         try {
-            val mockContext = mock(Context::class.java)
-
-            `when`(mockContext.resources).thenReturn(context.resources)
-            `when`(mockContext.cacheDir).thenReturn(context.cacheDir)
-            `when`(mockContext.filesDir).thenReturn(context.filesDir)
-
             runTest {
-                Initialization.init(mockContext)
+                Initialization.init(context)
             }
         } catch (e: Exception) {
             fail("No exceptions should be thrown")
@@ -74,15 +68,10 @@ class InitializationTest {
 
     @Test
     fun testInit_initTwice_throwsAlreadyInitializedException() {
-        val mockContext = mock(Context::class.java)
-        `when`(mockContext.resources).thenReturn(context.resources)
-        `when`(mockContext.cacheDir).thenReturn(context.cacheDir)
-        `when`(mockContext.filesDir).thenReturn(context.filesDir)
-
         assertThrows(AlreadyInitializedException::class.java) {
             runTest {
-                Initialization.init(mockContext)
-                Initialization.init(mockContext)
+                Initialization.init(context)
+                Initialization.init(context)
             }
         }
     }

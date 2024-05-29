@@ -89,3 +89,4 @@ val NormalActive = Color(0xFFaeb9ca)
 val Dark = Color(0xFFdbe0e8)
 
 val Transparent = Color(0x00FFFFFF)
+val Black = Color(0xFF000000)

@@ -17,6 +17,7 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureWrapper
 import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerDataFilesEmptyException
+import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerUninitializedException
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import ee.ria.DigiDoc.libdigidoclib.exceptions.SSLHandshakeException
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
@@ -241,7 +242,11 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
                     return SignedContainer(createDataFilesList(dataFiles), createSignaturesList(it.signatures()))
                 }
             }
-            throw IllegalStateException("Container is not initialized")
+            throw ContainerUninitializedException()
+        }
+
+        fun rawContainer(): Container? {
+            return container
         }
 
         fun mimeType(file: File): String {

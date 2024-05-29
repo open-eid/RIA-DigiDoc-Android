@@ -14,7 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
-import ee.ria.DigiDoc.ui.theme.Dimensions
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
@@ -25,24 +25,21 @@ fun MessageDialog(
     okButtonClick: () -> Unit = {},
 ) {
     Column(
-        modifier = modifier.padding(Dimensions.alertDialogInnerPadding),
+        modifier = modifier.padding(screenViewLargePadding),
     ) {
         Text(
             modifier =
                 modifier
-                    .padding(
-                        horizontal = Dimensions.settingsItemStartPadding,
-                        vertical = Dimensions.settingsItemEndPadding,
-                    )
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(vertical = screenViewLargePadding),
             text = title,
             style = MaterialTheme.typography.titleMedium,
         )
         CancelAndOkButtonRow(
             cancelButtonClick = cancelButtonClick,
             okButtonClick = okButtonClick,
-            cancelButtonTitle = stringResource(id = R.string.cancel_button),
-            okButtonTitle = stringResource(id = R.string.ok_button),
+            cancelButtonTitle = R.string.cancel_button,
+            okButtonTitle = R.string.ok_button,
             cancelButtonContentDescription = stringResource(id = R.string.cancel_button).lowercase(),
             okButtonContentDescription = stringResource(id = R.string.ok_button).lowercase(),
         )

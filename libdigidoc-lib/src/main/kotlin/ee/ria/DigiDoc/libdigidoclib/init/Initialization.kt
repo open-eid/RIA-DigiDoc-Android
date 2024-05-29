@@ -15,6 +15,7 @@ import ee.ria.DigiDoc.libdigidoclib.exceptions.AlreadyInitializedException
 import ee.ria.DigiDoc.libdigidoclib.utils.FileUtils.getSchemaDir
 import ee.ria.DigiDoc.libdigidoclib.utils.FileUtils.getSchemaPath
 import ee.ria.DigiDoc.libdigidoclib.utils.FileUtils.initSchema
+import ee.ria.DigiDoc.network.utils.UserAgentUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.libdigidocpp.Conf
@@ -93,7 +94,7 @@ object Initialization {
         initLibDigiDocConfiguration(
             context,
         )
-        digidoc.initializeLib("RIA DigiDoc", path)
+        digidoc.initializeLib(UserAgentUtil.getUserAgent(context), path)
         isInitialized = true
     }
 
