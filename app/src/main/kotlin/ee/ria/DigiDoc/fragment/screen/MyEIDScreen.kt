@@ -15,20 +15,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import ee.ria.DigiDoc.ui.theme.Dimensions.textVerticalPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
 fun MyEIDScreen(navController: NavController) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(textVerticalPadding),
+        modifier = Modifier.fillMaxSize().padding(screenViewLargePadding),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
             "My eID Screen",
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(vertical = textVerticalPadding),
+            modifier = Modifier.padding(vertical = screenViewLargePadding),
         )
     }
 }

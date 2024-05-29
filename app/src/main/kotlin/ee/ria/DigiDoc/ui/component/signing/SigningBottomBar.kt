@@ -2,87 +2,63 @@
 
 package ee.ria.DigiDoc.ui.component.signing
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusGroup
-import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextOverflow
-import ee.ria.DigiDoc.ui.component.shared.PreventResize
+import androidx.compose.ui.tooling.preview.Preview
+import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
+import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
 fun SigningBottomBar(
     modifier: Modifier,
+    showSignButton: Boolean,
+    showEncryptButton: Boolean,
+    showShareButton: Boolean,
     onSignClick: () -> Unit = {},
     onEncryptClick: () -> Unit = {},
     onShareClick: () -> Unit = {},
 ) {
-    BottomAppBar(
-        containerColor = MaterialTheme.colorScheme.primary,
-        contentColor = MaterialTheme.colorScheme.background,
-        modifier =
-            modifier
-                .fillMaxWidth(),
+    Column(
+        modifier = modifier.padding(screenViewLargePadding),
     ) {
         signingBottomNavigationItems(
+            showSignButton = showSignButton,
+            showEncryptButton = showEncryptButton,
+            showShareButton = showShareButton,
             onSignClick = onSignClick,
             onEncryptClick = onEncryptClick,
             onShareClick = onShareClick,
         ).forEachIndexed { _, navigationItem ->
-            Box(
-                modifier
-                    .weight(1f)
-                    .semantics {
-                        this.contentDescription = navigationItem.contentDescription
-                    }
-                    .focusGroup()
-                    .clickable(
-                        enabled = true,
-                        onClick = navigationItem.onClick,
-                    ),
-            ) {
-                Column(
-                    modifier =
-                        modifier
-                            .fillMaxWidth()
-                            .focusGroup()
-                            .wrapContentSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                ) {
-                    Icon(
-                        imageVector = navigationItem.icon,
-                        contentDescription = null,
-                        modifier =
-                            modifier
-                                .focusable(false)
-                                .clearAndSetSemantics {},
+            if (navigationItem.showButton) {
+                Row {
+                    PrimaryButton(
+                        title = navigationItem.label,
+                        contentDescription = navigationItem.contentDescription,
+                        isSubButton = navigationItem.isSubButton,
+                        enabled = navigationItem.showButton,
+                        onClickItem = navigationItem.onClick,
                     )
-                    PreventResize {
-                        Text(
-                            text = navigationItem.label,
-                            overflow = TextOverflow.Visible,
-                            modifier =
-                                modifier
-                                    .focusable(false)
-                                    .clearAndSetSemantics {},
-                        )
-                    }
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun SigningBottomBarPreview() {
+    RIADigiDocTheme {
+        SigningBottomBar(
+            modifier = Modifier,
+            showSignButton = true,
+            showEncryptButton = true,
+            showShareButton = true,
+        )
     }
 }

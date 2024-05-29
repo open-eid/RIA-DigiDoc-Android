@@ -13,8 +13,8 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
-import ee.ria.DigiDoc.utilsLib.file.FileStream
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -29,6 +29,7 @@ class FileOpeningRepositoryImpl
             return fileOpeningService.isFileSizeValid(file)
         }
 
+        @Throws(FileNotFoundException::class)
         override suspend fun uriToFile(
             context: Context,
             contentResolver: ContentResolver,
@@ -51,13 +52,13 @@ class FileOpeningRepositoryImpl
         @Throws(Exception::class)
         override suspend fun addFilesToContainer(
             context: Context,
-            documentStreams: List<FileStream>,
+            documents: List<File>,
         ): SignedContainer {
             return SignedContainer.container()
                 .addDataFiles(
-                    cacheFileStreams(
+                    cacheFiles(
                         context,
-                        getContainerFiles(documentStreams),
+                        getContainerFiles(documents),
                     ),
                 )
         }
@@ -96,37 +97,46 @@ class FileOpeningRepositoryImpl
             }
         }
 
-        override fun isEmptyFileInList(fileStreams: List<FileStream>): Boolean {
-            return ContainerUtil.isEmptyFileInList(fileStreams)
+        override fun isEmptyFileInList(files: List<File>): Boolean {
+            return ContainerUtil.isEmptyFileInList(files)
         }
 
-        override fun parseUris(
-            contentResolver: ContentResolver?,
-            uris: List<Uri>,
-        ): List<FileStream> {
-            return ContainerUtil.parseUris(contentResolver, uris)
+        override fun getValidFiles(
+            files: List<File>,
+            container: SignedContainer?,
+        ): List<File> {
+            return ContainerUtil.getFilesWithValidSize(files).filter { file ->
+                container == null || !isFileAlreadyInContainer(file, container)
+            }
         }
 
-        override fun getFilesWithValidSize(fileStreams: List<FileStream>): List<FileStream> {
-            return ContainerUtil.getFilesWithValidSize(fileStreams)
+        override fun getFilesWithValidSize(files: List<File>): List<File> {
+            return ContainerUtil.getFilesWithValidSize(files)
+        }
+
+        override fun isFileAlreadyInContainer(
+            file: File,
+            container: SignedContainer,
+        ): Boolean {
+            return container.getDataFiles().any { it.fileName == file.name }
         }
 
         @Throws(Exception::class)
-        private fun getContainerFiles(documentStreams: List<FileStream>): List<FileStream> {
-            val fileStreamList: ArrayList<FileStream> = ArrayList()
+        private fun getContainerFiles(documents: List<File>): List<File> {
+            val fileList: ArrayList<File> = ArrayList()
             val fileNamesInContainer: List<String> = getFileNamesInContainer()
-            val fileNamesToAdd: List<String> = getFileNamesToAddToContainer(documentStreams)
+            val fileNamesToAdd: List<String> = getFileNamesToAddToContainer(documents)
             for (i in fileNamesToAdd.indices) {
                 if (!fileNamesInContainer.contains(fileNamesToAdd[i])) {
-                    fileStreamList.add(documentStreams[i])
+                    fileList.add(documents[i])
                 }
             }
 
-            if (fileStreamList.isEmpty()) {
-                return documentStreams
+            if (fileList.isEmpty()) {
+                return documents
             }
 
-            return fileStreamList
+            return fileList
         }
 
         @Throws(Exception::class)
@@ -142,23 +152,23 @@ class FileOpeningRepositoryImpl
             return containerFileNames
         }
 
-        private fun getFileNamesToAddToContainer(documentStreams: List<FileStream>): List<String> {
+        private fun getFileNamesToAddToContainer(documents: List<File>): List<String> {
             val documentNamesToAdd: MutableList<String> = ArrayList()
-            for (fileStream in documentStreams) {
-                fileStream.displayName?.let { documentNamesToAdd.add(it) }
+            for (file in documents) {
+                file.name.let { documentNamesToAdd.add(it) }
             }
 
             return documentNamesToAdd
         }
 
         @Throws(IOException::class)
-        private suspend fun cacheFileStreams(
+        private suspend fun cacheFiles(
             context: Context,
-            fileStreams: List<FileStream>,
+            files: List<File>,
         ): List<File> {
             val fileBuilder: ArrayList<File> = ArrayList()
-            for (fileStream in fileStreams) {
-                ContainerUtil.cache(context, fileStream)?.let { fileBuilder.add(it) }
+            for (file in files) {
+                ContainerUtil.cache(context, file).let { fileBuilder.add(it) }
             }
             return fileBuilder
         }

@@ -3,8 +3,10 @@
 package ee.ria.DigiDoc.ui.component
 
 import android.content.res.Configuration
+import androidx.compose.foundation.background
+import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -12,53 +14,117 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import ee.ria.DigiDoc.ui.theme.Dimensions.navigationBarHeight
+import ee.ria.DigiDoc.ui.component.shared.PreventResize
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Transparent
 
 @Composable
 fun HomeNavigationBar(
     modifier: Modifier = Modifier,
-    // navigationSelectedItem: Int,
+    focusRequester: FocusRequester = FocusRequester(),
     navController: NavHostController,
 ) {
-    // var selectedItem = navigationSelectedItem;
+    val buttonFocusRequester = remember { focusRequester }
+
+    LaunchedEffect(Unit) {
+        buttonFocusRequester.requestFocus()
+    }
+
     var navigationSelectedItem by remember {
-        mutableStateOf(0)
+        mutableIntStateOf(0)
     }
     NavigationBar(
-        modifier = modifier.fillMaxWidth().height(navigationBarHeight),
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.background,
+        modifier = modifier.fillMaxWidth(),
     ) {
         HomeNavigationItem().bottomNavigationItems().forEachIndexed { index, navigationItem ->
             NavigationBarItem(
+                modifier =
+                    modifier
+                        .fillMaxWidth()
+                        .background(
+                            color =
+                                if (index == navigationSelectedItem) {
+                                    MaterialTheme.colorScheme.background
+                                } else {
+                                    MaterialTheme.colorScheme.primary
+                                },
+                        )
+                        .weight(1f)
+                        .semantics {
+                            this.contentDescription = navigationItem.contentDescription
+                        }
+                        .focusProperties { canFocus = true }
+                        .focusTarget()
+                        .focusRequester(buttonFocusRequester)
+                        .focusable()
+                        .focusGroup()
+                        .clearAndSetSemantics {},
+                alwaysShowLabel = true,
                 colors =
                     NavigationBarItemColors(
-                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                        selectedIconColor =
+                            if (index == navigationSelectedItem) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.background
+                            },
+                        selectedTextColor =
+                            if (index == navigationSelectedItem) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.background
+                            },
                         selectedIndicatorColor = Transparent,
-                        unselectedIconColor = MaterialTheme.colorScheme.secondary,
-                        unselectedTextColor = MaterialTheme.colorScheme.secondary,
+                        unselectedIconColor = MaterialTheme.colorScheme.tertiary,
+                        unselectedTextColor = MaterialTheme.colorScheme.tertiary,
                         disabledIconColor = MaterialTheme.colorScheme.tertiary,
                         disabledTextColor = MaterialTheme.colorScheme.tertiary,
                     ),
                 selected = index == navigationSelectedItem,
                 label = {
-                    Text(navigationItem.label)
+                    PreventResize {
+                        Text(
+                            text = navigationItem.label,
+                            style = MaterialTheme.typography.titleMedium,
+                            overflow = TextOverflow.Visible,
+                            modifier =
+                                modifier
+                                    .fillMaxWidth()
+                                    .focusable(false)
+                                    .clearAndSetSemantics {},
+                            textAlign = TextAlign.Center,
+                        )
+                    }
                 },
                 icon = {
                     Icon(
-                        navigationItem.icon,
+                        imageVector = navigationItem.icon,
                         contentDescription = navigationItem.contentDescription,
+                        modifier =
+                            modifier
+                                .focusable(false)
+                                .clearAndSetSemantics {},
                     )
                 },
                 onClick = {

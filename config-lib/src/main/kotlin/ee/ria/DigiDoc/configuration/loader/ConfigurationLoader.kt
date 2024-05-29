@@ -4,7 +4,7 @@ package ee.ria.DigiDoc.configuration.loader
 
 import android.content.Context
 import com.google.gson.Gson
-import ee.ria.DigiDoc.common.BuildVersionProviderImpl
+import ee.ria.DigiDoc.common.extensions.removeWhitespaces
 import ee.ria.DigiDoc.configuration.ConfigurationManager
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationProvider
@@ -101,7 +101,7 @@ object ConfigurationLoader {
         val publicKey = assets.open("config/${DEFAULT_CONFIG_PUB}").bufferedReader().use { it.readText() }
         val signatureBytes = assets.open("config/${DEFAULT_CONFIG_RSA}").readBytes()
 
-        val signatureText = String(signatureBytes, Charsets.UTF_8)
+        val signatureText = String(signatureBytes, Charsets.UTF_8).removeWhitespaces()
 
         val signature =
             if (isBase64(signatureText)) {
@@ -144,7 +144,7 @@ object ConfigurationLoader {
             ).retrofit.create(CentralConfigurationService::class.java)
         val centralConfigurationRepository = CentralConfigurationRepository(apiService)
         val centralSignature =
-            Base64.decode(centralConfigurationRepository.fetchSignature().trim())
+            Base64.decode(centralConfigurationRepository.fetchSignature().trim().removeWhitespaces())
         val centralConfig = centralConfigurationRepository.fetchConfiguration()
         val centralPublicKey = centralConfigurationRepository.fetchPublicKey()
 
@@ -161,7 +161,7 @@ object ConfigurationLoader {
         val apiService: CentralConfigurationService =
             CentralConfigurationClient(
                 configurationProperty.centralConfigurationServiceUrl,
-                UserAgentUtil.getUserAgent(context, BuildVersionProviderImpl()),
+                UserAgentUtil.getUserAgent(context),
             ).retrofit.create(CentralConfigurationService::class.java)
         val centralConfigurationRepository = CentralConfigurationRepository(apiService)
 
@@ -170,7 +170,7 @@ object ConfigurationLoader {
 
         val currentSignature = cachedSignature.readBytes()
 
-        val centralSignature = Base64.decode(centralConfigurationRepository.fetchSignature().trim())
+        val centralSignature = Base64.decode(centralConfigurationRepository.fetchSignature().trim().removeWhitespaces())
 
         if (currentSignature.contentEquals(centralSignature)) {
             val centralConfig = centralConfigurationRepository.fetchConfiguration()

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -20,7 +21,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import ee.ria.DigiDoc.ui.theme.Dimensions
+import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.viewmodel.SettingsViewModel
@@ -40,14 +42,15 @@ fun AddSignatureView(
                 .wrapContentHeight()
                 .wrapContentWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(Dimensions.alertDialogOuterPadding),
+                .padding(itemSpacingPadding),
+        shape = RoundedCornerShape(screenViewLargePadding),
     ) {
         Column(
             modifier =
                 modifier
                     .wrapContentHeight()
                     .wrapContentWidth()
-                    .padding(Dimensions.alertDialogInnerPadding),
+                    .padding(itemSpacingPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {

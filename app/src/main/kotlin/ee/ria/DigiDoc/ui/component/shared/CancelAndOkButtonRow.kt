@@ -3,28 +3,23 @@
 package ee.ria.DigiDoc.ui.component.shared
 
 import android.content.res.Configuration
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.theme.Dimensions.settingsItemEndPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.ui.theme.Red500
 
 @Composable
 fun CancelAndOkButtonRow(
@@ -33,64 +28,37 @@ fun CancelAndOkButtonRow(
     okButtonEnabled: Boolean = true,
     cancelButtonClick: () -> Unit = {},
     okButtonClick: () -> Unit = {},
-    cancelButtonTitle: String,
-    okButtonTitle: String,
+    @StringRes cancelButtonTitle: Int,
+    @StringRes okButtonTitle: Int,
     cancelButtonContentDescription: String,
     okButtonContentDescription: String,
 ) {
     Row(
-        modifier = modifier.fillMaxWidth().padding(vertical = settingsItemEndPadding),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(vertical = screenViewLargePadding),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
-        Button(
+        PrimaryButton(
             enabled = cancelButtonEnabled,
             modifier = modifier.weight(1f),
-            shape = RectangleShape,
-            colors =
-                ButtonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.secondary,
-                    disabledContainerColor = Color.Transparent,
-                    disabledContentColor = MaterialTheme.colorScheme.tertiary,
-                ),
-            onClick = cancelButtonClick,
-        ) {
-            Text(
-                modifier =
-                    modifier
-                        .wrapContentHeight(align = Alignment.CenterVertically)
-                        .semantics {
-                            this.contentDescription = cancelButtonContentDescription
-                        },
-                textAlign = TextAlign.Center,
-                text = cancelButtonTitle,
-            )
-        }
-        Button(
+            isSubButton = true,
+            title = cancelButtonTitle,
+            contentDescription = cancelButtonContentDescription,
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = Red500,
+            onClickItem = cancelButtonClick,
+        )
+        Spacer(modifier = modifier.padding(itemSpacingPadding))
+        PrimaryButton(
             enabled = okButtonEnabled,
             modifier = modifier.weight(1f),
-            shape = RectangleShape,
-            colors =
-                ButtonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.secondary,
-                    disabledContainerColor = Color.Transparent,
-                    disabledContentColor = MaterialTheme.colorScheme.tertiary,
-                ),
-            onClick = okButtonClick,
-        ) {
-            Text(
-                modifier =
-                    modifier
-                        .wrapContentHeight(align = Alignment.CenterVertically)
-                        .semantics {
-                            this.contentDescription = okButtonContentDescription
-                        },
-                textAlign = TextAlign.Center,
-                text = okButtonTitle,
-            )
-        }
+            title = okButtonTitle,
+            contentDescription = okButtonContentDescription,
+            onClickItem = okButtonClick,
+        )
     }
 }
 
@@ -100,10 +68,10 @@ fun CancelAndOkButtonRow(
 fun CancelAndOkButtonRowPreview() {
     RIADigiDocTheme {
         CancelAndOkButtonRow(
-            cancelButtonTitle = stringResource(id = R.string.cancel_button),
-            okButtonTitle = stringResource(id = R.string.sign_button),
-            cancelButtonContentDescription = "",
-            okButtonContentDescription = "",
+            cancelButtonTitle = R.string.cancel_button,
+            okButtonTitle = R.string.sign_button,
+            cancelButtonContentDescription = stringResource(id = R.string.cancel_button),
+            okButtonContentDescription = stringResource(id = R.string.sign_button),
         )
     }
 }

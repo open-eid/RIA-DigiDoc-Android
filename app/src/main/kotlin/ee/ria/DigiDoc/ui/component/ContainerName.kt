@@ -3,7 +3,6 @@
 package ee.ria.DigiDoc.ui.component
 
 import androidx.compose.foundation.focusGroup
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,11 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Blue500
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewHorizontalPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 
 @Composable
 fun ContainerName(
@@ -37,27 +37,28 @@ fun ContainerName(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(horizontal = screenViewHorizontalPadding)
+                .padding(screenViewLargePadding)
                 .focusGroup(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        val containerTitle = stringResource(id = R.string.container_title)
         Column(
             modifier =
                 modifier
                     .weight(1f)
-                    .semantics(mergeDescendants = true) {},
+                    .semantics(mergeDescendants = true) {
+                        this.contentDescription = "$containerTitle ${name.lowercase()}"
+                    },
         ) {
             Text(
                 text = stringResource(id = R.string.container_title),
-                modifier = modifier.focusable(),
             )
             Text(
                 text = name,
                 modifier =
                     modifier
-                        .fillMaxWidth()
-                        .focusable(),
+                        .fillMaxWidth(),
             )
         }
 
@@ -67,7 +68,9 @@ fun ContainerName(
                 content = {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_save),
-                        contentDescription = stringResource(id = R.string.document_save_button),
+                        contentDescription = "${stringResource(
+                            id = R.string.document_save_button,
+                        )} ${name.lowercase()}",
                         tint = Blue500,
                     )
                 },

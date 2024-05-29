@@ -3,11 +3,18 @@
 package ee.ria.DigiDoc.ui.component
 
 import android.content.res.Configuration
+import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -26,8 +33,14 @@ fun HomeNavigation(
     onClickMenu: () -> Unit = {},
     onClickToFileChoosingScreen: () -> Unit = {},
 ) {
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().focusGroup(),
         topBar = {
             HomeToolbar(
                 modifier = modifier,
@@ -41,21 +54,35 @@ fun HomeNavigation(
             )
         },
     ) { paddingValues ->
-        NavHost(
-            navController = navController,
-            startDestination = Route.Signature.route,
-            modifier = Modifier.padding(paddingValues = paddingValues),
+        Surface(
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
         ) {
-            composable(Route.Signature.route) {
-                SignatureScreen(
-                    onClickToFileChoosingScreen = onClickToFileChoosingScreen,
-                )
-            }
-            composable(Route.Crypto.route) {
-                CryptoScreen(navController = navController)
-            }
-            composable(Route.EID.route) {
-                MyEIDScreen(navController = navController)
+            NavHost(
+                navController = navController,
+                startDestination = Route.Signature.route,
+                modifier =
+                    modifier
+                        .padding(paddingValues)
+                        .focusable(),
+            ) {
+                composable(Route.Signature.route) {
+                    SignatureScreen(
+                        onClickToFileChoosingScreen = onClickToFileChoosingScreen,
+                        focusRequester = focusRequester,
+                        modifier =
+                            modifier
+                                .focusRequester(focusRequester),
+                    )
+                }
+                composable(Route.Crypto.route) {
+                    CryptoScreen(navController = navController)
+                }
+                composable(Route.EID.route) {
+                    MyEIDScreen(navController = navController)
+                }
             }
         }
     }

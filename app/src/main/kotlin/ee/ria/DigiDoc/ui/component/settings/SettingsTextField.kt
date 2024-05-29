@@ -5,7 +5,6 @@ package ee.ria.DigiDoc.ui.component.settings
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,9 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
-import ee.ria.DigiDoc.ui.theme.Dimensions
-import ee.ria.DigiDoc.ui.theme.Dimensions.settingsItemEndPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.settingsItemStartPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
@@ -44,7 +41,7 @@ fun SettingsTextField(
     Column(
         modifier =
             modifier
-                .padding(start = settingsItemStartPadding, end = settingsItemStartPadding)
+                .padding(start = screenViewLargePadding, end = screenViewLargePadding)
                 .wrapContentHeight(align = Alignment.CenterVertically)
                 .semantics {
                     this.contentDescription = contentDescription
@@ -59,9 +56,8 @@ fun SettingsTextField(
         TextField(
             modifier =
                 modifier
-                    .padding(vertical = settingsItemEndPadding)
-                    .fillMaxWidth()
-                    .height(Dimensions.textFieldHeight),
+                    .padding(vertical = screenViewLargePadding)
+                    .fillMaxWidth(),
             shape = RectangleShape,
             enabled = !useDefaultChecked,
             value = value,

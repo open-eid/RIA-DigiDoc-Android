@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.ui.component.signing
 
+import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -21,12 +22,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
+import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerUninitializedException
 import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewVerticalPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.viewmodel.FileOpeningViewModel
 import ee.ria.DigiDoc.viewmodel.SharedContainerViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -48,39 +53,71 @@ fun FileOpeningNavigation(
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetMultipleContents(),
             onResult = { uri ->
+                if (uri.isEmpty()) {
+                    navController.popBackStack()
+                    return@rememberLauncherForActivityResult
+                }
                 CoroutineScope(Dispatchers.IO).launch {
-                    fileOpeningViewModel.handleFiles(uri, signedContainer)
-
-                    withContext(Dispatchers.Main) {
-                        errorState?.let {
-                            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
-                            navController.popBackStack()
-                        }
+                    try {
+                        fileOpeningViewModel.handleFiles(uri, signedContainer)
+                    } catch (cue: ContainerUninitializedException) {
+                        fileOpeningViewModel.handleFiles(uri)
                     }
                 }
             },
         )
+
+    val fileAddedText = stringResource(id = R.string.file_added)
+    val filesAddedText = stringResource(id = R.string.files_added)
 
     LaunchedEffect(fileOpeningViewModel.errorState) {
         fileOpeningViewModel.errorState.asFlow().collect { errorState ->
             errorState?.let {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, errorState, Toast.LENGTH_LONG).show()
-                    navController.popBackStack()
+                    if (signedContainer == null) {
+                        navController.popBackStack()
+                    }
                 }
             }
         }
     }
 
     BackHandler {
-        navController.popBackStack()
+        CoroutineScope(Dispatchers.Main).launch {
+            fileOpeningViewModel.resetContainer()
+            navController.popBackStack()
+        }
+    }
+
+    LaunchedEffect(fileOpeningViewModel.filesAdded) {
+        fileOpeningViewModel.filesAdded.asFlow().collect { files ->
+            if (!files.isNullOrEmpty()) {
+                val announcementText =
+                    when (files.size) {
+                        1 -> fileAddedText
+                        else -> filesAddedText
+                    }
+                AccessibilityUtil.sendAccessibilityEvent(
+                    context,
+                    TYPE_ANNOUNCEMENT,
+                    announcementText,
+                )
+                fileOpeningViewModel.resetFilesAdded()
+            }
+        }
     }
 
     LaunchedEffect(fileOpeningViewModel.signedContainer) {
         fileOpeningViewModel.signedContainer.asFlow().collect { signedContainer ->
             signedContainer?.let {
                 sharedContainerViewModel.setSignedContainer(it)
-                navController.navigate(Route.Signing.route)
+                navController.navigate(Route.Signing.route) {
+                    popUpTo(Route.Home.route) {
+                        inclusive = false
+                    }
+                    launchSingleTop = true
+                }
             }
         }
     }
@@ -107,7 +144,7 @@ fun FileOpeningNavigation(
                 modifier =
                     modifier
                         .fillMaxSize()
-                        .padding(vertical = screenViewVerticalPadding),
+                        .padding(vertical = screenViewExtraLargePadding),
                 contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator(

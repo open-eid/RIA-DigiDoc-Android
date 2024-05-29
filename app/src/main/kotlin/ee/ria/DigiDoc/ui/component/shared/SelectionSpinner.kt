@@ -8,7 +8,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
@@ -21,6 +20,7 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -29,11 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
-import ee.ria.DigiDoc.ui.theme.Dimensions.buttonHeight
-import ee.ria.DigiDoc.ui.theme.Dimensions.countryHorizontalPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.countryIconPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.countryVerticalPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.noBorderStroke
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
@@ -43,7 +41,7 @@ fun SelectionSpinner(
     onSelectionChanged: (item: Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var selected by remember { mutableStateOf(preselected) }
+    var selected by remember { mutableIntStateOf(preselected) }
     var expanded by remember { mutableStateOf(false) } // initial value
 
     OutlinedCard(
@@ -64,19 +62,18 @@ fun SelectionSpinner(
                 modifier =
                     modifier
                         .weight(1f)
-                        .padding(horizontal = countryHorizontalPadding, vertical = countryVerticalPadding),
+                        .padding(vertical = screenViewLargePadding),
             )
-            Icon(Icons.Outlined.ArrowDropDown, null, modifier = Modifier.padding(countryIconPadding))
+            Icon(Icons.Outlined.ArrowDropDown, null, modifier = modifier.padding(itemSpacingPadding))
 
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
-                modifier = modifier.fillMaxWidth().wrapContentHeight(),
+                modifier = modifier.wrapContentHeight().padding(horizontal = itemSpacingPadding),
             ) {
                 list.forEachIndexed { index, listEntry ->
-
                     DropdownMenuItem(
-                        modifier = modifier.fillMaxWidth().height(buttonHeight),
+                        modifier = modifier.fillMaxWidth(),
                         onClick = {
                             selected = index
                             expanded = false

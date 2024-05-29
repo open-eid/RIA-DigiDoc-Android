@@ -29,6 +29,7 @@ object LibrarySetup {
                 )
                     .show()
             }
+            throw ex
         }
 
         try {

@@ -17,9 +17,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewHorizontalPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewVerticalPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewMediumPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,15 +42,18 @@ fun TextCheckBox(
                         this.contentDescription = contentDescription
                     }
                         .padding(
-                            top = screenViewVerticalPadding,
-                            bottom = screenViewVerticalPadding,
-                            end = screenViewHorizontalPadding,
+                            top = screenViewLargePadding,
+                            bottom = screenViewLargePadding,
+                            end = screenViewMediumPadding,
                         ),
                 checked = checked,
                 onCheckedChange = onCheckedChange,
             )
         }
-        Text(text = title)
+        Text(
+            modifier = modifier.notAccessible(),
+            text = title,
+        )
     }
 }
 

@@ -5,7 +5,6 @@ package ee.ria.DigiDoc.ui.component.settings
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardOptions
@@ -27,10 +26,8 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.BackButton
 import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
 import ee.ria.DigiDoc.ui.component.shared.TextRadioButton
-import ee.ria.DigiDoc.ui.theme.Dimensions.alertDialogInnerPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.settingsItemEndPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.settingsItemStartPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.textFieldHeight
+import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
@@ -39,7 +36,7 @@ fun SettingsSivaCategoryDialog(
     onClickBack: () -> Unit = {},
 ) {
     Column(
-        modifier = modifier.padding(alertDialogInnerPadding),
+        modifier = modifier.padding(itemSpacingPadding),
     ) {
         BackButton(
             onClickBack = onClickBack,
@@ -47,7 +44,7 @@ fun SettingsSivaCategoryDialog(
         Text(
             modifier =
                 modifier
-                    .padding(horizontal = settingsItemStartPadding, vertical = settingsItemEndPadding)
+                    .padding(horizontal = screenViewLargePadding, vertical = screenViewLargePadding)
                     .fillMaxWidth(),
             text = stringResource(id = R.string.main_settings_siva_service_title),
             style = MaterialTheme.typography.titleLarge,
@@ -72,9 +69,8 @@ fun SettingsSivaCategoryDialog(
         TextField(
             modifier =
                 modifier
-                    .padding(vertical = settingsItemEndPadding)
-                    .fillMaxWidth()
-                    .height(textFieldHeight),
+                    .padding(vertical = screenViewLargePadding)
+                    .fillMaxWidth(),
             value = settingsSivaServiceUrl,
             shape = RectangleShape,
             onValueChange = {
@@ -91,28 +87,28 @@ fun SettingsSivaCategoryDialog(
         Text(
             modifier =
                 modifier
-                    .padding(horizontal = settingsItemStartPadding, vertical = settingsItemEndPadding)
+                    .padding(horizontal = screenViewLargePadding, vertical = screenViewLargePadding)
                     .fillMaxWidth(),
             text = stringResource(id = R.string.main_settings_siva_certificate_title),
         )
         Text(
             modifier =
                 modifier
-                    .padding(horizontal = settingsItemStartPadding, vertical = settingsItemEndPadding)
+                    .padding(horizontal = screenViewLargePadding, vertical = screenViewLargePadding)
                     .fillMaxWidth(),
             text = stringResource(id = R.string.main_settings_timestamp_cert_issued_to_title),
         )
         Text(
             modifier =
                 modifier
-                    .padding(horizontal = settingsItemStartPadding, vertical = settingsItemEndPadding)
+                    .padding(horizontal = screenViewLargePadding, vertical = screenViewLargePadding)
                     .fillMaxWidth(),
             text = stringResource(id = R.string.main_settings_timestamp_cert_valid_to_title),
         )
         PrimaryButton(
             modifier =
                 modifier.fillMaxWidth().wrapContentHeight().padding(
-                    horizontal = settingsItemStartPadding,
+                    horizontal = screenViewLargePadding,
                 ),
             contentDescription =
                 stringResource(
@@ -124,7 +120,7 @@ fun SettingsSivaCategoryDialog(
         PrimaryButton(
             modifier =
                 modifier.fillMaxWidth().wrapContentHeight().padding(
-                    horizontal = settingsItemStartPadding,
+                    horizontal = screenViewLargePadding,
                 ),
             contentDescription =
                 stringResource(

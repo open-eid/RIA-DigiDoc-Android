@@ -6,11 +6,11 @@ import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
@@ -43,8 +43,8 @@ import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatu
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.SelectionSpinner
 import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
-import ee.ria.DigiDoc.ui.theme.Dimensions
-import ee.ria.DigiDoc.ui.theme.Dimensions.textVerticalPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.viewmodel.SettingsViewModel
 import ee.ria.DigiDoc.viewmodel.SharedContainerViewModel
@@ -109,8 +109,8 @@ fun SmartIdView(
                     modifier
                         .wrapContentHeight()
                         .wrapContentWidth()
-                        .verticalScroll(rememberScrollState())
-                        .padding(Dimensions.alertDialogOuterPadding),
+                        .verticalScroll(rememberScrollState()),
+                shape = RoundedCornerShape(screenViewLargePadding),
             ) {
                 SmartIdSignatureUpdateContainer(
                     smartIdViewModel = smartIdViewModel,
@@ -122,17 +122,19 @@ fun SmartIdView(
             }
         }
     }
-    Column {
+    Column(
+        modifier = modifier.padding(horizontal = screenViewLargePadding),
+    ) {
         Text(
             text = stringResource(id = R.string.signature_update_smart_id_message),
             style = MaterialTheme.typography.titleLarge,
-            modifier = modifier.padding(vertical = textVerticalPadding),
+            modifier = modifier.padding(screenViewLargePadding),
             textAlign = TextAlign.Center,
         )
         Text(
             text = stringResource(id = R.string.signature_update_smart_id_country),
             style = MaterialTheme.typography.titleLarge,
-            modifier = modifier.padding(vertical = textVerticalPadding),
+            modifier = modifier.padding(vertical = screenViewLargePadding),
         )
         val countriesList = stringArrayResource(id = R.array.smart_id_country)
         var selectedCountry by remember { mutableIntStateOf(settingsViewModel.dataStore.getCountry()) }
@@ -147,7 +149,7 @@ fun SmartIdView(
         Text(
             text = stringResource(id = R.string.signature_update_mobile_id_personal_code),
             style = MaterialTheme.typography.titleLarge,
-            modifier = modifier.padding(vertical = textVerticalPadding),
+            modifier = modifier.padding(top = screenViewExtraLargePadding, bottom = screenViewLargePadding),
         )
         var personalCodeText by remember {
             mutableStateOf(
@@ -157,7 +159,10 @@ fun SmartIdView(
             )
         }
         TextField(
-            modifier = modifier.fillMaxWidth().height(Dimensions.textFieldHeight),
+            modifier =
+                modifier
+                    .fillMaxWidth()
+                    .padding(bottom = screenViewLargePadding),
             value = personalCodeText,
             shape = RectangleShape,
             onValueChange = {
@@ -172,8 +177,8 @@ fun SmartIdView(
         TextCheckBox(
             checked = rememberMeCheckedState.value,
             onCheckedChange = { rememberMeCheckedState.value = it },
-            title = stringResource(id = R.string.signature_update_mobile_id_remember_me),
-            contentDescription = stringResource(id = R.string.signature_update_mobile_id_remember_me).lowercase(),
+            title = stringResource(id = R.string.signature_update_remember_me),
+            contentDescription = stringResource(id = R.string.signature_update_remember_me).lowercase(),
         )
         CancelAndOkButtonRow(
             okButtonEnabled =
@@ -181,10 +186,10 @@ fun SmartIdView(
                     selectedCountry,
                     personalCodeText.text,
                 ),
-            cancelButtonTitle = stringResource(id = R.string.cancel_button),
-            okButtonTitle = stringResource(id = R.string.sign_button),
-            cancelButtonContentDescription = "",
-            okButtonContentDescription = "",
+            cancelButtonTitle = R.string.cancel_button,
+            okButtonTitle = R.string.sign_button,
+            cancelButtonContentDescription = stringResource(id = R.string.cancel_button),
+            okButtonContentDescription = stringResource(id = R.string.sign_button),
             cancelButtonClick = cancelButtonClick,
             okButtonClick = {
                 openSignatureUpdateContainerDialog.value = true
@@ -193,7 +198,7 @@ fun SmartIdView(
                     settingsViewModel.dataStore.setCountry(selectedCountry)
                 }
                 CoroutineScope(Dispatchers.IO).launch {
-                    smartIdViewModel.performMobileIdWorkRequest(
+                    smartIdViewModel.performSmartIdWorkRequest(
                         container = signedContainer,
                         personalCode = personalCodeText.text,
                         country = selectedCountry,

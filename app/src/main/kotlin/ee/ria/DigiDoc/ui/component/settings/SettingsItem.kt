@@ -28,9 +28,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.theme.Dimensions.settingsIconSize
-import ee.ria.DigiDoc.ui.theme.Dimensions.settingsItemEndPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.settingsItemStartPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeLarge
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
@@ -46,7 +45,7 @@ fun SettingsItem(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(vertical = settingsItemEndPadding)
+                .padding(vertical = screenViewLargePadding)
                 .wrapContentHeight(),
         shape = RectangleShape,
         onClick = onClickItem,
@@ -74,15 +73,15 @@ fun SettingsItem(
                 settingsButtonIcon,
                 settingsButtonArrow,
             ) = createRefs()
-            var endPadding = settingsIconSize
+            var endPadding = iconSizeLarge
             if (imageVector != null) {
                 Icon(
                     imageVector = imageVector,
                     contentDescription = null,
                     modifier =
                         modifier
-                            .size(settingsIconSize)
-                            .padding(horizontal = settingsItemStartPadding)
+                            .size(iconSizeLarge)
+                            .padding(horizontal = screenViewLargePadding)
                             .wrapContentHeight(align = Alignment.CenterVertically)
                             .constrainAs(settingsButtonIcon) {
                                 start.linkTo(parent.start)
@@ -90,16 +89,16 @@ fun SettingsItem(
                                 bottom.linkTo(parent.bottom)
                             },
                 )
-                endPadding = settingsIconSize * 2
+                endPadding = iconSizeLarge * 2
             }
 
             Text(
                 text = title,
                 modifier =
                     modifier
-                        .padding(start = settingsItemStartPadding, end = endPadding)
-                        .padding(end = settingsItemStartPadding)
-                        .padding(end = settingsItemStartPadding)
+                        .padding(start = screenViewLargePadding, end = endPadding)
+                        .padding(end = screenViewLargePadding)
+                        .padding(end = screenViewLargePadding)
                         .wrapContentHeight(align = Alignment.CenterVertically)
                         .semantics {
                             this.contentDescription = contentDescription
@@ -117,8 +116,8 @@ fun SettingsItem(
                 contentDescription = null,
                 modifier =
                     modifier
-                        .padding(start = settingsItemStartPadding)
-                        .size(settingsIconSize)
+                        .padding(start = screenViewLargePadding)
+                        .size(iconSizeLarge)
                         .wrapContentHeight(align = Alignment.CenterVertically)
                         .constrainAs(settingsButtonArrow) {
                             end.linkTo(parent.end)

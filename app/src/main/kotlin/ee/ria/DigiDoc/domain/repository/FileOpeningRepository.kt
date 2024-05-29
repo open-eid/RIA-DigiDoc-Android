@@ -10,12 +10,13 @@ import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
-import ee.ria.DigiDoc.utilsLib.file.FileStream
 import java.io.File
+import java.io.FileNotFoundException
 
 interface FileOpeningRepository {
     suspend fun isFileSizeValid(file: File): Boolean
 
+    @Throws(FileNotFoundException::class)
     suspend fun uriToFile(
         context: Context,
         contentResolver: ContentResolver,
@@ -44,19 +45,24 @@ interface FileOpeningRepository {
     )
     suspend fun addFilesToContainer(
         context: Context,
-        documentStreams: List<FileStream>,
+        documents: List<File>,
     ): SignedContainer
 
     suspend fun removeSignature(signature: SignatureInterface): SignedContainer
 
     suspend fun checkForValidFiles(files: List<File>)
 
-    fun isEmptyFileInList(fileStreams: List<FileStream>): Boolean
+    fun isEmptyFileInList(files: List<File>): Boolean
 
-    fun parseUris(
-        contentResolver: ContentResolver?,
-        uris: List<Uri>,
-    ): List<FileStream>
+    fun getValidFiles(
+        files: List<File>,
+        container: SignedContainer?,
+    ): List<File>
 
-    fun getFilesWithValidSize(fileStreams: List<FileStream>): List<FileStream>
+    fun getFilesWithValidSize(files: List<File>): List<File>
+
+    fun isFileAlreadyInContainer(
+        file: File,
+        container: SignedContainer,
+    ): Boolean
 }

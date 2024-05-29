@@ -7,9 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,18 +18,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.theme.Dimensions
+import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.viewmodel.MobileIdViewModel
 import kotlinx.coroutines.delay
 
@@ -42,17 +38,9 @@ fun MobileIdSignatureUpdateContainer(
     mobileIdViewModel: MobileIdViewModel,
     onCancelButtonClick: () -> Unit = {},
 ) {
-    var currentProgress by remember { mutableFloatStateOf(0f) }
     var loading by remember { mutableStateOf(false) }
 
     var challengeText by remember { mutableStateOf("") }
-
-    LaunchedEffect(loading) {
-        loadMobileIdProgress { progress ->
-            currentProgress = progress
-        }
-        loading = false
-    }
 
     LaunchedEffect(mobileIdViewModel.challenge) {
         mobileIdViewModel.challenge.asFlow().collect { challenge ->
@@ -71,47 +59,54 @@ fun MobileIdSignatureUpdateContainer(
     }
 
     Column(
-        modifier = modifier,
+        modifier = modifier.padding(screenViewLargePadding),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
+            text = stringResource(id = R.string.challenge_code_text),
             textAlign = TextAlign.Center,
-            text = challengeText,
-            style = MaterialTheme.typography.titleLarge,
-            modifier = modifier.padding(vertical = Dimensions.textVerticalPadding),
-        )
-        LinearProgressIndicator(
-            progress = { currentProgress },
-            modifier = modifier.fillMaxWidth(),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Normal,
+            modifier =
+                modifier
+                    .fillMaxWidth()
+                    .padding(screenViewLargePadding),
         )
         Text(
-            text = stringResource(id = R.string.signature_update_mobile_id_info),
-            style = MaterialTheme.typography.titleSmall,
+            textAlign = TextAlign.Center,
+            text = challengeText,
+            style = MaterialTheme.typography.displaySmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold,
+            modifier =
+                modifier
+                    .fillMaxWidth()
+                    .padding(screenViewLargePadding),
         )
 
-        Button(
-            modifier = modifier.padding(top = Dimensions.textVerticalPadding),
-            shape = RectangleShape,
-            colors =
-                ButtonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.secondary,
-                    disabledContainerColor = Color.Transparent,
-                    disabledContentColor = MaterialTheme.colorScheme.tertiary,
-                ),
-            onClick = onCancelButtonClick,
-        ) {
-            Text(
-                modifier =
-                    modifier
-                        .wrapContentHeight(align = Alignment.CenterVertically)
-                        .semantics {
-                            this.contentDescription = ""
-                        },
-                textAlign = TextAlign.Center,
-                text = stringResource(id = R.string.cancel_button),
-            )
-        }
+        Text(
+            text = stringResource(id = R.string.signature_update_mobile_id_info),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Normal,
+            modifier =
+                modifier
+                    .fillMaxWidth()
+                    .padding(screenViewLargePadding),
+        )
+
+        PrimaryButton(
+            modifier =
+                modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(horizontal = screenViewLargePadding),
+            title = R.string.cancel_button,
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = Red500,
+            onClickItem = onCancelButtonClick,
+            isSubButton = true,
+        )
     }
 }
 

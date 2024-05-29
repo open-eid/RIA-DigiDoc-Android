@@ -7,12 +7,10 @@ import android.app.Notification
 import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.FileProvider
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -200,7 +198,7 @@ class SmartIdViewModel
             smartSignService.resetValues()
         }
 
-        suspend fun performMobileIdWorkRequest(
+        suspend fun performSmartIdWorkRequest(
             container: SignedContainer?,
             personalCode: String,
             country: Int,
@@ -288,27 +286,10 @@ class SmartIdViewModel
                 smartSignService.response.observeForever {
                     when (it?.status) {
                         SessionStatusResponseProcessStatus.OK -> {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                val uri: Uri? =
-                                    container?.getContainerFile()?.let { file ->
-                                        FileProvider.getUriForFile(
-                                            context,
-                                            context.getString(R.string.file_provider_authority),
-                                            file,
-                                        )
-                                    }
-                                if (uri != null) {
-                                    val signedContainer =
-                                        fileOpeningRepository.openOrCreateContainer(
-                                            context,
-                                            contentResolver,
-                                            listOf(uri),
-                                        )
-                                    _signedContainer.postValue(signedContainer)
-                                }
+                            CoroutineScope(Dispatchers.Main).launch {
+                                _status.postValue(it.status)
+                                _signedContainer.postValue(SignedContainer.container())
                             }
-
-                            _status.postValue(it.status)
                         }
 
                         else -> {

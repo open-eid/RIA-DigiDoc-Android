@@ -4,8 +4,6 @@ package ee.ria.DigiDoc.viewmodel
 
 import android.content.ContentResolver
 import android.content.Context
-import android.net.Uri
-import androidx.core.content.FileProvider
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -227,36 +225,14 @@ class MobileIdViewModel
                     when (it?.status) {
                         MobileCreateSignatureProcessStatus.USER_CANCELLED -> {
                             _status.postValue(it.status)
-                            _errorState.postValue(
-                                messages[it.status]?.let { res ->
-                                    context.getString(
-                                        res,
-                                    )
-                                },
-                            )
+                            _errorState.postValue(null)
                         }
 
                         MobileCreateSignatureProcessStatus.OK -> {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                val uri: Uri? =
-                                    container?.getContainerFile()?.let { file ->
-                                        FileProvider.getUriForFile(
-                                            context,
-                                            context.getString(R.string.file_provider_authority),
-                                            file,
-                                        )
-                                    }
-                                if (uri != null) {
-                                    val signedContainer =
-                                        fileOpeningRepository.openOrCreateContainer(
-                                            context,
-                                            contentResolver,
-                                            listOf(uri),
-                                        )
-                                    _signedContainer.postValue(signedContainer)
-                                }
+                            CoroutineScope(Dispatchers.Main).launch {
+                                _status.postValue(it.status)
+                                _signedContainer.postValue(SignedContainer.container())
                             }
-                            _status.postValue(it.status)
                         }
 
                         else -> {

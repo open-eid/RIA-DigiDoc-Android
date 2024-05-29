@@ -18,8 +18,8 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeLarge
 import ee.ria.DigiDoc.ui.theme.Dimensions.toolbarHeight
-import ee.ria.DigiDoc.ui.theme.Dimensions.toolbarIconSize
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
@@ -38,7 +38,7 @@ fun HomeToolbar(
             modifier =
                 Modifier
                     .height(toolbarHeight)
-                    .padding(start = toolbarIconSize)
+                    .padding(start = iconSizeLarge)
                     .constrainAs(digiDocIcon) {
                         start.linkTo(parent.start)
                         end.linkTo(menuButton.start)
@@ -49,7 +49,7 @@ fun HomeToolbar(
         IconButton(
             modifier =
                 Modifier
-                    .size(toolbarIconSize)
+                    .size(iconSizeLarge)
                     .constrainAs(menuButton) {
                         end.linkTo(parent.end)
                     },

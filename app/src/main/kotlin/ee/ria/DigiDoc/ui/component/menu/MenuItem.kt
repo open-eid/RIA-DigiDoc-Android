@@ -26,10 +26,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.theme.Dimensions
-import ee.ria.DigiDoc.ui.theme.Dimensions.menuItemEndPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.menuItemHeight
-import ee.ria.DigiDoc.ui.theme.Dimensions.menuItemStartPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.toolbarHeight
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
@@ -43,7 +41,7 @@ fun MenuItem(
     Button(
         modifier =
             modifier
-                .padding(vertical = Dimensions.settingsItemEndPadding)
+                .padding(vertical = screenViewLargePadding)
                 .wrapContentHeight(Alignment.CenterVertically),
         shape = RectangleShape,
         colors =
@@ -57,7 +55,7 @@ fun MenuItem(
     ) {
         ConstraintLayout(
             modifier =
-                modifier.height(menuItemHeight)
+                modifier.height(toolbarHeight)
                     .fillMaxWidth()
                     .align(Alignment.CenterVertically),
         ) {
@@ -70,7 +68,7 @@ fun MenuItem(
                 contentDescription = null,
                 modifier =
                     modifier
-                        .padding(start = menuItemStartPadding, end = menuItemEndPadding)
+                        .padding(start = screenViewLargePadding, end = screenViewLargePadding)
                         .wrapContentHeight(align = Alignment.CenterVertically)
                         .constrainAs(menuButtonHelpIcon) {
                             start.linkTo(parent.start)

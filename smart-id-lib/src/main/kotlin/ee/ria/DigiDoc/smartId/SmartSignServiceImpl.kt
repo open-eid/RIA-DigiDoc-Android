@@ -176,7 +176,7 @@ class SmartSignServiceImpl : SmartSignService {
 
                 debugLog(logTag, "Session status response: $sessionStatusResponse")
 
-                val containerWrapper = ContainerWrapper(request.containerPath)
+                val containerWrapper = ContainerWrapper()
                 val base64Hash =
                     containerWrapper.prepareSignature(
                         getCertificatePem(
@@ -290,7 +290,12 @@ class SmartSignServiceImpl : SmartSignService {
                     e,
                 )
 
-                if (e.message != null && e.message!!.contains("Too Many Requests")) {
+                // If user has cancelled signing, do not show any message
+                if (e is SigningCancelledException) {
+                    return
+                }
+
+                if (!e.message.isNullOrEmpty() && e.message?.contains("Too Many Requests") == true) {
                     postFault(ServiceFault(SessionStatusResponseProcessStatus.TOO_MANY_REQUESTS))
                     errorLog(
                         logTag,
@@ -299,7 +304,10 @@ class SmartSignServiceImpl : SmartSignService {
                             "Exception: ${e.stackTrace.contentToString()}",
                         e,
                     )
-                } else if (e.message != null && e.message!!.contains("OCSP response not in valid time slot")) {
+                } else if (!e.message.isNullOrEmpty() && e.message?.contains(
+                        "OCSP response not in valid time slot",
+                    ) == true
+                ) {
                     postFault(ServiceFault(SessionStatusResponseProcessStatus.OCSP_INVALID_TIME_SLOT))
                     errorLog(
                         logTag,
@@ -308,7 +316,7 @@ class SmartSignServiceImpl : SmartSignService {
                             "Exception: ${e.stackTrace.contentToString()}",
                         e,
                     )
-                } else if (e.message != null && e.message!!.contains("Certificate status: revoked")) {
+                } else if (!e.message.isNullOrEmpty() && e.message?.contains("Certificate status: revoked") == true) {
                     postFault(ServiceFault(SessionStatusResponseProcessStatus.CERTIFICATE_REVOKED))
                     errorLog(
                         logTag,
@@ -317,7 +325,7 @@ class SmartSignServiceImpl : SmartSignService {
                             "Exception: ${e.stackTrace.contentToString()}",
                         e,
                     )
-                } else if (e.message != null && e.message!!.contains("Failed to connect")) {
+                } else if (!e.message.isNullOrEmpty() && e.message?.contains("Failed to connect") == true) {
                     postFault(ServiceFault(SessionStatusResponseProcessStatus.NO_RESPONSE))
                     errorLog(
                         logTag,
@@ -326,7 +334,10 @@ class SmartSignServiceImpl : SmartSignService {
                             "Exception: ${e.stackTrace.contentToString()}",
                         e,
                     )
-                } else if (e.message != null && e.message!!.startsWith("Failed to create ssl connection with host")) {
+                } else if (!e.message.isNullOrEmpty() && e.message?.startsWith(
+                        "Failed to create ssl connection with host",
+                    ) == true
+                ) {
                     postFault(ServiceFault(SessionStatusResponseProcessStatus.INVALID_SSL_HANDSHAKE))
                     errorLog(
                         logTag,

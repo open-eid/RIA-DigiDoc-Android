@@ -44,7 +44,7 @@ import ee.ria.DigiDoc.ui.component.settings.SettingsSivaCategoryDialog
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
 import ee.ria.DigiDoc.ui.component.settings.SettingsTextField
 import ee.ria.DigiDoc.ui.component.shared.BackButton
-import ee.ria.DigiDoc.ui.theme.Dimensions
+import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Constant.Defaults.DEFAULT_TSA_URL_VALUE
 import ee.ria.DigiDoc.utils.Constant.Defaults.DEFAULT_UUID_VALUE
@@ -88,7 +88,7 @@ fun SettingsSigningScreen(
                         .wrapContentHeight()
                         .wrapContentWidth()
                         .verticalScroll(rememberScrollState())
-                        .padding(Dimensions.alertDialogOuterPadding),
+                        .padding(itemSpacingPadding),
             ) {
                 SettingsSivaCategoryDialog(
                     onClickBack = dismissSettingsSivaCategoryDialog,
@@ -115,7 +115,7 @@ fun SettingsSigningScreen(
                         .wrapContentHeight()
                         .wrapContentWidth()
                         .verticalScroll(rememberScrollState())
-                        .padding(Dimensions.alertDialogOuterPadding),
+                        .padding(itemSpacingPadding),
             ) {
                 SettingsProxyCategoryDialog(
                     onClickBack = dismissSettingsProxyCategoryDialog,

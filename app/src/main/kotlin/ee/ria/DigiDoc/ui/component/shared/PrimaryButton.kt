@@ -4,6 +4,8 @@ package ee.ria.DigiDoc.ui.component.shared
 
 import android.content.res.Configuration
 import androidx.annotation.StringRes
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
@@ -18,34 +20,69 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.theme.Dimensions.border
 import ee.ria.DigiDoc.ui.theme.Dimensions.buttonCornerShapeSize
+import ee.ria.DigiDoc.ui.theme.Dimensions.noBorderStroke
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.ui.theme.Transparent
 
 @Composable
 fun PrimaryButton(
     modifier: Modifier = Modifier,
     @StringRes title: Int,
     contentDescription: String? = null,
+    isSubButton: Boolean = false,
+    isFocusable: Boolean = true,
+    containerColor: Color =
+        if (isSubButton) {
+            MaterialTheme.colorScheme.background
+        } else {
+            MaterialTheme.colorScheme.primary
+        },
+    contentColor: Color =
+        if (isSubButton) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.background
+        },
+    enabled: Boolean = true,
     onClickItem: () -> Unit = {},
 ) {
     val titleText = stringResource(id = title)
     Button(
         modifier =
             modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .focusable(enabled = isFocusable),
         shape = RoundedCornerShape(buttonCornerShapeSize),
         contentPadding = PaddingValues(zeroPadding),
+        enabled = enabled,
         colors =
             ButtonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.background,
-                disabledContainerColor = Color.Transparent,
-                disabledContentColor = MaterialTheme.colorScheme.background,
+                containerColor = containerColor,
+                contentColor = contentColor,
+                disabledContainerColor = MaterialTheme.colorScheme.background,
+                disabledContentColor = MaterialTheme.colorScheme.tertiary,
             ),
+        border =
+            if (isSubButton) {
+                BorderStroke(
+                    width = border,
+                    color = contentColor,
+                )
+            } else if (!enabled) {
+                BorderStroke(
+                    width = border,
+                    color = MaterialTheme.colorScheme.tertiary,
+                )
+            } else {
+                BorderStroke(noBorderStroke, Transparent)
+            },
         onClick = onClickItem,
     ) {
         Text(
@@ -58,6 +95,7 @@ fun PrimaryButton(
                     },
             textAlign = TextAlign.Center,
             text = titleText,
+            fontWeight = FontWeight.Bold,
         )
     }
 }

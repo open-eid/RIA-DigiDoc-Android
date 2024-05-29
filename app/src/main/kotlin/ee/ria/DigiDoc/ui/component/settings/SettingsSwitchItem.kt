@@ -21,9 +21,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.theme.Dimensions.settingsItemEndPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.settingsItemStartPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.switchSize
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeLarge
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
@@ -37,7 +36,7 @@ fun SettingsSwitchItem(
     ConstraintLayout(
         modifier =
             modifier
-                .padding(vertical = settingsItemEndPadding)
+                .padding(vertical = screenViewLargePadding)
                 .wrapContentHeight()
                 .fillMaxWidth(),
     ) {
@@ -53,9 +52,9 @@ fun SettingsSwitchItem(
                     .semantics {
                         this.contentDescription = contentDescription
                     }
-                    .padding(start = settingsItemStartPadding, end = switchSize)
-                    .padding(end = settingsItemStartPadding)
-                    .padding(end = settingsItemStartPadding)
+                    .padding(start = screenViewLargePadding, end = iconSizeLarge)
+                    .padding(end = screenViewLargePadding)
+                    .padding(end = screenViewLargePadding)
                     .constrainAs(settingsRightsItemText) {
                         start.linkTo(parent.start)
                         top.linkTo(parent.top)
@@ -69,8 +68,8 @@ fun SettingsSwitchItem(
             onCheckedChange = onCheckedChange,
             modifier =
                 modifier
-                    .padding(end = settingsItemStartPadding)
-                    .size(switchSize)
+                    .padding(end = screenViewLargePadding)
+                    .size(iconSizeLarge)
                     .constrainAs(settingsRightsItemCheck) {
                         end.linkTo(parent.end)
                         top.linkTo(parent.top)

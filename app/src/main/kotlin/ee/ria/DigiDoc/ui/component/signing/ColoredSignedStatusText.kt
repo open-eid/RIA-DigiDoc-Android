@@ -8,7 +8,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
+import ee.ria.DigiDoc.ui.component.shared.TagBadge
+import ee.ria.DigiDoc.ui.theme.Green50
 import ee.ria.DigiDoc.ui.theme.Green800
+import ee.ria.DigiDoc.ui.theme.Red50
 import ee.ria.DigiDoc.ui.theme.Red800
 import ee.ria.DigiDoc.ui.theme.Yellow800
 
@@ -16,34 +19,31 @@ import ee.ria.DigiDoc.ui.theme.Yellow800
 fun ColoredSignedStatusText(
     text: String,
     status: ValidatorInterface.Status,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
 ) {
     val parts = text.split(" (", limit = 2)
 
+    val isSignatureValidOrWarning =
+        status == ValidatorInterface.Status.Valid ||
+            status == ValidatorInterface.Status.Warning ||
+            status == ValidatorInterface.Status.NonQSCD
+
+    val tagBackgroundColor = if (isSignatureValidOrWarning) Green50 else Red50
+    val tagContentColor = if (isSignatureValidOrWarning) Green800 else Red800
+    val additionalTextColor = if (status == ValidatorInterface.Status.Valid) Red800 else Yellow800
+
     Row {
-        Text(
+        TagBadge(
             text = parts[0],
-            color =
-                if (status == ValidatorInterface.Status.Valid ||
-                    status == ValidatorInterface.Status.Warning ||
-                    status == ValidatorInterface.Status.NonQSCD
-                ) {
-                    Green800
-                } else {
-                    Red800
-                },
+            backgroundColor = tagBackgroundColor,
+            contentColor = tagContentColor,
             modifier = modifier.focusable(),
         )
 
         if (parts.size > 1) {
             Text(
                 text = " (${parts[1]}",
-                color =
-                    if (status != ValidatorInterface.Status.Valid) {
-                        Yellow800
-                    } else {
-                        Red800
-                    },
+                color = additionalTextColor,
                 modifier = modifier.focusable(),
             )
         }

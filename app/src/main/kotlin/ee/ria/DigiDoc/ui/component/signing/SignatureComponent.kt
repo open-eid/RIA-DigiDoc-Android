@@ -24,14 +24,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
-import ee.ria.DigiDoc.ui.theme.Dimensions
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewHorizontalPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Red500
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil.getSignatureStatusText
 import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatName
 import ee.ria.DigiDoc.viewmodel.SigningViewModel
@@ -41,13 +43,14 @@ fun SignatureComponent(
     modifier: Modifier = Modifier,
     signingViewModel: SigningViewModel,
     signature: SignatureInterface,
+    showRemoveButton: Boolean,
     onRemoveButtonClick: () -> Unit = {},
 ) {
     Row(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(screenViewHorizontalPadding)
+                .padding(horizontal = screenViewLargePadding)
                 .semantics(mergeDescendants = true) {}
                 .focusGroup(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -58,7 +61,7 @@ fun SignatureComponent(
             contentDescription = null,
             modifier =
                 modifier
-                    .size(Dimensions.iconSize)
+                    .size(iconSize)
                     .focusable(false)
                     .clearAndSetSemantics {},
         )
@@ -73,7 +76,12 @@ fun SignatureComponent(
         ) {
             Text(
                 text = formatName(signature.name),
-                modifier = modifier.focusable(),
+                modifier =
+                    modifier
+                        .focusable()
+                        .semantics {
+                            contentDescription = formatNumbers(formatName(signature.name))
+                        },
                 fontWeight = FontWeight.Bold,
             )
             ColoredSignedStatusText(
@@ -94,20 +102,24 @@ fun SignatureComponent(
                 modifier = modifier.focusable(),
             )
         }
-        IconButton(
-            onClick = onRemoveButtonClick,
-            content = {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                    contentDescription = "${stringResource(
-                        id = R.string.signature_remove_button,
-                    )} ${signature.signedBy}",
-                    tint = Red500,
-                )
-            },
-            modifier =
-                modifier
-                    .size(Dimensions.iconSize),
-        )
+        if (showRemoveButton) {
+            IconButton(
+                onClick = onRemoveButtonClick,
+                content = {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
+                        contentDescription = "${
+                            stringResource(
+                                id = R.string.signature_remove_button,
+                            )
+                        } ${formatNumbers(signature.signedBy)}",
+                        tint = Red500,
+                    )
+                },
+                modifier =
+                    modifier
+                        .size(iconSize),
+            )
+        }
     }
 }

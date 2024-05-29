@@ -16,8 +16,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
-import ee.ria.DigiDoc.ui.theme.Dimensions.radioSize
-import ee.ria.DigiDoc.ui.theme.Dimensions.settingsItemEndPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeLarge
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
@@ -31,7 +31,7 @@ fun TextRadioButton(
     ConstraintLayout(
         modifier =
             modifier
-                .padding(vertical = settingsItemEndPadding)
+                .padding(vertical = screenViewLargePadding)
                 .wrapContentHeight()
                 .fillMaxWidth(),
     ) {
@@ -42,7 +42,7 @@ fun TextRadioButton(
         RadioButton(
             modifier =
                 modifier
-                    .size(radioSize)
+                    .size(iconSizeLarge)
                     .constrainAs(radioButton) {
                         start.linkTo(parent.start)
                         top.linkTo(parent.top)
@@ -57,8 +57,8 @@ fun TextRadioButton(
                     .semantics {
                         this.contentDescription = contentDescription
                     }
-                    .padding(start = settingsItemEndPadding, end = radioSize)
-                    .padding(end = settingsItemEndPadding)
+                    .padding(start = screenViewLargePadding, end = iconSizeLarge)
+                    .padding(end = screenViewLargePadding)
                     .constrainAs(radioButtonText) {
                         start.linkTo(radioButton.end)
                         top.linkTo(parent.top)

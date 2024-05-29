@@ -133,7 +133,7 @@ class MobileIdViewModelTest {
     }
 
     @Test
-    fun smartIdViewModel_performMobileIdWorkRequest_errorState() =
+    fun mobileIdViewModel_performMobileIdWorkRequest_errorState() =
         runTest {
             val container =
                 AssetFile.getResourceFileAsFile(
@@ -169,7 +169,7 @@ class MobileIdViewModelTest {
         }
 
     @Test
-    fun smartIdViewModel_performMobileIdWorkRequest_responseStatusOK() =
+    fun mobileIdViewModel_performMobileIdWorkRequest_responseStatusOK() =
         runTest {
             val container =
                 AssetFile.getResourceFileAsFile(
@@ -213,13 +213,13 @@ class MobileIdViewModelTest {
                 atLeastOnce(),
             ).processMobileIdRequest(any(), eq(null), any(), any(), any(), any(), any())
             verify(errorStateObserver, atLeastOnce()).onChanged(null)
-            verify(signedContainterObserver, atLeastOnce()).onChanged(signedContainer)
+            verify(signedContainterObserver, atLeastOnce()).onChanged(any<SignedContainer>())
             verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.OK)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
         }
 
     @Test
-    fun smartIdViewModel_performMobileIdWorkRequest_responseStatusElse() =
+    fun mobileIdViewModel_performMobileIdWorkRequest_responseStatusElse() =
         runTest {
             val container =
                 AssetFile.getResourceFileAsFile(
@@ -266,7 +266,7 @@ class MobileIdViewModelTest {
         }
 
     @Test
-    fun smartIdViewModel_performMobileIdWorkRequest_responseStatusUserCancelled() =
+    fun mobileIdViewModel_performMobileIdWorkRequest_responseStatusUserCancelled() =
         runTest {
             val container =
                 AssetFile.getResourceFileAsFile(
@@ -321,7 +321,7 @@ class MobileIdViewModelTest {
         }
 
     @Test
-    fun smartIdViewModel_performMobileIdWorkRequest_resultNotFound() =
+    fun mobileIdViewModel_performMobileIdWorkRequest_resultNotFound() =
         runTest {
             val container =
                 AssetFile.getResourceFileAsFile(
@@ -370,70 +370,70 @@ class MobileIdViewModelTest {
         }
 
     @Test
-    fun smartIdViewModel_resetStatus_success() =
+    fun mobileIdViewModel_resetStatus_success() =
         runTest {
             viewModel.resetStatus()
             verify(statusObserver, atLeastOnce()).onChanged(null)
         }
 
     @Test
-    fun smartIdViewModel_resetSignedContainer_success() =
+    fun mobileIdViewModel_resetSignedContainer_success() =
         runTest {
             viewModel.resetSignedContainer()
             verify(signedContainterObserver, atLeastOnce()).onChanged(null)
         }
 
     @Test
-    fun smartIdViewModel_cancelSmartIdWorkRequest_success() =
+    fun mobileIdViewModel_cancelmobileIdWorkRequest_success() =
         runTest {
             viewModel.cancelMobileIdWorkRequest()
             verify(mobileIdService, atLeastOnce()).setCancelled(true)
         }
 
     @Test
-    fun smartIdViewModel_positiveButtonEnabled_true() =
+    fun mobileIdViewModel_positiveButtonEnabled_true() =
         runTest {
             val result = viewModel.positiveButtonEnabled("3725629421", "38308263913")
             assertTrue(result)
         }
 
     @Test
-    fun smartIdViewModel_positiveButtonEnabled_phoneNumberInvalidReturnFalse() =
+    fun mobileIdViewModel_positiveButtonEnabled_phoneNumberInvalidReturnFalse() =
         runTest {
             val result = viewModel.positiveButtonEnabled("372562942", "3830826391")
             assertFalse(result)
         }
 
     @Test
-    fun smartIdViewModel_positiveButtonEnabled_false() =
+    fun mobileIdViewModel_positiveButtonEnabled_false() =
         runTest {
             val result = viewModel.positiveButtonEnabled("3725629421", "3830826391")
             assertFalse(result)
         }
 
     @Test
-    fun smartIdViewModel_positiveButtonEnabled_countryCodeInvalidReturnFalse() =
+    fun mobileIdViewModel_positiveButtonEnabled_countryCodeInvalidReturnFalse() =
         runTest {
             val result = viewModel.positiveButtonEnabled("3735629421", "38308263913")
             assertFalse(result)
         }
 
     @Test
-    fun smartIdViewModel_positiveButtonEnabled_personalCodeNullReturnFalse() =
+    fun mobileIdViewModel_positiveButtonEnabled_personalCodeNullReturnFalse() =
         runTest {
             val result = viewModel.positiveButtonEnabled("3725629421", null)
             assertFalse(result)
         }
 
     @Test
-    fun smartIdViewModel_positiveButtonEnabled_phoneNumberNullReturnFalse() =
+    fun mobileIdViewModel_positiveButtonEnabled_phoneNumberNullReturnFalse() =
         runTest {
             val result = viewModel.positiveButtonEnabled("3725629421", null)
             assertFalse(result)
         }
 
     @Test
-    fun smartIdViewModel_positiveButtonEnabled_bothNullsReturnFalse() =
+    fun mobileIdViewModel_positiveButtonEnabled_bothNullsReturnFalse() =
         runTest {
             val result = viewModel.positiveButtonEnabled(null, null)
             assertFalse(result)
