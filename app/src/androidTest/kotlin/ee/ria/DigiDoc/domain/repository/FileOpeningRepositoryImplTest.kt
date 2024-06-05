@@ -121,32 +121,6 @@ class FileOpeningRepositoryImplTest {
             assertEquals(1, signedContainer.getSignatures().size)
         }
 
-//    @Test
-//    fun fileOpeningRepository_addFilesToContainer_validFileSuccess() =
-//        runBlocking {
-//            val uris = listOf(mock(Uri::class.java))
-//            val file = createTempFileWithStringContent("test", "Test content")
-//            val fileStreams =
-//                listOf(FileStream.create(createTempFileWithStringContent("test2", "Another test file content")))
-//            val mockContext = mock(Context::class.java)
-//
-//            `when`(mockContext.filesDir).thenReturn(createTempDirectory("tempDirectory").toFile())
-//            `when`(mockContext.cacheDir).thenReturn(createTempDirectory("cacheDirectory").toFile())
-//            `when`(fileOpeningService.uriToFile(mockContext, contentResolver, uris.first())).thenReturn(file)
-//            `when`(fileOpeningService.isFileSizeValid(file)).thenReturn(true)
-//
-//            runBlocking {
-//                fileOpeningRepository.openOrCreateContainer(mockContext, contentResolver, uris)
-//            }
-//
-//            val signedContainer =
-//                runBlocking {
-//                    fileOpeningRepository.addFilesToContainer(mockContext, fileStreams)
-//                }
-//
-//            assertEquals(2, signedContainer.getDataFiles().size)
-//        }
-
     @Test
     fun fileOpeningRepository_addFilesToContainer_validFileSuccess() =
         runBlocking {
