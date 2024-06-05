@@ -8,8 +8,10 @@ import android.net.Uri
 import androidx.activity.result.ActivityResultLauncher
 import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
+import ee.ria.DigiDoc.common.test.AssetFile
 import ee.ria.DigiDoc.domain.service.FileOpeningService
 import ee.ria.DigiDoc.exceptions.EmptyFileException
+import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.utilsLib.file.FileStream
 import kotlinx.coroutines.runBlocking
@@ -97,6 +99,29 @@ class FileOpeningRepositoryImplTest {
         }
 
     @Test
+    fun fileOpeningRepository_removeSignature_validSignatureSuccess() =
+        runBlocking {
+            val container =
+                AssetFile.getResourceFileAsFile(
+                    context,
+                    "example.asice",
+                    ee.ria.DigiDoc.common.R.raw.example,
+                )
+
+            val existingContainer =
+                runBlocking {
+                    SignedContainer.openOrCreate(context, container, listOf(container))
+                }
+
+            val signedContainer =
+                runBlocking {
+                    fileOpeningRepository.removeSignature(existingContainer.getSignatures().first())
+                }
+
+            assertEquals(1, signedContainer.getSignatures().size)
+        }
+
+    @Test
     fun fileOpeningRepository_addFilesToContainer_validFileSuccess() =
         runBlocking {
             val uris = listOf(mock(Uri::class.java))
@@ -148,7 +173,7 @@ class FileOpeningRepositoryImplTest {
         }
 
     @Test(expected = RuntimeException::class)
-    fun fileOpeningRepository_addFilesToContainer_throwAlreadyFileExistsException() =
+    fun fileOpeningRepository_addFilesToContainer_throwAlreadyFileExistsException(): Unit =
         runBlocking {
             val uris = listOf(mock(Uri::class.java))
             val file = createTempFileWithStringContent("test", "Test content")
@@ -160,12 +185,16 @@ class FileOpeningRepositoryImplTest {
             `when`(fileOpeningService.uriToFile(mockContext, contentResolver, uris.first())).thenReturn(file)
             `when`(fileOpeningService.isFileSizeValid(file)).thenReturn(true)
 
+            runBlocking {
+                fileOpeningRepository.openOrCreateContainer(mockContext, contentResolver, uris)
+            }
+
             val signedContainer =
                 runBlocking {
                     fileOpeningRepository.addFilesToContainer(mockContext, fileStreams)
                 }
 
-            assertEquals(1, signedContainer.getDataFiles().size)
+            assertEquals(0, signedContainer.getDataFiles().size)
         }
 
     @Test

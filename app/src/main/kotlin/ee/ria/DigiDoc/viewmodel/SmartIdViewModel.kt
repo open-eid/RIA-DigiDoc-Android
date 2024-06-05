@@ -188,7 +188,7 @@ class SmartIdViewModel
             _signedContainer.postValue(null)
         }
 
-        fun cancelMobileIdWorkRequest() {
+        fun cancelSmartIdWorkRequest() {
             smartSignService.setCancelled(true)
         }
 
@@ -276,10 +276,11 @@ class SmartIdViewModel
                         _status.postValue(it)
                         if (it != SessionStatusResponseProcessStatus.OK) {
                             _errorState.postValue(
-                                context.getString(
-                                    messages[it]
-                                        ?: R.string.signature_update_mobile_id_error_general_client,
-                                ),
+                                messages[it]?.let { res ->
+                                    context.getString(
+                                        res,
+                                    )
+                                },
                             )
                         }
                     }
@@ -314,10 +315,11 @@ class SmartIdViewModel
                             if (it != null) {
                                 _status.postValue(it.status)
                                 _errorState.postValue(
-                                    context.getString(
-                                        messages[it.status]
-                                            ?: R.string.signature_update_mobile_id_error_general_client,
-                                    ),
+                                    messages[it.status]?.let { res ->
+                                        context.getString(
+                                            res,
+                                        )
+                                    },
                                 )
                             }
                         }

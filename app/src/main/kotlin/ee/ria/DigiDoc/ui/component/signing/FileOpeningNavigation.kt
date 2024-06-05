@@ -86,8 +86,12 @@ fun FileOpeningNavigation(
     }
 
     LaunchedEffect(fileOpeningViewModel.launchFilePicker) {
-        if (fileOpeningViewModel.launchFilePicker.value) {
-            fileOpeningViewModel.showFileChooser(filePicker)
+        fileOpeningViewModel.launchFilePicker.asFlow().collect { launchFilePicker ->
+            launchFilePicker?.let {
+                if (it) {
+                    fileOpeningViewModel.showFileChooser(filePicker)
+                }
+            }
         }
     }
 

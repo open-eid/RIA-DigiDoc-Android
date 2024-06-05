@@ -104,7 +104,7 @@ fun SigningNavigation(
 ) {
     val signatureAddController = rememberNavController()
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
-    val shouldResetContainer by signingViewModel.shouldResetSignedContainer
+    val shouldResetContainer by signingViewModel.shouldResetSignedContainer.asFlow().collectAsState(false)
     val context = LocalContext.current
     val signatureAddedSuccess = remember { mutableStateOf(false) }
     BackHandler {
@@ -113,7 +113,7 @@ fun SigningNavigation(
 
     DisposableEffect(shouldResetContainer) {
         onDispose {
-            if (shouldResetContainer) {
+            if (shouldResetContainer == true) {
                 sharedContainerViewModel.resetSignedContainer()
             }
         }
@@ -220,7 +220,6 @@ fun SigningNavigation(
                 // Added top bar here instead of Scaffold -> topBar
                 // To better support keyboard navigation
                 SigningTopBar(
-                    navController,
                     modifier = modifier,
                     onBackButtonClick = {
                         handleBackButtonClick(navController, signingViewModel)

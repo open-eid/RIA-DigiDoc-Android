@@ -17,14 +17,12 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.PreventResize
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SigningTopBar(
-    navController: NavHostController,
     modifier: Modifier,
     onBackButtonClick: () -> Unit = {},
 ) {

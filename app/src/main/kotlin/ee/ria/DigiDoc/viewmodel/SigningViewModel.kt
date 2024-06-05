@@ -2,7 +2,8 @@
 
 package ee.ria.DigiDoc.viewmodel
 
-import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
@@ -19,10 +20,11 @@ class SigningViewModel
             private const val LOG_TAG = "SigningViewModel"
         }
 
-        var shouldResetSignedContainer = mutableStateOf(false)
+        private val _shouldResetSignedContainer = MutableLiveData(false)
+        val shouldResetSignedContainer: LiveData<Boolean?> = _shouldResetSignedContainer
 
         fun handleBackButton() {
-            shouldResetSignedContainer.value = true
+            _shouldResetSignedContainer.postValue(true)
         }
 
         fun isExistingContainerNoSignatures(signedContainer: SignedContainer?): Boolean {

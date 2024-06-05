@@ -23,7 +23,6 @@ fun SettingsRightsFragment(
     modifier: Modifier = Modifier,
     settingsViewModel: SettingsViewModel = hiltViewModel(),
 ) {
-    settingsViewModel.getListState()
     Surface(
         modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         color = MaterialTheme.colorScheme.background,

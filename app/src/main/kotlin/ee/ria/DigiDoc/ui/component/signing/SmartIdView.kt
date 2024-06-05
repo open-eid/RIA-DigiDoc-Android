@@ -116,7 +116,7 @@ fun SmartIdView(
                     smartIdViewModel = smartIdViewModel,
                     onCancelButtonClick = {
                         dismissSignatureUpdateContainerDialog()
-                        smartIdViewModel.cancelMobileIdWorkRequest()
+                        smartIdViewModel.cancelSmartIdWorkRequest()
                     },
                 )
             }

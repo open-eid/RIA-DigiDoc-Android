@@ -6,7 +6,6 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import androidx.activity.result.ActivityResultLauncher
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -40,12 +39,13 @@ class FileOpeningViewModel
         private val _errorState = MutableLiveData<String?>(null)
         val errorState: LiveData<String?> = _errorState
 
-        var launchFilePicker = mutableStateOf(true)
+        private val _launchFilePicker = MutableLiveData(true)
+        val launchFilePicker: LiveData<Boolean?> = _launchFilePicker
 
         suspend fun showFileChooser(fileChooser: ActivityResultLauncher<String>) {
             fileOpeningRepository.showFileChooser(fileChooser, "*/*")
             // Do not launch file picker again after user presses the back button
-            launchFilePicker.value = false
+            _launchFilePicker.postValue(false)
         }
 
         suspend fun handleFiles(

@@ -3,7 +3,8 @@
 package ee.ria.DigiDoc.viewmodel
 
 import android.content.Context
-import androidx.compose.runtime.MutableState
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.Observer
 import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.common.test.AssetFile.Companion.getResourceFileAsFile
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
@@ -15,9 +16,11 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.BeforeClass
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
@@ -25,6 +28,12 @@ import java.io.File
 
 @RunWith(MockitoJUnitRunner::class)
 class SigningViewModelTest {
+    @get:Rule
+    val instantExecutorRule = InstantTaskExecutorRule()
+
+    @Mock
+    lateinit var shouldResetSignedContainerObserver: Observer<Boolean?>
+
     companion object {
         @JvmStatic
         @BeforeClass
@@ -42,22 +51,19 @@ class SigningViewModelTest {
 
     private lateinit var viewModel: SigningViewModel
 
-    @Mock
-    private lateinit var mockMutableState: MutableState<Boolean>
-
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
         context = InstrumentationRegistry.getInstrumentation().targetContext
         viewModel = SigningViewModel()
-        viewModel.shouldResetSignedContainer = mockMutableState
+        viewModel.shouldResetSignedContainer.observeForever(shouldResetSignedContainerObserver)
     }
 
     @Test
     fun signingViewModel_handleBackButton_success() {
         viewModel.handleBackButton()
 
-        verify(mockMutableState).value = true
+        verify(shouldResetSignedContainerObserver, atLeastOnce()).onChanged(true)
     }
 
     @Test
