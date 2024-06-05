@@ -2,11 +2,13 @@
 
 package ee.ria.DigiDoc.configuration.repository
 
-import android.content.Context
-import ee.ria.DigiDoc.configuration.ConfigurationProvider
+import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
 
 interface ConfigurationRepository {
     fun getConfiguration(): ConfigurationProvider?
 
-    suspend fun getCentralConfiguration(context: Context): ConfigurationProvider?
+    @Throws(Exception::class)
+    suspend fun getCentralConfiguration(): ConfigurationProvider?
+
+    suspend fun observeConfigurationUpdates(onUpdate: (ConfigurationProvider) -> Unit)
 }

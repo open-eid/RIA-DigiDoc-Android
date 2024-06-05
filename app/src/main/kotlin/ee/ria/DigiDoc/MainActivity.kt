@@ -9,13 +9,17 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject
+    lateinit var librarySetup: LibrarySetup
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lifecycleScope.launch {
-            LibrarySetup.setupLibraries(applicationContext)
+            librarySetup.setupLibraries(applicationContext)
         }
         setContent {
             RIADigiDocTheme {

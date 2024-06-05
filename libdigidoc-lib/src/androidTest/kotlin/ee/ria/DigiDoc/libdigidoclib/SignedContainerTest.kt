@@ -5,12 +5,22 @@ package ee.ria.DigiDoc.libdigidoclib
 import android.content.Context
 import android.graphics.pdf.PdfDocument
 import androidx.test.platform.app.InstrumentationRegistry
+import com.google.gson.Gson
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.pdmodel.interactive.digitalsignature.PDSignature
 import ee.ria.DigiDoc.common.Constant.CONTAINER_MIME_TYPE
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
 import ee.ria.DigiDoc.common.Constant.DEFAULT_MIME_TYPE
 import ee.ria.DigiDoc.common.test.AssetFile
+import ee.ria.DigiDoc.configuration.ConfigurationProperty
+import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifierImpl
+import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
+import ee.ria.DigiDoc.configuration.loader.ConfigurationLoaderImpl
+import ee.ria.DigiDoc.configuration.properties.ConfigurationPropertiesImpl
+import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepositoryImpl
+import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
+import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
+import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer.Companion.openOrCreate
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
@@ -39,12 +49,27 @@ import java.io.IOException
 @RunWith(MockitoJUnitRunner::class)
 class SignedContainerTest {
     companion object {
+        private lateinit var configurationLoader: ConfigurationLoader
+        private lateinit var configurationRepository: ConfigurationRepository
+
         @JvmStatic
         @BeforeClass
         fun setupOnce() {
             runBlocking {
                 try {
-                    Initialization.init(InstrumentationRegistry.getInstrumentation().targetContext)
+                    val context = InstrumentationRegistry.getInstrumentation().targetContext
+                    configurationLoader =
+                        ConfigurationLoaderImpl(
+                            Gson(),
+                            CentralConfigurationRepositoryImpl(
+                                CentralConfigurationServiceImpl("Tests", ConfigurationProperty()),
+                            ),
+                            ConfigurationProperty(),
+                            ConfigurationPropertiesImpl(),
+                            ConfigurationSignatureVerifierImpl(),
+                        )
+                    configurationRepository = ConfigurationRepositoryImpl(context, configurationLoader)
+                    Initialization(configurationRepository).init(context)
                 } catch (_: Exception) {
                 }
             }

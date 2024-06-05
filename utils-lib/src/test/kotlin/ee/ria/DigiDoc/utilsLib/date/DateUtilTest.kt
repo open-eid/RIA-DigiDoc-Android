@@ -6,6 +6,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
 import java.text.ParseException
+import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.Date
 
@@ -58,5 +59,25 @@ class DateUtilTest {
             }
 
         assertEquals("", outputDateString)
+    }
+
+    @Test
+    fun dateUtil_stringToDate_success() {
+        val dateString = "01-01-1970 03:00:00"
+        val expectedDate = SimpleDateFormat("dd-MM-yyyy HH:mm:ss").parse(dateString)
+        val actualDate = DateUtil.stringToDate(dateString)
+        assertEquals(expectedDate, actualDate)
+    }
+
+    @Test(expected = ParseException::class)
+    fun dateUtil_stringToDate_throwParseException() {
+        val dateString = "invalid date string"
+        DateUtil.stringToDate(dateString)
+    }
+
+    @Test(expected = ParseException::class)
+    fun dateUtil_stringToDate_throwParseExceptionWithEmptyDate() {
+        val dateString = ""
+        DateUtil.stringToDate(dateString)
     }
 }

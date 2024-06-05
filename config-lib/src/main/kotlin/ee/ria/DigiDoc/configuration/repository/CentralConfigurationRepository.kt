@@ -2,21 +2,18 @@
 
 package ee.ria.DigiDoc.configuration.repository
 
-import ee.ria.DigiDoc.configuration.service.CentralConfigurationService
+import retrofit2.http.GET
 
-class CentralConfigurationRepository(private val apiService: CentralConfigurationService) {
+interface CentralConfigurationRepository {
     @Throws(Exception::class)
-    suspend fun fetchConfiguration(): String {
-        return apiService.fetchConfiguration()
-    }
-
-    @Throws(Exception::class)
-    suspend fun fetchPublicKey(): String {
-        return apiService.fetchPublicKey()
-    }
+    @GET("config.json")
+    suspend fun fetchConfiguration(): String
 
     @Throws(Exception::class)
-    suspend fun fetchSignature(): String {
-        return apiService.fetchSignature()
-    }
+    @GET("config.pub")
+    suspend fun fetchPublicKey(): String
+
+    @Throws(Exception::class)
+    @GET("config.rsa")
+    suspend fun fetchSignature(): String
 }

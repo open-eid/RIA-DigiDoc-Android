@@ -7,7 +7,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
-import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureSessionStatusResponse
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
@@ -23,12 +22,10 @@ import ee.ria.DigiDoc.network.sid.dto.response.SmartIDServiceResponse
 import ee.ria.DigiDoc.network.sid.dto.response.SmartSignatureResponse
 import ee.ria.DigiDoc.network.sid.rest.SIDRestServiceClient
 import ee.ria.DigiDoc.network.sid.rest.ServiceGenerator
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Before
-import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -81,19 +78,6 @@ class SmartSignServiceImplTest {
 
     @Mock
     lateinit var cancelledObserver: Observer<Boolean?>
-
-    companion object {
-        @JvmStatic
-        @BeforeClass
-        fun setupOnce() {
-            runBlocking {
-                try {
-                    Initialization.init(InstrumentationRegistry.getInstrumentation().targetContext)
-                } catch (_: Exception) {
-                }
-            }
-        }
-    }
 
     private lateinit var context: Context
     private val url = "https://tsp.demo.sk.ee/sid-api"

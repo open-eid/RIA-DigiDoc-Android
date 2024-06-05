@@ -1,6 +1,6 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.configuration
+package ee.ria.DigiDoc.configuration.provider
 
 import com.google.gson.annotations.SerializedName
 import java.util.Date

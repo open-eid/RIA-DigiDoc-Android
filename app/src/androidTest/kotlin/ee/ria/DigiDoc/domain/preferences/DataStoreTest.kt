@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.domain.preferences
 import android.content.Context
 import androidx.preference.PreferenceManager
 import androidx.test.platform.app.InstrumentationRegistry
+import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.utils.Route
@@ -15,6 +16,7 @@ import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
@@ -29,7 +31,8 @@ class DataStoreTest {
         fun setupOnce() {
             runBlocking {
                 try {
-                    Initialization.init(InstrumentationRegistry.getInstrumentation().targetContext)
+                    val configurationRepository = Mockito.mock(ConfigurationRepository::class.java)
+                    Initialization(configurationRepository)
                 } catch (_: Exception) {
                 }
             }

@@ -1,0 +1,110 @@
+@file:Suppress("PackageName")
+
+package ee.ria.DigiDoc.configuration.domain.model
+
+import android.content.Context
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.Observer
+import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
+import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.Mockito.never
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
+import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnitRunner
+import java.util.Date
+
+@RunWith(MockitoJUnitRunner::class)
+class ConfigurationViewModelTest {
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
+
+    @Mock
+    private lateinit var repository: ConfigurationRepository
+
+    @Mock
+    private lateinit var context: Context
+
+    @Mock
+    private lateinit var configurationProviderObserver: Observer<ConfigurationProvider>
+
+    private lateinit var viewModel: ConfigurationViewModel
+
+    @Before
+    fun setUp() {
+        MockitoAnnotations.openMocks(this)
+        viewModel = ConfigurationViewModel(repository)
+    }
+
+    @Test
+    fun configurationViewModel_getConfiguration_success() =
+        runBlocking {
+            `when`(repository.getConfiguration())
+                .thenReturn(createMockConfigurationProvider())
+            viewModel.configuration.observeForever(configurationProviderObserver)
+
+            val configuration = viewModel.getConfiguration()
+
+            Assert.assertNotNull(configuration)
+            Assert.assertEquals(1, configuration?.metaInf?.serial)
+        }
+
+    @Test
+    fun configurationViewModel_fetchConfiguration_configurationIsFetchedAndChanged() =
+        runBlocking {
+            val configurationProvider = createMockConfigurationProvider()
+            `when`(repository.getCentralConfiguration())
+                .thenReturn(configurationProvider)
+            viewModel.configuration.observeForever(configurationProviderObserver)
+
+            viewModel.fetchConfiguration(0L)
+
+            verify(repository, times(1)).getCentralConfiguration()
+            verify(configurationProviderObserver, times(1))
+                .onChanged(configurationProvider)
+        }
+
+    @Test
+    fun configurationViewModel_fetchConfiguration_configurationFetchedButNotChanged() =
+        runBlocking {
+            val configurationProvider = createMockConfigurationProvider()
+            `when`(repository.getCentralConfiguration())
+                .thenReturn(configurationProvider)
+            viewModel.configuration.observeForever(configurationProviderObserver)
+
+            viewModel.fetchConfiguration(Date().time)
+
+            verify(repository, times(1)).getCentralConfiguration()
+            verify(configurationProviderObserver, never())
+                .onChanged(configurationProvider)
+        }
+
+    private fun createMockConfigurationProvider(): ConfigurationProvider {
+        return ConfigurationProvider(
+            ConfigurationProvider.MetaInf("url", "date", 1, 1),
+            "configUrl",
+            "sivaUrl",
+            "tslUrl",
+            emptyList(),
+            "tsaUrl",
+            emptyMap(),
+            "ldapPersonUrl",
+            "ldapCorpUrl",
+            "midRestUrl",
+            "midSkRestUrl",
+            "sidV2RestUrl",
+            "sidV2SkRestUrl",
+            emptyList(),
+            Date(),
+            Date(),
+        )
+    }
+}
