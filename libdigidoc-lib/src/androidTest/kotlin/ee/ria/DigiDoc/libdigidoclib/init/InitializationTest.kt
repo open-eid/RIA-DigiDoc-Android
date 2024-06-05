@@ -6,22 +6,51 @@ import android.content.Context
 import android.content.res.Resources
 import android.content.res.Resources.NotFoundException
 import androidx.test.platform.app.InstrumentationRegistry
+import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.libdigidoclib.exceptions.AlreadyInitializedException
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.Mock
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
+import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnitRunner
 import java.lang.reflect.Field
 
+@RunWith(MockitoJUnitRunner::class)
 class InitializationTest {
-    private lateinit var context: Context
+    companion object {
+        private var context: Context = InstrumentationRegistry.getInstrumentation().targetContext
+
+        @Mock
+        private var configurationRepository: ConfigurationRepository = mock()
+
+        private lateinit var initialization: Initialization
+
+        // Reset using reflection.
+        // Libdigidocpp is initialized as singleton and tests might fail after first initialization
+        @Throws(
+            SecurityException::class,
+            NoSuchFieldException::class,
+            java.lang.IllegalArgumentException::class,
+            IllegalAccessException::class,
+        )
+        private fun resetInitialization() {
+            val field: Field = Initialization::class.java.getDeclaredField("isInitialized")
+            field.isAccessible = true
+            field.setBoolean(initialization, false)
+        }
+    }
 
     @Before
     fun setup() {
-        context = InstrumentationRegistry.getInstrumentation().targetContext
+        MockitoAnnotations.openMocks(this)
+        configurationRepository = mock(ConfigurationRepository::class.java)
+        initialization = Initialization(configurationRepository)
         resetInitialization()
     }
 
@@ -29,7 +58,7 @@ class InitializationTest {
     fun testInit_success() {
         try {
             runTest {
-                Initialization.init(context)
+                initialization.init(context)
             }
         } catch (e: Exception) {
             fail("No exceptions should be thrown")
@@ -46,7 +75,7 @@ class InitializationTest {
 
         assertThrows(IllegalArgumentException::class.java) {
             runTest {
-                Initialization.init(mockContext)
+                initialization.init(mockContext)
             }
         }
     }
@@ -61,7 +90,7 @@ class InitializationTest {
 
         assertThrows(NotFoundException::class.java) {
             runTest {
-                Initialization.init(mockContext)
+                initialization.init(mockContext)
             }
         }
     }
@@ -70,23 +99,9 @@ class InitializationTest {
     fun testInit_initTwice_throwsAlreadyInitializedException() {
         assertThrows(AlreadyInitializedException::class.java) {
             runTest {
-                Initialization.init(context)
-                Initialization.init(context)
+                initialization.init(context)
+                initialization.init(context)
             }
         }
-    }
-
-    // Reset using reflection.
-    // Libdigidocpp is initialized as singleton and tests might fail after first initialization
-    @Throws(
-        SecurityException::class,
-        NoSuchFieldException::class,
-        java.lang.IllegalArgumentException::class,
-        IllegalAccessException::class,
-    )
-    private fun resetInitialization() {
-        val instance: Field = Initialization::class.java.getDeclaredField("isInitialized")
-        instance.isAccessible = true
-        instance.set(false, false)
     }
 }

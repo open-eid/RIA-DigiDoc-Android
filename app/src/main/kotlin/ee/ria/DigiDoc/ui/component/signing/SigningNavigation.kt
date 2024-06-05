@@ -87,6 +87,7 @@ import ee.ria.DigiDoc.viewmodel.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.SigningViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -566,7 +567,7 @@ fun SigningNavigation(
                                     sharedContainerViewModel.resetSignedContainer()
                                     handleBackButtonClick(navController, signingViewModel)
                                 } else {
-                                    CoroutineScope(Dispatchers.IO).launch {
+                                    CoroutineScope(IO).launch {
                                         sharedContainerViewModel.removeContainerDataFile(
                                             signedContainer,
                                             actionDataFile,

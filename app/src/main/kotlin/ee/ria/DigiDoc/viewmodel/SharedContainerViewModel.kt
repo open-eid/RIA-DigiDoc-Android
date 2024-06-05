@@ -69,7 +69,7 @@ class SharedContainerViewModel
             )
         }
 
-        fun removeContainerDataFile(
+        suspend fun removeContainerDataFile(
             signedContainer: SignedContainer?,
             dataFile: DataFileInterface?,
         ) {

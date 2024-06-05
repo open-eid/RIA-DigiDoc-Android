@@ -8,10 +8,19 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.test.platform.app.InstrumentationRegistry
+import com.google.gson.Gson
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.test.AssetFile
-import ee.ria.DigiDoc.configuration.ConfigurationProvider
+import ee.ria.DigiDoc.configuration.ConfigurationProperty
+import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifierImpl
+import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
+import ee.ria.DigiDoc.configuration.loader.ConfigurationLoaderImpl
+import ee.ria.DigiDoc.configuration.properties.ConfigurationPropertiesImpl
+import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
+import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
+import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
+import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.domain.repository.FileOpeningRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
@@ -94,12 +103,27 @@ class MobileIdViewModelTest {
         )
 
     companion object {
+        private lateinit var configurationLoader: ConfigurationLoader
+        private lateinit var configurationRepository: ConfigurationRepository
+
         @JvmStatic
         @BeforeClass
         fun setupOnce() {
             runBlocking {
                 try {
-                    Initialization.init(InstrumentationRegistry.getInstrumentation().targetContext)
+                    val context = InstrumentationRegistry.getInstrumentation().targetContext
+                    configurationLoader =
+                        ConfigurationLoaderImpl(
+                            Gson(),
+                            CentralConfigurationRepositoryImpl(
+                                CentralConfigurationServiceImpl("Tests", ConfigurationProperty()),
+                            ),
+                            ConfigurationProperty(),
+                            ConfigurationPropertiesImpl(),
+                            ConfigurationSignatureVerifierImpl(),
+                        )
+                    configurationRepository = ConfigurationRepositoryImpl(context, configurationLoader)
+                    Initialization(configurationRepository).init(context)
                 } catch (_: Exception) {
                 }
             }

@@ -7,6 +7,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.common.test.AssetFile
+import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.MobileIdServiceResponse
@@ -89,7 +90,8 @@ class MobileSignServiceImplTest {
         fun setupOnce() {
             runBlocking {
                 try {
-                    Initialization.init(InstrumentationRegistry.getInstrumentation().targetContext)
+                    val configurationRepository = mock(ConfigurationRepository::class.java)
+                    Initialization(configurationRepository)
                 } catch (_: Exception) {
                 }
             }

@@ -20,7 +20,12 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
-
+    buildTypes {
+        debug {
+            enableUnitTestCoverage = true
+            enableAndroidTestCoverage = true
+        }
+    }
     packaging {
         resources {
             pickFirsts += "/META-INF/{AL2.0,LGPL2.1}"
@@ -45,6 +50,8 @@ dependencies {
     implementation(libs.preferencex)
     implementation(libs.bouncy.castle)
     testImplementation(libs.junit)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
     androidTestImplementation(libs.mockito.android)
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)

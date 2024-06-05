@@ -4,12 +4,14 @@ package ee.ria.DigiDoc.configuration
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import javax.inject.Singleton
 
+@Singleton
 data class ConfigurationProperty(
-    val centralConfigurationServiceUrl: String,
-    val updateInterval: Int,
-    val versionSerial: Int,
-    val downloadDate: LocalDateTime,
+    var centralConfigurationServiceUrl: String = "",
+    var updateInterval: Int = 4,
+    var versionSerial: Int = 0,
+    var downloadDate: LocalDateTime = LocalDateTime.now(),
 ) {
     companion object {
         private val DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")

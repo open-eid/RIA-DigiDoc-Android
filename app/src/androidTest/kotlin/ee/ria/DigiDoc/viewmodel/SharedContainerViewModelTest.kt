@@ -9,7 +9,17 @@ import android.net.Uri
 import androidx.activity.result.ActivityResult
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.platform.app.InstrumentationRegistry
+import com.google.gson.Gson
 import ee.ria.DigiDoc.common.test.AssetFile
+import ee.ria.DigiDoc.configuration.ConfigurationProperty
+import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifierImpl
+import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
+import ee.ria.DigiDoc.configuration.loader.ConfigurationLoaderImpl
+import ee.ria.DigiDoc.configuration.properties.ConfigurationPropertiesImpl
+import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepositoryImpl
+import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
+import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
+import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
 import ee.ria.DigiDoc.domain.repository.FileOpeningRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerDataFilesEmptyException
@@ -38,7 +48,7 @@ class SharedContainerViewModelTest {
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
 
-    private lateinit var context: Context
+    private var context: Context = InstrumentationRegistry.getInstrumentation().targetContext
 
     @Mock
     lateinit var contentResolver: ContentResolver
@@ -49,12 +59,27 @@ class SharedContainerViewModelTest {
     private lateinit var viewModel: SharedContainerViewModel
 
     companion object {
+        private lateinit var configurationLoader: ConfigurationLoader
+        private lateinit var configurationRepository: ConfigurationRepository
+
         @JvmStatic
         @BeforeClass
         fun setupOnce() {
             runBlocking {
                 try {
-                    Initialization.init(InstrumentationRegistry.getInstrumentation().targetContext)
+                    val context = InstrumentationRegistry.getInstrumentation().targetContext
+                    configurationLoader =
+                        ConfigurationLoaderImpl(
+                            Gson(),
+                            CentralConfigurationRepositoryImpl(
+                                CentralConfigurationServiceImpl("Tests", ConfigurationProperty()),
+                            ),
+                            ConfigurationProperty(),
+                            ConfigurationPropertiesImpl(),
+                            ConfigurationSignatureVerifierImpl(),
+                        )
+                    configurationRepository = ConfigurationRepositoryImpl(context, configurationLoader)
+                    Initialization(configurationRepository).init(context)
                 } catch (_: Exception) {
                 }
             }
@@ -64,7 +89,6 @@ class SharedContainerViewModelTest {
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        context = InstrumentationRegistry.getInstrumentation().targetContext
         viewModel = SharedContainerViewModel(context, contentResolver)
     }
 
@@ -190,67 +214,70 @@ class SharedContainerViewModelTest {
         assertNull(viewModel.signedContainer.value)
     }
 
-    @Test
-    fun sharedContainerViewModel_removeContainerDataFile_success() {
-        val file = createTempFileWithStringContent("test", "Test content")
-        val anotherFile = createTempFileWithStringContent("test2", "Another file")
-        var signedContainer =
-            runBlocking {
-                SignedContainer.openOrCreate(context, file, listOf(file))
-            }
+    fun sharedContainerViewModel_removeContainerDataFile_success() =
+        runBlocking {
+            val file = createTempFileWithStringContent("test", "Test content")
+            val anotherFile = createTempFileWithStringContent("test2", "Another file")
+            var signedContainer =
+                runBlocking {
+                    SignedContainer.openOrCreate(context, file, listOf(file))
+                }
 
-        signedContainer =
-            runBlocking {
-                signedContainer.addDataFiles(listOf(anotherFile))
-            }
+            signedContainer =
+                runBlocking {
+                    signedContainer.addDataFiles(listOf(anotherFile))
+                }
 
-        val dataFile = signedContainer.getDataFiles().first()
+            val dataFile = signedContainer.getDataFiles().first()
 
-        viewModel.removeContainerDataFile(signedContainer, dataFile)
+            viewModel.removeContainerDataFile(signedContainer, dataFile)
 
-        assertEquals(1, viewModel.signedContainer.value?.getDataFiles()?.size)
-    }
+            assertEquals(1, viewModel.signedContainer.value?.getDataFiles()?.size)
+        }
 
     @Test(expected = ContainerDataFilesEmptyException::class)
-    fun sharedContainerViewModel_removeContainerDataFile_throwsException() {
-        val file = createTempFileWithStringContent("test", "Test content")
-        val signedContainer =
-            runBlocking {
-                SignedContainer.openOrCreate(context, file, listOf(file))
-            }
+    fun sharedContainerViewModel_removeContainerDataFile_throwsException() =
+        runBlocking {
+            val file = createTempFileWithStringContent("test", "Test content")
+            val signedContainer =
+                runBlocking {
+                    SignedContainer.openOrCreate(context, file, listOf(file))
+                }
 
-        val dataFile = signedContainer.getDataFiles().first()
+            val dataFile = signedContainer.getDataFiles().first()
 
-        viewModel.removeContainerDataFile(signedContainer, dataFile)
-    }
-
-    @Test
-    fun sharedContainerViewModel_removeContainerDataFile_returnNullIfDataFileNull() {
-        val file = createTempFileWithStringContent("test", "Test content")
-        val signedContainer =
-            runBlocking {
-                SignedContainer.openOrCreate(context, file, listOf(file))
-            }
-
-        viewModel.removeContainerDataFile(signedContainer, null)
-
-        assertNull(viewModel.signedContainer.value)
-    }
+            viewModel.removeContainerDataFile(signedContainer, dataFile)
+        }
 
     @Test
-    fun sharedContainerViewModel_removeContainerDataFile_returnNullIfContainerNull() {
-        val file = createTempFileWithStringContent("test", "Test content")
-        val signedContainer =
-            runBlocking {
-                SignedContainer.openOrCreate(context, file, listOf(file))
-            }
+    fun sharedContainerViewModel_removeContainerDataFile_returnNullIfDataFileNull() =
+        runBlocking {
+            val file = createTempFileWithStringContent("test", "Test content")
+            val signedContainer =
+                runBlocking {
+                    SignedContainer.openOrCreate(context, file, listOf(file))
+                }
 
-        val dataFile = signedContainer.getDataFiles().first()
+            viewModel.removeContainerDataFile(signedContainer, null)
 
-        viewModel.removeContainerDataFile(null, dataFile)
+            assertNull(viewModel.signedContainer.value)
+        }
 
-        assertNull(viewModel.signedContainer.value)
-    }
+    @Test
+    fun sharedContainerViewModel_removeContainerDataFile_returnNullIfContainerNull() =
+        runBlocking {
+            val file = createTempFileWithStringContent("test", "Test content")
+            val signedContainer =
+                runBlocking {
+                    SignedContainer.openOrCreate(context, file, listOf(file))
+                }
+
+            val dataFile = signedContainer.getDataFiles().first()
+
+            viewModel.removeContainerDataFile(null, dataFile)
+
+            assertNull(viewModel.signedContainer.value)
+        }
 
     @Test
     fun sharedContainerViewModel_setSignedSidStatus_success() {

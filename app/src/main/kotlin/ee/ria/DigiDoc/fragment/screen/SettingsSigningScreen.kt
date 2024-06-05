@@ -35,8 +35,8 @@ import androidx.lifecycle.LiveData
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.configuration.ConfigurationProvider
 import ee.ria.DigiDoc.configuration.domain.model.ConfigurationViewModel
+import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.ui.component.settings.SettingsItem
 import ee.ria.DigiDoc.ui.component.settings.SettingsProxyCategoryDialog

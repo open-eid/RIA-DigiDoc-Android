@@ -13,19 +13,22 @@ import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
+import kotlin.jvm.Throws
 
 object TSLUtil {
     private val logTag = javaClass.simpleName
 
     // Copy every TSL file from APKs assets into cache if non-existent
+    @Throws(IOException::class)
     fun setupTSLFiles(context: Context) {
         val destination: String = File(context.cacheDir, "schema").path
         val assetsPath = "tslFiles"
-        var tslFiles: Array<String>? = null
+        val tslFiles: Array<String>?
         try {
             tslFiles = context.assets.list(assetsPath)
         } catch (ioe: IOException) {
             errorLog(logTag, "Failed to get folder list: $assetsPath", ioe)
+            throw ioe
         }
 
         if (!tslFiles.isNullOrEmpty()) {

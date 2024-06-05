@@ -32,6 +32,7 @@ import ee.ria.libdigidocpp.ContainerOpenCB
 import ee.ria.libdigidocpp.DataFiles
 import ee.ria.libdigidocpp.Signatures
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
@@ -116,21 +117,23 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
     }
 
     @Throws(Exception::class)
-    fun removeDataFile(dataFile: DataFileInterface): SignedContainer {
+    suspend fun removeDataFile(dataFile: DataFileInterface): SignedContainer {
         if ((container?.dataFiles()?.size ?: 0) == 1) {
             throw ContainerDataFilesEmptyException()
         }
-        val dataFiles = container?.dataFiles()
-        if (dataFiles != null) {
-            for (i in dataFiles.indices) {
-                if (dataFile.id == dataFiles[i].id()) {
-                    container?.removeDataFile(i.toLong())
-                    break
+        return withContext(IO) {
+            val dataFiles = container?.dataFiles()
+            if (dataFiles != null) {
+                for (i in dataFiles.indices) {
+                    if (dataFile.id == dataFiles[i].id()) {
+                        container?.removeDataFile(i.toLong())
+                        break
+                    }
                 }
             }
+            container?.save()
+            container()
         }
-        container?.save()
-        return container()
     }
 
     companion object {

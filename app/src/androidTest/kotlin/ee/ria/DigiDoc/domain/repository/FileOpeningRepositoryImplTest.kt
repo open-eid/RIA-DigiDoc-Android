@@ -7,8 +7,18 @@ import android.content.Context
 import android.net.Uri
 import androidx.activity.result.ActivityResultLauncher
 import androidx.test.platform.app.InstrumentationRegistry
+import com.google.gson.Gson
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
 import ee.ria.DigiDoc.common.test.AssetFile
+import ee.ria.DigiDoc.configuration.ConfigurationProperty
+import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifierImpl
+import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
+import ee.ria.DigiDoc.configuration.loader.ConfigurationLoaderImpl
+import ee.ria.DigiDoc.configuration.properties.ConfigurationPropertiesImpl
+import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepositoryImpl
+import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
+import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
+import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
 import ee.ria.DigiDoc.domain.service.FileOpeningService
 import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
@@ -29,18 +39,33 @@ import java.nio.file.Files
 import kotlin.io.path.createTempDirectory
 
 class FileOpeningRepositoryImplTest {
+    private lateinit var context: Context
     private lateinit var fileOpeningService: FileOpeningService
     private lateinit var fileOpeningRepository: FileOpeningRepository
-    private lateinit var context: Context
     private lateinit var contentResolver: ContentResolver
 
     companion object {
+        private lateinit var configurationLoader: ConfigurationLoader
+        private lateinit var configurationRepository: ConfigurationRepository
+
         @JvmStatic
         @BeforeClass
         fun setupOnce() {
             runBlocking {
                 try {
-                    Initialization.init(InstrumentationRegistry.getInstrumentation().targetContext)
+                    val context = InstrumentationRegistry.getInstrumentation().targetContext
+                    configurationLoader =
+                        ConfigurationLoaderImpl(
+                            Gson(),
+                            CentralConfigurationRepositoryImpl(
+                                CentralConfigurationServiceImpl("Tests", ConfigurationProperty()),
+                            ),
+                            ConfigurationProperty(),
+                            ConfigurationPropertiesImpl(),
+                            ConfigurationSignatureVerifierImpl(),
+                        )
+                    configurationRepository = ConfigurationRepositoryImpl(context, configurationLoader)
+                    Initialization(configurationRepository).init(context)
                 } catch (_: Exception) {
                 }
             }

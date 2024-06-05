@@ -4,7 +4,7 @@ package ee.ria.DigiDoc.libdigidoclib.utils
 
 import android.content.Context
 import android.content.res.Resources
-import androidx.test.platform.app.InstrumentationRegistry
+import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.libdigidoclib.utils.FileUtils.getDataFileMimetype
@@ -43,7 +43,8 @@ class FileUtilsTest {
         fun setupOnce() {
             runBlocking {
                 try {
-                    Initialization.init(InstrumentationRegistry.getInstrumentation().targetContext)
+                    val configurationRepository = mock(ConfigurationRepository::class.java)
+                    Initialization(configurationRepository)
                 } catch (_: Exception) {
                 }
             }

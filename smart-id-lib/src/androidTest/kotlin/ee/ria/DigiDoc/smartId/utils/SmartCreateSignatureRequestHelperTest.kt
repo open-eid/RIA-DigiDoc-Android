@@ -7,6 +7,7 @@ import ee.ria.DigiDoc.common.Constant.SignatureRequest.DIGEST_TYPE
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.RELYING_PARTY_NAME
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.RELYING_PARTY_UUID
 import ee.ria.DigiDoc.common.test.AssetFile
+import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer.Companion.openOrCreate
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import kotlinx.coroutines.runBlocking
@@ -14,6 +15,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.BeforeClass
 import org.junit.Test
+import org.mockito.Mockito.mock
 
 class SmartCreateSignatureRequestHelperTest {
     companion object {
@@ -22,7 +24,8 @@ class SmartCreateSignatureRequestHelperTest {
         fun setupOnce() {
             runBlocking {
                 try {
-                    Initialization.init(InstrumentationRegistry.getInstrumentation().targetContext)
+                    val configurationRepository = mock(ConfigurationRepository::class.java)
+                    Initialization(configurationRepository)
                 } catch (_: Exception) {
                 }
             }

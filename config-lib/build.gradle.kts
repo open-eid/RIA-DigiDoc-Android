@@ -26,6 +26,14 @@ android {
     buildFeatures {
         buildConfig = true
     }
+
+    buildTypes {
+        debug {
+            enableUnitTestCoverage = true
+            enableAndroidTestCoverage = true
+        }
+    }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -50,8 +58,12 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.mockito.kotlin)
 
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.mockito.android)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.arch.core.testing)
 
     debugImplementation(project(":networking-lib", "debugRuntimeElements"))
     releaseImplementation(project(":networking-lib", "releaseRuntimeElements"))

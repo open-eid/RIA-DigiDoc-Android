@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.configuration
 import android.content.Context
 import android.content.SharedPreferences
 import ee.ria.DigiDoc.configuration.properties.ConfigurationProperties
+import ee.ria.DigiDoc.configuration.properties.ConfigurationPropertiesImpl
 import ee.ria.DigiDoc.configuration.utils.Constant.CONFIGURATION_LAST_UPDATE_CHECK_DATE_PROPERTY_NAME
 import ee.ria.DigiDoc.configuration.utils.Constant.CONFIGURATION_PREFERENCES
 import ee.ria.DigiDoc.configuration.utils.Constant.CONFIGURATION_UPDATE_DATE_PROPERTY_NAME
@@ -33,8 +34,11 @@ class ConfigurationPropertiesTest {
     @Mock
     lateinit var mockEditor: SharedPreferences.Editor
 
+    lateinit var configurationProperties: ConfigurationProperties
+
     @Before
     fun setup() {
+        configurationProperties = ConfigurationPropertiesImpl()
         `when`(
             mockContext.getSharedPreferences(CONFIGURATION_PREFERENCES, Context.MODE_PRIVATE),
         ).thenReturn(mockSharedPreferences)
@@ -68,14 +72,14 @@ class ConfigurationPropertiesTest {
         ).thenReturn(expectedLastUpdatedDate)
         `when`(mockSharedPreferences.getInt(CONFIGURATION_VERSION_SERIAL_PROPERTY_NAME, 0)).thenReturn(serial)
 
-        ConfigurationProperties.updateProperties(mockContext, lastUpdateCheck, lastUpdated, serial)
+        configurationProperties.updateProperties(mockContext, lastUpdateCheck, lastUpdated, serial)
 
         val expectedLastUpdateDateString = DateUtil.stringToDate(expectedLastUpdateDate)
         val expectedLastUpdatedDateString = DateUtil.stringToDate(expectedLastUpdatedDate)
 
-        assertEquals(expectedLastUpdateDateString, ConfigurationProperties.getConfigurationLastCheckDate(mockContext))
-        assertEquals(expectedLastUpdatedDateString, ConfigurationProperties.getConfigurationUpdatedDate(mockContext))
-        assertEquals(serial, ConfigurationProperties.getConfigurationVersionSerial(mockContext))
+        assertEquals(expectedLastUpdateDateString, configurationProperties.getConfigurationLastCheckDate(mockContext))
+        assertEquals(expectedLastUpdatedDateString, configurationProperties.getConfigurationUpdatedDate(mockContext))
+        assertEquals(serial, configurationProperties.getConfigurationVersionSerial(mockContext))
     }
 
     @Test
@@ -87,7 +91,7 @@ class ConfigurationPropertiesTest {
         `when`(mockSharedPreferences.getString(CONFIGURATION_UPDATE_DATE_PROPERTY_NAME, null)).thenReturn(expectedDate)
 
         val dateString = DateUtil.stringToDate(expectedDate)
-        assertEquals(dateString, ConfigurationProperties.getConfigurationUpdatedDate(mockContext))
+        assertEquals(dateString, configurationProperties.getConfigurationUpdatedDate(mockContext))
     }
 
     @Test
@@ -101,7 +105,7 @@ class ConfigurationPropertiesTest {
         ).thenReturn(expectedDate)
 
         val dateString = DateUtil.stringToDate(expectedDate)
-        assertEquals(dateString, ConfigurationProperties.getConfigurationLastCheckDate(mockContext))
+        assertEquals(dateString, configurationProperties.getConfigurationLastCheckDate(mockContext))
     }
 
     @Test
@@ -111,6 +115,6 @@ class ConfigurationPropertiesTest {
         `when`(mockSharedPreferences.contains(CONFIGURATION_VERSION_SERIAL_PROPERTY_NAME)).thenReturn(true)
         `when`(mockSharedPreferences.getInt(CONFIGURATION_VERSION_SERIAL_PROPERTY_NAME, 0)).thenReturn(serial)
 
-        assertEquals(serial, ConfigurationProperties.getConfigurationVersionSerial(mockContext))
+        assertEquals(serial, configurationProperties.getConfigurationVersionSerial(mockContext))
     }
 }
