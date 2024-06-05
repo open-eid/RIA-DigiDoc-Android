@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.domain.preferences
 
-import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
@@ -16,22 +15,15 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.DigiDoc.utilsLib.toast.ToastUtil
 import java.io.IOException
 import java.security.GeneralSecurityException
-import java.util.Arrays
 import javax.inject.Inject
 
 class DataStore
     @Inject
-    constructor(application: Application) {
-        @Suppress("PropertyName")
-        private val LOG_TAG = javaClass.simpleName
+    constructor(context: Context) {
+        private val logTag = javaClass.simpleName
 
-        private var preferences: SharedPreferences
-        private var resources: Resources
-
-        init {
-            preferences = PreferenceManager.getDefaultSharedPreferences(application)
-            resources = application.resources
-        }
+        private var preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        private var resources: Resources = context.resources
 
         fun getSignatureAddMethod(): String {
             val signatureAddMethod =
@@ -46,7 +38,7 @@ class DataStore
                     Route.IdCard.route,
                     Route.NFC.route,
                 )
-            if (!Arrays.asList(*signatureAddMethods).contains(signatureAddMethod)) {
+            if (!listOf(*signatureAddMethods).contains(signatureAddMethod)) {
                 return Route.MobileId.route
             }
             return signatureAddMethod
@@ -209,7 +201,7 @@ class DataStore
                     ProxySetting.NO_PROXY
                 }
             } catch (iae: IllegalArgumentException) {
-                errorLog(LOG_TAG, "Unable to get proxy setting", iae)
+                errorLog(logTag, "Unable to get proxy setting", iae)
                 ProxySetting.NO_PROXY
             }
         }
@@ -270,7 +262,7 @@ class DataStore
                 )
                 editor.apply()
             }
-            errorLog(LOG_TAG, "Unable to set proxy password")
+            errorLog(logTag, "Unable to set proxy password")
         }
 
         fun getProxyPassword(context: Context): String {
@@ -281,7 +273,7 @@ class DataStore
                     "",
                 ) ?: ""
             }
-            errorLog(LOG_TAG, "Unable to get proxy password")
+            errorLog(logTag, "Unable to get proxy password")
             return ""
         }
 
@@ -298,11 +290,11 @@ class DataStore
             return try {
                 EncryptedPreferences.getEncryptedPreferences(context)
             } catch (e: GeneralSecurityException) {
-                errorLog(LOG_TAG, "Unable to get encrypted preferences", e)
+                errorLog(logTag, "Unable to get encrypted preferences", e)
                 ToastUtil.showMessage(context, R.string.signature_update_mobile_id_error_general_client)
                 null
             } catch (e: IOException) {
-                errorLog(LOG_TAG, "Unable to get encrypted preferences", e)
+                errorLog(logTag, "Unable to get encrypted preferences", e)
                 ToastUtil.showMessage(context, R.string.signature_update_mobile_id_error_general_client)
                 null
             }

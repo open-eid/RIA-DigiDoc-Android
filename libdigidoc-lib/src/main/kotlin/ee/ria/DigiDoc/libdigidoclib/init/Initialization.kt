@@ -8,7 +8,7 @@ import android.system.ErrnoException
 import android.system.Os
 import android.util.Base64
 import ee.ria.DigiDoc.configuration.ConfigurationProvider
-import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
+import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.utils.ConfigurationUtil
 import ee.ria.DigiDoc.libdigidoclib.BuildConfig
 import ee.ria.DigiDoc.libdigidoclib.exceptions.AlreadyInitializedException
@@ -178,7 +178,7 @@ object Initialization {
     }
 
     private suspend fun loadConfiguration() {
-        ConfigurationRepository().getConfiguration()?.let { overrideConfiguration(it) }
+        ConfigurationRepositoryImpl().getConfiguration()?.let { overrideConfiguration(it) }
         CoroutineScope(IO).launch {
             ConfigurationUtil.observeConfigurationUpdates { newConfig ->
                 overrideConfiguration(newConfig)

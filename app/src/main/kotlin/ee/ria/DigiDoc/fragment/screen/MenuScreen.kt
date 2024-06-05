@@ -17,7 +17,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.domain.model.SomeObject
 import ee.ria.DigiDoc.ui.component.menu.MenuItem
 import ee.ria.DigiDoc.ui.component.menu.ToolbarScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
@@ -27,7 +26,6 @@ import ee.ria.DigiDoc.utils.Route
 fun MenuScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    someObject: SomeObject? = null,
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),

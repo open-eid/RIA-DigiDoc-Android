@@ -24,7 +24,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.domain.model.SomeObject
 import ee.ria.DigiDoc.ui.component.settings.SettingsItem
 import ee.ria.DigiDoc.ui.component.shared.BackButton
 import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
@@ -37,7 +36,6 @@ import ee.ria.DigiDoc.utils.Route
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    someList: List<SomeObject>? = listOf(SomeObject()),
 ) {
     Scaffold(
         modifier = modifier,

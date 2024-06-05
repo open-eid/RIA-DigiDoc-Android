@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModel
 import com.google.common.io.ByteStreams
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import ee.ria.DigiDoc.domain.repository.FileOpeningRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
@@ -28,7 +27,6 @@ class SharedContainerViewModel
     constructor(
         @ApplicationContext private val context: Context,
         private val contentResolver: ContentResolver,
-        private val fileOpeningRepository: FileOpeningRepository,
     ) : ViewModel() {
         private val _signedContainer = MutableLiveData<SignedContainer?>()
         val signedContainer: LiveData<SignedContainer?> = _signedContainer

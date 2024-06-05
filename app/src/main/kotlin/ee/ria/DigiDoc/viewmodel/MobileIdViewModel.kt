@@ -51,8 +51,6 @@ class MobileIdViewModel
     ) : ViewModel() {
         private val _signedContainer = MutableLiveData<SignedContainer?>(null)
         val signedContainer: LiveData<SignedContainer?> = _signedContainer
-        private val _signature = MutableLiveData<String?>(null)
-        val signature: LiveData<String?> = _signature
         private val _errorState = MutableLiveData<String?>(null)
         val errorState: LiveData<String?> = _errorState
         private val _challenge = MutableLiveData<String?>(null)
@@ -203,10 +201,11 @@ class MobileIdViewModel
                 mobileSignService.result.observeForever {
                     if (it != null) {
                         _errorState.postValue(
-                            context.getString(
-                                faults[it]
-                                    ?: R.string.signature_update_mobile_id_error_general_client,
-                            ),
+                            faults[it]?.let { res ->
+                                context.getString(
+                                    res,
+                                )
+                            },
                         )
                     }
                 }
@@ -215,10 +214,11 @@ class MobileIdViewModel
                         _status.postValue(it)
                         if (it != MobileCreateSignatureProcessStatus.OK) {
                             _errorState.postValue(
-                                context.getString(
-                                    messages[it]
-                                        ?: R.string.signature_update_mobile_id_error_general_client,
-                                ),
+                                messages[it]?.let { res ->
+                                    context.getString(
+                                        res,
+                                    )
+                                },
                             )
                         }
                     }
@@ -228,10 +228,11 @@ class MobileIdViewModel
                         MobileCreateSignatureProcessStatus.USER_CANCELLED -> {
                             _status.postValue(it.status)
                             _errorState.postValue(
-                                context.getString(
-                                    messages[it.status]
-                                        ?: R.string.signature_update_mobile_id_error_general_client,
-                                ),
+                                messages[it.status]?.let { res ->
+                                    context.getString(
+                                        res,
+                                    )
+                                },
                             )
                         }
 
@@ -255,8 +256,6 @@ class MobileIdViewModel
                                     _signedContainer.postValue(signedContainer)
                                 }
                             }
-
-                            _signature.postValue(it.signature)
                             _status.postValue(it.status)
                         }
 
@@ -264,10 +263,11 @@ class MobileIdViewModel
                             if (it != null) {
                                 _status.postValue(it.status)
                                 _errorState.postValue(
-                                    context.getString(
-                                        messages[it.status]
-                                            ?: R.string.signature_update_mobile_id_error_general_client,
-                                    ),
+                                    messages[it.status]?.let { res ->
+                                        context.getString(
+                                            res,
+                                        )
+                                    },
                                 )
                             }
                         }

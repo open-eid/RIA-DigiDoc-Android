@@ -25,7 +25,6 @@ fun SettingsSigningFragment(
     settingsViewModel: SettingsViewModel = hiltViewModel(),
     configurationViewModel: ConfigurationViewModel = hiltViewModel(),
 ) {
-    settingsViewModel.getListState()
     Surface(
         modifier =
             modifier

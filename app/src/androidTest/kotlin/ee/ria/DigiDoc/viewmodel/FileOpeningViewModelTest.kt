@@ -18,7 +18,6 @@ import ee.ria.DigiDoc.utilsLib.file.FileStream
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertFalse
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -60,6 +59,9 @@ class FileOpeningViewModelTest {
     @Mock
     lateinit var errorStateObserver: Observer<String?>
 
+    @Mock
+    lateinit var launchFilePickerObserver: Observer<Boolean?>
+
     private lateinit var viewModel: FileOpeningViewModel
 
     companion object {
@@ -82,6 +84,7 @@ class FileOpeningViewModelTest {
         viewModel = FileOpeningViewModel(context, contentResolver, fileOpeningRepository)
         viewModel.signedContainer.observeForever(signedContainerObserver)
         viewModel.errorState.observeForever(errorStateObserver)
+        viewModel.launchFilePicker.observeForever(launchFilePickerObserver)
     }
 
     @Test
@@ -153,7 +156,6 @@ class FileOpeningViewModelTest {
                 ),
             )
                 .thenThrow(exception)
-
             viewModel.handleFiles(uris, existingSignedContainer)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(existingSignedContainer)
@@ -261,7 +263,8 @@ class FileOpeningViewModelTest {
             viewModel.showFileChooser(fileChooserLauncher)
 
             verify(fileOpeningRepository).showFileChooser(fileChooserLauncher, "*/*")
-            assertFalse(viewModel.launchFilePicker.value)
+
+            verify(launchFilePickerObserver, atLeastOnce()).onChanged(false)
         }
 
     @Test
