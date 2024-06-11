@@ -6,7 +6,7 @@ import java.io.Serializable
 
 data class SmartCreateSignatureRequest(
     val relyingPartyName: String?,
-    val relyingPartyUUID: String?,
+    var relyingPartyUUID: String?,
     val url: String?,
     val country: String?,
     val nationalIdentityNumber: String?,

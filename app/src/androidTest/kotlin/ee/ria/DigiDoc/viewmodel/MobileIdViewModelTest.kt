@@ -121,9 +121,7 @@ class MobileIdViewModelTest {
             MobileIdViewModel(
                 context,
                 dataStore,
-                contentResolver,
                 mobileIdService,
-                fileOpeningRepository,
                 configurationRepository,
             )
         viewModel.errorState.observeForever(errorStateObserver)

@@ -5,13 +5,19 @@ package ee.ria.DigiDoc.libdigidoclib
 import android.content.Context
 import android.graphics.pdf.PdfDocument
 import androidx.test.platform.app.InstrumentationRegistry
+import com.tom_roush.pdfbox.pdmodel.PDDocument
+import com.tom_roush.pdfbox.pdmodel.interactive.digitalsignature.PDSignature
+import ee.ria.DigiDoc.common.Constant.CONTAINER_MIME_TYPE
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
+import ee.ria.DigiDoc.common.Constant.DEFAULT_MIME_TYPE
 import ee.ria.DigiDoc.common.test.AssetFile
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer.Companion.openOrCreate
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
+import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerDataFilesEmptyException
 import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerUninitializedException
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
+import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -19,6 +25,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
@@ -71,6 +78,161 @@ class SignedContainerTest {
         dataFile3.delete()
         SignedContainer.cleanup()
     }
+
+    @Test
+    fun signedContainer_rawContainer_success() =
+        runTest {
+            val dataFiles = listOf(testFile)
+
+            openOrCreate(context, testFile, dataFiles)
+
+            val result = SignedContainer.rawContainer()
+
+            assertNotNull(result)
+        }
+
+    @Test
+    fun signedContainer_rawContainerFile_success() =
+        runTest {
+            val dataFiles = listOf(testFile)
+
+            openOrCreate(context, testFile, dataFiles)
+
+            val result = SignedContainer.rawContainerFile()
+
+            assertNotNull(result)
+        }
+
+    @Test
+    fun signedContainer_isExistingContainer_false() =
+        runTest {
+            val dataFiles = listOf(testFile)
+
+            openOrCreate(context, testFile, dataFiles)
+
+            val result = SignedContainer.isExistingContainer()
+
+            assertFalse(result)
+        }
+
+    @Test
+    fun signedContainer_isExistingContainer_true() =
+        runTest {
+            openOrCreate(context, container, listOf(container))
+
+            val result = SignedContainer.isExistingContainer()
+
+            assertTrue(result)
+        }
+
+    @Test
+    fun signedContainer_setName_successWhenSettingName() =
+        runTest {
+            val dataFiles = listOf(testFile)
+
+            val signedContainer = openOrCreate(context, testFile, dataFiles)
+
+            signedContainer.setName("testName")
+
+            assertEquals("testName.asice", signedContainer.getName())
+        }
+
+    @Test
+    fun signedContainer_mimeType_returnContainerMimeType() =
+        runTest {
+            val dataFiles = listOf(testFile)
+
+            val signedContainer = openOrCreate(context, testFile, dataFiles)
+
+            val result = signedContainer.getContainerFile()?.let { SignedContainer.mimeType(it) }
+
+            assertEquals(CONTAINER_MIME_TYPE, result)
+        }
+
+    @Test
+    fun signedContainer_mimeType_returnFileMimeType() =
+        runTest {
+            val file = File.createTempFile("testFile", ".bmp", context.filesDir)
+            val result = SignedContainer.mimeType(file)
+
+            assertEquals("image/x-ms-bmp", result)
+        }
+
+    @Test
+    fun signedContainer_mimeType_returnDefaultMimeType() =
+        runTest {
+            val file = File.createTempFile("testFile", ".xyzabc", context.filesDir)
+            val result = SignedContainer.mimeType(file)
+
+            assertEquals(DEFAULT_MIME_TYPE, result)
+        }
+
+    @Test
+    fun signedContainer_getDataFile_successWhenGettingDataFile() =
+        runTest {
+            val dataFiles = listOf(testFile)
+
+            val signedContainer = openOrCreate(context, testFile, dataFiles)
+
+            val result =
+                signedContainer.getDataFile(
+                    signedContainer.getDataFiles().first(),
+                    signedContainer.getContainerFile()?.let {
+                        ContainerUtil.getContainerDataFilesDir(
+                            context,
+                            it,
+                        )
+                    },
+                )
+
+            assertEquals(testFile.name, result?.name)
+        }
+
+    @Test
+    fun signedContainer_removeSignature_successWhenRemovingSignature() =
+        runTest {
+            val signedContainer = openOrCreate(context, container, listOf(container))
+
+            assertEquals(2, signedContainer.getSignatures().size)
+
+            val result = signedContainer.removeSignature(signedContainer.getSignatures().first())
+
+            assertEquals(1, result.getSignatures().size)
+        }
+
+    @Test
+    fun signedContainer_removeDataFile_successWhenRemovingDataFile() =
+        runTest {
+            val dataFiles = listOf(testFile, dataFile1, dataFile2)
+
+            val signedContainer = openOrCreate(context, testFile, dataFiles)
+
+            assertEquals(3, signedContainer.getDataFiles().size)
+
+            val result = signedContainer.removeDataFile(signedContainer.getDataFiles().first())
+
+            assertEquals(2, result.getDataFiles().size)
+        }
+
+    @Test(expected = ContainerDataFilesEmptyException::class)
+    fun signedContainer_removeDataFile_throwsException() =
+        runTest {
+            val dataFiles = listOf(testFile)
+            val signedContainer = openOrCreate(context, testFile, dataFiles)
+            signedContainer.removeDataFile(signedContainer.getDataFiles().first())
+        }
+
+    @Test
+    fun signedContainer_addDataFiles_successWhenAddingDataFiles() =
+        runTest {
+            val dataFiles = listOf(testFile)
+
+            val signedContainer = openOrCreate(context, testFile, dataFiles)
+
+            val result = signedContainer.addDataFiles(listOf(dataFile1, dataFile2))
+
+            assertEquals(3, result.getDataFiles().size)
+        }
 
     @Test
     fun signedContainer_openOrCreate_successWhenCreatingContainerWithSingleDataFile() =
@@ -305,9 +467,8 @@ class SignedContainerTest {
             assertFalse(signedContainer.getName().endsWith("pdf"))
         }
 
-    // TODO: Try if possible to run after central configuration implementation
-
-    /*@Test
+    // Requires internet access, emulator should be running with internet access and RIA VPN on.
+    @Test
     fun signedContainer_openOrCreate_successCreatingNewContainerWithPDFSignatures() =
         runTest {
             val pdfDocument = PdfDocument()
@@ -352,5 +513,5 @@ class SignedContainerTest {
             signedTestPDFFile.delete()
 
             assertTrue(pdfContainer.getName().endsWith("pdf"))
-        }*/
+        }
 }

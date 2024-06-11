@@ -30,21 +30,30 @@ import java.security.cert.Certificate
 import java.security.cert.CertificateException
 import java.util.concurrent.TimeUnit
 
-object ServiceGenerator {
+interface ServiceGenerator {
+    @Throws(CertificateException::class, NoSuchAlgorithmException::class)
+    fun createService(
+        sidSignServiceUrl: String?,
+        certBundle: ArrayList<String>,
+        proxySetting: ProxySetting?,
+        manualProxySettings: ManualProxy,
+    ): SIDRestServiceClient
+}
+
+class ServiceGeneratorImpl : ServiceGenerator {
     private val logTag = javaClass.simpleName
     private lateinit var loggingInterceptor: HttpLoggingInterceptor
 
     @Throws(CertificateException::class, NoSuchAlgorithmException::class)
-    fun <S> createService(
-        serviceClass: Class<S>,
-        sidSignServiceUrl: String,
+    override fun createService(
+        sidSignServiceUrl: String?,
         certBundle: ArrayList<String>,
         proxySetting: ProxySetting?,
         manualProxySettings: ManualProxy,
-    ): S {
+    ): SIDRestServiceClient {
         debugLog(logTag, "Creating new retrofit instance")
         return Retrofit.Builder()
-            .baseUrl(sidSignServiceUrl)
+            .baseUrl("$sidSignServiceUrl")
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
             .client(
@@ -56,12 +65,12 @@ object ServiceGenerator {
                 ),
             )
             .build()
-            .create(serviceClass)
+            .create(SIDRestServiceClient::class.java)
     }
 
     @Throws(CertificateException::class, NoSuchAlgorithmException::class)
     private fun buildHttpClient(
-        sidSignServiceUrl: String,
+        sidSignServiceUrl: String?,
         certBundle: ArrayList<String>,
         proxySetting: ProxySetting?,
         manualProxySettings: ManualProxy,
@@ -117,7 +126,7 @@ object ServiceGenerator {
 
     @Throws(CertificateException::class, NoSuchAlgorithmException::class)
     private fun trustedCertificates(
-        sidSignServiceUrl: String,
+        sidSignServiceUrl: String?,
         certBundle: ArrayList<String>,
     ): CertificatePinner {
         val uri: URI

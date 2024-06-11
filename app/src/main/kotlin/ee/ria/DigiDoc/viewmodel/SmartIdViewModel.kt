@@ -4,7 +4,6 @@ package ee.ria.DigiDoc.viewmodel
 
 import android.Manifest
 import android.app.Notification
-import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -22,7 +21,6 @@ import ee.ria.DigiDoc.common.Constant.MAXIMUM_PERSONAL_CODE_LENGTH
 import ee.ria.DigiDoc.common.Constant.SmartIdConstants.NOTIFICATION_CHANNEL
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.domain.preferences.DataStore
-import ee.ria.DigiDoc.domain.repository.FileOpeningRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.network.proxy.ManualProxy
@@ -50,9 +48,7 @@ class SmartIdViewModel
     constructor(
         @ApplicationContext private val context: Context,
         private val dataStore: DataStore,
-        private val contentResolver: ContentResolver,
         private val smartSignService: SmartSignService,
-        private val fileOpeningRepository: FileOpeningRepository,
         private val configurationRepository: ConfigurationRepository,
     ) : ViewModel() {
         private val logTag = javaClass.simpleName
@@ -307,6 +303,7 @@ class SmartIdViewModel
                     }
                 }
             }
+            smartSignService.resetValues()
             smartSignService.processSmartIdRequest(
                 context,
                 request,

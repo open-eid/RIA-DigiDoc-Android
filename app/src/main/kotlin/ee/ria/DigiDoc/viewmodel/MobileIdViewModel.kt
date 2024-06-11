@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.viewmodel
 
-import android.content.ContentResolver
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -16,7 +15,6 @@ import ee.ria.DigiDoc.common.Constant.MAXIMUM_PERSONAL_CODE_LENGTH
 import ee.ria.DigiDoc.common.Constant.MINIMUM_PHONE_NUMBER_LENGTH
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.domain.preferences.DataStore
-import ee.ria.DigiDoc.domain.repository.FileOpeningRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.mobileId.MobileSignService
@@ -42,9 +40,7 @@ class MobileIdViewModel
     constructor(
         @ApplicationContext private val context: Context,
         private val dataStore: DataStore,
-        private val contentResolver: ContentResolver,
         private val mobileSignService: MobileSignService,
-        private val fileOpeningRepository: FileOpeningRepository,
         private val configurationRepository: ConfigurationRepository,
     ) : ViewModel() {
         private val _signedContainer = MutableLiveData<SignedContainer?>(null)
@@ -250,6 +246,7 @@ class MobileIdViewModel
                     }
                 }
             }
+            mobileSignService.resetValues()
             mobileSignService.processMobileIdRequest(
                 request,
                 roleData,

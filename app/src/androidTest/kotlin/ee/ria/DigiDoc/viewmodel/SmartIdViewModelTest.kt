@@ -123,9 +123,7 @@ class SmartIdViewModelTest {
             SmartIdViewModel(
                 context,
                 dataStore,
-                contentResolver,
                 smartSignService,
-                fileOpeningRepository,
                 configurationRepository,
             )
         viewModel.errorState.observeForever(errorStateObserver)

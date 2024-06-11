@@ -7,25 +7,25 @@ import android.content.Context
 import android.net.Uri
 import androidx.activity.result.ActivityResultLauncher
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.core.net.toFile
 import androidx.lifecycle.Observer
 import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.domain.repository.FileOpeningRepository
 import ee.ria.DigiDoc.exceptions.EmptyFileException
-import ee.ria.DigiDoc.exceptions.FileAlreadyExistsException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
+import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerUninitializedException
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.anyList
 import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
@@ -33,6 +33,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
 import java.io.File
 import java.nio.charset.Charset
 import java.nio.file.Files
@@ -56,6 +57,9 @@ class FileOpeningViewModelTest {
 
     @Mock
     lateinit var signedContainerObserver: Observer<SignedContainer?>
+
+    @Mock
+    lateinit var filesAddedObserver: Observer<List<File>?>
 
     @Mock
     lateinit var errorStateObserver: Observer<String?>
@@ -86,7 +90,28 @@ class FileOpeningViewModelTest {
         viewModel.signedContainer.observeForever(signedContainerObserver)
         viewModel.errorState.observeForever(errorStateObserver)
         viewModel.launchFilePicker.observeForever(launchFilePickerObserver)
+        viewModel.filesAdded.observeForever(filesAddedObserver)
     }
+
+    @Test
+    fun fileOpeningViewModel_resetContainer_success() =
+        runTest {
+            viewModel.resetContainer()
+
+            assertNull(SignedContainer.rawContainer())
+            assertNull(SignedContainer.rawContainerFile())
+            assertFalse(SignedContainer.isExistingContainer())
+
+            verify(signedContainerObserver, atLeastOnce()).onChanged(null)
+        }
+
+    @Test
+    fun fileOpeningViewModel_resetFilesAdded_success() =
+        runTest {
+            viewModel.resetFilesAdded()
+
+            verify(filesAddedObserver, atLeastOnce()).onChanged(null)
+        }
 
     @Test
     fun fileOpeningViewModel_handleFilesWithExistingContainer_success() =
@@ -95,35 +120,42 @@ class FileOpeningViewModelTest {
             val uris = listOf(uri)
             val file = createTempFileWithStringContent("test", "Test content")
             val anotherFile = createTempFileWithStringContent("test2", "Another file")
-            val newFiles = listOf(anotherFile)
 
             val existingSignedContainer = SignedContainer.openOrCreate(context, file, listOf(file))
 
             val signedContainer =
                 runBlocking {
-                    fileOpeningRepository.addFilesToContainer(context, newFiles)
+                    existingSignedContainer.addDataFiles(listOf(anotherFile))
                 }
 
+            val uriToFile = fileOpeningRepository.uriToFile(context, contentResolver, uri)
+
             `when`(
-                fileOpeningRepository.isEmptyFileInList(anyList()),
+                fileOpeningRepository.isFileSizeValid(uriToFile),
+            )
+                .thenReturn(true)
+
+            `when`(
+                fileOpeningRepository.isFileAlreadyInContainer(uriToFile, existingSignedContainer),
             )
                 .thenReturn(false)
 
             `when`(
-                fileOpeningRepository.getFilesWithValidSize(anyList()),
+                fileOpeningRepository.getValidFiles(any(), eq(existingSignedContainer)),
             )
-                .thenReturn(newFiles)
+                .thenReturn(listOf(file))
 
             `when`(
                 fileOpeningRepository.addFilesToContainer(
+                    eq(context),
                     any(),
-                    anyList(),
                 ),
             )
                 .thenReturn(signedContainer)
 
             viewModel.handleFiles(uris, existingSignedContainer)
 
+            verify(filesAddedObserver, atLeastOnce()).onChanged(listOf(file))
             verify(signedContainerObserver, atLeastOnce()).onChanged(signedContainer)
         }
 
@@ -133,9 +165,6 @@ class FileOpeningViewModelTest {
             val uri: Uri = mock()
             val uris = listOf(uri)
             val file = createTempFileWithStringContent("test", "Test content")
-            val anotherFile = createTempFileWithStringContent("test2", "Another file")
-            val newFiles = listOf(anotherFile)
-
             val uriToFile = fileOpeningRepository.uriToFile(context, contentResolver, uri)
 
             val existingSignedContainer = SignedContainer.openOrCreate(context, file, listOf(file))
@@ -148,19 +177,9 @@ class FileOpeningViewModelTest {
                 .thenReturn(true)
 
             `when`(
-                fileOpeningRepository.isEmptyFileInList(anyList()),
-            )
-                .thenReturn(false)
-
-            `when`(
-                fileOpeningRepository.getFilesWithValidSize(anyList()),
-            )
-                .thenReturn(newFiles)
-
-            `when`(
                 fileOpeningRepository.addFilesToContainer(
+                    eq(context),
                     any(),
-                    anyList(),
                 ),
             )
                 .thenThrow(exception)
@@ -168,6 +187,49 @@ class FileOpeningViewModelTest {
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(existingSignedContainer)
             verify(errorStateObserver, atLeastOnce()).onChanged(exception.message)
+        }
+
+    @Test
+    fun fileOpeningViewModel_handleFilesWithExistingContainer_throwContainerUninitializedException() =
+        runTest {
+            val uri: Uri = mock()
+            val uris = listOf(uri)
+            val file = createTempFileWithStringContent("test", "Test content")
+            val uriToFile = fileOpeningRepository.uriToFile(context, contentResolver, uri)
+
+            val signedContainer =
+                runBlocking {
+                    SignedContainer.openOrCreate(context, file, listOf(file))
+                }
+
+            val existingSignedContainer = SignedContainer.openOrCreate(context, file, listOf(file))
+
+            val exception = ContainerUninitializedException()
+
+            `when`(
+                fileOpeningRepository.isFileSizeValid(uriToFile),
+            )
+                .thenReturn(true)
+
+            `when`(
+                fileOpeningRepository.addFilesToContainer(
+                    eq(context),
+                    any(),
+                ),
+            )
+                .thenThrow(exception)
+
+            `when`(
+                fileOpeningRepository.openOrCreateContainer(
+                    context,
+                    contentResolver,
+                    uris,
+                ),
+            )
+                .thenReturn(signedContainer)
+
+            viewModel.handleFiles(uris, existingSignedContainer)
+            verify(signedContainerObserver, atLeastOnce()).onChanged(signedContainer)
         }
 
     @Test
@@ -224,9 +286,10 @@ class FileOpeningViewModelTest {
         runTest {
             val uri: Uri = mock()
             val uris = listOf(uri)
+            val file = createTempFileWithStringContent("test", "Test content")
             val signedContainer =
                 runBlocking {
-                    fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris)
+                    SignedContainer.openOrCreate(context, file, listOf(file))
                 }
 
             `when`(
@@ -238,7 +301,7 @@ class FileOpeningViewModelTest {
             )
                 .thenReturn(signedContainer)
 
-            viewModel.handleFiles(uris, null)
+            viewModel.handleFiles(uris)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(signedContainer)
         }
@@ -249,9 +312,10 @@ class FileOpeningViewModelTest {
             val uri1: Uri = mock()
             val uri2: Uri = mock()
             val uris = listOf(uri1, uri2)
+            val file = createTempFileWithStringContent("test", "Test content")
             val signedContainer =
                 runBlocking {
-                    fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris)
+                    SignedContainer.openOrCreate(context, file, listOf(file))
                 }
 
             `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris))

@@ -5,6 +5,8 @@ val appAbiFilters = "arm64-v8a;armeabi-v7a;x86_64"
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    kotlin("kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 apply<LibdigidocppPlugin>()
@@ -61,6 +63,9 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.gson)
     implementation(libs.bouncy.castle)
+    implementation(libs.google.dagger.hilt.android)
+    kapt(libs.google.dagger.hilt.android.compile)
+    implementation(libs.androidx.hilt)
 
     implementation(libs.pdfbox.android) {
         exclude(group = "org.bouncycastle")

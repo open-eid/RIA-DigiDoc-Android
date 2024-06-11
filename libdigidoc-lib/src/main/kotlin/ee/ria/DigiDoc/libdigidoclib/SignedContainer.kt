@@ -234,7 +234,7 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
             }
         }
 
-        @Throws(IllegalStateException::class)
+        @Throws(ContainerUninitializedException::class)
         fun container(): SignedContainer {
             container?.let {
                 val dataFiles = it.dataFiles()
@@ -247,6 +247,14 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
 
         fun rawContainer(): Container? {
             return container
+        }
+
+        fun rawContainerFile(): File? {
+            return containerFile
+        }
+
+        fun isExistingContainer(): Boolean {
+            return isExistingContainer
         }
 
         fun mimeType(file: File): String {

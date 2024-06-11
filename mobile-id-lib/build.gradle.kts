@@ -25,8 +25,17 @@ android {
 
     packaging {
         resources {
+            pickFirsts += "META-INF/LICENSE.md"
+            pickFirsts += "META-INF/LICENSE-notice.md"
             pickFirsts += "/META-INF/{AL2.0,LGPL2.1}"
             pickFirsts += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
+        }
+    }
+
+    buildTypes {
+        debug {
+            enableUnitTestCoverage = true
+            enableAndroidTestCoverage = true
         }
     }
 }
@@ -42,9 +51,16 @@ dependencies {
     implementation(libs.google.dagger.hilt.android)
     kapt(libs.google.dagger.hilt.android.compile)
     implementation(libs.androidx.hilt)
+
     testImplementation(libs.junit)
+    androidTestImplementation(libs.retrofit.mock)
+    androidTestImplementation(libs.mockito.kotlin)
+    androidTestImplementation(libs.mockito.android)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.lifecycle.runtime.ktx)
+    androidTestImplementation(libs.androidx.arch.core.testing)
 
     implementation(project(":libdigidoc-lib"))
     implementation(project(":networking-lib"))

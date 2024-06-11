@@ -4,13 +4,20 @@ package ee.ria.DigiDoc.libdigidoclib.utils
 
 import android.content.Context
 import android.content.res.Resources
+import androidx.test.platform.app.InstrumentationRegistry
+import ee.ria.DigiDoc.libdigidoclib.SignedContainer
+import ee.ria.DigiDoc.libdigidoclib.init.Initialization
+import ee.ria.DigiDoc.libdigidoclib.utils.FileUtils.getDataFileMimetype
 import ee.ria.DigiDoc.libdigidoclib.utils.FileUtils.getSchemaDir
 import ee.ria.DigiDoc.libdigidoclib.utils.FileUtils.getSchemaPath
 import ee.ria.DigiDoc.libdigidoclib.utils.FileUtils.initSchema
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Test
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.Mockito.mock
@@ -29,6 +36,19 @@ class FileUtilsTest {
     private val mockCacheDir = createTempDirectory("tempDirectory").toFile()
     private lateinit var context: Context
     private lateinit var resources: Resources
+
+    companion object {
+        @JvmStatic
+        @BeforeClass
+        fun setupOnce() {
+            runBlocking {
+                try {
+                    Initialization.init(InstrumentationRegistry.getInstrumentation().targetContext)
+                } catch (_: Exception) {
+                }
+            }
+        }
+    }
 
     @Before
     fun setUp() {
@@ -114,6 +134,32 @@ class FileUtilsTest {
         }
         fail("Must throw exception when cacheDir is null")
     }
+
+    @Test
+    fun signedContainer_mimeType_returnMimeType() =
+        runTest {
+            val file = File.createTempFile("testFile", ".bmp", context.filesDir)
+            val dataFiles = listOf(file)
+
+            val signedContainer = SignedContainer.openOrCreate(context, file, dataFiles)
+
+            val result = getDataFileMimetype(signedContainer.getDataFiles().first())
+
+            assertEquals("image/x-ms-bmp", result)
+        }
+
+    @Test
+    fun signedContainer_mimeType_extensionEmptyReturnMimeType() =
+        runTest {
+            val file = File.createTempFile("testFile", "", context.filesDir)
+            val dataFiles = listOf(file)
+
+            val signedContainer = SignedContainer.openOrCreate(context, file, dataFiles)
+
+            val result = getDataFileMimetype(signedContainer.getDataFiles().first())
+
+            assertEquals("application/octet-stream", result)
+        }
 
     private fun createZipInputStream(files: Map<String, String>): InputStream {
         val outputStream = ByteArrayOutputStream()

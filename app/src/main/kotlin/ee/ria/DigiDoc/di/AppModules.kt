@@ -17,10 +17,6 @@ import ee.ria.DigiDoc.domain.repository.FileOpeningRepository
 import ee.ria.DigiDoc.domain.repository.FileOpeningRepositoryImpl
 import ee.ria.DigiDoc.domain.service.FileOpeningService
 import ee.ria.DigiDoc.domain.service.FileOpeningServiceImpl
-import ee.ria.DigiDoc.mobileId.MobileSignService
-import ee.ria.DigiDoc.mobileId.MobileSignServiceImpl
-import ee.ria.DigiDoc.smartId.SmartSignService
-import ee.ria.DigiDoc.smartId.SmartSignServiceImpl
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -51,12 +47,6 @@ class AppModules {
         FileOpeningRepositoryImpl(
             fileOpeningService = fileOpeningService,
         )
-
-    @Provides
-    fun provideMobileSignService(): MobileSignService = MobileSignServiceImpl()
-
-    @Provides
-    fun provideSmartSignService(): SmartSignService = SmartSignServiceImpl()
 
     @Provides
     fun provideConfigurationRepository(): ConfigurationRepository = ConfigurationRepositoryImpl()

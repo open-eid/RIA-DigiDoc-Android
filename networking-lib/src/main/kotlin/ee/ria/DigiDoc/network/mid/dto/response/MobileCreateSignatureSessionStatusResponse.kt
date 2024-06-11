@@ -6,28 +6,22 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.google.gson.annotations.SerializedName
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class MobileCreateSignatureSessionStatusResponse {
+data class MobileCreateSignatureSessionStatusResponse(
     @SerializedName("state")
-    var state: MobileCreateSignatureProcessState? = null
-
+    var state: MobileCreateSignatureProcessState? = null,
     @SerializedName("result")
-    var result: MobileCreateSignatureProcessStatus? = null
-
+    var result: MobileCreateSignatureProcessStatus? = null,
     @SerializedName("signature")
-    var signature: MobileSignatureResponse? = null
-
+    var signature: MobileSignatureResponse? = null,
     @SerializedName("cert")
-    var cert: String? = null
-
+    var cert: String? = null,
     @SerializedName("time")
-    var time: String? = null
-
+    var time: String? = null,
     @SerializedName("traceId")
-    var traceId: String? = null
-
+    var traceId: String? = null,
     @SerializedName("error")
-    var error: String? = null
-
+    var error: String? = null,
+) {
     override fun toString(): String {
         return "MobileCreateSignatureSessionStatusResponse{" +
             "state=" + state +
