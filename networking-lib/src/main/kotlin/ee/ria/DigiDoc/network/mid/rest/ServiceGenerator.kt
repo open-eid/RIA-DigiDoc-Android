@@ -3,6 +3,8 @@
 package ee.ria.DigiDoc.network.mid.rest
 
 import com.takisoft.preferencex.BuildConfig
+import ee.ria.DigiDoc.common.Constant.MobileIdConstants.CERT_PEM_FOOTER
+import ee.ria.DigiDoc.common.Constant.MobileIdConstants.CERT_PEM_HEADER
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxyConfig
 import ee.ria.DigiDoc.network.proxy.ProxySetting
@@ -33,23 +35,31 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
-object ServiceGenerator {
-    private val logTag = javaClass.simpleName
-    private const val CERT_PEM_HEADER = "-----BEGIN CERTIFICATE-----"
-    private const val CERT_PEM_FOOTER = "-----END CERTIFICATE-----"
-
-    private lateinit var loggingInterceptor: HttpLoggingInterceptor
-
+interface ServiceGenerator {
     @Throws(CertificateException::class, NoSuchAlgorithmException::class)
-    fun <S> createService(
-        serviceClass: Class<S>,
+    fun createService(
         sslContext: SSLContext?,
         midSignServiceUrl: String?,
         certBundle: ArrayList<String>,
         trustManagers: Array<TrustManager>,
         proxySetting: ProxySetting?,
         manualProxySettings: ManualProxy,
-    ): S {
+    ): MIDRestServiceClient
+}
+
+class ServiceGeneratorImpl : ServiceGenerator {
+    private val logTag = javaClass.simpleName
+    private lateinit var loggingInterceptor: HttpLoggingInterceptor
+
+    @Throws(CertificateException::class, NoSuchAlgorithmException::class)
+    override fun createService(
+        sslContext: SSLContext?,
+        midSignServiceUrl: String?,
+        certBundle: ArrayList<String>,
+        trustManagers: Array<TrustManager>,
+        proxySetting: ProxySetting?,
+        manualProxySettings: ManualProxy,
+    ): MIDRestServiceClient {
         debugLog(logTag, "Creating new retrofit instance")
         return Retrofit.Builder()
             .baseUrl("$midSignServiceUrl/")
@@ -66,7 +76,7 @@ object ServiceGenerator {
                 ),
             )
             .build()
-            .create(serviceClass)
+            .create(MIDRestServiceClient::class.java)
     }
 
     @Throws(CertificateException::class, NoSuchAlgorithmException::class)

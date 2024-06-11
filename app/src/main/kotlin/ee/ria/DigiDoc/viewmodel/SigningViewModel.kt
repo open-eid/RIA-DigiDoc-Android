@@ -52,7 +52,7 @@ class SigningViewModel
                 !UNSIGNABLE_CONTAINER_EXTENSIONS.contains(
                     FilenameUtils.getExtension(signedContainer.getName())
                         .lowercase(Locale.getDefault()),
-                ) || !isEmptyFileInContainer(signedContainer)
+                ) && !isEmptyFileInContainer(signedContainer)
             )
         }
 

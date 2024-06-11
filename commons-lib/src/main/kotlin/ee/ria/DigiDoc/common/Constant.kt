@@ -76,6 +76,9 @@ object Constant {
         const val MANUAL_PROXY_PORT: String = "ee.ria.DigiDoc.androidmobileid.PORT"
         const val MANUAL_PROXY_USERNAME: String = "ee.ria.DigiDoc.androidmobileid.USERNAME"
         const val MANUAL_PROXY_PASSWORD: String = "ee.ria.DigiDoc.androidmobileid.PASSWORD"
+
+        const val CERT_PEM_HEADER = "-----BEGIN CERTIFICATE-----"
+        const val CERT_PEM_FOOTER = "-----END CERTIFICATE-----"
     }
 
     private const val RESTRICTED_FILENAME_CHARACTERS_AS_STRING = "@%:^?[]\\'\"”’{}#&`\\\\~«»/´"

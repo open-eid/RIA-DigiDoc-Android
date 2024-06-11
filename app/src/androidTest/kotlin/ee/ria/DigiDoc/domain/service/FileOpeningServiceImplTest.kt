@@ -6,21 +6,21 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import androidx.test.platform.app.InstrumentationRegistry
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito.anyString
-import org.mockito.Mockito.verify
+import org.junit.runner.RunWith
+import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
+import org.mockito.junit.MockitoJUnitRunner
 import java.io.File
 import java.nio.charset.Charset
 import java.nio.file.Files
 
+@RunWith(MockitoJUnitRunner::class)
 class FileOpeningServiceImplTest {
     private lateinit var fileOpeningService: FileOpeningServiceImpl
     private lateinit var context: Context
@@ -52,18 +52,69 @@ class FileOpeningServiceImplTest {
         }
     }
 
-    @Test(expected = Exception::class)
-    fun fileOpeningService_isFileSizeValid_throwException() {
-        val file = createTempFile()
-        `when`(file.exists()).thenThrow(Exception("An exception"))
-
-        assertThrows(Exception::class.java) {
-            runTest {
-                fileOpeningService.isFileSizeValid(file)
-                verify(LoggingUtil).errorLog(anyString(), anyString())
-            }
+    @Test
+    fun fileOpeningService_isFileSizeValid_size0ReturnFalse() {
+        val file = File.createTempFile("test", ".txt", context.cacheDir)
+        runBlocking {
+            val isValid = fileOpeningService.isFileSizeValid(file)
+            assertFalse(isValid)
         }
     }
+
+    @Test
+    fun fileOpeningService_isFileSizeValid_throwException() =
+        runTest {
+            val file = mock(File::class.java)
+            `when`(file.exists()).thenAnswer {
+                if (file.isFile && file.length() > 0) {
+                    throw Exception("An exception")
+                } else {
+                    it.getArgument(0)
+                }
+            }
+
+            val isValid = fileOpeningService.isFileSizeValid(file)
+            assertFalse(isValid)
+        }
+
+    @Test
+    fun fileOpeningService_isFileSizeValid_mockIsFileFalseReturnFalse() =
+        runTest {
+            val file = mock(File::class.java)
+
+            `when`(file.exists()).thenReturn(true)
+            `when`(file.isFile).thenReturn(false)
+            `when`(file.length()).thenReturn(24)
+
+            val isValid = fileOpeningService.isFileSizeValid(file)
+            assertFalse(isValid)
+        }
+
+    @Test
+    fun fileOpeningService_isFileSizeValid_mockFileExistsFalseReturnFalse() =
+        runTest {
+            val file = mock(File::class.java)
+
+            `when`(file.exists()).thenReturn(false)
+            `when`(file.isFile).thenReturn(true)
+            `when`(file.length()).thenReturn(24)
+
+            val isValid = fileOpeningService.isFileSizeValid(file)
+            assertFalse(isValid)
+        }
+
+    @Test
+    fun fileOpeningService_isFileSizeValid_mockFileLength0ReturnFalse() =
+        runTest {
+            val file = mock(File::class.java)
+
+            `when`(file.exists()).thenReturn(true)
+            `when`(file.isFile).thenReturn(true)
+            `when`(file.length()).thenReturn(0)
+
+            val isValid = fileOpeningService.isFileSizeValid(file)
+            assertFalse(isValid)
+        }
 
     @Test
     fun fileOpeningService_uriToFile_success() {

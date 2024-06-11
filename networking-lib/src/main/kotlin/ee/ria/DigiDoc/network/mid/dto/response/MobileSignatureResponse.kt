@@ -6,13 +6,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.google.gson.annotations.SerializedName
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class MobileSignatureResponse {
+data class MobileSignatureResponse(
     @SerializedName("value")
-    var value: String? = null
-
+    var value: String? = null,
     @SerializedName("algorithm")
-    var algorithm: String? = null
-
+    var algorithm: String? = null,
+) {
     override fun toString(): String {
         return "MobileSignatureResponse{" +
             "value='" + value + '\'' +

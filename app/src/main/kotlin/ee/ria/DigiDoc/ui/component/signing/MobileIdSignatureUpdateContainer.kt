@@ -12,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -30,7 +29,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.viewmodel.MobileIdViewModel
-import kotlinx.coroutines.delay
 
 @Composable
 fun MobileIdSignatureUpdateContainer(
@@ -38,8 +36,6 @@ fun MobileIdSignatureUpdateContainer(
     mobileIdViewModel: MobileIdViewModel,
     onCancelButtonClick: () -> Unit = {},
 ) {
-    var loading by remember { mutableStateOf(false) }
-
     var challengeText by remember { mutableStateOf("") }
 
     LaunchedEffect(mobileIdViewModel.challenge) {
@@ -119,12 +115,5 @@ fun MobileIdSignatureUpdateContainerPreview() {
         MobileIdSignatureUpdateContainer(
             mobileIdViewModel = mobileIdViewModel,
         )
-    }
-}
-
-suspend fun loadMobileIdProgress(updateProgress: (Float) -> Unit) {
-    for (i in 1..100) {
-        updateProgress(i.toFloat() / 100)
-        delay(1000)
     }
 }

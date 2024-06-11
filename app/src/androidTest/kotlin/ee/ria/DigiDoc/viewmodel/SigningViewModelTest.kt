@@ -25,6 +25,8 @@ import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import java.io.File
+import java.nio.charset.Charset
+import java.nio.file.Files
 
 @RunWith(MockitoJUnitRunner::class)
 class SigningViewModelTest {
@@ -65,6 +67,121 @@ class SigningViewModelTest {
 
         verify(shouldResetSignedContainerObserver, atLeastOnce()).onChanged(true)
     }
+
+    @Test
+    fun signingViewModel_isSignButtonShown_returnTrue() =
+        runTest {
+            val file = File.createTempFile("temp", ".txt")
+            Files.write(file.toPath(), "content".toByteArray(Charset.defaultCharset()))
+            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+
+            val isSignButtonShown = viewModel.isSignButtonShown(container)
+
+            assertTrue(isSignButtonShown)
+        }
+
+    @Test
+    fun signingViewModel_isSignButtonShown_emptyFileInContainerReturnFalse() =
+        runTest {
+            val file = File.createTempFile("temp", ".txt")
+
+            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+
+            val isSignButtonShown = viewModel.isSignButtonShown(container)
+
+            assertFalse(isSignButtonShown)
+        }
+
+    @Test
+    fun signingViewModel_isSignButtonShown_containerIsNullReturnFalse() =
+        runTest {
+            val isSignButtonShown = viewModel.isSignButtonShown(null)
+
+            assertFalse(isSignButtonShown)
+        }
+
+    @Test
+    fun signingViewModel_isEmptyFileInContainer_returnTrue() =
+        runTest {
+            val file = File.createTempFile("temp", ".txt")
+
+            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+
+            val isEmptyFileInContainer = viewModel.isEmptyFileInContainer(container)
+
+            assertTrue(isEmptyFileInContainer)
+        }
+
+    @Test
+    fun signingViewModel_isEmptyFileInContainer_returnFalse() =
+        runTest {
+            val file = File.createTempFile("temp", ".txt")
+            Files.write(file.toPath(), "content".toByteArray(Charset.defaultCharset()))
+
+            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+
+            val isEmptyFileInContainer = viewModel.isEmptyFileInContainer(container)
+
+            assertFalse(isEmptyFileInContainer)
+        }
+
+    @Test
+    fun signingViewModel_isEncryptButtonShown_returnTrue() =
+        runTest {
+            val file =
+                getResourceFileAsFile(
+                    context,
+                    "example_no_signatures.asice",
+                    ee.ria.DigiDoc.common.R.raw.example_no_signatures,
+                )
+
+            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+
+            val isEncryptButtonShown = viewModel.isEncryptButtonShown(container)
+
+            assertTrue(isEncryptButtonShown)
+        }
+
+    @Test
+    fun signingViewModel_isEncryptButtonShown_returnFalse() =
+        runTest {
+            val file = File.createTempFile("temp", ".txt")
+
+            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+
+            val isEncryptButtonShown = viewModel.isEncryptButtonShown(container)
+
+            assertFalse(isEncryptButtonShown)
+        }
+
+    @Test
+    fun signingViewModel_isShareButtonShown_returnTrue() =
+        runTest {
+            val file =
+                getResourceFileAsFile(
+                    context,
+                    "example_no_signatures.asice",
+                    ee.ria.DigiDoc.common.R.raw.example_no_signatures,
+                )
+
+            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+
+            val isShareButtonShown = viewModel.isShareButtonShown(container)
+
+            assertTrue(isShareButtonShown)
+        }
+
+    @Test
+    fun signingViewModel_isShareButtonShown_returnFalse() =
+        runTest {
+            val file = File.createTempFile("temp", ".txt")
+
+            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+
+            val isShareButtonShown = viewModel.isShareButtonShown(container)
+
+            assertFalse(isShareButtonShown)
+        }
 
     @Test
     fun signingViewModel_isExistingContainer_returnTrue() =

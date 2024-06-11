@@ -5,8 +5,8 @@ targetSdkVersion = "34"
 versionCode = "49"
 versionName = "3.0.0"
 
-agp = "8.4.0"
-algp = "8.4.0"
+agp = "8.4.1"
+algp = "8.4.1"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -68,6 +68,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito-core" }
 mockito-android = { group = "org.mockito", name = "mockito-android", version.ref = "mockito-android" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
+retrofit-mock = { group = "com.squareup.retrofit2", name = "retrofit-mock", version.ref = "retrofit" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-test" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 jackson-databind = { group = "com.fasterxml.jackson.core", name = "jackson-databind", version.ref = "jackson-databind" }

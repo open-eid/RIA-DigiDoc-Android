@@ -7,18 +7,31 @@ import ee.ria.DigiDoc.common.extensions.removeWhitespaces
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.utilsLib.signing.CertificateUtil
 import ee.ria.DigiDoc.utilsLib.text.TextUtil.removeEmptyStrings
+import ee.ria.libdigidocpp.Container
 import ee.ria.libdigidocpp.Signature
 import ee.ria.libdigidocpp.StringVector
 import org.bouncycastle.util.encoders.Base64
 import java.nio.charset.StandardCharsets
 import java.security.cert.CertificateException
 
-class ContainerWrapper {
-    val container = SignedContainer.rawContainer()
-    private lateinit var signature: Signature
+interface ContainerWrapper {
+    val container: Container?
 
     @Throws(CertificateException::class)
     fun prepareSignature(
+        cert: String?,
+        roleData: RoleData?,
+    ): String
+
+    fun finalizeSignature(signatureValue: String?)
+}
+
+class ContainerWrapperImpl : ContainerWrapper {
+    override val container = SignedContainer.rawContainer()
+    private lateinit var signature: Signature
+
+    @Throws(CertificateException::class)
+    override fun prepareSignature(
         cert: String?,
         roleData: RoleData?,
     ): String {
@@ -45,7 +58,7 @@ class ContainerWrapper {
         return dataToSign.removeWhitespaces()
     }
 
-    fun finalizeSignature(signatureValue: String?) {
+    override fun finalizeSignature(signatureValue: String?) {
         val signatureValueBytes: ByteArray = Base64.decode(signatureValue)
         signature.setSignatureValue(signatureValueBytes)
         signature.extendSignatureProfile(SIGNATURE_PROFILE_TS)
