@@ -31,7 +31,6 @@ import ee.ria.libdigidocpp.Container
 import ee.ria.libdigidocpp.ContainerOpenCB
 import ee.ria.libdigidocpp.DataFiles
 import ee.ria.libdigidocpp.Signatures
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -55,7 +54,13 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
 
     fun setName(filename: String) {
         val containerName = ContainerUtil.addExtensionToContainerFilename(filename)
-        containerFile = File(containerFile?.parent, containerName)
+        val newFile = File(containerFile?.parent, containerName)
+
+        containerFile?.renameTo(newFile)
+
+        containerFile?.let {
+            container?.save()
+        }
     }
 
     fun isExistingContainer(): Boolean {
@@ -181,7 +186,7 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
 
             container =
                 try {
-                    withContext(Dispatchers.IO) {
+                    withContext(IO) {
                         Container.create(file.path)
                     }
                 } catch (e: Exception) {
@@ -222,7 +227,7 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
         ): SignedContainer {
             return try {
                 val openedContainer =
-                    withContext(Dispatchers.IO) {
+                    withContext(IO) {
                         Container.open(file?.path ?: "", DigidocContainerOpenCB(true))
                     }
                 container = openedContainer

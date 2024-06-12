@@ -168,7 +168,7 @@ class FileOpeningRepositoryImpl
         ): List<File> {
             val fileBuilder: ArrayList<File> = ArrayList()
             for (file in files) {
-                ContainerUtil.cache(context, file).let { fileBuilder.add(it) }
+                ContainerUtil.getCacheFile(context, file.name).let { fileBuilder.add(it) }
             }
             return fileBuilder
         }

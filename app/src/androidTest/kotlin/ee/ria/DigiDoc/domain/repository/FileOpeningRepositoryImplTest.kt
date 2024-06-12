@@ -33,7 +33,6 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import java.io.File
-import java.io.FileNotFoundException
 import java.nio.charset.Charset
 import java.nio.file.Files
 import kotlin.io.path.createTempDirectory
@@ -168,7 +167,7 @@ class FileOpeningRepositoryImplTest {
             assertEquals(2, signedContainer.getDataFiles().size)
         }
 
-    @Test(expected = FileNotFoundException::class)
+    @Test(expected = RuntimeException::class)
     fun fileOpeningRepository_addFilesToContainer_throwAlreadyFileExistsException(): Unit =
         runBlocking {
             val uris = listOf(mock(Uri::class.java))
