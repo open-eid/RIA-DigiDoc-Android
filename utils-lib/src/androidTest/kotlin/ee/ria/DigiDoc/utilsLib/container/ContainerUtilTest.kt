@@ -68,7 +68,7 @@ class ContainerUtilTest {
             }
             `when`(mockContext.cacheDir).thenReturn(targetContext.cacheDir)
 
-            val file = ContainerUtil.cache(mockContext, testFile)
+            val file = ContainerUtil.getCacheFile(mockContext, testFile.name)
 
             assertEquals(file, testFile)
             testFile.delete()

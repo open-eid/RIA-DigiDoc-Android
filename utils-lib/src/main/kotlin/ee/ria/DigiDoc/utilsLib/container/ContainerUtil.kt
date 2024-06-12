@@ -2,11 +2,7 @@
 
 package ee.ria.DigiDoc.utilsLib.container
 
-import android.content.ContentResolver
 import android.content.Context
-import android.net.Uri
-import android.provider.OpenableColumns
-import com.google.common.io.ByteStreams
 import ee.ria.DigiDoc.common.Constant.CONTAINER_EXTENSIONS
 import ee.ria.DigiDoc.common.Constant.DATA_FILE_DIR
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
@@ -19,7 +15,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
 import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
 import java.util.Locale
 
@@ -75,21 +70,7 @@ object ContainerUtil {
     }
 
     @Throws(IOException::class)
-    suspend fun cache(
-        context: Context,
-        file: File,
-    ): File {
-        val cachedFile = getCacheFile(context, file.name)
-        cachedFile.inputStream().use { inputStream ->
-            FileOutputStream(cachedFile).use { outputStream ->
-                ByteStreams.copy(inputStream, outputStream)
-            }
-        }
-        return cachedFile
-    }
-
-    @Throws(IOException::class)
-    private suspend fun getCacheFile(
+    suspend fun getCacheFile(
         context: Context,
         name: String,
     ): File {
@@ -180,25 +161,6 @@ object ContainerUtil {
         }
 
         return validFiles
-    }
-
-    private fun getFileSize(
-        contentResolver: ContentResolver?,
-        uri: Uri,
-    ): Long {
-        val cursor =
-            FileUtil.normalizeUri(uri)?.let { contentResolver?.query(it, null, null, null, null) }
-        var fileSize: Long = 0
-        if (cursor != null) {
-            val columnIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
-            if (cursor.moveToFirst() && !cursor.isNull(columnIndex)) {
-                fileSize = cursor.getLong(columnIndex)
-            }
-            cursor.close()
-            return fileSize
-        }
-        @Suppress("KotlinConstantConditions")
-        return fileSize
     }
 
     private fun signatureContainersDir(context: Context): File {
