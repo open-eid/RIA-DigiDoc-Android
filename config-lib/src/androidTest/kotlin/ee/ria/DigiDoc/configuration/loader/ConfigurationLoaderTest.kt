@@ -155,7 +155,7 @@ class ConfigurationLoaderTest {
         }
 
     @Test
-    fun configurationLoader_loadCentralConfiguration_success() =
+    fun configurationLoader_loadCentralConfiguration_success(): Unit =
         runBlocking {
             val confData = mockConfigurationProvider()
 
@@ -179,7 +179,10 @@ class ConfigurationLoaderTest {
             )
 
             // Write random text to file, to make sure that current signature and new signature are different
-            val signatureFile = File(File(context.cacheDir, CACHE_CONFIG_FOLDER), CACHED_CONFIG_RSA)
+            val configFolder = File(context.cacheDir, CACHE_CONFIG_FOLDER)
+            configFolder.mkdirs()
+            val signatureFile = File(configFolder, CACHED_CONFIG_RSA)
+
             FileWriter(signatureFile).use { writer ->
                 writer.write("dGVzdDI=")
             }
@@ -187,10 +190,13 @@ class ConfigurationLoaderTest {
             configurationLoader.loadCentralConfiguration(context)
 
             assertNotNull(configurationLoader.getConfigurationFlow().value)
+
+            signatureFile.delete()
+            configFolder.delete()
         }
 
     @Test
-    fun configurationLoader_loadCentralConfiguration_signaturesMatchLoadCachedConfiguration() =
+    fun configurationLoader_loadCentralConfiguration_signaturesMatchLoadCachedConfiguration(): Unit =
         runBlocking {
             val confData = mockConfigurationProvider()
 
@@ -214,7 +220,9 @@ class ConfigurationLoaderTest {
             )
 
             // Write same signature to file, to make sure that current signature and new signature match
-            val signatureFile = File(File(context.cacheDir, CACHE_CONFIG_FOLDER), CACHED_CONFIG_RSA)
+            val configFolder = File(context.cacheDir, CACHE_CONFIG_FOLDER)
+            configFolder.mkdirs()
+            val signatureFile = File(configFolder, CACHED_CONFIG_RSA)
             FileWriter(signatureFile).use { writer ->
                 writer.write(String(Base64.decode(centralSignature)))
             }
@@ -222,6 +230,9 @@ class ConfigurationLoaderTest {
             configurationLoader.loadCentralConfiguration(context)
 
             assertNotNull(configurationLoader.getConfigurationFlow().value)
+
+            signatureFile.delete()
+            configFolder.delete()
         }
 
     @Test

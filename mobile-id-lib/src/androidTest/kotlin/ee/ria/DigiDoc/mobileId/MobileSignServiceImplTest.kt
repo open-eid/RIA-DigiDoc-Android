@@ -92,6 +92,7 @@ class MobileSignServiceImplTest {
                 try {
                     val configurationRepository = mock(ConfigurationRepository::class.java)
                     Initialization(configurationRepository)
+                        .init(InstrumentationRegistry.getInstrumentation().targetContext)
                 } catch (_: Exception) {
                 }
             }
