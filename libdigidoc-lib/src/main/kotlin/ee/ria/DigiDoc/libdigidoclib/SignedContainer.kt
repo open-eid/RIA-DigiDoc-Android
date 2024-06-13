@@ -58,6 +58,8 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
 
         containerFile?.renameTo(newFile)
 
+        containerFile = File(containerFile?.parent, containerName)
+
         containerFile?.let {
             container?.save()
         }
