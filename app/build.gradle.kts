@@ -3,6 +3,7 @@ val appAbiFilters = "arm64-v8a;armeabi-v7a;x86_64"
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.compose.compiler)
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
 }
@@ -73,7 +74,7 @@ android {
         buildConfig = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.14"
     }
     packaging {
         resources {

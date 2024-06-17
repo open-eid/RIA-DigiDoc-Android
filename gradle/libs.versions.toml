@@ -7,7 +7,7 @@ versionName = "3.0.0"
 
 agp = "8.5.0"
 algp = "8.5.0"
-kotlin = "1.9.0"
+kotlin = "2.0.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
@@ -93,6 +93,7 @@ androidx-arch-core-testing = { group = "androidx.arch.core", name = "core-testin
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "algp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 jlleitschuhKtlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "jlleitschuhKtlint" }
 googleDagger = {id = "com.google.dagger.hilt.android", version.ref = "dagger"}
 jetbrainsKotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
