@@ -17,7 +17,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,8 +24,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.BackButton
-import ee.ria.DigiDoc.ui.component.shared.LinkifyText
-import ee.ria.DigiDoc.ui.theme.Blue500
+import ee.ria.DigiDoc.ui.component.shared.DynamicText
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewSmallPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
@@ -70,38 +68,29 @@ fun AccessibilityScreen(
                     .fillMaxWidth(),
             horizontalAlignment = Alignment.Start,
         ) {
-            LinkifyText(
+            DynamicText(
                 modifier =
                     modifier.padding(
                         horizontal = screenViewSmallPadding,
                         vertical = screenViewSmallPadding,
                     ),
                 text = stringResource(R.string.main_accessibility_introduction),
-                textAlignment = android.view.View.TEXT_ALIGNMENT_TEXT_START,
-                textColor = MaterialTheme.colorScheme.primary.toArgb(),
-                linkTextColor = Blue500.toArgb(),
             )
-            LinkifyText(
+            DynamicText(
                 modifier =
                     modifier.padding(
                         horizontal = screenViewSmallPadding,
                         vertical = screenViewSmallPadding,
                     ),
                 text = stringResource(R.string.main_accessibility_link),
-                textAlignment = android.view.View.TEXT_ALIGNMENT_TEXT_START,
-                textColor = MaterialTheme.colorScheme.primary.toArgb(),
-                linkTextColor = Blue500.toArgb(),
             )
-            LinkifyText(
+            DynamicText(
                 modifier =
                     modifier.padding(
                         horizontal = screenViewSmallPadding,
                         vertical = screenViewSmallPadding,
                     ),
                 text = stringResource(R.string.main_accessibility_introduction_2),
-                textAlignment = android.view.View.TEXT_ALIGNMENT_TEXT_START,
-                textColor = MaterialTheme.colorScheme.primary.toArgb(),
-                linkTextColor = Blue500.toArgb(),
             )
             Text(
                 modifier =
@@ -114,60 +103,45 @@ fun AccessibilityScreen(
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.titleLarge,
             )
-            LinkifyText(
+            DynamicText(
                 modifier =
                     modifier.padding(
                         horizontal = screenViewSmallPadding,
                         vertical = screenViewSmallPadding,
                     ),
                 text = stringResource(R.string.main_accessibility_introduction_screen_reader_introduction),
-                textAlignment = android.view.View.TEXT_ALIGNMENT_TEXT_START,
-                textColor = MaterialTheme.colorScheme.primary.toArgb(),
-                linkTextColor = Blue500.toArgb(),
             )
-            LinkifyText(
+            DynamicText(
                 modifier =
                     modifier.padding(
                         horizontal = screenViewSmallPadding,
                         vertical = screenViewSmallPadding,
                     ),
                 text = stringResource(R.string.main_accessibility_introduction_screen_reader_introduction_2),
-                textAlignment = android.view.View.TEXT_ALIGNMENT_TEXT_START,
-                textColor = MaterialTheme.colorScheme.primary.toArgb(),
-                linkTextColor = Blue500.toArgb(),
             )
-            LinkifyText(
+            DynamicText(
                 modifier =
                     modifier.padding(
                         horizontal = screenViewSmallPadding,
                         vertical = screenViewSmallPadding,
                     ),
                 text = stringResource(R.string.main_accessibility_introduction_screen_reader_introduction_apps),
-                textAlignment = android.view.View.TEXT_ALIGNMENT_TEXT_START,
-                textColor = MaterialTheme.colorScheme.primary.toArgb(),
-                linkTextColor = Blue500.toArgb(),
             )
-            LinkifyText(
+            DynamicText(
                 modifier =
                     modifier.padding(
                         horizontal = screenViewSmallPadding,
                         vertical = screenViewSmallPadding,
                     ),
                 text = stringResource(R.string.main_accessibility_introduction_screen_reader_introduction_ios),
-                textAlignment = android.view.View.TEXT_ALIGNMENT_TEXT_START,
-                textColor = MaterialTheme.colorScheme.primary.toArgb(),
-                linkTextColor = Blue500.toArgb(),
             )
-            LinkifyText(
+            DynamicText(
                 modifier =
                     modifier.padding(
                         horizontal = screenViewSmallPadding,
                         vertical = screenViewSmallPadding,
                     ),
                 text = stringResource(R.string.main_accessibility_introduction_screen_reader_introduction_android),
-                textAlignment = android.view.View.TEXT_ALIGNMENT_TEXT_START,
-                textColor = MaterialTheme.colorScheme.primary.toArgb(),
-                linkTextColor = Blue500.toArgb(),
             )
             Text(
                 modifier =
@@ -180,29 +154,23 @@ fun AccessibilityScreen(
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.titleLarge,
             )
-            LinkifyText(
+            DynamicText(
                 modifier =
                     modifier.padding(
                         horizontal = screenViewSmallPadding,
                         vertical = screenViewSmallPadding,
                     ),
                 text = stringResource(R.string.main_accessibility_introduction_screen_magnification_introduction),
-                textAlignment = android.view.View.TEXT_ALIGNMENT_TEXT_START,
-                textColor = MaterialTheme.colorScheme.primary.toArgb(),
-                linkTextColor = Blue500.toArgb(),
             )
-            LinkifyText(
+            DynamicText(
                 modifier =
                     modifier.padding(
                         horizontal = screenViewSmallPadding,
                         vertical = screenViewSmallPadding,
                     ),
                 text = stringResource(R.string.main_accessibility_introduction_screen_magnification_screen_tools),
-                textAlignment = android.view.View.TEXT_ALIGNMENT_TEXT_START,
-                textColor = MaterialTheme.colorScheme.primary.toArgb(),
-                linkTextColor = Blue500.toArgb(),
             )
-            LinkifyText(
+            DynamicText(
                 modifier =
                     modifier.padding(
                         horizontal = screenViewSmallPadding,
@@ -212,11 +180,8 @@ fun AccessibilityScreen(
                     stringResource(
                         R.string.main_accessibility_introduction_screen_magnification_screen_tools_ios,
                     ),
-                textAlignment = android.view.View.TEXT_ALIGNMENT_TEXT_START,
-                textColor = MaterialTheme.colorScheme.primary.toArgb(),
-                linkTextColor = Blue500.toArgb(),
             )
-            LinkifyText(
+            DynamicText(
                 modifier =
                     modifier.padding(
                         horizontal = screenViewSmallPadding,
@@ -226,42 +191,30 @@ fun AccessibilityScreen(
                     stringResource(
                         R.string.main_accessibility_introduction_screen_magnification_screen_tools_android,
                     ),
-                textAlignment = android.view.View.TEXT_ALIGNMENT_TEXT_START,
-                textColor = MaterialTheme.colorScheme.primary.toArgb(),
-                linkTextColor = Blue500.toArgb(),
             )
-            LinkifyText(
+            DynamicText(
                 modifier =
                     modifier.padding(
                         horizontal = screenViewSmallPadding,
                         vertical = screenViewSmallPadding,
                     ),
                 text = stringResource(R.string.main_accessibility_introduction_screen_magnification_tools),
-                textAlignment = android.view.View.TEXT_ALIGNMENT_TEXT_START,
-                textColor = MaterialTheme.colorScheme.primary.toArgb(),
-                linkTextColor = Blue500.toArgb(),
             )
-            LinkifyText(
+            DynamicText(
                 modifier =
                     modifier.padding(
                         horizontal = screenViewSmallPadding,
                         vertical = screenViewSmallPadding,
                     ),
                 text = stringResource(R.string.main_accessibility_introduction_screen_magnification_tools_ios),
-                textAlignment = android.view.View.TEXT_ALIGNMENT_TEXT_START,
-                textColor = MaterialTheme.colorScheme.primary.toArgb(),
-                linkTextColor = Blue500.toArgb(),
             )
-            LinkifyText(
+            DynamicText(
                 modifier =
                     modifier.padding(
                         horizontal = screenViewSmallPadding,
                         vertical = screenViewSmallPadding,
                     ),
                 text = stringResource(R.string.main_accessibility_introduction_screen_magnification_tools_android),
-                textAlignment = android.view.View.TEXT_ALIGNMENT_TEXT_START,
-                textColor = MaterialTheme.colorScheme.primary.toArgb(),
-                linkTextColor = Blue500.toArgb(),
             )
         }
     }

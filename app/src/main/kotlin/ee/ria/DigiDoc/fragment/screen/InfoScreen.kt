@@ -19,7 +19,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -31,8 +30,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.info.InfoComponent
 import ee.ria.DigiDoc.ui.component.info.InfoComponentItem
 import ee.ria.DigiDoc.ui.component.shared.BackButton
-import ee.ria.DigiDoc.ui.component.shared.LinkifyText
-import ee.ria.DigiDoc.ui.theme.Blue500
+import ee.ria.DigiDoc.ui.component.shared.DynamicText
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewSmallPadding
@@ -98,7 +96,7 @@ fun InfoScreen(
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleLarge,
             )
-            LinkifyText(
+            DynamicText(
                 modifier =
                     modifier.padding(
                         start = screenViewLargePadding,
@@ -106,11 +104,9 @@ fun InfoScreen(
                         end = screenViewLargePadding,
                     ),
                 text = stringResource(id = R.string.main_about_software_developed_by_title),
-                textAlignment = android.view.View.TEXT_ALIGNMENT_CENTER,
-                textColor = MaterialTheme.colorScheme.primary.toArgb(),
-                linkTextColor = Blue500.toArgb(),
+                textAlign = TextAlign.Center,
             )
-            LinkifyText(
+            DynamicText(
                 modifier =
                     modifier.padding(
                         start = screenViewLargePadding,
@@ -118,9 +114,7 @@ fun InfoScreen(
                         end = screenViewLargePadding,
                     ),
                 text = stringResource(id = R.string.main_about_contact_information_title),
-                textAlignment = android.view.View.TEXT_ALIGNMENT_CENTER,
-                textColor = MaterialTheme.colorScheme.primary.toArgb(),
-                linkTextColor = Blue500.toArgb(),
+                textAlign = TextAlign.Center,
             )
             Text(
                 modifier =

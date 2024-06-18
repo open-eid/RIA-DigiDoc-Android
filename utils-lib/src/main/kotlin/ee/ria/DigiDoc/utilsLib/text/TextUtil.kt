@@ -25,8 +25,8 @@ object TextUtil {
         text: String?,
         delimiter: String?,
         joinDelimiter: String?,
-    ): String {
+    ): String? {
         val nameComponents = TextUtils.split(text, delimiter)
-        return TextUtils.join(joinDelimiter!!, nameComponents)
+        return joinDelimiter?.let { TextUtils.join(it, nameComponents) }
     }
 }
