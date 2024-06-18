@@ -44,12 +44,12 @@ class FileOpeningViewModel
         private val _filesAdded = MutableLiveData<List<File>?>(null)
         val filesAdded: LiveData<List<File>?> = _filesAdded
 
-        suspend fun resetContainer() {
+        fun resetContainer() {
             SignedContainer.cleanup()
             _signedContainer.postValue(null)
         }
 
-        suspend fun resetFilesAdded() {
+        fun resetFilesAdded() {
             _filesAdded.postValue(null)
         }
 

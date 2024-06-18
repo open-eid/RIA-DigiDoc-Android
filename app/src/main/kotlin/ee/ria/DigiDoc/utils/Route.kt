@@ -2,11 +2,14 @@
 
 package ee.ria.DigiDoc.utils
 
+import ee.ria.DigiDoc.utils.Constant.Routes.ACCESSIBILITY_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.CRYPTO_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.DIAGNOSTICS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.EID_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.FILE_CHOOSING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.HOME_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ID_CARD_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.INFO_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MENU_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MOBILE_ID_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.NFC_SCREEN
@@ -39,6 +42,12 @@ sealed class Route(val route: String) {
     object FileChoosing : Route(FILE_CHOOSING_SCREEN)
 
     object Signing : Route(SIGNING_SCREEN)
+
+    object Accessibility : Route(ACCESSIBILITY_SCREEN)
+
+    object Info : Route(INFO_SCREEN)
+
+    object Diagnostics : Route(DIAGNOSTICS_SCREEN)
 
     object Settings : Route(SETTINGS_SCREEN)
 

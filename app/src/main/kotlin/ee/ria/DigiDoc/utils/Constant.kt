@@ -3,6 +3,13 @@
 package ee.ria.DigiDoc.utils
 
 object Constant {
+    // ee.ria.DigiDoc.utils.Locale
+    object Languages {
+        const val ESTONIAN_LANGUAGE = "et"
+        const val RUSSIAN_LANGUAGE = "ru"
+        const val ENGLISH_LANGUAGE = "en"
+    }
+
     // ee.ria.DigiDoc.utils.Route
     object Routes {
         const val HOME_SCREEN = "home_route"
@@ -16,6 +23,9 @@ object Constant {
         const val NFC_SCREEN = "nfc_route"
         const val FILE_CHOOSING_SCREEN = "file_choosing_route"
         const val SIGNING_SCREEN = "signing_route"
+        const val ACCESSIBILITY_SCREEN = "accessibility_route"
+        const val INFO_SCREEN = "info_route"
+        const val DIAGNOSTICS_SCREEN = "diagnostics_route"
         const val SETTINGS_SCREEN = "settings_route"
         const val SETTINGS_RIGHTS_SCREEN = "settings_rights_route"
         const val SETTINGS_SIGNING_SCREEN = "settings_signing_route"

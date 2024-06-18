@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.utilsLib.text
 
+import android.text.TextUtils
 import org.apache.commons.lang3.StringUtils
 import java.util.stream.Collectors
 
@@ -18,5 +19,14 @@ object TextUtil {
                 .collect(Collectors.toList())
         }
         return emptyList()
+    }
+
+    fun splitTextAndJoin(
+        text: String?,
+        delimiter: String?,
+        joinDelimiter: String?,
+    ): String {
+        val nameComponents = TextUtils.split(text, delimiter)
+        return TextUtils.join(joinDelimiter!!, nameComponents)
     }
 }

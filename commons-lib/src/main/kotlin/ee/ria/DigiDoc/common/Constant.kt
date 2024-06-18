@@ -81,6 +81,7 @@ object Constant {
         const val CERT_PEM_FOOTER = "-----END CERTIFICATE-----"
     }
 
+    const val KEY_LOCALE = "locale"
     private const val RESTRICTED_FILENAME_CHARACTERS_AS_STRING = "@%:^?[]\\'\"”’{}#&`\\\\~«»/´"
     private const val RTL_CHARACTERS_AS_STRING = "" + '\u200E' + '\u200F' + '\u202E' + '\u202A' + '\u202B'
     const val RESTRICTED_FILENAME_CHARACTERS_AND_RTL_CHARACTERS_AS_STRING =

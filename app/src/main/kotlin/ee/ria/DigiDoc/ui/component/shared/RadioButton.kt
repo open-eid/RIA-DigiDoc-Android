@@ -1,6 +1,6 @@
 @file:Suppress("PackageName", "FunctionName")
 
-package ee.ria.DigiDoc.ui.component.signing
+package ee.ria.DigiDoc.ui.component.shared
 
 import android.content.res.Configuration
 import androidx.annotation.StringRes
@@ -16,11 +16,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
-fun SignatureAddRadioButton(
+fun RadioButton(
     modifier: Modifier = Modifier,
     selected: Boolean,
     @StringRes label: Int,
@@ -99,13 +98,13 @@ fun textColor(
 fun SignatureAddRadioButtonPreview() {
     RIADigiDocTheme {
         Column {
-            SignatureAddRadioButton(
+            RadioButton(
                 selected = true,
                 onClick = null,
                 label = R.string.signature_update_signature_add_method_mobile_id,
                 contentDescription = "Mobile-ID",
             )
-            SignatureAddRadioButton(
+            RadioButton(
                 selected = false,
                 onClick = null,
                 label = R.string.signature_update_signature_add_method_smart_id,
