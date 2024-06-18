@@ -277,6 +277,10 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
             return mimeType ?: DEFAULT_MIME_TYPE
         }
 
+        fun containerMimetype(): String? {
+            return container?.mediaType()
+        }
+
         /**
          * Reset SignedContainer instance
          */

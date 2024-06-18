@@ -181,6 +181,37 @@
     <string name="main_home_navigation_crypto_accessibility">Krüpto</string>
     <string name="main_home_navigation_eid_accessibility">Minu e I D</string>
 
+    <!-- Signature Details -->
+    <string name="signature_error_details_title">Hoiatused</string>
+    <string name="signature_error_details_invalid_reason">See allkiri või allkirjastatud fail on vigane. Allkiri ei ole kehtiv.</string>
+    <string name="signature_error_details_reason_weak">Allkiri on tehniliselt korrektne, kuid põhineb praeguseks nõrgaks hinnatud räsialgoritmil SHA-1, mistõttu ei ole see kaitstud võltsimise või muutmise eest.</string>
+    <string name="signature_error_details_reason_warning">Allkiri on kehtiv, aga ümbrikul on mingi eripära. Tavaliselt on selline eripära tekkinud ümbriku loomisel. Kuna ümbrikku ei ole võimalik muuta ilma, et allkiri kehtetuks muutuks, näidatakse selliste ümbrike puhul hoiatust.\nLisainfo: https://www.id.ee/artikkel/digitaalne-allkirjastamine-ja-elektroonilised-allkirjad</string>
+    <string name="signature_error_details_reason_nonqscd">See e-allkiri ei ole käsitsi kirjutatud allkirjadega samaväärne ja seetõttu saab seda kasutada ainult tehingute puhul, kus kvalifitseeritud e-allkiri pole kohustuslik.</string>
+    <string name="signature_error_details_reason_unknown">Allkirja staatust kuvatakse \"teadmata\", kui Sinu arvutisse pole lisatud kõiki kehtivuskinnituse teenuse sertifikaate ja/või nende kontrolliks vajalikke sertifikaate.\nLisainfo: https://www.id.ee/artikkel/digidoc4-klient-viga-ocsp-responder-is-not-trusted-no-certificate-for-this-responder-in-local-certstore</string>
+    <string name="signature_error_details_button">TEHNILINE INFORMATSIOON</string>
+    <string name="signature_error_details_button_accessibility">tehniline informatsioon</string>
+
+    <string name="signature_details_title">Allkirja detailid</string>
+    <string name="signer_certificate_issuer_label">Allkirjastaja sertifikaadi väljaandja</string>
+    <string name="signers_certificate_label">Allkirjastaja sertifikaat</string>
+    <string name="signature_method_label">Allkirja meetod</string>
+    <string name="container_format_label">Ümbriku formaat</string>
+    <string name="signature_format_label">Allkirja formaat</string>
+    <string name="signed_file_count_label">Allkirjastatud failide arv</string>
+    <string name="signature_timestamp_label">Allkirja ajatempel</string>
+    <string name="signature_timestamp_utc_label">Allkirja ajatempel (UTC)</string>
+    <string name="hash_value_of_signature_label">Allkirja sõnumilühend</string>
+    <string name="ts_certificate_issuer_label">Ajatempliteenuse sertifikaadi väljaandja</string>
+    <string name="ts_certificate_label">Ajatempliteenuse sertifikaat</string>
+    <string name="ocsp_certificate_issuer_label">Kehtivuskinnituse sertifikaadi väljaandja</string>
+    <string name="ocsp_certificate_label">Kehtivuskinnituse sertifikaat</string>
+    <string name="ocsp_time_label">Kehtivuskinnituse aeg</string>
+    <string name="ocsp_time_utc_label">Kehtivuskinnituse aeg (UTC)</string>
+    <string name="signers_mobile_time_label">Allkirjastaja telefoni kellaaeg (UTC)</string>
+
+    <!-- Certificate Details -->
+    <string name="certificate_details_title">Sertifikaadi detailid</string>
+
     <!-- Menu -->
     <string name="main_home_menu_help_accessibility">Abi</string>
     <string name="main_home_menu_settings_accessibility">Seaded</string>

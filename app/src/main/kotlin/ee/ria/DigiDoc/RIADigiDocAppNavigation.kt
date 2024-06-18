@@ -18,15 +18,21 @@ import ee.ria.DigiDoc.fragment.SettingsFragment
 import ee.ria.DigiDoc.fragment.SettingsRightsFragment
 import ee.ria.DigiDoc.fragment.SettingsSigningFragment
 import ee.ria.DigiDoc.fragment.SigningFragment
+import ee.ria.DigiDoc.ui.component.signing.certificate.CertificateDetailsView
+import ee.ria.DigiDoc.ui.component.signing.certificate.SignerDetailsView
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.viewmodel.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
 
 @Composable
 fun RIADigiDocAppScreen() {
     val navController = rememberNavController()
     val navBarNavController = rememberNavController()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
+    val sharedSignatureViewModel: SharedSignatureViewModel = hiltViewModel()
+    val sharedCertificateViewModel: SharedCertificateViewModel = hiltViewModel()
     NavHost(
         navController = navController,
         startDestination = Route.Home.route,
@@ -46,6 +52,20 @@ fun RIADigiDocAppScreen() {
             SigningFragment(
                 navController = navController,
                 sharedContainerViewModel = sharedContainerViewModel,
+                sharedSignatureViewModel = sharedSignatureViewModel,
+            )
+        }
+        composable(route = Route.SignerDetail.route) {
+            SignerDetailsView(
+                navController = navController,
+                sharedSignatureViewModel = sharedSignatureViewModel,
+                sharedCertificateViewModel = sharedCertificateViewModel,
+            )
+        }
+        composable(route = Route.CertificateDetail.route) {
+            CertificateDetailsView(
+                navController = navController,
+                sharedCertificateViewModel = sharedCertificateViewModel,
             )
         }
         composable(route = Route.Accessibility.route) {

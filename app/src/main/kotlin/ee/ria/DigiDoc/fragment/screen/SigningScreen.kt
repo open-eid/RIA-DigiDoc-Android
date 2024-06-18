@@ -11,18 +11,21 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.ui.component.signing.SigningNavigation
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.viewmodel.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
 
 @Composable
 fun SigningScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     sharedContainerViewModel: SharedContainerViewModel,
+    sharedSignatureViewModel: SharedSignatureViewModel,
 ) {
     SigningNavigation(
         modifier = modifier,
         navController = navController,
         sharedContainerViewModel = sharedContainerViewModel,
+        sharedSignatureViewModel = sharedSignatureViewModel,
     )
 }
 
@@ -32,10 +35,12 @@ fun SigningScreen(
 fun SigningScreenPreview() {
     val navController = rememberNavController()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
+    val sharedSignatureViewModel: SharedSignatureViewModel = hiltViewModel()
     RIADigiDocTheme {
         SigningScreen(
             navController = navController,
             sharedContainerViewModel = sharedContainerViewModel,
+            sharedSignatureViewModel = sharedSignatureViewModel,
         )
     }
 }

@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.ui.component.signing
 
+import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -22,8 +23,9 @@ import ee.ria.DigiDoc.ui.component.shared.PreventResize
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SigningTopBar(
+fun TopBar(
     modifier: Modifier,
+    @StringRes title: Int,
     onBackButtonClick: () -> Unit = {},
 ) {
     CenterAlignedTopAppBar(
@@ -35,7 +37,7 @@ fun SigningTopBar(
         title = {
             PreventResize {
                 Text(
-                    text = stringResource(id = R.string.signing_title_container_existing),
+                    text = stringResource(id = title),
                     maxLines = 1,
                     modifier =
                         modifier

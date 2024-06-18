@@ -11,7 +11,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.ui.component.signing.FileOpeningNavigation
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.viewmodel.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 
 @Composable
 fun FileOpeningScreen(

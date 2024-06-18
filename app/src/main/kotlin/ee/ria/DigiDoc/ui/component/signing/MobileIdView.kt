@@ -56,7 +56,7 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumb
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.MobileIdViewModel
 import ee.ria.DigiDoc.viewmodel.SettingsViewModel
-import ee.ria.DigiDoc.viewmodel.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

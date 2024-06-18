@@ -182,6 +182,37 @@
     <string name="main_home_navigation_crypto_accessibility">Crypto</string>
     <string name="main_home_navigation_eid_accessibility">My e I D</string>
 
+    <!-- Signature Details -->
+    <string name="signature_error_details_title">Warnings</string>
+    <string name="signature_error_details_invalid_reason">This is an invalid signature or malformed digitally signed file. The signature is not valid.</string>
+    <string name="signature_error_details_reason_weak">The signature is technically correct, but it is based on the currently weak hash algorithm SHA-1, therefore it is not protected against forgery or alteration.</string>
+    <string name="signature_error_details_reason_warning">The signature is valid, but the container has a specific feature. Usually, this feature has arisen accidentally when containers were created. However, as it is not possible to edit a container without invalidating the signature, a warning is displayed.\nAdditional information: https://www.id.ee/en/article/digital-signing-and-electronic-signatures/</string>
+    <string name="signature_error_details_reason_nonqscd">This e-Signature is not equivalent with handwritten signature and therefore can be used only in transactions where Qualified e-Signature is not required.</string>
+    <string name="signature_error_details_reason_unknown">Signature status is displayed \"unknown\" if you don\'t have all validity confirmation service certificates and/or certificate authority certificates installed into your computer.\nAdditional information: https://www.id.ee/en/article/digidoc4-client-error-ocsp-responder-is-not-trusted-no-certificate-for-this-responder-in-local-certstore</string>
+    <string name="signature_error_details_button">TECHNICAL INFORMATION</string>
+    <string name="signature_error_details_button_accessibility">technical information</string>
+
+    <string name="signature_details_title">Signature details</string>
+    <string name="signer_certificate_issuer_label">Signer\'s Certificate issuer:</string>
+    <string name="signers_certificate_label">Signer\'s Certificate:</string>
+    <string name="signature_method_label">Signature method:</string>
+    <string name="container_format_label">Container format:</string>
+    <string name="signature_format_label">Signature format:</string>
+    <string name="signed_file_count_label">Signed file count:</string>
+    <string name="signature_timestamp_label">Signature timestamp:</string>
+    <string name="signature_timestamp_utc_label">Signature timestamp (UTC):</string>
+    <string name="hash_value_of_signature_label">Hash value of signature:</string>
+    <string name="ts_certificate_issuer_label">TS Certificate issuer:</string>
+    <string name="ts_certificate_label">TS Certificate:</string>
+    <string name="ocsp_certificate_issuer_label">OCSP Certificate issuer:</string>
+    <string name="ocsp_certificate_label">OCSP Certificate:</string>
+    <string name="ocsp_time_label">OCSP time:</string>
+    <string name="ocsp_time_utc_label">OCSP time (UTC):</string>
+    <string name="signers_mobile_time_label">Signer\'s mobile time:</string>
+
+    <!-- Certificate Details -->
+    <string name="certificate_details_title">Certificate details</string>
+
     <!-- Menu -->
     <string name="main_home_menu_help_accessibility">Help</string>
     <string name="main_home_menu_settings_accessibility">Settings</string>

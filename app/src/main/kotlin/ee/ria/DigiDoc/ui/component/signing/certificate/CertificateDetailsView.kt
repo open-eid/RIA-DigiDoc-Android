@@ -1,0 +1,233 @@
+@file:Suppress("PackageName", "FunctionName")
+
+package ee.ria.DigiDoc.ui.component.signing.certificate
+
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.extensions.formatHexString
+import ee.ria.DigiDoc.common.extensions.hexString
+import ee.ria.DigiDoc.ui.component.signing.TopBar
+import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
+import ee.ria.DigiDoc.utilsLib.date.DateUtil
+import ee.ria.DigiDoc.utilsLib.text.TextUtil
+import ee.ria.DigiDoc.viewmodel.CertificateDetailViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
+import org.bouncycastle.asn1.x500.style.BCStyle
+import kotlin.text.Charsets.UTF_8
+
+@Composable
+fun CertificateDetailsView(
+    navController: NavController,
+    modifier: Modifier = Modifier,
+    sharedCertificateViewModel: SharedCertificateViewModel,
+    certificateDetailViewModel: CertificateDetailViewModel = hiltViewModel(),
+) {
+    val certificate = sharedCertificateViewModel.certificate.value
+
+    BackHandler {
+        handleBackButtonClick(navController, sharedCertificateViewModel)
+    }
+
+    Scaffold { innerPadding ->
+        Surface(
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+                    .focusGroup(),
+        ) {
+            Column {
+                TopBar(
+                    modifier = modifier,
+                    title = R.string.certificate_details_title,
+                    onBackButtonClick = {
+                        handleBackButtonClick(navController, sharedCertificateViewModel)
+                    },
+                )
+
+                val certificateHolder = certificateDetailViewModel.certificateToJcaX509(certificate)
+                if (certificate != null && certificateHolder != null) {
+                    val publicKeyParameters =
+                        certificateHolder.subjectPublicKeyInfo.algorithm.parameters
+                    val sigAlgParams = certificate.sigAlgParams?.toString(UTF_8)?.trim()
+
+                    CertificateDetailItem().certificateDetailItems(
+                        subjectNameHeader = R.string.subject_name,
+                        issuerNameHeader = R.string.issuer_name,
+                        publicKeyInfoHeader = R.string.public_key,
+                        extensionsHeader = R.string.extensions,
+                        fingerprintsHeader = R.string.fingerprints,
+                        subjectCountryOrRegion =
+                            certificateDetailViewModel.getRDNValue(
+                                certificateHolder.subject,
+                                BCStyle.C,
+                            ),
+                        subjectOrganization =
+                            certificateDetailViewModel.getRDNValue(
+                                certificateHolder.subject,
+                                BCStyle.O,
+                            ),
+                        subjectOrganizationalUnit =
+                            certificateDetailViewModel.getRDNValue(
+                                certificateHolder.subject,
+                                BCStyle.OU,
+                            ),
+                        subjectCommonName =
+                            TextUtil.removeSlashes(
+                                certificateDetailViewModel.getRDNValue(
+                                    certificateHolder.subject,
+                                    BCStyle.CN,
+                                ),
+                            ),
+                        subjectSurname =
+                            certificateDetailViewModel.getRDNValue(
+                                certificateHolder.subject,
+                                BCStyle.SURNAME,
+                            ),
+                        subjectGivenName =
+                            certificateDetailViewModel.getRDNValue(
+                                certificateHolder.subject,
+                                BCStyle.GIVENNAME,
+                            ),
+                        subjectSerialNumber =
+                            certificateDetailViewModel.getRDNValue(
+                                certificateHolder.subject,
+                                BCStyle.SERIALNUMBER,
+                            ),
+                        issuerCountryOrRegion =
+                            certificateDetailViewModel.getRDNValue(
+                                certificateHolder.subject,
+                                BCStyle.C,
+                            ),
+                        issuerOrganization =
+                            certificateDetailViewModel.getRDNValue(
+                                certificateHolder.subject,
+                                BCStyle.O,
+                            ),
+                        issuerCommonName =
+                            TextUtil.removeSlashes(
+                                certificateDetailViewModel.getRDNValue(
+                                    certificateHolder.subject,
+                                    BCStyle.CN,
+                                ),
+                            ),
+                        issuerEmailAddress =
+                            certificateDetailViewModel.getRDNValue(
+                                certificateHolder.subject,
+                                BCStyle.EmailAddress,
+                            ),
+                        issuerOtherName =
+                            certificateDetailViewModel.getRDNValue(
+                                certificateHolder.subject,
+                                BCStyle.ORGANIZATION_IDENTIFIER,
+                            ),
+                        issuerSerialNumber =
+                            certificateDetailViewModel.addLeadingZeroToHex(
+                                certificate.serialNumber?.toString(16)?.formatHexString(),
+                            ),
+                        issuerVersion = certificate.version.toString(),
+                        issuerSignatureAlgorithm = "${certificate.sigAlgName} (${certificate.sigAlgOID})",
+                        issuerParameters =
+                            if (certificateDetailViewModel.isValidParametersData(sigAlgParams ?: "")) {
+                                sigAlgParams
+                            } else {
+                                "None"
+                            },
+                        issuerNotValidBefore = DateUtil.dateToCertificateFormat(certificate.notBefore),
+                        issuerNotValidAfter = DateUtil.dateToCertificateFormat(certificate.notAfter),
+                        publicKeyAlgorithm = certificate.publicKey.algorithm,
+                        publicKeyParameters =
+                            if (publicKeyParameters.toString() != "NULL") {
+                                publicKeyParameters.toString()
+                            } else {
+                                "None"
+                            },
+                        publicKeyKey = certificateDetailViewModel.getPublicKeyString(certificate.publicKey),
+                        publicKeyKeyUsage = certificateDetailViewModel.getKeyUsages(certificate.keyUsage),
+                        publicKeySignature = certificate.signature.hexString().uppercase(),
+                        extensions =
+                            certificateDetailViewModel.getExtensionsData(
+                                certificateHolder,
+                                certificate,
+                            ),
+                        fingerprintSha256 =
+                            certificateDetailViewModel.getCertificateSHA256Fingerprint(
+                                certificate,
+                            ),
+                        fingerprintSha1 =
+                            certificateDetailViewModel.getCertificateSHA1Fingerprint(
+                                certificate,
+                            ),
+                    ).forEach { certificateDetail ->
+                        when (certificateDetail) {
+                            is CertificateListItem.Certificate -> {
+                                if (!certificateDetail.detailValue.isNullOrEmpty()) {
+                                    CertificateDataItem(
+                                        modifier = modifier.padding(horizontal = itemSpacingPadding),
+                                        detailKey = certificateDetail.detailKey,
+                                        detailValue = certificateDetail.detailValue,
+                                    )
+                                }
+                            }
+
+                            is CertificateListItem.TextItem -> {
+                                Row(
+                                    modifier =
+                                        modifier
+                                            .fillMaxWidth()
+                                            .padding(top = screenViewLargePadding)
+                                            .padding(horizontal = screenViewLargePadding)
+                                            .semantics(mergeDescendants = true) {}
+                                            .focusGroup(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text(
+                                        modifier =
+                                            modifier
+                                                .padding(horizontal = itemSpacingPadding)
+                                                .semantics { heading() },
+                                        text = certificateDetail.text,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun handleBackButtonClick(
+    navController: NavController,
+    sharedCertificateViewModel: SharedCertificateViewModel,
+) {
+    sharedCertificateViewModel.resetCertificate()
+    navController.navigateUp()
+}

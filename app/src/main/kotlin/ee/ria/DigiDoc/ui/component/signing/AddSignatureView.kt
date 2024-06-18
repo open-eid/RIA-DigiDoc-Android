@@ -26,7 +26,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.viewmodel.SettingsViewModel
-import ee.ria.DigiDoc.viewmodel.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 
 @Composable
 fun AddSignatureView(

@@ -31,6 +31,7 @@ import org.bouncycastle.util.encoders.Base64
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.time.LocalDateTime
@@ -73,7 +74,7 @@ object FetchAndPackageDefaultConfigurationTask {
 
         val retrofit =
             Retrofit.Builder()
-                .baseUrl(configurationServiceUrl)
+                .baseUrl("$configurationServiceUrl/")
                 .client(okHttpClient)
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
@@ -232,7 +233,9 @@ object FetchAndPackageDefaultConfigurationTask {
 
     private fun configFileDir(filename: String): String {
         val userDir = System.getProperty("user.dir") ?: throw IllegalStateException("User directory is not set")
-        return "$userDir/src/$buildVariant/assets/config/$filename"
+        val configDir = File("$userDir/src/$buildVariant/assets/config/")
+        configDir.mkdirs()
+        return File(configDir, filename).path
     }
 
     private fun verifyConfigurationSignature(configurationData: ConfigurationData) {

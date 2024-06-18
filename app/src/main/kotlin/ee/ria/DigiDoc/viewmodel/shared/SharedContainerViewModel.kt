@@ -1,6 +1,6 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.viewmodel
+package ee.ria.DigiDoc.viewmodel.shared
 
 import android.content.ContentResolver
 import android.content.Context
