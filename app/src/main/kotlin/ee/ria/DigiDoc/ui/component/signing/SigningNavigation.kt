@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
@@ -83,8 +82,9 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.removeExtensionFromContainerFilename
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
 import ee.ria.DigiDoc.utilsLib.toast.ToastUtil.showMessage
-import ee.ria.DigiDoc.viewmodel.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.SigningViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
@@ -99,6 +99,7 @@ fun SigningNavigation(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     sharedContainerViewModel: SharedContainerViewModel,
+    sharedSignatureViewModel: SharedSignatureViewModel,
     signingViewModel: SigningViewModel = hiltViewModel(),
 ) {
     val signatureAddController = rememberNavController()
@@ -246,8 +247,9 @@ fun SigningNavigation(
             Column {
                 // Added top bar here instead of Scaffold -> topBar
                 // To better support keyboard navigation
-                SigningTopBar(
+                TopBar(
                     modifier = modifier,
+                    title = R.string.signing_title_container_existing,
                     onBackButtonClick = {
                         handleBackButtonClick(navController, signingViewModel)
                     },
@@ -465,6 +467,12 @@ fun SigningNavigation(
                                     actionSignature = signature
                                     openRemoveSignatureDialog.value = true
                                 },
+                                onSignerDetailsButtonClick = {
+                                    sharedSignatureViewModel.setSignature(signature)
+                                    navController.navigate(
+                                        Route.SignerDetail.route,
+                                    )
+                                },
                             )
                             HorizontalDivider(
                                 modifier =
@@ -632,10 +640,12 @@ fun handleBackButtonClick(
 fun SigningNavigationPreview() {
     val navController = rememberNavController()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
+    val sharedSignatureViewModel: SharedSignatureViewModel = hiltViewModel()
     RIADigiDocTheme {
         SigningNavigation(
             navController = navController,
             sharedContainerViewModel = sharedContainerViewModel,
+            sharedSignatureViewModel = sharedSignatureViewModel,
         )
     }
 }

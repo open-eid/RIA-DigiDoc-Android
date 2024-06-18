@@ -45,6 +45,7 @@ fun SignatureComponent(
     signature: SignatureInterface,
     showRemoveButton: Boolean,
     onRemoveButtonClick: () -> Unit = {},
+    onSignerDetailsButtonClick: () -> Unit = {},
 ) {
     Row(
         modifier =
@@ -72,7 +73,7 @@ fun SignatureComponent(
                     .semantics(mergeDescendants = true) {}
                     .weight(1f)
                     .focusGroup()
-                    .clickable { /* TODO */ },
+                    .clickable(onClick = onSignerDetailsButtonClick),
         ) {
             Text(
                 text = formatName(signature.name),

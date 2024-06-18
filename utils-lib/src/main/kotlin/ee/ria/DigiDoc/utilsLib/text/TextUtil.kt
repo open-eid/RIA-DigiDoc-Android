@@ -29,4 +29,6 @@ object TextUtil {
         val nameComponents = TextUtils.split(text, delimiter)
         return joinDelimiter?.let { TextUtils.join(it, nameComponents) }
     }
+
+    fun removeSlashes(text: String): String = text.replace("\\,", ", ")
 }

@@ -3,6 +3,7 @@
 package ee.ria.DigiDoc.utils
 
 import ee.ria.DigiDoc.utils.Constant.Routes.ACCESSIBILITY_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.CERTIFICATE_DETAIL_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.CRYPTO_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.DIAGNOSTICS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.EID_SCREEN
@@ -17,6 +18,7 @@ import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_RIGHTS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_SIGNING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNATURE_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.SIGNER_DETAIL_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SMART_ID_SCREEN
 
@@ -48,6 +50,10 @@ sealed class Route(val route: String) {
     object Info : Route(INFO_SCREEN)
 
     object Diagnostics : Route(DIAGNOSTICS_SCREEN)
+
+    object SignerDetail : Route(SIGNER_DETAIL_SCREEN)
+
+    object CertificateDetail : Route(CERTIFICATE_DETAIL_SCREEN)
 
     object Settings : Route(SETTINGS_SCREEN)
 
