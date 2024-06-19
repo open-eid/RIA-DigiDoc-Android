@@ -3,8 +3,8 @@
 package ee.ria.DigiDoc.ui.component.menu
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Button
@@ -26,8 +26,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.toolbarHeight
+import ee.ria.DigiDoc.ui.component.shared.PreventResize
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewMediumPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewSmallPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
@@ -41,8 +44,8 @@ fun MenuItem(
     Button(
         modifier =
             modifier
-                .padding(vertical = screenViewLargePadding)
-                .wrapContentHeight(Alignment.CenterVertically),
+                .wrapContentHeight(Alignment.CenterVertically)
+                .padding(horizontal = screenViewExtraLargePadding, vertical = screenViewSmallPadding),
         shape = RectangleShape,
         colors =
             ButtonColors(
@@ -51,11 +54,12 @@ fun MenuItem(
                 disabledContainerColor = Color.Transparent,
                 disabledContentColor = Color.Transparent,
             ),
+        contentPadding = PaddingValues(zeroPadding),
         onClick = onClickItem,
     ) {
         ConstraintLayout(
             modifier =
-                modifier.height(toolbarHeight)
+                modifier
                     .fillMaxWidth()
                     .align(Alignment.CenterVertically),
         ) {
@@ -68,7 +72,7 @@ fun MenuItem(
                 contentDescription = null,
                 modifier =
                     modifier
-                        .padding(start = screenViewLargePadding, end = screenViewLargePadding)
+                        .padding(start = screenViewMediumPadding, end = screenViewExtraLargePadding)
                         .wrapContentHeight(align = Alignment.CenterVertically)
                         .constrainAs(menuButtonHelpIcon) {
                             start.linkTo(parent.start)
@@ -76,22 +80,24 @@ fun MenuItem(
                             bottom.linkTo(parent.bottom)
                         },
             )
-            Text(
-                modifier =
-                    modifier
-                        .wrapContentHeight(align = Alignment.CenterVertically)
-                        .semantics {
-                            this.contentDescription = contentDescription
-                        }
-                        .constrainAs(menuButtonHelpText) {
-                            start.linkTo(menuButtonHelpIcon.end)
-                            top.linkTo(parent.top)
-                            bottom.linkTo(parent.bottom)
-                        },
-                style = MaterialTheme.typography.titleLarge,
-                textAlign = TextAlign.Start,
-                text = title,
-            )
+            PreventResize {
+                Text(
+                    modifier =
+                        modifier
+                            .wrapContentHeight(align = Alignment.CenterVertically)
+                            .semantics {
+                                this.contentDescription = contentDescription
+                            }
+                            .constrainAs(menuButtonHelpText) {
+                                start.linkTo(menuButtonHelpIcon.end)
+                                top.linkTo(parent.top)
+                                bottom.linkTo(parent.bottom)
+                            },
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Start,
+                    text = title,
+                )
+            }
         }
     }
 }

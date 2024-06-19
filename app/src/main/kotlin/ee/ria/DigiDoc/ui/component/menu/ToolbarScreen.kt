@@ -74,7 +74,7 @@ fun ToolbarScreen(
 fun ToolbarScreenPreview() {
     RIADigiDocTheme {
         ToolbarScreen(
-            title = "Test",
+            title = "",
         )
     }
 }

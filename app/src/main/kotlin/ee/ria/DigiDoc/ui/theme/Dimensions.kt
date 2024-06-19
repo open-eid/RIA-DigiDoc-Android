@@ -19,6 +19,7 @@ object Dimensions {
     // Paddings
     val zeroPadding = 0.dp
 
+    val screenViewSmallPadding = 8.dp
     val screenViewMediumPadding = 8.dp
     val screenViewLargePadding = 16.dp
     val screenViewExtraLargePadding = 24.dp

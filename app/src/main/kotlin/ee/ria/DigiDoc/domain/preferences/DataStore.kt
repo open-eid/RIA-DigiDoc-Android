@@ -2,11 +2,13 @@
 
 package ee.ria.DigiDoc.domain.preferences
 
+import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
 import androidx.preference.PreferenceManager
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.Constant.KEY_LOCALE
 import ee.ria.DigiDoc.common.preferences.EncryptedPreferences
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
@@ -15,15 +17,16 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.DigiDoc.utilsLib.toast.ToastUtil
 import java.io.IOException
 import java.security.GeneralSecurityException
+import java.util.Locale
 import javax.inject.Inject
 
 class DataStore
     @Inject
-    constructor(context: Context) {
+    constructor(application: Application) {
         private val logTag = javaClass.simpleName
 
-        private var preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-        private var resources: Resources = context.resources
+        private var preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(application)
+        private var resources: Resources = application.resources
 
         fun getSignatureAddMethod(): String {
             val signatureAddMethod =
@@ -275,6 +278,22 @@ class DataStore
             }
             errorLog(logTag, "Unable to get proxy password")
             return ""
+        }
+
+        fun getLocale(): Locale? {
+            val locale = preferences.getString(KEY_LOCALE, null)
+            if (locale != null) {
+                return Locale(locale)
+            }
+            return null
+        }
+
+        fun setLocale(locale: Locale?) {
+            if (locale == null) {
+                preferences.edit().remove(KEY_LOCALE).apply()
+            } else {
+                preferences.edit().putString(KEY_LOCALE, locale.language).apply()
+            }
         }
 
         fun getManualProxySettings(context: Context): ManualProxy {
