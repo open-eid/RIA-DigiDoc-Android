@@ -3,6 +3,7 @@
 package ee.ria.DigiDoc.ui.component.shared
 
 import android.text.TextUtils
+import android.view.View
 import android.view.View.NOT_FOCUSABLE
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.TextView
@@ -23,6 +24,7 @@ fun MiddleEllipsizeMultilineText(
     val middleEllipsizeMultilineTextView =
         remember {
             TextView(context).apply {
+                isFocusableInTouchMode = false
                 isFocusable = false
                 isClickable = false
             }
@@ -34,6 +36,8 @@ fun MiddleEllipsizeMultilineText(
         textView.text = text ?: ""
         textView.maxLines = maxLines
         textView.focusable = NOT_FOCUSABLE
+        textView.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        textView.isFocusableInTouchMode = false
         textView.isFocusable = false
         textView.isClickable = false
         textView.getViewTreeObserver().addOnGlobalLayoutListener(

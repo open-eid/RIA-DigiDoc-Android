@@ -53,7 +53,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
@@ -627,11 +626,7 @@ fun handleBackButtonClick(
     signingViewModel: SigningViewModel,
 ) {
     signingViewModel.handleBackButton()
-    navController.popBackStack(
-        destinationId = navController.graph.findStartDestination().id,
-        inclusive = false,
-        saveState = true,
-    )
+    navController.navigateUp()
 }
 
 @Preview(showBackground = true)

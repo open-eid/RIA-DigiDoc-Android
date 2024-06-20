@@ -112,6 +112,7 @@ fun SignatureScreen(
                     contentDescription = stringResource(id = R.string.recent_documents_title),
                     onClickItem = onClickToRecentDocumentsScreen,
                     isFocusable = true,
+                    isSubButton = true,
                 )
             }
         }

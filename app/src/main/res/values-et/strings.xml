@@ -60,6 +60,7 @@
     <string name="signing_container_signature_created_at">Allkirjastatud %1$s</string>
 
     <!-- Recent Documents -->
+    <string name="document">Dokument</string>
     <string name="recent_documents_title">Hiljutised dokumendid</string>
     <string name="recent_documents_empty_message">Dokumendid puuduvad</string>
     <string name="recent_documents_remove_button">Eemalda dokument</string>

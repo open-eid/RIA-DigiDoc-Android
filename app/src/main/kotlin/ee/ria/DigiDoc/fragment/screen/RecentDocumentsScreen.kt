@@ -19,8 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,8 +34,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.settings.MessageDialog
-import ee.ria.DigiDoc.ui.component.shared.BackButton
 import ee.ria.DigiDoc.ui.component.signing.Document
+import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.dividerHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
@@ -82,24 +80,11 @@ fun RecentDocumentsScreen(
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopAppBar(
-                colors =
-                    TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.primary,
-                    ),
-                title = {
-                    Text(
-                        text = stringResource(id = R.string.recent_documents_title),
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                },
-                navigationIcon = {
-                    BackButton(
-                        onClickBack = {
-                            navController.navigateUp()
-                        },
-                    )
+            TopBar(
+                modifier = modifier,
+                title = R.string.recent_documents_title,
+                onBackButtonClick = {
+                    navController.navigateUp()
                 },
             )
         },

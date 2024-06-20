@@ -10,12 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,14 +26,13 @@ import ee.ria.DigiDoc.BuildConfig
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.info.InfoComponent
 import ee.ria.DigiDoc.ui.component.info.InfoComponentItem
-import ee.ria.DigiDoc.ui.component.shared.BackButton
 import ee.ria.DigiDoc.ui.component.shared.DynamicText
+import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewSmallPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InfoScreen(
     modifier: Modifier = Modifier,
@@ -45,24 +41,11 @@ fun InfoScreen(
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopAppBar(
-                colors =
-                    TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.primary,
-                    ),
-                title = {
-                    Text(
-                        text = stringResource(id = R.string.main_about_title),
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                },
-                navigationIcon = {
-                    BackButton(
-                        onClickBack = {
-                            navController.navigateUp()
-                        },
-                    )
+            TopBar(
+                modifier = modifier,
+                title = R.string.main_about_title,
+                onBackButtonClick = {
+                    navController.navigateUp()
                 },
             )
         },

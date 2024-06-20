@@ -60,6 +60,7 @@
     <string name="signing_container_signature_created_at">Подписано %1$s</string>
 
     <!-- Recent Documents -->
+    <string name="document">Документ</string>
     <string name="recent_documents_title">Недавние документы</string>
     <string name="recent_documents_empty_message">Недавние документы отсутствуют</string>
     <string name="recent_documents_remove_button">Удалить файл</string>

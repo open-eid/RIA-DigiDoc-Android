@@ -5,7 +5,6 @@ package ee.ria.DigiDoc.ui.component.signing
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,14 +41,17 @@ fun Document(
     onItemClick: () -> Unit = {},
     onRemoveButtonClick: () -> Unit = {},
 ) {
+    val documentTitle = stringResource(id = R.string.document)
+    val textColor = MaterialTheme.colorScheme.inverseSurface.toArgb()
     ConstraintLayout(
         modifier =
             modifier
                 .padding(vertical = screenViewSmallPadding)
                 .wrapContentHeight()
                 .fillMaxWidth()
-                .semantics(mergeDescendants = true) {}
-                .focusGroup()
+                .semantics {
+                    this.contentDescription = "$documentTitle ${name.lowercase()}"
+                }
                 .focusable(true)
                 .clickable(onClick = onItemClick),
     ) {
@@ -61,9 +63,6 @@ fun Document(
             modifier =
                 modifier
                     .wrapContentSize()
-                    .semantics {
-                        this.contentDescription = contentDescription
-                    }
                     .padding(start = screenViewLargePadding, end = iconSize)
                     .padding(end = screenViewLargePadding)
                     .padding(end = screenViewLargePadding)
@@ -75,7 +74,7 @@ fun Document(
                     .focusable(false),
             text = name,
             maxLines = 4,
-            textColor = MaterialTheme.colorScheme.primary.toArgb(),
+            textColor = textColor,
         )
         IconButton(
             modifier =
