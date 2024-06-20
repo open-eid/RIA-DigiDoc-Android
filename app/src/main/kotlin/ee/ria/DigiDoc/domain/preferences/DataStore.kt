@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.domain.preferences
 
-import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
@@ -22,11 +21,11 @@ import javax.inject.Inject
 
 class DataStore
     @Inject
-    constructor(application: Application) {
+    constructor(context: Context) {
         private val logTag = javaClass.simpleName
 
-        private var preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(application)
-        private var resources: Resources = application.resources
+        private var preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        private var resources: Resources = context.resources
 
         fun getSignatureAddMethod(): String {
             val signatureAddMethod =

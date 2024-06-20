@@ -32,6 +32,7 @@ fun HomeNavigation(
     navController: NavHostController,
     onClickMenu: () -> Unit = {},
     onClickToFileChoosingScreen: () -> Unit = {},
+    onClickToRecentDocumentsScreen: () -> Unit = {},
 ) {
     val focusRequester = remember { FocusRequester() }
 
@@ -71,6 +72,7 @@ fun HomeNavigation(
                 composable(Route.Signature.route) {
                     SignatureScreen(
                         onClickToFileChoosingScreen = onClickToFileChoosingScreen,
+                        onClickToRecentDocumentsScreen = onClickToRecentDocumentsScreen,
                         focusRequester = focusRequester,
                         modifier =
                             modifier

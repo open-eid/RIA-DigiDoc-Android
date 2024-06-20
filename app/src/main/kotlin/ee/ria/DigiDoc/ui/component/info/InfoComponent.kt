@@ -61,7 +61,7 @@ fun InfoComponent(
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun SignatureAddRadioButtonPreview() {
+fun InfoComponentPreview() {
     RIADigiDocTheme {
         Column {
             InfoComponent(

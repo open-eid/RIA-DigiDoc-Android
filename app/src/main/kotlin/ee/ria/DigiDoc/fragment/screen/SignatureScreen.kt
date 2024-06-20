@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
@@ -35,12 +34,12 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignatureScreen(
     modifier: Modifier = Modifier,
     focusRequester: FocusRequester = FocusRequester(),
     onClickToFileChoosingScreen: () -> Unit = {},
+    onClickToRecentDocumentsScreen: () -> Unit = {},
 ) {
     val buttonFocusRequester = remember { focusRequester }
 
@@ -95,6 +94,25 @@ fun SignatureScreen(
                     contentDescription = stringResource(id = R.string.signature_home_create_text),
                     onClickItem = onClickToFileChoosingScreen,
                     isFocusable = true,
+                )
+            }
+            Row(
+                modifier =
+                    modifier
+                        .focusProperties { canFocus = true }
+                        .focusTarget()
+                        .focusRequester(buttonFocusRequester)
+                        .focusable()
+                        .semantics {
+                            this.text = AnnotatedString(chooseFileText)
+                        },
+            ) {
+                PrimaryButton(
+                    title = R.string.main_home_recent,
+                    contentDescription = stringResource(id = R.string.recent_documents_title),
+                    onClickItem = onClickToRecentDocumentsScreen,
+                    isFocusable = true,
+                    isSubButton = true,
                 )
             }
         }

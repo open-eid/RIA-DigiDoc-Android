@@ -13,12 +13,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +39,7 @@ import ee.ria.DigiDoc.ui.component.settings.SettingsProxyCategoryDialog
 import ee.ria.DigiDoc.ui.component.settings.SettingsSivaCategoryDialog
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
 import ee.ria.DigiDoc.ui.component.settings.SettingsTextField
-import ee.ria.DigiDoc.ui.component.shared.BackButton
+import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Constant.Defaults.DEFAULT_TSA_URL_VALUE
@@ -189,24 +185,11 @@ fun SettingsSigningScreen(
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopAppBar(
-                colors =
-                    TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.primary,
-                    ),
-                title = {
-                    Text(
-                        text = stringResource(id = R.string.main_settings_signing),
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                },
-                navigationIcon = {
-                    BackButton(
-                        onClickBack = {
-                            navController.navigateUp()
-                        },
-                    )
+            TopBar(
+                modifier = modifier,
+                title = R.string.main_settings_signing,
+                onBackButtonClick = {
+                    navController.navigateUp()
                 },
             )
         },

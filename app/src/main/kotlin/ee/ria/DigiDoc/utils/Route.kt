@@ -14,6 +14,7 @@ import ee.ria.DigiDoc.utils.Constant.Routes.INFO_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MENU_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MOBILE_ID_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.NFC_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.RECENT_DOCUMENTS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_RIGHTS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_SIGNING_SCREEN
@@ -23,41 +24,43 @@ import ee.ria.DigiDoc.utils.Constant.Routes.SIGNING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SMART_ID_SCREEN
 
 sealed class Route(val route: String) {
-    object Home : Route(HOME_SCREEN)
+    data object Home : Route(HOME_SCREEN)
 
-    object Menu : Route(MENU_SCREEN)
+    data object Menu : Route(MENU_SCREEN)
 
-    object Signature : Route(SIGNATURE_SCREEN)
+    data object Signature : Route(SIGNATURE_SCREEN)
 
-    object Crypto : Route(CRYPTO_SCREEN)
+    data object Crypto : Route(CRYPTO_SCREEN)
 
-    object EID : Route(EID_SCREEN)
+    data object EID : Route(EID_SCREEN)
 
-    object MobileId : Route(MOBILE_ID_SCREEN)
+    data object MobileId : Route(MOBILE_ID_SCREEN)
 
-    object SmartId : Route(SMART_ID_SCREEN)
+    data object SmartId : Route(SMART_ID_SCREEN)
 
-    object IdCard : Route(ID_CARD_SCREEN)
+    data object IdCard : Route(ID_CARD_SCREEN)
 
-    object NFC : Route(NFC_SCREEN)
+    data object NFC : Route(NFC_SCREEN)
 
-    object FileChoosing : Route(FILE_CHOOSING_SCREEN)
+    data object FileChoosing : Route(FILE_CHOOSING_SCREEN)
 
-    object Signing : Route(SIGNING_SCREEN)
+    data object Signing : Route(SIGNING_SCREEN)
 
-    object Accessibility : Route(ACCESSIBILITY_SCREEN)
+    data object Accessibility : Route(ACCESSIBILITY_SCREEN)
 
-    object Info : Route(INFO_SCREEN)
+    data object Info : Route(INFO_SCREEN)
 
-    object Diagnostics : Route(DIAGNOSTICS_SCREEN)
+    data object Diagnostics : Route(DIAGNOSTICS_SCREEN)
 
-    object SignerDetail : Route(SIGNER_DETAIL_SCREEN)
+    data object SignerDetail : Route(SIGNER_DETAIL_SCREEN)
 
-    object CertificateDetail : Route(CERTIFICATE_DETAIL_SCREEN)
+    data object CertificateDetail : Route(CERTIFICATE_DETAIL_SCREEN)
 
-    object Settings : Route(SETTINGS_SCREEN)
+    data object RecentDocuments : Route(RECENT_DOCUMENTS_SCREEN)
 
-    object SettingsRights : Route(SETTINGS_RIGHTS_SCREEN)
+    data object Settings : Route(SETTINGS_SCREEN)
 
-    object SettingsSigning : Route(SETTINGS_SIGNING_SCREEN)
+    data object SettingsRights : Route(SETTINGS_RIGHTS_SCREEN)
+
+    data object SettingsSigning : Route(SETTINGS_SIGNING_SCREEN)
 }

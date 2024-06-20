@@ -14,6 +14,7 @@ import ee.ria.DigiDoc.fragment.FileOpeningFragment
 import ee.ria.DigiDoc.fragment.HomeFragment
 import ee.ria.DigiDoc.fragment.InfoFragment
 import ee.ria.DigiDoc.fragment.MenuFragment
+import ee.ria.DigiDoc.fragment.RecentDocumentsFragment
 import ee.ria.DigiDoc.fragment.SettingsFragment
 import ee.ria.DigiDoc.fragment.SettingsRightsFragment
 import ee.ria.DigiDoc.fragment.SettingsSigningFragment
@@ -76,6 +77,12 @@ fun RIADigiDocAppScreen() {
         composable(route = Route.Info.route) {
             InfoFragment(
                 navController = navController,
+            )
+        }
+        composable(route = Route.RecentDocuments.route) {
+            RecentDocumentsFragment(
+                navController = navController,
+                sharedContainerViewModel = sharedContainerViewModel,
             )
         }
         composable(route = Route.Settings.route) {

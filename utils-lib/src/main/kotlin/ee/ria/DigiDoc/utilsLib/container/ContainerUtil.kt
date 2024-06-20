@@ -21,6 +21,14 @@ import java.util.Locale
 object ContainerUtil {
     private val LOG_TAG = javaClass.simpleName
 
+    private val FILE_MODIFIED_DATE_COMPARATOR: Comparator<File> =
+        Comparator { o1: File, o2: File ->
+            if (o1.lastModified() == o2.lastModified()) {
+                return@Comparator 0
+            }
+            if (o1.lastModified() > o2.lastModified()) -1 else 1
+        }
+
     @Throws(IOException::class)
     suspend fun addSignatureContainer(
         context: Context,
@@ -161,6 +169,20 @@ object ContainerUtil {
         }
 
         return validFiles
+    }
+
+    fun findSignatureContainerFiles(context: Context): List<File> {
+        val signatureContainerFileList = signatureContainersDir(context).listFiles()
+
+        val fileList = signatureContainerFileList?.sortedWith(FILE_MODIFIED_DATE_COMPARATOR)?.toList()
+
+        if (fileList != null) {
+            return fileList.filter { file ->
+                FilenameUtils.isExtension(file.name, CONTAINER_EXTENSIONS)
+            }
+        }
+
+        return emptyList()
     }
 
     private fun signatureContainersDir(context: Context): File {
