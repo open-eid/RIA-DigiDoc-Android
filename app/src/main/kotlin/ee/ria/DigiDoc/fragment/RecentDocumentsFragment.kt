@@ -10,40 +10,27 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import ee.ria.DigiDoc.fragment.screen.HomeScreen
+import ee.ria.DigiDoc.fragment.screen.RecentDocumentsScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 
 @Composable
-fun HomeFragment(
+fun RecentDocumentsFragment(
     navController: NavHostController,
-    navBarNavController: NavHostController,
     modifier: Modifier = Modifier,
+    sharedContainerViewModel: SharedContainerViewModel,
 ) {
     Surface(
         modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         color = MaterialTheme.colorScheme.background,
     ) {
-        HomeScreen(
+        RecentDocumentsScreen(
+            navController = navController,
+            sharedContainerViewModel = sharedContainerViewModel,
             modifier = modifier,
-            navController = navBarNavController,
-            onClickToMenuScreen = {
-                navController.navigate(
-                    Route.Menu.route,
-                )
-            },
-            onClickToFileChoosingScreen = {
-                navController.navigate(
-                    Route.FileChoosing.route,
-                )
-            },
-            onClickToRecentDocumentsScreen = {
-                navController.navigate(
-                    Route.RecentDocuments.route,
-                )
-            },
         )
     }
 }
@@ -51,13 +38,12 @@ fun HomeFragment(
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun HomeFragmentPreview() {
+fun RecentDocumentsFragmentPreview() {
     val navController = rememberNavController()
-    val navBarNavController = rememberNavController()
     RIADigiDocTheme {
-        HomeFragment(
+        RecentDocumentsFragment(
             navController = navController,
-            navBarNavController = navBarNavController,
+            sharedContainerViewModel = hiltViewModel(),
         )
     }
 }

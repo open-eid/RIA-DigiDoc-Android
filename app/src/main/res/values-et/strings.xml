@@ -59,6 +59,12 @@
     <string name="signing_container_signatures_empty">Allkirjad puuduvad</string>
     <string name="signing_container_signature_created_at">Allkirjastatud %1$s</string>
 
+    <!-- Recent Documents -->
+    <string name="recent_documents_title">Hiljutised dokumendid</string>
+    <string name="recent_documents_empty_message">Dokumendid puuduvad</string>
+    <string name="recent_documents_remove_button">Eemalda dokument</string>
+    <string name="recent_documents_remove_confirmation_message">Soovid eemaldada dokumendi?</string>
+
     <!-- Signature Add -->
     <string name="signature_update_name_update_name">Ümbriku nimi</string>
     <string name="signature_update_documents_add_error_exists">Fail on juba ümbrikus olemas</string>

@@ -59,6 +59,12 @@
     <string name="signing_container_signatures_empty">Контейнер не подписан</string>
     <string name="signing_container_signature_created_at">Подписано %1$s</string>
 
+    <!-- Recent Documents -->
+    <string name="recent_documents_title">Недавние документы</string>
+    <string name="recent_documents_empty_message">Недавние документы отсутствуют</string>
+    <string name="recent_documents_remove_button">Удалить файл</string>
+    <string name="recent_documents_remove_confirmation_message">Удалить документ?</string>
+
     <!-- Signature Add -->
     <string name="signature_update_name_update_name">Название контейнера</string>
     <string name="signature_update_documents_add_error_exists">Файл уже существует в контейнере</string>

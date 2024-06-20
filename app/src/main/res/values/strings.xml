@@ -38,7 +38,7 @@
     <string name="main_home_menu_button">Menu</string>
 
     <string name="signature_home_create_text">Choose a file to sign or validate</string>
-    <string name="signature_home_create_button">Choose file</string>
+    <string name="signature_home_create_button">CHOOSE FILE</string>
 
     <string name="main_home_menu_help">HELP</string>
     <string name="main_home_menu_help_url_short">link www.id.ee</string>
@@ -58,6 +58,12 @@
     <string name="signing_container_signatures_title">Container signatures</string>
     <string name="signing_container_signatures_empty">Container is not signed</string>
     <string name="signing_container_signature_created_at">Signed %1$s</string>
+
+    <!-- Recent Documents -->
+    <string name="recent_documents_title">Recent documents</string>
+    <string name="recent_documents_empty_message">No recent documents</string>
+    <string name="recent_documents_remove_button">Remove document</string>
+    <string name="recent_documents_remove_confirmation_message">Remove document?</string>
 
     <!-- Signature Add -->
     <string name="signature_update_name_update_name">Container name</string>

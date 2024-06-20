@@ -17,12 +17,14 @@ fun HomeScreen(
     navController: NavHostController,
     onClickToMenuScreen: () -> Unit = {},
     onClickToFileChoosingScreen: () -> Unit = {},
+    onClickToRecentDocumentsScreen: () -> Unit = {},
 ) {
     HomeNavigation(
         modifier = modifier,
         navController = navController,
         onClickMenu = onClickToMenuScreen,
         onClickToFileChoosingScreen = onClickToFileChoosingScreen,
+        onClickToRecentDocumentsScreen = onClickToRecentDocumentsScreen,
     )
 }
 

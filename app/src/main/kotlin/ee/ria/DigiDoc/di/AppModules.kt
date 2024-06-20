@@ -39,9 +39,9 @@ class AppModules {
     }
 
     @Provides
-    fun provideDataStore(application: Application): DataStore =
+    fun provideDataStore(context: Context): DataStore =
         DataStore(
-            application = application,
+            context = context,
         )
 
     @Provides
