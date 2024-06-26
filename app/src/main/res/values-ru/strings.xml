@@ -261,6 +261,26 @@
     <string name="main_about_licenses_title">Дополнительные лицензии и компоненты</string>
     <string name="main_about_terms_and_conditions">Пользовательские условия:</string>
 
+    <!-- Main Diagnostics -->
+    <string name="main_diagnostics_title">Диагностика</string>
+    <string name="main_diagnostics_application_version_title">Версия приложения:\u0020</string>
+    <string name="main_diagnostics_operating_system_title">Операционная система:\u0020</string>
+    <string name="main_diagnostics_libraries_title">Библиотеки:</string>
+    <string name="main_diagnostics_urls_title">URLs:</string>
+    <string name="main_diagnostics_tsl_cache_title">TSL кеш:</string>
+    <string name="main_diagnostics_central_configuration_title">Центральная конфигурация:</string>
+    <string name="main_diagnostics_configuration_update_date">ДАТА ОБНОВЛЕНИЯ:\u0020</string>
+    <string name="main_diagnostics_configuration_last_check_date">ПОСЛЕДНЯЯ ПРОВЕРКА:\u0020</string>
+    <string name="main_diagnostics_configuration_check_for_update_button">ПРОВЕРЬТЕ ОБНОВЛЕНИЯ</string>
+    <string name="main_diagnostics_configuration_save_diagnostics_button">СОХРАНИТЬ ДИАГНОСТИКУ</string>
+    <string name="main_diagnostics_rpuuid_default">назначено по умолчанию</string>
+    <string name="main_diagnostics_rpuuid_custom">назначено вручную</string>
+    <string name="main_diagnostics_logging_switch">Активировать одноразовое создание лог-файла</string>
+    <string name="main_diagnostics_save_log">Сохранить лог-файл</string>
+    <string name="main_diagnostics_restart_message">Перезапустите RIA DigiDoc, чтобы активировать ведение журнала. https://www.id.ee/ru/artikkel/generirovanie-log-fajla-v-kliente-digidoc4/</string>
+    <string name="main_diagnostics_restart_message_read_more">Подробнее читайте здесь</string>
+    <string name="main_diagnostics_restart_message_restart_now">Перезапустить приложение?</string>
+
     <!-- Main Settings -->
     <string name="main_settings_title">Настройки</string>
     <string name="main_settings_use_default_settings_button_title">ИСПОЛЬЗОВАТЬ НАСТРОЙКИ ПО УМОЛЧАНИЮ</string>

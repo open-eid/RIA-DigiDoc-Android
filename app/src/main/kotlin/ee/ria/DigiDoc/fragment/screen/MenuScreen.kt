@@ -27,17 +27,17 @@ import ee.ria.DigiDoc.ui.component.menu.ToolbarScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utilsLib.text.TextUtil
-import ee.ria.DigiDoc.viewmodel.SettingsViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import java.util.Locale
 
 @Composable
 fun MenuScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    settingsViewModel: SettingsViewModel = hiltViewModel(),
+    sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
-    val locale = settingsViewModel.dataStore.getLocale() ?: Locale.getDefault()
+    val locale = sharedSettingsViewModel.dataStore.getLocale() ?: Locale.getDefault()
 
     val helpContentDesctiption =
         if (locale.language == "et") {

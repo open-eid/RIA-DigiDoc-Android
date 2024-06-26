@@ -16,13 +16,13 @@ import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.configuration.domain.model.ConfigurationViewModel
 import ee.ria.DigiDoc.fragment.screen.SettingsSigningScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.viewmodel.SettingsViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 
 @Composable
 fun SettingsSigningFragment(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    settingsViewModel: SettingsViewModel = hiltViewModel(),
+    sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
     configurationViewModel: ConfigurationViewModel = hiltViewModel(),
 ) {
     Surface(
@@ -35,22 +35,22 @@ fun SettingsSigningFragment(
         SettingsSigningScreen(
             navController = navController,
             modifier = modifier,
-            getIsRoleAskingEnabled = settingsViewModel.dataStore::getSettingsAskRoleAndAddress,
-            setIsRoleAskingEnabled = settingsViewModel.dataStore::setSettingsAskRoleAndAddress,
-            getSettingsUUID = settingsViewModel.dataStore::getSettingsUUID,
-            setSettingsUUID = settingsViewModel.dataStore::setSettingsUUID,
-            getSettingsTSAUrl = settingsViewModel.dataStore::getSettingsTSAUrl,
-            setSettingsTSAUrl = settingsViewModel.dataStore::setSettingsTSAUrl,
-            getProxySetting = settingsViewModel.dataStore::getProxySetting,
-            setProxySetting = settingsViewModel.dataStore::setProxySetting,
-            getProxyHost = settingsViewModel.dataStore::getProxyHost,
-            setProxyHost = settingsViewModel.dataStore::setProxyHost,
-            getProxyPort = settingsViewModel.dataStore::getProxyPort,
-            setProxyPort = settingsViewModel.dataStore::setProxyPort,
-            getProxyUsername = settingsViewModel.dataStore::getProxyUsername,
-            setProxyUsername = settingsViewModel.dataStore::setProxyUsername,
-            getProxyPassword = settingsViewModel.dataStore::getProxyPassword,
-            setProxyPassword = settingsViewModel.dataStore::setProxyPassword,
+            getIsRoleAskingEnabled = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress,
+            setIsRoleAskingEnabled = sharedSettingsViewModel.dataStore::setSettingsAskRoleAndAddress,
+            getSettingsUUID = sharedSettingsViewModel.dataStore::getSettingsUUID,
+            setSettingsUUID = sharedSettingsViewModel.dataStore::setSettingsUUID,
+            getSettingsTSAUrl = sharedSettingsViewModel.dataStore::getSettingsTSAUrl,
+            setSettingsTSAUrl = sharedSettingsViewModel.dataStore::setSettingsTSAUrl,
+            getProxySetting = sharedSettingsViewModel.dataStore::getProxySetting,
+            setProxySetting = sharedSettingsViewModel.dataStore::setProxySetting,
+            getProxyHost = sharedSettingsViewModel.dataStore::getProxyHost,
+            setProxyHost = sharedSettingsViewModel.dataStore::setProxyHost,
+            getProxyPort = sharedSettingsViewModel.dataStore::getProxyPort,
+            setProxyPort = sharedSettingsViewModel.dataStore::setProxyPort,
+            getProxyUsername = sharedSettingsViewModel.dataStore::getProxyUsername,
+            setProxyUsername = sharedSettingsViewModel.dataStore::setProxyUsername,
+            getProxyPassword = sharedSettingsViewModel.dataStore::getProxyPassword,
+            setProxyPassword = sharedSettingsViewModel.dataStore::setProxyPassword,
             configuration = configurationViewModel.configuration,
         )
     }

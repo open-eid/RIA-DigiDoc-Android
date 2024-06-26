@@ -1,6 +1,6 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.viewmodel
+package ee.ria.DigiDoc.viewmodel.shared
 
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
@@ -28,7 +28,7 @@ import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class SettingsViewModelTest {
+class SharedSettingsViewModelTest {
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
 
@@ -64,14 +64,14 @@ class SettingsViewModelTest {
 
     private lateinit var dataStore: DataStore
 
-    private lateinit var viewModel: SettingsViewModel
+    private lateinit var viewModel: SharedSettingsViewModel
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
         context = InstrumentationRegistry.getInstrumentation().targetContext
         dataStore = DataStore(context)
-        viewModel = SettingsViewModel(dataStore)
+        viewModel = SharedSettingsViewModel(dataStore)
     }
 
     @Test

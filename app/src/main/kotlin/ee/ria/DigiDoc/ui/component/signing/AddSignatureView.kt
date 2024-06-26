@@ -25,8 +25,8 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.viewmodel.SettingsViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 
 @Composable
 fun AddSignatureView(
@@ -34,7 +34,7 @@ fun AddSignatureView(
     signatureAddController: NavHostController,
     dismissDialog: () -> Unit = {},
     sharedContainerViewModel: SharedContainerViewModel,
-    settingsViewModel: SettingsViewModel = hiltViewModel(),
+    sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
 ) {
     Surface(
         modifier =
@@ -57,12 +57,12 @@ fun AddSignatureView(
             SignatureAddRadioGroup(
                 modifier = modifier,
                 navController = signatureAddController,
-                selectedRadioItem = settingsViewModel.dataStore.getSignatureAddMethod(),
-                settingsViewModel = settingsViewModel,
+                selectedRadioItem = sharedSettingsViewModel.dataStore.getSignatureAddMethod(),
+                sharedSettingsViewModel = sharedSettingsViewModel,
             )
             NavHost(
                 navController = signatureAddController,
-                startDestination = settingsViewModel.dataStore.getSignatureAddMethod(),
+                startDestination = sharedSettingsViewModel.dataStore.getSignatureAddMethod(),
             ) {
                 composable(route = Route.MobileId.route) {
                     MobileIdView(

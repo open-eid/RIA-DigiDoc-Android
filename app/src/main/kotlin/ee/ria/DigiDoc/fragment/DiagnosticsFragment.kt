@@ -10,30 +10,23 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import ee.ria.DigiDoc.fragment.screen.SettingsRightsScreen
+import ee.ria.DigiDoc.fragment.screen.DiagnosticsScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 
 @Composable
-fun SettingsRightsFragment(
+fun DiagnosticsFragment(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
 ) {
     Surface(
         modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         color = MaterialTheme.colorScheme.background,
     ) {
-        SettingsRightsScreen(
+        DiagnosticsScreen(
             navController = navController,
             modifier = modifier,
-            getIsScreenshotAllowed = sharedSettingsViewModel.dataStore::getSettingsAllowScreenshots,
-            setIsScreenshotAllowed = sharedSettingsViewModel.dataStore::setSettingsAllowScreenshots,
-            getIsOpenAllFileTypesEnabled = sharedSettingsViewModel.dataStore::getSettingsOpenAllFileTypes,
-            setIsOpenAllFileTypesEnabled = sharedSettingsViewModel.dataStore::setSettingsOpenAllFileTypes,
         )
     }
 }
@@ -41,9 +34,9 @@ fun SettingsRightsFragment(
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun SettingsRightsFragmentPreview() {
+fun DiagnosticsFragmentPreview() {
     val navController = rememberNavController()
     RIADigiDocTheme {
-        SettingsRightsFragment(navController)
+        DiagnosticsFragment(navController)
     }
 }

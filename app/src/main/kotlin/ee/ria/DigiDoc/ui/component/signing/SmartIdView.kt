@@ -46,9 +46,9 @@ import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.viewmodel.SettingsViewModel
 import ee.ria.DigiDoc.viewmodel.SmartIdViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -60,7 +60,7 @@ fun SmartIdView(
     modifier: Modifier = Modifier,
     cancelButtonClick: () -> Unit = {},
     smartIdViewModel: SmartIdViewModel = hiltViewModel(),
-    settingsViewModel: SettingsViewModel = hiltViewModel(),
+    sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
     sharedContainerViewModel: SharedContainerViewModel,
 ) {
     val context = LocalContext.current
@@ -137,7 +137,7 @@ fun SmartIdView(
             modifier = modifier.padding(vertical = screenViewLargePadding),
         )
         val countriesList = stringArrayResource(id = R.array.smart_id_country)
-        var selectedCountry by remember { mutableIntStateOf(settingsViewModel.dataStore.getCountry()) }
+        var selectedCountry by remember { mutableIntStateOf(sharedSettingsViewModel.dataStore.getCountry()) }
         SelectionSpinner(
             list = countriesList,
             preselected = selectedCountry,
@@ -154,7 +154,7 @@ fun SmartIdView(
         var personalCodeText by remember {
             mutableStateOf(
                 TextFieldValue(
-                    text = settingsViewModel.dataStore.getSidPersonalCode(),
+                    text = sharedSettingsViewModel.dataStore.getSidPersonalCode(),
                 ),
             )
         }
@@ -194,8 +194,8 @@ fun SmartIdView(
             okButtonClick = {
                 openSignatureUpdateContainerDialog.value = true
                 if (rememberMeCheckedState.value) {
-                    settingsViewModel.dataStore.setSidPersonalCode(personalCodeText.text)
-                    settingsViewModel.dataStore.setCountry(selectedCountry)
+                    sharedSettingsViewModel.dataStore.setSidPersonalCode(personalCodeText.text)
+                    sharedSettingsViewModel.dataStore.setCountry(selectedCountry)
                 }
                 CoroutineScope(Dispatchers.IO).launch {
                     smartIdViewModel.performSmartIdWorkRequest(

@@ -47,6 +47,8 @@
     <string name="main_settings_sid_personal_code_key">mainSettingsSmartIdPersonalCode</string>
     <string name="main_settings_smartid_country_key">mainSettingsSmartIdCountry</string>
     <string name="main_settings_tsa_url_key">mainSettingsTSAUrl</string>
+    <string name="main_settings_siva_url_key">mainSettingsSivaUrl</string>
+    <string name="main_settings_siva_cert_key">mainSettingsSivaCert</string>
     <string name="main_settings_role_key">mainSettingsRole</string>
     <string name="main_settings_city_key">mainSettingsCity</string>
     <string name="main_settings_county_key">mainSettingsCounty</string>
@@ -56,6 +58,28 @@
     <string name="main_settings_allow_screenshots_key">mainSettingsAllowScreenshots</string>
     <string name="main_settings_ask_role_and_address_key">mainSettingsAskRoleAndAddress</string>
     <string name="main_settings_tsa_cert_view">mainSettingsTSACertView</string>
+
+    <!-- Diagnostics -->
+    <string name="main_diagnostics_libdigidocpp_title">libdigidocpp\u0020</string>
+    <string name="main_diagnostics_config_url_title">CONFIG_URL:\u0020</string>
+    <string name="main_diagnostics_tsl_url_title">TSL_URL:\u0020</string>
+    <string name="main_diagnostics_siva_url_title">SIVA_URL:\u0020</string>
+    <string name="main_diagnostics_tsa_url_title">TSA_URL:\u0020</string>
+    <string name="main_diagnostics_ldap_person_url_title">LDAP_PERSON_URL:\u0020</string>
+    <string name="main_diagnostics_ldap_corp_url_title">LDAP_CORP_URL:\u0020</string>
+    <string name="main_diagnostics_mid_proxy_url_title">MID_PROXY_URL:\u0020</string>
+    <string name="main_diagnostics_mid_sk_url_title">MID_SK_URL:\u0020</string>
+    <string name="main_diagnostics_sid_v1_proxy_url_title">SID_PROXY_URL:\u0020</string>
+    <string name="main_diagnostics_sid_v1_sk_url_title">SID_SK_URL:\u0020</string>
+    <string name="main_diagnostics_sid_v2_proxy_url_title">SIDV2_PROXY_URL:\u0020</string>
+    <string name="main_diagnostics_sid_v2_sk_url_title">SIDV2_SK_URL:\u0020</string>
+    <string name="main_diagnostics_rpuuid_title">RPUUID:\u0020</string>
+
+    <string name="main_diagnostics_date_title">DATE:\u0020</string>
+    <string name="main_diagnostics_serial_title">SERIAL:\u0020</string>
+    <string name="main_diagnostics_url_title">URL:\u0020</string>
+    <string name="main_diagnostics_version_title">VERSION:\u0020</string>
+
 
     <string name="file_provider_authority">ee.ria.digidoc.debug.fileprovider</string>
 

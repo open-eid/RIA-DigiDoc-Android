@@ -25,14 +25,14 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.viewmodel.SettingsViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 
 @Composable
 fun SignatureAddRadioGroup(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     selectedRadioItem: String,
-    settingsViewModel: SettingsViewModel,
+    sharedSettingsViewModel: SharedSettingsViewModel,
 ) {
     var selectedItem by remember { mutableStateOf(selectedRadioItem) }
     Column(
@@ -57,7 +57,7 @@ fun SignatureAddRadioGroup(
                 contentDescription = navigationItem.contentDescription,
                 onClick = {
                     selectedItem = navigationItem.route
-                    settingsViewModel.dataStore.setSignatureAddMethod(selectedItem)
+                    sharedSettingsViewModel.dataStore.setSignatureAddMethod(selectedItem)
                     navController.navigate(navigationItem.route) {
                         popUpTo(navController.graph.findStartDestination().id) {
                             saveState = true
@@ -76,13 +76,13 @@ fun SignatureAddRadioGroup(
 @Composable
 fun SignatureAddRadioGroupPreview() {
     val navController = rememberNavController()
-    val settingsViewModel: SettingsViewModel = hiltViewModel()
+    val sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel()
     RIADigiDocTheme {
         val selected by remember { mutableStateOf(Route.SmartId.route) }
         SignatureAddRadioGroup(
             selectedRadioItem = selected,
             navController = navController,
-            settingsViewModel = settingsViewModel,
+            sharedSettingsViewModel = sharedSettingsViewModel,
         )
     }
 }
