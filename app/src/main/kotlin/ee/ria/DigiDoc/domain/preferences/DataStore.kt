@@ -134,23 +134,65 @@ class DataStore
             editor.apply()
         }
 
+        fun getIsLogFileGenerationEnabled(): Boolean {
+            return preferences.getBoolean(
+                resources.getString(ee.ria.DigiDoc.network.R.string.main_diagnostics_logging_key),
+                false,
+            )
+        }
+
+        fun setIsLogFileGenerationEnabled(isEnabled: Boolean) {
+            val editor = preferences.edit()
+            editor.putBoolean(
+                resources.getString(ee.ria.DigiDoc.network.R.string.main_diagnostics_logging_key),
+                isEnabled,
+            )
+            editor.apply()
+        }
+
+        fun setIsLogFileGenerationRunning(isRunning: Boolean) {
+            val editor = preferences.edit()
+            editor.putBoolean(
+                resources.getString(ee.ria.DigiDoc.network.R.string.main_diagnostics_logging_running_key),
+                isRunning,
+            )
+            editor.apply()
+        }
+
         fun getSettingsSivaUrl(): String {
-            return preferences.getString(resources.getString(R.string.main_settings_siva_url_key), "") ?: ""
+            return preferences.getString(
+                resources.getString(
+                    ee.ria.DigiDoc.network.R.string.main_settings_siva_url_key,
+                ),
+                "",
+            )
+                ?: ""
         }
 
         fun setSettingsSivaUrl(sivaUrl: String) {
             val editor = preferences.edit()
-            editor.putString(resources.getString(R.string.main_settings_siva_url_key), sivaUrl)
+            editor.putString(
+                resources.getString(
+                    ee.ria.DigiDoc.network.R.string.main_settings_siva_url_key,
+                ),
+                sivaUrl,
+            )
             editor.apply()
         }
 
         fun getSettingsSivaCertName(): String {
-            return preferences.getString(resources.getString(R.string.main_settings_siva_cert_key), "") ?: ""
+            return preferences.getString(
+                resources.getString(
+                    ee.ria.DigiDoc.network.R.string.main_settings_siva_cert_key,
+                ),
+                "",
+            )
+                ?: ""
         }
 
         fun setSettingsSivaCertName(cert: String) {
             val editor = preferences.edit()
-            editor.putString(resources.getString(R.string.main_settings_siva_cert_key), cert)
+            editor.putString(resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_siva_cert_key), cert)
             editor.apply()
         }
 

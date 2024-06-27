@@ -227,6 +227,8 @@
     <string name="main_home_menu_diagnostics_accessibility">Диагностика</string>
     <string name="main_home_menu_accessibility_accessibility">Доступность</string>
 
+    <string name="setting_value_changed">Значение настройки изменено</string>
+    <string name="setting_value_change_cancelled">Изменение значения настройки отменено</string>
     <string name="close_menu">Закрыть меню</string>
     <string name="hide_password">Спрятать пароль</string>
     <string name="show_password">Показать пароль</string>

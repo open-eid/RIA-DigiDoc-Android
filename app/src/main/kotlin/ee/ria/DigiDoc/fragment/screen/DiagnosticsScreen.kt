@@ -7,16 +7,21 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
+import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -35,12 +40,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.BuildConfig
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.component.settings.MessageDialog
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
 import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
 import ee.ria.DigiDoc.ui.component.shared.SpannableBoldText
 import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
 import ee.ria.DigiDoc.utilsLib.toast.ToastUtil.showMessage
 import ee.ria.DigiDoc.viewmodel.DiagnosticsViewModel
@@ -49,6 +56,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiagnosticsScreen(
     modifier: Modifier = Modifier,
@@ -57,6 +65,7 @@ fun DiagnosticsScreen(
 ) {
     diagnosticsViewModel.refreshConfigurationVariables()
     val context = LocalContext.current
+    val activity = (LocalContext.current as Activity)
     val getConfigurationLastUpdateCheckDate by
         diagnosticsViewModel.getConfigurationLastUpdateCheckDate.asFlow().collectAsState(
             null,
@@ -224,12 +233,36 @@ fun DiagnosticsScreen(
                 stringResource(id = R.string.main_diagnostics_configuration_last_check_date),
                 getConfigurationLastUpdateCheckDate ?: "",
             )
-            var enableOneTimeLogGeneration by remember { mutableStateOf(false) }
+            var enableOneTimeLogGeneration by remember {
+                mutableStateOf(diagnosticsViewModel.dataStore.getIsLogFileGenerationEnabled())
+            }
+            val openRestartConfirmationDialog = remember { mutableStateOf(false) }
+            val restartConfirmationTitle = stringResource(id = R.string.main_diagnostics_restart_message)
+            val settingValueChanged = stringResource(id = R.string.setting_value_changed)
+            val settingValueChangeCancelled = stringResource(id = R.string.setting_value_change_cancelled)
+            val closeRestartConfirmationDialog = {
+                openRestartConfirmationDialog.value = false
+            }
+            val dismissRestartConfirmationDialog = {
+                enableOneTimeLogGeneration = false
+                diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(false)
+                closeRestartConfirmationDialog()
+                AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, settingValueChangeCancelled)
+            }
             SettingsSwitchItem(
                 modifier = modifier,
                 checked = enableOneTimeLogGeneration,
                 onCheckedChange = {
-                    enableOneTimeLogGeneration = it
+                    if (!enableOneTimeLogGeneration) {
+                        openRestartConfirmationDialog.value = true
+                    } else {
+                        enableOneTimeLogGeneration = false
+                        diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(false)
+                        diagnosticsViewModel.dataStore.setIsLogFileGenerationRunning(false)
+                        AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, settingValueChanged)
+                        activity.finish()
+                        activity.startActivity(activity.intent)
+                    }
                 },
                 title = stringResource(id = R.string.main_diagnostics_logging_switch),
                 contentDescription = stringResource(id = R.string.main_diagnostics_logging_switch).lowercase(),
@@ -237,9 +270,12 @@ fun DiagnosticsScreen(
             if (enableOneTimeLogGeneration) {
                 PrimaryButton(
                     modifier =
-                        modifier.fillMaxWidth().wrapContentHeight().padding(
-                            horizontal = screenViewLargePadding,
-                        ),
+                        modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .padding(
+                                horizontal = screenViewLargePadding,
+                            ),
                     contentDescription =
                         stringResource(
                             id = R.string.main_diagnostics_save_log,
@@ -270,9 +306,12 @@ fun DiagnosticsScreen(
             }
             PrimaryButton(
                 modifier =
-                    modifier.fillMaxWidth().wrapContentHeight().padding(
-                        horizontal = screenViewLargePadding,
-                    ),
+                    modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(
+                            horizontal = screenViewLargePadding,
+                        ),
                 contentDescription =
                     stringResource(
                         id = R.string.main_diagnostics_configuration_check_for_update_button,
@@ -287,9 +326,12 @@ fun DiagnosticsScreen(
             )
             PrimaryButton(
                 modifier =
-                    modifier.fillMaxWidth().wrapContentHeight().padding(
-                        horizontal = screenViewLargePadding,
-                    ),
+                    modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(
+                            horizontal = screenViewLargePadding,
+                        ),
                 contentDescription =
                     stringResource(
                         id = R.string.main_diagnostics_configuration_save_diagnostics_button,
@@ -317,6 +359,37 @@ fun DiagnosticsScreen(
                     }
                 },
             )
+            if (openRestartConfirmationDialog.value) {
+                BasicAlertDialog(
+                    onDismissRequest = dismissRestartConfirmationDialog,
+                ) {
+                    Surface(
+                        modifier =
+                            modifier
+                                .wrapContentHeight()
+                                .wrapContentWidth()
+                                .padding(screenViewLargePadding)
+                                .verticalScroll(rememberScrollState()),
+                    ) {
+                        MessageDialog(
+                            title = restartConfirmationTitle,
+                            cancelButtonClick = dismissRestartConfirmationDialog,
+                            okButtonClick = {
+                                enableOneTimeLogGeneration = true
+                                diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(true)
+                                closeRestartConfirmationDialog()
+                                AccessibilityUtil.sendAccessibilityEvent(
+                                    context,
+                                    TYPE_ANNOUNCEMENT,
+                                    settingValueChanged,
+                                )
+                                activity.finish()
+                                activity.startActivity(activity.intent)
+                            },
+                        )
+                    }
+                }
+            }
         }
     }
 }

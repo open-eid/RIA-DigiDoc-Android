@@ -21,7 +21,10 @@ import ee.ria.DigiDoc.ui.theme.Blue500
 fun DynamicText(
     modifier: Modifier,
     text: String,
-    textAlign: TextAlign = TextAlign.Start,
+    textStyle: TextStyle =
+        TextStyle(
+            textAlign = TextAlign.Start,
+        ),
 ) {
     val uriHandler = LocalUriHandler.current
     val annotatedStringWithLinks = createAnnotatedStringWithLinks(text)
@@ -29,10 +32,7 @@ fun DynamicText(
     ClickableText(
         modifier = modifier.fillMaxWidth(),
         text = annotatedStringWithLinks,
-        style =
-            TextStyle(
-                textAlign = textAlign,
-            ),
+        style = textStyle,
         onClick = { offset ->
             annotatedStringWithLinks
                 .getStringAnnotations(tag = "URL", start = offset, end = offset)

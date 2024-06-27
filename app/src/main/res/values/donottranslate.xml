@@ -46,9 +46,7 @@
     <string name="main_settings_personal_code_key">mainSettingsPersonalCode</string>
     <string name="main_settings_sid_personal_code_key">mainSettingsSmartIdPersonalCode</string>
     <string name="main_settings_smartid_country_key">mainSettingsSmartIdCountry</string>
-    <string name="main_settings_tsa_url_key">mainSettingsTSAUrl</string>
-    <string name="main_settings_siva_url_key">mainSettingsSivaUrl</string>
-    <string name="main_settings_siva_cert_key">mainSettingsSivaCert</string>
+    <string name="main_settings_tsa_url_key">mainSettingsTSAUrl</string>>
     <string name="main_settings_role_key">mainSettingsRole</string>
     <string name="main_settings_city_key">mainSettingsCity</string>
     <string name="main_settings_county_key">mainSettingsCounty</string>

@@ -227,6 +227,8 @@
     <string name="main_home_menu_recent_accessibility">Hiljutised dokumendid</string>
     <string name="main_home_menu_accessibility_accessibility">Juurdepääsetavus</string>
 
+    <string name="setting_value_changed">Seade väärtus muudetud</string>
+    <string name="setting_value_change_cancelled">Seade väärtuse muutmine katkestatud</string>
     <string name="close_menu">Sulge menüü</string>
     <string name="hide_password">Peida parooli</string>
     <string name="show_password">Näita parooli</string>
