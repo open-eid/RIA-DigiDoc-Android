@@ -5,8 +5,8 @@ package ee.ria.DigiDoc.viewmodel
 import android.webkit.URLUtil
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import ee.ria.DigiDoc.common.extensions.formatHexString
-import ee.ria.DigiDoc.common.extensions.hexString
+import ee.ria.DigiDoc.utilsLib.extensions.formatHexString
+import ee.ria.DigiDoc.utilsLib.extensions.hexString
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import org.apache.commons.text.WordUtils
 import org.bouncycastle.asn1.ASN1ObjectIdentifier

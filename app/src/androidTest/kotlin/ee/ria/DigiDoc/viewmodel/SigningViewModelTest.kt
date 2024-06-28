@@ -317,7 +317,7 @@ class SigningViewModelTest {
 
     @Test
     fun signingViewModel_getFormattedDate_success() {
-        val signingTime = "1970-01-01T03:00:00Z"
+        val signingTime = "1970-01-01T00:00:00Z"
         val expectedFormattedDate = "01.01.1970 03:00:00"
 
         val formattedDate = viewModel.getFormattedDate(signingTime)

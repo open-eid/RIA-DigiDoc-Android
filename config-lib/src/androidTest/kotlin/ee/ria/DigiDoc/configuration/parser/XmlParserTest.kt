@@ -16,7 +16,7 @@ import java.io.InputStream
 
 class XmlParserTest {
     @Test
-    fun testReadSequenceNumber_successful() {
+    fun xmlParser_readSequenceNumber_successful() {
         val xml = "<root><TSLSequenceNumber>123</TSLSequenceNumber></root>"
         val inputStream = ByteArrayInputStream(xml.toByteArray())
 
@@ -26,7 +26,7 @@ class XmlParserTest {
     }
 
     @Test(expected = TSLException::class)
-    fun testReadSequenceNumber_elementNotFound() {
+    fun xmlParser_readSequenceNumber_throwTSLExceptionWhenElementNotFound() {
         val xml = "<root><AnotherElement>123</AnotherElement></root>"
         val inputStream = ByteArrayInputStream(xml.toByteArray())
 
@@ -34,7 +34,7 @@ class XmlParserTest {
     }
 
     @Test(expected = XmlPullParserException::class)
-    fun testReadSequenceNumber_xmlPullParserException() {
+    fun xmlParser_readSequenceNumber_throwXmlPullParserExceptionWithXmlPullParserEventType() {
         val inputStream = mock(InputStream::class.java)
         val xmlPullParserFactory = mock(XmlPullParserFactory::class.java)
         val xmlPullParser = mock(XmlPullParser::class.java)
@@ -49,7 +49,7 @@ class XmlParserTest {
     }
 
     @Test(expected = IOException::class)
-    fun testReadSequenceNumber_ioException() {
+    fun xmlParser_readSequenceNumber_throwIOParserExceptionWithXmlPullParser() {
         val inputStream = mock(InputStream::class.java)
 
         val xmlPullParserFactory = mock(XmlPullParserFactory::class.java)

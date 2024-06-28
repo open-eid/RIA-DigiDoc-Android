@@ -55,7 +55,7 @@ class InitializationTest {
     }
 
     @Test
-    fun testInit_success() {
+    fun initialization_init_success() {
         try {
             runTest {
                 initialization.init(context)
@@ -66,7 +66,7 @@ class InitializationTest {
     }
 
     @Test
-    fun testInit_initWithNullContext_throwsIllegalArgumentException() {
+    fun initialization_init_throwsIllegalArgumentExceptionWithNullContext() {
         val mockContext = mock(Context::class.java)
 
         `when`(mockContext.resources).thenReturn(context.resources)
@@ -81,7 +81,7 @@ class InitializationTest {
     }
 
     @Test
-    fun testInit_initWithEmptySchemaDir_throwsIllegalArgumentException() {
+    fun initialization_init_throwsIllegalArgumentExceptionWithEmptySchemaDir() {
         val cacheDir = context.cacheDir
         val mockContext = mock(Context::class.java)
         `when`(mockContext.resources).thenReturn(Resources.getSystem())
@@ -96,7 +96,7 @@ class InitializationTest {
     }
 
     @Test
-    fun testInit_initTwice_throwsAlreadyInitializedException() {
+    fun initialization_init_throwsAlreadyInitializedExceptionWhenInitTwice() {
         assertThrows(AlreadyInitializedException::class.java) {
             runTest {
                 initialization.init(context)

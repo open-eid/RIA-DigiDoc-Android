@@ -6,12 +6,12 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.common.extensions.hexString
-import ee.ria.DigiDoc.common.extensions.x509Certificate
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.utilsLib.container.NameUtil
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
+import ee.ria.DigiDoc.utilsLib.extensions.hexString
+import ee.ria.DigiDoc.utilsLib.extensions.x509Certificate
 import java.security.cert.X509Certificate
 
 data class SignerDetailItem(

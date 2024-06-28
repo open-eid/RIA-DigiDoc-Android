@@ -38,7 +38,7 @@ class MobileCreateSignatureRequestHelperTest {
     }
 
     @Test
-    fun mobileCreateSignatureRequestHelperTest_create_uuidAndLocaleNull() =
+    fun mobileCreateSignatureRequestHelper_create_uuidAndLocaleNull() =
         runTest {
             val context = InstrumentationRegistry.getInstrumentation().targetContext
             val container =
@@ -81,7 +81,7 @@ class MobileCreateSignatureRequestHelperTest {
         }
 
     @Test
-    fun mobileCreateSignatureRequestHelperTest_create_success() =
+    fun mobileCreateSignatureRequestHelper_create_success() =
         runTest {
             val context = InstrumentationRegistry.getInstrumentation().targetContext
             val container =
@@ -126,7 +126,7 @@ class MobileCreateSignatureRequestHelperTest {
         }
 
     @Test
-    fun mobileCreateSignatureRequestHelperTest_create_anotherLocale() =
+    fun mobileCreateSignatureRequestHelper_create_anotherLocale() =
         runTest {
             val uuid = "uuid"
             val proxyUrl = "proxyUrl"

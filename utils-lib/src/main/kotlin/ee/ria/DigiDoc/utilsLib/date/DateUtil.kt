@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.utilsLib.date
 
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.ZonedDateTime
@@ -13,17 +12,16 @@ import java.util.Locale
 import java.util.TimeZone
 
 object DateUtil {
-    private val logTag = "DateUtil"
-
     val dateFormat: SimpleDateFormat
         get() = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
 
     @Throws(ParseException::class)
-    fun signedDateTimeString(signedDateString: String): String {
-        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
-        val date: Date? = inputFormat.parse(signedDateString)
-        val outputFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault())
-
+    fun signedDateTimeString(
+        signedDateString: String,
+        inputFormat: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()),
+        outputFormat: SimpleDateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault()),
+    ): String {
+        val date = inputFormat.parse(signedDateString)
         return date?.let { outputFormat.format(it) } ?: ""
     }
 
@@ -43,10 +41,9 @@ object DateUtil {
     fun getFormattedDateTime(
         dateTimeString: String,
         isUTC: Boolean,
+        inputDateFormat: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()),
+        outputDateFormat: SimpleDateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss Z", Locale.getDefault()),
     ): String {
-        val inputDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
-        val outputDateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss Z", Locale.getDefault())
-
         return try {
             if (isUTC) {
                 inputDateFormat.timeZone = TimeZone.getTimeZone("UTC")
@@ -63,13 +60,15 @@ object DateUtil {
             inputDateFormat.timeZone = TimeZone.getTimeZone("UTC")
             return inputDateFormat.parse(dateTimeString)?.let { outputDateFormat.format(it) } ?: ""
         } catch (e: Exception) {
-            errorLog(logTag, "Unable to get formatted date time", e)
             ""
         }
     }
 
-    fun dateToCertificateFormat(date: Date): String {
-        val dateFormat = SimpleDateFormat("EEEE, d MMMM yyyy HH:mm:ss Z", Locale.getDefault())
+    fun dateToCertificateFormat(
+        date: Date,
+        locale: Locale = Locale.getDefault(),
+    ): String {
+        val dateFormat = SimpleDateFormat("EEEE, d MMMM yyyy HH:mm:ss Z", locale)
         return dateFormat.format(date)
     }
 }

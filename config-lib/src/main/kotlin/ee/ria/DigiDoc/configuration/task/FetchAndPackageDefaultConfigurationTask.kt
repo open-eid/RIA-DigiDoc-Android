@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.configuration.task
 
-import ee.ria.DigiDoc.common.extensions.removeWhitespaces
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifierImpl
 import ee.ria.DigiDoc.configuration.domain.model.ConfigurationData
 import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepository
@@ -21,6 +20,7 @@ import ee.ria.DigiDoc.configuration.utils.Parser
 import ee.ria.DigiDoc.network.configuration.interceptors.NetworkInterceptor
 import ee.ria.DigiDoc.network.configuration.interceptors.UserAgentInterceptor
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
+import ee.ria.DigiDoc.utilsLib.extensions.removeWhitespaces
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import kotlinx.coroutines.runBlocking

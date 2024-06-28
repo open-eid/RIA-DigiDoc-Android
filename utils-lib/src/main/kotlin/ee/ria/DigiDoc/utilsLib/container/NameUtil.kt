@@ -6,14 +6,14 @@ import ee.ria.DigiDoc.utilsLib.text.TextUtil
 
 object NameUtil {
     fun formatName(name: String): String {
-        val nameComponents = name.split(",")
+        val nameComponents = name.split(",").map { it.trim() }
 
         val formattedNameComponents =
             if (nameComponents.size == 3) {
                 val (lastname, firstname, code) = nameComponents
                 "$firstname, $lastname, $code".trim()
             } else {
-                nameComponents.joinToString(separator = ", ")
+                nameComponents.joinToString(separator = ", ").trim()
             }
 
         // Remove slashes and double spaces
