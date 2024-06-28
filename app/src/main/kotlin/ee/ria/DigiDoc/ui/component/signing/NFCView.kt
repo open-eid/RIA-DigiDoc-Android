@@ -18,13 +18,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.viewmodel.SettingsViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 
 @Composable
 fun NFCView(
     modifier: Modifier = Modifier,
     cancelButtonClick: () -> Unit = {},
-    settingsViewModel: SettingsViewModel = hiltViewModel(),
+    sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,

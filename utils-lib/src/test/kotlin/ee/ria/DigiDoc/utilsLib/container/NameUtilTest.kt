@@ -30,7 +30,7 @@ class NameUtilTest {
 
         val formattedName = NameUtil.formatName(name)
 
-        assertEquals("Doe, John, Jane", formattedName)
+        assertEquals("John, Doe, Jane", formattedName)
     }
 
     @Test

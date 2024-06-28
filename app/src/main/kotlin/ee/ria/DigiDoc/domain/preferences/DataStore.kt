@@ -14,6 +14,7 @@ import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.DigiDoc.utilsLib.toast.ToastUtil
+import ee.ria.libdigidocpp.digidoc
 import java.io.IOException
 import java.security.GeneralSecurityException
 import java.util.Locale
@@ -130,6 +131,68 @@ class DataStore
         fun setSettingsTSAUrl(tsaUrl: String) {
             val editor = preferences.edit()
             editor.putString(resources.getString(R.string.main_settings_tsa_url_key), tsaUrl)
+            editor.apply()
+        }
+
+        fun getIsLogFileGenerationEnabled(): Boolean {
+            return preferences.getBoolean(
+                resources.getString(ee.ria.DigiDoc.network.R.string.main_diagnostics_logging_key),
+                false,
+            )
+        }
+
+        fun setIsLogFileGenerationEnabled(isEnabled: Boolean) {
+            val editor = preferences.edit()
+            editor.putBoolean(
+                resources.getString(ee.ria.DigiDoc.network.R.string.main_diagnostics_logging_key),
+                isEnabled,
+            )
+            editor.apply()
+        }
+
+        fun setIsLogFileGenerationRunning(isRunning: Boolean) {
+            val editor = preferences.edit()
+            editor.putBoolean(
+                resources.getString(ee.ria.DigiDoc.network.R.string.main_diagnostics_logging_running_key),
+                isRunning,
+            )
+            editor.apply()
+        }
+
+        fun getSettingsSivaUrl(): String {
+            return preferences.getString(
+                resources.getString(
+                    ee.ria.DigiDoc.network.R.string.main_settings_siva_url_key,
+                ),
+                "",
+            )
+                ?: ""
+        }
+
+        fun setSettingsSivaUrl(sivaUrl: String) {
+            val editor = preferences.edit()
+            editor.putString(
+                resources.getString(
+                    ee.ria.DigiDoc.network.R.string.main_settings_siva_url_key,
+                ),
+                sivaUrl,
+            )
+            editor.apply()
+        }
+
+        fun getSettingsSivaCertName(): String {
+            return preferences.getString(
+                resources.getString(
+                    ee.ria.DigiDoc.network.R.string.main_settings_siva_cert_key,
+                ),
+                "",
+            )
+                ?: ""
+        }
+
+        fun setSettingsSivaCertName(cert: String) {
+            val editor = preferences.edit()
+            editor.putString(resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_siva_cert_key), cert)
             editor.apply()
         }
 
@@ -293,6 +356,10 @@ class DataStore
             } else {
                 preferences.edit().putString(KEY_LOCALE, locale.language).apply()
             }
+        }
+
+        fun getLibdigidocppVersion(): String {
+            return digidoc.version()
         }
 
         fun getManualProxySettings(context: Context): ManualProxy {

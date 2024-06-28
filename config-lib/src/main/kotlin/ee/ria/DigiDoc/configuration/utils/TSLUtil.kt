@@ -3,17 +3,21 @@
 package ee.ria.DigiDoc.configuration.utils
 
 import android.content.Context
-import ee.ria.DigiDoc.configuration.parser.XmlParser.readSequenceNumber
+import ee.ria.DigiDoc.common.Constant.TSL_SEQUENCE_NUMBER_ELEMENT
+import ee.ria.DigiDoc.configuration.exception.TSLException
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.createDirectoryIfNotExist
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserException
+import org.xmlpull.v1.XmlPullParserFactory
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
+import java.io.InputStream
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
-import kotlin.jvm.Throws
 
 object TSLUtil {
     private val logTag = javaClass.simpleName
@@ -98,5 +102,21 @@ object TSLUtil {
     private fun removeExistingETag(filePath: String) {
         val eTagPath = "$filePath.etag"
         FileUtil.removeFile(eTagPath)
+    }
+
+    @Throws(XmlPullParserException::class, IOException::class)
+    fun readSequenceNumber(tslInputStream: InputStream?): Int {
+        val factory = XmlPullParserFactory.newInstance()
+        factory.isNamespaceAware = true
+        val parser = factory.newPullParser()
+        parser.setInput(tslInputStream, null)
+        var eventType = parser.eventType
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            if (eventType == XmlPullParser.START_TAG && parser.name == TSL_SEQUENCE_NUMBER_ELEMENT) {
+                return parser.nextText().toInt()
+            }
+            eventType = parser.next()
+        }
+        throw TSLException("Error reading version from TSL")
     }
 }

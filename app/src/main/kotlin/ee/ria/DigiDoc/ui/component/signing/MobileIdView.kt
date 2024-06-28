@@ -55,8 +55,8 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.MobileIdViewModel
-import ee.ria.DigiDoc.viewmodel.SettingsViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -68,7 +68,7 @@ fun MobileIdView(
     modifier: Modifier = Modifier,
     cancelButtonClick: () -> Unit = {},
     mobileIdViewModel: MobileIdViewModel = hiltViewModel(),
-    settingsViewModel: SettingsViewModel = hiltViewModel(),
+    sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
     sharedContainerViewModel: SharedContainerViewModel,
 ) {
     val context = LocalContext.current
@@ -154,7 +154,7 @@ fun MobileIdView(
                     .notAccessible(),
         )
         var countryCodeAndPhoneText by remember {
-            mutableStateOf(TextFieldValue(text = settingsViewModel.dataStore.getPhoneNo()))
+            mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getPhoneNo()))
         }
 
         TextField(
@@ -206,7 +206,7 @@ fun MobileIdView(
                     .notAccessible(),
         )
         var personalCodeText by remember {
-            mutableStateOf(TextFieldValue(text = settingsViewModel.dataStore.getPersonalCode()))
+            mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getPersonalCode()))
         }
         TextField(
             modifier =
@@ -268,8 +268,8 @@ fun MobileIdView(
             okButtonClick = {
                 openSignatureUpdateContainerDialog.value = true
                 if (rememberMeCheckedState.value) {
-                    settingsViewModel.dataStore.setPhoneNo(countryCodeAndPhoneText.text)
-                    settingsViewModel.dataStore.setPersonalCode(personalCodeText.text)
+                    sharedSettingsViewModel.dataStore.setPhoneNo(countryCodeAndPhoneText.text)
+                    sharedSettingsViewModel.dataStore.setPersonalCode(personalCodeText.text)
                 }
                 CoroutineScope(Dispatchers.IO).launch {
                     mobileIdViewModel.performMobileIdWorkRequest(

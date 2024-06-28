@@ -66,7 +66,7 @@ import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatu
 import ee.ria.DigiDoc.ui.component.ContainerFile
 import ee.ria.DigiDoc.ui.component.ContainerName
 import ee.ria.DigiDoc.ui.component.settings.EditValueDialog
-import ee.ria.DigiDoc.ui.component.settings.MessageDialog
+import ee.ria.DigiDoc.ui.component.shared.MessageDialog
 import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
 import ee.ria.DigiDoc.ui.theme.Dimensions.MAX_DIALOG_WIDTH
 import ee.ria.DigiDoc.ui.theme.Dimensions.dividerHeight
@@ -604,7 +604,7 @@ fun SigningNavigation(
                             title = removeSignatureDialogTitle,
                             cancelButtonClick = dismissRemoveSignatureDialog,
                             okButtonClick = {
-                                CoroutineScope(Dispatchers.IO).launch {
+                                CoroutineScope(IO).launch {
                                     sharedContainerViewModel.removeSignature(
                                         signedContainer,
                                         actionSignature,

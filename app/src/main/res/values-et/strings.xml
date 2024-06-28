@@ -227,6 +227,8 @@
     <string name="main_home_menu_recent_accessibility">Hiljutised dokumendid</string>
     <string name="main_home_menu_accessibility_accessibility">Juurdepääsetavus</string>
 
+    <string name="setting_value_changed">Seade väärtus muudetud</string>
+    <string name="setting_value_change_cancelled">Seade väärtuse muutmine katkestatud</string>
     <string name="close_menu">Sulge menüü</string>
     <string name="hide_password">Peida parooli</string>
     <string name="show_password">Näita parooli</string>
@@ -260,6 +262,27 @@
     <string name="main_about_contact_information_title">Küsimuste korral pöördu id.ee.</string>
     <string name="main_about_licenses_title">Täiendavad litsentsid ja komponendid</string>
     <string name="main_about_terms_and_conditions">Kasutustingimused:</string>
+
+    <!-- Main Diagnostics -->
+    <string name="main_diagnostics_title">Diagnostika</string>
+    <string name="main_diagnostics_application_version_title">Rakenduse versioon:\u0020</string>
+    <string name="main_diagnostics_operating_system_title">Operatsioonisüsteem:\u0020</string>
+    <string name="main_diagnostics_libraries_title">Teegid:</string>
+    <string name="main_diagnostics_urls_title">URLid:</string>
+    <string name="main_diagnostics_tsl_cache_title">TSL puhver:</string>
+    <string name="main_diagnostics_central_configuration_title">Konfiguratsiooni andmed:</string>
+    <string name="main_diagnostics_configuration_update_date">UUENDAMISE KUUPÄEV:\u0020</string>
+    <string name="main_diagnostics_configuration_last_check_date">VIIMATI KONTROLLITUD:\u0020</string>
+    <string name="main_diagnostics_configuration_check_for_update_button">KONTROLLI VÄRSKENDUSI</string>
+    <string name="main_diagnostics_configuration_save_diagnostics_button">SALVESTA DIAGNOSTIKA</string>
+    <string name="main_diagnostics_rpuuid_default">vaikimisi määratud</string>
+    <string name="main_diagnostics_rpuuid_custom">käsitsi määratud</string>
+    <string name="main_diagnostics_logging_switch">Aktiveeri ühekordne logifaili genereerimine</string>
+    <string name="main_diagnostics_save_log">Salvesta logifail</string>
+    <string name="main_diagnostics_restart_message">Logimise aktiveerimiseks taaskäivita RIA DigiDoc.</string>
+    <string name="main_diagnostics_restart_message_href">https://www.id.ee/en/article/log-file-generation-in-digidoc4-client/</string>
+    <string name="main_diagnostics_restart_message_read_more">Loe täpsemalt siit</string>
+    <string name="main_diagnostics_restart_message_restart_now">Taaskäivita rakendus?</string>
 
     <!-- Main Settings -->
     <string name="main_settings_title">Seaded</string>

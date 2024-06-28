@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.fragment.AccessibilityFragment
+import ee.ria.DigiDoc.fragment.DiagnosticsFragment
 import ee.ria.DigiDoc.fragment.FileOpeningFragment
 import ee.ria.DigiDoc.fragment.HomeFragment
 import ee.ria.DigiDoc.fragment.InfoFragment
@@ -76,6 +77,11 @@ fun RIADigiDocAppScreen() {
         }
         composable(route = Route.Info.route) {
             InfoFragment(
+                navController = navController,
+            )
+        }
+        composable(route = Route.Diagnostics.route) {
+            DiagnosticsFragment(
                 navController = navController,
             )
         }

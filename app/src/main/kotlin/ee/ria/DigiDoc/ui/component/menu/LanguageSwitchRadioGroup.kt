@@ -24,14 +24,14 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Language
-import ee.ria.DigiDoc.viewmodel.SettingsViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import java.util.Locale
 
 @Composable
 fun LanguageSwitchRadioGroup(
     modifier: Modifier = Modifier,
     selectedRadioItem: String,
-    settingsViewModel: SettingsViewModel = hiltViewModel(),
+    sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
 ) {
     val activity = (LocalContext.current as Activity)
     var selectedItem by remember { mutableStateOf(selectedRadioItem) }
@@ -58,7 +58,7 @@ fun LanguageSwitchRadioGroup(
                 onClick = {
                     selectedItem = languageItem.locale
                     val locale = Locale(languageItem.locale)
-                    settingsViewModel.dataStore.setLocale(locale)
+                    sharedSettingsViewModel.dataStore.setLocale(locale)
                     activity.finish()
                     activity.startActivity(activity.intent)
                 },

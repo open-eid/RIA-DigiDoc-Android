@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.ui.component.shared
 
-import android.util.Patterns
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.runtime.Composable
@@ -14,20 +13,22 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration.Companion.Underline
-import androidx.compose.ui.text.withStyle
 import ee.ria.DigiDoc.ui.theme.Blue500
 
 @Composable
-fun DynamicText(
+fun HrefDynamicText(
     modifier: Modifier,
-    text: String,
+    text1: String?,
+    text2: String?,
+    linkText: String,
+    linkUrl: String,
     textStyle: TextStyle =
         TextStyle(
             textAlign = TextAlign.Start,
         ),
 ) {
     val uriHandler = LocalUriHandler.current
-    val annotatedStringWithLinks = createAnnotatedStringWithLinks(text)
+    val annotatedStringWithLinks = createAnnotatedStringWithLinks(text1, text2, linkText, linkUrl)
 
     ClickableText(
         modifier = modifier.fillMaxWidth(),
@@ -44,27 +45,32 @@ fun DynamicText(
     )
 }
 
-fun createAnnotatedStringWithLinks(text: String): AnnotatedString {
-    val words = text.split(" ")
-
+fun createAnnotatedStringWithLinks(
+    text1: String?,
+    text2: String?,
+    linkText: String,
+    linkUrl: String,
+): AnnotatedString {
     return buildAnnotatedString {
-        words.forEach { word ->
-            if (Patterns.WEB_URL.matcher(word).matches()) {
-                pushStringAnnotation(tag = "URL", annotation = word)
-                withStyle(
-                    style =
-                        SpanStyle(
-                            color = Blue500,
-                            textDecoration = Underline,
-                        ),
-                ) {
-                    append(word)
-                }
-                pop()
-            } else {
-                append(word)
-            }
-            append(" ")
-        }
+        val mStr = "$text1\n$linkText.\n$text2"
+        val mStartIndex = mStr.indexOf(linkText)
+        val mEndIndex = mStartIndex + linkText.length
+
+        append(mStr)
+        addStyle(
+            style =
+                SpanStyle(
+                    color = Blue500,
+                    textDecoration = Underline,
+                ),
+            start = mStartIndex,
+            end = mEndIndex,
+        )
+        addStringAnnotation(
+            tag = "URL",
+            annotation = linkUrl,
+            start = mStartIndex,
+            end = mEndIndex,
+        )
     }
 }
