@@ -33,7 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.component.settings.MessageDialog
+import ee.ria.DigiDoc.ui.component.shared.MessageDialog
 import ee.ria.DigiDoc.ui.component.signing.Document
 import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.dividerHeight

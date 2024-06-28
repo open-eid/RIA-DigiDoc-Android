@@ -1,6 +1,6 @@
 @file:Suppress("PackageName", "FunctionName")
 
-package ee.ria.DigiDoc.ui.component.settings
+package ee.ria.DigiDoc.ui.component.shared
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
@@ -12,8 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
-import ee.ria.DigiDoc.ui.component.shared.DynamicText
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 

@@ -40,8 +40,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.BuildConfig
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.component.settings.MessageDialog
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
+import ee.ria.DigiDoc.ui.component.shared.DiagnosticsText
+import ee.ria.DigiDoc.ui.component.shared.HrefMessageDialog
 import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
 import ee.ria.DigiDoc.ui.component.shared.SpannableBoldText
 import ee.ria.DigiDoc.ui.component.signing.TopBar
@@ -121,7 +122,7 @@ fun DiagnosticsScreen(
                         diagnosticsViewModel.dataStore.getLibdigidocppVersion(),
                     )
                 }
-            SpannableBoldText(
+            DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_libdigidocpp_title),
                 libdigidocppVersion.value,
@@ -131,57 +132,57 @@ fun DiagnosticsScreen(
                 stringResource(id = R.string.main_diagnostics_urls_title),
                 "",
             )
-            SpannableBoldText(
+            DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_config_url_title),
                 diagnosticsViewModel.getConfigUrl(),
             )
-            SpannableBoldText(
+            DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_tsl_url_title),
                 diagnosticsViewModel.getTslUrl(),
             )
-            SpannableBoldText(
+            DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_siva_url_title),
                 diagnosticsViewModel.getSivaUrl(),
             )
-            SpannableBoldText(
+            DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_tsa_url_title),
                 diagnosticsViewModel.getTsaUrl(),
             )
-            SpannableBoldText(
+            DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_ldap_person_url_title),
                 diagnosticsViewModel.getLdapPersonUrl(),
             )
-            SpannableBoldText(
+            DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_ldap_corp_url_title),
                 diagnosticsViewModel.getLdapCorpUrl(),
             )
-            SpannableBoldText(
+            DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_mid_proxy_url_title),
                 diagnosticsViewModel.getMidRestUrl(),
             )
-            SpannableBoldText(
+            DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_mid_sk_url_title),
                 diagnosticsViewModel.getMidSkRestUrl(),
             )
-            SpannableBoldText(
+            DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_sid_v2_proxy_url_title),
                 diagnosticsViewModel.getSidV2RestUrl(),
             )
-            SpannableBoldText(
+            DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_sid_v2_sk_url_title),
                 diagnosticsViewModel.getSidV2SkRestUrl(),
             )
-            SpannableBoldText(
+            DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_rpuuid_title),
                 stringResource(diagnosticsViewModel.getRpUuid()),
@@ -203,32 +204,32 @@ fun DiagnosticsScreen(
                 stringResource(id = R.string.main_diagnostics_central_configuration_title),
                 "",
             )
-            SpannableBoldText(
+            DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_date_title),
                 diagnosticsViewModel.getMetaInfGetDate(),
             )
-            SpannableBoldText(
+            DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_serial_title),
                 diagnosticsViewModel.getMetaInfGetSerial(),
             )
-            SpannableBoldText(
+            DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_url_title),
                 diagnosticsViewModel.getMetaInfGetUrl(),
             )
-            SpannableBoldText(
+            DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_version_title),
                 diagnosticsViewModel.getMetaInfGetVersion(),
             )
-            SpannableBoldText(
+            DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_configuration_update_date),
                 diagnosticsViewModel.getConfigurationUpdateDate(),
             )
-            SpannableBoldText(
+            DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_configuration_last_check_date),
                 getConfigurationLastUpdateCheckDate ?: "",
@@ -237,7 +238,7 @@ fun DiagnosticsScreen(
                 mutableStateOf(diagnosticsViewModel.dataStore.getIsLogFileGenerationEnabled())
             }
             val openRestartConfirmationDialog = remember { mutableStateOf(false) }
-            val restartConfirmationTitle = stringResource(id = R.string.main_diagnostics_restart_message)
+
             val settingValueChanged = stringResource(id = R.string.setting_value_changed)
             val settingValueChangeCancelled = stringResource(id = R.string.setting_value_change_cancelled)
             val closeRestartConfirmationDialog = {
@@ -371,8 +372,11 @@ fun DiagnosticsScreen(
                                 .padding(screenViewLargePadding)
                                 .verticalScroll(rememberScrollState()),
                     ) {
-                        MessageDialog(
-                            title = restartConfirmationTitle,
+                        HrefMessageDialog(
+                            text1 = R.string.main_diagnostics_restart_message,
+                            text2 = R.string.main_diagnostics_restart_message_restart_now,
+                            linkText = R.string.main_diagnostics_restart_message_read_more,
+                            linkUrl = R.string.main_diagnostics_restart_message_href,
                             cancelButtonClick = dismissRestartConfirmationDialog,
                             okButtonClick = {
                                 enableOneTimeLogGeneration = true
