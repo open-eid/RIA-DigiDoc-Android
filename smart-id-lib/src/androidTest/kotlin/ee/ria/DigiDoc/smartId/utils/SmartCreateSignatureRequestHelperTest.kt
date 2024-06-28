@@ -34,7 +34,7 @@ class SmartCreateSignatureRequestHelperTest {
     }
 
     @Test
-    fun mobileCreateSignatureRequestHelperTest_create_success() =
+    fun smartCreateSignatureRequestHelper_create_success() =
         runTest {
             val context = InstrumentationRegistry.getInstrumentation().targetContext
             val container =
@@ -74,7 +74,7 @@ class SmartCreateSignatureRequestHelperTest {
         }
 
     @Test
-    fun mobileCreateSignatureRequestHelperTest_create_containerNull() =
+    fun smartCreateSignatureRequestHelper_create_containerNull() =
         runTest {
             val proxyUrl = "proxyUrl"
             val skUrl = "skUrl"
@@ -104,7 +104,7 @@ class SmartCreateSignatureRequestHelperTest {
         }
 
     @Test
-    fun mobileCreateSignatureRequestHelperTest_create_uuidIsSet() =
+    fun smartCreateSignatureRequestHelper_create_uuidIsSet() =
         runTest {
             val uuid = "uuid"
             val proxyUrl = "proxyUrl"

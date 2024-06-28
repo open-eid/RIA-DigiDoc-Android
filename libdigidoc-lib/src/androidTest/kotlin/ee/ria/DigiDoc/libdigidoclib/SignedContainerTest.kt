@@ -35,6 +35,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.BeforeClass
@@ -148,6 +149,26 @@ class SignedContainerTest {
             val result = SignedContainer.isExistingContainer()
 
             assertTrue(result)
+        }
+
+    @Test
+    fun signedContainer_containerMimetype_returnsValidMimetype() =
+        runTest {
+            val dataFiles = listOf(testFile)
+
+            openOrCreate(context, testFile, dataFiles)
+
+            val result = SignedContainer.containerMimetype()
+
+            assertEquals("application/vnd.etsi.asic-e+zip", result)
+        }
+
+    @Test
+    fun signedContainer_containerMimetype_returnNullWithNoContainer() =
+        runTest {
+            val result = SignedContainer.containerMimetype()
+
+            assertNull(result)
         }
 
     @Test

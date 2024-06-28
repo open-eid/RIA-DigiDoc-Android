@@ -8,10 +8,12 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.common.Constant.UNSIGNABLE_CONTAINER_EXTENSIONS
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
-import ee.ria.DigiDoc.utilsLib.date.DateUtil
+import ee.ria.DigiDoc.utilsLib.date.DateUtil.getFormattedDateTime
+import ee.ria.DigiDoc.utilsLib.date.DateUtil.signedDateTimeString
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
 import org.apache.commons.io.FilenameUtils
 import java.text.ParseException
+import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
 
@@ -66,7 +68,10 @@ class SigningViewModel
 
         fun getFormattedDate(signingTime: String): String {
             try {
-                return DateUtil.signedDateTimeString(signingTime)
+                return signedDateTimeString(
+                    signedDateString = getFormattedDateTime(signingTime, false),
+                    inputFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss Z", Locale.getDefault()),
+                )
             } catch (pe: ParseException) {
                 LoggingUtil.errorLog(LOG_TAG, "Error parsing date: $signingTime", pe)
                 return ""

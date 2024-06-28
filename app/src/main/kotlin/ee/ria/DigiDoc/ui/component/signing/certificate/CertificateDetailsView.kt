@@ -25,12 +25,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.common.extensions.formatHexString
-import ee.ria.DigiDoc.common.extensions.hexString
 import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
+import ee.ria.DigiDoc.utilsLib.extensions.formatHexString
+import ee.ria.DigiDoc.utilsLib.extensions.hexString
 import ee.ria.DigiDoc.utilsLib.text.TextUtil
 import ee.ria.DigiDoc.viewmodel.CertificateDetailViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
@@ -96,11 +96,16 @@ fun CertificateDetailsView(
                                 BCStyle.OU,
                             ),
                         subjectCommonName =
-                            TextUtil.removeSlashes(
-                                certificateDetailViewModel.getRDNValue(
-                                    certificateHolder.subject,
-                                    BCStyle.CN,
-                                ),
+                            TextUtil.splitTextAndJoin(
+                                text =
+                                    TextUtil.removeSlashes(
+                                        certificateDetailViewModel.getRDNValue(
+                                            certificateHolder.subject,
+                                            BCStyle.CN,
+                                        ),
+                                    ),
+                                delimiter = ",",
+                                joinDelimiter = ", ",
                             ),
                         subjectSurname =
                             certificateDetailViewModel.getRDNValue(
@@ -119,29 +124,34 @@ fun CertificateDetailsView(
                             ),
                         issuerCountryOrRegion =
                             certificateDetailViewModel.getRDNValue(
-                                certificateHolder.subject,
+                                certificateHolder.issuer,
                                 BCStyle.C,
                             ),
                         issuerOrganization =
                             certificateDetailViewModel.getRDNValue(
-                                certificateHolder.subject,
+                                certificateHolder.issuer,
                                 BCStyle.O,
                             ),
                         issuerCommonName =
-                            TextUtil.removeSlashes(
-                                certificateDetailViewModel.getRDNValue(
-                                    certificateHolder.subject,
-                                    BCStyle.CN,
-                                ),
+                            TextUtil.splitTextAndJoin(
+                                text =
+                                    TextUtil.removeSlashes(
+                                        certificateDetailViewModel.getRDNValue(
+                                            certificateHolder.issuer,
+                                            BCStyle.CN,
+                                        ),
+                                    ),
+                                delimiter = ",",
+                                joinDelimiter = ", ",
                             ),
                         issuerEmailAddress =
                             certificateDetailViewModel.getRDNValue(
-                                certificateHolder.subject,
+                                certificateHolder.issuer,
                                 BCStyle.EmailAddress,
                             ),
                         issuerOtherName =
                             certificateDetailViewModel.getRDNValue(
-                                certificateHolder.subject,
+                                certificateHolder.issuer,
                                 BCStyle.ORGANIZATION_IDENTIFIER,
                             ),
                         issuerSerialNumber =

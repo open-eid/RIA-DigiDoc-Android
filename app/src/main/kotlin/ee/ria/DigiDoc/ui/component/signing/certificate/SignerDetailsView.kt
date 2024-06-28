@@ -17,7 +17,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.common.extensions.x509Certificate
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.ui.component.shared.DynamicText
 import ee.ria.DigiDoc.ui.component.shared.ExpandableButton
@@ -30,6 +29,7 @@ import ee.ria.DigiDoc.ui.theme.Red800
 import ee.ria.DigiDoc.ui.theme.Yellow50
 import ee.ria.DigiDoc.ui.theme.Yellow800
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utilsLib.extensions.x509Certificate
 import ee.ria.DigiDoc.viewmodel.SignerDetailViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel

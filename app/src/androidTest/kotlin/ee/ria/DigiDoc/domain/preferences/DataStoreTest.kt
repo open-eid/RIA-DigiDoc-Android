@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.domain.preferences
 
+import android.app.Application
 import android.content.Context
 import androidx.preference.PreferenceManager
 import androidx.test.platform.app.InstrumentationRegistry
