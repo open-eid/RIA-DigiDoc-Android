@@ -20,6 +20,7 @@ class CentralConfigurationRepositoryImpl
             return configurationService.fetchPublicKey()
         }
 
+        @Throws(Exception::class)
         override suspend fun fetchSignature(): String {
             return configurationService.fetchSignature()
         }

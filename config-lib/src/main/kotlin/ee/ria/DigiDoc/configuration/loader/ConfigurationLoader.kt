@@ -15,7 +15,10 @@ interface ConfigurationLoader {
 
     suspend fun loadConfigurationProperty(context: Context): ConfigurationProperty
 
-    suspend fun loadCachedConfiguration(context: Context)
+    suspend fun loadCachedConfiguration(
+        context: Context,
+        afterCentralCheck: Boolean,
+    )
 
     suspend fun loadDefaultConfiguration(context: Context)
 

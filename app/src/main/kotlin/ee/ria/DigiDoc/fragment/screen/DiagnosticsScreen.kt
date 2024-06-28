@@ -54,7 +54,9 @@ import ee.ria.DigiDoc.utilsLib.toast.ToastUtil.showMessage
 import ee.ria.DigiDoc.viewmodel.DiagnosticsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,11 +66,10 @@ fun DiagnosticsScreen(
     navController: NavHostController,
     diagnosticsViewModel: DiagnosticsViewModel = hiltViewModel(),
 ) {
-    diagnosticsViewModel.refreshConfigurationVariables()
     val context = LocalContext.current
-    val activity = (LocalContext.current as Activity)
-    val getConfigurationLastUpdateCheckDate by
-        diagnosticsViewModel.getConfigurationLastUpdateCheckDate.asFlow().collectAsState(
+    val activity = (context as Activity)
+    val currentConfiguration by
+        diagnosticsViewModel.updatedConfiguration.asFlow().collectAsState(
             null,
         )
     var actionFile by remember { mutableStateOf<File?>(null) }
@@ -81,6 +82,7 @@ fun DiagnosticsScreen(
                 showMessage(context, R.string.file_saved)
             }
         }
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -102,7 +104,7 @@ fun DiagnosticsScreen(
             horizontalAlignment = Alignment.Start,
         ) {
             SpannableBoldText(
-                modifier = modifier,
+                modifier = modifier.padding(top = screenViewLargePadding),
                 stringResource(id = R.string.main_diagnostics_application_version_title),
                 BuildConfig.VERSION_NAME,
             )
@@ -112,7 +114,7 @@ fun DiagnosticsScreen(
                 "Android " + Build.VERSION.RELEASE,
             )
             SpannableBoldText(
-                modifier = modifier,
+                modifier = modifier.padding(top = screenViewLargePadding),
                 stringResource(id = R.string.main_diagnostics_libraries_title),
                 "",
             )
@@ -128,19 +130,19 @@ fun DiagnosticsScreen(
                 libdigidocppVersion.value,
             )
             SpannableBoldText(
-                modifier = modifier,
+                modifier = modifier.padding(top = screenViewLargePadding),
                 stringResource(id = R.string.main_diagnostics_urls_title),
                 "",
             )
             DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_config_url_title),
-                diagnosticsViewModel.getConfigUrl(),
+                currentConfiguration?.metaInf?.url ?: "",
             )
             DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_tsl_url_title),
-                diagnosticsViewModel.getTslUrl(),
+                currentConfiguration?.tslUrl ?: "",
             )
             DiagnosticsText(
                 modifier = modifier,
@@ -155,32 +157,32 @@ fun DiagnosticsScreen(
             DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_ldap_person_url_title),
-                diagnosticsViewModel.getLdapPersonUrl(),
+                currentConfiguration?.ldapPersonUrl ?: "",
             )
             DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_ldap_corp_url_title),
-                diagnosticsViewModel.getLdapCorpUrl(),
+                currentConfiguration?.ldapCorpUrl ?: "",
             )
             DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_mid_proxy_url_title),
-                diagnosticsViewModel.getMidRestUrl(),
+                currentConfiguration?.midRestUrl ?: "",
             )
             DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_mid_sk_url_title),
-                diagnosticsViewModel.getMidSkRestUrl(),
+                currentConfiguration?.midSkRestUrl ?: "",
             )
             DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_sid_v2_proxy_url_title),
-                diagnosticsViewModel.getSidV2RestUrl(),
+                currentConfiguration?.sidV2RestUrl ?: "",
             )
             DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_sid_v2_sk_url_title),
-                diagnosticsViewModel.getSidV2SkRestUrl(),
+                currentConfiguration?.sidV2SkRestUrl ?: "",
             )
             DiagnosticsText(
                 modifier = modifier,
@@ -188,7 +190,7 @@ fun DiagnosticsScreen(
                 stringResource(diagnosticsViewModel.getRpUuid()),
             )
             SpannableBoldText(
-                modifier = modifier,
+                modifier = modifier.padding(top = screenViewLargePadding),
                 stringResource(id = R.string.main_diagnostics_tsl_cache_title),
                 "",
             )
@@ -200,39 +202,39 @@ fun DiagnosticsScreen(
                 )
             }
             SpannableBoldText(
-                modifier = modifier,
+                modifier = modifier.padding(top = screenViewLargePadding),
                 stringResource(id = R.string.main_diagnostics_central_configuration_title),
                 "",
             )
             DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_date_title),
-                diagnosticsViewModel.getMetaInfGetDate(),
+                currentConfiguration?.metaInf?.date ?: "",
             )
             DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_serial_title),
-                diagnosticsViewModel.getMetaInfGetSerial(),
+                currentConfiguration?.metaInf?.serial.toString(),
             )
             DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_url_title),
-                diagnosticsViewModel.getMetaInfGetUrl(),
+                currentConfiguration?.metaInf?.url ?: "",
             )
             DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_version_title),
-                diagnosticsViewModel.getMetaInfGetVersion(),
+                currentConfiguration?.metaInf?.version.toString(),
             )
             DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_configuration_update_date),
-                diagnosticsViewModel.getConfigurationUpdateDate(),
+                diagnosticsViewModel.getConfigurationDate(currentConfiguration?.configurationUpdateDate),
             )
             DiagnosticsText(
                 modifier = modifier,
                 stringResource(id = R.string.main_diagnostics_configuration_last_check_date),
-                getConfigurationLastUpdateCheckDate ?: "",
+                diagnosticsViewModel.getConfigurationDate(currentConfiguration?.configurationLastUpdateCheckDate),
             )
             var enableOneTimeLogGeneration by remember {
                 mutableStateOf(diagnosticsViewModel.dataStore.getIsLogFileGenerationEnabled())
@@ -320,9 +322,14 @@ fun DiagnosticsScreen(
                 title = R.string.main_diagnostics_configuration_check_for_update_button,
                 onClickItem = {
                     CoroutineScope(Dispatchers.IO).launch {
-                        diagnosticsViewModel.updateConfiguration()
+                        try {
+                            diagnosticsViewModel.updateConfiguration()
+                        } catch (e: Exception) {
+                            withContext(Main) {
+                                showMessage(context, R.string.no_internet_connection)
+                            }
+                        }
                     }
-                    diagnosticsViewModel.refreshConfigurationVariables()
                 },
             )
             PrimaryButton(

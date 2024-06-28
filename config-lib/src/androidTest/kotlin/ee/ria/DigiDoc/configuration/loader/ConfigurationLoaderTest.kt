@@ -137,7 +137,7 @@ class ConfigurationLoaderTest {
     @Test
     fun configurationLoader_loadCachedConfiguration_success() =
         runBlocking {
-            configurationLoader.loadCachedConfiguration(context)
+            configurationLoader.loadCachedConfiguration(context, false)
 
             val value = configurationLoader.getConfigurationFlow().value
             assertNotNull(value)
@@ -324,7 +324,6 @@ class ConfigurationLoaderTest {
                     serial = 1,
                     version = 1,
                 ),
-            configUrl = "https://www.example.com",
             sivaUrl = "https://www.example.com",
             tslUrl = "https://www.example.com",
             tslCerts =

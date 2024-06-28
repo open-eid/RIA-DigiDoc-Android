@@ -47,11 +47,14 @@ class ConfigurationPropertiesImpl
             context: Context,
             date: Date?,
         ) {
-            val updateDatePropertyName = CONFIGURATION_UPDATE_DATE_PROPERTY_NAME
-            val sharedPreferences = context.getSharedPreferences(CONFIGURATION_PREFERENCES, Context.MODE_PRIVATE)
-            sharedPreferences.edit()
-                .putString(updateDatePropertyName, DateUtil.dateFormat.format(date ?: Date()))
-                .apply()
+            if (date != null) {
+                val updateDatePropertyName = CONFIGURATION_UPDATE_DATE_PROPERTY_NAME
+                val sharedPreferences =
+                    context.getSharedPreferences(CONFIGURATION_PREFERENCES, Context.MODE_PRIVATE)
+                sharedPreferences.edit()
+                    .putString(updateDatePropertyName, DateUtil.dateFormat.format(date))
+                    .apply()
+            }
         }
 
         override fun getConfigurationUpdatedDate(context: Context): Date? {
@@ -68,12 +71,18 @@ class ConfigurationPropertiesImpl
             context: Context,
             date: Date?,
         ) {
-            val lastUpdateDateCheckDatePropertyName =
-                CONFIGURATION_LAST_UPDATE_CHECK_DATE_PROPERTY_NAME
-            val sharedPreferences = context.getSharedPreferences(CONFIGURATION_PREFERENCES, Context.MODE_PRIVATE)
-            sharedPreferences.edit()
-                .putString(lastUpdateDateCheckDatePropertyName, DateUtil.dateFormat.format(date ?: Date()))
-                .apply()
+            if (date != null) {
+                val lastUpdateDateCheckDatePropertyName =
+                    CONFIGURATION_LAST_UPDATE_CHECK_DATE_PROPERTY_NAME
+                val sharedPreferences =
+                    context.getSharedPreferences(CONFIGURATION_PREFERENCES, Context.MODE_PRIVATE)
+                sharedPreferences.edit()
+                    .putString(
+                        lastUpdateDateCheckDatePropertyName,
+                        DateUtil.dateFormat.format(date),
+                    )
+                    .apply()
+            }
         }
 
         override fun getConfigurationLastCheckDate(context: Context): Date? {
@@ -91,12 +100,15 @@ class ConfigurationPropertiesImpl
             context: Context,
             serial: Int?,
         ) {
-            val configurationVersionSerialPropertyName =
-                CONFIGURATION_VERSION_SERIAL_PROPERTY_NAME
-            val sharedPreferences = context.getSharedPreferences(CONFIGURATION_PREFERENCES, Context.MODE_PRIVATE)
-            sharedPreferences.edit()
-                .putInt(configurationVersionSerialPropertyName, serial ?: 0)
-                .apply()
+            if (serial != null) {
+                val configurationVersionSerialPropertyName =
+                    CONFIGURATION_VERSION_SERIAL_PROPERTY_NAME
+                val sharedPreferences =
+                    context.getSharedPreferences(CONFIGURATION_PREFERENCES, Context.MODE_PRIVATE)
+                sharedPreferences.edit()
+                    .putInt(configurationVersionSerialPropertyName, serial)
+                    .apply()
+            }
         }
 
         override fun getConfigurationVersionSerial(context: Context): Int? {

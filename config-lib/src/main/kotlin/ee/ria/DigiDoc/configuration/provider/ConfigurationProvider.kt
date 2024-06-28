@@ -7,7 +7,6 @@ import java.util.Date
 
 data class ConfigurationProvider(
     @SerializedName("META-INF") val metaInf: MetaInf,
-    @SerializedName("CONFIG-URL") val configUrl: String,
     @SerializedName("SIVA-URL") val sivaUrl: String,
     @SerializedName("TSL-URL") val tslUrl: String,
     @SerializedName("TSL-CERTS") val tslCerts: List<String>,

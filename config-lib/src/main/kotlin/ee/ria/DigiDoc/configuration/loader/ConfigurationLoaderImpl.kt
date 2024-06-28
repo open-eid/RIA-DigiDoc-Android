@@ -50,7 +50,9 @@ class ConfigurationLoaderImpl
                 cacheDir.mkdir()
             }
 
-            loadCachedConfiguration(context)
+            loadCachedConfiguration(context, false)
+
+            loadConfigurationProperty(context)
 
             if (shouldCheckForUpdates(
                     context,
@@ -71,7 +73,10 @@ class ConfigurationLoaderImpl
             return configurationProperties.getConfigurationProperties(context)
         }
 
-        override suspend fun loadCachedConfiguration(context: Context) {
+        override suspend fun loadCachedConfiguration(
+            context: Context,
+            afterCentralCheck: Boolean,
+        ) {
             val cacheDir = File(context.cacheDir, CACHE_CONFIG_FOLDER)
 
             val confFile = File(cacheDir, CACHED_CONFIG_JSON)
@@ -99,17 +104,26 @@ class ConfigurationLoaderImpl
                     publicKeyFile.readText(),
                     signature,
                 )
-                configurationProperties.updateProperties(
-                    context,
-                    configurationProvider.configurationLastUpdateCheckDate,
-                    configurationProvider.configurationUpdateDate,
-                    configurationProvider.metaInf.serial,
-                )
-                configurationProvider.configurationLastUpdateCheckDate =
-                    configurationProperties.getConfigurationLastCheckDate(context)
-                configurationProvider.configurationUpdateDate =
-                    configurationProperties.getConfigurationUpdatedDate(context)
-                configurationFlow.value = configurationProvider
+                if (!afterCentralCheck) {
+                    configurationProperties.updateProperties(
+                        context,
+                        configurationProvider.configurationLastUpdateCheckDate,
+                        configurationProvider.configurationUpdateDate,
+                        configurationProvider.metaInf.serial,
+                    )
+                    configurationProvider.configurationLastUpdateCheckDate =
+                        configurationProperties.getConfigurationLastCheckDate(context)
+                    configurationProvider.configurationUpdateDate =
+                        configurationProperties.getConfigurationUpdatedDate(context)
+                    configurationFlow.value = configurationProvider
+                } else {
+                    val currentDate = Date()
+                    configurationProvider?.configurationUpdateDate = configurationProvider?.configurationUpdateDate
+                        ?: configurationFlow.value?.configurationUpdateDate
+                    configurationProvider?.configurationLastUpdateCheckDate = currentDate
+                    configurationProperties.setConfigurationLastCheckDate(context, currentDate)
+                    configurationFlow.value = configurationProvider
+                }
             } else {
                 loadDefaultConfiguration(context)
             }
@@ -187,7 +201,8 @@ class ConfigurationLoaderImpl
                 val centralConfig = centralConfigurationRepository.fetchConfiguration()
                 val centralPublicKey = centralConfigurationRepository.fetchPublicKey()
 
-                val centralConfigurationProvider = gson.fromJson(centralConfig, ConfigurationProvider::class.java)
+                val centralConfigurationProvider =
+                    gson.fromJson(centralConfig, ConfigurationProvider::class.java)
 
                 configurationSignatureVerifier.verifyConfigurationSignature(
                     centralConfig,
@@ -218,7 +233,7 @@ class ConfigurationLoaderImpl
                     centralConfigurationProvider.configurationUpdateDate = currentDate
                     configurationFlow.value = centralConfigurationProvider
                 } else {
-                    loadCachedConfiguration(context)
+                    loadCachedConfiguration(context, true)
                     configurationProperties.updateProperties(
                         context,
                         configurationFlow.value?.configurationLastUpdateCheckDate,
@@ -229,13 +244,7 @@ class ConfigurationLoaderImpl
                         configurationProperties.getConfigurationLastCheckDate(context)
                 }
             } else {
-                loadCachedConfiguration(context)
-
-                val cachedConfiguration = getConfigurationFlow().value
-
-                val currentDate = Date()
-                cachedConfiguration?.configurationLastUpdateCheckDate = currentDate
-                configurationFlow.value = cachedConfiguration
+                loadCachedConfiguration(context, true)
             }
         }
 

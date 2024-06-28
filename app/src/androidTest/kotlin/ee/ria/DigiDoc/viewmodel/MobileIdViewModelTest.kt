@@ -85,7 +85,6 @@ class MobileIdViewModelTest {
                     serial = 1,
                     version = 1,
                 ),
-            configUrl = "https://www.example.com",
             sivaUrl = "https://www.example.com",
             tslUrl = "https://www.example.com",
             tslCerts = listOf("CERT0000111122224444"),

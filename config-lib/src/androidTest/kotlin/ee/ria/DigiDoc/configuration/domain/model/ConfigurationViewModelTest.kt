@@ -90,7 +90,6 @@ class ConfigurationViewModelTest {
     private fun createMockConfigurationProvider(): ConfigurationProvider {
         return ConfigurationProvider(
             ConfigurationProvider.MetaInf("url", "date", 1, 1),
-            "configUrl",
             "sivaUrl",
             "tslUrl",
             emptyList(),

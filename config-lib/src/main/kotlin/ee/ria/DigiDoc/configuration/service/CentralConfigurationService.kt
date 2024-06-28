@@ -60,6 +60,7 @@ class CentralConfigurationServiceImpl
             return retrofit.fetchPublicKey()
         }
 
+        @Throws(Exception::class)
         override suspend fun fetchSignature(): String {
             val retrofit =
                 constructRetrofit(
