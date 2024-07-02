@@ -4,8 +4,6 @@ package ee.ria.DigiDoc.ui.component.signing.certificate
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusGroup
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,6 +25,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Black
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 
 @Composable
@@ -36,6 +35,7 @@ fun CertificateDataItem(
     detailValue: String,
     certificate: Any? = null,
     contentDescription: String? = null,
+    formatForAccessibility: Boolean = false,
     onCertificateButtonClick: () -> Unit = {},
 ) {
     val detailKeyText =
@@ -46,39 +46,54 @@ fun CertificateDataItem(
         }
     val buttonName = stringResource(id = R.string.button_name)
 
+    val isClickable = certificate != null
+    val contentDescriptionText =
+        if (contentDescription.isNullOrEmpty()) {
+            if (formatForAccessibility) {
+                formatNumbers("$detailKeyText $detailValue").lowercase()
+            } else {
+                "$detailKeyText $detailValue".lowercase()
+            }
+        } else {
+            if (formatForAccessibility) {
+                formatNumbers(contentDescription).lowercase()
+            } else {
+                contentDescription.lowercase()
+            }
+        }
+
     Row(
         modifier =
             modifier
                 .fillMaxWidth()
                 .padding(vertical = screenViewLargePadding)
-                .semantics(mergeDescendants = true) {}
-                .focusGroup()
-                .clickable(enabled = certificate != null, onClick = onCertificateButtonClick),
+                .semantics(mergeDescendants = true) {
+                    if (isClickable) {
+                        this.contentDescription = "$contentDescriptionText, $buttonName"
+                    } else {
+                        this.contentDescription = contentDescriptionText
+                    }
+                }
+                .let {
+                    if (isClickable) {
+                        it.clickable(enabled = true, onClick = onCertificateButtonClick)
+                    } else {
+                        it
+                    }
+                },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(
-            modifier =
-                modifier
-                    .semantics(mergeDescendants = true) {}
-                    .weight(1f)
-                    .focusGroup(),
+            modifier = modifier,
         ) {
             Text(
                 text = detailKeyText,
-                modifier =
-                    modifier
-                        .focusable()
-                        .semantics {
-                            this.contentDescription = contentDescription ?: detailValue
-                        },
+                modifier = modifier.notAccessible(),
             )
             Text(
                 text = detailValue,
-                modifier =
-                    modifier
-                        .graphicsLayer(alpha = 0.7f)
-                        .focusable(),
+                modifier = modifier.graphicsLayer(alpha = 0.7f).notAccessible(),
             )
         }
         if (certificate != null) {

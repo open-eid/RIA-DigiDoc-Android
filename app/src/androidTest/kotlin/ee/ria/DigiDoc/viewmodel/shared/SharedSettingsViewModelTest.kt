@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.viewmodel.shared
 
-import android.app.Application
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.platform.app.InstrumentationRegistry

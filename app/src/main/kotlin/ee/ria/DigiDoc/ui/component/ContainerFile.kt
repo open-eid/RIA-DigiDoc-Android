@@ -36,6 +36,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Red500
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 
 @Composable
 fun ContainerFile(
@@ -72,7 +73,7 @@ fun ContainerFile(
                     textAlign = TextAlign.Start,
                     style = MaterialTheme.typography.titleMedium,
                     color = Black,
-                    modifier = modifier.fillMaxWidth(),
+                    modifier = modifier.fillMaxWidth().notAccessible(),
                 )
             }
 

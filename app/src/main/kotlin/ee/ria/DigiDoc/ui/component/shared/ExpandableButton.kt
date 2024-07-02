@@ -5,7 +5,6 @@ package ee.ria.DigiDoc.ui.component.shared
 import androidx.annotation.StringRes
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,6 +44,8 @@ fun ExpandableButton(
 ) {
     var isExpanded by remember { mutableStateOf(false) }
 
+    val buttonName = stringResource(id = R.string.button_name)
+
     Box(
         modifier =
             modifier
@@ -53,24 +54,21 @@ fun ExpandableButton(
     ) {
         Column(
             modifier
-                .semantics(mergeDescendants = true) {}
-                .focusGroup()
-                .focusable(),
+                .semantics {
+                    this.contentDescription = "$contentDescription, $buttonName"
+                }
+                .clickable {
+                    isExpanded = !isExpanded
+                },
         ) {
             Row(
                 modifier =
                     modifier
                         .fillMaxWidth()
-                        .semantics(mergeDescendants = true) {
-                            this.contentDescription = contentDescription
-                        }
-                        .focusGroup()
-                        .focusable()
-                        .clickable {
-                            isExpanded = !isExpanded
-                        },
+                        .notAccessible(),
             ) {
                 Box(
+                    modifier = modifier.notAccessible(),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
@@ -103,7 +101,8 @@ fun ExpandableButton(
                             .padding(
                                 horizontal = itemSpacingPadding,
                                 vertical = screenViewExtraLargePadding,
-                            ),
+                            )
+                            .focusable(),
                 )
             }
         }

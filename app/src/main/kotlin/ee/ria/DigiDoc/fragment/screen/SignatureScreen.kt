@@ -55,6 +55,14 @@ fun SignatureScreen(
     )
     }"
 
+    val recentDocumentsText = "${stringResource(
+        id = R.string.recent_documents_title,
+    )
+    }, ${stringResource(
+        id = R.string.button_name,
+    )
+    }"
+
     RIADigiDocTheme {
         Column(
             modifier =
@@ -100,11 +108,9 @@ fun SignatureScreen(
                 modifier =
                     modifier
                         .focusProperties { canFocus = true }
-                        .focusTarget()
-                        .focusRequester(buttonFocusRequester)
                         .focusable()
                         .semantics {
-                            this.text = AnnotatedString(chooseFileText)
+                            this.text = AnnotatedString(recentDocumentsText)
                         },
             ) {
                 PrimaryButton(

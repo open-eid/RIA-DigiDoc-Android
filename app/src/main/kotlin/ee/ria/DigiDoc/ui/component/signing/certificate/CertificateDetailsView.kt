@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.ui.component.signing.certificate
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +20,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -28,6 +31,8 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
 import ee.ria.DigiDoc.utilsLib.extensions.formatHexString
 import ee.ria.DigiDoc.utilsLib.extensions.hexString
@@ -195,10 +200,17 @@ fun CertificateDetailsView(
                         when (certificateDetail) {
                             is CertificateListItem.Certificate -> {
                                 if (!certificateDetail.detailValue.isNullOrEmpty()) {
+                                    val detailKeyText = if (certificateDetail.detailKey != 0)
+                                        stringResource(id = certificateDetail.detailKey) else ""
                                     CertificateDataItem(
-                                        modifier = modifier.padding(horizontal = itemSpacingPadding),
+                                        modifier =
+                                            modifier
+                                                .padding(horizontal = itemSpacingPadding),
                                         detailKey = certificateDetail.detailKey,
                                         detailValue = certificateDetail.detailValue,
+                                        contentDescription =
+                                            "$detailKeyText, ${certificateDetail.detailValue}".lowercase(),
+                                        formatForAccessibility = certificateDetail.formatForAccessibility,
                                     )
                                 }
                             }
@@ -210,7 +222,12 @@ fun CertificateDetailsView(
                                             .fillMaxWidth()
                                             .padding(top = screenViewLargePadding)
                                             .padding(horizontal = screenViewLargePadding)
-                                            .semantics(mergeDescendants = true) {}
+                                            .semantics(mergeDescendants = true) {
+                                                this.contentDescription =
+                                                    formatNumbers(certificateDetail.text).lowercase()
+                                                heading()
+                                            }
+                                            .focusable()
                                             .focusGroup(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically,
@@ -219,7 +236,7 @@ fun CertificateDetailsView(
                                         modifier =
                                             modifier
                                                 .padding(horizontal = itemSpacingPadding)
-                                                .semantics { heading() },
+                                                .notAccessible(),
                                         text = certificateDetail.text,
                                         style = MaterialTheme.typography.titleLarge,
                                         fontWeight = FontWeight.Bold,

@@ -151,6 +151,7 @@ fun SignerDetailsView(
                                     detailValue = navigationItem.value,
                                     certificate = navigationItem.certificate,
                                     contentDescription = navigationItem.contentDescription,
+                                    formatForAccessibility = navigationItem.formatForAccessibility,
                                     onCertificateButtonClick = {
                                         navigationItem.certificate?.let {
                                             sharedCertificateViewModel.setCertificate(

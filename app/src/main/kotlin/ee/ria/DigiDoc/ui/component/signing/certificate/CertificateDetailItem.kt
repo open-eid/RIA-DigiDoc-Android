@@ -11,6 +11,8 @@ sealed class CertificateListItem {
     data class Certificate(
         @StringRes val detailKey: Int = 0,
         val detailValue: String? = null,
+        val contentDescription: String = "",
+        val formatForAccessibility: Boolean = false,
     ) : CertificateListItem()
 
     data class TextItem(
@@ -70,6 +72,7 @@ class CertificateDetailItem {
             CertificateListItem.Certificate(
                 detailKey = R.string.common_name,
                 detailValue = subjectCommonName,
+                formatForAccessibility = true,
             ),
             CertificateListItem.Certificate(
                 detailKey = R.string.surname,
@@ -82,6 +85,7 @@ class CertificateDetailItem {
             CertificateListItem.Certificate(
                 detailKey = R.string.serial_number,
                 detailValue = subjectSerialNumber,
+                formatForAccessibility = true,
             ),
             CertificateListItem.TextItem(stringResource(id = issuerNameHeader)),
             CertificateListItem.Certificate(
