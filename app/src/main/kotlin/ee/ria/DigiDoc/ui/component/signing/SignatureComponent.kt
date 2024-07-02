@@ -34,6 +34,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil.getSignatureStatusText
 import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatName
 import ee.ria.DigiDoc.viewmodel.SigningViewModel
@@ -67,40 +68,42 @@ fun SignatureComponent(
                     .clearAndSetSemantics {},
         )
         Spacer(modifier = modifier.width(itemSpacingPadding))
+
+        val nameText = formatName(signature.name)
+        val statusText =
+            getSignatureStatusText(
+                LocalContext.current,
+                signature.validator.status,
+            )
+        val signedTime =
+            stringResource(
+                R.string.signing_container_signature_created_at,
+                signingViewModel.getFormattedDate(signature.trustedSigningTime),
+            )
+        val buttonName = stringResource(id = R.string.button_name)
         Column(
             modifier =
                 modifier
-                    .semantics(mergeDescendants = true) {}
+                    .semantics(mergeDescendants = true) {
+                        this.contentDescription = "${formatNumbers(nameText)}, $statusText, $signedTime, $buttonName"
+                    }
                     .weight(1f)
                     .focusGroup()
                     .clickable(onClick = onSignerDetailsButtonClick),
         ) {
             Text(
-                text = formatName(signature.name),
-                modifier =
-                    modifier
-                        .focusable()
-                        .semantics {
-                            contentDescription = formatNumbers(formatName(signature.name))
-                        },
+                text = nameText,
+                modifier = modifier.notAccessible(),
                 fontWeight = FontWeight.Bold,
             )
             ColoredSignedStatusText(
-                text =
-                    getSignatureStatusText(
-                        LocalContext.current,
-                        signature.validator.status,
-                    ),
+                text = statusText,
                 status = signature.validator.status,
-                modifier = modifier,
+                modifier = modifier.notAccessible(),
             )
             Text(
-                text =
-                    stringResource(
-                        R.string.signing_container_signature_created_at,
-                        signingViewModel.getFormattedDate(signature.trustedSigningTime),
-                    ),
-                modifier = modifier.focusable(),
+                text = signedTime,
+                modifier = modifier.notAccessible(),
             )
         }
         if (showRemoveButton) {

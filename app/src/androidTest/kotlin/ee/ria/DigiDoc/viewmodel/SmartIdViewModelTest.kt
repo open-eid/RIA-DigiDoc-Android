@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.viewmodel
 
-import android.app.Application
 import android.content.ContentResolver
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule

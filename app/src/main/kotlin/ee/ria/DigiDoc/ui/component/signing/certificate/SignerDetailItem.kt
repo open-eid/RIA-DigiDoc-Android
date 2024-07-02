@@ -19,6 +19,7 @@ data class SignerDetailItem(
     val value: String? = null,
     val certificate: X509Certificate? = null,
     val contentDescription: String = "",
+    val formatForAccessibility: Boolean = false,
 ) {
     @Composable
     fun signersDetailItems(
@@ -33,85 +34,198 @@ data class SignerDetailItem(
             SignerDetailItem(
                 label = R.string.signer_certificate_issuer_label,
                 value = signerIssuerName,
-                contentDescription = stringResource(id = R.string.signer_certificate_issuer_label),
+                contentDescription =
+                    if (value != null) {
+                        "${stringResource(
+                            id = R.string.signer_certificate_issuer_label,
+                        )} $value"
+                    } else {
+                        ""
+                    },
             ),
             SignerDetailItem(
                 label = R.string.signers_certificate_label,
                 value = NameUtil.formatName(signature.signedBy),
                 certificate = signature.signingCertificateDer.x509Certificate(),
-                contentDescription = stringResource(id = R.string.signers_certificate_label),
+                contentDescription =
+                    if (value != null) {
+                        "${stringResource(
+                            id = R.string.signers_certificate_label,
+                        )}, $value"
+                    } else {
+                        ""
+                    },
+                formatForAccessibility = true,
             ),
             SignerDetailItem(
                 label = R.string.signature_method_label,
                 value = signature.signatureMethod,
-                contentDescription = stringResource(id = R.string.signature_method_label),
+                contentDescription =
+                    if (value != null) {
+                        "${stringResource(
+                            id = R.string.signature_method_label,
+                        )}, $value"
+                    } else {
+                        ""
+                    },
             ),
             SignerDetailItem(
                 label = R.string.container_format_label,
                 value = SignedContainer.containerMimetype() ?: "",
-                contentDescription = stringResource(id = R.string.container_format_label),
+                contentDescription =
+                    if (value != null) {
+                        "${stringResource(
+                            id = R.string.container_format_label,
+                        )}, $value"
+                    } else {
+                        ""
+                    },
             ),
             SignerDetailItem(
                 label = R.string.signature_format_label,
                 value = signature.profile,
-                contentDescription = stringResource(id = R.string.signature_format_label),
+                contentDescription =
+                    if (value != null) {
+                        "${stringResource(
+                            id = R.string.signature_format_label,
+                        )}, $value"
+                    } else {
+                        ""
+                    },
             ),
             SignerDetailItem(
                 label = R.string.signed_file_count_label,
                 value = SignedContainer.container().getDataFiles().size.toString(),
-                contentDescription = stringResource(id = R.string.signed_file_count_label),
+                contentDescription =
+                    if (value != null) {
+                        "${stringResource(
+                            id = R.string.signed_file_count_label,
+                        )}, $value"
+                    } else {
+                        ""
+                    },
             ),
             SignerDetailItem(
                 label = R.string.signature_timestamp_label,
                 value = DateUtil.getFormattedDateTime(signature.timeStampTime, false),
-                contentDescription = stringResource(id = R.string.signature_timestamp_label),
+                contentDescription =
+                    if (value != null) {
+                        "${stringResource(
+                            id = R.string.signature_timestamp_label,
+                        )}, $value"
+                    } else {
+                        ""
+                    },
             ),
             SignerDetailItem(
                 label = R.string.signature_timestamp_utc_label,
                 value = DateUtil.getFormattedDateTime(signature.timeStampTime, true),
-                contentDescription = stringResource(id = R.string.signature_timestamp_utc_label),
+                contentDescription =
+                    if (value != null) {
+                        "${stringResource(
+                            id = R.string.signature_timestamp_utc_label,
+                        )}, $value"
+                    } else {
+                        ""
+                    },
             ),
             SignerDetailItem(
                 label = R.string.hash_value_of_signature_label,
                 value = signature.messageImprint.hexString(),
-                contentDescription = stringResource(id = R.string.hash_value_of_signature_label),
+                contentDescription =
+                    if (value != null) {
+                        "${stringResource(
+                            id = R.string.hash_value_of_signature_label,
+                        )}, $value"
+                    } else {
+                        ""
+                    },
             ),
             SignerDetailItem(
                 label = R.string.ts_certificate_issuer_label,
                 value = tsIssuerName,
-                contentDescription = stringResource(id = R.string.ts_certificate_issuer_label),
+                contentDescription =
+                    if (value != null) {
+                        "${stringResource(
+                            id = R.string.ts_certificate_issuer_label,
+                        )}, $value"
+                    } else {
+                        ""
+                    },
             ),
             SignerDetailItem(
                 label = R.string.ts_certificate_label,
                 value = tsSubjectName,
                 certificate = signature.timeStampCertificateDer.x509Certificate(),
-                contentDescription = stringResource(id = R.string.ts_certificate_label),
+                contentDescription =
+                    if (value != null) {
+                        "${stringResource(
+                            id = R.string.ts_certificate_label,
+                        )}, $value"
+                    } else {
+                        ""
+                    },
             ),
             SignerDetailItem(
                 label = R.string.ocsp_certificate_issuer_label,
                 value = ocspIssuerName,
-                contentDescription = stringResource(id = R.string.ocsp_certificate_issuer_label),
+                contentDescription =
+                    if (value != null) {
+                        "${stringResource(
+                            id = R.string.ocsp_certificate_issuer_label,
+                        )}, $value"
+                    } else {
+                        ""
+                    },
             ),
             SignerDetailItem(
                 label = R.string.ocsp_certificate_label,
                 value = ocspSubjectName,
                 certificate = signature.ocspCertificateDer.x509Certificate(),
-                contentDescription = stringResource(id = R.string.ocsp_certificate_label),
+                contentDescription =
+                    if (value != null) {
+                        "${stringResource(
+                            id = R.string.ocsp_certificate_label,
+                        )}, $value"
+                    } else {
+                        ""
+                    },
             ),
             SignerDetailItem(
                 label = R.string.ocsp_time_label,
                 value = DateUtil.getFormattedDateTime(signature.ocspProducedAt, false),
-                contentDescription = stringResource(id = R.string.ocsp_time_label),
+                contentDescription =
+                    if (value != null) {
+                        "${stringResource(
+                            id = R.string.ocsp_time_label,
+                        )}, $value"
+                    } else {
+                        ""
+                    },
             ),
             SignerDetailItem(
                 label = R.string.ocsp_time_utc_label,
                 value = DateUtil.getFormattedDateTime(signature.ocspProducedAt, true),
-                contentDescription = stringResource(id = R.string.ocsp_time_utc_label),
+                contentDescription =
+                    if (value != null) {
+                        "${stringResource(
+                            id = R.string.ocsp_time_utc_label,
+                        )}, $value"
+                    } else {
+                        ""
+                    },
             ),
             SignerDetailItem(
                 label = R.string.signers_mobile_time_label,
                 value = DateUtil.getFormattedDateTime(signature.claimedSigningTime, true),
-                contentDescription = stringResource(id = R.string.signers_mobile_time_label),
+                contentDescription =
+                    if (value != null) {
+                        "${stringResource(
+                            id = R.string.signers_mobile_time_label,
+                        )}, $value"
+                    } else {
+                        ""
+                    },
             ),
         )
 }
