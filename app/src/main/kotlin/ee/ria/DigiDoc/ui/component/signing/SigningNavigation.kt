@@ -50,7 +50,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
@@ -78,6 +77,7 @@ import ee.ria.DigiDoc.ui.theme.Normal
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.removeExtensionFromContainerFilename
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
 import ee.ria.DigiDoc.utilsLib.toast.ToastUtil.showMessage
@@ -183,7 +183,18 @@ fun SigningNavigation(
                     // TODO: Implement encrypt click
                 },
                 onShareClick = {
-                    // TODO: Implement share click
+                    val containerFile = SignedContainer.rawContainerFile()
+                    if (containerFile != null) {
+                        val intent =
+                            createContainerAction(
+                                context,
+                                context.getString(R.string.file_provider_authority),
+                                containerFile,
+                                SignedContainer.mimeType(containerFile),
+                                Intent.ACTION_SEND,
+                            )
+                        ContextCompat.startActivity(context, intent, null)
+                    }
                 },
             )
         },
@@ -349,25 +360,16 @@ fun SigningNavigation(
                             dataFile = dataFile,
                             showRemoveButton = signingViewModel.isContainerWithoutSignatures(signedContainer),
                             onClickView = {
-                                try {
-                                    val uri =
-                                        file?.let {
-                                            FileProvider.getUriForFile(
-                                                context,
-                                                context.getString(R.string.file_provider_authority),
-                                                it,
-                                            )
-                                        }
-                                    val shareIntent = Intent()
-                                    shareIntent.setAction(Intent.ACTION_VIEW)
-                                    shareIntent.setDataAndType(
-                                        uri,
-                                        file?.let { SignedContainer.mimeType(it) },
-                                    )
-                                    shareIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                    ContextCompat.startActivity(context, shareIntent, null)
-                                } catch (e: ActivityNotFoundException) {
-                                    // no Activity to handle this kind of files
+                                if (file != null) {
+                                    val intent =
+                                        createContainerAction(
+                                            context,
+                                            context.getString(R.string.file_provider_authority),
+                                            file,
+                                            SignedContainer.mimeType(file),
+                                            Intent.ACTION_VIEW,
+                                        )
+                                    ContextCompat.startActivity(context, intent, null)
                                 }
                             },
                             onClickRemove = {

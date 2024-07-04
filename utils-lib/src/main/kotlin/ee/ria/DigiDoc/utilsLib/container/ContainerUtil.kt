@@ -2,7 +2,15 @@
 
 package ee.ria.DigiDoc.utilsLib.container
 
+import android.content.ClipData
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
+import android.net.Uri
+import android.os.Parcelable
+import androidx.core.content.FileProvider
 import ee.ria.DigiDoc.common.Constant.CONTAINER_EXTENSIONS
 import ee.ria.DigiDoc.common.Constant.DATA_FILE_DIR
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
@@ -213,5 +221,55 @@ object ContainerUtil {
                     "$DEFAULT_FILENAME.$DEFAULT_CONTAINER_EXTENSION"
                 }
         }
+    }
+
+    fun createContainerAction(context: Context,
+                              fileProviderAuthority: String,
+                              file: File,
+                              mimeType: String,
+                              action: String): Intent {
+        val uri: Uri = FileProvider.getUriForFile(
+            context,
+            fileProviderAuthority,
+            file,
+        )
+
+        val shareIntent = Intent().apply {
+            setAction(action)
+            when (action) {
+                Intent.ACTION_VIEW -> {
+                    setDataAndType(uri, mimeType)
+                }
+                Intent.ACTION_SEND -> {
+                    type = mimeType
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    clipData = ClipData(
+                        file.name,
+                        arrayOf(type),
+                        ClipData.Item(uri),
+                    )
+                }
+            }
+            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        }
+
+        // Remove app from "Share" and "Open with" menu
+        val excludedExtraComponents = ArrayList<ComponentName>()
+        val packageManager: PackageManager = context.packageManager
+        val resolveInfos: List<ResolveInfo> = packageManager.queryIntentActivities(shareIntent, 0)
+
+        val appPackageName = context.packageName
+        resolveInfos.forEach { resolveInfo ->
+            val packageName = resolveInfo.activityInfo.packageName
+            if (packageName.contains(appPackageName)) {
+                excludedExtraComponents.add(ComponentName(packageName, resolveInfo.activityInfo.name))
+            }
+        }
+
+        val intentChooser = Intent.createChooser(shareIntent, null).apply {
+            putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, excludedExtraComponents.toTypedArray<Parcelable>())
+        }
+
+        return intentChooser
     }
 }
