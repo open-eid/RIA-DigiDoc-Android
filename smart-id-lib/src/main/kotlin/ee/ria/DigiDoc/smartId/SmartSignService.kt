@@ -12,6 +12,7 @@ import ee.ria.DigiDoc.common.Constant
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
+import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.exceptions.SigningCancelledException
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
@@ -93,6 +94,8 @@ class SmartSignServiceImpl
 
         private val _cancelled = MutableLiveData(false)
         override val cancelled: LiveData<Boolean?> = _cancelled
+
+        private var signatureInterface: SignatureInterface? = null
 
         override fun resetValues() {
             _response.postValue(null)
@@ -207,6 +210,11 @@ class SmartSignServiceImpl
                             ),
                             roleDataRequest,
                         )
+
+                    signatureInterface =
+                        SignedContainer.container().getSignatures()
+                            .last { it.signedBy.isNotEmpty() }
+
                     if (base64Hash.isNotEmpty()) {
                         LoggingUtil.debugLog(logTag, "Posting signature challenge response")
 
@@ -610,7 +618,8 @@ class SmartSignServiceImpl
 
         private fun checkSigningCancelled() {
             if (_cancelled.value == true) {
-                SignedContainer.container().removeSignature(SignedContainer.container().getSignatures().last())
+                signatureInterface?.let { SignedContainer.container().removeSignature(it) }
+
                 throw SigningCancelledException("User cancelled signing")
             }
         }
