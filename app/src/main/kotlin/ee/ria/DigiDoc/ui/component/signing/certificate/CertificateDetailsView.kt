@@ -200,8 +200,12 @@ fun CertificateDetailsView(
                         when (certificateDetail) {
                             is CertificateListItem.Certificate -> {
                                 if (!certificateDetail.detailValue.isNullOrEmpty()) {
-                                    val detailKeyText = if (certificateDetail.detailKey != 0)
-                                        stringResource(id = certificateDetail.detailKey) else ""
+                                    val detailKeyText =
+                                        if (certificateDetail.detailKey != 0) {
+                                            stringResource(id = certificateDetail.detailKey)
+                                        } else {
+                                            ""
+                                        }
                                     CertificateDataItem(
                                         modifier =
                                             modifier

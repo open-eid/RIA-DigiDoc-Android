@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.mobileId
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.MobileIdServiceResponse
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
@@ -343,6 +344,7 @@ class MobileSignServiceImpl
                             }",
                         e,
                     )
+                    // If user has cancelled signing, do not show any message
                     return
                 } catch (e: Exception) {
                     if (!e.message.isNullOrEmpty() && e.message?.contains("Too Many Requests") == true) {
@@ -501,6 +503,7 @@ class MobileSignServiceImpl
 
         private fun checkSigningCancelled() {
             if (_cancelled.value == true) {
+                SignedContainer.container().removeSignature(SignedContainer.container().getSignatures().last())
                 throw SigningCancelledException("User cancelled signing")
             }
         }

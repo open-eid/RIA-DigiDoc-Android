@@ -9,6 +9,7 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import ee.ria.DigiDoc.common.Constant
+import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.libdigidoclib.exceptions.SigningCancelledException
@@ -609,6 +610,7 @@ class SmartSignServiceImpl
 
         private fun checkSigningCancelled() {
             if (_cancelled.value == true) {
+                SignedContainer.container().removeSignature(SignedContainer.container().getSignatures().last())
                 throw SigningCancelledException("User cancelled signing")
             }
         }

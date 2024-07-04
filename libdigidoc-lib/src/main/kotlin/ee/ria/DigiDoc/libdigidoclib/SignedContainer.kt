@@ -33,6 +33,7 @@ import ee.ria.libdigidocpp.DataFiles
 import ee.ria.libdigidocpp.Signatures
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
+import org.apache.commons.io.FilenameUtils
 import java.io.File
 import java.io.IOException
 import java.util.Locale
@@ -162,7 +163,11 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
             var containerFileWithExtension = file
 
             if (!isFirstDataFileContainer && !file.path.endsWith(".$DEFAULT_CONTAINER_EXTENSION")) {
-                containerFileWithExtension = File("${file.path}.$DEFAULT_CONTAINER_EXTENSION")
+                containerFileWithExtension =
+                    File(
+                        FilenameUtils.removeExtension(file.path) +
+                            ".$DEFAULT_CONTAINER_EXTENSION",
+                    )
             }
 
             containerFile = containerFileWithExtension
