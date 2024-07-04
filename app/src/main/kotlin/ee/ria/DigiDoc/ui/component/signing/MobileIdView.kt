@@ -127,6 +127,7 @@ fun MobileIdView(
                 shape = RoundedCornerShape(screenViewLargePadding),
             ) {
                 MobileIdSignatureUpdateContainer(
+                    modifier = modifier,
                     mobileIdViewModel = mobileIdViewModel,
                     onCancelButtonClick = {
                         dismissSignatureUpdateContainerDialog()

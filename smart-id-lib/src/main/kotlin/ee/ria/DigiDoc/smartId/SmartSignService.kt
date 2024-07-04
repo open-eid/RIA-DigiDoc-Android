@@ -13,6 +13,7 @@ import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
+import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.libdigidoclib.exceptions.SigningCancelledException
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
@@ -213,7 +214,10 @@ class SmartSignServiceImpl
 
                     signatureInterface =
                         SignedContainer.container().getSignatures()
-                            .last { it.signedBy.isNotEmpty() }
+                            .last {
+                                it.validator.status == ValidatorInterface.Status.Invalid ||
+                                    it.validator.status == ValidatorInterface.Status.Unknown
+                            }
 
                     if (base64Hash.isNotEmpty()) {
                         LoggingUtil.debugLog(logTag, "Posting signature challenge response")
@@ -323,6 +327,7 @@ class SmartSignServiceImpl
 
                     // If user has cancelled signing, do not show any message
                     if (e is SigningCancelledException) {
+                        setStatus(SessionStatusResponseProcessStatus.USER_CANCELLED)
                         return
                     }
 

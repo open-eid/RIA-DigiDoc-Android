@@ -36,7 +36,7 @@ fun InfoComponent(
             ),
         text = stringResource(name),
         textAlign = TextAlign.Center,
-        style = MaterialTheme.typography.titleMedium,
+        style = MaterialTheme.typography.bodyLarge,
         fontWeight = FontWeight(700),
     )
     DynamicText(

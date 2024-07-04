@@ -60,7 +60,7 @@ fun SettingsSwitchItem(
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
                     },
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Start,
         )
         Switch(

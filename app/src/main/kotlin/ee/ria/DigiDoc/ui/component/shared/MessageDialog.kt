@@ -31,7 +31,7 @@ fun MessageDialog(
                     .fillMaxWidth()
                     .padding(vertical = screenViewLargePadding),
             text = title,
-            textStyle = MaterialTheme.typography.titleMedium,
+            textStyle = MaterialTheme.typography.bodyLarge,
         )
         CancelAndOkButtonRow(
             cancelButtonClick = cancelButtonClick,
