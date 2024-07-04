@@ -9,6 +9,7 @@ import android.content.res.Configuration
 import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
@@ -91,6 +92,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -200,11 +202,21 @@ fun SigningNavigation(
             val saveFileLauncher =
                 rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                     if (result.resultCode == Activity.RESULT_OK) {
-                        actionDataFile?.let { datafile ->
-                            sharedContainerViewModel.getContainerDataFile(signedContainer, datafile)
-                                ?.let { sharedContainerViewModel.saveContainerFile(it, result) }
+                        try {
+                            actionDataFile?.let { datafile ->
+                                sharedContainerViewModel
+                                    .getContainerDataFile(signedContainer, datafile)
+                                    ?.let { sharedContainerViewModel.saveContainerFile(it, result) }
+                                showMessage(context, R.string.file_saved)
+                            } ?: run {
+                                SignedContainer.rawContainerFile()?.let {
+                                    sharedContainerViewModel.saveContainerFile(it, result)
+                                    showMessage(context, R.string.file_saved)
+                                } ?: showMessage(context, R.string.file_saved_error)
+                            }
+                        } catch (e: Exception) {
+                            showMessage(context, R.string.file_saved_error)
                         }
-                        showMessage(context, R.string.file_saved)
                     }
                 }
             val openRemoveFileDialog = remember { mutableStateOf(false) }
@@ -296,7 +308,15 @@ fun SigningNavigation(
                             openEditContainerNameDialog.value = true
                         },
                         onSaveContainerClick = {
-                            // TODO: Implement save container
+                            actionDataFile = null
+                            val containerFile = SignedContainer.rawContainerFile()
+                            if (containerFile != null) {
+                                saveFile(
+                                    containerFile,
+                                    SignedContainer.mimeType(containerFile),
+                                    saveFileLauncher,
+                                )
+                            }
                         },
                     )
 
@@ -375,24 +395,8 @@ fun SigningNavigation(
                                 openRemoveFileDialog.value = true
                             },
                             onClickSave = {
-                                try {
-                                    actionDataFile = dataFile
-                                    val saveIntent =
-                                        Intent.createChooser(
-                                            Intent(Intent.ACTION_CREATE_DOCUMENT)
-                                                .addCategory(Intent.CATEGORY_OPENABLE)
-                                                .putExtra(
-                                                    Intent.EXTRA_TITLE,
-                                                    sanitizeString(dataFile.fileName, ""),
-                                                )
-                                                .setType(getDataFileMimetype(dataFile))
-                                                .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION),
-                                            null,
-                                        )
-                                    saveFileLauncher.launch(saveIntent)
-                                } catch (e: ActivityNotFoundException) {
-                                    // no Activity to handle this kind of files
-                                }
+                                actionDataFile = dataFile
+                                saveFile(file, getDataFileMimetype(dataFile), saveFileLauncher)
                             },
                         )
                     }
@@ -627,6 +631,30 @@ fun handleBackButtonClick(
 ) {
     signingViewModel.handleBackButton()
     navController.navigateUp()
+}
+
+private fun saveFile(
+    file: File?,
+    mimetype: String?,
+    saveFileLauncher: ActivityResultLauncher<Intent>,
+) {
+    try {
+        val saveIntent =
+            Intent.createChooser(
+                Intent(Intent.ACTION_CREATE_DOCUMENT)
+                    .addCategory(Intent.CATEGORY_OPENABLE)
+                    .putExtra(
+                        Intent.EXTRA_TITLE,
+                        sanitizeString(file?.name, ""),
+                    )
+                    .setType(mimetype)
+                    .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION),
+                null,
+            )
+        saveFileLauncher.launch(saveIntent)
+    } catch (e: ActivityNotFoundException) {
+        // No activity to handle this kind of files
+    }
 }
 
 @Preview(showBackground = true)
