@@ -269,13 +269,19 @@ class SmartIdViewModel
                     if (it != null) {
                         _status.postValue(it)
                         if (it != SessionStatusResponseProcessStatus.OK) {
-                            _errorState.postValue(
-                                messages[it]?.let { res ->
-                                    context.getString(
-                                        res,
-                                    )
-                                },
-                            )
+                            if (it != SessionStatusResponseProcessStatus.USER_CANCELLED) {
+                                _errorState.postValue(
+                                    messages[it]?.let { res ->
+                                        context.getString(
+                                            res,
+                                        )
+                                    },
+                                )
+                            } else {
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    _signedContainer.postValue(SignedContainer.container())
+                                }
+                            }
                         }
                     }
                 }

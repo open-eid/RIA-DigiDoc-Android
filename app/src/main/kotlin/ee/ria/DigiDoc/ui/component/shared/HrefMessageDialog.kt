@@ -38,7 +38,7 @@ fun HrefMessageDialog(
             text2 = stringResource(text2),
             linkText = stringResource(linkText),
             linkUrl = stringResource(linkUrl),
-            textStyle = MaterialTheme.typography.titleMedium,
+            textStyle = MaterialTheme.typography.bodyLarge,
         )
         CancelAndOkButtonRow(
             cancelButtonClick = cancelButtonClick,

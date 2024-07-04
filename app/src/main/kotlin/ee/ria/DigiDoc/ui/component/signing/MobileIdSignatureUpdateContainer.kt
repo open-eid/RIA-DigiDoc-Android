@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -61,11 +62,11 @@ fun MobileIdSignatureUpdateContainer(
         Text(
             text = stringResource(id = R.string.challenge_code_text),
             textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Normal,
             modifier =
                 modifier
-                    .fillMaxWidth()
+                    .wrapContentSize()
                     .padding(screenViewLargePadding),
         )
         Text(
@@ -83,11 +84,11 @@ fun MobileIdSignatureUpdateContainer(
         Text(
             text = stringResource(id = R.string.signature_update_mobile_id_info),
             textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Normal,
             modifier =
                 modifier
-                    .fillMaxWidth()
+                    .wrapContentSize()
                     .padding(screenViewLargePadding),
         )
 

@@ -106,7 +106,7 @@ fun HomeNavigationBar(
                     PreventResize {
                         Text(
                             text = navigationItem.label,
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.bodyLarge,
                             overflow = TextOverflow.Visible,
                             modifier =
                                 modifier

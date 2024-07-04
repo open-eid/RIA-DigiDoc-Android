@@ -50,7 +50,7 @@ fun SettingsTextField(
         Text(
             text = title,
             modifier = modifier.wrapContentHeight(align = Alignment.CenterVertically),
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Start,
         )
         TextField(

@@ -207,13 +207,19 @@ class MobileIdViewModel
                     if (it != null) {
                         _status.postValue(it)
                         if (it != MobileCreateSignatureProcessStatus.OK) {
-                            _errorState.postValue(
-                                messages[it]?.let { res ->
-                                    context.getString(
-                                        res,
-                                    )
-                                },
-                            )
+                            if (it != MobileCreateSignatureProcessStatus.USER_CANCELLED) {
+                                _errorState.postValue(
+                                    messages[it]?.let { res ->
+                                        context.getString(
+                                            res,
+                                        )
+                                    },
+                                )
+                            } else {
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    _signedContainer.postValue(SignedContainer.container())
+                                }
+                            }
                         }
                     }
                 }

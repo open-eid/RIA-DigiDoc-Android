@@ -4,9 +4,12 @@ package ee.ria.DigiDoc.mobileId
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.MobileIdServiceResponse
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
+import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
+import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.libdigidoclib.exceptions.SigningCancelledException
 import ee.ria.DigiDoc.mobileId.utils.VerificationCodeUtil
 import ee.ria.DigiDoc.network.mid.dto.MobileCertificateResultType
@@ -97,6 +100,8 @@ class MobileSignServiceImpl
 
         private val _cancelled = MutableLiveData(false)
         override val cancelled: LiveData<Boolean?> = _cancelled
+
+        private var signatureInterface: SignatureInterface? = null
 
         override fun resetValues() {
             _response.postValue(null)
@@ -270,6 +275,12 @@ class MobileSignServiceImpl
                                 getCertificatePem(response.cert),
                                 roleDataRequest,
                             )
+                        signatureInterface =
+                            SignedContainer.container().getSignatures()
+                                .last {
+                                    it.validator.status == ValidatorInterface.Status.Invalid ||
+                                        it.validator.status == ValidatorInterface.Status.Unknown
+                                }
                         if (base64Hash.isNotEmpty()) {
                             debugLog(logTag, "Posting create signature response")
                             postMobileCreateSignatureResponse(base64Hash)
@@ -343,6 +354,8 @@ class MobileSignServiceImpl
                             }",
                         e,
                     )
+                    // If user has cancelled signing, do not show any message
+                    setStatus(MobileCreateSignatureProcessStatus.USER_CANCELLED)
                     return
                 } catch (e: Exception) {
                     if (!e.message.isNullOrEmpty() && e.message?.contains("Too Many Requests") == true) {
@@ -501,6 +514,8 @@ class MobileSignServiceImpl
 
         private fun checkSigningCancelled() {
             if (_cancelled.value == true) {
+                signatureInterface?.let { SignedContainer.container().removeSignature(it) }
+
                 throw SigningCancelledException("User cancelled signing")
             }
         }

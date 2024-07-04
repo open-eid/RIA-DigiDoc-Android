@@ -78,7 +78,7 @@ fun SmartIdSignatureUpdateContainer(
         Text(
             text = stringResource(id = R.string.challenge_code_text),
             textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Normal,
             modifier =
                 modifier
@@ -100,7 +100,7 @@ fun SmartIdSignatureUpdateContainer(
         Text(
             text = stringResource(id = R.string.signature_update_smart_id_info),
             textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Normal,
             modifier =
                 modifier
