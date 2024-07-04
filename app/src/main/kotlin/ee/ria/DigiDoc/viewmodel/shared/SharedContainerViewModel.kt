@@ -19,6 +19,8 @@ import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatu
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -77,6 +79,7 @@ class SharedContainerViewModel
             _signedContainer.postValue(container)
         }
 
+        @Throws(FileNotFoundException::class, IOException::class)
         fun saveContainerFile(
             documentFile: File,
             activityResult: ActivityResult,
