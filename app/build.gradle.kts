@@ -43,6 +43,7 @@ android {
             applicationIdSuffix = ".debug"
             signingConfig = signingConfigs.getByName("debug")
             matchingFallbacks.add("debug")
+            manifestPlaceholders["usesCleartextTraffic"] = "true"
             isMinifyEnabled = false
             isShrinkResources = false
             proguardFiles(
@@ -56,6 +57,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            manifestPlaceholders["usesCleartextTraffic"] = "false"
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
