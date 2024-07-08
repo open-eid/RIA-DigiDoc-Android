@@ -223,35 +223,40 @@ object ContainerUtil {
         }
     }
 
-    fun createContainerAction(context: Context,
-                              fileProviderAuthority: String,
-                              file: File,
-                              mimeType: String,
-                              action: String): Intent {
-        val uri: Uri = FileProvider.getUriForFile(
-            context,
-            fileProviderAuthority,
-            file,
-        )
+    fun createContainerAction(
+        context: Context,
+        fileProviderAuthority: String,
+        file: File,
+        mimeType: String,
+        action: String,
+    ): Intent {
+        val uri: Uri =
+            FileProvider.getUriForFile(
+                context,
+                fileProviderAuthority,
+                file,
+            )
 
-        val shareIntent = Intent().apply {
-            setAction(action)
-            when (action) {
-                Intent.ACTION_VIEW -> {
-                    setDataAndType(uri, mimeType)
+        val shareIntent =
+            Intent().apply {
+                setAction(action)
+                when (action) {
+                    Intent.ACTION_VIEW -> {
+                        setDataAndType(uri, mimeType)
+                    }
+                    Intent.ACTION_SEND -> {
+                        type = mimeType
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        clipData =
+                            ClipData(
+                                file.name,
+                                arrayOf(type),
+                                ClipData.Item(uri),
+                            )
+                    }
                 }
-                Intent.ACTION_SEND -> {
-                    type = mimeType
-                    putExtra(Intent.EXTRA_STREAM, uri)
-                    clipData = ClipData(
-                        file.name,
-                        arrayOf(type),
-                        ClipData.Item(uri),
-                    )
-                }
+                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
             }
-            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-        }
 
         // Remove app from "Share" and "Open with" menu
         val excludedExtraComponents = ArrayList<ComponentName>()
@@ -266,9 +271,10 @@ object ContainerUtil {
             }
         }
 
-        val intentChooser = Intent.createChooser(shareIntent, null).apply {
-            putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, excludedExtraComponents.toTypedArray<Parcelable>())
-        }
+        val intentChooser =
+            Intent.createChooser(shareIntent, null).apply {
+                putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, excludedExtraComponents.toTypedArray<Parcelable>())
+            }
 
         return intentChooser
     }
