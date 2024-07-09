@@ -13,9 +13,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
@@ -25,12 +27,16 @@ import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utilsLib.toast.ToastUtil.showMessage
+import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -80,7 +86,10 @@ fun SettingsScreen(
                         id = R.string.main_settings_use_default_settings_button_title,
                     ).lowercase(),
                 title = R.string.main_settings_use_default_settings_button_title,
-                onClickItem = { /* TODO */ },
+                onClickItem = {
+                    sharedSettingsViewModel.resetToDefaultSettings()
+                    showMessage(context, R.string.main_settings_use_default_settings_message)
+                },
             )
         }
     }

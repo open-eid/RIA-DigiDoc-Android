@@ -6,6 +6,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.ui.component.shared.BackButton
+import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
 import ee.ria.DigiDoc.ui.component.shared.TextRadioButton
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
@@ -51,6 +53,7 @@ fun SettingsProxyCategoryDialog(
     onClickNoProxy: () -> Unit = {},
     onClickManualProxy: () -> Unit = {},
     onClickSystemProxy: () -> Unit = {},
+    checkConnectionClick: () -> Unit = {},
 ) {
     Column(
         modifier = modifier.padding(itemSpacingPadding),
@@ -172,6 +175,18 @@ fun SettingsProxyCategoryDialog(
                     Icon(imageVector = image, description)
                 }
             },
+        )
+        PrimaryButton(
+            modifier =
+                modifier.fillMaxWidth().wrapContentHeight().padding(
+                    horizontal = screenViewLargePadding,
+                ),
+            contentDescription =
+                stringResource(
+                    id = R.string.main_settings_proxy_check_connection,
+                ).lowercase(),
+            title = R.string.main_settings_proxy_check_connection,
+            onClickItem = checkConnectionClick,
         )
     }
 }

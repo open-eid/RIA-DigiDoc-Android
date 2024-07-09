@@ -2,4 +2,4 @@
 
 package ee.ria.DigiDoc.network.proxy
 
-class ManualProxy(var host: String?, var port: Int, var username: String?, var password: String?)
+data class ManualProxy(var host: String, var port: Int, var username: String, var password: String)

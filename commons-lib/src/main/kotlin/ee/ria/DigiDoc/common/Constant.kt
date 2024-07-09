@@ -91,6 +91,9 @@ object Constant {
     const val ALLOWED_URL_CHARACTERS =
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_,.:/%;+=@?&!()"
 
+    const val DIR_TSA_CERT = "tsa_cert"
+    const val DIR_SIVA_CERT = "siva_cert"
+
     const val DATA_FILE_DIR = "%s-data-files"
     const val DIR_SIGNATURE_CONTAINERS = "signed_containers"
     const val DIR_EXTERNALLY_OPENED_FILES = "external_files"

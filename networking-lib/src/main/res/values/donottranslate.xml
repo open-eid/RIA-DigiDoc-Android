@@ -11,5 +11,5 @@
     <string name="main_settings_proxy_username_key">main_settings_proxy_username</string>
     <string name="main_settings_proxy_password_key">main_settings_proxy_password</string>
     <string name="digidoc_version_key">digidocVersion</string>
-
+    <string name="main_settings_siva_setting_key">mainSettingsSivaSetting</string>
 </resources>

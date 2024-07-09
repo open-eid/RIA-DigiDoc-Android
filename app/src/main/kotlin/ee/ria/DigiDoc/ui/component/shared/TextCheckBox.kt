@@ -3,6 +3,7 @@
 package ee.ria.DigiDoc.ui.component.shared
 
 import android.content.res.Configuration
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -32,7 +33,7 @@ fun TextCheckBox(
     contentDescription: String,
 ) {
     Row(
-        modifier = modifier,
+        modifier = modifier.clickable { onCheckedChange(!checked) },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         CompositionLocalProvider(LocalMinimumInteractiveComponentEnforcement provides false) {

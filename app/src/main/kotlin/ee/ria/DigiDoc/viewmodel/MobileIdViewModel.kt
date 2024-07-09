@@ -163,7 +163,7 @@ class MobileIdViewModel
             val configurationProvider = configurationRepository.getConfiguration()
             val uuid = dataStore.getSettingsUUID()
             val proxySetting: ProxySetting = dataStore.getProxySetting()
-            val manualProxySettings: ManualProxy = dataStore.getManualProxySettings(context)
+            val manualProxySettings: ManualProxy = dataStore.getManualProxySettings()
 
             val displayMessage: String =
                 context
