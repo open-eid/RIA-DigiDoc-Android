@@ -3,6 +3,9 @@
 package ee.ria.DigiDoc.ui.component.signing
 
 import android.content.res.Configuration
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -15,6 +18,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -36,13 +40,24 @@ fun AddSignatureView(
     sharedContainerViewModel: SharedContainerViewModel,
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
 ) {
+    val focusManager = LocalFocusManager.current
+    val state =
+        rememberScrollableState { delta ->
+            focusManager.clearFocus()
+            0f
+        }
+
     Surface(
         modifier =
             modifier
                 .wrapContentHeight()
                 .wrapContentWidth()
-                .verticalScroll(rememberScrollState())
-                .padding(itemSpacingPadding),
+                .padding(itemSpacingPadding)
+                .scrollable(
+                    orientation = Orientation.Vertical,
+                    state = state,
+                )
+                .verticalScroll(rememberScrollState()),
         shape = RoundedCornerShape(screenViewLargePadding),
     ) {
         Column(
@@ -51,6 +66,7 @@ fun AddSignatureView(
                     .wrapContentHeight()
                     .wrapContentWidth()
                     .padding(itemSpacingPadding),
+            // .offset { IntOffset(x = 0, y = state.) }
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {

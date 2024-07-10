@@ -73,6 +73,22 @@ fun DiagnosticsScreen(
             null,
         )
     var actionFile by remember { mutableStateOf<File?>(null) }
+    var enableOneTimeLogGeneration by remember {
+        mutableStateOf(diagnosticsViewModel.dataStore.getIsLogFileGenerationEnabled())
+    }
+    val openRestartConfirmationDialog = remember { mutableStateOf(false) }
+
+    val settingValueChanged = stringResource(id = R.string.setting_value_changed)
+    val settingValueChangeCancelled = stringResource(id = R.string.setting_value_change_cancelled)
+    val closeRestartConfirmationDialog = {
+        openRestartConfirmationDialog.value = false
+    }
+    val dismissRestartConfirmationDialog = {
+        enableOneTimeLogGeneration = false
+        diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(false)
+        closeRestartConfirmationDialog()
+        AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, settingValueChangeCancelled)
+    }
     val saveFileLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -80,6 +96,22 @@ fun DiagnosticsScreen(
                     diagnosticsViewModel.saveFile(file, result)
                 }
                 showMessage(context, R.string.file_saved)
+            }
+        }
+
+    val saveLogFileLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                actionFile?.let { file ->
+                    diagnosticsViewModel.saveFile(file, result)
+                }
+                showMessage(context, R.string.file_saved)
+                enableOneTimeLogGeneration = false
+                diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(false)
+                diagnosticsViewModel.dataStore.setIsLogFileGenerationRunning(false)
+                AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, settingValueChanged)
+                activity.finish()
+                activity.startActivity(activity.intent)
             }
         }
 
@@ -236,22 +268,6 @@ fun DiagnosticsScreen(
                 stringResource(id = R.string.main_diagnostics_configuration_last_check_date),
                 diagnosticsViewModel.getConfigurationDate(currentConfiguration?.configurationLastUpdateCheckDate),
             )
-            var enableOneTimeLogGeneration by remember {
-                mutableStateOf(diagnosticsViewModel.dataStore.getIsLogFileGenerationEnabled())
-            }
-            val openRestartConfirmationDialog = remember { mutableStateOf(false) }
-
-            val settingValueChanged = stringResource(id = R.string.setting_value_changed)
-            val settingValueChangeCancelled = stringResource(id = R.string.setting_value_change_cancelled)
-            val closeRestartConfirmationDialog = {
-                openRestartConfirmationDialog.value = false
-            }
-            val dismissRestartConfirmationDialog = {
-                enableOneTimeLogGeneration = false
-                diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(false)
-                closeRestartConfirmationDialog()
-                AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, settingValueChangeCancelled)
-            }
             SettingsSwitchItem(
                 modifier = modifier,
                 checked = enableOneTimeLogGeneration,
@@ -300,7 +316,7 @@ fun DiagnosticsScreen(
                                         .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION),
                                     null,
                                 )
-                            saveFileLauncher.launch(saveIntent)
+                            saveLogFileLauncher.launch(saveIntent)
                         } catch (e: ActivityNotFoundException) {
                             // no Activity to handle this kind of files
                         }
