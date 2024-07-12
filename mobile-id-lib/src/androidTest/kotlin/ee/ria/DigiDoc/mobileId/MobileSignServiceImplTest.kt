@@ -146,6 +146,16 @@ class MobileSignServiceImplTest {
         mobileSignServiceImpl.status.observeForever(statusObserver)
         mobileSignServiceImpl.result.observeForever(resultObserver)
         mobileSignServiceImpl.cancelled.observeForever(cancelledObserver)
+
+        val container =
+            AssetFile.getResourceFileAsFile(
+                context,
+                "example.asice",
+                ee.ria.DigiDoc.common.R.raw.example,
+            )
+        runBlocking {
+            SignedContainer.openOrCreate(context, container, listOf(container))
+        }
     }
 
     @Test
@@ -292,15 +302,6 @@ class MobileSignServiceImplTest {
     @Test
     fun mobileSignService_processMobileIdRequest_success() =
         runTest {
-            val container =
-                AssetFile.getResourceFileAsFile(
-                    context,
-                    "example_no_signatures.asice",
-                    ee.ria.DigiDoc.common.R.raw.example_no_signatures,
-                )
-
-            SignedContainer.openOrCreate(context, container, listOf(container))
-
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
                 sslContext = null,
                 midSignServiceUrl = request.url,
@@ -399,15 +400,6 @@ class MobileSignServiceImplTest {
     @Test
     fun mobileSignService_processMobileIdRequest_timeout() =
         runTest {
-            val container =
-                AssetFile.getResourceFileAsFile(
-                    context,
-                    "example_no_signatures.asice",
-                    ee.ria.DigiDoc.common.R.raw.example_no_signatures,
-                )
-
-            SignedContainer.openOrCreate(context, container, listOf(container))
-
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
                 sslContext = null,
                 midSignServiceUrl = request.url,

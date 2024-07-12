@@ -18,6 +18,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
+import java.util.Locale
 
 @RunWith(MockitoJUnitRunner::class)
 class DataStoreTest {
@@ -278,6 +279,95 @@ class DataStoreTest {
         val result = dataStore.getProxyUsername()
 
         assertEquals("test", result)
+    }
+
+    @Test
+    fun testGetIsLogFileGenerationEnabled() {
+        val result = dataStore.getIsLogFileGenerationEnabled()
+
+        assertEquals(false, result)
+    }
+
+    @Test
+    fun testSetIsLogFileGenerationEnabled() {
+        dataStore.setIsLogFileGenerationEnabled(true)
+
+        val result = dataStore.getIsLogFileGenerationEnabled()
+
+        assertEquals(true, result)
+    }
+
+    @Test
+    fun testSetIsLogFileGenerationRunning() {
+        dataStore.setIsLogFileGenerationRunning(true)
+
+        val result = dataStore.getIsLogFileGenerationRunning()
+
+        assertEquals(true, result)
+    }
+
+    @Test
+    fun testGetSettingsSivaUrl() {
+        val result = dataStore.getSettingsSivaUrl()
+
+        assertEquals("", result)
+    }
+
+    @Test
+    fun testSetSettingsSivaUrl() {
+        dataStore.setSettingsSivaUrl("test")
+
+        val result = dataStore.getSettingsSivaUrl()
+
+        assertEquals("test", result)
+    }
+
+    @Test
+    fun testGetSettingsSivaCertName() {
+        val result = dataStore.getSettingsSivaCertName()
+
+        assertEquals("", result)
+    }
+
+    @Test
+    fun testSetSettingsSivaCertName() {
+        dataStore.setSettingsSivaCertName("test")
+
+        val result = dataStore.getSettingsSivaCertName()
+
+        assertEquals("test", result)
+    }
+
+    @Test
+    fun testGetLocale() {
+        val result = dataStore.getLocale()
+
+        assertEquals(null, result)
+    }
+
+    @Test
+    fun testSetLocale() {
+        dataStore.setLocale(Locale.ENGLISH)
+
+        val result = dataStore.getLocale()
+
+        assertEquals(Locale.ENGLISH, result)
+    }
+
+    @Test
+    fun testSetLocaleNull() {
+        dataStore.setLocale(null)
+
+        val result = dataStore.getLocale()
+
+        assertEquals(null, result)
+    }
+
+    @Test
+    fun testGetLibdigidocppVersion() {
+        val result = dataStore.getLibdigidocppVersion()
+
+        assertEquals("3.17.1.1420", result)
     }
 
     @Test

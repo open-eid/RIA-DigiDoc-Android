@@ -61,7 +61,7 @@ class DiagnosticsViewModel
             "ria_digidoc_" + getAppVersion() + "_logs.txt"
 
         private val _updatedConfiguration = MutableLiveData<ConfigurationProvider?>()
-        val updatedConfiguration: LiveData<ConfigurationProvider?> = _updatedConfiguration
+        var updatedConfiguration: LiveData<ConfigurationProvider?> = _updatedConfiguration
 
         init {
             CoroutineScope(IO).launch {
@@ -71,10 +71,6 @@ class DiagnosticsViewModel
                     }
                 }
             }
-        }
-
-        private fun getAppVersion(): String {
-            return BuildConfig.VERSION_NAME
         }
 
         fun getSivaUrl(): String {
@@ -147,15 +143,6 @@ class DiagnosticsViewModel
             return tslCacheList
         }
 
-        @Throws(XmlPullParserException::class, IOException::class)
-        private fun getTSLFileVersion(
-            tslInputStream: InputStream,
-            tslFileName: String,
-        ): String {
-            val version: Int = TSLUtil.readSequenceNumber(tslInputStream)
-            return FileUtil.normalizeText(tslFileName) + " (" + version + ")"
-        }
-
         @Throws(Exception::class)
         suspend fun updateConfiguration() {
             configurationLoader.loadCentralConfiguration(context)
@@ -215,6 +202,19 @@ class DiagnosticsViewModel
                 errorLog(logTag, "Unable to get diagnostics file location", ex)
                 throw ex
             }
+        }
+
+        fun getAppVersion(): String {
+            return BuildConfig.VERSION_NAME
+        }
+
+        @Throws(XmlPullParserException::class, IOException::class)
+        private fun getTSLFileVersion(
+            tslInputStream: InputStream,
+            tslFileName: String,
+        ): String {
+            val version: Int = TSLUtil.readSequenceNumber(tslInputStream)
+            return FileUtil.normalizeText(tslFileName) + " (" + version + ")"
         }
 
         private fun formatDiagnosticsText(): String {
