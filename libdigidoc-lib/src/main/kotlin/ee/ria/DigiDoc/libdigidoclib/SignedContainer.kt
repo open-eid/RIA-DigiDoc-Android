@@ -53,13 +53,17 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
         return containerFile?.name ?: DEFAULT_FILENAME
     }
 
-    fun setName(filename: String) {
+    suspend fun setName(
+        context: Context,
+        filename: String,
+    ) {
         val containerName = ContainerUtil.addExtensionToContainerFilename(filename)
         val newFile = File(containerFile?.parent, containerName)
 
         containerFile?.renameTo(newFile)
+        containerFile = newFile
 
-        containerFile = File(containerFile?.parent, containerName)
+        open(context, containerFile)
 
         containerFile?.let {
             container?.save()
