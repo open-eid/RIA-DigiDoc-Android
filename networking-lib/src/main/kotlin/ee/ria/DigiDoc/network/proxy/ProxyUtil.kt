@@ -20,21 +20,21 @@ import java.util.concurrent.CompletableFuture
 object ProxyUtil {
     fun getProxy(
         proxySetting: ProxySetting?,
-        manualProxySettings: ManualProxy,
+        manualProxySettings: ManualProxy?,
     ): ProxyConfig {
         when (proxySetting) {
             ProxySetting.NO_PROXY -> {}
             ProxySetting.SYSTEM_PROXY -> {
                 val systemProxy =
                     ManualProxy(
-                        System.getProperty("http.proxyHost"),
-                        NumberUtils.toInt(System.getProperty("http.proxyPort"), 0),
-                        System.getProperty("http.proxyUser"),
-                        System.getProperty("http.proxyPassword"),
+                        System.getProperty("http.proxyHost") ?: "",
+                        NumberUtils.toInt(System.getProperty("http.proxyPort"), 80),
+                        System.getProperty("http.proxyUser") ?: "",
+                        System.getProperty("http.proxyPassword") ?: "",
                     )
                 var authenticator: Authenticator? = null
-                if (!systemProxy.username.isNullOrEmpty() &&
-                    !systemProxy.password.isNullOrEmpty()
+                if (systemProxy.username.isNotEmpty() &&
+                    systemProxy.password.isNotEmpty()
                 ) {
                     authenticator =
                         Authenticator { _: Route?, response: Response ->
@@ -62,12 +62,20 @@ object ProxyUtil {
                             return@Authenticator null
                         }
                         val credential =
-                            manualProxySettings.username?.let { username ->
-                                manualProxySettings.password?.let { password ->
-                                    basic(
-                                        username,
-                                        password,
-                                    )
+                            manualProxySettings?.username.let { username ->
+                                manualProxySettings?.password.let { password ->
+                                    if (username != null) {
+                                        if (password != null) {
+                                            basic(
+                                                username,
+                                                password,
+                                            )
+                                        } else {
+                                            null
+                                        }
+                                    } else {
+                                        null
+                                    }
                                 }
                             }
                         if (credential != null) {
@@ -120,13 +128,19 @@ object ProxyUtil {
 
     fun getManualProxySettings(context: Context): ManualProxy {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-        val host = sharedPreferences.getString(context.getString(R.string.main_settings_proxy_host_key), "")
-        val port = sharedPreferences.getInt(context.getString(R.string.main_settings_proxy_port_key), 0)
-        val username = sharedPreferences.getString(context.getString(R.string.main_settings_proxy_username_key), "")
-        val password: String? =
+        val host = sharedPreferences.getString(context.getString(R.string.main_settings_proxy_host_key), "") ?: ""
+        val port =
+            sharedPreferences.getInt(context.getString(R.string.main_settings_proxy_port_key), 80)
+        val username =
+            sharedPreferences.getString(
+                context.getString(R.string.main_settings_proxy_username_key),
+                "",
+            )
+                ?: ""
+        val password: String =
             try {
                 EncryptedPreferences.getEncryptedPreferences(context)
-                    .getString(context.getString(R.string.main_settings_proxy_password_key), "")
+                    .getString(context.getString(R.string.main_settings_proxy_password_key), "") ?: ""
             } catch (e: IOException) {
                 ""
             } catch (e: GeneralSecurityException) {

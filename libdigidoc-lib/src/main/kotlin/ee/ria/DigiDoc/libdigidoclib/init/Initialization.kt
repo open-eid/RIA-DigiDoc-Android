@@ -27,6 +27,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
+import java.util.Optional
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -141,6 +142,24 @@ class Initialization
             DigiDocConf.instance().setLogLevel(libdigidocLogLevel)
             DigiDocConf.instance()
                 .setLogFile(File(logDirectory, "libdigidocpp.log").absolutePath)
+        }
+
+        fun overrideProxy(
+            host: String?,
+            port: Int,
+            username: String?,
+            password: String?,
+        ) {
+            if (Optional.ofNullable(host).isPresent) {
+                DigiDocConf.instance().setProxyHost(host)
+            }
+            DigiDocConf.instance().setProxyPort(if (port != 0) port.toString() else "80")
+            if (Optional.ofNullable(username).isPresent) {
+                DigiDocConf.instance().setProxyUser(username)
+            }
+            if (Optional.ofNullable(password).isPresent) {
+                DigiDocConf.instance().setProxyPass(password)
+            }
         }
 
         private fun overrideTSUrl(tsUrl: String) {

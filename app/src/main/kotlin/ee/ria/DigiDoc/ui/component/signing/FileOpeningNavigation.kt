@@ -47,7 +47,6 @@ fun FileOpeningNavigation(
     sharedContainerViewModel: SharedContainerViewModel,
 ) {
     val context = LocalContext.current
-    val errorState by fileOpeningViewModel.errorState.asFlow().collectAsState(null)
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
     val filePicker =
         rememberLauncherForActivityResult(
