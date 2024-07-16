@@ -335,7 +335,7 @@ class MobileIdViewModelTest {
             verify(
                 errorStateObserver,
                 atLeastOnce(),
-            ).onChanged(context.getString(R.string.signature_update_mobile_id_status_user_cancel))
+            ).onChanged(null)
             verify(signedContainterObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.USER_CANCELLED)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")

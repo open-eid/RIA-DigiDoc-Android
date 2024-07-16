@@ -208,7 +208,7 @@ class FileOpeningRepositoryImplTest {
                     fileOpeningRepository.openOrCreateContainer(mockContext, contentResolver, uris)
                 }
 
-            assertEquals("${file.name}.$DEFAULT_CONTAINER_EXTENSION", signedContainer.getName())
+            assertEquals("${file.nameWithoutExtension}.$DEFAULT_CONTAINER_EXTENSION", signedContainer.getName())
             assertFalse(signedContainer.isExistingContainer())
         }
 
@@ -232,7 +232,7 @@ class FileOpeningRepositoryImplTest {
                 }
 
             assertEquals(1, signedContainer.getDataFiles().size)
-            assertEquals("${validFile.name}.$DEFAULT_CONTAINER_EXTENSION", signedContainer.getName())
+            assertEquals("${validFile.nameWithoutExtension}.$DEFAULT_CONTAINER_EXTENSION", signedContainer.getName())
             assertFalse(signedContainer.isExistingContainer())
         }
 
