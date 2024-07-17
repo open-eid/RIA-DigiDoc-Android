@@ -2,10 +2,15 @@
 
 package ee.ria.DigiDoc.viewmodel.shared
 
+import android.content.ContentResolver
 import android.content.Context
+import android.net.Uri
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.documentfile.provider.DocumentFile
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
+import ee.ria.DigiDoc.common.Constant.DIR_TSA_CERT
+import ee.ria.DigiDoc.common.test.AssetFile
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifierImpl
 import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
@@ -17,20 +22,39 @@ import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
+import ee.ria.DigiDoc.network.proxy.ManualProxy
+import ee.ria.DigiDoc.network.proxy.ProxySetting
+import ee.ria.DigiDoc.network.siva.SivaSetting
 import kotlinx.coroutines.runBlocking
+import org.apache.commons.io.FileUtils
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.mock
+import java.io.File
+import java.io.InputStream
+import java.nio.charset.Charset
+import java.nio.file.Files
 
 @RunWith(MockitoJUnitRunner::class)
 class SharedSettingsViewModelTest {
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
+
+    @Mock
+    lateinit var contentResolver: ContentResolver
+
+    @Mock
+    lateinit var configurationRepository: ConfigurationRepository
 
     companion object {
         private lateinit var configurationLoader: ConfigurationLoader
@@ -64,6 +88,8 @@ class SharedSettingsViewModelTest {
 
     private lateinit var dataStore: DataStore
 
+    private lateinit var initialization: Initialization
+
     private lateinit var viewModel: SharedSettingsViewModel
 
     @Before
@@ -71,13 +97,243 @@ class SharedSettingsViewModelTest {
         MockitoAnnotations.openMocks(this)
         context = InstrumentationRegistry.getInstrumentation().targetContext
         dataStore = DataStore(context)
-        viewModel = SharedSettingsViewModel(dataStore)
+        initialization = Initialization(configurationRepository)
+        viewModel =
+            SharedSettingsViewModel(
+                context = context,
+                contentResolver = contentResolver,
+                dataStore = dataStore,
+                configurationRepository = configurationRepository,
+                initialization = initialization,
+            )
     }
 
     @Test
-    fun settingsViewModel_init_success() {
+    fun sharedSettingsViewModel_init_success() {
         val result = viewModel.dataStore.getCountry()
 
         assertEquals(0, result)
+    }
+
+    @Test
+    fun `resetToDefaultSettings resets settings to default values`() {
+        val file =
+            AssetFile.getResourceFileAsFile(
+                context,
+                "siva.cer",
+                ee.ria.DigiDoc.common.R.raw.siva,
+            )
+        val uri = Uri.fromFile(file)
+        saveTsaCert(uri)
+        viewModel.resetToDefaultSettings()
+
+        // resetSigningSettings
+        assertEquals("", dataStore.getSettingsUUID())
+        assertEquals("", dataStore.getSettingsTSAUrl())
+        assertFalse(dataStore.getSettingsAskRoleAndAddress())
+        assertFalse(dataStore.getIsTsaCertificateViewVisible())
+
+        assertEquals("", dataStore.getTSACertName())
+
+        // resetRightsSettings
+        assertTrue(dataStore.getSettingsOpenAllFileTypes())
+        assertFalse(dataStore.getSettingsAllowScreenshots())
+
+        // resetSivaSettings
+        assertEquals(SivaSetting.DEFAULT, dataStore.getSivaSetting())
+        assertEquals("", dataStore.getSettingsSivaUrl())
+        assertEquals("", dataStore.getSettingsSivaCertName())
+
+        // resetProxySettings
+        assertEquals(ProxySetting.NO_PROXY, dataStore.getProxySetting())
+        assertEquals("", dataStore.getProxyHost())
+        assertEquals(80, dataStore.getProxyPort())
+        assertEquals("", dataStore.getProxyUsername())
+        assertEquals("", dataStore.getProxyPassword())
+    }
+
+    @Test
+    fun `saveProxySettings saves manual proxy settings`() {
+        dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
+        val manualProxySettings = ManualProxy("proxyHost", 8080, "proxyUser", "proxyPass")
+        viewModel.saveProxySettings(false, manualProxySettings)
+
+        assertEquals("proxyHost", dataStore.getProxyHost())
+        assertEquals(8080, dataStore.getProxyPort())
+        assertEquals("proxyUser", dataStore.getProxyUsername())
+        assertEquals("proxyPass", dataStore.getProxyPassword())
+    }
+
+    @Test
+    fun `saveProxySettings saves system proxy settings when clearSettings is false`() {
+        dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
+        val manualProxySettings = ManualProxy("proxyHost", 8080, "proxyUser", "proxyPass")
+        viewModel.saveProxySettings(false, manualProxySettings)
+
+        System.setProperty("http.proxyHost", "proxyHost")
+        dataStore.setProxySetting(ProxySetting.SYSTEM_PROXY)
+        viewModel.saveProxySettings(false, ManualProxy("", 0, "", ""))
+
+        assertEquals("proxyHost", dataStore.getProxyHost())
+        assertEquals(8080, dataStore.getProxyPort())
+        assertEquals("proxyUser", dataStore.getProxyUsername())
+        assertEquals("proxyPass", dataStore.getProxyPassword())
+    }
+
+    @Test
+    fun `saveProxySettings saves system no proxy settings when clearSettings is false`() {
+        dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
+        val manualProxySettings = ManualProxy("proxyHost", 8080, "proxyUser", "proxyPass")
+        viewModel.saveProxySettings(false, manualProxySettings)
+
+        dataStore.setProxySetting(ProxySetting.NO_PROXY)
+        viewModel.saveProxySettings(false, ManualProxy("", 0, "", ""))
+
+        assertEquals("proxyHost", dataStore.getProxyHost())
+        assertEquals(8080, dataStore.getProxyPort())
+        assertEquals("proxyUser", dataStore.getProxyUsername())
+        assertEquals("proxyPass", dataStore.getProxyPassword())
+    }
+
+    @Test
+    fun `saveProxySettings saves system proxy settings when clearSettings is true`() {
+        dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
+        val manualProxySettings = ManualProxy("proxyHost", 8080, "proxyUser", "proxyPass")
+        viewModel.saveProxySettings(false, manualProxySettings)
+        System.setProperty("http.proxyHost", "")
+        dataStore.setProxySetting(ProxySetting.SYSTEM_PROXY)
+        viewModel.saveProxySettings(true, manualProxySettings)
+
+        assertEquals("", dataStore.getProxyHost())
+        assertEquals(80, dataStore.getProxyPort())
+        assertEquals("", dataStore.getProxyUsername())
+        assertEquals("", dataStore.getProxyPassword())
+    }
+
+    @Test
+    fun `saveProxySettings saves no proxy settings when clearSettings is true`() {
+        dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
+        val manualProxySettings = ManualProxy("proxyHost", 8080, "proxyUser", "proxyPass")
+        viewModel.saveProxySettings(false, manualProxySettings)
+
+        dataStore.setProxySetting(ProxySetting.NO_PROXY)
+        viewModel.saveProxySettings(true, manualProxySettings)
+
+        assertEquals("", dataStore.getProxyHost())
+        assertEquals(80, dataStore.getProxyPort())
+        assertEquals("", dataStore.getProxyUsername())
+        assertEquals("", dataStore.getProxyPassword())
+    }
+
+    @Test
+    fun `updateData updates SIVA service URL with valid URL and valid cert file`() {
+        val file =
+            AssetFile.getResourceFileAsFile(
+                context,
+                "siva.cer",
+                ee.ria.DigiDoc.common.R.raw.siva,
+            )
+        val uri = Uri.fromFile(file)
+        viewModel.handleFile(uri)
+
+        val validUrl = "https://valid-siva-url.com"
+        viewModel.updateData(validUrl)
+
+        assertEquals(validUrl, viewModel.previousSivaUrl.value)
+        assertNotNull(viewModel.sivaCertificate.value)
+        assertEquals("DigiCert Inc", viewModel.issuedTo.value)
+        assertEquals("01.10.2024", viewModel.validTo.value)
+    }
+
+    @Test(expected = Test.None::class)
+    fun `updateData updates SIVA service URL with valid URL and invalid cert file`() {
+        val file = createTempFileWithStringContent("invalid_cert", "invalid_cert")
+        val uri = Uri.fromFile(file)
+        viewModel.handleFile(uri)
+
+        val validUrl = "https://valid-siva-url.com"
+        viewModel.updateData(validUrl)
+
+        assertEquals(validUrl, viewModel.previousSivaUrl.value)
+    }
+
+    @Test
+    fun `handleFile with valid Uri updates ViewModel state`() {
+        val file =
+            AssetFile.getResourceFileAsFile(
+                context,
+                "siva.cer",
+                ee.ria.DigiDoc.common.R.raw.siva,
+            )
+
+        val uri = Uri.fromFile(file)
+        viewModel.handleFile(uri)
+        assertEquals("sivaCert", dataStore.getSettingsSivaCertName())
+    }
+
+    @Test(expected = Test.None::class)
+    fun `handleFile with invalid Uri handles error gracefully`() {
+        val uri: Uri = mock()
+
+        viewModel.handleFile(uri)
+    }
+
+    @Test(expected = Test.None::class)
+    fun `checkConnection with valid ManualProxy settings`() {
+        dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
+        val manualProxySettings = ManualProxy("proxyHost", 8080, "proxyUser", "proxyPass")
+        viewModel.checkConnection(manualProxySettings)
+
+        assertEquals("proxyHost", dataStore.getProxyHost())
+        assertEquals(8080, dataStore.getProxyPort())
+        assertEquals("proxyUser", dataStore.getProxyUsername())
+        assertEquals("proxyPass", dataStore.getProxyPassword())
+    }
+
+    @Test(expected = Test.None::class)
+    fun `checkConnection with valid No Proxy settings`() {
+        dataStore.setProxySetting(ProxySetting.NO_PROXY)
+        val manualProxySettings = ManualProxy("", 80, "", "")
+        viewModel.saveProxySettings(true, manualProxySettings)
+        viewModel.checkConnection(manualProxySettings)
+
+        assertEquals("", dataStore.getProxyHost())
+        assertEquals(80, dataStore.getProxyPort())
+        assertEquals("", dataStore.getProxyUsername())
+        assertEquals("", dataStore.getProxyPassword())
+    }
+
+    private fun createTempFileWithStringContent(
+        filename: String,
+        content: String,
+    ): File {
+        val tempFile = File.createTempFile(filename, ".txt", context.cacheDir)
+        Files.write(tempFile.toPath(), content.toByteArray(Charset.defaultCharset()))
+        return tempFile
+    }
+
+    private fun saveTsaCert(uri: Uri) {
+        try {
+            val initialStream: InputStream? = contentResolver.openInputStream(uri)
+            val documentFile = DocumentFile.fromSingleUri(context, uri)
+            if (documentFile != null) {
+                val tsaCertFolder = File(context.filesDir, DIR_TSA_CERT)
+                if (!tsaCertFolder.exists()) {
+                    tsaCertFolder.mkdirs()
+                }
+
+                var fileName = documentFile.name
+                if (fileName.isNullOrEmpty()) {
+                    fileName = "tsaCert"
+                }
+                val tsaFile = File(tsaCertFolder, fileName)
+
+                FileUtils.copyInputStreamToFile(initialStream, tsaFile)
+
+                dataStore.setTSACertName(tsaFile.name)
+            }
+        } catch (e: Exception) {
+            // Do nothing
+        }
     }
 }
