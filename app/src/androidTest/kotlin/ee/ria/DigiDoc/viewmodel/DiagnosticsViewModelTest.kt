@@ -136,14 +136,14 @@ class DiagnosticsViewModelTest {
     }
 
     @Test
-    fun `getSivaUrl returns non-empty dataStore value`() {
+    fun diagnosticsViewModel_getSivaUrl_returnsNonEmptyDataStoreValue() {
         dataStore.setSettingsSivaUrl("https://example.com/siva")
         val result = viewModel.getSivaUrl()
         assertEquals("https://example.com/siva", result)
     }
 
     @Test
-    fun `getSivaUrl returns updatedConfiguration value when dataStore is empty`() {
+    fun diagnosticsViewModel_getSivaUrl_returnsUpdatedConfigurationValueWhenDataStoreEmpty() {
         val expectedUrl = "https://www.example.com"
         dataStore.setSettingsSivaUrl("")
         viewModel.updatedConfiguration = MutableLiveData(configurationProvider)
@@ -154,7 +154,7 @@ class DiagnosticsViewModelTest {
     }
 
     @Test
-    fun `getSivaUrl returns empty value when dataStore is empty and updatedConfiguration is null`() {
+    fun diagnosticsViewModel_getSivaUrl_returnsEmptyValueWhenDataStoreEmptyAndUpdatedConfigurationIsNull() {
         dataStore.setSettingsSivaUrl("")
         viewModel.updatedConfiguration = MutableLiveData(null)
 
@@ -164,14 +164,14 @@ class DiagnosticsViewModelTest {
     }
 
     @Test
-    fun `getTsaUrl returns non-empty dataStore value`() {
+    fun diagnosticsViewModel_getTsaUrl_returnsNonEmptyDataStoreValue() {
         dataStore.setSettingsTSAUrl("https://example.com/tsa")
         val result = viewModel.getTsaUrl()
         assertEquals("https://example.com/tsa", result)
     }
 
     @Test
-    fun `getTsaUrl returns updatedConfiguration value when dataStore is empty`() {
+    fun diagnosticsViewModel_getTsaUrl_returnsUpdatedConfigurationValueWhenDataStoreIsEmpty() {
         val expectedUrl = "https://www.example.com"
         dataStore.setSettingsTSAUrl("")
         viewModel.updatedConfiguration = MutableLiveData(configurationProvider)
@@ -182,7 +182,7 @@ class DiagnosticsViewModelTest {
     }
 
     @Test
-    fun `getTsaUrl returns empty value when dataStore is empty and updatedConfiguration is null`() {
+    fun diagnosticsViewModel_getTsaUrl_returnsEmptyValueWhenDataStoreIsEmptyAndUpdatedConfigurationIsNull() {
         dataStore.setSettingsTSAUrl("")
         viewModel.updatedConfiguration = MutableLiveData(null)
 
@@ -192,27 +192,27 @@ class DiagnosticsViewModelTest {
     }
 
     @Test
-    fun `getRpUuid returns default string when is empty dataStore value`() {
+    fun diagnosticsViewModel_getRpUuid_returnsDefaultStringForEmptyDataStoreValue() {
         dataStore.setSettingsUUID("")
         val result = viewModel.getRpUuid()
         assertEquals(R.string.main_diagnostics_rpuuid_default, result)
     }
 
     @Test
-    fun `getRpUuid returns custom string when is non-empty dataStore value`() {
+    fun diagnosticsViewModel_getRpUuid_returnsCustomStringForNonEmptyDataStoreValue() {
         dataStore.setSettingsUUID("0000-0000-0000-0000-0000")
         val result = viewModel.getRpUuid()
         assertEquals(R.string.main_diagnostics_rpuuid_custom, result)
     }
 
     @Test
-    fun `getConfigurationDate returns empty string for null date`() {
+    fun diagnosticsViewModel_getConfigurationDate_returnsEmptyStringForNullDate() {
         val result = viewModel.getConfigurationDate(null)
         assertEquals("", result)
     }
 
     @Test
-    fun `getConfigurationDate returns formatted string for non-null date`() {
+    fun diagnosticsViewModel_getConfigurationDate_returnsFormattedStringForNonNullDate() {
         // Prepare
         val calendar =
             Calendar.getInstance().apply {
@@ -230,7 +230,7 @@ class DiagnosticsViewModelTest {
     }
 
     @Test
-    fun `createDiagnosticsFile creates file successfully`() {
+    fun diagnosticsViewModel_createDiagnosticsFile_success() {
         val diagnosticsFileName =
             "ria_digidoc_" + viewModel.getAppVersion() + "_diagnostics.txt"
         val diagnosticsFilePath: String = (
@@ -244,7 +244,7 @@ class DiagnosticsViewModelTest {
     }
 
     @Test
-    fun `createLogFile creates file successfully`() {
+    fun diagnosticsViewModel_createLogFile_success() {
         val diagnosticsLogsFilePath =
             "ria_digidoc_" + viewModel.getAppVersion() + "_logs.txt"
         val logFolder = FileUtil.getLogsDirectory(context)
