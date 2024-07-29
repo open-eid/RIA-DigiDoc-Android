@@ -116,7 +116,7 @@ class SharedSettingsViewModelTest {
     }
 
     @Test
-    fun `resetToDefaultSettings resets settings to default values`() {
+    fun sharedSettingsViewModel_resetToDefaultSettings_success() {
         val file =
             AssetFile.getResourceFileAsFile(
                 context,
@@ -153,7 +153,7 @@ class SharedSettingsViewModelTest {
     }
 
     @Test
-    fun `saveProxySettings saves manual proxy settings`() {
+    fun sharedSettingsViewModel_saveProxySettings_savesManualProxySettings() {
         dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
         val manualProxySettings = ManualProxy("proxyHost", 8080, "proxyUser", "proxyPass")
         viewModel.saveProxySettings(false, manualProxySettings)
@@ -165,7 +165,7 @@ class SharedSettingsViewModelTest {
     }
 
     @Test
-    fun `saveProxySettings saves system proxy settings when clearSettings is false`() {
+    fun sharedSettingsViewModel_saveProxySettings_savesSystemProxySettingsWithClearSettingsIsFalse() {
         dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
         val manualProxySettings = ManualProxy("proxyHost", 8080, "proxyUser", "proxyPass")
         viewModel.saveProxySettings(false, manualProxySettings)
@@ -181,7 +181,7 @@ class SharedSettingsViewModelTest {
     }
 
     @Test
-    fun `saveProxySettings saves system no proxy settings when clearSettings is false`() {
+    fun sharedSettingsViewModel_saveProxySettings_savesNoProxySettingsWithClearSettingsIsFalse() {
         dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
         val manualProxySettings = ManualProxy("proxyHost", 8080, "proxyUser", "proxyPass")
         viewModel.saveProxySettings(false, manualProxySettings)
@@ -196,7 +196,7 @@ class SharedSettingsViewModelTest {
     }
 
     @Test
-    fun `saveProxySettings saves system proxy settings when clearSettings is true`() {
+    fun sharedSettingsViewModel_saveProxySettings_savesSystemProxySettingsWithClearSettingsIsTrue() {
         dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
         val manualProxySettings = ManualProxy("proxyHost", 8080, "proxyUser", "proxyPass")
         viewModel.saveProxySettings(false, manualProxySettings)
@@ -211,7 +211,7 @@ class SharedSettingsViewModelTest {
     }
 
     @Test
-    fun `saveProxySettings saves no proxy settings when clearSettings is true`() {
+    fun sharedSettingsViewModel_saveProxySettings_savesNoProxySettingsWithClearSettingsIsTrue() {
         dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
         val manualProxySettings = ManualProxy("proxyHost", 8080, "proxyUser", "proxyPass")
         viewModel.saveProxySettings(false, manualProxySettings)
@@ -226,7 +226,7 @@ class SharedSettingsViewModelTest {
     }
 
     @Test
-    fun `updateData updates SIVA service URL with valid URL and valid cert file`() {
+    fun sharedSettingsViewModel_updateData_successWithValidCertFile() {
         val file =
             AssetFile.getResourceFileAsFile(
                 context,
@@ -246,7 +246,7 @@ class SharedSettingsViewModelTest {
     }
 
     @Test(expected = Test.None::class)
-    fun `updateData updates SIVA service URL with valid URL and invalid cert file`() {
+    fun sharedSettingsViewModel_updateData_withInvalidCertFile() {
         val file = createTempFileWithStringContent("invalid_cert", "invalid_cert")
         val uri = Uri.fromFile(file)
         viewModel.handleFile(uri)
@@ -258,7 +258,7 @@ class SharedSettingsViewModelTest {
     }
 
     @Test
-    fun `handleFile with valid Uri updates ViewModel state`() {
+    fun sharedSettingsViewModel_handleFile_success() {
         val file =
             AssetFile.getResourceFileAsFile(
                 context,
@@ -272,14 +272,14 @@ class SharedSettingsViewModelTest {
     }
 
     @Test(expected = Test.None::class)
-    fun `handleFile with invalid Uri handles error gracefully`() {
+    fun sharedSettingsViewModel_handleFile_handleError() {
         val uri: Uri = mock()
 
         viewModel.handleFile(uri)
     }
 
     @Test(expected = Test.None::class)
-    fun `checkConnection with valid ManualProxy settings`() {
+    fun sharedSettingsViewModel_checkConnection_withInvalidManualProxySettings() {
         dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
         val manualProxySettings = ManualProxy("proxyHost", 8080, "proxyUser", "proxyPass")
         viewModel.checkConnection(manualProxySettings)
@@ -291,7 +291,7 @@ class SharedSettingsViewModelTest {
     }
 
     @Test(expected = Test.None::class)
-    fun `checkConnection with valid No Proxy settings`() {
+    fun sharedSettingsViewModel_checkConnection_withValidNoProxySettings() {
         dataStore.setProxySetting(ProxySetting.NO_PROXY)
         val manualProxySettings = ManualProxy("", 80, "", "")
         viewModel.saveProxySettings(true, manualProxySettings)
