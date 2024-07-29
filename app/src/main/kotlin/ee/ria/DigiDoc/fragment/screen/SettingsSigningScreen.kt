@@ -164,6 +164,7 @@ fun SettingsSigningScreen(
                         settingsSivaServiceUrl = it
                         setSettingsSivaUrl(it.text)
                     },
+                    settingsSivaServiceUrl = settingsSivaServiceUrl,
                 )
             }
         }
