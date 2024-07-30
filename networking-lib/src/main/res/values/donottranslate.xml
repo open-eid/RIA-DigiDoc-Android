@@ -2,6 +2,7 @@
 <resources>
     <string name="main_diagnostics_logging_key">main_diagnostics_logging</string>
     <string name="main_diagnostics_logging_running_key">main_diagnostics_logging_running</string>
+    <string name="main_settings_tsa_url_key">mainSettingsTSAUrl</string>>
     <string name="main_settings_tsa_cert_key">main_settings_tsa_cert</string>
     <string name="main_settings_siva_url_key">main_settings_siva_url</string>
     <string name="main_settings_siva_cert_key">main_settings_siva_cert</string>
@@ -11,5 +12,5 @@
     <string name="main_settings_proxy_username_key">main_settings_proxy_username</string>
     <string name="main_settings_proxy_password_key">main_settings_proxy_password</string>
     <string name="digidoc_version_key">digidocVersion</string>
-
+    <string name="main_settings_siva_setting_key">mainSettingsSivaSetting</string>
 </resources>

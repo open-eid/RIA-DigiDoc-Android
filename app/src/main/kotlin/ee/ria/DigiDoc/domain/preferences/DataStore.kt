@@ -11,7 +11,9 @@ import ee.ria.DigiDoc.common.Constant.KEY_LOCALE
 import ee.ria.DigiDoc.common.preferences.EncryptedPreferences
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
+import ee.ria.DigiDoc.network.siva.SivaSetting
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.DigiDoc.utilsLib.toast.ToastUtil
 import ee.ria.libdigidocpp.digidoc
@@ -22,7 +24,7 @@ import javax.inject.Inject
 
 class DataStore
     @Inject
-    constructor(context: Context) {
+    constructor(private var context: Context) {
         private val logTag = javaClass.simpleName
 
         private var preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
@@ -125,12 +127,16 @@ class DataStore
         }
 
         fun getSettingsTSAUrl(): String {
-            return preferences.getString(resources.getString(R.string.main_settings_tsa_url_key), "") ?: ""
+            return preferences.getString(
+                resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_tsa_url_key),
+                "",
+            )
+                ?: ""
         }
 
         fun setSettingsTSAUrl(tsaUrl: String) {
             val editor = preferences.edit()
-            editor.putString(resources.getString(R.string.main_settings_tsa_url_key), tsaUrl)
+            editor.putString(resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_tsa_url_key), tsaUrl)
             editor.apply()
         }
 
@@ -190,10 +196,33 @@ class DataStore
                 ?: ""
         }
 
-        fun setSettingsSivaCertName(cert: String) {
+        fun setSettingsSivaCertName(cert: String?) {
             val editor = preferences.edit()
             editor.putString(resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_siva_cert_key), cert)
             editor.apply()
+        }
+
+        fun setSivaSetting(sivaSetting: SivaSetting) {
+            val editor = preferences.edit()
+            editor.putString(
+                resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_siva_setting_key),
+                sivaSetting.name,
+            )
+            editor.apply()
+        }
+
+        fun getSivaSetting(): SivaSetting {
+            val sivaSetting =
+                preferences.getString(
+                    resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_siva_setting_key),
+                    SivaSetting.DEFAULT.name,
+                )
+            try {
+                return sivaSetting?.let { SivaSetting.valueOf(it) } ?: SivaSetting.DEFAULT
+            } catch (iae: java.lang.IllegalArgumentException) {
+                debugLog(logTag, "Unable to get SiVa setting value", iae)
+                return SivaSetting.DEFAULT
+            }
         }
 
         fun getSettingsAskRoleAndAddress(): Boolean {
@@ -210,6 +239,33 @@ class DataStore
                 isRoleAskingEnabled,
             )
             editor.apply()
+        }
+
+        fun setTSACertName(cert: String?) {
+            val editor = preferences.edit()
+            editor.putString(resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_tsa_cert_key), cert)
+            editor.apply()
+        }
+
+        fun getTSACertName(): String {
+            return preferences.getString(
+                resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_tsa_cert_key),
+                "",
+            )
+                ?: ""
+        }
+
+        fun setIsTsaCertificateViewVisible(isVisible: Boolean) {
+            val editor = preferences.edit()
+            editor.putBoolean(resources.getString(R.string.main_settings_tsa_cert_view), isVisible)
+            editor.apply()
+        }
+
+        fun getIsTsaCertificateViewVisible(): Boolean {
+            return preferences.getBoolean(
+                resources.getString(R.string.main_settings_tsa_cert_view),
+                false,
+            )
         }
 
         fun getSettingsOpenAllFileTypes(): Boolean {
@@ -314,10 +370,7 @@ class DataStore
             ) ?: ""
         }
 
-        fun setProxyPassword(
-            context: Context,
-            password: String,
-        ) {
+        fun setProxyPassword(password: String) {
             val encryptedPreferences: SharedPreferences? = getEncryptedPreferences(context)
             if (encryptedPreferences != null) {
                 val editor = encryptedPreferences.edit()
@@ -330,7 +383,7 @@ class DataStore
             errorLog(logTag, "Unable to set proxy password")
         }
 
-        fun getProxyPassword(context: Context): String {
+        fun getProxyPassword(): String {
             val encryptedPreferences: SharedPreferences? = getEncryptedPreferences(context)
             if (encryptedPreferences != null) {
                 return encryptedPreferences.getString(
@@ -362,12 +415,12 @@ class DataStore
             return digidoc.version()
         }
 
-        fun getManualProxySettings(context: Context): ManualProxy {
+        fun getManualProxySettings(): ManualProxy {
             return ManualProxy(
                 getProxyHost(),
                 getProxyPort(),
                 getProxyUsername(),
-                getProxyPassword(context),
+                getProxyPassword(),
             )
         }
 

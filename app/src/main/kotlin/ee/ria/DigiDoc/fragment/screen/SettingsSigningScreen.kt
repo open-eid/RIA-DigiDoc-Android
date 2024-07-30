@@ -2,9 +2,10 @@
 
 package ee.ria.DigiDoc.fragment.screen
 
-import android.content.Context
 import android.content.res.Configuration
 import android.text.TextUtils
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -16,24 +17,23 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.configuration.domain.model.ConfigurationViewModel
-import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
+import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
+import ee.ria.DigiDoc.network.siva.SivaSetting
 import ee.ria.DigiDoc.ui.component.settings.SettingsItem
 import ee.ria.DigiDoc.ui.component.settings.SettingsProxyCategoryDialog
 import ee.ria.DigiDoc.ui.component.settings.SettingsSivaCategoryDialog
@@ -44,32 +44,80 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Constant.Defaults.DEFAULT_TSA_URL_VALUE
 import ee.ria.DigiDoc.utils.Constant.Defaults.DEFAULT_UUID_VALUE
+import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsSigningScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    getIsRoleAskingEnabled: () -> Boolean = { false },
-    setIsRoleAskingEnabled: (Boolean) -> Unit = {},
-    getSettingsUUID: () -> String = { "" },
-    setSettingsUUID: (String) -> Unit = {},
-    getSettingsTSAUrl: () -> String = { "" },
-    setSettingsTSAUrl: (String) -> Unit = {},
-    getProxySetting: () -> ProxySetting = { ProxySetting.NO_PROXY },
-    setProxySetting: (ProxySetting) -> Unit = {},
-    getProxyHost: () -> String = { "" },
-    setProxyHost: (String) -> Unit = {},
-    getProxyPort: () -> Int = { 80 },
-    setProxyPort: (Int) -> Unit = {},
-    getProxyUsername: () -> String = { "" },
-    setProxyUsername: (String) -> Unit = {},
-    getProxyPassword: (context: Context) -> String = { "" },
-    setProxyPassword: (context: Context, password: String) -> Unit = { _: Context, _: String -> },
-    configuration: LiveData<ConfigurationProvider>,
+    sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
+    sharedCertificateViewModel: SharedCertificateViewModel,
 ) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val context = LocalContext.current
+    val configuration by sharedSettingsViewModel.updatedConfiguration.asFlow().collectAsState(
+        null,
+    )
+
+    val getIsRoleAskingEnabled = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
+    val setIsRoleAskingEnabled = sharedSettingsViewModel.dataStore::setSettingsAskRoleAndAddress
+    val getSettingsUUID = sharedSettingsViewModel.dataStore::getSettingsUUID
+    val setSettingsUUID = sharedSettingsViewModel.dataStore::setSettingsUUID
+    val getSettingsTSAUrl = sharedSettingsViewModel.dataStore::getSettingsTSAUrl
+    val setSettingsTSAUrl = sharedSettingsViewModel.dataStore::setSettingsTSAUrl
+    val getProxySetting = sharedSettingsViewModel.dataStore::getProxySetting
+    val setProxySetting = sharedSettingsViewModel.dataStore::setProxySetting
+    val getProxyHost = sharedSettingsViewModel.dataStore::getProxyHost
+    val setProxyHost = sharedSettingsViewModel.dataStore::setProxyHost
+    val getProxyPort = sharedSettingsViewModel.dataStore::getProxyPort
+    val setProxyPort = sharedSettingsViewModel.dataStore::setProxyPort
+    val getProxyUsername = sharedSettingsViewModel.dataStore::getProxyUsername
+    val setProxyUsername = sharedSettingsViewModel.dataStore::setProxyUsername
+    val getProxyPassword = sharedSettingsViewModel.dataStore::getProxyPassword
+    val setProxyPassword = sharedSettingsViewModel.dataStore::setProxyPassword
+
+    val getSettingsSivaUrl = sharedSettingsViewModel.dataStore::getSettingsSivaUrl
+    val getSivaSetting = sharedSettingsViewModel.dataStore::getSivaSetting
+    val setSettingsSivaUrl = sharedSettingsViewModel.dataStore::setSettingsSivaUrl
+    val setSivaSetting = sharedSettingsViewModel.dataStore::setSivaSetting
+    var settingsSivaServiceUrl by remember { mutableStateOf(TextFieldValue(text = getSettingsSivaUrl())) }
+    sharedSettingsViewModel.updateData(settingsSivaServiceUrl.text)
+    val issuedTo by sharedSettingsViewModel.issuedTo.asFlow().collectAsState(
+        "",
+    )
+    val validTo by sharedSettingsViewModel.validTo.asFlow().collectAsState(
+        "",
+    )
+
+    val sivaCertificate by sharedSettingsViewModel.sivaCertificate.asFlow().collectAsState(
+        null,
+    )
+
+    val filePicker =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent(),
+            onResult = { uri ->
+                if (uri == null) {
+                    navController.popBackStack()
+                    return@rememberLauncherForActivityResult
+                }
+                CoroutineScope(Dispatchers.IO).launch {
+                    sharedSettingsViewModel.handleFile(uri)
+                    withContext(Main) {
+                        sharedSettingsViewModel.updateData(settingsSivaServiceUrl.text)
+                    }
+                }
+            },
+        )
+
+    val settingsSivaServiceChoice = remember { mutableStateOf(getSivaSetting().name) }
+
     val openSettingsSivaCategoryDialog = remember { mutableStateOf(false) }
     val dismissSettingsSivaCategoryDialog = {
         openSettingsSivaCategoryDialog.value = false
@@ -87,20 +135,58 @@ fun SettingsSigningScreen(
                         .padding(itemSpacingPadding),
             ) {
                 SettingsSivaCategoryDialog(
+                    sivaSettingSelected = settingsSivaServiceChoice.value,
+                    issuedTo = issuedTo ?: "",
+                    validTo = validTo ?: "",
                     onClickBack = dismissSettingsSivaCategoryDialog,
+                    onClickSivaSettingDefault = {
+                        settingsSivaServiceChoice.value = SivaSetting.DEFAULT.name
+                        setSivaSetting(SivaSetting.DEFAULT)
+                    },
+                    onClickSivaSettingManual = {
+                        settingsSivaServiceChoice.value = SivaSetting.MANUAL.name
+                        setSivaSetting(SivaSetting.MANUAL)
+                    },
+                    onAddCertificateClick = {
+                        filePicker.launch("*/*")
+                    },
+                    onShowCertificateClick = {
+                        sivaCertificate?.let {
+                            sharedCertificateViewModel.setCertificate(
+                                it,
+                            )
+                            navController.navigate(
+                                Route.CertificateDetail.route,
+                            )
+                        }
+                    },
+                    onSettingsSivaUrlValueChanged = {
+                        settingsSivaServiceUrl = it
+                        setSettingsSivaUrl(it.text)
+                    },
+                    settingsSivaServiceUrl = settingsSivaServiceUrl,
                 )
             }
         }
     }
     val openSettingsProxyCategoryDialog = remember { mutableStateOf(false) }
-    val dismissSettingsProxyCategoryDialog = {
-        openSettingsProxyCategoryDialog.value = false
-    }
     val settingsProxyChoice = remember { mutableStateOf(getProxySetting().name) }
     var settingsProxyHost by remember { mutableStateOf(TextFieldValue(text = getProxyHost())) }
     var settingsProxyPort by remember { mutableStateOf(TextFieldValue(text = getProxyPort().toString())) }
     var settingsProxyUsername by remember { mutableStateOf(TextFieldValue(text = getProxyUsername())) }
-    var settingsProxyPassword by remember { mutableStateOf(TextFieldValue(text = getProxyPassword(context))) }
+    var settingsProxyPassword by remember { mutableStateOf(TextFieldValue(text = getProxyPassword())) }
+    val dismissSettingsProxyCategoryDialog = {
+        sharedSettingsViewModel.saveProxySettings(
+            true,
+            ManualProxy(
+                host = settingsProxyHost.text,
+                port = settingsProxyPort.text.toInt(),
+                username = settingsProxyUsername.text,
+                password = settingsProxyPassword.text,
+            ),
+        )
+        openSettingsProxyCategoryDialog.value = false
+    }
     if (openSettingsProxyCategoryDialog.value) {
         BasicAlertDialog(
             onDismissRequest = dismissSettingsProxyCategoryDialog,
@@ -151,7 +237,17 @@ fun SettingsSigningScreen(
                     proxyPasswordValue = settingsProxyPassword,
                     onProxyPasswordValueChange = {
                         settingsProxyPassword = it
-                        setProxyPassword(context, it.text)
+                        setProxyPassword(it.text)
+                    },
+                    checkConnectionClick = {
+                        sharedSettingsViewModel.checkConnection(
+                            ManualProxy(
+                                host = settingsProxyHost.text,
+                                port = settingsProxyPort.text.toInt(),
+                                username = settingsProxyUsername.text,
+                                password = settingsProxyPassword.text,
+                            ),
+                        )
                     },
                 )
             }
@@ -168,11 +264,8 @@ fun SettingsSigningScreen(
             TextFieldValue(text = getSettingsUUID()),
         )
     }
-    var defaultTsaUrlValue = DEFAULT_TSA_URL_VALUE
+    val defaultTsaUrlValue = configuration?.tsaUrl ?: DEFAULT_TSA_URL_VALUE
     var tsaUrlValue = defaultTsaUrlValue
-    configuration.observe(lifecycleOwner) { configurationProvider ->
-        configurationProvider.tsaUrl.let { defaultTsaUrlValue = it }
-    }
     if (!TextUtils.isEmpty(getSettingsTSAUrl())) {
         tsaUrlValue = getSettingsTSAUrl()
     }
@@ -195,7 +288,10 @@ fun SettingsSigningScreen(
         },
     ) { innerPadding ->
         Column(
-            modifier = modifier.padding(innerPadding).verticalScroll(rememberScrollState()),
+            modifier =
+                modifier
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState()),
         ) {
             var checkedAskRoleAndAddress by remember { mutableStateOf(getIsRoleAskingEnabled()) }
             SettingsSwitchItem(
@@ -272,12 +368,10 @@ fun SettingsSigningScreen(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun SettingsSigningScreenPreview() {
-    val navController = rememberNavController()
-    val configurationViewModel: ConfigurationViewModel = hiltViewModel()
     RIADigiDocTheme {
         SettingsSigningScreen(
-            navController = navController,
-            configuration = configurationViewModel.configuration,
+            navController = rememberNavController(),
+            sharedCertificateViewModel = hiltViewModel(),
         )
     }
 }

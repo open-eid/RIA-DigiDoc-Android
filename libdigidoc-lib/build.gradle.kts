@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.bouncy.castle)
     implementation(libs.google.dagger.hilt.android)
+    implementation(libs.preferencex)
     kapt(libs.google.dagger.hilt.android.compile)
     implementation(libs.androidx.hilt)
 

@@ -282,23 +282,23 @@ class DataStoreTest {
 
     @Test
     fun testGetProxyPassword() {
-        val result = dataStore.getProxyPassword(context)
+        val result = dataStore.getProxyPassword()
 
         assertEquals("", result)
     }
 
     @Test
     fun testSetProxyPassword() {
-        dataStore.setProxyPassword(context, "testpwd")
+        dataStore.setProxyPassword("testpwd")
 
-        val result = dataStore.getProxyPassword(context)
+        val result = dataStore.getProxyPassword()
 
         assertEquals("testpwd", result)
     }
 
     @Test
     fun testGetManualProxySettings() {
-        val result = dataStore.getManualProxySettings(context)
+        val result = dataStore.getManualProxySettings()
 
         assertEquals("", result.host)
         assertEquals(80, result.port)
