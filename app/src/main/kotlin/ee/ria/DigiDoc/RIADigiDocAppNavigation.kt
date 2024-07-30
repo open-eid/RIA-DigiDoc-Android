@@ -104,6 +104,7 @@ fun RIADigiDocAppScreen() {
         composable(route = Route.SettingsSigning.route) {
             SettingsSigningFragment(
                 navController = navController,
+                sharedCertificateViewModel = sharedCertificateViewModel,
             )
         }
         composable(route = Route.FileChoosing.route) {

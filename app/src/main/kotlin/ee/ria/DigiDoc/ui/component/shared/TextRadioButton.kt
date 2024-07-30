@@ -3,6 +3,7 @@
 package ee.ria.DigiDoc.ui.component.shared
 
 import android.content.res.Configuration
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -63,7 +64,8 @@ fun TextRadioButton(
                         start.linkTo(radioButton.end)
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
-                    },
+                    }
+                    .clickable { onClick() },
             text = title,
         )
     }

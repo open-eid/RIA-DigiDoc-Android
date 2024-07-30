@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.ui.component.signing
 
 import android.content.res.Configuration
 import android.widget.Toast
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,7 +30,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -65,6 +68,8 @@ fun SmartIdView(
 ) {
     val context = LocalContext.current
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
+
+    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(smartIdViewModel.status) {
         smartIdViewModel.status.asFlow().collect { status ->
@@ -123,7 +128,14 @@ fun SmartIdView(
         }
     }
     Column(
-        modifier = modifier.padding(horizontal = screenViewLargePadding),
+        modifier =
+            modifier
+                .padding(horizontal = screenViewLargePadding)
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        focusManager.clearFocus()
+                    })
+                },
     ) {
         Text(
             text = stringResource(id = R.string.signature_update_smart_id_message),

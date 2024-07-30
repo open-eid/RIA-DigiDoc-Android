@@ -282,6 +282,7 @@ class DataStoreTest {
     }
 
     @Test
+
     fun dataStore_getIsLogFileGenerationEnabled_success() {
         val result = dataStore.getIsLogFileGenerationEnabled()
 
@@ -372,23 +373,23 @@ class DataStoreTest {
 
     @Test
     fun dataStore_getProxyPassword_success() {
-        val result = dataStore.getProxyPassword(context)
+        val result = dataStore.getProxyPassword()
 
         assertEquals("", result)
     }
 
     @Test
     fun dataStore_setProxyPassword_success() {
-        dataStore.setProxyPassword(context, "testpwd")
+        dataStore.setProxyPassword("testpwd")
 
-        val result = dataStore.getProxyPassword(context)
+        val result = dataStore.getProxyPassword()
 
         assertEquals("testpwd", result)
     }
 
     @Test
     fun dataStore_getManualProxySettings_success() {
-        val result = dataStore.getManualProxySettings(context)
+        val result = dataStore.getManualProxySettings()
 
         assertEquals("", result.host)
         assertEquals(80, result.port)

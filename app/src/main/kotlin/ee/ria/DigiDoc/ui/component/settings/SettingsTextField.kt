@@ -71,6 +71,7 @@ fun SettingsTextField(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
         )
         TextCheckBox(
+            modifier = modifier,
             checked = useDefaultChecked,
             onCheckedChange = useDefaultCheckedChange,
             title = stringResource(id = R.string.main_settings_tsa_url_use_default),
