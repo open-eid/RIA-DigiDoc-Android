@@ -31,7 +31,6 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.DigiDoc.utilsLib.signing.CertificateUtil
 import ee.ria.DigiDoc.utilsLib.toast.ToastUtil.showMessage
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -245,7 +244,7 @@ class SharedSettingsViewModel
                 val initialStream: InputStream? = contentResolver.openInputStream(uri)
                 val documentFile = DocumentFile.fromSingleUri(context, uri)
                 if (documentFile != null) {
-                    val sivaCertFolder = File(context.getFilesDir(), DIR_SIVA_CERT)
+                    val sivaCertFolder = File(context.filesDir, DIR_SIVA_CERT)
                     if (!sivaCertFolder.exists()) {
                         val isFolderCreated = sivaCertFolder.mkdirs()
                         debugLog(
@@ -293,7 +292,7 @@ class SharedSettingsViewModel
                 throw IllegalStateException("Failed to construct HTTP client", e)
             }
 
-            CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(IO).launch {
                 val call = httpClient.newCall(request)
                 try {
                     val response = call.execute()

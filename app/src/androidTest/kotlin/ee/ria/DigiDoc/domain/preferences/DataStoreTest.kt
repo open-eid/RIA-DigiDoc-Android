@@ -282,7 +282,6 @@ class DataStoreTest {
     }
 
     @Test
-
     fun dataStore_getIsLogFileGenerationEnabled_success() {
         val result = dataStore.getIsLogFileGenerationEnabled()
 
