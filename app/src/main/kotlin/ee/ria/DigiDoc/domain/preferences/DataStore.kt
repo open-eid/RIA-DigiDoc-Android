@@ -127,12 +127,16 @@ class DataStore
         }
 
         fun getSettingsTSAUrl(): String {
-            return preferences.getString(resources.getString(R.string.main_settings_tsa_url_key), "") ?: ""
+            return preferences.getString(
+                resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_tsa_url_key),
+                "",
+            )
+                ?: ""
         }
 
         fun setSettingsTSAUrl(tsaUrl: String) {
             val editor = preferences.edit()
-            editor.putString(resources.getString(R.string.main_settings_tsa_url_key), tsaUrl)
+            editor.putString(resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_tsa_url_key), tsaUrl)
             editor.apply()
         }
 
