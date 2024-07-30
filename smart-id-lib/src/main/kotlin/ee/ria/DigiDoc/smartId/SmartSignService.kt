@@ -64,7 +64,7 @@ interface SmartSignService {
         roleDataRequest: RoleData?,
         proxySetting: ProxySetting?,
         manualProxySettings: ManualProxy,
-        certificateCertBundle: ArrayList<String>?,
+        certificateBundle: ArrayList<String>?,
         accessTokenPath: String?,
         accessTokenPass: String?,
     )
@@ -140,7 +140,7 @@ class SmartSignServiceImpl
             roleDataRequest: RoleData?,
             proxySetting: ProxySetting?,
             manualProxySettings: ManualProxy,
-            certificateCertBundle: ArrayList<String>?,
+            certificateBundle: ArrayList<String>?,
             accessTokenPath: String?,
             accessTokenPass: String?,
         ) {
@@ -151,13 +151,16 @@ class SmartSignServiceImpl
             LoggingUtil.debugLog(logTag, "Handling smart sign service")
             if (request != null) {
                 try {
-                    if (certificateCertBundle != null) {
+                    if (certificateBundle != null) {
                         LoggingUtil.debugLog(logTag, request.toString())
 
                         sidRestServiceClient =
                             serviceGenerator.createService(
-                                request.url + "/", certificateCertBundle,
-                                proxySetting, manualProxySettings,
+                                context,
+                                request.url + "/",
+                                certificateBundle,
+                                proxySetting,
+                                manualProxySettings,
                             )
                     }
                 } catch (e: CertificateException) {

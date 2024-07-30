@@ -2,11 +2,13 @@
 
 package ee.ria.DigiDoc.network.sid.rest
 
+import android.content.Context
 import com.takisoft.preferencex.BuildConfig
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxyConfig
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.network.proxy.ProxyUtil
+import ee.ria.DigiDoc.network.utils.isLoggingEnabled
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.DigiDoc.utilsLib.signing.CertificateUtil
@@ -33,6 +35,7 @@ import java.util.concurrent.TimeUnit
 interface ServiceGenerator {
     @Throws(CertificateException::class, NoSuchAlgorithmException::class)
     fun createService(
+        context: Context,
         sidSignServiceUrl: String?,
         certBundle: ArrayList<String>,
         proxySetting: ProxySetting?,
@@ -46,6 +49,7 @@ class ServiceGeneratorImpl : ServiceGenerator {
 
     @Throws(CertificateException::class, NoSuchAlgorithmException::class)
     override fun createService(
+        context: Context,
         sidSignServiceUrl: String?,
         certBundle: ArrayList<String>,
         proxySetting: ProxySetting?,
@@ -58,6 +62,7 @@ class ServiceGeneratorImpl : ServiceGenerator {
             .addConverterFactory(GsonConverterFactory.create())
             .client(
                 buildHttpClient(
+                    context,
                     sidSignServiceUrl,
                     certBundle,
                     proxySetting,
@@ -70,6 +75,7 @@ class ServiceGeneratorImpl : ServiceGenerator {
 
     @Throws(CertificateException::class, NoSuchAlgorithmException::class)
     private fun buildHttpClient(
+        context: Context,
         sidSignServiceUrl: String?,
         certBundle: ArrayList<String>,
         proxySetting: ProxySetting?,
@@ -91,12 +97,15 @@ class ServiceGeneratorImpl : ServiceGenerator {
                 .pingInterval(3, TimeUnit.SECONDS)
                 .certificatePinner(trustedCertificates(sidSignServiceUrl, certBundle))
                 .cache(null)
-        addLoggingInterceptor(httpClientBuilder)
+        addLoggingInterceptor(httpClientBuilder, context)
         return httpClientBuilder.build()
     }
 
-    private fun addLoggingInterceptor(httpClientBuilder: OkHttpClient.Builder) {
-        if (BuildConfig.DEBUG) { // TODO: isLoggingEnabled(context) should be used here
+    private fun addLoggingInterceptor(
+        httpClientBuilder: OkHttpClient.Builder,
+        context: Context,
+    ) {
+        if (isLoggingEnabled(context) || BuildConfig.DEBUG) {
             debugLog(logTag, "Adding logging interceptor to HTTP client")
             loggingInterceptor = HttpLoggingInterceptor()
             loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY

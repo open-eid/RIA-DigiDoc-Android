@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.mobileId
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
@@ -66,11 +67,12 @@ interface MobileSignService {
     fun resetValues()
 
     suspend fun processMobileIdRequest(
+        context: Context,
         request: MobileCreateSignatureRequest?,
         roleDataRequest: RoleData?,
         proxySetting: ProxySetting?,
         manualProxySettings: ManualProxy,
-        certificateCertBundle: ArrayList<String>?,
+        certificateBundle: ArrayList<String>?,
         accessTokenPath: String?,
         accessTokenPass: String?,
     )
@@ -140,11 +142,12 @@ class MobileSignServiceImpl
         }
 
         override suspend fun processMobileIdRequest(
+            context: Context,
             request: MobileCreateSignatureRequest?,
             roleDataRequest: RoleData?,
             proxySetting: ProxySetting?,
             manualProxySettings: ManualProxy,
-            certificateCertBundle: ArrayList<String>?,
+            certificateBundle: ArrayList<String>?,
             accessTokenPath: String?,
             accessTokenPass: String?,
         ) {
@@ -190,11 +193,16 @@ class MobileSignServiceImpl
                 }
 
                 try {
-                    if (certificateCertBundle != null) {
+                    if (certificateBundle != null) {
                         midRestServiceClient =
                             serviceGenerator.createService(
-                                restSSLConfig, request.url, certificateCertBundle, trustManagers,
-                                proxySetting, manualProxySettings,
+                                context,
+                                restSSLConfig,
+                                request.url,
+                                certificateBundle,
+                                trustManagers,
+                                proxySetting,
+                                manualProxySettings,
                             )
                     } else {
                         val errorString = "Certificate cert bundle is null"

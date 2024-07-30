@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.network.mid.rest
 
+import android.content.Context
 import com.takisoft.preferencex.BuildConfig
 import ee.ria.DigiDoc.common.Constant.MobileIdConstants.CERT_PEM_FOOTER
 import ee.ria.DigiDoc.common.Constant.MobileIdConstants.CERT_PEM_HEADER
@@ -9,6 +10,7 @@ import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxyConfig
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.network.proxy.ProxyUtil
+import ee.ria.DigiDoc.network.utils.isLoggingEnabled
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.DigiDoc.utilsLib.signing.CertificateUtil
@@ -38,6 +40,7 @@ import javax.net.ssl.X509TrustManager
 interface ServiceGenerator {
     @Throws(CertificateException::class, NoSuchAlgorithmException::class)
     fun createService(
+        context: Context,
         sslContext: SSLContext?,
         midSignServiceUrl: String?,
         certBundle: ArrayList<String>,
@@ -53,6 +56,7 @@ class ServiceGeneratorImpl : ServiceGenerator {
 
     @Throws(CertificateException::class, NoSuchAlgorithmException::class)
     override fun createService(
+        context: Context,
         sslContext: SSLContext?,
         midSignServiceUrl: String?,
         certBundle: ArrayList<String>,
@@ -67,6 +71,7 @@ class ServiceGeneratorImpl : ServiceGenerator {
             .addConverterFactory(GsonConverterFactory.create())
             .client(
                 buildHttpClient(
+                    context,
                     sslContext,
                     midSignServiceUrl,
                     certBundle,
@@ -81,6 +86,7 @@ class ServiceGeneratorImpl : ServiceGenerator {
 
     @Throws(CertificateException::class, NoSuchAlgorithmException::class)
     private fun buildHttpClient(
+        context: Context,
         sslContext: SSLContext?,
         midSignServiceUrl: String?,
         certBundle: ArrayList<String>,
@@ -103,7 +109,7 @@ class ServiceGeneratorImpl : ServiceGenerator {
                 .writeTimeout(120, TimeUnit.SECONDS)
                 .pingInterval(3, TimeUnit.SECONDS)
                 .certificatePinner(trustedCertificates(midSignServiceUrl, certBundle))
-        addLoggingInterceptor(httpClientBuilder)
+        addLoggingInterceptor(httpClientBuilder, context)
         if (sslContext != null) {
             try {
                 httpClientBuilder.sslSocketFactory(
@@ -117,8 +123,11 @@ class ServiceGeneratorImpl : ServiceGenerator {
         return httpClientBuilder.build()
     }
 
-    private fun addLoggingInterceptor(httpClientBuilder: OkHttpClient.Builder) {
-        if (BuildConfig.DEBUG) { // TODO: isLoggingEnabled(context) should be used here
+    private fun addLoggingInterceptor(
+        httpClientBuilder: OkHttpClient.Builder,
+        context: Context,
+    ) {
+        if (isLoggingEnabled(context) || BuildConfig.DEBUG) {
             debugLog(logTag, "Adding logging interceptor to HTTP client")
             loggingInterceptor = HttpLoggingInterceptor()
             loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
