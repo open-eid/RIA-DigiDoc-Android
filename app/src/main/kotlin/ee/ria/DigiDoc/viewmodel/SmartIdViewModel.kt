@@ -325,14 +325,14 @@ class SmartIdViewModel
             }
             smartSignService.resetValues()
             smartSignService.processSmartIdRequest(
-                context,
-                request,
-                roleData,
-                proxySetting,
-                manualProxySettings,
-                certBundle,
-                Objects.requireNonNull(Conf.instance()).PKCS12Cert(),
-                Objects.requireNonNull(Conf.instance()).PKCS12Pass(),
+                context = context,
+                request = request,
+                roleDataRequest = roleData,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxySettings,
+                certificateBundle = certBundle,
+                accessTokenPath = Objects.requireNonNull(Conf.instance()).PKCS12Cert(),
+                accessTokenPass = Objects.requireNonNull(Conf.instance()).PKCS12Pass(),
             )
 
             withContext(Dispatchers.Main) {

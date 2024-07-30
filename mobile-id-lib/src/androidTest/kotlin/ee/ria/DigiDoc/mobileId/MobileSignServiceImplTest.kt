@@ -179,11 +179,12 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_certificateCertBundleIsNull() =
         runTest {
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = null,
+                certificateBundle = null,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -195,6 +196,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_createServiceThrowsCertificateException() =
         runTest {
             doThrow(CertificateException()).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -204,11 +206,12 @@ class MobileSignServiceImplTest {
             )
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -220,6 +223,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_createServiceThrowsNoSuchAlgorithmException() =
         runTest {
             doThrow(NoSuchAlgorithmException()).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -229,11 +233,12 @@ class MobileSignServiceImplTest {
             )
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -247,6 +252,7 @@ class MobileSignServiceImplTest {
             request.phoneNumber = null
 
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -256,11 +262,12 @@ class MobileSignServiceImplTest {
             )
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -276,6 +283,7 @@ class MobileSignServiceImplTest {
             request.relyingPartyUUID = "zzz"
 
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -285,11 +293,12 @@ class MobileSignServiceImplTest {
             )
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -303,6 +312,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_success() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -373,11 +383,12 @@ class MobileSignServiceImplTest {
             whenever(containerWrapper.container).thenReturn(SignedContainer.rawContainer())
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -401,6 +412,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_timeout() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -471,11 +483,12 @@ class MobileSignServiceImplTest {
             whenever(containerWrapper.container).thenReturn(SignedContainer.rawContainer())
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -486,6 +499,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_getCertificateResponseEmptyBody() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -506,11 +520,12 @@ class MobileSignServiceImplTest {
                 )
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = null,
                 accessTokenPass = null,
             )
@@ -522,6 +537,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_catchUnknownHostException() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -539,11 +555,12 @@ class MobileSignServiceImplTest {
                 .whenever(call).execute()
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = null,
                 accessTokenPass = null,
             )
@@ -555,6 +572,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_catchSSLPeerUnverifiedException() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -572,11 +590,12 @@ class MobileSignServiceImplTest {
                 .whenever(call).execute()
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = null,
                 accessTokenPass = null,
             )
@@ -588,6 +607,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_catchCertificateException() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -617,11 +637,12 @@ class MobileSignServiceImplTest {
             ).thenThrow(CertificateException("test error message"))
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = null,
                 accessTokenPass = null,
             )
@@ -633,6 +654,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_catchSigningCancelledException() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -643,11 +665,12 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.setCancelled(true)
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = null,
                 accessTokenPass = null,
             )
@@ -659,6 +682,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_catchTooManyRequestsException() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -677,11 +701,12 @@ class MobileSignServiceImplTest {
                 .whenever(call).execute()
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = null,
                 accessTokenPass = null,
             )
@@ -693,6 +718,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_catchOCSPInvalidTimeSlotException() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -711,11 +737,12 @@ class MobileSignServiceImplTest {
                 .whenever(call).execute()
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = null,
                 accessTokenPass = null,
             )
@@ -727,6 +754,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_catchCertificateRevokedException() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -745,11 +773,12 @@ class MobileSignServiceImplTest {
                 .whenever(call).execute()
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = null,
                 accessTokenPass = null,
             )
@@ -761,6 +790,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_catchNoResponseException() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -779,11 +809,12 @@ class MobileSignServiceImplTest {
                 .whenever(call).execute()
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = null,
                 accessTokenPass = null,
             )
@@ -795,6 +826,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_catchSSLErrorException() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -813,11 +845,12 @@ class MobileSignServiceImplTest {
                 .whenever(call).execute()
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = null,
                 accessTokenPass = null,
             )
@@ -829,6 +862,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_catchTechnicalErrorException() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -847,11 +881,12 @@ class MobileSignServiceImplTest {
                 .whenever(call).execute()
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = null,
                 accessTokenPass = null,
             )
@@ -863,6 +898,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_getCertificateResponseError() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -885,11 +921,12 @@ class MobileSignServiceImplTest {
                 )
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = null,
                 accessTokenPass = null,
             )
@@ -901,6 +938,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_getMobileCreateSignatureSessionStatusResponseError() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -969,11 +1007,12 @@ class MobileSignServiceImplTest {
             )
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -985,6 +1024,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_getMobileCreateSignatureSessionStatusReturnTECHNICAL_ERROR() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -1043,11 +1083,12 @@ class MobileSignServiceImplTest {
             )
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -1059,6 +1100,7 @@ class MobileSignServiceImplTest {
     fun getMobileCreateSignatureSessionStatusReturnEXCEEDED_UNSUCCESSFUL_REQUESTS() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -1117,11 +1159,12 @@ class MobileSignServiceImplTest {
             )
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -1136,6 +1179,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_getMobileCreateSignatureSessionStatusReturnINVALID_ACCESS_RIGHTS() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -1194,11 +1238,12 @@ class MobileSignServiceImplTest {
             )
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -1210,6 +1255,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_getMobileCreateSignatureSessionStatusReturnTOO_MANY_REQUESTS() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -1268,11 +1314,12 @@ class MobileSignServiceImplTest {
             )
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -1284,6 +1331,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_getCertificateReturnsTECHNICAL_ERROR() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -1306,11 +1354,12 @@ class MobileSignServiceImplTest {
                 )
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -1322,6 +1371,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_getCertificateReturnsEXCEEDED_UNSUCCESSFUL_REQUESTS() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -1344,11 +1394,12 @@ class MobileSignServiceImplTest {
                 )
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -1363,6 +1414,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_getCertificateReturnsINVALID_ACCESS_RIGHTS() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -1385,11 +1437,12 @@ class MobileSignServiceImplTest {
                 )
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -1401,6 +1454,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_getCertificateReturnsTOO_MANY_REQUESTS() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -1423,11 +1477,12 @@ class MobileSignServiceImplTest {
                 )
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -1439,6 +1494,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_getMobileCreateSessionReturnTECHNICAL_ERROR() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -1479,11 +1535,12 @@ class MobileSignServiceImplTest {
                 )
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -1495,6 +1552,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_getMobileCreateSessionReturnEXCEEDED_UNSUCCESSFUL_REQUESTS() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -1535,11 +1593,12 @@ class MobileSignServiceImplTest {
                 )
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -1554,6 +1613,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_getMobileCreateSessionReturnINVALID_ACCESS_RIGHTS() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -1594,11 +1654,12 @@ class MobileSignServiceImplTest {
                 )
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -1610,6 +1671,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_getMobileCreateSessionReturnTOO_MANY_REQUESTS() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -1650,11 +1712,12 @@ class MobileSignServiceImplTest {
                 )
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -1666,6 +1729,7 @@ class MobileSignServiceImplTest {
     fun mobileSignService_processMobileIdRequest_Base64SignatureIsEmpty() =
         runTest {
             doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sslContext = null,
                 midSignServiceUrl = request.url,
                 certBundle = certBundle,
@@ -1695,11 +1759,12 @@ class MobileSignServiceImplTest {
             ).thenReturn("")
 
             mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )

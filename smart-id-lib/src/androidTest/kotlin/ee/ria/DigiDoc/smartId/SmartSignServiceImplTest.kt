@@ -180,7 +180,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -197,7 +197,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = null,
+                certificateBundle = null,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -210,6 +210,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_createServiceCertificateException() =
         runTest {
             doThrow(CertificateException()).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -222,7 +223,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -234,6 +235,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_createServiceNoSuchAlgorithmException() =
         runTest {
             doThrow(NoSuchAlgorithmException()).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -246,7 +248,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -259,6 +261,7 @@ class SmartSignServiceImplTest {
         runTest {
             request.relyingPartyUUID = "zzz"
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -271,7 +274,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -285,6 +288,7 @@ class SmartSignServiceImplTest {
         runTest {
             val call = mock(Call::class.java)
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -306,7 +310,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -318,6 +322,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_success() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -387,7 +392,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -402,6 +407,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_catchUnknownHostException() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -427,7 +433,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -439,6 +445,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_catchSSLPeerUnverifiedException() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -464,7 +471,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -476,6 +483,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_catchIOException() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -501,7 +509,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -513,6 +521,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_catchCertificateException() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -573,7 +582,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -585,6 +594,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_TOO_MANY_REQUESTSexception() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -607,7 +617,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -619,6 +629,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_OCSP_INVALID_TIME_SLOTexception() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -641,7 +652,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -653,6 +664,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_CERTIFICATE_REVOKEDexception() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -675,7 +687,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -687,6 +699,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_NO_RESPONSEexception() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -709,7 +722,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -721,6 +734,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_INVALID_SSL_HANDSHAKEexception() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -743,7 +757,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -755,6 +769,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_responseTECHNICAL_ERROR() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -781,7 +796,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -793,6 +808,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_responseUNDER_MAINTENANCE() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -819,7 +835,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -831,6 +847,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_responseOLD_API() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -857,7 +874,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -869,6 +886,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_responseNOT_QUALIFIED() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -895,7 +913,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -907,6 +925,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_responseTOO_MANY_REQUESTS() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -933,7 +952,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -945,6 +964,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_responseEXCEEDED_UNSUCCESSFUL_REQUESTS() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -971,7 +991,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -986,6 +1006,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_responseACCOUNT_NOT_FOUND() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -1012,7 +1033,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -1024,6 +1045,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_response401INVALID_ACCESS_RIGHTS() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -1050,7 +1072,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -1062,6 +1084,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_response403INVALID_ACCESS_RIGHTS() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -1088,7 +1111,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -1100,6 +1123,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_timeout() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -1169,7 +1193,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -1181,6 +1205,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_userRefused() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -1250,7 +1275,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -1262,6 +1287,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_sessionStatusResponseIsNull() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -1313,7 +1339,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -1325,6 +1351,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_sessionIdIsEmpty() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -1351,7 +1378,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -1363,6 +1390,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_sessionResponseIsNull() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -1387,7 +1415,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )
@@ -1400,6 +1428,7 @@ class SmartSignServiceImplTest {
     fun smartSignService_processSmartIdRequest_base64HashIsEmpty() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
                 sidSignServiceUrl = request.url + "/",
                 certBundle = certBundle,
                 proxySetting = proxySetting,
@@ -1460,7 +1489,7 @@ class SmartSignServiceImplTest {
                 roleDataRequest = null,
                 proxySetting = proxySetting,
                 manualProxySettings = manualProxy,
-                certificateCertBundle = certBundle,
+                certificateBundle = certBundle,
                 accessTokenPath = "accessTokenPath",
                 accessTokenPass = "accessTokenPass",
             )

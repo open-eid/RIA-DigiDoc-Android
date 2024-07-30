@@ -182,7 +182,7 @@ class MobileIdViewModelTest {
             verify(
                 mobileIdService,
                 atLeastOnce(),
-            ).processMobileIdRequest(any(), eq(null), any(), any(), any(), any(), any())
+            ).processMobileIdRequest(any(), any(), eq(null), any(), any(), any(), any(), any())
             verify(errorStateObserver, atLeastOnce()).onChanged("Some error occurred")
             verify(signedContainterObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(null)
@@ -232,7 +232,7 @@ class MobileIdViewModelTest {
             verify(
                 mobileIdService,
                 atLeastOnce(),
-            ).processMobileIdRequest(any(), eq(null), any(), any(), any(), any(), any())
+            ).processMobileIdRequest(any(), any(), eq(null), any(), any(), any(), any(), any())
             verify(errorStateObserver, atLeastOnce()).onChanged(null)
             verify(signedContainterObserver, atLeastOnce()).onChanged(any<SignedContainer>())
             verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.OK)
@@ -279,7 +279,7 @@ class MobileIdViewModelTest {
             verify(
                 mobileIdService,
                 atLeastOnce(),
-            ).processMobileIdRequest(any(), eq(null), any(), any(), any(), any(), any())
+            ).processMobileIdRequest(any(), any(), eq(null), any(), any(), any(), any(), any())
             verify(errorStateObserver, atLeastOnce()).onChanged(context.getString(R.string.no_internet_connection))
             verify(signedContainterObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.NO_RESPONSE)
@@ -331,7 +331,7 @@ class MobileIdViewModelTest {
             verify(
                 mobileIdService,
                 atLeastOnce(),
-            ).processMobileIdRequest(any(), eq(null), any(), any(), any(), any(), any())
+            ).processMobileIdRequest(any(), any(), eq(null), any(), any(), any(), any(), any())
             verify(
                 errorStateObserver,
                 atLeastOnce(),
@@ -380,7 +380,7 @@ class MobileIdViewModelTest {
             verify(
                 mobileIdService,
                 atLeastOnce(),
-            ).processMobileIdRequest(any(), eq(null), any(), any(), any(), any(), any())
+            ).processMobileIdRequest(any(), any(), eq(null), any(), any(), any(), any(), any())
             verify(
                 errorStateObserver,
                 atLeastOnce(),
