@@ -156,6 +156,13 @@ class DataStore
             editor.apply()
         }
 
+        fun getIsLogFileGenerationRunning(): Boolean {
+            return preferences.getBoolean(
+                resources.getString(ee.ria.DigiDoc.network.R.string.main_diagnostics_logging_running_key),
+                false,
+            )
+        }
+
         fun setIsLogFileGenerationRunning(isRunning: Boolean) {
             val editor = preferences.edit()
             editor.putBoolean(

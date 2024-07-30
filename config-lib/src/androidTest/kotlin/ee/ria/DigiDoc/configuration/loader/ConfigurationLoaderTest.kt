@@ -142,7 +142,7 @@ class ConfigurationLoaderTest {
 
             val value = configurationLoader.getConfigurationFlow().value
             assertNotNull(value)
-            assertEquals(140, value?.metaInf?.serial)
+            assertEquals(177, value?.metaInf?.serial)
         }
 
     @Test
