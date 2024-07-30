@@ -17,6 +17,7 @@ import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
+import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.mobileId.MobileSignService
 import ee.ria.DigiDoc.mobileId.utils.MobileCreateSignatureRequestHelper
 import ee.ria.DigiDoc.network.mid.dto.MobileCertificateResultType
@@ -217,6 +218,19 @@ class MobileIdViewModel
                                 )
                             } else {
                                 CoroutineScope(Dispatchers.Main).launch {
+                                    val signatureInterface =
+                                        if (SignedContainer.container().getSignatures().isEmpty()) {
+                                            null
+                                        } else {
+                                            SignedContainer.container().getSignatures()
+                                                .last {
+                                                    it.validator.status == ValidatorInterface.Status.Invalid ||
+                                                        it.validator.status == ValidatorInterface.Status.Unknown
+                                                }
+                                        }
+                                    signatureInterface?.let {
+                                        SignedContainer.container().removeSignature(it)
+                                    }
                                     _signedContainer.postValue(SignedContainer.container())
                                 }
                             }

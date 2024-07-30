@@ -108,6 +108,9 @@ class SmartSignServiceImpl
         }
 
         override fun setCancelled(cancelled: Boolean?) {
+            signatureInterface?.let {
+                SignedContainer.container().removeSignature(it)
+            }
             _cancelled.postValue(cancelled)
         }
 

@@ -539,7 +539,12 @@ fun SigningNavigation(
                             },
                             cancelButtonClick = dismissEditContainerNameDialog,
                             okButtonClick = {
-                                signedContainer?.setName("${containerName.text}.$containerExtension")
+                                CoroutineScope(IO).launch {
+                                    signedContainer?.setName(
+                                        context,
+                                        "${containerName.text}.$containerExtension",
+                                    )
+                                }
                                 openEditContainerNameDialog.value = false
                                 AccessibilityUtil.sendAccessibilityEvent(
                                     context,
