@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.ui.component.signing.certificate
 
+import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.focusable
@@ -20,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -33,6 +35,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
+import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
 import ee.ria.DigiDoc.utilsLib.extensions.formatHexString
 import ee.ria.DigiDoc.utilsLib.extensions.hexString
@@ -49,6 +52,9 @@ fun CertificateDetailsView(
     sharedCertificateViewModel: SharedCertificateViewModel,
     certificateDetailViewModel: CertificateDetailViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
+    val activity = (context as Activity)
+    markAsSecure(context, activity.window)
     val certificate = sharedCertificateViewModel.certificate.value
 
     BackHandler {

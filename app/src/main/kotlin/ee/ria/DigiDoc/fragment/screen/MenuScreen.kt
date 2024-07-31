@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.fragment.screen
 
+import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
@@ -28,6 +29,7 @@ import ee.ria.DigiDoc.ui.component.menu.MenuItem
 import ee.ria.DigiDoc.ui.component.menu.ToolbarScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utilsLib.text.TextUtil
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import java.util.Locale
@@ -39,6 +41,8 @@ fun MenuScreen(
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
+    val activity = (context as Activity)
+    markAsSecure(context, activity.window)
     val locale = sharedSettingsViewModel.dataStore.getLocale() ?: Locale.getDefault()
 
     val helpContentDesctiption =

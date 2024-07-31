@@ -49,6 +49,7 @@ import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
 import ee.ria.DigiDoc.utilsLib.toast.ToastUtil.showMessage
 import ee.ria.DigiDoc.viewmodel.DiagnosticsViewModel
@@ -68,6 +69,7 @@ fun DiagnosticsScreen(
 ) {
     val context = LocalContext.current
     val activity = (context as Activity)
+    markAsSecure(context, activity.window)
     val currentConfiguration by
         diagnosticsViewModel.updatedConfiguration.asFlow().collectAsState(
             null,

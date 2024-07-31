@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.fragment.screen
 
+import android.app.Activity
 import android.content.res.Configuration
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +20,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.text
@@ -33,6 +35,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.extensions.notAccessible
+import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 
 @Composable
 fun SignatureScreen(
@@ -41,6 +44,9 @@ fun SignatureScreen(
     onClickToFileChoosingScreen: () -> Unit = {},
     onClickToRecentDocumentsScreen: () -> Unit = {},
 ) {
+    val context = LocalContext.current
+    val activity = (context as Activity)
+    markAsSecure(context, activity.window)
     val buttonFocusRequester = remember { focusRequester }
 
     LaunchedEffect(Unit) {

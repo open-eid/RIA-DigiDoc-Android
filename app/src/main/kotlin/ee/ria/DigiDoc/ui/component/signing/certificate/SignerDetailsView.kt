@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.ui.component.signing.certificate
 
+import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -29,6 +31,7 @@ import ee.ria.DigiDoc.ui.theme.Red800
 import ee.ria.DigiDoc.ui.theme.Yellow50
 import ee.ria.DigiDoc.ui.theme.Yellow800
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utilsLib.extensions.x509Certificate
 import ee.ria.DigiDoc.viewmodel.SignerDetailViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
@@ -42,6 +45,9 @@ fun SignerDetailsView(
     sharedCertificateViewModel: SharedCertificateViewModel,
     signerDetailViewModel: SignerDetailViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
+    val activity = (context as Activity)
+    markAsSecure(context, activity.window)
     val signature = sharedSignatureViewModel.signature.value
     val signatureStatus = signature?.validator?.status
     val diagnosticsInfo = signature?.validator?.diagnostics ?: ""
