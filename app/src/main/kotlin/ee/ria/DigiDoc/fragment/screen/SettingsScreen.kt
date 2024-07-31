@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.fragment.screen
 
+import android.app.Activity
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +28,7 @@ import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utilsLib.toast.ToastUtil.showMessage
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 
@@ -37,6 +39,8 @@ fun SettingsScreen(
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
+    val activity = (context as Activity)
+    markAsSecure(context, activity.window)
     Scaffold(
         modifier = modifier,
         topBar = {

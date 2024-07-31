@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.fragment.screen
 
+import android.app.Activity
 import android.content.res.Configuration
 import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
 import androidx.compose.foundation.layout.Column
@@ -41,6 +42,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.viewmodel.RecentDocumentsViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -57,6 +59,8 @@ fun RecentDocumentsScreen(
     recentDocumentsViewModel: RecentDocumentsViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
+    val activity = (context as Activity)
+    markAsSecure(context, activity.window)
     val recentDocumentList =
         remember {
             mutableStateOf(

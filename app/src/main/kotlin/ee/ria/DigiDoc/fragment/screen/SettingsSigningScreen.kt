@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.fragment.screen
 
+import android.app.Activity
 import android.content.res.Configuration
 import android.text.TextUtils
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -23,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,6 +47,7 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Constant.Defaults.DEFAULT_TSA_URL_VALUE
 import ee.ria.DigiDoc.utils.Constant.Defaults.DEFAULT_UUID_VALUE
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -61,6 +64,9 @@ fun SettingsSigningScreen(
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
     sharedCertificateViewModel: SharedCertificateViewModel,
 ) {
+    val context = LocalContext.current
+    val activity = (context as Activity)
+    markAsSecure(context, activity.window)
     val configuration by sharedSettingsViewModel.updatedConfiguration.asFlow().collectAsState(
         null,
     )
