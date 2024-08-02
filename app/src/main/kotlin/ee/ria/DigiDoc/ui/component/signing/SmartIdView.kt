@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
@@ -33,6 +34,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -90,6 +92,7 @@ fun SmartIdView(
     val zipLabel = stringResource(id = R.string.main_settings_postal_code_title)
 
     val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     val countriesList = stringArrayResource(id = R.array.smart_id_country)
     var selectedCountry by remember { mutableIntStateOf(sharedSettingsViewModel.dataStore.getCountry()) }
@@ -219,7 +222,7 @@ fun SmartIdView(
                 textStyle = MaterialTheme.typography.titleLarge,
                 keyboardOptions =
                     KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Done,
+                        imeAction = ImeAction.Next,
                         keyboardType = KeyboardType.Ascii,
                     ),
             )
@@ -250,7 +253,7 @@ fun SmartIdView(
                 textStyle = MaterialTheme.typography.titleLarge,
                 keyboardOptions =
                     KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Done,
+                        imeAction = ImeAction.Next,
                         keyboardType = KeyboardType.Ascii,
                     ),
             )
@@ -281,7 +284,7 @@ fun SmartIdView(
                 textStyle = MaterialTheme.typography.titleLarge,
                 keyboardOptions =
                     KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Done,
+                        imeAction = ImeAction.Next,
                         keyboardType = KeyboardType.Ascii,
                     ),
             )
@@ -312,7 +315,7 @@ fun SmartIdView(
                 textStyle = MaterialTheme.typography.titleLarge,
                 keyboardOptions =
                     KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Done,
+                        imeAction = ImeAction.Next,
                         keyboardType = KeyboardType.Ascii,
                     ),
             )
@@ -345,6 +348,12 @@ fun SmartIdView(
                     KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done,
                         keyboardType = KeyboardType.Ascii,
+                    ),
+                keyboardActions =
+                    KeyboardActions(
+                        onDone = {
+                            keyboardController?.hide()
+                        },
                     ),
             )
         } else {

@@ -32,12 +32,8 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.ui.theme.Blue500
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeMedium
-import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeSmall
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.smallPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.tinyPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
@@ -136,8 +132,13 @@ fun SignatureComponent(
                                 id = R.string.signature_update_signature_role_and_address_title_accessibility,
                             ),
                         tint = Blue500,
+                        // TODO: remove when info icon is fixed
+                        modifier =
+                            modifier
+                                .size(iconSizeMedium),
                     )
                 },
+                // TODO: iconSize when info icon is fixed
                 modifier =
                     modifier
                         .size(iconSizeMedium),
@@ -159,13 +160,7 @@ fun SignatureComponent(
                 },
                 modifier =
                     modifier
-                        .size(iconSizeSmall)
-                        .padding(
-                            start = zeroPadding,
-                            end = zeroPadding,
-                            top = tinyPadding,
-                            bottom = smallPadding,
-                        ),
+                        .size(iconSize),
             )
         }
     }

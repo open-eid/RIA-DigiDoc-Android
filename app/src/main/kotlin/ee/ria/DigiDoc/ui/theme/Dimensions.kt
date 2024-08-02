@@ -11,8 +11,7 @@ object Dimensions {
 
     // Sizes
     val iconSize = 24.dp
-    val iconSizeSmall = 28.dp
-    val iconSizeMedium = 32.dp
+    val iconSizeMedium = 28.dp // TODO: remove when info icon is fixed
     val iconSizeLarge = 48.dp
     val loadingBarSize = 64.dp
     val buttonCornerShapeSize = 4.dp
@@ -20,8 +19,6 @@ object Dimensions {
 
     // Paddings
     val zeroPadding = 0.dp
-    val tinyPadding = 3.dp
-    val smallPadding = 4.dp
 
     val screenViewSmallPadding = 8.dp
     val screenViewMediumPadding = 8.dp

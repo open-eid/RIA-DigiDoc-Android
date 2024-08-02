@@ -95,10 +95,9 @@ fun MobileIdView(
     val countryLabel = stringResource(id = R.string.main_settings_country_title)
     val zipLabel = stringResource(id = R.string.main_settings_postal_code_title)
 
+    val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
-
-    val focusManager = LocalFocusManager.current
 
     var countryCodeAndPhoneText by remember {
         mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getPhoneNo()))
@@ -226,7 +225,7 @@ fun MobileIdView(
                 textStyle = MaterialTheme.typography.titleLarge,
                 keyboardOptions =
                     KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Done,
+                        imeAction = ImeAction.Next,
                         keyboardType = KeyboardType.Ascii,
                     ),
             )
@@ -257,7 +256,7 @@ fun MobileIdView(
                 textStyle = MaterialTheme.typography.titleLarge,
                 keyboardOptions =
                     KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Done,
+                        imeAction = ImeAction.Next,
                         keyboardType = KeyboardType.Ascii,
                     ),
             )
@@ -288,7 +287,7 @@ fun MobileIdView(
                 textStyle = MaterialTheme.typography.titleLarge,
                 keyboardOptions =
                     KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Done,
+                        imeAction = ImeAction.Next,
                         keyboardType = KeyboardType.Ascii,
                     ),
             )
@@ -319,7 +318,7 @@ fun MobileIdView(
                 textStyle = MaterialTheme.typography.titleLarge,
                 keyboardOptions =
                     KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Done,
+                        imeAction = ImeAction.Next,
                         keyboardType = KeyboardType.Ascii,
                     ),
             )
