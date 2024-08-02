@@ -27,6 +27,7 @@ object Constant {
         const val INFO_SCREEN = "info_route"
         const val DIAGNOSTICS_SCREEN = "diagnostics_route"
         const val SIGNER_DETAIL_SCREEN = "signer_detail_route"
+        const val ROLES_DETAIL_SCREEN = "roles_detail_route"
         const val CERTIFICATE_DETAIL_SCREEN = "certificate_detail_route"
         const val RECENT_DOCUMENTS_SCREEN = "recent_documents_route"
         const val SETTINGS_SCREEN = "settings_route"

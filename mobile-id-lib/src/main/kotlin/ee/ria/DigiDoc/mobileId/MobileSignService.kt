@@ -286,12 +286,17 @@ class MobileSignServiceImpl
                                 getCertificatePem(response.cert),
                                 roleDataRequest,
                             )
+
                         signatureInterface =
-                            SignedContainer.container().getSignatures()
-                                .last {
-                                    it.validator.status == ValidatorInterface.Status.Invalid ||
-                                        it.validator.status == ValidatorInterface.Status.Unknown
-                                }
+                            if (SignedContainer.container().getSignatures().isEmpty()) {
+                                null
+                            } else {
+                                SignedContainer.container().getSignatures()
+                                    .last {
+                                        it.validator.status == ValidatorInterface.Status.Invalid ||
+                                            it.validator.status == ValidatorInterface.Status.Unknown
+                                    }
+                            }
                         if (base64Hash.isNotEmpty()) {
                             debugLog(logTag, "Posting create signature response")
                             postMobileCreateSignatureResponse(base64Hash)

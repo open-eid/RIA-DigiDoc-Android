@@ -64,6 +64,9 @@ class SmartIdViewModel
         private val _selectDevice = MutableLiveData(false)
         val selectDevice: LiveData<Boolean?> = _selectDevice
 
+        private val _roleDataRequested = MutableLiveData(false)
+        val roleDataRequested: LiveData<Boolean?> = _roleDataRequested
+
         private val countries: ImmutableMap<Int, String> =
             ImmutableMap.builder<Int, String>()
                 .put(0, "EE")
@@ -181,6 +184,14 @@ class SmartIdViewModel
 
         fun resetSignedContainer() {
             _signedContainer.postValue(null)
+        }
+
+        fun resetRoleDataRequested() {
+            _roleDataRequested.postValue(null)
+        }
+
+        fun setRoleDataRequested(roleDataRequested: Boolean) {
+            _roleDataRequested.postValue(roleDataRequested)
         }
 
         fun cancelSmartIdWorkRequest() {

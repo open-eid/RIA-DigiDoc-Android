@@ -35,13 +35,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.SelectionSpinner
@@ -49,6 +55,8 @@ import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.SmartIdViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
@@ -56,11 +64,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Arrays
+import java.util.stream.Collectors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SmartIdView(
     modifier: Modifier = Modifier,
+    signatureAddController: NavHostController,
     cancelButtonClick: () -> Unit = {},
     smartIdViewModel: SmartIdViewModel = hiltViewModel(),
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
@@ -69,7 +80,43 @@ fun SmartIdView(
     val context = LocalContext.current
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
 
+    val roleDataRequested by smartIdViewModel.roleDataRequested.asFlow().collectAsState(null)
+    val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
+
+    val roleLabel = stringResource(id = R.string.main_settings_role_title)
+    val cityLabel = stringResource(id = R.string.main_settings_city_title)
+    val stateLabel = stringResource(id = R.string.main_settings_county_title)
+    val countryLabel = stringResource(id = R.string.main_settings_country_title)
+    val zipLabel = stringResource(id = R.string.main_settings_postal_code_title)
+
     val focusManager = LocalFocusManager.current
+
+    val countriesList = stringArrayResource(id = R.array.smart_id_country)
+    var selectedCountry by remember { mutableIntStateOf(sharedSettingsViewModel.dataStore.getCountry()) }
+    var personalCodeText by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = sharedSettingsViewModel.dataStore.getSidPersonalCode(),
+            ),
+        )
+    }
+    val rememberMeCheckedState = remember { mutableStateOf(true) }
+
+    var rolesAndResolutionsText by remember {
+        mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getRoles()))
+    }
+    var cityText by remember {
+        mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getRoleCity()))
+    }
+    var stateText by remember {
+        mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getRoleState()))
+    }
+    var countryText by remember {
+        mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getRoleCountry()))
+    }
+    var zipText by remember {
+        mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getRoleZip()))
+    }
 
     LaunchedEffect(smartIdViewModel.status) {
         smartIdViewModel.status.asFlow().collect { status ->
@@ -97,6 +144,7 @@ fun SmartIdView(
             signedContainer?.let {
                 sharedContainerViewModel.setSignedContainer(it)
                 smartIdViewModel.resetSignedContainer()
+                smartIdViewModel.resetRoleDataRequested()
                 cancelButtonClick()
             }
         }
@@ -137,61 +185,225 @@ fun SmartIdView(
                     })
                 },
     ) {
-        Text(
-            text = stringResource(id = R.string.signature_update_smart_id_message),
-            style = MaterialTheme.typography.titleLarge,
-            modifier = modifier.padding(screenViewLargePadding),
-            textAlign = TextAlign.Center,
-        )
-        Text(
-            text = stringResource(id = R.string.signature_update_smart_id_country),
-            style = MaterialTheme.typography.titleLarge,
-            modifier = modifier.padding(vertical = screenViewLargePadding),
-        )
-        val countriesList = stringArrayResource(id = R.array.smart_id_country)
-        var selectedCountry by remember { mutableIntStateOf(sharedSettingsViewModel.dataStore.getCountry()) }
-        SelectionSpinner(
-            list = countriesList,
-            preselected = selectedCountry,
-            onSelectionChanged = {
-                selectedCountry = it
-            },
-            modifier = modifier,
-        )
-        Text(
-            text = stringResource(id = R.string.signature_update_mobile_id_personal_code),
-            style = MaterialTheme.typography.titleLarge,
-            modifier = modifier.padding(top = screenViewExtraLargePadding, bottom = screenViewLargePadding),
-        )
-        var personalCodeText by remember {
-            mutableStateOf(
-                TextFieldValue(
-                    text = sharedSettingsViewModel.dataStore.getSidPersonalCode(),
-                ),
+        if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
+            Text(
+                text = stringResource(id = R.string.signature_update_signature_role_and_address_info_title),
+                style = MaterialTheme.typography.titleLarge,
+                modifier = modifier.padding(screenViewLargePadding),
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                text = roleLabel,
+                style = MaterialTheme.typography.titleLarge,
+                modifier =
+                    modifier
+                        .padding(top = screenViewExtraLargePadding, bottom = screenViewLargePadding)
+                        .notAccessible(),
+            )
+            TextField(
+                modifier =
+                    modifier
+                        .fillMaxWidth()
+                        .padding(bottom = screenViewLargePadding)
+                        .semantics {
+                            contentDescription =
+                                "$roleLabel ${formatNumbers(rolesAndResolutionsText.text)}"
+                        },
+                value = rolesAndResolutionsText,
+                shape = RectangleShape,
+                onValueChange = {
+                    rolesAndResolutionsText = it
+                },
+                maxLines = 1,
+                singleLine = true,
+                textStyle = MaterialTheme.typography.titleLarge,
+                keyboardOptions =
+                    KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Done,
+                        keyboardType = KeyboardType.Ascii,
+                    ),
+            )
+            Text(
+                text = cityLabel,
+                style = MaterialTheme.typography.titleLarge,
+                modifier =
+                    modifier
+                        .padding(top = screenViewExtraLargePadding, bottom = screenViewLargePadding)
+                        .notAccessible(),
+            )
+            TextField(
+                modifier =
+                    modifier
+                        .fillMaxWidth()
+                        .padding(bottom = screenViewLargePadding)
+                        .semantics {
+                            contentDescription =
+                                "$cityLabel ${formatNumbers(cityText.text)}"
+                        },
+                value = cityText,
+                shape = RectangleShape,
+                onValueChange = {
+                    cityText = it
+                },
+                maxLines = 1,
+                singleLine = true,
+                textStyle = MaterialTheme.typography.titleLarge,
+                keyboardOptions =
+                    KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Done,
+                        keyboardType = KeyboardType.Ascii,
+                    ),
+            )
+            Text(
+                text = stateLabel,
+                style = MaterialTheme.typography.titleLarge,
+                modifier =
+                    modifier
+                        .padding(top = screenViewExtraLargePadding, bottom = screenViewLargePadding)
+                        .notAccessible(),
+            )
+            TextField(
+                modifier =
+                    modifier
+                        .fillMaxWidth()
+                        .padding(bottom = screenViewLargePadding)
+                        .semantics {
+                            contentDescription =
+                                "$stateLabel ${formatNumbers(stateText.text)}"
+                        },
+                value = stateText,
+                shape = RectangleShape,
+                onValueChange = {
+                    stateText = it
+                },
+                maxLines = 1,
+                singleLine = true,
+                textStyle = MaterialTheme.typography.titleLarge,
+                keyboardOptions =
+                    KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Done,
+                        keyboardType = KeyboardType.Ascii,
+                    ),
+            )
+            Text(
+                text = countryLabel,
+                style = MaterialTheme.typography.titleLarge,
+                modifier =
+                    modifier
+                        .padding(top = screenViewExtraLargePadding, bottom = screenViewLargePadding)
+                        .notAccessible(),
+            )
+            TextField(
+                modifier =
+                    modifier
+                        .fillMaxWidth()
+                        .padding(bottom = screenViewLargePadding)
+                        .semantics {
+                            contentDescription =
+                                "$countryLabel ${formatNumbers(countryText.text)}"
+                        },
+                value = countryText,
+                shape = RectangleShape,
+                onValueChange = {
+                    countryText = it
+                },
+                maxLines = 1,
+                singleLine = true,
+                textStyle = MaterialTheme.typography.titleLarge,
+                keyboardOptions =
+                    KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Done,
+                        keyboardType = KeyboardType.Ascii,
+                    ),
+            )
+            Text(
+                text = zipLabel,
+                style = MaterialTheme.typography.titleLarge,
+                modifier =
+                    modifier
+                        .padding(top = screenViewExtraLargePadding, bottom = screenViewLargePadding)
+                        .notAccessible(),
+            )
+            TextField(
+                modifier =
+                    modifier
+                        .fillMaxWidth()
+                        .padding(bottom = screenViewLargePadding)
+                        .semantics {
+                            contentDescription =
+                                "$zipLabel ${formatNumbers(zipText.text)}"
+                        },
+                value = zipText,
+                shape = RectangleShape,
+                onValueChange = {
+                    zipText = it
+                },
+                maxLines = 1,
+                singleLine = true,
+                textStyle = MaterialTheme.typography.titleLarge,
+                keyboardOptions =
+                    KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Done,
+                        keyboardType = KeyboardType.Ascii,
+                    ),
+            )
+        } else {
+            SignatureAddRadioGroup(
+                modifier = modifier,
+                navController = signatureAddController,
+                selectedRadioItem = sharedSettingsViewModel.dataStore.getSignatureAddMethod(),
+                sharedSettingsViewModel = sharedSettingsViewModel,
+            )
+            Text(
+                text = stringResource(id = R.string.signature_update_smart_id_message),
+                style = MaterialTheme.typography.titleLarge,
+                modifier = modifier.padding(screenViewLargePadding),
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                text = stringResource(id = R.string.signature_update_smart_id_country),
+                style = MaterialTheme.typography.titleLarge,
+                modifier = modifier.padding(vertical = screenViewLargePadding),
+            )
+            SelectionSpinner(
+                list = countriesList,
+                preselected = selectedCountry,
+                onSelectionChanged = {
+                    selectedCountry = it
+                },
+                modifier = modifier,
+            )
+            Text(
+                text = stringResource(id = R.string.signature_update_mobile_id_personal_code),
+                style = MaterialTheme.typography.titleLarge,
+                modifier =
+                    modifier.padding(
+                        top = screenViewExtraLargePadding,
+                        bottom = screenViewLargePadding,
+                    ),
+            )
+            TextField(
+                modifier =
+                    modifier
+                        .fillMaxWidth()
+                        .padding(bottom = screenViewLargePadding),
+                value = personalCodeText,
+                shape = RectangleShape,
+                onValueChange = {
+                    personalCodeText = it
+                },
+                maxLines = 1,
+                singleLine = true,
+                textStyle = MaterialTheme.typography.titleLarge,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            )
+            TextCheckBox(
+                checked = rememberMeCheckedState.value,
+                onCheckedChange = { rememberMeCheckedState.value = it },
+                title = stringResource(id = R.string.signature_update_remember_me),
+                contentDescription = stringResource(id = R.string.signature_update_remember_me).lowercase(),
             )
         }
-        TextField(
-            modifier =
-                modifier
-                    .fillMaxWidth()
-                    .padding(bottom = screenViewLargePadding),
-            value = personalCodeText,
-            shape = RectangleShape,
-            onValueChange = {
-                personalCodeText = it
-            },
-            maxLines = 1,
-            singleLine = true,
-            textStyle = MaterialTheme.typography.titleLarge,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-        )
-        val rememberMeCheckedState = remember { mutableStateOf(true) }
-        TextCheckBox(
-            checked = rememberMeCheckedState.value,
-            onCheckedChange = { rememberMeCheckedState.value = it },
-            title = stringResource(id = R.string.signature_update_remember_me),
-            contentDescription = stringResource(id = R.string.signature_update_remember_me).lowercase(),
-        )
         CancelAndOkButtonRow(
             okButtonEnabled =
                 smartIdViewModel.positiveButtonEnabled(
@@ -202,20 +414,54 @@ fun SmartIdView(
             okButtonTitle = R.string.sign_button,
             cancelButtonContentDescription = stringResource(id = R.string.cancel_button),
             okButtonContentDescription = stringResource(id = R.string.sign_button),
-            cancelButtonClick = cancelButtonClick,
+            cancelButtonClick = {
+                smartIdViewModel.resetRoleDataRequested()
+                cancelButtonClick()
+            },
             okButtonClick = {
-                openSignatureUpdateContainerDialog.value = true
-                if (rememberMeCheckedState.value) {
-                    sharedSettingsViewModel.dataStore.setSidPersonalCode(personalCodeText.text)
-                    sharedSettingsViewModel.dataStore.setCountry(selectedCountry)
-                }
-                CoroutineScope(Dispatchers.IO).launch {
-                    smartIdViewModel.performSmartIdWorkRequest(
-                        container = signedContainer,
-                        personalCode = personalCodeText.text,
-                        country = selectedCountry,
-                        roleData = null,
-                    )
+                if (getSettingsAskRoleAndAddress() && roleDataRequested != true) {
+                    smartIdViewModel.setRoleDataRequested(true)
+                } else {
+                    openSignatureUpdateContainerDialog.value = true
+                    if (rememberMeCheckedState.value) {
+                        sharedSettingsViewModel.dataStore.setSidPersonalCode(personalCodeText.text)
+                        sharedSettingsViewModel.dataStore.setCountry(selectedCountry)
+                    }
+                    var roleDataRequest: RoleData? = null
+                    if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
+                        val roles =
+                            Arrays.stream(
+                                rolesAndResolutionsText.text.split(",".toRegex())
+                                    .dropLastWhile { it.isEmpty() }
+                                    .toTypedArray(),
+                            )
+                                .map { obj: String -> obj.trim { it <= ' ' } }
+                                .collect(Collectors.toList())
+
+                        sharedSettingsViewModel.dataStore.setRoles(rolesAndResolutionsText.text)
+                        sharedSettingsViewModel.dataStore.setRoleCity(cityText.text)
+                        sharedSettingsViewModel.dataStore.setRoleState(stateText.text)
+                        sharedSettingsViewModel.dataStore.setRoleCountry(countryText.text)
+                        sharedSettingsViewModel.dataStore.setRoleZip(zipText.text)
+
+                        roleDataRequest =
+                            RoleData(
+                                roles = roles,
+                                city = cityText.text,
+                                state = stateText.text,
+                                country = countryText.text,
+                                zip = zipText.text,
+                            )
+                    }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        smartIdViewModel.performSmartIdWorkRequest(
+                            container = signedContainer,
+                            personalCode = personalCodeText.text,
+                            country = selectedCountry,
+                            roleData = roleDataRequest,
+                        )
+                        smartIdViewModel.resetRoleDataRequested()
+                    }
                 }
             },
         )
@@ -227,8 +473,10 @@ fun SmartIdView(
 @Composable
 fun SmartIdViewPreview() {
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
+    val signatureAddController = rememberNavController()
     RIADigiDocTheme {
         SmartIdView(
+            signatureAddController = signatureAddController,
             sharedContainerViewModel = sharedContainerViewModel,
         )
     }

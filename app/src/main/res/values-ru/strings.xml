@@ -86,6 +86,10 @@
 
     <string name="signature_update_signature_remove_confirmation_message">Удалить подпись из контейнера?</string>
 
+    <string name="signature_update_signature_role_and_address_title">РОЛЬ И АДРЕС</string>
+    <string name="signature_update_signature_role_and_address_title_accessibility">Роль и адрес</string>
+    <string name="signature_update_signature_role_and_address_info_title">Введите свою роль и адрес</string>
+
     <string name="signature_update_mobile_id_message">Введите свой телефонный номер и личный код для подписания с помощью mobiil-ID</string>
     <string name="signature_update_mobile_id_phone_no">Код страны и телефонный номер</string>
     <string name="signature_update_mobile_id_personal_code">Личный код</string>

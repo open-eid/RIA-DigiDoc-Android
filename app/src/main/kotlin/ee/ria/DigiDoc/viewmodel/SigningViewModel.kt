@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.common.Constant.UNSIGNABLE_CONTAINER_EXTENSIONS
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
+import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.utilsLib.date.DateUtil.getFormattedDateTime
 import ee.ria.DigiDoc.utilsLib.date.DateUtil.signedDateTimeString
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
@@ -64,6 +65,12 @@ class SigningViewModel
 
         fun isShareButtonShown(signedContainer: SignedContainer?): Boolean {
             return isExistingContainer(signedContainer)
+        }
+
+        fun isRoleEmpty(signature: SignatureInterface): Boolean {
+            return signature.signerRoles.isEmpty() && signature.city.isEmpty() &&
+                signature.stateOrProvince.isEmpty() &&
+                signature.countryName.isEmpty() && signature.postalCode.isEmpty()
         }
 
         fun getFormattedDate(signingTime: String): String {
