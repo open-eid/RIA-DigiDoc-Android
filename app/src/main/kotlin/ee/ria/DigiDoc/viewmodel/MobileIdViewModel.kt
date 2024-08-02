@@ -53,6 +53,9 @@ class MobileIdViewModel
         private val _status = MutableLiveData<MobileCreateSignatureProcessStatus?>(null)
         val status: LiveData<MobileCreateSignatureProcessStatus?> = _status
 
+        private val _roleDataRequested = MutableLiveData(false)
+        val roleDataRequested: LiveData<Boolean?> = _roleDataRequested
+
         private val faults: ImmutableMap<MobileCertificateResultType, Int> =
             ImmutableMap.builder<MobileCertificateResultType, Int>()
                 .put(
@@ -143,6 +146,14 @@ class MobileIdViewModel
             _signedContainer.postValue(null)
         }
 
+        fun resetRoleDataRequested() {
+            _roleDataRequested.postValue(null)
+        }
+
+        fun setRoleDataRequested(roleDataRequested: Boolean) {
+            _roleDataRequested.postValue(roleDataRequested)
+        }
+
         fun cancelMobileIdWorkRequest() {
             mobileSignService.setCancelled(true)
         }
@@ -204,13 +215,13 @@ class MobileIdViewModel
                         )
                     }
                 }
-                mobileSignService.status.observeForever {
-                    if (it != null) {
-                        _status.postValue(it)
-                        if (it != MobileCreateSignatureProcessStatus.OK) {
-                            if (it != MobileCreateSignatureProcessStatus.USER_CANCELLED) {
+                mobileSignService.status.observeForever { status ->
+                    if (status != null) {
+                        _status.postValue(status)
+                        if (status != MobileCreateSignatureProcessStatus.OK) {
+                            if (status != MobileCreateSignatureProcessStatus.USER_CANCELLED) {
                                 _errorState.postValue(
-                                    messages[it]?.let { res ->
+                                    messages[status]?.let { res ->
                                         context.getString(
                                             res,
                                         )

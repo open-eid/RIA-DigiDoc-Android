@@ -29,7 +29,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
+import ee.ria.DigiDoc.ui.theme.Blue500
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeMedium
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Red500
@@ -38,6 +40,9 @@ import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil.getSignatureStatusText
 import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatName
 import ee.ria.DigiDoc.viewmodel.SigningViewModel
+import kotlin.Boolean
+import kotlin.Suppress
+import kotlin.Unit
 
 @Composable
 fun SignatureComponent(
@@ -46,6 +51,8 @@ fun SignatureComponent(
     signature: SignatureInterface,
     showRemoveButton: Boolean,
     onRemoveButtonClick: () -> Unit = {},
+    showRolesDetailsButton: Boolean,
+    onRolesDetailsButtonClick: () -> Unit = {},
     onSignerDetailsButtonClick: () -> Unit = {},
 ) {
     Row(
@@ -81,11 +88,13 @@ fun SignatureComponent(
                 signingViewModel.getFormattedDate(signature.trustedSigningTime),
             )
         val buttonName = stringResource(id = R.string.button_name)
+        val roles = signature.signerRoles.joinToString(" / ")
         Column(
             modifier =
                 modifier
                     .semantics(mergeDescendants = true) {
-                        this.contentDescription = "${formatNumbers(nameText)}, $statusText, $signedTime, $buttonName"
+                        this.contentDescription =
+                            "${formatNumbers(nameText)}, $statusText, $signedTime, $buttonName"
                     }
                     .weight(1f)
                     .focusGroup()
@@ -101,9 +110,38 @@ fun SignatureComponent(
                 status = signature.validator.status,
                 modifier = modifier.notAccessible(),
             )
+            if (showRolesDetailsButton) {
+                Text(
+                    text = roles,
+                    modifier = modifier.notAccessible(),
+                )
+            }
             Text(
                 text = signedTime,
                 modifier = modifier.notAccessible(),
+            )
+        }
+        if (showRolesDetailsButton) {
+            IconButton(
+                onClick = onRolesDetailsButtonClick,
+                content = {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_info),
+                        contentDescription =
+                            stringResource(
+                                id = R.string.signature_update_signature_role_and_address_title_accessibility,
+                            ),
+                        tint = Blue500,
+                        // TODO: remove when info icon is fixed
+                        modifier =
+                            modifier
+                                .size(iconSizeMedium),
+                    )
+                },
+                // TODO: iconSize when info icon is fixed
+                modifier =
+                    modifier
+                        .size(iconSizeMedium),
             )
         }
         if (showRemoveButton) {

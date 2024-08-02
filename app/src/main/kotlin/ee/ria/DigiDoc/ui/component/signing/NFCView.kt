@@ -16,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
@@ -23,12 +25,19 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 @Composable
 fun NFCView(
     modifier: Modifier = Modifier,
+    signatureAddController: NavHostController,
     cancelButtonClick: () -> Unit = {},
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        SignatureAddRadioGroup(
+            modifier = modifier,
+            navController = signatureAddController,
+            selectedRadioItem = sharedSettingsViewModel.dataStore.getSignatureAddMethod(),
+            sharedSettingsViewModel = sharedSettingsViewModel,
+        )
         Text(
             text = "Signature with NFC",
             style = MaterialTheme.typography.titleLarge,
@@ -64,6 +73,6 @@ fun NFCView(
 @Composable
 fun NFCViewPreview() {
     RIADigiDocTheme {
-        NFCView()
+        NFCView(signatureAddController = rememberNavController())
     }
 }

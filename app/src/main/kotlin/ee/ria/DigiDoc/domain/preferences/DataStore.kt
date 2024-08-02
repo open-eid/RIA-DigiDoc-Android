@@ -248,6 +248,86 @@ class DataStore
             editor.apply()
         }
 
+        fun getRoles(): String {
+            return preferences.getString(
+                resources.getString(R.string.main_settings_role_key),
+                "",
+            ) ?: ""
+        }
+
+        fun setRoles(roles: String?) {
+            val editor = preferences.edit()
+            editor.putString(
+                resources.getString(R.string.main_settings_role_key),
+                roles,
+            )
+            editor.apply()
+        }
+
+        fun getRoleCity(): String {
+            return preferences.getString(
+                resources.getString(R.string.main_settings_city_key),
+                "",
+            ) ?: ""
+        }
+
+        fun setRoleCity(city: String?) {
+            val editor = preferences.edit()
+            editor.putString(
+                resources.getString(R.string.main_settings_city_key),
+                city,
+            )
+            editor.apply()
+        }
+
+        fun getRoleState(): String {
+            return preferences.getString(
+                resources.getString(R.string.main_settings_county_key),
+                "",
+            ) ?: ""
+        }
+
+        fun setRoleState(state: String?) {
+            val editor = preferences.edit()
+            editor.putString(
+                resources.getString(R.string.main_settings_county_key),
+                state,
+            )
+            editor.apply()
+        }
+
+        fun getRoleCountry(): String {
+            return preferences.getString(
+                resources.getString(R.string.main_settings_country_key),
+                "",
+            ) ?: ""
+        }
+
+        fun setRoleCountry(country: String?) {
+            val editor = preferences.edit()
+            editor.putString(
+                resources.getString(R.string.main_settings_country_key),
+                country,
+            )
+            editor.apply()
+        }
+
+        fun getRoleZip(): String {
+            return preferences.getString(
+                resources.getString(R.string.main_settings_postal_code_key),
+                "",
+            ) ?: ""
+        }
+
+        fun setRoleZip(zip: String?) {
+            val editor = preferences.edit()
+            editor.putString(
+                resources.getString(R.string.main_settings_postal_code_key),
+                zip,
+            )
+            editor.apply()
+        }
+
         fun setTSACertName(cert: String?) {
             val editor = preferences.edit()
             editor.putString(resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_tsa_cert_key), cert)

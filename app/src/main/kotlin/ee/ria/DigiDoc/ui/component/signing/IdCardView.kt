@@ -17,6 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
@@ -25,12 +27,19 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 @Composable
 fun IdCardView(
     modifier: Modifier = Modifier,
+    signatureAddController: NavHostController,
     cancelButtonClick: () -> Unit = {},
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        SignatureAddRadioGroup(
+            modifier = modifier,
+            navController = signatureAddController,
+            selectedRadioItem = sharedSettingsViewModel.dataStore.getSignatureAddMethod(),
+            sharedSettingsViewModel = sharedSettingsViewModel,
+        )
         Text(
             text = stringResource(id = R.string.signature_update_id_card_progress_message_initial),
             style = MaterialTheme.typography.titleLarge,
@@ -66,6 +75,6 @@ fun IdCardView(
 @Composable
 fun IdCardViewPreview() {
     RIADigiDocTheme {
-        IdCardView()
+        IdCardView(signatureAddController = rememberNavController())
     }
 }

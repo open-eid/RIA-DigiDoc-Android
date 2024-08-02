@@ -219,11 +219,15 @@ class SmartSignServiceImpl
                         )
 
                     signatureInterface =
-                        SignedContainer.container().getSignatures()
-                            .last {
-                                it.validator.status == ValidatorInterface.Status.Invalid ||
-                                    it.validator.status == ValidatorInterface.Status.Unknown
-                            }
+                        if (SignedContainer.container().getSignatures().isEmpty()) {
+                            null
+                        } else {
+                            SignedContainer.container().getSignatures()
+                                .last {
+                                    it.validator.status == ValidatorInterface.Status.Invalid ||
+                                        it.validator.status == ValidatorInterface.Status.Unknown
+                                }
+                        }
 
                     if (base64Hash.isNotEmpty()) {
                         LoggingUtil.debugLog(logTag, "Posting signature challenge response")

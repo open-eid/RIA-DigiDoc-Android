@@ -472,6 +472,16 @@ fun SigningNavigation(
                                     actionSignature = signature
                                     openRemoveSignatureDialog.value = true
                                 },
+                                showRolesDetailsButton =
+                                    !signingViewModel.isRoleEmpty(
+                                        signature = signature,
+                                    ),
+                                onRolesDetailsButtonClick = {
+                                    sharedSignatureViewModel.setSignature(signature)
+                                    navController.navigate(
+                                        Route.RolesDetail.route,
+                                    )
+                                },
                                 onSignerDetailsButtonClick = {
                                     sharedSignatureViewModel.setSignature(signature)
                                     navController.navigate(

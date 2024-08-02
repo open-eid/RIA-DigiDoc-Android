@@ -21,6 +21,7 @@ import ee.ria.DigiDoc.fragment.SettingsRightsFragment
 import ee.ria.DigiDoc.fragment.SettingsSigningFragment
 import ee.ria.DigiDoc.fragment.SigningFragment
 import ee.ria.DigiDoc.ui.component.signing.certificate.CertificateDetailsView
+import ee.ria.DigiDoc.ui.component.signing.certificate.RolesDetailsView
 import ee.ria.DigiDoc.ui.component.signing.certificate.SignerDetailsView
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
@@ -54,6 +55,12 @@ fun RIADigiDocAppScreen() {
             SigningFragment(
                 navController = navController,
                 sharedContainerViewModel = sharedContainerViewModel,
+                sharedSignatureViewModel = sharedSignatureViewModel,
+            )
+        }
+        composable(route = Route.RolesDetail.route) {
+            RolesDetailsView(
+                navController = navController,
                 sharedSignatureViewModel = sharedSignatureViewModel,
             )
         }

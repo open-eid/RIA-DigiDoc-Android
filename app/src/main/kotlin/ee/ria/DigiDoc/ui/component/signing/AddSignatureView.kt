@@ -66,16 +66,9 @@ fun AddSignatureView(
                     .wrapContentHeight()
                     .wrapContentWidth()
                     .padding(itemSpacingPadding),
-            // .offset { IntOffset(x = 0, y = state.) }
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            SignatureAddRadioGroup(
-                modifier = modifier,
-                navController = signatureAddController,
-                selectedRadioItem = sharedSettingsViewModel.dataStore.getSignatureAddMethod(),
-                sharedSettingsViewModel = sharedSettingsViewModel,
-            )
             NavHost(
                 navController = signatureAddController,
                 startDestination = sharedSettingsViewModel.dataStore.getSignatureAddMethod(),
@@ -83,20 +76,28 @@ fun AddSignatureView(
                 composable(route = Route.MobileId.route) {
                     MobileIdView(
                         cancelButtonClick = dismissDialog,
+                        signatureAddController = signatureAddController,
                         sharedContainerViewModel = sharedContainerViewModel,
                     )
                 }
                 composable(route = Route.SmartId.route) {
                     SmartIdView(
                         cancelButtonClick = dismissDialog,
+                        signatureAddController = signatureAddController,
                         sharedContainerViewModel = sharedContainerViewModel,
                     )
                 }
                 composable(route = Route.IdCard.route) {
-                    IdCardView(cancelButtonClick = dismissDialog)
+                    IdCardView(
+                        cancelButtonClick = dismissDialog,
+                        signatureAddController = signatureAddController,
+                    )
                 }
                 composable(route = Route.NFC.route) {
-                    NFCView(cancelButtonClick = dismissDialog)
+                    NFCView(
+                        cancelButtonClick = dismissDialog,
+                        signatureAddController = signatureAddController,
+                    )
                 }
             }
         }
