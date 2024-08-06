@@ -50,7 +50,6 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    implementation(libs.work.runtime.ktx)
     implementation(libs.google.dagger.hilt.android)
     kapt(libs.google.dagger.hilt.android.compile)
     implementation(libs.androidx.hilt)
