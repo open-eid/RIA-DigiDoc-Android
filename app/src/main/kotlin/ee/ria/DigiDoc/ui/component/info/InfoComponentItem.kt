@@ -35,6 +35,11 @@ data class InfoComponentItem(
                 licenseUrl = R.string.main_about_apache_2_license_url,
             ),
             InfoComponentItem(
+                name = R.string.main_about_retrofit_title,
+                licenseName = R.string.main_about_apache_2_license_title,
+                licenseUrl = R.string.main_about_apache_2_license_url,
+            ),
+            InfoComponentItem(
                 name = R.string.main_about_bouncy_castle_title,
                 licenseName = R.string.main_about_mit_license_title,
                 licenseUrl = R.string.main_about_mit_license_url,
@@ -65,6 +70,11 @@ data class InfoComponentItem(
                 licenseUrl = R.string.main_about_commons_io_license_url,
             ),
             InfoComponentItem(
+                name = R.string.main_about_commons_text_title,
+                licenseName = R.string.main_about_apache_2_0_license_title,
+                licenseUrl = R.string.main_about_commons_io_license_url,
+            ),
+            InfoComponentItem(
                 name = R.string.main_about_telecom_charsets_title,
                 licenseName = R.string.main_about_apache_2_0_license_title,
                 licenseUrl = R.string.main_about_telecom_charsets_license_url,
@@ -85,7 +95,7 @@ data class InfoComponentItem(
                 licenseUrl = R.string.main_about_apache_2_license_txt_url,
             ),
             InfoComponentItem(
-                name = R.string.main_about_androidx_espresso_core_title,
+                name = R.string.main_about_androidx_material_title,
                 licenseName = R.string.main_about_apache_2_0_license_title,
                 licenseUrl = R.string.main_about_apache_2_license_txt_url,
             ),
@@ -100,12 +110,62 @@ data class InfoComponentItem(
                 licenseUrl = R.string.main_about_apache_2_license_txt_url,
             ),
             InfoComponentItem(
+                name = R.string.main_about_androidx_ui_title,
+                licenseName = R.string.main_about_apache_2_0_license_title,
+                licenseUrl = R.string.main_about_apache_2_license_txt_url,
+            ),
+            InfoComponentItem(
+                name = R.string.main_about_androidx_hilt_title,
+                licenseName = R.string.main_about_apache_2_0_license_title,
+                licenseUrl = R.string.main_about_apache_2_license_txt_url,
+            ),
+            InfoComponentItem(
+                name = R.string.main_about_androidx_appcompat_title,
+                licenseName = R.string.main_about_apache_2_0_license_title,
+                licenseUrl = R.string.main_about_apache_2_license_txt_url,
+            ),
+            InfoComponentItem(
+                name = R.string.main_about_androidx_test_title,
+                licenseName = R.string.main_about_apache_2_0_license_title,
+                licenseUrl = R.string.main_about_apache_2_license_txt_url,
+            ),
+            InfoComponentItem(
+                name = R.string.main_about_androidx_arch_core_title,
+                licenseName = R.string.main_about_apache_2_0_license_title,
+                licenseUrl = R.string.main_about_apache_2_license_txt_url,
+            ),
+            InfoComponentItem(
                 name = R.string.main_about_androidx_navigation_title,
                 licenseName = R.string.main_about_apache_2_0_license_title,
                 licenseUrl = R.string.main_about_apache_2_license_txt_url,
             ),
             InfoComponentItem(
                 name = R.string.main_about_androidx_constraintlayout_title,
+                licenseName = R.string.main_about_apache_2_0_license_title,
+                licenseUrl = R.string.main_about_apache_2_license_txt_url,
+            ),
+            InfoComponentItem(
+                name = R.string.main_about_androidx_preferencex_title,
+                licenseName = R.string.main_about_apache_2_0_license_title,
+                licenseUrl = R.string.main_about_apache_2_license_txt_url,
+            ),
+            InfoComponentItem(
+                name = R.string.main_about_androidx_security_title,
+                licenseName = R.string.main_about_apache_2_0_license_title,
+                licenseUrl = R.string.main_about_apache_2_license_txt_url,
+            ),
+            InfoComponentItem(
+                name = R.string.main_about_pdfbox_android_title,
+                licenseName = R.string.main_about_apache_2_0_license_title,
+                licenseUrl = R.string.main_about_apache_2_license_txt_url,
+            ),
+            InfoComponentItem(
+                name = R.string.main_about_kotlinx_coroutines_title,
+                licenseName = R.string.main_about_apache_2_0_license_title,
+                licenseUrl = R.string.main_about_apache_2_license_txt_url,
+            ),
+            InfoComponentItem(
+                name = R.string.main_about_android_material_title,
                 licenseName = R.string.main_about_apache_2_0_license_title,
                 licenseUrl = R.string.main_about_apache_2_license_txt_url,
             ),

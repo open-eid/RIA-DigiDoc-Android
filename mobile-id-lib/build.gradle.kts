@@ -46,7 +46,6 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.gson)
-    implementation(libs.work.runtime.ktx)
     implementation(libs.preferencex)
     implementation(libs.google.dagger.hilt.android)
     kapt(libs.google.dagger.hilt.android.compile)

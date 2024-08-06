@@ -103,7 +103,6 @@ dependencies {
     implementation(libs.preferencex)
     implementation(libs.guava)
     implementation(libs.core.ktx)
-    implementation(libs.work.runtime.ktx)
     implementation(libs.androidx.core.ktx)
     implementation(libs.google.dagger.hilt.android)
     kapt(libs.google.dagger.hilt.android.compile)
