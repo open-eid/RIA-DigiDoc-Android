@@ -359,14 +359,20 @@ class SmartIdViewModel
             personalCode: String?,
         ): Boolean {
             if (personalCode != null) {
-                validatePersonalCode(personalCode)
                 return country != 0 || isPersonalCodeCorrect(personalCode)
             }
             return false
         }
 
-        private fun isPersonalCodeCorrect(personalCode: String): Boolean {
-            return personalCode.length == MAXIMUM_PERSONAL_CODE_LENGTH
+        fun isPersonalCodeValid(personalCode: String?): Boolean {
+            return !(
+                !personalCode.isNullOrEmpty() &&
+                    !isPersonalCodeCorrect(personalCode)
+            )
+        }
+
+        fun isPersonalCodeCorrect(personalCode: String): Boolean {
+            return validatePersonalCode(personalCode) && personalCode.length == MAXIMUM_PERSONAL_CODE_LENGTH
         }
 
         @Throws(NumberFormatException::class)

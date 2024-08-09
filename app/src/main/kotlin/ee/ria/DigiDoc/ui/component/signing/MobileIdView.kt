@@ -55,9 +55,11 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
+import ee.ria.DigiDoc.ui.theme.Blue500
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.MobileIdViewModel
@@ -395,10 +397,35 @@ fun MobileIdView(
                 },
                 maxLines = 1,
                 singleLine = true,
+                isError = mobileIdViewModel.isPhoneNumberValid(countryCodeAndPhoneText.text),
+                supportingText = {
+                    if (countryCodeAndPhoneText.text.isNotEmpty()) {
+                        if (mobileIdViewModel.isCountryCodeMissing(countryCodeAndPhoneText.text)) {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = stringResource(id = R.string.signature_update_mobile_id_status_no_country_code),
+                                color = Red500,
+                            )
+                        } else if (!mobileIdViewModel.isCountryCodeCorrect(countryCodeAndPhoneText.text)) {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = stringResource(id = R.string.signature_update_mobile_id_invalid_country_code),
+                                color = Red500,
+                            )
+                        } else if (!mobileIdViewModel.isPhoneNumberCorrect(countryCodeAndPhoneText.text)) {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = stringResource(id = R.string.signature_update_mobile_id_invalid_phone_number),
+                                color = Red500,
+                            )
+                        }
+                    }
+                },
                 label = {
                     Text(
                         modifier = modifier.notAccessible(),
                         text = stringResource(id = R.string.mobile_id_country_code_and_phone_number_placeholder),
+                        color = Blue500,
                     )
                 },
                 textStyle = MaterialTheme.typography.titleLarge,
@@ -453,6 +480,18 @@ fun MobileIdView(
                 },
                 maxLines = 1,
                 singleLine = true,
+                isError = mobileIdViewModel.isPersonalCodeValid(personalCodeText.text),
+                supportingText = {
+                    if (personalCodeText.text.isNotEmpty()) {
+                        if (!mobileIdViewModel.isPersonalCodeCorrect(personalCodeText.text)) {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = stringResource(id = R.string.signature_update_mobile_id_invalid_personal_code),
+                                color = Red500,
+                            )
+                        }
+                    }
+                },
                 textStyle = MaterialTheme.typography.titleLarge,
                 keyboardOptions =
                     KeyboardOptions.Default.copy(

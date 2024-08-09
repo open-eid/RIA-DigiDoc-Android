@@ -57,6 +57,7 @@ import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.SmartIdViewModel
@@ -403,6 +404,18 @@ fun SmartIdView(
                 },
                 maxLines = 1,
                 singleLine = true,
+                isError = smartIdViewModel.isPersonalCodeValid(personalCodeText.text),
+                supportingText = {
+                    if (personalCodeText.text.isNotEmpty()) {
+                        if (!smartIdViewModel.isPersonalCodeCorrect(personalCodeText.text)) {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = stringResource(id = R.string.signature_update_mobile_id_invalid_personal_code),
+                                color = Red500,
+                            )
+                        }
+                    }
+                },
                 textStyle = MaterialTheme.typography.titleLarge,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             )
