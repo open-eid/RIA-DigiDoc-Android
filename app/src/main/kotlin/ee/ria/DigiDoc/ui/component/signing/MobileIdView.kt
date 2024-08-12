@@ -29,15 +29,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
@@ -98,14 +96,23 @@ fun MobileIdView(
     val zipLabel = stringResource(id = R.string.main_settings_postal_code_title)
 
     val focusManager = LocalFocusManager.current
-    val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
     var countryCodeAndPhoneText by remember {
-        mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getPhoneNo()))
+        mutableStateOf(
+            TextFieldValue(
+                text = sharedSettingsViewModel.dataStore.getPhoneNo(),
+                selection = TextRange(sharedSettingsViewModel.dataStore.getPhoneNo().length),
+            ),
+        )
     }
     var personalCodeText by remember {
-        mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getPersonalCode()))
+        mutableStateOf(
+            TextFieldValue(
+                text = sharedSettingsViewModel.dataStore.getPersonalCode(),
+                selection = TextRange(sharedSettingsViewModel.dataStore.getPersonalCode().length),
+            ),
+        )
     }
     val rememberMeCheckedState = remember { mutableStateOf(true) }
 
@@ -389,7 +396,7 @@ fun MobileIdView(
                 modifier =
                     modifier
                         .fillMaxWidth()
-                        .semantics {
+                        .clearAndSetSemantics {
                             contentDescription =
                                 "$countryCodeAndPhoneNumberLabel ${formatNumbers(countryCodeAndPhoneText.text)}"
                         },
@@ -440,17 +447,6 @@ fun MobileIdView(
                         imeAction = ImeAction.Next,
                         keyboardType = KeyboardType.Decimal,
                     ),
-                keyboardActions =
-                    KeyboardActions(
-                        onNext = {
-                            focusRequester.requestFocus()
-                            countryCodeAndPhoneText =
-                                countryCodeAndPhoneText.copy(
-                                    text = countryCodeAndPhoneText.text,
-                                    selection = TextRange(countryCodeAndPhoneText.text.length),
-                                )
-                        },
-                    ),
             )
             Text(
                 text = personalCodeLabel,
@@ -465,17 +461,7 @@ fun MobileIdView(
                     modifier
                         .fillMaxWidth()
                         .padding(bottom = screenViewLargePadding)
-                        .focusRequester(focusRequester)
-                        .onFocusChanged { focusState ->
-                            if (focusState.isFocused) {
-                                personalCodeText =
-                                    personalCodeText.copy(
-                                        text = personalCodeText.text,
-                                        selection = TextRange(personalCodeText.text.length),
-                                    )
-                            }
-                        }
-                        .semantics {
+                        .clearAndSetSemantics {
                             contentDescription =
                                 "$personalCodeLabel ${formatNumbers(personalCodeText.text)}"
                         },
@@ -503,12 +489,6 @@ fun MobileIdView(
                     KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done,
                         keyboardType = KeyboardType.Decimal,
-                    ),
-                keyboardActions =
-                    KeyboardActions(
-                        onDone = {
-                            keyboardController?.hide()
-                        },
                     ),
             )
             TextCheckBox(

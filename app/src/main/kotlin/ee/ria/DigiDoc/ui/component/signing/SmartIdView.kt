@@ -37,8 +37,10 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -86,6 +88,9 @@ fun SmartIdView(
     val roleDataRequested by smartIdViewModel.roleDataRequested.asFlow().collectAsState(null)
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
 
+    val smartIdCountryLabel = stringResource(id = R.string.signature_update_smart_id_country)
+    val smartIdPersonalCodeLabel = stringResource(id = R.string.signature_update_mobile_id_personal_code)
+
     val roleLabel = stringResource(id = R.string.main_settings_role_title)
     val cityLabel = stringResource(id = R.string.main_settings_city_title)
     val stateLabel = stringResource(id = R.string.main_settings_county_title)
@@ -101,6 +106,7 @@ fun SmartIdView(
         mutableStateOf(
             TextFieldValue(
                 text = sharedSettingsViewModel.dataStore.getSidPersonalCode(),
+                selection = TextRange(sharedSettingsViewModel.dataStore.getSidPersonalCode().length),
             ),
         )
     }
@@ -373,9 +379,9 @@ fun SmartIdView(
                 textAlign = TextAlign.Center,
             )
             Text(
-                text = stringResource(id = R.string.signature_update_smart_id_country),
+                text = smartIdCountryLabel,
                 style = MaterialTheme.typography.titleLarge,
-                modifier = modifier.padding(vertical = screenViewLargePadding),
+                modifier = modifier.padding(vertical = screenViewLargePadding).notAccessible(),
             )
             SelectionSpinner(
                 list = countriesList,
@@ -383,22 +389,31 @@ fun SmartIdView(
                 onSelectionChanged = {
                     selectedCountry = it
                 },
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .clearAndSetSemantics {
+                            contentDescription =
+                                "$smartIdCountryLabel ${countriesList[selectedCountry]}"
+                        },
             )
             Text(
-                text = stringResource(id = R.string.signature_update_mobile_id_personal_code),
+                text = smartIdPersonalCodeLabel,
                 style = MaterialTheme.typography.titleLarge,
                 modifier =
                     modifier.padding(
                         top = screenViewExtraLargePadding,
                         bottom = screenViewLargePadding,
-                    ),
+                    ).notAccessible(),
             )
             TextField(
                 modifier =
                     modifier
                         .fillMaxWidth()
-                        .padding(bottom = screenViewLargePadding),
+                        .padding(bottom = screenViewLargePadding)
+                        .clearAndSetSemantics {
+                            this.contentDescription =
+                                "$smartIdPersonalCodeLabel ${formatNumbers(personalCodeText.text)}"
+                        },
                 value = personalCodeText,
                 shape = RectangleShape,
                 onValueChange = {
