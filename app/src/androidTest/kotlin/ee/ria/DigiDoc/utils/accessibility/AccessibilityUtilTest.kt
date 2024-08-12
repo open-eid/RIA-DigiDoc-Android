@@ -20,19 +20,19 @@ class AccessibilityUtilTest {
     }
 
     @Test
-    fun testFormatNumbers() {
+    fun accessibilityUtilTest_formatNumbers_success() {
         assertEquals("1 2 3 4 abc", AccessibilityUtil.formatNumbers("1234abc"))
         assertEquals("1 0 0 0", AccessibilityUtil.formatNumbers("1000"))
         assertEquals("abc", AccessibilityUtil.formatNumbers("abc"))
     }
 
     @Test
-    fun testIsTalkBackEnabled() {
+    fun accessibilityUtilTest_isTalkBackEnabled_success() {
         assertEquals(false, AccessibilityUtil.isTalkBackEnabled(context))
     }
 
     @Test
-    fun testSendAccessibilityEvent() {
+    fun accessibilityUtilTest_sendAccessibilityEvent_success() {
         // This is a void method, so we're just testing that it doesn't throw an exception
         AccessibilityUtil.sendAccessibilityEvent(context, 0, "Test")
     }

@@ -10,7 +10,7 @@ import org.junit.Test
 
 class SignatureStatusUtilTest {
     @Test
-    fun testGetSignatureStatusText() {
+    fun signatureStatusUtilTest_getSignatureStatusText_success() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
 
         assertEquals(
