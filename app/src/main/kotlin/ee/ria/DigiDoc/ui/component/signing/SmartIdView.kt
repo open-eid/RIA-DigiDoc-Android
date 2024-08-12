@@ -405,6 +405,16 @@ fun SmartIdView(
                         bottom = screenViewLargePadding,
                     ).notAccessible(),
             )
+            val personalCodeErrorText =
+                if (personalCodeText.text.isNotEmpty()) {
+                    if (!smartIdViewModel.isPersonalCodeCorrect(personalCodeText.text)) {
+                        stringResource(id = R.string.signature_update_mobile_id_invalid_personal_code)
+                    } else {
+                        ""
+                    }
+                } else {
+                    ""
+                }
             TextField(
                 modifier =
                     modifier
@@ -412,7 +422,9 @@ fun SmartIdView(
                         .padding(bottom = screenViewLargePadding)
                         .clearAndSetSemantics {
                             this.contentDescription =
-                                "$smartIdPersonalCodeLabel ${formatNumbers(personalCodeText.text)}"
+                                "$smartIdPersonalCodeLabel " +
+                                "${formatNumbers(personalCodeText.text)} " +
+                                personalCodeErrorText
                         },
                 value = personalCodeText,
                 shape = RectangleShape,
@@ -423,14 +435,12 @@ fun SmartIdView(
                 singleLine = true,
                 isError = !smartIdViewModel.isPersonalCodeValid(personalCodeText.text),
                 supportingText = {
-                    if (personalCodeText.text.isNotEmpty()) {
-                        if (!smartIdViewModel.isPersonalCodeCorrect(personalCodeText.text)) {
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                text = stringResource(id = R.string.signature_update_mobile_id_invalid_personal_code),
-                                color = Red500,
-                            )
-                        }
+                    if (personalCodeErrorText.isNotEmpty()) {
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = personalCodeErrorText,
+                            color = Red500,
+                        )
                     }
                 },
                 textStyle = MaterialTheme.typography.titleLarge,

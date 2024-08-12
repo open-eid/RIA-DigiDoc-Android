@@ -392,13 +392,29 @@ fun MobileIdView(
                         .notAccessible(),
             )
             val countryCodeAndPhoneTextEdited = remember { mutableStateOf(false) }
+            val countryCodeAndPhoneErrorText =
+                if (countryCodeAndPhoneTextEdited.value && countryCodeAndPhoneText.text.isNotEmpty()) {
+                    if (mobileIdViewModel.isCountryCodeMissing(countryCodeAndPhoneText.text)) {
+                        stringResource(id = R.string.signature_update_mobile_id_status_no_country_code)
+                    } else if (!mobileIdViewModel.isCountryCodeCorrect(countryCodeAndPhoneText.text)) {
+                        stringResource(id = R.string.signature_update_mobile_id_invalid_country_code)
+                    } else if (!mobileIdViewModel.isPhoneNumberCorrect(countryCodeAndPhoneText.text)) {
+                        stringResource(id = R.string.signature_update_mobile_id_invalid_phone_number)
+                    } else {
+                        ""
+                    }
+                } else {
+                    ""
+                }
             TextField(
                 modifier =
                     modifier
                         .fillMaxWidth()
                         .clearAndSetSemantics {
                             contentDescription =
-                                "$countryCodeAndPhoneNumberLabel ${formatNumbers(countryCodeAndPhoneText.text)}"
+                                "$countryCodeAndPhoneNumberLabel " +
+                                "${formatNumbers(countryCodeAndPhoneText.text)} " +
+                                countryCodeAndPhoneErrorText
                         },
                 value = countryCodeAndPhoneText,
                 shape = RectangleShape,
@@ -412,26 +428,12 @@ fun MobileIdView(
                     countryCodeAndPhoneTextEdited.value &&
                         !mobileIdViewModel.isPhoneNumberValid(countryCodeAndPhoneText.text),
                 supportingText = {
-                    if (countryCodeAndPhoneTextEdited.value && countryCodeAndPhoneText.text.isNotEmpty()) {
-                        if (mobileIdViewModel.isCountryCodeMissing(countryCodeAndPhoneText.text)) {
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                text = stringResource(id = R.string.signature_update_mobile_id_status_no_country_code),
-                                color = Red500,
-                            )
-                        } else if (!mobileIdViewModel.isCountryCodeCorrect(countryCodeAndPhoneText.text)) {
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                text = stringResource(id = R.string.signature_update_mobile_id_invalid_country_code),
-                                color = Red500,
-                            )
-                        } else if (!mobileIdViewModel.isPhoneNumberCorrect(countryCodeAndPhoneText.text)) {
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                text = stringResource(id = R.string.signature_update_mobile_id_invalid_phone_number),
-                                color = Red500,
-                            )
-                        }
+                    if (countryCodeAndPhoneErrorText.isNotEmpty()) {
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = countryCodeAndPhoneErrorText,
+                            color = Red500,
+                        )
                     }
                 },
                 label = {
@@ -456,6 +458,17 @@ fun MobileIdView(
                         .padding(top = screenViewExtraLargePadding, bottom = screenViewLargePadding)
                         .notAccessible(),
             )
+            val personalCodeErrorText =
+                if (personalCodeText.text.isNotEmpty()) {
+                    if (!mobileIdViewModel.isPersonalCodeCorrect(personalCodeText.text)) {
+                        stringResource(id = R.string.signature_update_mobile_id_invalid_personal_code)
+                    } else {
+                        ""
+                    }
+                } else {
+                    ""
+                }
+
             TextField(
                 modifier =
                     modifier
@@ -463,7 +476,7 @@ fun MobileIdView(
                         .padding(bottom = screenViewLargePadding)
                         .clearAndSetSemantics {
                             contentDescription =
-                                "$personalCodeLabel ${formatNumbers(personalCodeText.text)}"
+                                "$personalCodeLabel ${formatNumbers(personalCodeText.text)} $personalCodeErrorText"
                         },
                 value = personalCodeText,
                 shape = RectangleShape,
@@ -474,14 +487,12 @@ fun MobileIdView(
                 singleLine = true,
                 isError = !mobileIdViewModel.isPersonalCodeValid(personalCodeText.text),
                 supportingText = {
-                    if (personalCodeText.text.isNotEmpty()) {
-                        if (!mobileIdViewModel.isPersonalCodeCorrect(personalCodeText.text)) {
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                text = stringResource(id = R.string.signature_update_mobile_id_invalid_personal_code),
-                                color = Red500,
-                            )
-                        }
+                    if (personalCodeErrorText.isNotEmpty()) {
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = personalCodeErrorText,
+                            color = Red500,
+                        )
                     }
                 },
                 textStyle = MaterialTheme.typography.titleLarge,
