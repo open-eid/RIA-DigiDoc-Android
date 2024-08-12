@@ -122,6 +122,8 @@ fun SmartIdView(
         mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getRoleZip()))
     }
 
+    val displayMessage = stringResource(id = R.string.signature_update_mobile_id_display_message)
+
     LaunchedEffect(smartIdViewModel.status) {
         smartIdViewModel.status.asFlow().collect { status ->
             status?.let {
@@ -477,6 +479,7 @@ fun SmartIdView(
                     }
                     CoroutineScope(Dispatchers.IO).launch {
                         smartIdViewModel.performSmartIdWorkRequest(
+                            displayMessage = displayMessage,
                             container = signedContainer,
                             personalCode = personalCodeText.text,
                             country = selectedCountry,

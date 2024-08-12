@@ -125,6 +125,8 @@ fun MobileIdView(
         mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getRoleZip()))
     }
 
+    val displayMessage = stringResource(id = R.string.signature_update_mobile_id_display_message)
+
     LaunchedEffect(mobileIdViewModel.status) {
         mobileIdViewModel.status.asFlow().collect { status ->
             status?.let {
@@ -382,6 +384,7 @@ fun MobileIdView(
                         .padding(vertical = screenViewLargePadding)
                         .notAccessible(),
             )
+            val countryCodeAndPhoneTextEdited = remember { mutableStateOf(false) }
             TextField(
                 modifier =
                     modifier
@@ -394,12 +397,15 @@ fun MobileIdView(
                 shape = RectangleShape,
                 onValueChange = {
                     countryCodeAndPhoneText = it
+                    countryCodeAndPhoneTextEdited.value = true
                 },
                 maxLines = 1,
                 singleLine = true,
-                isError = mobileIdViewModel.isPhoneNumberValid(countryCodeAndPhoneText.text),
+                isError =
+                    countryCodeAndPhoneTextEdited.value &&
+                        mobileIdViewModel.isPhoneNumberValid(countryCodeAndPhoneText.text),
                 supportingText = {
-                    if (countryCodeAndPhoneText.text.isNotEmpty()) {
+                    if (countryCodeAndPhoneTextEdited.value && countryCodeAndPhoneText.text.isNotEmpty()) {
                         if (mobileIdViewModel.isCountryCodeMissing(countryCodeAndPhoneText.text)) {
                             Text(
                                 modifier = Modifier.fillMaxWidth(),
@@ -565,6 +571,7 @@ fun MobileIdView(
                     }
                     CoroutineScope(Dispatchers.IO).launch {
                         mobileIdViewModel.performMobileIdWorkRequest(
+                            displayMessage = displayMessage,
                             container = signedContainer,
                             personalCode = personalCodeText.text,
                             phoneNumber = countryCodeAndPhoneText.text,

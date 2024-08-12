@@ -207,6 +207,7 @@ class SmartIdViewModel
         }
 
         suspend fun performSmartIdWorkRequest(
+            displayMessage: String,
             container: SignedContainer?,
             personalCode: String,
             country: Int,
@@ -218,9 +219,6 @@ class SmartIdViewModel
             val proxySetting: ProxySetting = dataStore.getProxySetting()
             val manualProxySettings: ManualProxy = dataStore.getManualProxySettings()
 
-            val displayMessage: String =
-                context
-                    .getString(R.string.signature_update_mobile_id_display_message)
             val request: SmartCreateSignatureRequest =
                 SmartCreateSignatureRequestHelper
                     .create(

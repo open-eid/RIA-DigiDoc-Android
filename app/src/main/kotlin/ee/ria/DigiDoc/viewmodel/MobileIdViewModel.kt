@@ -166,6 +166,7 @@ class MobileIdViewModel
         }
 
         suspend fun performMobileIdWorkRequest(
+            displayMessage: String,
             container: SignedContainer?,
             personalCode: String,
             phoneNumber: String,
@@ -177,9 +178,6 @@ class MobileIdViewModel
             val proxySetting: ProxySetting = dataStore.getProxySetting()
             val manualProxySettings: ManualProxy = dataStore.getManualProxySettings()
 
-            val displayMessage: String =
-                context
-                    .getString(R.string.signature_update_mobile_id_display_message)
             val request: MobileCreateSignatureRequest =
                 MobileCreateSignatureRequestHelper
                     .create(
