@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.ui.component.signing
 
 import android.content.res.Configuration
 import android.widget.Toast
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -423,8 +424,7 @@ fun SmartIdView(
                         .clearAndSetSemantics {
                             this.contentDescription =
                                 "$smartIdPersonalCodeLabel " +
-                                "${formatNumbers(personalCodeText.text)} " +
-                                personalCodeErrorText
+                                "${formatNumbers(personalCodeText.text)} "
                         },
                 value = personalCodeText,
                 shape = RectangleShape,
@@ -434,18 +434,23 @@ fun SmartIdView(
                 maxLines = 1,
                 singleLine = true,
                 isError = !smartIdViewModel.isPersonalCodeValid(personalCodeText.text),
-                supportingText = {
-                    if (personalCodeErrorText.isNotEmpty()) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = personalCodeErrorText,
-                            color = Red500,
-                        )
-                    }
-                },
                 textStyle = MaterialTheme.typography.titleLarge,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                keyboardOptions =
+                    KeyboardOptions(
+                        imeAction = ImeAction.Next,
+                        keyboardType = KeyboardType.Decimal,
+                    ),
             )
+            if (personalCodeErrorText.isNotEmpty()) {
+                Text(
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .focusable(enabled = true)
+                            .semantics { contentDescription = personalCodeErrorText },
+                    text = personalCodeErrorText,
+                    color = Red500,
+                )
+            }
             TextCheckBox(
                 checked = rememberMeCheckedState.value,
                 onCheckedChange = { rememberMeCheckedState.value = it },

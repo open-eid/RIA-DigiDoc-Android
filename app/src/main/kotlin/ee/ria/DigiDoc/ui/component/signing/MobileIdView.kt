@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.ui.component.signing
 
 import android.content.res.Configuration
 import android.widget.Toast
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -413,8 +414,7 @@ fun MobileIdView(
                         .clearAndSetSemantics {
                             contentDescription =
                                 "$countryCodeAndPhoneNumberLabel " +
-                                "${formatNumbers(countryCodeAndPhoneText.text)} " +
-                                countryCodeAndPhoneErrorText
+                                "${formatNumbers(countryCodeAndPhoneText.text)} "
                         },
                 value = countryCodeAndPhoneText,
                 shape = RectangleShape,
@@ -427,15 +427,6 @@ fun MobileIdView(
                 isError =
                     countryCodeAndPhoneTextEdited.value &&
                         !mobileIdViewModel.isPhoneNumberValid(countryCodeAndPhoneText.text),
-                supportingText = {
-                    if (countryCodeAndPhoneErrorText.isNotEmpty()) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = countryCodeAndPhoneErrorText,
-                            color = Red500,
-                        )
-                    }
-                },
                 label = {
                     Text(
                         modifier = modifier.notAccessible(),
@@ -450,6 +441,16 @@ fun MobileIdView(
                         keyboardType = KeyboardType.Decimal,
                     ),
             )
+            if (countryCodeAndPhoneErrorText.isNotEmpty()) {
+                Text(
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .focusable(enabled = true)
+                            .semantics { contentDescription = countryCodeAndPhoneErrorText },
+                    text = countryCodeAndPhoneErrorText,
+                    color = Red500,
+                )
+            }
             Text(
                 text = personalCodeLabel,
                 style = MaterialTheme.typography.titleLarge,
@@ -476,7 +477,7 @@ fun MobileIdView(
                         .padding(bottom = screenViewLargePadding)
                         .clearAndSetSemantics {
                             contentDescription =
-                                "$personalCodeLabel ${formatNumbers(personalCodeText.text)} $personalCodeErrorText"
+                                "$personalCodeLabel ${formatNumbers(personalCodeText.text)}"
                         },
                 value = personalCodeText,
                 shape = RectangleShape,
@@ -486,22 +487,23 @@ fun MobileIdView(
                 maxLines = 1,
                 singleLine = true,
                 isError = !mobileIdViewModel.isPersonalCodeValid(personalCodeText.text),
-                supportingText = {
-                    if (personalCodeErrorText.isNotEmpty()) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = personalCodeErrorText,
-                            color = Red500,
-                        )
-                    }
-                },
                 textStyle = MaterialTheme.typography.titleLarge,
                 keyboardOptions =
                     KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Done,
+                        imeAction = ImeAction.Next,
                         keyboardType = KeyboardType.Decimal,
                     ),
             )
+            if (personalCodeErrorText.isNotEmpty()) {
+                Text(
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .focusable(enabled = true)
+                            .semantics { contentDescription = personalCodeErrorText },
+                    text = personalCodeErrorText,
+                    color = Red500,
+                )
+            }
             TextCheckBox(
                 checked = rememberMeCheckedState.value,
                 onCheckedChange = { rememberMeCheckedState.value = it },
