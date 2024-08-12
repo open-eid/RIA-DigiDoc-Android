@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
@@ -302,212 +304,41 @@ fun SigningNavigation(
                     }
                 }
 
-                Column(
+                LazyColumn(
                     modifier =
-                        modifier
-                            .verticalScroll(rememberScrollState()),
+                    modifier,
                 ) {
-                    signedContainerName = signedContainer?.getName() ?: ""
-                    containerName = TextFieldValue(text = removeExtensionFromContainerFilename(signedContainerName))
-                    ContainerName(
-                        modifier =
-                            modifier
-                                .background(color = Normal),
-                        name = signedContainerName,
-                        isContainerSigned = signedContainer?.getSignatures()?.isNotEmpty() == true,
-                        onEditNameClick = {
-                            openEditContainerNameDialog.value = true
-                        },
-                        onSaveContainerClick = {
-                            actionDataFile = null
-                            val containerFile = SignedContainer.rawContainerFile()
-                            if (containerFile != null) {
-                                saveFile(
-                                    containerFile,
-                                    SignedContainer.mimeType(containerFile),
-                                    saveFileLauncher,
-                                )
-                            }
-                        },
-                    )
-
-                    Row(
-                        modifier =
-                            modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    horizontal = screenViewLargePadding,
-                                    vertical = screenViewExtraLargePadding,
-                                ),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        val containerDocumentsTitle =
-                            if (signingViewModel.isExistingContainerNoSignatures(signedContainer)) {
-                                R.string.signing_container_documents_title
-                            } else {
-                                R.string.signing_documents_title
-                            }
-                        Text(
-                            stringResource(
-                                id = containerDocumentsTitle,
-                            ),
+                    item {
+                        signedContainerName = signedContainer?.getName() ?: ""
+                        containerName =
+                            TextFieldValue(
+                                text = removeExtensionFromContainerFilename(signedContainerName),
+                            )
+                        ContainerName(
                             modifier =
                                 modifier
-                                    .weight(1f)
-                                    .semantics { heading() },
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-                    }
-
-                    HorizontalDivider(
-                        modifier =
-                            modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    horizontal = screenViewLargePadding,
-                                    vertical = itemSpacingPadding,
-                                )
-                                .height(dividerHeight),
-                    )
-
-                    signedContainer?.getDataFiles()?.forEach { dataFile ->
-                        val file = sharedContainerViewModel.getContainerDataFile(signedContainer, dataFile)
-                        ContainerFile(
-                            dataFile = dataFile,
-                            showRemoveButton = signingViewModel.isContainerWithoutSignatures(signedContainer),
-                            onClickView = {
-                                if (file != null) {
-                                    val intent =
-                                        createContainerAction(
-                                            context,
-                                            context.getString(R.string.file_provider_authority),
-                                            file,
-                                            SignedContainer.mimeType(file),
-                                            Intent.ACTION_VIEW,
-                                        )
-                                    ContextCompat.startActivity(context, intent, null)
+                                    .background(color = Normal),
+                            name = signedContainerName,
+                            isContainerSigned =
+                                signedContainer?.getSignatures()
+                                    ?.isNotEmpty() == true,
+                            onEditNameClick = {
+                                openEditContainerNameDialog.value = true
+                            },
+                            onSaveContainerClick = {
+                                actionDataFile = null
+                                val containerFile = SignedContainer.rawContainerFile()
+                                if (containerFile != null) {
+                                    saveFile(
+                                        containerFile,
+                                        SignedContainer.mimeType(containerFile),
+                                        saveFileLauncher,
+                                    )
                                 }
                             },
-                            onClickRemove = {
-                                actionDataFile = dataFile
-                                openRemoveFileDialog.value = true
-                            },
-                            onClickSave = {
-                                actionDataFile = dataFile
-                                saveFile(file, getDataFileMimetype(dataFile), saveFileLauncher)
-                            },
                         )
                     }
-
-                    if (signingViewModel.isContainerWithoutSignatures(signedContainer)) {
-                        Row(
-                            modifier =
-                                modifier
-                                    .fillMaxWidth()
-                                    .padding(screenViewLargePadding),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            PrimaryButton(
-                                onClickItem = {
-                                    navController.navigate(
-                                        Route.FileChoosing.route,
-                                    )
-                                },
-                                title = R.string.documents_add_button,
-                                contentDescription = stringResource(id = R.string.documents_add_button_accessibility),
-                                containerColor = MaterialTheme.colorScheme.background,
-                                contentColor = MaterialTheme.colorScheme.primary,
-                                isSubButton = true,
-                            )
-                        }
-                    }
-
-                    Row(
-                        modifier =
-                            modifier
-                                .fillMaxWidth()
-                                .padding(screenViewLargePadding),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            stringResource(
-                                id = R.string.signing_container_signatures_title,
-                            ),
-                            modifier =
-                                modifier
-                                    .weight(1f)
-                                    .semantics { heading() },
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-                    }
-
-                    if (signingViewModel.isExistingContainer(signedContainer) ||
-                        !signingViewModel.isContainerWithoutSignatures(signedContainer)
-                    ) {
-                        signedContainer?.getSignatures()?.forEach { signature ->
-                            HorizontalDivider(
-                                modifier =
-                                    modifier
-                                        .fillMaxWidth()
-                                        .padding(screenViewLargePadding)
-                                        .height(dividerHeight),
-                            )
-
-                            SignatureComponent(
-                                signature = signature,
-                                signingViewModel = signingViewModel,
-                                showRemoveButton =
-                                    !NO_REMOVE_SIGNATURE_BUTTON_FILE_EXTENSIONS.contains(
-                                        FilenameUtils.getExtension(signedContainer?.getName()),
-                                    ),
-                                onRemoveButtonClick = {
-                                    actionSignature = signature
-                                    openRemoveSignatureDialog.value = true
-                                },
-                                showRolesDetailsButton =
-                                    !signingViewModel.isRoleEmpty(
-                                        signature = signature,
-                                    ),
-                                onRolesDetailsButtonClick = {
-                                    sharedSignatureViewModel.setSignature(signature)
-                                    navController.navigate(
-                                        Route.RolesDetail.route,
-                                    )
-                                },
-                                onSignerDetailsButtonClick = {
-                                    sharedSignatureViewModel.setSignature(signature)
-                                    navController.navigate(
-                                        Route.SignerDetail.route,
-                                    )
-                                },
-                            )
-                            HorizontalDivider(
-                                modifier =
-                                    modifier
-                                        .fillMaxWidth()
-                                        .padding(screenViewLargePadding)
-                                        .height(dividerHeight),
-                            )
-                        }
-                    }
-
-                    if (signingViewModel.isContainerWithoutSignatures(signedContainer)) {
-                        HorizontalDivider(
-                            modifier =
-                                modifier
-                                    .fillMaxWidth()
-                                    .padding(screenViewLargePadding)
-                                    .height(dividerHeight),
-                        )
-
+                    item {
                         Row(
                             modifier =
                                 modifier
@@ -516,15 +347,204 @@ fun SigningNavigation(
                                         horizontal = screenViewLargePadding,
                                         vertical = screenViewExtraLargePadding,
                                     ),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            val containerDocumentsTitle =
+                                if (signingViewModel.isExistingContainerNoSignatures(signedContainer)) {
+                                    R.string.signing_container_documents_title
+                                } else {
+                                    R.string.signing_documents_title
+                                }
+                            Text(
+                                stringResource(
+                                    id = containerDocumentsTitle,
+                                ),
+                                modifier =
+                                    modifier
+                                        .weight(1f)
+                                        .semantics { heading() },
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.titleLarge,
+                            )
+                        }
+
+                        HorizontalDivider(
+                            modifier =
+                                modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        horizontal = screenViewLargePadding,
+                                        vertical = itemSpacingPadding,
+                                    )
+                                    .height(dividerHeight),
+                        )
+                    }
+                    signedContainer?.let {
+                        items(it.getDataFiles()) { dataFile ->
+                            val file = sharedContainerViewModel.getContainerDataFile(signedContainer, dataFile)
+                            ContainerFile(
+                                dataFile = dataFile,
+                                showRemoveButton = signingViewModel.isContainerWithoutSignatures(signedContainer),
+                                onClickView = {
+                                    if (file != null) {
+                                        val intent =
+                                            createContainerAction(
+                                                context,
+                                                context.getString(R.string.file_provider_authority),
+                                                file,
+                                                SignedContainer.mimeType(file),
+                                                Intent.ACTION_VIEW,
+                                            )
+                                        ContextCompat.startActivity(context, intent, null)
+                                    }
+                                },
+                                onClickRemove = {
+                                    actionDataFile = dataFile
+                                    openRemoveFileDialog.value = true
+                                },
+                                onClickSave = {
+                                    actionDataFile = dataFile
+                                    saveFile(file, getDataFileMimetype(dataFile), saveFileLauncher)
+                                },
+                            )
+                        }
+                    }
+
+                    if (signingViewModel.isContainerWithoutSignatures(signedContainer)) {
+                        item {
+                            Row(
+                                modifier =
+                                    modifier
+                                        .fillMaxWidth()
+                                        .padding(screenViewLargePadding),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                PrimaryButton(
+                                    onClickItem = {
+                                        navController.navigate(
+                                            Route.FileChoosing.route,
+                                        )
+                                    },
+                                    title = R.string.documents_add_button,
+                                    contentDescription =
+                                        stringResource(
+                                            id = R.string.documents_add_button_accessibility,
+                                        ),
+                                    containerColor = MaterialTheme.colorScheme.background,
+                                    contentColor = MaterialTheme.colorScheme.primary,
+                                    isSubButton = true,
+                                )
+                            }
+                        }
+                    }
+
+                    item {
+                        Row(
+                            modifier =
+                                modifier
+                                    .fillMaxWidth()
+                                    .padding(screenViewLargePadding),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
                                 stringResource(
-                                    id = R.string.signing_container_signatures_empty,
+                                    id = R.string.signing_container_signatures_title,
                                 ),
-                                modifier = modifier.weight(1f),
+                                modifier =
+                                    modifier
+                                        .weight(1f)
+                                        .semantics { heading() },
                                 textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.titleLarge,
                             )
+                        }
+                    }
+                    if (signingViewModel.isExistingContainer(signedContainer) ||
+                        !signingViewModel.isContainerWithoutSignatures(signedContainer)
+                    ) {
+                        signedContainer?.let {
+                            items(it.getSignatures()) { signature ->
+                                HorizontalDivider(
+                                    modifier =
+                                        modifier
+                                            .fillMaxWidth()
+                                            .padding(screenViewLargePadding)
+                                            .height(dividerHeight),
+                                )
+
+                                SignatureComponent(
+                                    signature = signature,
+                                    signingViewModel = signingViewModel,
+                                    showRemoveButton =
+                                        !NO_REMOVE_SIGNATURE_BUTTON_FILE_EXTENSIONS.contains(
+                                            FilenameUtils.getExtension(signedContainer?.getName()),
+                                        ),
+                                    onRemoveButtonClick = {
+                                        actionSignature = signature
+                                        openRemoveSignatureDialog.value = true
+                                    },
+                                    showRolesDetailsButton =
+                                        !signingViewModel.isRoleEmpty(
+                                            signature = signature,
+                                        ),
+                                    onRolesDetailsButtonClick = {
+                                        sharedSignatureViewModel.setSignature(signature)
+                                        navController.navigate(
+                                            Route.RolesDetail.route,
+                                        )
+                                    },
+                                    onSignerDetailsButtonClick = {
+                                        sharedSignatureViewModel.setSignature(signature)
+                                        navController.navigate(
+                                            Route.SignerDetail.route,
+                                        )
+                                    },
+                                )
+                                HorizontalDivider(
+                                    modifier =
+                                        modifier
+                                            .fillMaxWidth()
+                                            .padding(screenViewLargePadding)
+                                            .height(dividerHeight),
+                                )
+                            }
+                        }
+                    }
+
+                    if (signingViewModel.isContainerWithoutSignatures(signedContainer)) {
+                        item {
+                            HorizontalDivider(
+                                modifier =
+                                    modifier
+                                        .fillMaxWidth()
+                                        .padding(screenViewLargePadding)
+                                        .height(dividerHeight),
+                            )
+
+                            Row(
+                                modifier =
+                                    modifier
+                                        .fillMaxWidth()
+                                        .padding(
+                                            horizontal = screenViewLargePadding,
+                                            vertical = screenViewExtraLargePadding,
+                                        ),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    stringResource(
+                                        id = R.string.signing_container_signatures_empty,
+                                    ),
+                                    modifier = modifier.weight(1f),
+                                    textAlign = TextAlign.Center,
+                                )
+                            }
                         }
                     }
                 }

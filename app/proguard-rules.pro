@@ -14,3 +14,7 @@
 # Ignore Missing classes detected while running R8 warning.
 -dontwarn com.gemalto.jp2.JP2Decoder
 -dontwarn com.google.j2objc.annotations.RetainedWith
+
+-keep class ee.ria.libdigidocpp.* {
+    *;
+}
