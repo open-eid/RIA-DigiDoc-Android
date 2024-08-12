@@ -406,7 +406,7 @@ fun SmartIdView(
                 },
                 maxLines = 1,
                 singleLine = true,
-                isError = smartIdViewModel.isPersonalCodeValid(personalCodeText.text),
+                isError = !smartIdViewModel.isPersonalCodeValid(personalCodeText.text),
                 supportingText = {
                     if (personalCodeText.text.isNotEmpty()) {
                         if (!smartIdViewModel.isPersonalCodeCorrect(personalCodeText.text)) {

@@ -403,7 +403,7 @@ fun MobileIdView(
                 singleLine = true,
                 isError =
                     countryCodeAndPhoneTextEdited.value &&
-                        mobileIdViewModel.isPhoneNumberValid(countryCodeAndPhoneText.text),
+                        !mobileIdViewModel.isPhoneNumberValid(countryCodeAndPhoneText.text),
                 supportingText = {
                     if (countryCodeAndPhoneTextEdited.value && countryCodeAndPhoneText.text.isNotEmpty()) {
                         if (mobileIdViewModel.isCountryCodeMissing(countryCodeAndPhoneText.text)) {
@@ -486,7 +486,7 @@ fun MobileIdView(
                 },
                 maxLines = 1,
                 singleLine = true,
-                isError = mobileIdViewModel.isPersonalCodeValid(personalCodeText.text),
+                isError = !mobileIdViewModel.isPersonalCodeValid(personalCodeText.text),
                 supportingText = {
                     if (personalCodeText.text.isNotEmpty()) {
                         if (!mobileIdViewModel.isPersonalCodeCorrect(personalCodeText.text)) {
