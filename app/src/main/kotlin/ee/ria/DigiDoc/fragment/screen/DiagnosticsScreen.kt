@@ -53,6 +53,7 @@ import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
 import ee.ria.DigiDoc.utilsLib.toast.ToastUtil.showMessage
 import ee.ria.DigiDoc.viewmodel.DiagnosticsViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
@@ -65,6 +66,7 @@ import java.io.File
 fun DiagnosticsScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    sharedSettingsViewModel: SharedSettingsViewModel,
     diagnosticsViewModel: DiagnosticsViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -112,8 +114,7 @@ fun DiagnosticsScreen(
                 diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(false)
                 diagnosticsViewModel.dataStore.setIsLogFileGenerationRunning(false)
                 AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, settingValueChanged)
-                activity.finish()
-                activity.startActivity(activity.intent)
+                sharedSettingsViewModel.recreateActivity()
             }
         }
 
@@ -281,8 +282,7 @@ fun DiagnosticsScreen(
                         diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(false)
                         diagnosticsViewModel.dataStore.setIsLogFileGenerationRunning(false)
                         AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, settingValueChanged)
-                        activity.finish()
-                        activity.startActivity(activity.intent)
+                        sharedSettingsViewModel.recreateActivity()
                     }
                 },
                 title = stringResource(id = R.string.main_diagnostics_logging_switch),
@@ -412,8 +412,7 @@ fun DiagnosticsScreen(
                                     TYPE_ANNOUNCEMENT,
                                     settingValueChanged,
                                 )
-                                activity.finish()
-                                activity.startActivity(activity.intent)
+                                sharedSettingsViewModel.recreateActivity()
                             },
                         )
                     }
@@ -428,9 +427,11 @@ fun DiagnosticsScreen(
 @Composable
 fun DiagnosticsScreenPreview() {
     val navController = rememberNavController()
+    val sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel()
     RIADigiDocTheme {
         DiagnosticsScreen(
             navController = navController,
+            sharedSettingsViewModel = sharedSettingsViewModel,
         )
     }
 }

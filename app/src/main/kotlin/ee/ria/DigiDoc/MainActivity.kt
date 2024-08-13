@@ -21,8 +21,17 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var dataStore: DataStore
 
+    @Inject
+    lateinit var fileTypeSetup: FileTypeSetup
+
+    @Inject
+    lateinit var activityManager: ActivityManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val componentClassName = this.javaClass.name
+        val externalFileUri = intent?.data
 
         val locale = dataStore.getLocale()
         if (locale != null) {
@@ -34,12 +43,21 @@ class MainActivity : ComponentActivity() {
             resources.updateConfiguration(config, resources.displayMetrics)
         }
 
+        // Observe if activity needs to be recreated for changes to take effect (eg. Settings)
+        activityManager.shouldRecreateActivity.observe(this) { shouldRecreate ->
+            if (shouldRecreate) {
+                activityManager.setShouldRecreateActivity(false)
+                activityManager.recreateActivity(this)
+            }
+        }
+
         lifecycleScope.launch {
+            fileTypeSetup.initializeApplicationFileTypesAssociation(componentClassName)
             librarySetup.setupLibraries(applicationContext)
         }
         setContent {
             RIADigiDocTheme {
-                RIADigiDocAppScreen()
+                RIADigiDocAppScreen(externalFileUri)
             }
         }
     }

@@ -48,6 +48,7 @@ fun FileOpeningNavigation(
 ) {
     val context = LocalContext.current
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
+    val externalFileUri by sharedContainerViewModel.externalFileUri.collectAsState()
     val filePicker =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetMultipleContents(),
@@ -85,7 +86,11 @@ fun FileOpeningNavigation(
     BackHandler {
         CoroutineScope(Dispatchers.Main).launch {
             fileOpeningViewModel.resetContainer()
-            navController.popBackStack()
+            if (externalFileUri != null) {
+                navController.popBackStack()
+            } else {
+                navController.navigateUp()
+            }
         }
     }
 
@@ -122,10 +127,18 @@ fun FileOpeningNavigation(
     }
 
     LaunchedEffect(fileOpeningViewModel.launchFilePicker) {
-        fileOpeningViewModel.launchFilePicker.asFlow().collect { launchFilePicker ->
-            launchFilePicker?.let {
-                if (it) {
-                    fileOpeningViewModel.showFileChooser(filePicker)
+        if (externalFileUri == null) {
+            fileOpeningViewModel.launchFilePicker.asFlow().collect { launchFilePicker ->
+                launchFilePicker?.let {
+                    if (it) {
+                        fileOpeningViewModel.showFileChooser(filePicker)
+                    }
+                }
+            }
+        } else {
+            externalFileUri?.let { fileUri ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    fileOpeningViewModel.handleFiles(listOf(fileUri))
                 }
             }
         }

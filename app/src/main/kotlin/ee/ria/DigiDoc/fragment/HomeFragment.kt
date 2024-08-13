@@ -3,11 +3,13 @@
 package ee.ria.DigiDoc.fragment
 
 import android.content.res.Configuration
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
@@ -21,7 +23,19 @@ fun HomeFragment(
     navController: NavHostController,
     navBarNavController: NavHostController,
     modifier: Modifier = Modifier,
+    externalFileUri: Uri?,
 ) {
+    LaunchedEffect(Unit) {
+        if (externalFileUri != null) {
+            navController.navigate(Route.FileChoosing.route) {
+                popUpTo(Route.Home.route) {
+                    inclusive = false
+                }
+                launchSingleTop = true
+            }
+        }
+    }
+
     Surface(
         modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         color = MaterialTheme.colorScheme.background,
@@ -58,6 +72,7 @@ fun HomeFragmentPreview() {
         HomeFragment(
             navController = navController,
             navBarNavController = navBarNavController,
+            externalFileUri = Uri.EMPTY,
         )
     }
 }

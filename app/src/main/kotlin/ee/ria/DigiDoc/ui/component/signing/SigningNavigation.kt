@@ -111,7 +111,7 @@ fun SigningNavigation(
     val context = LocalContext.current
     val signatureAddedSuccess = remember { mutableStateOf(false) }
     BackHandler {
-        handleBackButtonClick(navController, signingViewModel)
+        handleBackButtonClick(navController, signingViewModel, sharedContainerViewModel)
     }
 
     DisposableEffect(shouldResetContainer) {
@@ -275,7 +275,7 @@ fun SigningNavigation(
                     modifier = modifier,
                     title = R.string.signing_title_container_existing,
                     onBackButtonClick = {
-                        handleBackButtonClick(navController, signingViewModel)
+                        handleBackButtonClick(navController, signingViewModel, sharedContainerViewModel)
                     },
                 )
                 if (signatureAddedSuccess.value) {
@@ -613,7 +613,7 @@ fun SigningNavigation(
                                 if ((signedContainer?.getDataFiles()?.size ?: 0) == 1) {
                                     signedContainer?.getContainerFile()?.delete()
                                     sharedContainerViewModel.resetSignedContainer()
-                                    handleBackButtonClick(navController, signingViewModel)
+                                    handleBackButtonClick(navController, signingViewModel, sharedContainerViewModel)
                                 } else {
                                     CoroutineScope(IO).launch {
                                         sharedContainerViewModel.removeContainerDataFile(
@@ -665,7 +665,9 @@ fun SigningNavigation(
 fun handleBackButtonClick(
     navController: NavHostController,
     signingViewModel: SigningViewModel,
+    sharedContainerViewModel: SharedContainerViewModel,
 ) {
+    sharedContainerViewModel.resetExternalFileUri()
     signingViewModel.handleBackButton()
     navController.navigateUp()
 }

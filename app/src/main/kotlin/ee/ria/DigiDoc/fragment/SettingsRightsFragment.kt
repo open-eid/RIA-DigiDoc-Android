@@ -21,15 +21,22 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 fun SettingsRightsFragment(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
+    sharedSettingsViewModel: SharedSettingsViewModel,
 ) {
     Surface(
-        modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
         color = MaterialTheme.colorScheme.background,
     ) {
         SettingsRightsScreen(
             navController = navController,
             modifier = modifier,
+            getIsScreenshotAllowed = sharedSettingsViewModel.dataStore::getSettingsAllowScreenshots,
+            setIsScreenshotAllowed = sharedSettingsViewModel.dataStore::setSettingsAllowScreenshots,
+            getIsOpenAllFileTypesEnabled = sharedSettingsViewModel.dataStore::getSettingsOpenAllFileTypes,
+            setIsOpenAllFileTypesEnabled = sharedSettingsViewModel.dataStore::setSettingsOpenAllFileTypes,
             sharedSettingsViewModel = sharedSettingsViewModel,
         )
     }
@@ -40,7 +47,8 @@ fun SettingsRightsFragment(
 @Composable
 fun SettingsRightsFragmentPreview() {
     val navController = rememberNavController()
+    val sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel()
     RIADigiDocTheme {
-        SettingsRightsFragment(navController)
+        SettingsRightsFragment(navController, sharedSettingsViewModel = sharedSettingsViewModel)
     }
 }
