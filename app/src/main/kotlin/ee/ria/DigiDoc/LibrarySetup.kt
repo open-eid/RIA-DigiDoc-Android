@@ -11,6 +11,8 @@ import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -28,14 +30,16 @@ class LibrarySetup
                 TSLUtil.setupTSLFiles(context)
                 configurationLoader.initConfiguration(context)
             } catch (ex: Exception) {
-                errorLog(logTag, "Unable to initialize configuration", ex)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        context,
-                        R.string.configuration_initialization_failed,
-                        Toast.LENGTH_LONG,
-                    )
-                        .show()
+                if (ex !is UnknownHostException && ex !is SocketTimeoutException) {
+                    errorLog(logTag, "Unable to initialize configuration", ex)
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            context,
+                            R.string.configuration_initialization_failed,
+                            Toast.LENGTH_LONG,
+                        )
+                            .show()
+                    }
                 }
             }
 
