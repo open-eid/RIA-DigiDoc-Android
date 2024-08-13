@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.ui.component.signing
 
 import android.content.res.Configuration
 import android.widget.Toast
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,8 +38,10 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -57,6 +60,7 @@ import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.SmartIdViewModel
@@ -85,6 +89,9 @@ fun SmartIdView(
     val roleDataRequested by smartIdViewModel.roleDataRequested.asFlow().collectAsState(null)
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
 
+    val smartIdCountryLabel = stringResource(id = R.string.signature_update_smart_id_country)
+    val smartIdPersonalCodeLabel = stringResource(id = R.string.signature_update_mobile_id_personal_code)
+
     val roleLabel = stringResource(id = R.string.main_settings_role_title)
     val cityLabel = stringResource(id = R.string.main_settings_city_title)
     val stateLabel = stringResource(id = R.string.main_settings_county_title)
@@ -100,6 +107,7 @@ fun SmartIdView(
         mutableStateOf(
             TextFieldValue(
                 text = sharedSettingsViewModel.dataStore.getSidPersonalCode(),
+                selection = TextRange(sharedSettingsViewModel.dataStore.getSidPersonalCode().length),
             ),
         )
     }
@@ -120,6 +128,8 @@ fun SmartIdView(
     var zipText by remember {
         mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getRoleZip()))
     }
+
+    val displayMessage = stringResource(id = R.string.signature_update_mobile_id_display_message)
 
     LaunchedEffect(smartIdViewModel.status) {
         smartIdViewModel.status.asFlow().collect { status ->
@@ -370,9 +380,9 @@ fun SmartIdView(
                 textAlign = TextAlign.Center,
             )
             Text(
-                text = stringResource(id = R.string.signature_update_smart_id_country),
+                text = smartIdCountryLabel,
                 style = MaterialTheme.typography.titleLarge,
-                modifier = modifier.padding(vertical = screenViewLargePadding),
+                modifier = modifier.padding(vertical = screenViewLargePadding).notAccessible(),
             )
             SelectionSpinner(
                 list = countriesList,
@@ -380,22 +390,42 @@ fun SmartIdView(
                 onSelectionChanged = {
                     selectedCountry = it
                 },
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .clearAndSetSemantics {
+                            contentDescription =
+                                "$smartIdCountryLabel ${countriesList[selectedCountry]}"
+                        },
             )
             Text(
-                text = stringResource(id = R.string.signature_update_mobile_id_personal_code),
+                text = smartIdPersonalCodeLabel,
                 style = MaterialTheme.typography.titleLarge,
                 modifier =
                     modifier.padding(
                         top = screenViewExtraLargePadding,
                         bottom = screenViewLargePadding,
-                    ),
+                    ).notAccessible(),
             )
+            val personalCodeErrorText =
+                if (personalCodeText.text.isNotEmpty()) {
+                    if (!smartIdViewModel.isPersonalCodeCorrect(personalCodeText.text)) {
+                        stringResource(id = R.string.signature_update_mobile_id_invalid_personal_code)
+                    } else {
+                        ""
+                    }
+                } else {
+                    ""
+                }
             TextField(
                 modifier =
                     modifier
                         .fillMaxWidth()
-                        .padding(bottom = screenViewLargePadding),
+                        .padding(bottom = screenViewLargePadding)
+                        .clearAndSetSemantics {
+                            this.contentDescription =
+                                "$smartIdPersonalCodeLabel " +
+                                "${formatNumbers(personalCodeText.text)} "
+                        },
                 value = personalCodeText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -403,9 +433,24 @@ fun SmartIdView(
                 },
                 maxLines = 1,
                 singleLine = true,
+                isError = !smartIdViewModel.isPersonalCodeValid(personalCodeText.text),
                 textStyle = MaterialTheme.typography.titleLarge,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                keyboardOptions =
+                    KeyboardOptions(
+                        imeAction = ImeAction.Next,
+                        keyboardType = KeyboardType.Decimal,
+                    ),
             )
+            if (personalCodeErrorText.isNotEmpty()) {
+                Text(
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .focusable(enabled = true)
+                            .semantics { contentDescription = personalCodeErrorText },
+                    text = personalCodeErrorText,
+                    color = Red500,
+                )
+            }
             TextCheckBox(
                 checked = rememberMeCheckedState.value,
                 onCheckedChange = { rememberMeCheckedState.value = it },
@@ -464,6 +509,7 @@ fun SmartIdView(
                     }
                     CoroutineScope(Dispatchers.IO).launch {
                         smartIdViewModel.performSmartIdWorkRequest(
+                            displayMessage = displayMessage,
                             container = signedContainer,
                             personalCode = personalCodeText.text,
                             country = selectedCountry,

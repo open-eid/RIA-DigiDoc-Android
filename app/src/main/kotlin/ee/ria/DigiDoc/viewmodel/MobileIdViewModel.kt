@@ -166,6 +166,7 @@ class MobileIdViewModel
         }
 
         suspend fun performMobileIdWorkRequest(
+            displayMessage: String,
             container: SignedContainer?,
             personalCode: String,
             phoneNumber: String,
@@ -177,9 +178,6 @@ class MobileIdViewModel
             val proxySetting: ProxySetting = dataStore.getProxySetting()
             val manualProxySettings: ManualProxy = dataStore.getManualProxySettings()
 
-            val displayMessage: String =
-                context
-                    .getString(R.string.signature_update_mobile_id_display_message)
             val request: MobileCreateSignatureRequest =
                 MobileCreateSignatureRequestHelper
                     .create(
@@ -250,11 +248,6 @@ class MobileIdViewModel
                 }
                 mobileSignService.response.observeForever {
                     when (it?.status) {
-                        MobileCreateSignatureProcessStatus.USER_CANCELLED -> {
-                            _status.postValue(it.status)
-                            _errorState.postValue(null)
-                        }
-
                         MobileCreateSignatureProcessStatus.OK -> {
                             CoroutineScope(Dispatchers.Main).launch {
                                 _status.postValue(it.status)
@@ -298,13 +291,31 @@ class MobileIdViewModel
             }
         }
 
+        fun isPersonalCodeValid(personalCode: String?): Boolean {
+            return !(
+                !personalCode.isNullOrEmpty() &&
+                    !isPersonalCodeCorrect(personalCode)
+            )
+        }
+
+        fun isPhoneNumberValid(phoneNumber: String?): Boolean {
+            if (!phoneNumber.isNullOrEmpty()) {
+                if (isCountryCodeMissing(phoneNumber)) {
+                    return false
+                } else if (!isCountryCodeCorrect(phoneNumber)) {
+                    return false
+                } else if (!isPhoneNumberCorrect(phoneNumber)) {
+                    return false
+                }
+            }
+            return true
+        }
+
         fun positiveButtonEnabled(
             phoneNumber: String?,
             personalCode: String?,
         ): Boolean {
             if (phoneNumber != null && personalCode != null) {
-                validatePersonalCode(personalCode)
-
                 return isCountryCodeCorrect(phoneNumber.toString()) &&
                     isPhoneNumberCorrect(phoneNumber.toString()) &&
                     isPersonalCodeCorrect(personalCode.toString())
@@ -312,7 +323,12 @@ class MobileIdViewModel
             return false
         }
 
-        private fun isCountryCodeCorrect(phoneNumber: String): Boolean {
+        fun isCountryCodeMissing(phoneNumber: String): Boolean {
+            return phoneNumber.length in 4..<MINIMUM_PHONE_NUMBER_LENGTH &&
+                !isCountryCodeCorrect(phoneNumber)
+        }
+
+        fun isCountryCodeCorrect(phoneNumber: String): Boolean {
             for (allowedCountryCode in ALLOWED_PHONE_NUMBER_COUNTRY_CODES) {
                 if (phoneNumber.startsWith(allowedCountryCode)) {
                     return true
@@ -321,11 +337,11 @@ class MobileIdViewModel
             return false
         }
 
-        private fun isPhoneNumberCorrect(phoneNumber: String): Boolean {
+        fun isPhoneNumberCorrect(phoneNumber: String): Boolean {
             return phoneNumber.length >= MINIMUM_PHONE_NUMBER_LENGTH
         }
 
-        private fun isPersonalCodeCorrect(personalCode: String): Boolean {
-            return personalCode.length == MAXIMUM_PERSONAL_CODE_LENGTH
+        fun isPersonalCodeCorrect(personalCode: String): Boolean {
+            return validatePersonalCode(personalCode) && personalCode.length == MAXIMUM_PERSONAL_CODE_LENGTH
         }
     }

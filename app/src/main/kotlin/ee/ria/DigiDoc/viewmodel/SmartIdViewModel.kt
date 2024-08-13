@@ -207,6 +207,7 @@ class SmartIdViewModel
         }
 
         suspend fun performSmartIdWorkRequest(
+            displayMessage: String,
             container: SignedContainer?,
             personalCode: String,
             country: Int,
@@ -218,9 +219,6 @@ class SmartIdViewModel
             val proxySetting: ProxySetting = dataStore.getProxySetting()
             val manualProxySettings: ManualProxy = dataStore.getManualProxySettings()
 
-            val displayMessage: String =
-                context
-                    .getString(R.string.signature_update_mobile_id_display_message)
             val request: SmartCreateSignatureRequest =
                 SmartCreateSignatureRequestHelper
                     .create(
@@ -359,14 +357,20 @@ class SmartIdViewModel
             personalCode: String?,
         ): Boolean {
             if (personalCode != null) {
-                validatePersonalCode(personalCode)
                 return country != 0 || isPersonalCodeCorrect(personalCode)
             }
             return false
         }
 
-        private fun isPersonalCodeCorrect(personalCode: String): Boolean {
-            return personalCode.length == MAXIMUM_PERSONAL_CODE_LENGTH
+        fun isPersonalCodeValid(personalCode: String?): Boolean {
+            return !(
+                !personalCode.isNullOrEmpty() &&
+                    !isPersonalCodeCorrect(personalCode)
+            )
+        }
+
+        fun isPersonalCodeCorrect(personalCode: String): Boolean {
+            return validatePersonalCode(personalCode) && personalCode.length == MAXIMUM_PERSONAL_CODE_LENGTH
         }
 
         @Throws(NumberFormatException::class)

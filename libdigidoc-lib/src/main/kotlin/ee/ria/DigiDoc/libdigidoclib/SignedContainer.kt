@@ -57,16 +57,19 @@ class SignedContainer(dataFiles: List<DataFileInterface>?, signatures: List<Sign
         context: Context,
         filename: String,
     ) {
-        val containerName = ContainerUtil.addExtensionToContainerFilename(filename)
-        val newFile = File(containerFile?.parent, containerName)
+        val name = sanitizeString(filename, "")
+        val containerName = name?.let { ContainerUtil.addExtensionToContainerFilename(it) }
+        val newFile = containerName?.let { File(containerFile?.parent, it) }
 
-        containerFile?.renameTo(newFile)
-        containerFile = newFile
+        if (newFile != null) {
+            containerFile?.renameTo(newFile)
+            containerFile = newFile
 
-        open(context, containerFile)
+            open(context, containerFile)
 
-        containerFile?.let {
-            container?.save()
+            containerFile?.let {
+                container?.save()
+            }
         }
     }
 

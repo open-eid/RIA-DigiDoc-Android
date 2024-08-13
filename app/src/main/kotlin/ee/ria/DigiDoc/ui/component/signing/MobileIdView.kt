@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.ui.component.signing
 
 import android.content.res.Configuration
 import android.widget.Toast
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,15 +30,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
@@ -55,9 +54,11 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
+import ee.ria.DigiDoc.ui.theme.Blue500
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.MobileIdViewModel
@@ -96,14 +97,23 @@ fun MobileIdView(
     val zipLabel = stringResource(id = R.string.main_settings_postal_code_title)
 
     val focusManager = LocalFocusManager.current
-    val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
     var countryCodeAndPhoneText by remember {
-        mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getPhoneNo()))
+        mutableStateOf(
+            TextFieldValue(
+                text = sharedSettingsViewModel.dataStore.getPhoneNo(),
+                selection = TextRange(sharedSettingsViewModel.dataStore.getPhoneNo().length),
+            ),
+        )
     }
     var personalCodeText by remember {
-        mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getPersonalCode()))
+        mutableStateOf(
+            TextFieldValue(
+                text = sharedSettingsViewModel.dataStore.getPersonalCode(),
+                selection = TextRange(sharedSettingsViewModel.dataStore.getPersonalCode().length),
+            ),
+        )
     }
     val rememberMeCheckedState = remember { mutableStateOf(true) }
 
@@ -122,6 +132,8 @@ fun MobileIdView(
     var zipText by remember {
         mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getRoleZip()))
     }
+
+    val displayMessage = stringResource(id = R.string.signature_update_mobile_id_display_message)
 
     LaunchedEffect(mobileIdViewModel.status) {
         mobileIdViewModel.status.asFlow().collect { status ->
@@ -380,25 +392,46 @@ fun MobileIdView(
                         .padding(vertical = screenViewLargePadding)
                         .notAccessible(),
             )
+            val countryCodeAndPhoneTextEdited = remember { mutableStateOf(false) }
+            val countryCodeAndPhoneErrorText =
+                if (countryCodeAndPhoneTextEdited.value && countryCodeAndPhoneText.text.isNotEmpty()) {
+                    if (mobileIdViewModel.isCountryCodeMissing(countryCodeAndPhoneText.text)) {
+                        stringResource(id = R.string.signature_update_mobile_id_status_no_country_code)
+                    } else if (!mobileIdViewModel.isCountryCodeCorrect(countryCodeAndPhoneText.text)) {
+                        stringResource(id = R.string.signature_update_mobile_id_invalid_country_code)
+                    } else if (!mobileIdViewModel.isPhoneNumberCorrect(countryCodeAndPhoneText.text)) {
+                        stringResource(id = R.string.signature_update_mobile_id_invalid_phone_number)
+                    } else {
+                        ""
+                    }
+                } else {
+                    ""
+                }
             TextField(
                 modifier =
                     modifier
                         .fillMaxWidth()
-                        .semantics {
+                        .clearAndSetSemantics {
                             contentDescription =
-                                "$countryCodeAndPhoneNumberLabel ${formatNumbers(countryCodeAndPhoneText.text)}"
+                                "$countryCodeAndPhoneNumberLabel " +
+                                "${formatNumbers(countryCodeAndPhoneText.text)} "
                         },
                 value = countryCodeAndPhoneText,
                 shape = RectangleShape,
                 onValueChange = {
                     countryCodeAndPhoneText = it
+                    countryCodeAndPhoneTextEdited.value = true
                 },
                 maxLines = 1,
                 singleLine = true,
+                isError =
+                    countryCodeAndPhoneTextEdited.value &&
+                        !mobileIdViewModel.isPhoneNumberValid(countryCodeAndPhoneText.text),
                 label = {
                     Text(
                         modifier = modifier.notAccessible(),
                         text = stringResource(id = R.string.mobile_id_country_code_and_phone_number_placeholder),
+                        color = Blue500,
                     )
                 },
                 textStyle = MaterialTheme.typography.titleLarge,
@@ -407,18 +440,17 @@ fun MobileIdView(
                         imeAction = ImeAction.Next,
                         keyboardType = KeyboardType.Decimal,
                     ),
-                keyboardActions =
-                    KeyboardActions(
-                        onNext = {
-                            focusRequester.requestFocus()
-                            countryCodeAndPhoneText =
-                                countryCodeAndPhoneText.copy(
-                                    text = countryCodeAndPhoneText.text,
-                                    selection = TextRange(countryCodeAndPhoneText.text.length),
-                                )
-                        },
-                    ),
             )
+            if (countryCodeAndPhoneErrorText.isNotEmpty()) {
+                Text(
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .focusable(enabled = true)
+                            .semantics { contentDescription = countryCodeAndPhoneErrorText },
+                    text = countryCodeAndPhoneErrorText,
+                    color = Red500,
+                )
+            }
             Text(
                 text = personalCodeLabel,
                 style = MaterialTheme.typography.titleLarge,
@@ -427,22 +459,23 @@ fun MobileIdView(
                         .padding(top = screenViewExtraLargePadding, bottom = screenViewLargePadding)
                         .notAccessible(),
             )
+            val personalCodeErrorText =
+                if (personalCodeText.text.isNotEmpty()) {
+                    if (!mobileIdViewModel.isPersonalCodeCorrect(personalCodeText.text)) {
+                        stringResource(id = R.string.signature_update_mobile_id_invalid_personal_code)
+                    } else {
+                        ""
+                    }
+                } else {
+                    ""
+                }
+
             TextField(
                 modifier =
                     modifier
                         .fillMaxWidth()
                         .padding(bottom = screenViewLargePadding)
-                        .focusRequester(focusRequester)
-                        .onFocusChanged { focusState ->
-                            if (focusState.isFocused) {
-                                personalCodeText =
-                                    personalCodeText.copy(
-                                        text = personalCodeText.text,
-                                        selection = TextRange(personalCodeText.text.length),
-                                    )
-                            }
-                        }
-                        .semantics {
+                        .clearAndSetSemantics {
                             contentDescription =
                                 "$personalCodeLabel ${formatNumbers(personalCodeText.text)}"
                         },
@@ -453,19 +486,24 @@ fun MobileIdView(
                 },
                 maxLines = 1,
                 singleLine = true,
+                isError = !mobileIdViewModel.isPersonalCodeValid(personalCodeText.text),
                 textStyle = MaterialTheme.typography.titleLarge,
                 keyboardOptions =
                     KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Done,
+                        imeAction = ImeAction.Next,
                         keyboardType = KeyboardType.Decimal,
                     ),
-                keyboardActions =
-                    KeyboardActions(
-                        onDone = {
-                            keyboardController?.hide()
-                        },
-                    ),
             )
+            if (personalCodeErrorText.isNotEmpty()) {
+                Text(
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .focusable(enabled = true)
+                            .semantics { contentDescription = personalCodeErrorText },
+                    text = personalCodeErrorText,
+                    color = Red500,
+                )
+            }
             TextCheckBox(
                 checked = rememberMeCheckedState.value,
                 onCheckedChange = { rememberMeCheckedState.value = it },
@@ -526,6 +564,7 @@ fun MobileIdView(
                     }
                     CoroutineScope(Dispatchers.IO).launch {
                         mobileIdViewModel.performMobileIdWorkRequest(
+                            displayMessage = displayMessage,
                             container = signedContainer,
                             personalCode = personalCodeText.text,
                             phoneNumber = countryCodeAndPhoneText.text,
