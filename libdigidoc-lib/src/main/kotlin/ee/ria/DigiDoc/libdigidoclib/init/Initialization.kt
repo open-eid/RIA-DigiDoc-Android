@@ -38,6 +38,7 @@ import ee.ria.libdigidocpp.StringMap
 import ee.ria.libdigidocpp.digidoc
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
@@ -404,7 +405,7 @@ class Initialization
 
         private suspend fun loadConfiguration(context: Context) {
             configurationRepository.getConfiguration()?.let { overrideConfiguration(context, it) }
-            CoroutineScope(IO).launch {
+            CoroutineScope(Main).launch {
                 configurationRepository.observeConfigurationUpdates { newConfig ->
                     overrideConfiguration(context, newConfig)
                 }
