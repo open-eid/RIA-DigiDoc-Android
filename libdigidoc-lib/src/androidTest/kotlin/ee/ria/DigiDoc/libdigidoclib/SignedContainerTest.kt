@@ -178,7 +178,7 @@ class SignedContainerTest {
 
             val signedContainer = openOrCreate(context, testFile, dataFiles)
 
-            signedContainer.setName("testName")
+            signedContainer.setName(context, "testName")
 
             assertEquals("testName.asice", signedContainer.getName())
         }
@@ -368,7 +368,10 @@ class SignedContainerTest {
 
             customFileName.delete()
 
-            assertEquals("${customFileName.name}.$DEFAULT_CONTAINER_EXTENSION", signedContainer.getName())
+            assertEquals(
+                "${customFileName.nameWithoutExtension}.$DEFAULT_CONTAINER_EXTENSION",
+                signedContainer.getName(),
+            )
         }
 
     @Test
@@ -404,7 +407,10 @@ class SignedContainerTest {
             val initializedContainer = SignedContainer.container()
 
             assertEquals(false, initializedContainer.isExistingContainer())
-            assertEquals("${testFile.name}.$DEFAULT_CONTAINER_EXTENSION", initializedContainer.getName())
+            assertEquals(
+                "${testFile.nameWithoutExtension}.$DEFAULT_CONTAINER_EXTENSION",
+                initializedContainer.getName(),
+            )
             assertEquals(1, initializedContainer.getDataFiles().size)
             assertEquals(0, initializedContainer.getSignatures().size)
         }

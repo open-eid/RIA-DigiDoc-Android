@@ -3,14 +3,15 @@
 package ee.ria.DigiDoc.domain.preferences
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import androidx.test.platform.app.InstrumentationRegistry
+import ee.ria.DigiDoc.common.preferences.EncryptedPreferences
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.utils.Route
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.BeforeClass
@@ -46,14 +47,18 @@ class DataStoreTest {
         context = InstrumentationRegistry.getInstrumentation().targetContext
 
         dataStore = DataStore(context)
-    }
 
-    @After
-    fun tearDown() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         preferences.all.clear()
         preferences.all.forEach { (key, _) ->
             preferences.edit().remove(key).apply()
+        }
+
+        val encryptedPreferences: SharedPreferences = EncryptedPreferences.getEncryptedPreferences(context)
+
+        encryptedPreferences.all?.clear()
+        encryptedPreferences.all?.forEach { (key, _) ->
+            encryptedPreferences.edit().remove(key).apply()
         }
     }
 
