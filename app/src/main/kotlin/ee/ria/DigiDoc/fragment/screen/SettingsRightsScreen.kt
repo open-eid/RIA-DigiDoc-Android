@@ -35,15 +35,15 @@ fun SettingsRightsScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     sharedSettingsViewModel: SharedSettingsViewModel,
+    getIsScreenshotAllowed: () -> Boolean = { false },
+    setIsScreenshotAllowed: (Boolean) -> Unit = {},
+    getIsOpenAllFileTypesEnabled: () -> Boolean = { true },
+    setIsOpenAllFileTypesEnabled: (Boolean) -> Unit = {},
 ) {
     val context = LocalContext.current
     val activity = (context as Activity)
     markAsSecure(context, activity.window)
     val settingValueChanged = stringResource(id = R.string.setting_value_changed)
-    val getIsScreenshotAllowed = sharedSettingsViewModel.dataStore::getSettingsAllowScreenshots
-    val setIsScreenshotAllowed = sharedSettingsViewModel.dataStore::setSettingsAllowScreenshots
-    val getIsOpenAllFileTypesEnabled = sharedSettingsViewModel.dataStore::getSettingsOpenAllFileTypes
-    val setIsOpenAllFileTypesEnabled = sharedSettingsViewModel.dataStore::setSettingsOpenAllFileTypes
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -70,8 +70,7 @@ fun SettingsRightsScreen(
                     checkedOpenAllFileTypes = it
                     setIsOpenAllFileTypesEnabled(it)
                     AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, settingValueChanged)
-                    activity.finish()
-                    activity.startActivity(activity.intent)
+                    sharedSettingsViewModel.recreateActivity()
                 },
                 title = stringResource(id = R.string.main_settings_open_all_filetypes_title),
                 contentDescription = stringResource(id = R.string.main_settings_open_all_filetypes_title).lowercase(),
@@ -84,8 +83,7 @@ fun SettingsRightsScreen(
                     checkedAllowScreenshots = it
                     setIsScreenshotAllowed(it)
                     AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, settingValueChanged)
-                    activity.finish()
-                    activity.startActivity(activity.intent)
+                    sharedSettingsViewModel.recreateActivity()
                 },
                 title = stringResource(id = R.string.main_settings_allow_screenshots_title),
                 contentDescription = stringResource(id = R.string.main_settings_allow_screenshots_title).lowercase(),

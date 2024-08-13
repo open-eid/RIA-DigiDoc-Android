@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.viewmodel.shared
 
 import android.content.ContentResolver
 import android.content.Context
+import android.net.Uri
 import androidx.activity.result.ActivityResult
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -17,6 +18,8 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
@@ -39,6 +42,9 @@ class SharedContainerViewModel
         private val _signedSidStatus = MutableLiveData<SessionStatusResponseProcessStatus?>(null)
         val signedSidStatus: LiveData<SessionStatusResponseProcessStatus?> = _signedSidStatus
 
+        private val _externalFileUri = MutableStateFlow<Uri?>(null)
+        val externalFileUri: StateFlow<Uri?> = _externalFileUri
+
         fun setSignedSidStatus(signedStatus: SessionStatusResponseProcessStatus?) {
             _signedSidStatus.postValue(signedStatus)
         }
@@ -49,6 +55,14 @@ class SharedContainerViewModel
 
         fun setSignedContainer(signedContainer: SignedContainer?) {
             _signedContainer.postValue(signedContainer)
+        }
+
+        fun setExternalFileUri(uri: Uri?) {
+            _externalFileUri.value = uri
+        }
+
+        fun resetExternalFileUri() {
+            _externalFileUri.value = null
         }
 
         fun resetSignedContainer() {

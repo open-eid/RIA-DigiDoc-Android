@@ -11,6 +11,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import ee.ria.DigiDoc.ActivityManager
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.DIR_SIVA_CERT
 import ee.ria.DigiDoc.common.Constant.DIR_TSA_CERT
@@ -60,6 +61,7 @@ class SharedSettingsViewModel
         val dataStore: DataStore,
         private val initialization: Initialization,
         private val configurationRepository: ConfigurationRepository,
+        private val activityManager: ActivityManager,
     ) : ViewModel() {
         private val logTag = "SharedSettingsViewModel"
 
@@ -335,5 +337,9 @@ class SharedSettingsViewModel
                     }
                 }
             }
+        }
+
+        fun recreateActivity() {
+            activityManager.setShouldRecreateActivity(true)
         }
     }

@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.ui.component.menu
 
-import android.app.Activity
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,7 +15,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import ee.ria.DigiDoc.ui.component.shared.RadioButton
@@ -33,7 +31,6 @@ fun LanguageSwitchRadioGroup(
     selectedRadioItem: String,
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
 ) {
-    val activity = (LocalContext.current as Activity)
     var selectedItem by remember { mutableStateOf(selectedRadioItem) }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -59,8 +56,7 @@ fun LanguageSwitchRadioGroup(
                     selectedItem = languageItem.locale
                     val locale = Locale(languageItem.locale)
                     sharedSettingsViewModel.dataStore.setLocale(locale)
-                    activity.finish()
-                    activity.startActivity(activity.intent)
+                    sharedSettingsViewModel.recreateActivity()
                 },
             )
         }

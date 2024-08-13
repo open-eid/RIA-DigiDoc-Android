@@ -3,7 +3,9 @@
 package ee.ria.DigiDoc
 
 import android.content.res.Configuration
+import android.net.Uri
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -27,15 +29,20 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
 
 @Composable
-fun RIADigiDocAppScreen() {
+fun RIADigiDocAppScreen(externalFileUri: Uri?) {
     val navController = rememberNavController()
     val navBarNavController = rememberNavController()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
     val sharedSignatureViewModel: SharedSignatureViewModel = hiltViewModel()
     val sharedCertificateViewModel: SharedCertificateViewModel = hiltViewModel()
+    val sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel()
+
+    sharedContainerViewModel.setExternalFileUri(externalFileUri)
+
     NavHost(
         navController = navController,
         startDestination = Route.Home.route,
@@ -44,6 +51,7 @@ fun RIADigiDocAppScreen() {
             HomeFragment(
                 navController = navController,
                 navBarNavController = navBarNavController,
+                externalFileUri = sharedContainerViewModel.externalFileUri.collectAsState().value,
             )
         }
         composable(route = Route.Menu.route) {
@@ -90,6 +98,7 @@ fun RIADigiDocAppScreen() {
         composable(route = Route.Diagnostics.route) {
             DiagnosticsFragment(
                 navController = navController,
+                sharedSettingsViewModel = sharedSettingsViewModel,
             )
         }
         composable(route = Route.RecentDocuments.route) {
@@ -106,6 +115,7 @@ fun RIADigiDocAppScreen() {
         composable(route = Route.SettingsRights.route) {
             SettingsRightsFragment(
                 navController = navController,
+                sharedSettingsViewModel = sharedSettingsViewModel,
             )
         }
         composable(route = Route.SettingsSigning.route) {
@@ -128,6 +138,6 @@ fun RIADigiDocAppScreen() {
 @Composable
 fun RIADigiDocAppScreenPreview() {
     RIADigiDocTheme {
-        RIADigiDocAppScreen()
+        RIADigiDocAppScreen(Uri.EMPTY)
     }
 }
