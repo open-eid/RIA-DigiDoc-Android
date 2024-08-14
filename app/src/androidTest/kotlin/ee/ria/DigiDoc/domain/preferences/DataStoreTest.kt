@@ -79,6 +79,86 @@ class DataStoreTest {
     }
 
     @Test
+    fun dataStore_getRoles_success() {
+        val result = dataStore.getRoles()
+
+        assertEquals("", result)
+    }
+
+    @Test
+    fun dataStore_setRoles_success() {
+        dataStore.setRoles("role")
+
+        val result = dataStore.getRoles()
+
+        assertEquals("role", result)
+    }
+
+    @Test
+    fun dataStore_getRoleCity_success() {
+        val result = dataStore.getRoles()
+
+        assertEquals("", result)
+    }
+
+    @Test
+    fun dataStore_setRoleCity_success() {
+        dataStore.setRoleCity("Tallinn")
+
+        val result = dataStore.getRoleCity()
+
+        assertEquals("Tallinn", result)
+    }
+
+    @Test
+    fun dataStore_getRoleState_success() {
+        val result = dataStore.getRoleState()
+
+        assertEquals("", result)
+    }
+
+    @Test
+    fun dataStore_setRoleState_success() {
+        dataStore.setRoleState("Harju")
+
+        val result = dataStore.getRoleState()
+
+        assertEquals("Harju", result)
+    }
+
+    @Test
+    fun dataStore_getRoleCountry_success() {
+        val result = dataStore.getRoleCountry()
+
+        assertEquals("", result)
+    }
+
+    @Test
+    fun dataStore_setRoleCountry_success() {
+        dataStore.setRoleCountry("Estonia")
+
+        val result = dataStore.getRoleCountry()
+
+        assertEquals("Estonia", result)
+    }
+
+    @Test
+    fun dataStore_getRoleZip_success() {
+        val result = dataStore.getRoleCountry()
+
+        assertEquals("", result)
+    }
+
+    @Test
+    fun dataStore_setRoleZip_success() {
+        dataStore.setRoleZip("13666")
+
+        val result = dataStore.getRoleZip()
+
+        assertEquals("13666", result)
+    }
+
+    @Test
     fun dataStore_getPhoneNo_success() {
         val result = dataStore.getPhoneNo()
 

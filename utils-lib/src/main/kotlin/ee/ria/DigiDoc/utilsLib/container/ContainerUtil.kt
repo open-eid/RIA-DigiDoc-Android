@@ -193,7 +193,7 @@ object ContainerUtil {
         return emptyList()
     }
 
-    private fun signatureContainersDir(context: Context): File {
+    fun signatureContainersDir(context: Context): File {
         val dir = File(context.filesDir, DIR_SIGNATURE_CONTAINERS)
         val isDirsCreated = dir.mkdirs()
         if (isDirsCreated) {

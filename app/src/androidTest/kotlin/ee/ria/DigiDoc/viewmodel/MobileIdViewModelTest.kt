@@ -74,6 +74,9 @@ class MobileIdViewModelTest {
     lateinit var statusObserver: Observer<MobileCreateSignatureProcessStatus?>
 
     @Mock
+    lateinit var roleDataRequestedObserver: Observer<Boolean?>
+
+    @Mock
     lateinit var challengeObserver: Observer<String?>
 
     private val configurationProvider =
@@ -149,6 +152,7 @@ class MobileIdViewModelTest {
             )
         viewModel.errorState.observeForever(errorStateObserver)
         viewModel.status.observeForever(statusObserver)
+        viewModel.roleDataRequested.observeForever(roleDataRequestedObserver)
         viewModel.signedContainer.observeForever(signedContainterObserver)
         viewModel.challenge.observeForever(challengeObserver)
     }
@@ -176,7 +180,7 @@ class MobileIdViewModelTest {
             `when`(mobileIdService.result).thenReturn(MutableLiveData<MobileCertificateResultType?>(null))
             `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>("Some error occurred"))
 
-            viewModel.performMobileIdWorkRequest(signedContainer, "45611283812", "5629421", null)
+            viewModel.performMobileIdWorkRequest("test message", signedContainer, "45611283812", "5629421", null)
 
             verify(mobileIdService, atLeastOnce()).resetValues()
             verify(
@@ -226,7 +230,7 @@ class MobileIdViewModelTest {
             `when`(mobileIdService.result).thenReturn(MutableLiveData<MobileCertificateResultType?>(null))
             `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performMobileIdWorkRequest(signedContainer, "45611283812", "5629421", null)
+            viewModel.performMobileIdWorkRequest("test message", signedContainer, "45611283812", "5629421", null)
 
             verify(mobileIdService, atLeastOnce()).resetValues()
             verify(
@@ -273,7 +277,7 @@ class MobileIdViewModelTest {
             `when`(mobileIdService.result).thenReturn(MutableLiveData<MobileCertificateResultType?>(null))
             `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performMobileIdWorkRequest(signedContainer, "45611283812", "5629421", null)
+            viewModel.performMobileIdWorkRequest("test message", signedContainer, "45611283812", "5629421", null)
 
             verify(mobileIdService, atLeastOnce()).resetValues()
             verify(
@@ -283,6 +287,61 @@ class MobileIdViewModelTest {
             verify(errorStateObserver, atLeastOnce()).onChanged(context.getString(R.string.no_internet_connection))
             verify(signedContainterObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.NO_RESPONSE)
+            verify(challengeObserver, atLeastOnce()).onChanged("0660")
+        }
+
+    @Test
+    fun mobileIdViewModel_performMobileIdWorkRequest_responseStatusNOT_MID_CLIENT() =
+        runTest {
+            val container =
+                AssetFile.getResourceFileAsFile(
+                    context,
+                    "example.asice",
+                    ee.ria.DigiDoc.common.R.raw.example,
+                )
+
+            val signedContainer =
+                runBlocking {
+                    SignedContainer.openOrCreate(context, container, listOf(container))
+                }
+
+            `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
+            `when`(
+                fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any()),
+            ).thenReturn(signedContainer)
+
+            `when`(mobileIdService.response).thenReturn(
+                MutableLiveData<MobileIdServiceResponse?>(
+                    MobileIdServiceResponse(
+                        MobileCreateSignatureProcessStatus.NOT_MID_CLIENT,
+                        null,
+                        "signature",
+                    ),
+                ),
+            )
+            `when`(
+                mobileIdService.status,
+            ).thenReturn(
+                MutableLiveData<MobileCreateSignatureProcessStatus?>(MobileCreateSignatureProcessStatus.NOT_MID_CLIENT),
+            )
+            `when`(mobileIdService.challenge).thenReturn(MutableLiveData<String?>("0660"))
+            `when`(mobileIdService.cancelled).thenReturn(MutableLiveData<Boolean?>(true))
+            `when`(mobileIdService.result).thenReturn(MutableLiveData<MobileCertificateResultType?>(null))
+            `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>(null))
+
+            viewModel.performMobileIdWorkRequest("test message", signedContainer, "45611283812", "5629421", null)
+
+            verify(mobileIdService, atLeastOnce()).resetValues()
+            verify(
+                mobileIdService,
+                atLeastOnce(),
+            ).processMobileIdRequest(any(), any(), eq(null), any(), any(), any(), any(), any())
+            verify(
+                errorStateObserver,
+                atLeastOnce(),
+            ).onChanged(context.getString(R.string.signature_update_mobile_id_status_expired_transaction))
+            verify(signedContainterObserver, atLeastOnce()).onChanged(null)
+            verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.NOT_MID_CLIENT)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
         }
 
@@ -325,7 +384,7 @@ class MobileIdViewModelTest {
             `when`(mobileIdService.result).thenReturn(MutableLiveData<MobileCertificateResultType?>(null))
             `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performMobileIdWorkRequest(signedContainer, "45611283812", "5629421", null)
+            viewModel.performMobileIdWorkRequest("test message", signedContainer, "45611283812", "5629421", null)
 
             verify(mobileIdService, atLeastOnce()).resetValues()
             verify(
@@ -374,7 +433,7 @@ class MobileIdViewModelTest {
             ).thenReturn(MutableLiveData<MobileCertificateResultType?>(MobileCertificateResultType.NOT_FOUND))
             `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performMobileIdWorkRequest(signedContainer, "45611283812", "5629421", null)
+            viewModel.performMobileIdWorkRequest("test message", signedContainer, "45611283812", "5629421", null)
 
             verify(mobileIdService, atLeastOnce()).resetValues()
             verify(
@@ -405,6 +464,20 @@ class MobileIdViewModelTest {
         }
 
     @Test
+    fun mobileIdViewModel_resetRoleDataRequested_success() =
+        runTest {
+            viewModel.resetRoleDataRequested()
+            verify(roleDataRequestedObserver, atLeastOnce()).onChanged(null)
+        }
+
+    @Test
+    fun mobileIdViewModel_setRoleDataRequested_success() =
+        runTest {
+            viewModel.setRoleDataRequested(true)
+            verify(roleDataRequestedObserver, atLeastOnce()).onChanged(true)
+        }
+
+    @Test
     fun mobileIdViewModel_cancelmobileIdWorkRequest_success() =
         runTest {
             viewModel.cancelMobileIdWorkRequest()
@@ -412,10 +485,136 @@ class MobileIdViewModelTest {
         }
 
     @Test
+    fun mobileIdViewModel_isPhoneNumberValid_nullReturnTrue() =
+        runTest {
+            val result = viewModel.isPhoneNumberValid(null)
+            assertTrue(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_isPhoneNumberValid_emptyReturnTrue() =
+        runTest {
+            val result = viewModel.isPhoneNumberValid("")
+            assertTrue(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_isPhoneNumberValid_lengthIsShorterReturnFalse() =
+        runTest {
+            val result = viewModel.isPhoneNumberValid("370")
+            assertFalse(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_isPhoneNumberValid_countryCodeIsIncorrectReturnFalse() =
+        runTest {
+            val result = viewModel.isPhoneNumberValid("37151")
+            assertFalse(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_isPhoneNumberValid_countryCodeIsCorrectReturnFalse() =
+        runTest {
+            val result = viewModel.isPhoneNumberValid("372510998")
+            assertFalse(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_isPhoneNumberValid_phoneNumberIs10DigitsAndCountryCodeIsInvalidReturnFalse() =
+        runTest {
+            val result = viewModel.isPhoneNumberValid("3715109980")
+            assertFalse(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_isPhoneNumberValid_phoneNumberIs10DigitsAndCountryCodeIsValidReturnTrue() =
+        runTest {
+            val result = viewModel.isPhoneNumberValid("3725109980")
+            assertTrue(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_isCountryCodeMissing_emptyReturnFalse() =
+        runTest {
+            val result = viewModel.isCountryCodeMissing("")
+            assertFalse(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_isCountryCodeMissing_lengthIsShorterReturnFalse() =
+        runTest {
+            val result = viewModel.isCountryCodeMissing("370")
+            assertFalse(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_isCountryCodeMissing_countryCodeIsIncorrectReturnTrue() =
+        runTest {
+            val result = viewModel.isCountryCodeMissing("37151")
+            assertTrue(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_isCountryCodeMissing_countryCodeIsCorrectReturnFalse() =
+        runTest {
+            val result = viewModel.isCountryCodeMissing("372510998")
+            assertFalse(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_isCountryCodeMissing_phoneNumberIs10DigitsReturnFalse() =
+        runTest {
+            val result = viewModel.isCountryCodeMissing("3715109980")
+            assertFalse(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_isPersonalCodeValid_true() =
+        runTest {
+            val result = viewModel.isPersonalCodeValid("38207253718")
+            assertTrue(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_isPersonalCodeValid_hashIsInvalidReturnFalse() =
+        runTest {
+            val result = viewModel.isPersonalCodeValid("38308263913")
+            assertFalse(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_isPersonalCodeValid_lengthIsLessThan11DigitsReturnFalse() =
+        runTest {
+            val result = viewModel.isPersonalCodeValid("3830826391")
+            assertFalse(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_isPersonalCodeValid_isNullReturnTrue() =
+        runTest {
+            val result = viewModel.isPersonalCodeValid(null)
+            assertTrue(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_isPersonalCodeValid_isEmptyReturnTrue() =
+        runTest {
+            val result = viewModel.isPersonalCodeValid("")
+            assertTrue(result)
+        }
+
+    @Test
     fun mobileIdViewModel_positiveButtonEnabled_true() =
         runTest {
-            val result = viewModel.positiveButtonEnabled("3725629421", "38308263913")
+            val result = viewModel.positiveButtonEnabled("3725629421", "38207253718")
             assertTrue(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_positiveButtonEnabled_personalCodeHashInvalidReturnFalse() =
+        runTest {
+            val result = viewModel.positiveButtonEnabled("3725629421", "38308263913")
+            assertFalse(result)
         }
 
     @Test

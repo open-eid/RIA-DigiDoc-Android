@@ -73,6 +73,9 @@ class SmartIdViewModelTest {
     lateinit var statusObserver: Observer<SessionStatusResponseProcessStatus?>
 
     @Mock
+    lateinit var roleDataRequestedObserver: Observer<Boolean?>
+
+    @Mock
     lateinit var challengeObserver: Observer<String?>
 
     @Mock
@@ -152,6 +155,7 @@ class SmartIdViewModelTest {
         viewModel.errorState.observeForever(errorStateObserver)
         viewModel.status.observeForever(statusObserver)
         viewModel.signedContainer.observeForever(signedContainterObserver)
+        viewModel.roleDataRequested.observeForever(roleDataRequestedObserver)
         viewModel.challenge.observeForever(challengeObserver)
         viewModel.selectDevice.observeForever(selectDeviceObserver)
     }
@@ -179,7 +183,7 @@ class SmartIdViewModelTest {
             `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(null))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>("Some error occurred"))
 
-            viewModel.performSmartIdWorkRequest(signedContainer, "45611283812", 0, null)
+            viewModel.performSmartIdWorkRequest("test message", signedContainer, "45611283812", 0, null)
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -228,7 +232,7 @@ class SmartIdViewModelTest {
             `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(false))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performSmartIdWorkRequest(signedContainer, "45611283812", 0, null)
+            viewModel.performSmartIdWorkRequest("test message", signedContainer, "45611283812", 0, null)
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -273,7 +277,7 @@ class SmartIdViewModelTest {
             `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(true))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performSmartIdWorkRequest(signedContainer, "45611283812", 0, null)
+            viewModel.performSmartIdWorkRequest("test message", signedContainer, "45611283812", 0, null)
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -288,7 +292,7 @@ class SmartIdViewModelTest {
         }
 
     @Test
-    fun smartIdViewModel_performSmartIdWorkRequest_responseStatusUserCancelled() =
+    fun smartIdViewModel_performSmartIdWorkRequest_responseStatusUserRefused() =
         runTest {
             val container =
                 AssetFile.getResourceFileAsFile(
@@ -318,7 +322,7 @@ class SmartIdViewModelTest {
             `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(true))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performSmartIdWorkRequest(signedContainer, "45611283812", 0, null)
+            viewModel.performSmartIdWorkRequest("test message", signedContainer, "45611283812", 0, null)
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -333,6 +337,68 @@ class SmartIdViewModelTest {
             verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.USER_REFUSED)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
             verify(selectDeviceObserver, atLeastOnce()).onChanged(true)
+        }
+
+    @Test
+    fun smartIdViewModel_performSmartIdWorkRequest_responseStatusUserCancelled() =
+        runTest {
+            val container =
+                AssetFile.getResourceFileAsFile(
+                    context,
+                    "example.asice",
+                    ee.ria.DigiDoc.common.R.raw.example,
+                )
+
+            val signedContainer =
+                runBlocking {
+                    SignedContainer.openOrCreate(context, container, listOf(container))
+                }
+
+            `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
+            `when`(
+                fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any()),
+            ).thenReturn(signedContainer)
+
+            `when`(smartSignService.response).thenReturn(MutableLiveData<SmartIDServiceResponse?>(null))
+            `when`(
+                smartSignService.status,
+            ).thenReturn(
+                MutableLiveData<SessionStatusResponseProcessStatus?>(SessionStatusResponseProcessStatus.USER_CANCELLED),
+            )
+            `when`(smartSignService.challenge).thenReturn(MutableLiveData<String?>("0660"))
+            `when`(smartSignService.cancelled).thenReturn(MutableLiveData<Boolean?>(true))
+            `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(true))
+            `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
+
+            viewModel.performSmartIdWorkRequest("test message", signedContainer, "45611283812", 0, null)
+
+            verify(smartSignService, atLeastOnce()).resetValues()
+            verify(
+                smartSignService,
+                atLeastOnce(),
+            ).processSmartIdRequest(eq(context), any(), eq(null), any(), any(), any(), any(), any())
+            verify(
+                errorStateObserver,
+                atLeastOnce(),
+            ).onChanged(null)
+            verify(signedContainterObserver, atLeastOnce()).onChanged(null)
+            verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.USER_CANCELLED)
+            verify(challengeObserver, atLeastOnce()).onChanged("0660")
+            verify(selectDeviceObserver, atLeastOnce()).onChanged(true)
+        }
+
+    @Test
+    fun mobileIdViewModel_resetRoleDataRequested_success() =
+        runTest {
+            viewModel.resetRoleDataRequested()
+            verify(roleDataRequestedObserver, atLeastOnce()).onChanged(null)
+        }
+
+    @Test
+    fun mobileIdViewModel_setRoleDataRequested_success() =
+        runTest {
+            viewModel.setRoleDataRequested(true)
+            verify(roleDataRequestedObserver, atLeastOnce()).onChanged(true)
         }
 
     @Test
@@ -359,8 +425,15 @@ class SmartIdViewModelTest {
     @Test
     fun smartIdViewModel_positiveButtonEnabled_true() =
         runTest {
-            val result = viewModel.positiveButtonEnabled(0, "38308263913")
+            val result = viewModel.positiveButtonEnabled(0, "38207253718")
             assertTrue(result)
+        }
+
+    @Test
+    fun smartIdViewModel_positiveButtonEnabled_personalCodeHashInvalidReturnFalse() =
+        runTest {
+            val result = viewModel.positiveButtonEnabled(0, "38308263913")
+            assertFalse(result)
         }
 
     @Test
@@ -382,5 +455,40 @@ class SmartIdViewModelTest {
         runTest {
             val result = viewModel.positiveButtonEnabled(0, null)
             assertFalse(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_isPersonalCodeValid_true() =
+        runTest {
+            val result = viewModel.isPersonalCodeValid("38207253718")
+            assertTrue(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_isPersonalCodeValid_hashIsInvalidReturnFalse() =
+        runTest {
+            val result = viewModel.isPersonalCodeValid("38308263913")
+            assertFalse(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_isPersonalCodeValid_lengthIsLessThan11DigitsReturnFalse() =
+        runTest {
+            val result = viewModel.isPersonalCodeValid("3830826391")
+            assertFalse(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_isPersonalCodeValid_isNullReturnTrue() =
+        runTest {
+            val result = viewModel.isPersonalCodeValid(null)
+            assertTrue(result)
+        }
+
+    @Test
+    fun mobileIdViewModel_isPersonalCodeValid_isEmptyReturnTrue() =
+        runTest {
+            val result = viewModel.isPersonalCodeValid("")
+            assertTrue(result)
         }
 }

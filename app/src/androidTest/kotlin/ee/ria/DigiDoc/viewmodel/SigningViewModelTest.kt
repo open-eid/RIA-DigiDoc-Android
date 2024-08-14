@@ -18,6 +18,7 @@ import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
+import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -34,6 +35,8 @@ import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 import java.io.File
 import java.nio.charset.Charset
 import java.nio.file.Files
@@ -120,6 +123,40 @@ class SigningViewModelTest {
             val isSignButtonShown = viewModel.isSignButtonShown(null)
 
             assertFalse(isSignButtonShown)
+        }
+
+    @Test
+    fun signingViewModel_isRoleEmpty_returnTrue() =
+        runTest {
+            val signatureInterface =
+                mock<SignatureInterface> {
+                    on { signerRoles } doReturn emptyList()
+                    on { city } doReturn ""
+                    on { stateOrProvince } doReturn ""
+                    on { countryName } doReturn ""
+                    on { postalCode } doReturn ""
+                }
+
+            val result = viewModel.isRoleEmpty(signatureInterface)
+
+            assertTrue(result)
+        }
+
+    @Test
+    fun signingViewModel_isRoleEmpty_returnFalse() =
+        runTest {
+            val signatureInterface =
+                mock<SignatureInterface> {
+                    on { signerRoles } doReturn listOf("role")
+                    on { city } doReturn "Tallinn"
+                    on { stateOrProvince } doReturn "Harju"
+                    on { countryName } doReturn "Estonia"
+                    on { postalCode } doReturn "10152"
+                }
+
+            val result = viewModel.isRoleEmpty(signatureInterface)
+
+            assertFalse(result)
         }
 
     @Test

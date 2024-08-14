@@ -9,6 +9,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.documentfile.provider.DocumentFile
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
+import ee.ria.DigiDoc.ActivityManager
 import ee.ria.DigiDoc.common.Constant.DIR_TSA_CERT
 import ee.ria.DigiDoc.common.test.AssetFile
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
@@ -90,6 +91,8 @@ class SharedSettingsViewModelTest {
 
     private lateinit var initialization: Initialization
 
+    private lateinit var activityManager: ActivityManager
+
     private lateinit var viewModel: SharedSettingsViewModel
 
     @Before
@@ -98,6 +101,7 @@ class SharedSettingsViewModelTest {
         context = InstrumentationRegistry.getInstrumentation().targetContext
         dataStore = DataStore(context)
         initialization = Initialization(configurationRepository)
+        activityManager = ActivityManager()
         viewModel =
             SharedSettingsViewModel(
                 context = context,
@@ -105,6 +109,7 @@ class SharedSettingsViewModelTest {
                 dataStore = dataStore,
                 configurationRepository = configurationRepository,
                 initialization = initialization,
+                activityManager = activityManager,
             )
     }
 

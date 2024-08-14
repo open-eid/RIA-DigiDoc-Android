@@ -75,6 +75,33 @@ class ContainerUtilTest {
         }
 
     @Test
+    fun containerUtil_findSignatureContainerFiles_emptyList() {
+        File(mockContext.filesDir, DIR_SIGNATURE_CONTAINERS).delete()
+
+        val file = ContainerUtil.findSignatureContainerFiles(mockContext)
+
+        assertTrue(file.isEmpty())
+    }
+
+    @Test
+    fun containerUtil_findSignatureContainerFiles_success() {
+        val testFile = File.createTempFile("testFile", ".txt")
+        `when`(mockContext.filesDir).thenReturn(testFile.parentFile)
+
+        val dir = ContainerUtil.signatureContainersDir(mockContext)
+        dir.delete()
+
+        val testContainer = File.createTempFile("testFile", ".asice", ContainerUtil.signatureContainersDir(mockContext))
+        val file = ContainerUtil.findSignatureContainerFiles(mockContext)
+
+        assertTrue(file.isNotEmpty())
+
+        testFile.delete()
+        testContainer.delete()
+        dir.delete()
+    }
+
+    @Test
     fun containerUtil_getContainerDataFilesDir_success() {
         val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
         val testFileContent = "Test content"
