@@ -520,7 +520,7 @@ class SignedContainerTest {
         }
 
     // Requires internet access, emulator should be running with internet access and RIA VPN on.
-    // @Test
+    @Test
     fun signedContainer_openOrCreate_successCreatingNewContainerWithPDFSignatures() =
         runTest {
             val pdfDocument = PdfDocument()
