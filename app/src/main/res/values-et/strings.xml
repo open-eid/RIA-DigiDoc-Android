@@ -47,7 +47,7 @@
     <string name="main_home_menu_settings">SEADED</string>
     <string name="main_home_menu_about">INFO</string>
     <string name="main_home_menu_diagnostics">DIAGNOSTIKA</string>
-    <string name="main_home_recent">HILJUTISED DOKUMENDID</string>
+    <string name="main_home_recent">Hiljutised dokumendid</string>
 
     <!-- Signing -->
     <string name="signing_title_new_container">Allkirjastamine</string>

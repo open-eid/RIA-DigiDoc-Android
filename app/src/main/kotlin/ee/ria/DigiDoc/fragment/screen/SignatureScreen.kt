@@ -7,7 +7,6 @@ import android.content.res.Configuration
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -22,9 +21,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.text
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,21 +49,14 @@ fun SignatureScreen(
         buttonFocusRequester.requestFocus()
     }
 
-    val chooseFileText = "${stringResource(
-        id = R.string.signature_home_create_text,
-    )
-    }, ${stringResource(
-        id = R.string.button_name,
-    )
-    }"
-
-    val recentDocumentsText = "${stringResource(
-        id = R.string.recent_documents_title,
-    )
-    }, ${stringResource(
-        id = R.string.button_name,
-    )
-    }"
+    val chooseFileText =
+        stringResource(
+            id = R.string.signature_home_create_text,
+        )
+    val recentDocumentsText =
+        stringResource(
+            id = R.string.recent_documents_title,
+        )
 
     RIADigiDocTheme {
         Column(
@@ -92,41 +81,29 @@ fun SignatureScreen(
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center,
             )
-            Row(
+            PrimaryButton(
                 modifier =
                     modifier
                         .focusProperties { canFocus = true }
                         .focusTarget()
                         .focusRequester(buttonFocusRequester)
-                        .focusable()
-                        .semantics {
-                            this.text = AnnotatedString(chooseFileText)
-                        },
-            ) {
-                PrimaryButton(
-                    title = R.string.signature_home_create_button,
-                    contentDescription = stringResource(id = R.string.signature_home_create_text),
-                    onClickItem = onClickToFileChoosingScreen,
-                    isFocusable = true,
-                )
-            }
-            Row(
+                        .focusable(),
+                title = R.string.signature_home_create_button,
+                contentDescription = chooseFileText,
+                onClickItem = onClickToFileChoosingScreen,
+                isFocusable = true,
+            )
+            PrimaryButton(
                 modifier =
                     modifier
                         .focusProperties { canFocus = true }
-                        .focusable()
-                        .semantics {
-                            this.text = AnnotatedString(recentDocumentsText)
-                        },
-            ) {
-                PrimaryButton(
-                    title = R.string.main_home_recent,
-                    contentDescription = stringResource(id = R.string.recent_documents_title),
-                    onClickItem = onClickToRecentDocumentsScreen,
-                    isFocusable = true,
-                    isSubButton = true,
-                )
-            }
+                        .focusable(),
+                title = R.string.main_home_recent,
+                contentDescription = recentDocumentsText,
+                onClickItem = onClickToRecentDocumentsScreen,
+                isFocusable = true,
+                isSubButton = true,
+            )
         }
     }
 }

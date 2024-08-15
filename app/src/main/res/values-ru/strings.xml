@@ -44,7 +44,7 @@
     <string name="main_home_menu_help_url_short">линк www.id.ee</string>
     <string name="main_home_menu_help_url">https://www.id.ee/ru/id-pomoshh/</string>
     <string name="main_home_menu_accessibility">ДОСТУПНОСТЬ</string>
-    <string name="main_home_recent">НЕДАВНИЕ ДОКУМЕНТЫ</string>
+    <string name="main_home_recent">Недавние документы</string>
     <string name="main_home_menu_settings">НАСТРОЙКИ</string>
     <string name="main_home_menu_about">ИНФОРМАЦИЯ</string>
     <string name="main_home_menu_diagnostics">ДИАГНОСТИКА</string>
