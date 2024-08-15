@@ -15,6 +15,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -44,13 +47,23 @@ fun HomeNavigation(
         modifier = modifier.fillMaxSize().focusGroup(),
         topBar = {
             HomeToolbar(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .semantics {
+                            isTraversalGroup = true
+                            traversalIndex = 2f
+                        },
                 onClickMenu = onClickMenu,
             )
         },
         bottomBar = {
             HomeNavigationBar(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .semantics {
+                            isTraversalGroup = true
+                            traversalIndex = 1f
+                        },
                 navController = navController,
             )
         },
@@ -76,6 +89,10 @@ fun HomeNavigation(
                         focusRequester = focusRequester,
                         modifier =
                             modifier
+                                .semantics {
+                                    isTraversalGroup = true
+                                    traversalIndex = 0f
+                                }
                                 .focusRequester(focusRequester),
                     )
                 }

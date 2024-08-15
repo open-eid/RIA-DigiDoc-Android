@@ -38,7 +38,7 @@
     <string name="main_home_menu_button">Меню</string>
 
     <string name="signature_home_create_text">Выберите файл для подписания или проверки</string>
-    <string name="signature_home_create_button">Выбрать файл</string>
+    <string name="signature_home_create_button">ВЫБРАТЬ ФАЙЛ</string>
 
     <string name="main_home_menu_help">ПОМОЩЬ</string>
     <string name="main_home_menu_help_url_short">линк www.id.ee</string>

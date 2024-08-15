@@ -87,7 +87,7 @@ fun PrimaryButton(
     ) {
         Text(
             modifier =
-                modifier
+                Modifier
                     .wrapContentSize()
                     .semantics {
                         this.contentDescription =
