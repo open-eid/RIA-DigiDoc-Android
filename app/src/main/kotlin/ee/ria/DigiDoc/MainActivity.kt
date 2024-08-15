@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import ee.ria.DigiDoc.domain.preferences.DataStore
+import ee.ria.DigiDoc.manager.ActivityManager
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import kotlinx.coroutines.launch
 import java.util.Locale

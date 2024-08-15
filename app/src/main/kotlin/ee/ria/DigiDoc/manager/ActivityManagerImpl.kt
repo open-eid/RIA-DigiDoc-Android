@@ -1,24 +1,25 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc
+package ee.ria.DigiDoc.manager
 
+import androidx.activity.ComponentActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ActivityManager
+class ActivityManagerImpl
     @Inject
-    constructor() {
+    constructor() : ActivityManager {
         private val _shouldRecreateActivity = MutableLiveData(false)
-        val shouldRecreateActivity: LiveData<Boolean> get() = _shouldRecreateActivity
+        override val shouldRecreateActivity: LiveData<Boolean> get() = _shouldRecreateActivity
 
-        fun setShouldRecreateActivity(shouldRecreate: Boolean) {
+        override fun setShouldRecreateActivity(shouldRecreate: Boolean) {
             _shouldRecreateActivity.postValue(shouldRecreate)
         }
 
-        fun recreateActivity(mainActivity: MainActivity) {
+        override fun recreateActivity(mainActivity: ComponentActivity) {
             mainActivity.recreate()
         }
     }

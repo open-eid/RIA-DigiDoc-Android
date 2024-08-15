@@ -20,6 +20,8 @@ import ee.ria.DigiDoc.domain.repository.FileOpeningRepositoryImpl
 import ee.ria.DigiDoc.domain.service.FileOpeningService
 import ee.ria.DigiDoc.domain.service.FileOpeningServiceImpl
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
+import ee.ria.DigiDoc.manager.ActivityManager
+import ee.ria.DigiDoc.manager.ActivityManagerImpl
 import ee.ria.DigiDoc.network.utils.UserAgentUtil
 import javax.inject.Singleton
 
@@ -70,6 +72,12 @@ class AppModules {
         buildVersionProvider: BuildVersionProvider,
     ): String {
         return UserAgentUtil.getUserAgent(context, buildVersionProvider)
+    }
+
+    @Provides
+    @Singleton
+    fun provideActivityManager(): ActivityManager {
+        return ActivityManagerImpl()
     }
 
     @Provides
