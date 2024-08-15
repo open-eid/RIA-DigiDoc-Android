@@ -26,7 +26,9 @@ import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerDataFilesEmptyException
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Before
@@ -322,6 +324,31 @@ class SharedContainerViewModelTest {
 
         assertEquals(null, viewModel.signedContainer.value)
     }
+
+    @Test
+    fun sharedContainerViewModel_setExternalFileUri_success() =
+        runTest {
+            val uri = Uri.parse("content://example/uri")
+
+            viewModel.setExternalFileUri(uri)
+
+            viewModel.externalFileUri.take(1).collect { collectedUri ->
+                assertEquals(collectedUri, uri)
+            }
+        }
+
+    @Test
+    fun sharedContainerViewModel_resetExternalFileUri_success() =
+        runTest {
+            val uri = Uri.parse("content://example/uri")
+            viewModel.setExternalFileUri(uri)
+
+            viewModel.resetExternalFileUri()
+
+            viewModel.externalFileUri.take(1).collect { collectedUri ->
+                assertNull(collectedUri)
+            }
+        }
 
     private fun createTempFileWithStringContent(
         filename: String,

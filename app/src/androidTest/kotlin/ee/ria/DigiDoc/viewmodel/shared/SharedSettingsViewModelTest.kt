@@ -9,7 +9,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.documentfile.provider.DocumentFile
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
-import ee.ria.DigiDoc.ActivityManager
 import ee.ria.DigiDoc.common.Constant.DIR_TSA_CERT
 import ee.ria.DigiDoc.common.test.AssetFile
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
@@ -23,6 +22,8 @@ import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
+import ee.ria.DigiDoc.manager.ActivityManager
+import ee.ria.DigiDoc.manager.ActivityManagerImpl
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.network.siva.SivaSetting
@@ -38,6 +39,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.mock
@@ -56,6 +58,9 @@ class SharedSettingsViewModelTest {
 
     @Mock
     lateinit var configurationRepository: ConfigurationRepository
+
+    @Mock
+    private lateinit var activityManager: ActivityManager
 
     companion object {
         private lateinit var configurationLoader: ConfigurationLoader
@@ -91,8 +96,6 @@ class SharedSettingsViewModelTest {
 
     private lateinit var initialization: Initialization
 
-    private lateinit var activityManager: ActivityManager
-
     private lateinit var viewModel: SharedSettingsViewModel
 
     @Before
@@ -101,7 +104,6 @@ class SharedSettingsViewModelTest {
         context = InstrumentationRegistry.getInstrumentation().targetContext
         dataStore = DataStore(context)
         initialization = Initialization(configurationRepository)
-        activityManager = ActivityManager()
         viewModel =
             SharedSettingsViewModel(
                 context = context,
@@ -306,6 +308,13 @@ class SharedSettingsViewModelTest {
         assertEquals(80, dataStore.getProxyPort())
         assertEquals("", dataStore.getProxyUsername())
         assertEquals("", dataStore.getProxyPassword())
+    }
+
+    @Test
+    fun sharedSettingsViewModel_recreateActivity_successChangingRecreateActivityValue() {
+        viewModel.recreateActivity()
+
+        verify(activityManager).setShouldRecreateActivity(true)
     }
 
     private fun createTempFileWithStringContent(
