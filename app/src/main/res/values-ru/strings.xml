@@ -38,13 +38,13 @@
     <string name="main_home_menu_button">Меню</string>
 
     <string name="signature_home_create_text">Выберите файл для подписания или проверки</string>
-    <string name="signature_home_create_button">ВЫБРАТЬ ФАЙЛ</string>
+    <string name="signature_home_create_button">Выбрать файл</string>
 
     <string name="main_home_menu_help">ПОМОЩЬ</string>
     <string name="main_home_menu_help_url_short">линк www.id.ee</string>
     <string name="main_home_menu_help_url">https://www.id.ee/ru/id-pomoshh/</string>
     <string name="main_home_menu_accessibility">ДОСТУПНОСТЬ</string>
-    <string name="main_home_recent">НЕДАВНИЕ ДОКУМЕНТЫ</string>
+    <string name="main_home_recent">Недавние документы</string>
     <string name="main_home_menu_settings">НАСТРОЙКИ</string>
     <string name="main_home_menu_about">ИНФОРМАЦИЯ</string>
     <string name="main_home_menu_diagnostics">ДИАГНОСТИКА</string>

@@ -38,13 +38,13 @@
     <string name="main_home_menu_button">Menu</string>
 
     <string name="signature_home_create_text">Choose a file to sign or validate</string>
-    <string name="signature_home_create_button">CHOOSE FILE</string>
+    <string name="signature_home_create_button">Choose file</string>
 
     <string name="main_home_menu_help">HELP</string>
     <string name="main_home_menu_help_url_short">link www.id.ee</string>
     <string name="main_home_menu_help_url">https://www.id.ee/en/id-help/</string>
     <string name="main_home_menu_accessibility">ACCESSIBILITY</string>
-    <string name="main_home_recent">RECENT DOCUMENTS</string>
+    <string name="main_home_recent">Recent documents</string>
     <string name="main_home_menu_settings">SETTINGS</string>
     <string name="main_home_menu_about">INFO</string>
     <string name="main_home_menu_diagnostics">DIAGNOSTICS</string>

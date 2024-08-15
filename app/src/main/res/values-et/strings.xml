@@ -38,7 +38,7 @@
     <string name="main_home_menu_button">Menüü</string>
 
     <string name="signature_home_create_text">Vali fail allkirjastamiseks või kontrollimiseks</string>
-    <string name="signature_home_create_button">VALI FAIL</string>
+    <string name="signature_home_create_button">Vali fail</string>
 
     <string name="main_home_menu_help">ABI</string>
     <string name="main_home_menu_help_url_short">link www.id.ee</string>
@@ -47,7 +47,7 @@
     <string name="main_home_menu_settings">SEADED</string>
     <string name="main_home_menu_about">INFO</string>
     <string name="main_home_menu_diagnostics">DIAGNOSTIKA</string>
-    <string name="main_home_recent">HILJUTISED DOKUMENDID</string>
+    <string name="main_home_recent">Hiljutised dokumendid</string>
 
     <!-- Signing -->
     <string name="signing_title_new_container">Allkirjastamine</string>
