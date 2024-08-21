@@ -147,7 +147,6 @@ class SmartIdViewModelTest {
         dataStore = DataStore(context)
         viewModel =
             SmartIdViewModel(
-                context,
                 dataStore,
                 smartSignService,
                 configurationRepository,
@@ -183,7 +182,7 @@ class SmartIdViewModelTest {
             `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(null))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>("Some error occurred"))
 
-            viewModel.performSmartIdWorkRequest("test message", signedContainer, "45611283812", 0, null)
+            viewModel.performSmartIdWorkRequest(context, "test message", signedContainer, "45611283812", 0, null)
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -232,7 +231,7 @@ class SmartIdViewModelTest {
             `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(false))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performSmartIdWorkRequest("test message", signedContainer, "45611283812", 0, null)
+            viewModel.performSmartIdWorkRequest(context, "test message", signedContainer, "45611283812", 0, null)
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -277,7 +276,7 @@ class SmartIdViewModelTest {
             `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(true))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performSmartIdWorkRequest("test message", signedContainer, "45611283812", 0, null)
+            viewModel.performSmartIdWorkRequest(context, "test message", signedContainer, "45611283812", 0, null)
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -322,7 +321,7 @@ class SmartIdViewModelTest {
             `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(true))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performSmartIdWorkRequest("test message", signedContainer, "45611283812", 0, null)
+            viewModel.performSmartIdWorkRequest(context, "test message", signedContainer, "45611283812", 0, null)
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -370,7 +369,7 @@ class SmartIdViewModelTest {
             `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(true))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performSmartIdWorkRequest("test message", signedContainer, "45611283812", 0, null)
+            viewModel.performSmartIdWorkRequest(context, "test message", signedContainer, "45611283812", 0, null)
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -399,6 +398,13 @@ class SmartIdViewModelTest {
         runTest {
             viewModel.setRoleDataRequested(true)
             verify(roleDataRequestedObserver, atLeastOnce()).onChanged(true)
+        }
+
+    @Test
+    fun smartIdViewModel_resetErrorState_success() =
+        runTest {
+            viewModel.resetErrorState()
+            verify(errorStateObserver, atLeastOnce()).onChanged(null)
         }
 
     @Test

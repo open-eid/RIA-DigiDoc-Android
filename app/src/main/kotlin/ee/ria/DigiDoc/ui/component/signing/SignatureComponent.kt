@@ -31,7 +31,6 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.ui.theme.Blue500
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
-import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeMedium
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Red500
@@ -40,9 +39,6 @@ import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil.getSignatureStatusText
 import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatName
 import ee.ria.DigiDoc.viewmodel.SigningViewModel
-import kotlin.Boolean
-import kotlin.Suppress
-import kotlin.Unit
 
 @Composable
 fun SignatureComponent(
@@ -132,18 +128,14 @@ fun SignatureComponent(
                                 id = R.string.signature_update_signature_role_and_address_title_accessibility,
                             ),
                         tint = Blue500,
-                        // TODO: remove when info icon is fixed
-                        modifier =
-                            modifier
-                                .size(iconSizeMedium),
                     )
                 },
-                // TODO: iconSize when info icon is fixed
                 modifier =
                     modifier
-                        .size(iconSizeMedium),
+                        .size(iconSize),
             )
         }
+        Spacer(modifier = modifier.width(itemSpacingPadding))
         if (showRemoveButton) {
             IconButton(
                 onClick = onRemoveButtonClick,

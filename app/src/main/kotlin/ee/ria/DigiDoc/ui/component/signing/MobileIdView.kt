@@ -151,6 +151,7 @@ fun MobileIdView(
             errorState?.let {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, errorState, Toast.LENGTH_LONG).show()
+                    mobileIdViewModel.resetErrorState()
                 }
             }
         }
@@ -564,6 +565,7 @@ fun MobileIdView(
                     }
                     CoroutineScope(Dispatchers.IO).launch {
                         mobileIdViewModel.performMobileIdWorkRequest(
+                            context = context,
                             displayMessage = displayMessage,
                             container = signedContainer,
                             personalCode = personalCodeText.text,

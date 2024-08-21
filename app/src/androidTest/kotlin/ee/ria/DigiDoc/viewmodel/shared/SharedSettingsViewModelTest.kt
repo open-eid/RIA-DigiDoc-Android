@@ -23,7 +23,6 @@ import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.manager.ActivityManager
-import ee.ria.DigiDoc.manager.ActivityManagerImpl
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.network.siva.SivaSetting
