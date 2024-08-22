@@ -21,4 +21,5 @@ enum class MobileCreateSignatureProcessStatus {
     INVALID_COUNTRY_CODE,
     INVALID_SSL_HANDSHAKE,
     TECHNICAL_ERROR,
+    INVALID_PROXY_SETTINGS,
 }

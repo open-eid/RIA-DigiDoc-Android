@@ -8,7 +8,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.common.collect.ImmutableMap
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.ALLOWED_PHONE_NUMBER_COUNTRY_CODES
 import ee.ria.DigiDoc.common.Constant.MAXIMUM_PERSONAL_CODE_LENGTH
@@ -39,7 +38,6 @@ import javax.inject.Inject
 class MobileIdViewModel
     @Inject
     constructor(
-        @ApplicationContext private val context: Context,
         private val dataStore: DataStore,
         private val mobileSignService: MobileSignService,
         private val configurationRepository: ConfigurationRepository,
@@ -136,7 +134,15 @@ class MobileIdViewModel
                     MobileCreateSignatureProcessStatus.TECHNICAL_ERROR,
                     R.string.signature_update_mobile_id_error_technical_error,
                 )
+                .put(
+                    MobileCreateSignatureProcessStatus.INVALID_PROXY_SETTINGS,
+                    R.string.main_settings_proxy_invalid_settings,
+                )
                 .build()
+
+        fun resetErrorState() {
+            _errorState.postValue(null)
+        }
 
         fun resetStatus() {
             _status.postValue(null)
@@ -166,6 +172,7 @@ class MobileIdViewModel
         }
 
         suspend fun performMobileIdWorkRequest(
+            context: Context,
             displayMessage: String,
             container: SignedContainer?,
             personalCode: String,
@@ -241,6 +248,13 @@ class MobileIdViewModel
                                         SignedContainer.container().removeSignature(it)
                                     }
                                     _signedContainer.postValue(SignedContainer.container())
+                                    _errorState.postValue(
+                                        messages[status]?.let { res ->
+                                            context.getString(
+                                                res,
+                                            )
+                                        },
+                                    )
                                 }
                             }
                         }

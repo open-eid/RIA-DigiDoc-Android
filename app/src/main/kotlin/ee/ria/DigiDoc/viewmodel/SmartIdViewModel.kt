@@ -15,7 +15,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.common.collect.ImmutableMap
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.MAXIMUM_PERSONAL_CODE_LENGTH
 import ee.ria.DigiDoc.common.Constant.SmartIdConstants.NOTIFICATION_CHANNEL
@@ -47,7 +46,6 @@ import javax.inject.Inject
 class SmartIdViewModel
     @Inject
     constructor(
-        @ApplicationContext private val context: Context,
         private val dataStore: DataStore,
         private val smartSignService: SmartSignService,
         private val configurationRepository: ConfigurationRepository,
@@ -178,6 +176,10 @@ class SmartIdViewModel
                 )
                 .build()
 
+        fun resetErrorState() {
+            _errorState.postValue(null)
+        }
+
         fun resetStatus() {
             _status.postValue(null)
         }
@@ -207,6 +209,7 @@ class SmartIdViewModel
         }
 
         suspend fun performSmartIdWorkRequest(
+            context: Context,
             displayMessage: String,
             container: SignedContainer?,
             personalCode: String,

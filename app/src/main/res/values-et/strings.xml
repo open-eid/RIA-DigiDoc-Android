@@ -329,8 +329,9 @@
     <string name="main_settings_siva_service_title">Ligipääs valideerimisteenusele SiVa</string>
     <string name="main_settings_siva_default_access_title">Kasutan vaikimisi määratud ligipääsu</string>
     <string name="main_settings_siva_default_manual_access_title">Kasutan käsitsi määratud ligipääsu</string>
-    <string name="main_settings_siva_certificate_title">Valideerimisteenuse SiVa SSL sertifikaat</string>
     <string name="main_settings_siva_service_url">SiVa valideerimisteenusele URL</string>
+    <string name="main_settings_proxy_invalid_settings">Teenuse serveriga ühendus ebaõnnestus. Palun kontrolli võrgu sätteid või proovi hiljem uuesti.</string>
+    <string name="main_settings_siva_certificate_title">Valideerimisteenuse SiVa SSL sertifikaat</string>
 
     <!-- Voice Control -->
     <string name="signing_container_name_update_button_voice">Muuda</string>

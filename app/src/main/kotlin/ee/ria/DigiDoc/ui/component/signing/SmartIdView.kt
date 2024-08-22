@@ -147,6 +147,7 @@ fun SmartIdView(
             errorState?.let {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, errorState, Toast.LENGTH_LONG).show()
+                    smartIdViewModel.resetErrorState()
                 }
             }
         }
@@ -509,6 +510,7 @@ fun SmartIdView(
                     }
                     CoroutineScope(Dispatchers.IO).launch {
                         smartIdViewModel.performSmartIdWorkRequest(
+                            context = context,
                             displayMessage = displayMessage,
                             container = signedContainer,
                             personalCode = personalCodeText.text,
