@@ -186,6 +186,8 @@
     <string name="button_name">Nupp</string>
     <string name="signature_method">Allkirjastamise meetod</string>
     <string name="signature_method_selected">Allkirjastamise meetod valitud</string>
+    <string name="menu_language">Keel</string>
+    <string name="menu_language_selected">Keel valitud</string>
 
     <!-- Home -->
     <string name="main_home_navigation_signature_accessibility">Allkiri</string>
@@ -231,6 +233,9 @@
     <string name="main_home_menu_recent_accessibility">Hiljutised dokumendid</string>
     <string name="main_home_menu_accessibility_accessibility">Juurdepääsetavus</string>
 
+    <string name="configuration_is_already_up_to_date">konfiguratsioon on juba ajakohane</string>
+    <string name="configuration_updated">Konfiguratsioon uuendatud</string>
+    <string name="language_changed">Keel muudetud</string>
     <string name="setting_value_changed">Seade väärtus muudetud</string>
     <string name="setting_value_change_cancelled">Seade väärtuse muutmine katkestatud</string>
     <string name="close_menu">Sulge menüü</string>

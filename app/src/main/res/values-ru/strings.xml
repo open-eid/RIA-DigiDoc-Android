@@ -186,6 +186,8 @@
     <string name="button_name">Кнопка</string>
     <string name="signature_method">Метод подписи</string>
     <string name="signature_method_selected">Выбран метод подписи</string>
+    <string name="menu_language">Язык</string>
+    <string name="menu_language_selected">Язык выбран</string>
 
     <!-- Home -->
     <string name="main_home_navigation_signature_accessibility">Подпись</string>
@@ -231,6 +233,9 @@
     <string name="main_home_menu_diagnostics_accessibility">Диагностика</string>
     <string name="main_home_menu_accessibility_accessibility">Доступность</string>
 
+    <string name="configuration_is_already_up_to_date">У вас последняя версия конфигурации</string>
+    <string name="configuration_updated">Конфигурация удачно обновлена</string>
+    <string name="language_changed">Язык изменён</string>
     <string name="setting_value_changed">Значение настройки изменено</string>
     <string name="setting_value_change_cancelled">Изменение значения настройки отменено</string>
     <string name="close_menu">Закрыть меню</string>

@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.di
 import android.app.Application
 import android.content.ContentResolver
 import android.content.Context
+import android.speech.tts.TextToSpeech
 import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
@@ -45,6 +46,14 @@ class AppModules {
         DataStore(
             context = context,
         )
+
+    @Provides
+    @Singleton
+    fun provideTextToSpeech(
+        @ApplicationContext context: Context,
+    ): TextToSpeech {
+        return TextToSpeech(context, null)
+    }
 
     @Provides
     fun provideFileOpeningService(): FileOpeningService = FileOpeningServiceImpl()

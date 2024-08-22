@@ -13,6 +13,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -21,6 +23,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
@@ -31,6 +34,7 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utilsLib.text.TextUtil
+import ee.ria.DigiDoc.viewmodel.MenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import java.util.Locale
 
@@ -39,25 +43,24 @@ fun MenuScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
+    menuViewModel: MenuViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val activity = (context as Activity)
-    markAsSecure(context, activity.window)
-    val locale = sharedSettingsViewModel.dataStore.getLocale() ?: Locale.getDefault()
 
-    val helpContentDesctiption =
-        if (locale.language == "et") {
-            stringResource(R.string.main_home_menu_help) +
-                " link " +
-                "w w w punkt i d punkt e e"
-        } else {
-            stringResource(R.string.main_home_menu_help) + " " +
-                TextUtil.splitTextAndJoin(
-                    stringResource(R.string.main_home_menu_help_url_short),
-                    "",
-                    " ",
-                )
-        }
+    menuViewModel.setContext(context)
+
+    val locale = sharedSettingsViewModel.dataStore.getLocale() ?: Locale.getDefault()
+    val helpContentDescription by menuViewModel.helpViewContentDescription.asFlow().collectAsState(
+        stringResource(R.string.main_home_menu_help) + " " +
+            TextUtil.splitTextAndJoin(
+                stringResource(R.string.main_home_menu_help_url_short),
+                "",
+                " ",
+            ),
+    )
+
+    markAsSecure(context, activity.window)
 
     Scaffold(
         modifier = modifier,
@@ -81,7 +84,7 @@ fun MenuScreen(
             MenuItem(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_help_outline),
                 title = stringResource(id = R.string.main_home_menu_help),
-                contentDescription = helpContentDesctiption,
+                contentDescription = helpContentDescription,
                 onClickItem = {
                     val browserIntent =
                         Intent(Intent.ACTION_VIEW, Uri.parse(context.getString(R.string.main_home_menu_help_url)))
@@ -131,7 +134,6 @@ fun MenuScreen(
             )
 
             LanguageSwitchRadioGroup(
-                modifier = modifier,
                 selectedRadioItem = locale.language,
             )
         }

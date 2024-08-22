@@ -9,6 +9,7 @@ object Constant {
         const val PLUS_PREFIXED_ESTONIAN_PHONE_CODE = "+$ESTONIAN_PHONE_CODE"
         const val FIRST_NUMBER_IN_ESTONIAN_MOBILE_NUMBER = "5"
 
+        const val MAXIMUM_INITIALIZATION_COUNT: Int = 5
         const val MAX_DISPLAY_MESSAGE_BYTES = 40
         const val MAX_DISPLAY_MESSAGE_LENGTH: Int = 200
         const val DEFAULT_LANGUAGE = "ENG"

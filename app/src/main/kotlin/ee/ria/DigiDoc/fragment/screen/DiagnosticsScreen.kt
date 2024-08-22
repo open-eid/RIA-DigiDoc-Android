@@ -71,6 +71,9 @@ fun DiagnosticsScreen(
 ) {
     val context = LocalContext.current
     val activity = (context as Activity)
+
+    diagnosticsViewModel.setContext(context)
+
     markAsSecure(context, activity.window)
     val currentConfiguration by
         diagnosticsViewModel.updatedConfiguration.asFlow().collectAsState(
@@ -341,7 +344,7 @@ fun DiagnosticsScreen(
                 onClickItem = {
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
-                            diagnosticsViewModel.updateConfiguration()
+                            diagnosticsViewModel.updateConfiguration(context)
                         } catch (e: Exception) {
                             withContext(Main) {
                                 showMessage(context, R.string.no_internet_connection)
