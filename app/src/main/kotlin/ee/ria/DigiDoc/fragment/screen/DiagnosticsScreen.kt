@@ -71,6 +71,9 @@ fun DiagnosticsScreen(
 ) {
     val context = LocalContext.current
     val activity = (context as Activity)
+
+    diagnosticsViewModel.setContext(context)
+
     markAsSecure(context, activity.window)
     val currentConfiguration by
         diagnosticsViewModel.updatedConfiguration.asFlow().collectAsState(
