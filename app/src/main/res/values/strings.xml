@@ -278,8 +278,8 @@
     <string name="main_diagnostics_central_configuration_title">Central configuration:</string>
     <string name="main_diagnostics_configuration_update_date">UPDATE DATE:\u0020</string>
     <string name="main_diagnostics_configuration_last_check_date">LAST CHECK:\u0020</string>
-    <string name="main_diagnostics_configuration_check_for_update_button">REFRESH CONFIGURATION</string>
-    <string name="main_diagnostics_configuration_save_diagnostics_button">SAVE DIAGNOSTICS</string>
+    <string name="main_diagnostics_configuration_check_for_update_button">Refresh configuration</string>
+    <string name="main_diagnostics_configuration_save_diagnostics_button">Save diagnostics</string>
     <string name="main_diagnostics_rpuuid_default">is set by default</string>
     <string name="main_diagnostics_rpuuid_custom">is set manually</string>
     <string name="main_diagnostics_logging_switch">Enable one-time log generation</string>

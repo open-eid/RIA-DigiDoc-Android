@@ -24,6 +24,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeLarge
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 
 @Composable
 fun SettingsSwitchItem(
@@ -48,10 +49,8 @@ fun SettingsSwitchItem(
             text = title,
             modifier =
                 modifier
+                    .notAccessible()
                     .wrapContentSize()
-                    .semantics {
-                        this.contentDescription = contentDescription
-                    }
                     .padding(start = screenViewLargePadding, end = iconSizeLarge)
                     .padding(end = screenViewLargePadding)
                     .padding(end = screenViewLargePadding)
@@ -68,6 +67,7 @@ fun SettingsSwitchItem(
             onCheckedChange = onCheckedChange,
             modifier =
                 modifier
+                    .semantics { this.contentDescription = contentDescription }
                     .padding(end = screenViewLargePadding)
                     .size(iconSizeLarge)
                     .constrainAs(settingsRightsItemCheck) {

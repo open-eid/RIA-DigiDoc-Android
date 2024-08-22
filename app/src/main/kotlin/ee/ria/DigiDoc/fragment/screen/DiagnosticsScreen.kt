@@ -271,8 +271,11 @@ fun DiagnosticsScreen(
                 stringResource(id = R.string.main_diagnostics_configuration_last_check_date),
                 diagnosticsViewModel.getConfigurationDate(currentConfiguration?.configurationLastUpdateCheckDate),
             )
+            val enableOneTimeLogGenerationSwitchContentDescription =
+                stringResource(
+                    id = R.string.main_diagnostics_logging_switch,
+                ).lowercase()
             SettingsSwitchItem(
-                modifier = modifier,
                 checked = enableOneTimeLogGeneration,
                 onCheckedChange = {
                     if (!enableOneTimeLogGeneration) {
@@ -286,7 +289,7 @@ fun DiagnosticsScreen(
                     }
                 },
                 title = stringResource(id = R.string.main_diagnostics_logging_switch),
-                contentDescription = stringResource(id = R.string.main_diagnostics_logging_switch).lowercase(),
+                contentDescription = enableOneTimeLogGenerationSwitchContentDescription,
             )
             if (enableOneTimeLogGeneration) {
                 PrimaryButton(
