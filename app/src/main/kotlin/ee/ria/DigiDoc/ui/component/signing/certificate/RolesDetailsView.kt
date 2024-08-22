@@ -24,7 +24,6 @@ import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
-import kotlin.Suppress
 
 @Composable
 fun RolesDetailsView(

@@ -40,9 +40,6 @@ import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil.getSignatureStatusText
 import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatName
 import ee.ria.DigiDoc.viewmodel.SigningViewModel
-import kotlin.Boolean
-import kotlin.Suppress
-import kotlin.Unit
 
 @Composable
 fun SignatureComponent(
