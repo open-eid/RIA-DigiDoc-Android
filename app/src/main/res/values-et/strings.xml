@@ -186,6 +186,8 @@
     <string name="button_name">Nupp</string>
     <string name="signature_method">Allkirjastamise meetod</string>
     <string name="signature_method_selected">Allkirjastamise meetod valitud</string>
+    <string name="menu_language">Keel</string>
+    <string name="menu_language_selected">Keel valitud</string>
 
     <!-- Home -->
     <string name="main_home_navigation_signature_accessibility">Allkiri</string>

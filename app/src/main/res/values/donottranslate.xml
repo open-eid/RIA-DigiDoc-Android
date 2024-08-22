@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="mobile_id_country_code_and_phone_number_placeholder">372XXXXXXXX</string>
-    <string name="main_home_menu_locale_et">Eesti keel</string>
+    <string name="main_home_menu_locale_et">Eesti</string>
     <string name="main_home_menu_locale_ru">Русский</string>
     <string name="main_home_menu_locale_en">English</string>
 

@@ -187,6 +187,8 @@
     <string name="button_name">Button</string>
     <string name="signature_method">Signing method</string>
     <string name="signature_method_selected">Signing method selected</string>
+    <string name="menu_language">Language</string>
+    <string name="menu_language_selected">Language selected</string>
 
     <!-- Home -->
     <string name="main_home_navigation_signature_accessibility">Signature</string>

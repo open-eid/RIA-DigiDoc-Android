@@ -186,6 +186,8 @@
     <string name="button_name">Кнопка</string>
     <string name="signature_method">Метод подписи</string>
     <string name="signature_method_selected">Выбран метод подписи</string>
+    <string name="menu_language">Язык</string>
+    <string name="menu_language_selected">Язык выбран</string>
 
     <!-- Home -->
     <string name="main_home_navigation_signature_accessibility">Подпись</string>

@@ -13,7 +13,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
@@ -33,12 +32,7 @@ fun RadioButton(
     PrimaryButton(
         modifier = modifier,
         title = label,
-        contentDescription =
-            if (selected) {
-                "$contentDescription ${stringResource(id = R.string.signature_method_selected)}"
-            } else {
-                "${stringResource(id = R.string.signature_method)} $contentDescription"
-            },
+        contentDescription = contentDescription,
         isSubButton = !selected,
         containerColor = radioColor.value,
         contentColor = textColor.value,
