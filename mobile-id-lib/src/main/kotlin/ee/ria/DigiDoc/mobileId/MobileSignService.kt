@@ -343,20 +343,22 @@ class MobileSignServiceImpl
                     postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.INVALID_SSL_HANDSHAKE))
                     return
                 } catch (e: IOException) {
-                    if (e.message != null && e.message!!.contains("CONNECT: 403")) {
+                    val message = e.message
+
+                    if (message != null && message.contains("CONNECT: 403")) {
                         postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.NO_RESPONSE))
                         errorLog(
                             logTag,
                             "Failed to sign with Mobile-ID. " +
                                 "REST API certificate request failed. Received HTTP status 403. " +
-                                "Exception message: ${e.message}. " +
+                                "Exception message: $message. " +
                                 "Exception: ${e.stackTrace.contentToString()}",
                             e,
                         )
                         return
-                    } else if (e.message != null && (
+                    } else if (message != null && (
                             ProxyUtil.getProxySetting(context) !== ProxySetting.NO_PROXY &&
-                                e.message!!.contains("Failed to authenticate with proxy")
+                                message.contains("Failed to authenticate with proxy")
                         )
                     ) {
                         postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.INVALID_PROXY_SETTINGS))
@@ -364,7 +366,7 @@ class MobileSignServiceImpl
                             logTag,
                             "Failed to sign with Mobile-ID. " +
                                 "REST API certificate request failed with current proxy settings. " +
-                                "Exception message: ${e.message}. " +
+                                "Exception message: $message. " +
                                 "Exception: ${e.stackTrace.contentToString()}",
                             e,
                         )
@@ -373,11 +375,11 @@ class MobileSignServiceImpl
                     errorLog(
                         logTag,
                         "Failed to sign with Mobile-ID. REST API certificate request failed. " +
-                            "Exception message: ${e.message}. " +
+                            "Exception message: $message. " +
                             "Exception: ${e.stackTrace.contentToString()}",
                         e,
                     )
-                    postFault(defaultError(e.message))
+                    postFault(defaultError(message))
                     return
                 } catch (e: CertificateException) {
                     errorLog(
@@ -402,56 +404,54 @@ class MobileSignServiceImpl
                     setStatus(MobileCreateSignatureProcessStatus.USER_CANCELLED)
                     return
                 } catch (e: Exception) {
-                    if (!e.message.isNullOrEmpty() && e.message?.contains("Too Many Requests") == true) {
+                    val message = e.message
+                    if (!message.isNullOrEmpty() && message.contains("Too Many Requests")) {
                         errorLog(
                             logTag,
                             "Failed to sign with Mobile-ID - Too Many Requests. " +
-                                "Exception message: ${e.message}. " +
+                                "Exception message: $message. " +
                                 "Exception: ${e.stackTrace.contentToString()}",
                             e,
                         )
                         postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.TOO_MANY_REQUESTS))
-                    } else if (!e.message.isNullOrEmpty() && e.message?.contains(
+                    } else if (!message.isNullOrEmpty() &&
+                        message.contains(
                             "OCSP response not in valid time slot",
-                        ) == true
+                        )
                     ) {
                         errorLog(
                             logTag,
                             "Failed to sign with Mobile-ID - OCSP response not in valid time slot. " +
-                                "Exception message: ${e.message}. " +
+                                "Exception message: $message. " +
                                 "Exception: ${e.stackTrace.contentToString()}",
                             e,
                         )
                         postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.OCSP_INVALID_TIME_SLOT))
-                    } else if (!e.message.isNullOrEmpty() &&
-                        e.message?.contains("Certificate status: revoked") == true
-                    ) {
+                    } else if (!message.isNullOrEmpty() && message.contains("Certificate status: revoked")) {
                         errorLog(
                             logTag,
                             "Failed to sign with Mobile-ID - Certificate status: revoked. " +
-                                "Exception message: ${e.message}. " +
+                                "Exception message: $message. " +
                                 "Exception: ${e.stackTrace.contentToString()}",
                             e,
                         )
                         postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.CERTIFICATE_REVOKED))
-                    } else if (!e.message.isNullOrEmpty() &&
-                        e.message?.contains("Failed to connect") == true
-                    ) {
+                    } else if (!message.isNullOrEmpty() && message.contains("Failed to connect")) {
                         errorLog(
                             logTag,
                             "Failed to sign with Mobile-ID - Failed to connect to host. " +
-                                "Exception message: ${e.message}. " +
+                                "Exception message: $message. " +
                                 "Exception: ${e.stackTrace.contentToString()}",
                             e,
                         )
                         postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.NO_RESPONSE))
-                    } else if (!e.message.isNullOrEmpty() &&
-                        e.message?.startsWith("Failed to create ssl connection with host") == true
+                    } else if (!message.isNullOrEmpty() &&
+                        message.startsWith("Failed to create ssl connection with host")
                     ) {
                         errorLog(
                             logTag,
                             "Failed to sign with Mobile-ID - Failed to create ssl connection with host. " +
-                                "Exception message: ${e.message}. " +
+                                "Exception message: $message. " +
                                 "Exception: ${e.stackTrace.contentToString()}",
                             e,
                         )
@@ -460,7 +460,7 @@ class MobileSignServiceImpl
                         errorLog(
                             logTag,
                             "Failed to sign with Mobile-ID. Technical or general error. " +
-                                "Exception message: ${e.message}. " +
+                                "Exception message: $message. " +
                                 "Exception: ${e.stackTrace.contentToString()}",
                             e,
                         )
