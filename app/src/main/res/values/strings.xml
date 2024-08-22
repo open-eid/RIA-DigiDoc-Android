@@ -234,6 +234,9 @@
     <string name="main_home_menu_recent_accessibility">Recent documents</string>
     <string name="main_home_menu_accessibility_accessibility">Accessibility</string>
 
+    <string name="configuration_is_already_up_to_date">configuration is already up-to-date</string>
+    <string name="configuration_updated">Configuration updated</string>
+    <string name="language_changed">Language changed</string>
     <string name="setting_value_changed">Setting value changed</string>
     <string name="setting_value_change_cancelled">Setting value change cancelled</string>
     <string name="close_menu">Close menu</string>

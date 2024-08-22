@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.viewmodel
 import android.content.ContentResolver
 import android.content.Context
 import android.os.Build
+import android.view.accessibility.AccessibilityEvent
 import androidx.activity.result.ActivityResult
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -19,6 +20,7 @@ import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.configuration.utils.TSLUtil
 import ee.ria.DigiDoc.domain.preferences.DataStore
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
@@ -67,6 +69,21 @@ class DiagnosticsViewModel
             CoroutineScope(IO).launch {
                 configurationRepository.observeConfigurationUpdates { newConfig ->
                     CoroutineScope(Main).launch {
+                        if (updatedConfiguration.value != null) {
+                            val messageResId =
+                                if (newConfig.configurationUpdateDate !==
+                                    updatedConfiguration.value?.configurationUpdateDate
+                                ) {
+                                    R.string.configuration_updated
+                                } else {
+                                    R.string.configuration_is_already_up_to_date
+                                }
+                            AccessibilityUtil.sendAccessibilityEvent(
+                                context,
+                                AccessibilityEvent.TYPE_ANNOUNCEMENT,
+                                context.getString(messageResId),
+                            )
+                        }
                         _updatedConfiguration.value = newConfig
                     }
                 }
@@ -144,7 +161,7 @@ class DiagnosticsViewModel
         }
 
         @Throws(Exception::class)
-        suspend fun updateConfiguration() {
+        suspend fun updateConfiguration(context: Context) {
             configurationLoader.loadCentralConfiguration(context)
         }
 

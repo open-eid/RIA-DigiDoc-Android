@@ -341,7 +341,7 @@ fun DiagnosticsScreen(
                 onClickItem = {
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
-                            diagnosticsViewModel.updateConfiguration()
+                            diagnosticsViewModel.updateConfiguration(context)
                         } catch (e: Exception) {
                             withContext(Main) {
                                 showMessage(context, R.string.no_internet_connection)
