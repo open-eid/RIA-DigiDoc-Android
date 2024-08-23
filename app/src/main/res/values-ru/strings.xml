@@ -282,8 +282,8 @@
     <string name="main_diagnostics_central_configuration_title">Центральная конфигурация:</string>
     <string name="main_diagnostics_configuration_update_date">ДАТА ОБНОВЛЕНИЯ:\u0020</string>
     <string name="main_diagnostics_configuration_last_check_date">ПОСЛЕДНЯЯ ПРОВЕРКА:\u0020</string>
-    <string name="main_diagnostics_configuration_check_for_update_button">ПРОВЕРЬТЕ ОБНОВЛЕНИЯ</string>
-    <string name="main_diagnostics_configuration_save_diagnostics_button">СОХРАНИТЬ ДИАГНОСТИКУ</string>
+    <string name="main_diagnostics_configuration_check_for_update_button">Проверь обновления</string>
+    <string name="main_diagnostics_configuration_save_diagnostics_button">Сохранить диагностику</string>
     <string name="main_diagnostics_rpuuid_default">назначено по умолчанию</string>
     <string name="main_diagnostics_rpuuid_custom">назначено вручную</string>
     <string name="main_diagnostics_logging_switch">Активировать одноразовое создание лог-файла</string>
