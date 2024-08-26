@@ -20,6 +20,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeLarge
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 
 @Composable
 fun TextRadioButton(
@@ -43,6 +44,9 @@ fun TextRadioButton(
         RadioButton(
             modifier =
                 modifier
+                    .semantics {
+                        this.contentDescription = contentDescription
+                    }
                     .size(iconSizeLarge)
                     .constrainAs(radioButton) {
                         start.linkTo(parent.start)
@@ -55,9 +59,6 @@ fun TextRadioButton(
         Text(
             modifier =
                 modifier
-                    .semantics {
-                        this.contentDescription = contentDescription
-                    }
                     .padding(start = screenViewLargePadding, end = iconSizeLarge)
                     .padding(end = screenViewLargePadding)
                     .constrainAs(radioButtonText) {
@@ -65,7 +66,8 @@ fun TextRadioButton(
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
                     }
-                    .clickable { onClick() },
+                    .clickable { onClick() }
+                    .notAccessible(),
             text = title,
         )
     }

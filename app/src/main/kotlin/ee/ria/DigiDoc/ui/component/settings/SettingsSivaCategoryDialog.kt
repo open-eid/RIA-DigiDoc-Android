@@ -3,6 +3,7 @@
 package ee.ria.DigiDoc.ui.component.settings
 
 import android.content.res.Configuration
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,9 +13,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,6 +35,7 @@ import ee.ria.DigiDoc.ui.component.shared.TextRadioButton
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import kotlinx.coroutines.delay
 
 @Composable
 fun SettingsSivaCategoryDialog(
@@ -41,6 +51,18 @@ fun SettingsSivaCategoryDialog(
     onShowCertificateClick: () -> Unit = {},
     onSettingsSivaUrlValueChanged: (TextFieldValue) -> Unit = {},
 ) {
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+
+    LaunchedEffect(Unit) {
+        delay(200)
+        focusManager.clearFocus()
+        delay(200)
+        focusRequester.requestFocus()
+    }
+
+    val sivaDialogTitle = stringResource(id = R.string.main_settings_siva_service_title)
+
     Column(
         modifier = modifier.padding(itemSpacingPadding),
     ) {
@@ -51,23 +73,29 @@ fun SettingsSivaCategoryDialog(
             modifier =
                 modifier
                     .padding(horizontal = screenViewLargePadding, vertical = screenViewLargePadding)
-                    .fillMaxWidth(),
-            text = stringResource(id = R.string.main_settings_siva_service_title),
+                    .fillMaxWidth()
+                    .semantics {
+                        this.contentDescription = sivaDialogTitle.lowercase()
+                    }
+                    .focusRequester(focusRequester)
+                    .focusable(),
+            text = sivaDialogTitle,
             style = MaterialTheme.typography.titleLarge,
         )
 
         TextRadioButton(
             title = stringResource(id = R.string.main_settings_siva_default_access_title),
-            contentDescription = stringResource(id = R.string.main_settings_siva_default_access_title).lowercase(),
+            contentDescription =
+                "${sivaDialogTitle.lowercase()} " +
+                    stringResource(id = R.string.main_settings_siva_default_access_title).lowercase(),
             selected = sivaSettingSelected == SivaSetting.DEFAULT.name,
             onClick = onClickSivaSettingDefault,
         )
         TextRadioButton(
             title = stringResource(id = R.string.main_settings_siva_default_manual_access_title),
             contentDescription =
-                stringResource(
-                    id = R.string.main_settings_siva_default_manual_access_title,
-                ).lowercase(),
+                "${sivaDialogTitle.lowercase()} " +
+                    stringResource(id = R.string.main_settings_siva_default_manual_access_title).lowercase(),
             selected = sivaSettingSelected == SivaSetting.MANUAL.name,
             onClick = onClickSivaSettingManual,
         )
@@ -87,7 +115,11 @@ fun SettingsSivaCategoryDialog(
             maxLines = 1,
             singleLine = true,
             textStyle = MaterialTheme.typography.titleLarge,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
+            keyboardOptions =
+                KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Next,
+                    keyboardType = KeyboardType.Ascii,
+                ),
         )
         if (sivaSettingSelected == SivaSetting.MANUAL.name) {
             Text(

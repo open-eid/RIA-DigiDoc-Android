@@ -3,6 +3,7 @@
 package ee.ria.DigiDoc.ui.component.settings
 
 import android.content.res.Configuration
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,15 +15,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
@@ -36,6 +45,7 @@ import ee.ria.DigiDoc.ui.component.shared.TextRadioButton
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import kotlinx.coroutines.delay
 
 @Composable
 fun SettingsProxyCategoryDialog(
@@ -55,6 +65,18 @@ fun SettingsProxyCategoryDialog(
     onClickSystemProxy: () -> Unit = {},
     checkConnectionClick: () -> Unit = {},
 ) {
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+
+    LaunchedEffect(Unit) {
+        delay(200)
+        focusManager.clearFocus()
+        delay(200)
+        focusRequester.requestFocus()
+    }
+
+    val proxyDialogTitle = stringResource(id = R.string.main_settings_proxy_title)
+
     Column(
         modifier = modifier.padding(itemSpacingPadding),
     ) {
@@ -65,7 +87,12 @@ fun SettingsProxyCategoryDialog(
             modifier =
                 modifier
                     .padding(horizontal = screenViewLargePadding, vertical = screenViewLargePadding)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .semantics {
+                        this.contentDescription = proxyDialogTitle.lowercase()
+                    }
+                    .focusRequester(focusRequester)
+                    .focusable(),
             text = stringResource(id = R.string.main_settings_proxy_title),
             style = MaterialTheme.typography.titleLarge,
         )
@@ -102,7 +129,11 @@ fun SettingsProxyCategoryDialog(
             maxLines = 1,
             singleLine = true,
             textStyle = MaterialTheme.typography.titleLarge,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
+            keyboardOptions =
+                KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Next,
+                    keyboardType = KeyboardType.Ascii,
+                ),
         )
         TextField(
             enabled = proxyChoice == ProxySetting.MANUAL_PROXY.name,
@@ -119,7 +150,11 @@ fun SettingsProxyCategoryDialog(
             maxLines = 1,
             singleLine = true,
             textStyle = MaterialTheme.typography.titleLarge,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            keyboardOptions =
+                KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Next,
+                    keyboardType = KeyboardType.Decimal,
+                ),
         )
         TextField(
             enabled = proxyChoice == ProxySetting.MANUAL_PROXY.name,
@@ -136,7 +171,11 @@ fun SettingsProxyCategoryDialog(
             maxLines = 1,
             singleLine = true,
             textStyle = MaterialTheme.typography.titleLarge,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
+            keyboardOptions =
+                KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Next,
+                    keyboardType = KeyboardType.Ascii,
+                ),
         )
         var passwordVisible by rememberSaveable { mutableStateOf(false) }
         TextField(
@@ -155,7 +194,11 @@ fun SettingsProxyCategoryDialog(
             singleLine = true,
             textStyle = MaterialTheme.typography.titleLarge,
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            keyboardOptions =
+                KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Next,
+                    keyboardType = KeyboardType.Password,
+                ),
             trailingIcon = {
                 val image =
                     if (passwordVisible) {
