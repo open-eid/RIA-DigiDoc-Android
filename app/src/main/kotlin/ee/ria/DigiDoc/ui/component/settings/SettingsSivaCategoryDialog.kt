@@ -13,17 +13,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -36,7 +35,6 @@ import ee.ria.DigiDoc.ui.component.shared.TextRadioButton
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import kotlinx.coroutines.delay
 
 @Composable
 fun SettingsSivaCategoryDialog(
@@ -52,22 +50,15 @@ fun SettingsSivaCategoryDialog(
     onShowCertificateClick: () -> Unit = {},
     onSettingsSivaUrlValueChanged: (TextFieldValue) -> Unit = {},
 ) {
-    val focusRequester = remember { FocusRequester() }
-    val focusManager = LocalFocusManager.current
-
-    LaunchedEffect(Unit) {
-        delay(200)
-        focusManager.clearFocus()
-        delay(200)
-        focusRequester.requestFocus()
-    }
-
     val sivaDialogTitle = stringResource(id = R.string.main_settings_siva_service_title)
 
     Column(
         modifier = modifier.padding(itemSpacingPadding),
     ) {
         BackButton(
+            modifier =
+                modifier
+                    .semantics { traversalIndex = 1f },
             onClickBack = onClickBack,
         )
         Text(
@@ -75,17 +66,22 @@ fun SettingsSivaCategoryDialog(
                 modifier
                     .padding(horizontal = screenViewLargePadding, vertical = screenViewLargePadding)
                     .fillMaxWidth()
-                    .semantics {
+                    .clearAndSetSemantics {
+                        traversalIndex = 0f
                         heading()
                         this.contentDescription = sivaDialogTitle.lowercase()
                     }
-                    .focusRequester(focusRequester)
+                    .focusProperties { canFocus = true }
+                    .focusTarget()
                     .focusable(),
             text = sivaDialogTitle,
             style = MaterialTheme.typography.titleLarge,
         )
 
         TextRadioButton(
+            modifier =
+                modifier
+                    .semantics { traversalIndex = 2f },
             title = stringResource(id = R.string.main_settings_siva_default_access_title),
             contentDescription =
                 "${sivaDialogTitle.lowercase()} " +
@@ -94,6 +90,9 @@ fun SettingsSivaCategoryDialog(
             onClick = onClickSivaSettingDefault,
         )
         TextRadioButton(
+            modifier =
+                modifier
+                    .semantics { traversalIndex = 3f },
             title = stringResource(id = R.string.main_settings_siva_default_manual_access_title),
             contentDescription =
                 "${sivaDialogTitle.lowercase()} " +
@@ -107,7 +106,8 @@ fun SettingsSivaCategoryDialog(
             modifier =
                 modifier
                     .padding(vertical = screenViewLargePadding)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .semantics { traversalIndex = 4f },
             value = settingsSivaServiceUrl,
             shape = RectangleShape,
             onValueChange = onSettingsSivaUrlValueChanged,
@@ -128,28 +128,35 @@ fun SettingsSivaCategoryDialog(
                 modifier =
                     modifier
                         .padding(horizontal = screenViewLargePadding, vertical = screenViewLargePadding)
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .semantics { traversalIndex = 5f },
                 text = stringResource(id = R.string.main_settings_siva_certificate_title),
             )
             Text(
                 modifier =
                     modifier
                         .padding(horizontal = screenViewLargePadding, vertical = screenViewLargePadding)
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .semantics { traversalIndex = 6f },
                 text = stringResource(id = R.string.main_settings_timestamp_cert_issued_to_title) + " " + issuedTo,
             )
             Text(
                 modifier =
                     modifier
                         .padding(horizontal = screenViewLargePadding, vertical = screenViewLargePadding)
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .semantics { traversalIndex = 7f },
                 text = stringResource(id = R.string.main_settings_timestamp_cert_valid_to_title) + " " + validTo,
             )
             PrimaryButton(
                 modifier =
-                    modifier.fillMaxWidth().wrapContentHeight().padding(
-                        horizontal = screenViewLargePadding,
-                    ),
+                    modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(
+                            horizontal = screenViewLargePadding,
+                        )
+                        .semantics { traversalIndex = 8f },
                 contentDescription =
                     stringResource(
                         id = R.string.main_settings_timestamp_cert_add_certificate_button,
@@ -159,9 +166,13 @@ fun SettingsSivaCategoryDialog(
             )
             PrimaryButton(
                 modifier =
-                    modifier.fillMaxWidth().wrapContentHeight().padding(
-                        horizontal = screenViewLargePadding,
-                    ),
+                    modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(
+                            horizontal = screenViewLargePadding,
+                        )
+                        .semantics { traversalIndex = 9f },
                 contentDescription =
                     stringResource(
                         id = R.string.main_settings_timestamp_cert_show_certificate_button,

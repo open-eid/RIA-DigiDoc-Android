@@ -15,23 +15,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -46,7 +44,6 @@ import ee.ria.DigiDoc.ui.component.shared.TextRadioButton
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import kotlinx.coroutines.delay
 
 @Composable
 fun SettingsProxyCategoryDialog(
@@ -66,22 +63,15 @@ fun SettingsProxyCategoryDialog(
     onClickSystemProxy: () -> Unit = {},
     checkConnectionClick: () -> Unit = {},
 ) {
-    val focusRequester = remember { FocusRequester() }
-    val focusManager = LocalFocusManager.current
-
-    LaunchedEffect(Unit) {
-        delay(200)
-        focusManager.clearFocus()
-        delay(200)
-        focusRequester.requestFocus()
-    }
-
     val proxyDialogTitle = stringResource(id = R.string.main_settings_proxy_title)
 
     Column(
         modifier = modifier.padding(itemSpacingPadding),
     ) {
         BackButton(
+            modifier =
+                modifier
+                    .semantics { traversalIndex = 1f },
             onClickBack = onClickBack,
         )
         Text(
@@ -90,27 +80,38 @@ fun SettingsProxyCategoryDialog(
                     .padding(horizontal = screenViewLargePadding, vertical = screenViewLargePadding)
                     .fillMaxWidth()
                     .semantics {
+                        traversalIndex = 0f
                         heading()
                         this.contentDescription = proxyDialogTitle.lowercase()
                     }
-                    .focusRequester(focusRequester)
+                    .focusProperties { canFocus = true }
+                    .focusTarget()
                     .focusable(),
-            text = stringResource(id = R.string.main_settings_proxy_title),
+            text = proxyDialogTitle,
             style = MaterialTheme.typography.titleLarge,
         )
         TextRadioButton(
+            modifier =
+                modifier
+                    .semantics { traversalIndex = 2f },
             title = stringResource(id = R.string.main_settings_proxy_no_proxy),
             contentDescription = stringResource(id = R.string.main_settings_proxy_no_proxy).lowercase(),
             selected = proxyChoice == ProxySetting.NO_PROXY.name,
             onClick = onClickNoProxy,
         )
         TextRadioButton(
+            modifier =
+                modifier
+                    .semantics { traversalIndex = 3f },
             title = stringResource(id = R.string.main_settings_proxy_use_system),
             contentDescription = stringResource(id = R.string.main_settings_proxy_use_system).lowercase(),
             selected = proxyChoice == ProxySetting.SYSTEM_PROXY.name,
             onClick = onClickSystemProxy,
         )
         TextRadioButton(
+            modifier =
+                modifier
+                    .semantics { traversalIndex = 4f },
             title = stringResource(id = R.string.main_settings_proxy_manual),
             contentDescription = stringResource(id = R.string.main_settings_proxy_manual).lowercase(),
             selected = proxyChoice == ProxySetting.MANUAL_PROXY.name,
@@ -121,7 +122,8 @@ fun SettingsProxyCategoryDialog(
             modifier =
                 modifier
                     .padding(vertical = screenViewLargePadding)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .semantics { traversalIndex = 5f },
             shape = RectangleShape,
             value = proxyHostValue,
             onValueChange = onProxyHostValueChange,
@@ -142,7 +144,8 @@ fun SettingsProxyCategoryDialog(
             modifier =
                 modifier
                     .padding(vertical = screenViewLargePadding)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .semantics { traversalIndex = 6f },
             shape = RectangleShape,
             value = proxyPortValue,
             onValueChange = onProxyPortValueChange,
@@ -163,7 +166,8 @@ fun SettingsProxyCategoryDialog(
             modifier =
                 modifier
                     .padding(vertical = screenViewLargePadding)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .semantics { traversalIndex = 7f },
             shape = RectangleShape,
             value = proxyUsernameValue,
             onValueChange = onProxyUsernameValueChange,
@@ -185,7 +189,8 @@ fun SettingsProxyCategoryDialog(
             modifier =
                 modifier
                     .padding(vertical = screenViewLargePadding)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .semantics { traversalIndex = 8f },
             shape = RectangleShape,
             value = proxyPasswordValue,
             onValueChange = onProxyPasswordValueChange,
@@ -216,16 +221,25 @@ fun SettingsProxyCategoryDialog(
                     } else {
                         stringResource(id = R.string.show_password)
                     }
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                IconButton(
+                    modifier =
+                        modifier
+                            .semantics { traversalIndex = 9f },
+                    onClick = { passwordVisible = !passwordVisible },
+                ) {
                     Icon(imageVector = image, description)
                 }
             },
         )
         PrimaryButton(
             modifier =
-                modifier.fillMaxWidth().wrapContentHeight().padding(
-                    horizontal = screenViewLargePadding,
-                ),
+                modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(
+                        horizontal = screenViewLargePadding,
+                    )
+                    .semantics { traversalIndex = 10f },
             contentDescription =
                 stringResource(
                     id = R.string.main_settings_proxy_check_connection,
