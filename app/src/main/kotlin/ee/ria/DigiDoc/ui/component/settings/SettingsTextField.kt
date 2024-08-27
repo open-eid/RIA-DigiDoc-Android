@@ -17,7 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -47,6 +49,7 @@ fun SettingsTextField(
                 .wrapContentHeight(align = Alignment.CenterVertically)
                 .semantics {
                     this.contentDescription = contentDescription
+                    isTraversalGroup = true
                 },
     ) {
         Text(
@@ -64,6 +67,7 @@ fun SettingsTextField(
                     .padding(vertical = screenViewLargePadding)
                     .semantics {
                         this.contentDescription = contentDescription
+                        traversalIndex = 1f
                     }
                     .fillMaxWidth(),
             shape = RectangleShape,
@@ -83,7 +87,9 @@ fun SettingsTextField(
                 ),
         )
         TextCheckBox(
-            modifier = modifier,
+            modifier =
+                modifier
+                    .semantics { traversalIndex = 0f },
             checked = useDefaultChecked,
             onCheckedChange = useDefaultCheckedChange,
             title = stringResource(id = R.string.main_settings_tsa_url_use_default),

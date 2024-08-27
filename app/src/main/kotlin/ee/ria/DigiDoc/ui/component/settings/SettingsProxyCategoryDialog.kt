@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -89,6 +90,7 @@ fun SettingsProxyCategoryDialog(
                     .padding(horizontal = screenViewLargePadding, vertical = screenViewLargePadding)
                     .fillMaxWidth()
                     .semantics {
+                        heading()
                         this.contentDescription = proxyDialogTitle.lowercase()
                     }
                     .focusRequester(focusRequester)
