@@ -17,7 +17,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -26,6 +29,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 
 @Composable
 fun SettingsTextField(
@@ -45,11 +49,15 @@ fun SettingsTextField(
                 .wrapContentHeight(align = Alignment.CenterVertically)
                 .semantics {
                     this.contentDescription = contentDescription
+                    isTraversalGroup = true
                 },
     ) {
         Text(
             text = title,
-            modifier = modifier.wrapContentHeight(align = Alignment.CenterVertically),
+            modifier =
+                modifier
+                    .wrapContentHeight(align = Alignment.CenterVertically)
+                    .notAccessible(),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Start,
         )
@@ -57,6 +65,10 @@ fun SettingsTextField(
             modifier =
                 modifier
                     .padding(vertical = screenViewLargePadding)
+                    .semantics {
+                        this.contentDescription = contentDescription
+                        traversalIndex = 1f
+                    }
                     .fillMaxWidth(),
             shape = RectangleShape,
             enabled = !useDefaultChecked,
@@ -68,14 +80,22 @@ fun SettingsTextField(
             maxLines = 1,
             singleLine = true,
             textStyle = MaterialTheme.typography.titleLarge,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            keyboardOptions =
+                KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Next,
+                    keyboardType = KeyboardType.Ascii,
+                ),
         )
         TextCheckBox(
-            modifier = modifier,
+            modifier =
+                modifier
+                    .semantics { traversalIndex = 0f },
             checked = useDefaultChecked,
             onCheckedChange = useDefaultCheckedChange,
             title = stringResource(id = R.string.main_settings_tsa_url_use_default),
-            contentDescription = stringResource(id = R.string.main_settings_tsa_url_use_default).lowercase(),
+            contentDescription =
+                "${stringResource(id = R.string.main_settings_tsa_url_use_default).lowercase()} " +
+                    contentDescription,
         )
     }
 }
