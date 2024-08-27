@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -18,6 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
@@ -30,7 +31,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewSmallPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccessibilityScreen(
     modifier: Modifier = Modifier,
@@ -85,11 +85,13 @@ fun AccessibilityScreen(
             )
             Text(
                 modifier =
-                    modifier.padding(
-                        start = screenViewSmallPadding,
-                        top = screenViewExtraLargePadding,
-                        end = screenViewSmallPadding,
-                    ),
+                    modifier
+                        .padding(
+                            start = screenViewSmallPadding,
+                            top = screenViewExtraLargePadding,
+                            end = screenViewSmallPadding,
+                        )
+                        .semantics { heading() },
                 text = stringResource(id = R.string.main_accessibility_introduction_screen_reader_title),
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.titleLarge,
@@ -136,11 +138,13 @@ fun AccessibilityScreen(
             )
             Text(
                 modifier =
-                    modifier.padding(
-                        start = screenViewSmallPadding,
-                        top = screenViewExtraLargePadding,
-                        end = screenViewSmallPadding,
-                    ),
+                    modifier
+                        .padding(
+                            start = screenViewSmallPadding,
+                            top = screenViewExtraLargePadding,
+                            end = screenViewSmallPadding,
+                        )
+                        .semantics { heading() },
                 text = stringResource(id = R.string.main_accessibility_introduction_screen_magnification_title),
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.titleLarge,
@@ -185,10 +189,11 @@ fun AccessibilityScreen(
             )
             DynamicText(
                 modifier =
-                    modifier.padding(
-                        horizontal = screenViewSmallPadding,
-                        vertical = screenViewSmallPadding,
-                    ),
+                    modifier
+                        .padding(
+                            horizontal = screenViewSmallPadding,
+                            vertical = screenViewSmallPadding,
+                        ),
                 text = stringResource(R.string.main_accessibility_introduction_screen_magnification_tools),
             )
             DynamicText(
