@@ -6,14 +6,11 @@ import android.content.Context
 import android.content.res.Resources
 import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
-import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
-import ee.ria.DigiDoc.libdigidoclib.utils.FileUtils.getDataFileMimetype
 import ee.ria.DigiDoc.libdigidoclib.utils.FileUtils.getSchemaDir
 import ee.ria.DigiDoc.libdigidoclib.utils.FileUtils.getSchemaPath
 import ee.ria.DigiDoc.libdigidoclib.utils.FileUtils.initSchema
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -137,32 +134,6 @@ class FileUtilsTest {
         }
         fail("Must throw exception when cacheDir is null")
     }
-
-    @Test
-    fun signedContainer_mimeType_returnMimeType() =
-        runTest {
-            val file = File.createTempFile("testFile", ".bmp", context.filesDir)
-            val dataFiles = listOf(file)
-
-            val signedContainer = SignedContainer.openOrCreate(context, file, dataFiles)
-
-            val result = getDataFileMimetype(signedContainer.getDataFiles().first())
-
-            assertEquals("image/x-ms-bmp", result)
-        }
-
-    @Test
-    fun signedContainer_mimeType_extensionEmptyReturnMimeType() =
-        runTest {
-            val file = File.createTempFile("testFile", "", context.filesDir)
-            val dataFiles = listOf(file)
-
-            val signedContainer = SignedContainer.openOrCreate(context, file, dataFiles)
-
-            val result = getDataFileMimetype(signedContainer.getDataFiles().first())
-
-            assertEquals("application/octet-stream", result)
-        }
 
     private fun createZipInputStream(files: Map<String, String>): InputStream {
         val outputStream = ByteArrayOutputStream()

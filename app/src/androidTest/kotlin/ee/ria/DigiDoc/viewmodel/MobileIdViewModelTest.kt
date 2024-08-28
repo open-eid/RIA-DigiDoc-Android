@@ -79,6 +79,8 @@ class MobileIdViewModelTest {
     @Mock
     lateinit var challengeObserver: Observer<String?>
 
+    private lateinit var signedContainer: SignedContainer
+
     private val configurationProvider =
         ConfigurationProvider(
             metaInf =
@@ -154,23 +156,23 @@ class MobileIdViewModelTest {
         viewModel.roleDataRequested.observeForever(roleDataRequestedObserver)
         viewModel.signedContainer.observeForever(signedContainterObserver)
         viewModel.challenge.observeForever(challengeObserver)
+
+        val container =
+            AssetFile.getResourceFileAsFile(
+                context,
+                "example.asice",
+                ee.ria.DigiDoc.common.R.raw.example,
+            )
+
+        signedContainer =
+            runBlocking {
+                SignedContainer.openOrCreate(context, container, listOf(container))
+            }
     }
 
     @Test
     fun mobileIdViewModel_performMobileIdWorkRequest_errorState() =
         runTest {
-            val container =
-                AssetFile.getResourceFileAsFile(
-                    context,
-                    "example.asice",
-                    ee.ria.DigiDoc.common.R.raw.example,
-                )
-
-            val signedContainer =
-                runBlocking {
-                    SignedContainer.openOrCreate(context, container, listOf(container))
-                }
-
             `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
             `when`(mobileIdService.response).thenReturn(MutableLiveData<MobileIdServiceResponse?>(null))
             `when`(mobileIdService.status).thenReturn(MutableLiveData<MobileCreateSignatureProcessStatus?>(null))
@@ -192,7 +194,7 @@ class MobileIdViewModelTest {
             verify(
                 mobileIdService,
                 atLeastOnce(),
-            ).processMobileIdRequest(any(), any(), eq(null), any(), any(), any(), any(), any())
+            ).processMobileIdRequest(any(), any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any())
             verify(errorStateObserver, atLeastOnce()).onChanged("Some error occurred")
             verify(signedContainterObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(null)
@@ -202,18 +204,6 @@ class MobileIdViewModelTest {
     @Test
     fun mobileIdViewModel_performMobileIdWorkRequest_responseStatusOK() =
         runTest {
-            val container =
-                AssetFile.getResourceFileAsFile(
-                    context,
-                    "example.asice",
-                    ee.ria.DigiDoc.common.R.raw.example,
-                )
-
-            val signedContainer =
-                runBlocking {
-                    SignedContainer.openOrCreate(context, container, listOf(container))
-                }
-
             `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
             `when`(
                 fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any()),
@@ -249,7 +239,7 @@ class MobileIdViewModelTest {
             verify(
                 mobileIdService,
                 atLeastOnce(),
-            ).processMobileIdRequest(any(), any(), eq(null), any(), any(), any(), any(), any())
+            ).processMobileIdRequest(any(), any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any())
             verify(errorStateObserver, atLeastOnce()).onChanged(null)
             verify(signedContainterObserver, atLeastOnce()).onChanged(any<SignedContainer>())
             verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.OK)
@@ -259,18 +249,6 @@ class MobileIdViewModelTest {
     @Test
     fun mobileIdViewModel_performMobileIdWorkRequest_responseStatusElse() =
         runTest {
-            val container =
-                AssetFile.getResourceFileAsFile(
-                    context,
-                    "example.asice",
-                    ee.ria.DigiDoc.common.R.raw.example,
-                )
-
-            val signedContainer =
-                runBlocking {
-                    SignedContainer.openOrCreate(context, container, listOf(container))
-                }
-
             `when`(configurationRepository.getConfiguration()).thenReturn(null)
             `when`(
                 fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any()),
@@ -303,7 +281,7 @@ class MobileIdViewModelTest {
             verify(
                 mobileIdService,
                 atLeastOnce(),
-            ).processMobileIdRequest(any(), any(), eq(null), any(), any(), any(), any(), any())
+            ).processMobileIdRequest(any(), any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any())
             verify(errorStateObserver, atLeastOnce()).onChanged(context.getString(R.string.no_internet_connection))
             verify(signedContainterObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.NO_RESPONSE)
@@ -313,18 +291,6 @@ class MobileIdViewModelTest {
     @Test
     fun mobileIdViewModel_performMobileIdWorkRequest_responseStatusNOT_MID_CLIENT() =
         runTest {
-            val container =
-                AssetFile.getResourceFileAsFile(
-                    context,
-                    "example.asice",
-                    ee.ria.DigiDoc.common.R.raw.example,
-                )
-
-            val signedContainer =
-                runBlocking {
-                    SignedContainer.openOrCreate(context, container, listOf(container))
-                }
-
             `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
             `when`(
                 fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any()),
@@ -362,7 +328,7 @@ class MobileIdViewModelTest {
             verify(
                 mobileIdService,
                 atLeastOnce(),
-            ).processMobileIdRequest(any(), any(), eq(null), any(), any(), any(), any(), any())
+            ).processMobileIdRequest(any(), any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any())
             verify(
                 errorStateObserver,
                 atLeastOnce(),
@@ -375,18 +341,6 @@ class MobileIdViewModelTest {
     @Test
     fun mobileIdViewModel_performMobileIdWorkRequest_responseStatusUserCancelled() =
         runTest {
-            val container =
-                AssetFile.getResourceFileAsFile(
-                    context,
-                    "example.asice",
-                    ee.ria.DigiDoc.common.R.raw.example,
-                )
-
-            val signedContainer =
-                runBlocking {
-                    SignedContainer.openOrCreate(context, container, listOf(container))
-                }
-
             `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
             `when`(
                 fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any()),
@@ -424,7 +378,7 @@ class MobileIdViewModelTest {
             verify(
                 mobileIdService,
                 atLeastOnce(),
-            ).processMobileIdRequest(any(), any(), eq(null), any(), any(), any(), any(), any())
+            ).processMobileIdRequest(any(), any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any())
             verify(
                 errorStateObserver,
                 atLeastOnce(),
@@ -437,18 +391,6 @@ class MobileIdViewModelTest {
     @Test
     fun mobileIdViewModel_performMobileIdWorkRequest_resultNotFound() =
         runTest {
-            val container =
-                AssetFile.getResourceFileAsFile(
-                    context,
-                    "example.asice",
-                    ee.ria.DigiDoc.common.R.raw.example,
-                )
-
-            val signedContainer =
-                runBlocking {
-                    SignedContainer.openOrCreate(context, container, listOf(container))
-                }
-
             `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
             `when`(
                 fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any()),
@@ -480,7 +422,7 @@ class MobileIdViewModelTest {
             verify(
                 mobileIdService,
                 atLeastOnce(),
-            ).processMobileIdRequest(any(), any(), eq(null), any(), any(), any(), any(), any())
+            ).processMobileIdRequest(any(), any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any())
             verify(
                 errorStateObserver,
                 atLeastOnce(),
@@ -528,8 +470,8 @@ class MobileIdViewModelTest {
     @Test
     fun mobileIdViewModel_cancelmobileIdWorkRequest_success() =
         runTest {
-            viewModel.cancelMobileIdWorkRequest()
-            verify(mobileIdService, atLeastOnce()).setCancelled(true)
+            viewModel.cancelMobileIdWorkRequest(signedContainer)
+            verify(mobileIdService, atLeastOnce()).setCancelled(signedContainer, true)
         }
 
     @Test

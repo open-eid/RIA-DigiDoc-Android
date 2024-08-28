@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.viewmodel
 
+import android.content.ContentResolver
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
@@ -20,11 +21,14 @@ import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
+import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -32,7 +36,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.atLeastOnce
+import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.doReturn
@@ -48,6 +54,9 @@ class SigningViewModelTest {
 
     @Mock
     lateinit var shouldResetSignedContainerObserver: Observer<Boolean?>
+
+    @Mock
+    lateinit var contentResolver: ContentResolver
 
     companion object {
         private var context: Context = InstrumentationRegistry.getInstrumentation().targetContext
@@ -77,6 +86,7 @@ class SigningViewModelTest {
         }
     }
 
+    private lateinit var sharedContainerViewModel: SharedContainerViewModel
     private lateinit var viewModel: SigningViewModel
 
     @Before
@@ -84,6 +94,7 @@ class SigningViewModelTest {
         MockitoAnnotations.openMocks(this)
         viewModel = SigningViewModel()
         viewModel.shouldResetSignedContainer.observeForever(shouldResetSignedContainerObserver)
+        sharedContainerViewModel = SharedContainerViewModel(mock(Context::class.java), contentResolver)
     }
 
     @Test
@@ -100,7 +111,7 @@ class SigningViewModelTest {
             Files.write(file.toPath(), "content".toByteArray(Charset.defaultCharset()))
             val container = SignedContainer.openOrCreate(context, file, listOf(file))
 
-            val isSignButtonShown = viewModel.isSignButtonShown(container)
+            val isSignButtonShown = viewModel.isSignButtonShown(context, container, false)
 
             assertTrue(isSignButtonShown)
         }
@@ -112,7 +123,7 @@ class SigningViewModelTest {
 
             val container = SignedContainer.openOrCreate(context, file, listOf(file))
 
-            val isSignButtonShown = viewModel.isSignButtonShown(container)
+            val isSignButtonShown = viewModel.isSignButtonShown(context, container, false)
 
             assertFalse(isSignButtonShown)
         }
@@ -120,7 +131,7 @@ class SigningViewModelTest {
     @Test
     fun signingViewModel_isSignButtonShown_containerIsNullReturnFalse() =
         runTest {
-            val isSignButtonShown = viewModel.isSignButtonShown(null)
+            val isSignButtonShown = viewModel.isSignButtonShown(context, null, false)
 
             assertFalse(isSignButtonShown)
         }
@@ -196,7 +207,7 @@ class SigningViewModelTest {
 
             val container = SignedContainer.openOrCreate(context, file, listOf(file))
 
-            val isEncryptButtonShown = viewModel.isEncryptButtonShown(container)
+            val isEncryptButtonShown = viewModel.isEncryptButtonShown(container, false)
 
             assertTrue(isEncryptButtonShown)
         }
@@ -208,7 +219,7 @@ class SigningViewModelTest {
 
             val container = SignedContainer.openOrCreate(context, file, listOf(file))
 
-            val isEncryptButtonShown = viewModel.isEncryptButtonShown(container)
+            val isEncryptButtonShown = viewModel.isEncryptButtonShown(container, false)
 
             assertFalse(isEncryptButtonShown)
         }
@@ -225,7 +236,7 @@ class SigningViewModelTest {
 
             val container = SignedContainer.openOrCreate(context, file, listOf(file))
 
-            val isShareButtonShown = viewModel.isShareButtonShown(container)
+            val isShareButtonShown = viewModel.isShareButtonShown(container, false)
 
             assertTrue(isShareButtonShown)
         }
@@ -237,7 +248,7 @@ class SigningViewModelTest {
 
             val container = SignedContainer.openOrCreate(context, file, listOf(file))
 
-            val isShareButtonShown = viewModel.isShareButtonShown(container)
+            val isShareButtonShown = viewModel.isShareButtonShown(container, false)
 
             assertFalse(isShareButtonShown)
         }
@@ -370,4 +381,56 @@ class SigningViewModelTest {
 
         assertEquals("", formattedDate)
     }
+
+    @Test
+    fun signingViewModel_openNestedContainer_success() =
+        runTest {
+            val file =
+                getResourceFileAsFile(
+                    context,
+                    "example_nested_container.asice",
+                    ee.ria.DigiDoc.common.R.raw.example_nested_container,
+                )
+
+            val signedContainer = SignedContainer.openOrCreate(context, file, listOf(file))
+
+            sharedContainerViewModel.setSignedContainer(signedContainer)
+
+            val nestedFile =
+                sharedContainerViewModel.getContainerDataFile(
+                    signedContainer,
+                    signedContainer.getDataFiles().first(),
+                )
+
+            if (nestedFile != null) {
+                viewModel.openNestedContainer(context, nestedFile, sharedContainerViewModel)
+                assertEquals(2, sharedContainerViewModel.nestedContainers.size)
+            } else {
+                fail("Nested file is null")
+            }
+        }
+
+    @Test(expected = Exception::class)
+    fun signingViewModel_openNestedContainer_throwExceptionWhenOpeningContainerUnsuccessful() =
+        runTest {
+            val file = mock(File::class.java)
+            `when`(file.length()).thenReturn(0L)
+
+            viewModel.openNestedContainer(context, file, sharedContainerViewModel)
+        }
+
+    @Test
+    fun signingViewModel_getViewIntent_success() =
+        runTest {
+            val file =
+                getResourceFileAsFile(
+                    context,
+                    "example_no_signatures.asice",
+                    ee.ria.DigiDoc.common.R.raw.example_no_signatures,
+                )
+
+            val viewIntent = viewModel.getViewIntent(context, file)
+
+            assertNotNull(viewIntent)
+        }
 }

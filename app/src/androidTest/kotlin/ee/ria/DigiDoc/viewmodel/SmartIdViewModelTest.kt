@@ -81,6 +81,8 @@ class SmartIdViewModelTest {
     @Mock
     lateinit var selectDeviceObserver: Observer<Boolean?>
 
+    private lateinit var signedContainer: SignedContainer
+
     private val configurationProvider =
         ConfigurationProvider(
             metaInf =
@@ -157,23 +159,23 @@ class SmartIdViewModelTest {
         viewModel.roleDataRequested.observeForever(roleDataRequestedObserver)
         viewModel.challenge.observeForever(challengeObserver)
         viewModel.selectDevice.observeForever(selectDeviceObserver)
+
+        val container =
+            AssetFile.getResourceFileAsFile(
+                context,
+                "example.asice",
+                ee.ria.DigiDoc.common.R.raw.example,
+            )
+
+        signedContainer =
+            runBlocking {
+                SignedContainer.openOrCreate(context, container, listOf(container))
+            }
     }
 
     @Test
     fun smartIdViewModel_performSmartIdWorkRequest_errorState() =
         runTest {
-            val container =
-                AssetFile.getResourceFileAsFile(
-                    context,
-                    "example.asice",
-                    ee.ria.DigiDoc.common.R.raw.example,
-                )
-
-            val signedContainer =
-                runBlocking {
-                    SignedContainer.openOrCreate(context, container, listOf(container))
-                }
-
             `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
             `when`(smartSignService.response).thenReturn(MutableLiveData<SmartIDServiceResponse?>(null))
             `when`(smartSignService.status).thenReturn(MutableLiveData<SessionStatusResponseProcessStatus?>(null))
@@ -188,7 +190,12 @@ class SmartIdViewModelTest {
             verify(
                 smartSignService,
                 atLeastOnce(),
-            ).processSmartIdRequest(eq(context), any(), eq(null), any(), any(), any(), any(), any())
+            ).processSmartIdRequest(
+                eq(
+                    context,
+                ),
+                any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any(),
+            )
             verify(errorStateObserver, atLeastOnce()).onChanged("Some error occurred")
             verify(signedContainterObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(null)
@@ -199,18 +206,6 @@ class SmartIdViewModelTest {
     @Test
     fun smartIdViewModel_performSmartIdWorkRequest_responseStatusOK() =
         runTest {
-            val container =
-                AssetFile.getResourceFileAsFile(
-                    context,
-                    "example.asice",
-                    ee.ria.DigiDoc.common.R.raw.example,
-                )
-
-            val signedContainer =
-                runBlocking {
-                    SignedContainer.openOrCreate(context, container, listOf(container))
-                }
-
             `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
             `when`(
                 fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any()),
@@ -237,7 +232,12 @@ class SmartIdViewModelTest {
             verify(
                 smartSignService,
                 atLeastOnce(),
-            ).processSmartIdRequest(eq(context), any(), eq(null), any(), any(), any(), any(), any())
+            ).processSmartIdRequest(
+                eq(
+                    context,
+                ),
+                any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any(),
+            )
             verify(errorStateObserver, atLeastOnce()).onChanged(null)
             verify(signedContainterObserver, atLeastOnce()).onChanged(any<SignedContainer>())
             verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.OK)
@@ -248,18 +248,6 @@ class SmartIdViewModelTest {
     @Test
     fun smartIdViewModel_performSmartIdWorkRequest_responseStatusElse() =
         runTest {
-            val container =
-                AssetFile.getResourceFileAsFile(
-                    context,
-                    "example.asice",
-                    ee.ria.DigiDoc.common.R.raw.example,
-                )
-
-            val signedContainer =
-                runBlocking {
-                    SignedContainer.openOrCreate(context, container, listOf(container))
-                }
-
             `when`(configurationRepository.getConfiguration()).thenReturn(null)
             `when`(
                 fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any()),
@@ -282,7 +270,12 @@ class SmartIdViewModelTest {
             verify(
                 smartSignService,
                 atLeastOnce(),
-            ).processSmartIdRequest(eq(context), any(), eq(null), any(), any(), any(), any(), any())
+            ).processSmartIdRequest(
+                eq(
+                    context,
+                ),
+                any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any(),
+            )
             verify(errorStateObserver, atLeastOnce()).onChanged(context.getString(R.string.no_internet_connection))
             verify(signedContainterObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.NO_RESPONSE)
@@ -293,18 +286,6 @@ class SmartIdViewModelTest {
     @Test
     fun smartIdViewModel_performSmartIdWorkRequest_responseStatusUserRefused() =
         runTest {
-            val container =
-                AssetFile.getResourceFileAsFile(
-                    context,
-                    "example.asice",
-                    ee.ria.DigiDoc.common.R.raw.example,
-                )
-
-            val signedContainer =
-                runBlocking {
-                    SignedContainer.openOrCreate(context, container, listOf(container))
-                }
-
             `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
             `when`(
                 fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any()),
@@ -327,7 +308,12 @@ class SmartIdViewModelTest {
             verify(
                 smartSignService,
                 atLeastOnce(),
-            ).processSmartIdRequest(eq(context), any(), eq(null), any(), any(), any(), any(), any())
+            ).processSmartIdRequest(
+                eq(
+                    context,
+                ),
+                any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any(),
+            )
             verify(
                 errorStateObserver,
                 atLeastOnce(),
@@ -341,18 +327,6 @@ class SmartIdViewModelTest {
     @Test
     fun smartIdViewModel_performSmartIdWorkRequest_responseStatusUserCancelled() =
         runTest {
-            val container =
-                AssetFile.getResourceFileAsFile(
-                    context,
-                    "example.asice",
-                    ee.ria.DigiDoc.common.R.raw.example,
-                )
-
-            val signedContainer =
-                runBlocking {
-                    SignedContainer.openOrCreate(context, container, listOf(container))
-                }
-
             `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
             `when`(
                 fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any()),
@@ -375,7 +349,12 @@ class SmartIdViewModelTest {
             verify(
                 smartSignService,
                 atLeastOnce(),
-            ).processSmartIdRequest(eq(context), any(), eq(null), any(), any(), any(), any(), any())
+            ).processSmartIdRequest(
+                eq(
+                    context,
+                ),
+                any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any(),
+            )
             verify(
                 errorStateObserver,
                 atLeastOnce(),
@@ -424,8 +403,8 @@ class SmartIdViewModelTest {
     @Test
     fun smartIdViewModel_cancelSmartIdWorkRequest_success() =
         runTest {
-            viewModel.cancelSmartIdWorkRequest()
-            verify(smartSignService, atLeastOnce()).setCancelled(true)
+            viewModel.cancelSmartIdWorkRequest(signedContainer)
+            verify(smartSignService, atLeastOnce()).setCancelled(signedContainer, true)
         }
 
     @Test
