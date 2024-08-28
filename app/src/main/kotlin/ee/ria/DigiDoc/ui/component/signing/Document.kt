@@ -33,6 +33,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewSmallPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Red500
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 
 @Composable
 fun Document(
@@ -50,7 +51,7 @@ fun Document(
                 .wrapContentHeight()
                 .fillMaxWidth()
                 .semantics {
-                    this.contentDescription = "$documentTitle ${name.lowercase()}"
+                    this.contentDescription = "$documentTitle ${formatNumbers(name).lowercase()}"
                 }
                 .focusable(true)
                 .clickable(onClick = onItemClick),
@@ -94,7 +95,7 @@ fun Document(
                         stringResource(
                             id = R.string.recent_documents_remove_button,
                         )
-                    } $name",
+                    } ${formatNumbers(name).lowercase()}",
                     tint = Red500,
                 )
             },

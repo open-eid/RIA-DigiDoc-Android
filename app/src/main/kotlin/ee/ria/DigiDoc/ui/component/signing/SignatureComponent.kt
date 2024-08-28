@@ -85,12 +85,13 @@ fun SignatureComponent(
             )
         val buttonName = stringResource(id = R.string.button_name)
         val roles = signature.signerRoles.joinToString(" / ")
+        val roleAndAddress = stringResource(R.string.signature_update_signature_role_and_address_title_accessibility)
         Column(
             modifier =
                 modifier
                     .semantics(mergeDescendants = true) {
                         this.contentDescription =
-                            "${formatNumbers(nameText)}, $statusText, $signedTime, $buttonName"
+                            "${formatNumbers(nameText)}, $statusText, $roleAndAddress: $roles, $signedTime, $buttonName"
                     }
                     .weight(1f)
                     .focusGroup()
@@ -123,10 +124,7 @@ fun SignatureComponent(
                 content = {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_info),
-                        contentDescription =
-                            stringResource(
-                                id = R.string.signature_update_signature_role_and_address_title_accessibility,
-                            ),
+                        contentDescription = roleAndAddress,
                         tint = Blue500,
                     )
                 },

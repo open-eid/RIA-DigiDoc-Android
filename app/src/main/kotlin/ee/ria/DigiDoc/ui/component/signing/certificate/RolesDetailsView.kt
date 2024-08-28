@@ -5,8 +5,11 @@ package ee.ria.DigiDoc.ui.component.signing.certificate
 import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -14,13 +17,18 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.navigation.NavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.signing.TopBar
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
@@ -58,61 +66,155 @@ fun RolesDetailsView(
                     },
                 )
                 if (signature != null) {
-                    Text(
-                        text = stringResource(id = R.string.main_settings_role_title),
-                        modifier = modifier.notAccessible(),
-                    )
-                    Text(
-                        text = signature.signerRoles.joinToString(", "),
+                    val roleTitle = stringResource(id = R.string.main_settings_role_title)
+                    val roleValue = signature.signerRoles.joinToString(", ")
+                    Row(
                         modifier =
                             modifier
-                                .graphicsLayer(alpha = 0.7f)
-                                .notAccessible(),
-                    )
-                    Text(
-                        text = stringResource(id = R.string.main_settings_city_title),
-                        modifier = modifier.notAccessible(),
-                    )
-                    Text(
-                        text = signature.city,
+                                .fillMaxWidth()
+                                .padding(vertical = screenViewLargePadding)
+                                .semantics(mergeDescendants = true) {
+                                    this.contentDescription = "$roleTitle $roleValue"
+                                },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(
+                            modifier = modifier,
+                        ) {
+                            Text(
+                                text = roleTitle,
+                                modifier = modifier.notAccessible(),
+                            )
+                            Text(
+                                text = roleValue,
+                                modifier =
+                                    modifier
+                                        .graphicsLayer(alpha = 0.7f)
+                                        .notAccessible(),
+                            )
+                        }
+                    }
+
+                    val cityTitle = stringResource(id = R.string.main_settings_city_title)
+                    val cityValue = signature.city
+                    Row(
                         modifier =
                             modifier
-                                .graphicsLayer(alpha = 0.7f)
-                                .notAccessible(),
-                    )
-                    Text(
-                        text = stringResource(id = R.string.main_settings_county_title),
-                        modifier = modifier.notAccessible(),
-                    )
-                    Text(
-                        text = signature.stateOrProvince,
+                                .fillMaxWidth()
+                                .padding(vertical = screenViewLargePadding)
+                                .semantics(mergeDescendants = true) {
+                                    this.contentDescription = "$cityTitle $cityValue"
+                                },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(
+                            modifier = modifier,
+                        ) {
+                            Text(
+                                text = cityTitle,
+                                modifier = modifier.notAccessible(),
+                            )
+                            Text(
+                                text = cityValue,
+                                modifier =
+                                    modifier
+                                        .graphicsLayer(alpha = 0.7f)
+                                        .notAccessible(),
+                            )
+                        }
+                    }
+
+                    val stateTitle = stringResource(id = R.string.main_settings_county_title)
+                    val stateValue = signature.stateOrProvince
+                    Row(
                         modifier =
                             modifier
-                                .graphicsLayer(alpha = 0.7f)
-                                .notAccessible(),
-                    )
-                    Text(
-                        text = stringResource(id = R.string.main_settings_country_title),
-                        modifier = modifier.notAccessible(),
-                    )
-                    Text(
-                        text = signature.countryName,
+                                .fillMaxWidth()
+                                .padding(vertical = screenViewLargePadding)
+                                .semantics(mergeDescendants = true) {
+                                    this.contentDescription = "$stateTitle $stateValue"
+                                },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(
+                            modifier = modifier,
+                        ) {
+                            Text(
+                                text = stateTitle,
+                                modifier = modifier.notAccessible(),
+                            )
+                            Text(
+                                text = stateValue,
+                                modifier =
+                                    modifier
+                                        .graphicsLayer(alpha = 0.7f)
+                                        .notAccessible(),
+                            )
+                        }
+                    }
+
+                    val countryTitle = stringResource(id = R.string.main_settings_country_title)
+                    val countryValue = signature.countryName
+                    Row(
                         modifier =
                             modifier
-                                .graphicsLayer(alpha = 0.7f)
-                                .notAccessible(),
-                    )
-                    Text(
-                        text = stringResource(id = R.string.main_settings_postal_code_title),
-                        modifier = modifier.notAccessible(),
-                    )
-                    Text(
-                        text = signature.postalCode,
+                                .fillMaxWidth()
+                                .padding(vertical = screenViewLargePadding)
+                                .semantics(mergeDescendants = true) {
+                                    this.contentDescription = "$countryTitle $countryValue"
+                                },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(
+                            modifier = modifier,
+                        ) {
+                            Text(
+                                text = countryTitle,
+                                modifier = modifier.notAccessible(),
+                            )
+                            Text(
+                                text = countryValue,
+                                modifier =
+                                    modifier
+                                        .graphicsLayer(alpha = 0.7f)
+                                        .notAccessible(),
+                            )
+                        }
+                    }
+
+                    val zipTitle = stringResource(id = R.string.main_settings_postal_code_title)
+                    val zipValue = signature.postalCode
+                    Row(
                         modifier =
                             modifier
-                                .graphicsLayer(alpha = 0.7f)
-                                .notAccessible(),
-                    )
+                                .fillMaxWidth()
+                                .padding(vertical = screenViewLargePadding)
+                                .semantics(mergeDescendants = true) {
+                                    this.contentDescription = "$zipTitle ${formatNumbers(zipValue)}"
+                                },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(
+                            modifier = modifier,
+                        ) {
+                            Text(
+                                text = zipTitle,
+                                modifier = modifier.notAccessible(),
+                            )
+                            Text(
+                                text = zipValue,
+                                modifier =
+                                    modifier
+                                        .graphicsLayer(alpha = 0.7f)
+                                        .notAccessible(),
+                            )
+                        }
+                    }
                 }
             }
         }

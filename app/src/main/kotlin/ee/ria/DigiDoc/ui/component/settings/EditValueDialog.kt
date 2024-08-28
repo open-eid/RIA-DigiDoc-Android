@@ -14,8 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,6 +26,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 
 @Composable
 fun EditValueDialog(
@@ -50,14 +54,23 @@ fun EditValueDialog(
         TextField(
             modifier =
                 modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .clearAndSetSemantics {
+                        contentDescription =
+                            "$title " +
+                            "${formatNumbers(editValue.text)} "
+                    },
             shape = RectangleShape,
             value = editValue,
             onValueChange = onEditValueChange,
             maxLines = 1,
             singleLine = true,
             textStyle = MaterialTheme.typography.titleSmall,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
+            keyboardOptions =
+                KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Next,
+                    keyboardType = KeyboardType.Ascii,
+                ),
         )
         CancelAndOkButtonRow(
             cancelButtonClick = cancelButtonClick,

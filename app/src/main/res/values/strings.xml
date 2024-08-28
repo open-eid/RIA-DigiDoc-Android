@@ -189,6 +189,7 @@
     <string name="signature_method_selected">Signing method selected</string>
     <string name="menu_language">Language</string>
     <string name="menu_language_selected">Language selected</string>
+    <string name="item_selected">selected</string>
 
     <!-- Home -->
     <string name="main_home_navigation_signature_accessibility">Signature</string>
