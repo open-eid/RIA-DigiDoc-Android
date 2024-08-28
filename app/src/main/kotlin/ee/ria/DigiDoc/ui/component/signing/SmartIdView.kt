@@ -53,7 +53,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
-import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.SelectionSpinner
 import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
@@ -134,10 +133,8 @@ fun SmartIdView(
     LaunchedEffect(smartIdViewModel.status) {
         smartIdViewModel.status.asFlow().collect { status ->
             status?.let {
-                if (status == SessionStatusResponseProcessStatus.OK) {
-                    sharedContainerViewModel.setSignedSidStatus(status)
-                    smartIdViewModel.resetStatus()
-                }
+                sharedContainerViewModel.setSignedSidStatus(status)
+                smartIdViewModel.resetStatus()
             }
         }
     }
@@ -183,7 +180,7 @@ fun SmartIdView(
                     smartIdViewModel = smartIdViewModel,
                     onCancelButtonClick = {
                         dismissSignatureUpdateContainerDialog()
-                        smartIdViewModel.cancelSmartIdWorkRequest()
+                        smartIdViewModel.cancelSmartIdWorkRequest(signedContainer)
                     },
                 )
             }

@@ -54,12 +54,16 @@ interface SmartSignService {
     val cancelled: LiveData<Boolean?>
     val selectDevice: LiveData<Boolean?>
 
-    fun setCancelled(cancelled: Boolean?)
+    fun setCancelled(
+        signedContainer: SignedContainer,
+        cancelled: Boolean?,
+    )
 
     fun resetValues()
 
     suspend fun processSmartIdRequest(
         context: Context,
+        signedContainer: SignedContainer,
         request: SmartCreateSignatureRequest?,
         roleDataRequest: RoleData?,
         proxySetting: ProxySetting?,
@@ -107,9 +111,12 @@ class SmartSignServiceImpl
             _cancelled.postValue(false)
         }
 
-        override fun setCancelled(cancelled: Boolean?) {
+        override fun setCancelled(
+            signedContainer: SignedContainer,
+            cancelled: Boolean?,
+        ) {
             signatureInterface?.let {
-                SignedContainer.container().removeSignature(it)
+                signedContainer.removeSignature(it)
             }
             _cancelled.postValue(cancelled)
         }
@@ -136,6 +143,7 @@ class SmartSignServiceImpl
 
         override suspend fun processSmartIdRequest(
             context: Context,
+            signedContainer: SignedContainer,
             request: SmartCreateSignatureRequest?,
             roleDataRequest: RoleData?,
             proxySetting: ProxySetting?,
@@ -198,6 +206,7 @@ class SmartSignServiceImpl
                         ("PNO" + request.country) + "-" + request.nationalIdentityNumber
                     sessionStatusResponse =
                         doSessionStatusRequestLoop(
+                            signedContainer,
                             sidRestServiceClient.getCertificateV2(
                                 semanticsIdentifier, getCertificateRequest(request),
                             ),
@@ -212,6 +221,7 @@ class SmartSignServiceImpl
 
                     val base64Hash =
                         containerWrapper.prepareSignature(
+                            signedContainer,
                             getCertificatePem(
                                 sessionStatusResponse.cert?.value,
                             ),
@@ -219,10 +229,10 @@ class SmartSignServiceImpl
                         )
 
                     signatureInterface =
-                        if (SignedContainer.container().getSignatures().isEmpty()) {
+                        if (signedContainer.getSignatures().isEmpty()) {
                             null
                         } else {
-                            SignedContainer.container().getSignatures()
+                            signedContainer.getSignatures()
                                 .last {
                                     it.validator.status == ValidatorInterface.Status.Invalid ||
                                         it.validator.status == ValidatorInterface.Status.Unknown
@@ -242,6 +252,7 @@ class SmartSignServiceImpl
 
                         sessionStatusResponse =
                             doSessionStatusRequestLoop(
+                                signedContainer,
                                 sidRestServiceClient.getCreateSignature(
                                     sessionStatusResponse.result?.documentNumber, requestString,
                                 ),
@@ -254,6 +265,7 @@ class SmartSignServiceImpl
                         LoggingUtil.debugLog(logTag, "SessionStatusResponse: $sessionStatusResponse")
                         LoggingUtil.debugLog(logTag, "Finalizing signature...")
                         containerWrapper.finalizeSignature(
+                            signedContainer,
                             sessionStatusResponse.signature?.value,
                         )
                         LoggingUtil.debugLog(logTag, "Posting signature status response")
@@ -450,11 +462,12 @@ class SmartSignServiceImpl
 
         @Throws(IOException::class, SigningCancelledException::class)
         private fun doSessionStatusRequestLoop(
+            signedContainer: SignedContainer,
             request: Call<SessionResponse>,
             certRequest: Boolean,
         ): SessionStatusResponse? {
             var timeout: Long = 0
-            val sessionResponse: SessionResponse? = handleRequest(request)
+            val sessionResponse: SessionResponse? = handleRequest(signedContainer, request)
             if (sessionResponse == null) {
                 LoggingUtil.errorLog(logTag, "Session response null")
                 return null
@@ -471,6 +484,7 @@ class SmartSignServiceImpl
                 LoggingUtil.debugLog(logTag, "doSessionStatusRequestLoop timeout counter: $timeout")
                 val sessionStatusResponse: SessionStatusResponse? =
                     handleRequest(
+                        signedContainer,
                         sidRestServiceClient.getSessionStatus(
                             sessionResponse.sessionID,
                             SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS,
@@ -529,8 +543,11 @@ class SmartSignServiceImpl
         }
 
         @Throws(IOException::class, SigningCancelledException::class, IllegalStateException::class)
-        private fun <S> handleRequest(request: Call<S>): S? {
-            checkSigningCancelled()
+        private fun <S> handleRequest(
+            signedContainer: SignedContainer,
+            request: Call<S>,
+        ): S? {
+            checkSigningCancelled(signedContainer)
             val httpResponse = request.clone().execute()
             if (!httpResponse.isSuccessful) {
                 LoggingUtil.debugLog(
@@ -631,9 +648,9 @@ class SmartSignServiceImpl
             return httpResponse.body()
         }
 
-        private fun checkSigningCancelled() {
+        private fun checkSigningCancelled(signedContainer: SignedContainer) {
             if (_cancelled.value == true) {
-                signatureInterface?.let { SignedContainer.container().removeSignature(it) }
+                signatureInterface?.let { signedContainer.removeSignature(it) }
 
                 throw SigningCancelledException("User cancelled signing")
             }

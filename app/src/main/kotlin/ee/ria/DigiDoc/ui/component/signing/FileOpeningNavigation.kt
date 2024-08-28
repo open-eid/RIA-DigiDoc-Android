@@ -7,19 +7,10 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.focusGroup
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -27,15 +18,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerUninitializedException
-import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
+import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.viewmodel.FileOpeningViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -57,12 +47,8 @@ fun FileOpeningNavigation(
                     navController.popBackStack()
                     return@rememberLauncherForActivityResult
                 }
-                CoroutineScope(Dispatchers.IO).launch {
-                    try {
-                        fileOpeningViewModel.handleFiles(uri, signedContainer)
-                    } catch (cue: ContainerUninitializedException) {
-                        fileOpeningViewModel.handleFiles(uri)
-                    }
+                CoroutineScope(IO).launch {
+                    fileOpeningViewModel.handleFiles(uri, signedContainer)
                 }
             },
         )
@@ -73,7 +59,7 @@ fun FileOpeningNavigation(
     LaunchedEffect(fileOpeningViewModel.errorState) {
         fileOpeningViewModel.errorState.asFlow().collect { errorState ->
             errorState?.let {
-                withContext(Dispatchers.Main) {
+                withContext(Main) {
                     Toast.makeText(context, errorState, Toast.LENGTH_LONG).show()
                     if (signedContainer == null) {
                         navController.popBackStack()
@@ -84,7 +70,7 @@ fun FileOpeningNavigation(
     }
 
     BackHandler {
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(Main).launch {
             fileOpeningViewModel.resetContainer()
             if (externalFileUri != null) {
                 navController.popBackStack()
@@ -137,32 +123,12 @@ fun FileOpeningNavigation(
             }
         } else {
             externalFileUri?.let { fileUri ->
-                CoroutineScope(Dispatchers.IO).launch {
+                CoroutineScope(IO).launch {
                     fileOpeningViewModel.handleFiles(listOf(fileUri))
                 }
             }
         }
     }
 
-    Scaffold { innerPadding ->
-        Surface(
-            modifier =
-                modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .focusGroup(),
-        ) {
-            Box(
-                modifier =
-                    modifier
-                        .fillMaxSize()
-                        .padding(vertical = screenViewExtraLargePadding),
-                contentAlignment = Alignment.Center,
-            ) {
-                CircularProgressIndicator(
-                    modifier = modifier.size(loadingBarSize),
-                )
-            }
-        }
-    }
+    LoadingScreen()
 }

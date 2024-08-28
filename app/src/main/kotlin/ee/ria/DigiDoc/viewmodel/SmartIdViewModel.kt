@@ -36,7 +36,7 @@ import ee.ria.DigiDoc.utilsLib.signing.PowerUtil
 import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator.validatePersonalCode
 import ee.ria.libdigidocpp.Conf
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Objects
@@ -51,6 +51,7 @@ class SmartIdViewModel
         private val configurationRepository: ConfigurationRepository,
     ) : ViewModel() {
         private val logTag = javaClass.simpleName
+
         private val _signedContainer = MutableLiveData<SignedContainer?>(null)
         val signedContainer: LiveData<SignedContainer?> = _signedContainer
         private val _errorState = MutableLiveData<String?>(null)
@@ -196,8 +197,10 @@ class SmartIdViewModel
             _roleDataRequested.postValue(roleDataRequested)
         }
 
-        fun cancelSmartIdWorkRequest() {
-            smartSignService.setCancelled(true)
+        fun cancelSmartIdWorkRequest(signedContainer: SignedContainer?) {
+            if (signedContainer != null) {
+                smartSignService.setCancelled(signedContainer, true)
+            }
         }
 
         private fun resetValues() {
@@ -234,7 +237,7 @@ class SmartIdViewModel
                         displayMessage,
                     )
             val certBundle = ArrayList(configurationProvider?.certBundle ?: emptyList())
-            withContext(Dispatchers.Main) {
+            withContext(Main) {
                 smartSignService.errorState.observeForever {
                     if (it != null) {
                         _errorState.postValue(it)
@@ -278,34 +281,35 @@ class SmartIdViewModel
                         _selectDevice.postValue(it)
                     }
                 }
-                smartSignService.status.observeForever {
-                    if (it != null) {
-                        _status.postValue(it)
-                        if (it != SessionStatusResponseProcessStatus.OK) {
-                            if (it != SessionStatusResponseProcessStatus.USER_CANCELLED) {
+                smartSignService.status.observeForever { status ->
+                    if (status != null) {
+                        _status.postValue(status)
+                        if (status != SessionStatusResponseProcessStatus.OK) {
+                            if (status != SessionStatusResponseProcessStatus.USER_CANCELLED) {
                                 _errorState.postValue(
-                                    messages[it]?.let { res ->
+                                    messages[status]?.let { res ->
                                         context.getString(
                                             res,
                                         )
                                     },
                                 )
                             } else {
-                                CoroutineScope(Dispatchers.Main).launch {
+                                CoroutineScope(Main).launch {
                                     val signatureInterface =
-                                        if (SignedContainer.container().getSignatures().isEmpty()) {
+                                        if (container?.getSignatures()?.isEmpty() == true) {
                                             null
                                         } else {
-                                            SignedContainer.container().getSignatures()
-                                                .last {
+                                            container
+                                                ?.getSignatures()
+                                                ?.last {
                                                     it.validator.status == ValidatorInterface.Status.Invalid ||
                                                         it.validator.status == ValidatorInterface.Status.Unknown
                                                 }
                                         }
                                     signatureInterface?.let {
-                                        SignedContainer.container().removeSignature(it)
+                                        container?.removeSignature(it)
                                     }
-                                    _signedContainer.postValue(SignedContainer.container())
+                                    _signedContainer.postValue(container)
                                 }
                             }
                         }
@@ -314,9 +318,9 @@ class SmartIdViewModel
                 smartSignService.response.observeForever {
                     when (it?.status) {
                         SessionStatusResponseProcessStatus.OK -> {
-                            CoroutineScope(Dispatchers.Main).launch {
+                            CoroutineScope(Main).launch {
                                 _status.postValue(it.status)
-                                _signedContainer.postValue(SignedContainer.container())
+                                _signedContainer.postValue(container)
                             }
                         }
 
@@ -336,18 +340,27 @@ class SmartIdViewModel
                 }
             }
             smartSignService.resetValues()
-            smartSignService.processSmartIdRequest(
-                context = context,
-                request = request,
-                roleDataRequest = roleData,
-                proxySetting = proxySetting,
-                manualProxySettings = manualProxySettings,
-                certificateBundle = certBundle,
-                accessTokenPath = Objects.requireNonNull(Conf.instance()).PKCS12Cert(),
-                accessTokenPass = Objects.requireNonNull(Conf.instance()).PKCS12Pass(),
-            )
+            if (container != null) {
+                smartSignService.processSmartIdRequest(
+                    context = context,
+                    signedContainer = container,
+                    request = request,
+                    roleDataRequest = roleData,
+                    proxySetting = proxySetting,
+                    manualProxySettings = manualProxySettings,
+                    certificateBundle = certBundle,
+                    accessTokenPath = Objects.requireNonNull(Conf.instance()).PKCS12Cert(),
+                    accessTokenPass = Objects.requireNonNull(Conf.instance()).PKCS12Pass(),
+                )
+            } else {
+                CoroutineScope(Main).launch {
+                    _status.postValue(SessionStatusResponseProcessStatus.GENERAL_ERROR)
+                    _errorState.postValue(context.getString(R.string.signature_update_mobile_id_error_general_client))
+                    errorLog(logTag, "Unable to get container value. Container is 'null'")
+                }
+            }
 
-            withContext(Dispatchers.Main) {
+            withContext(Main) {
                 smartSignService.errorState.removeObserver {}
                 smartSignService.challenge.removeObserver {}
                 smartSignService.status.removeObserver {}

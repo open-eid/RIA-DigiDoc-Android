@@ -51,7 +51,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
-import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
 import ee.ria.DigiDoc.ui.theme.Blue500
@@ -138,10 +137,8 @@ fun MobileIdView(
     LaunchedEffect(mobileIdViewModel.status) {
         mobileIdViewModel.status.asFlow().collect { status ->
             status?.let {
-                if (status == MobileCreateSignatureProcessStatus.OK) {
-                    sharedContainerViewModel.setSignedMidStatus(status)
-                    mobileIdViewModel.resetStatus()
-                }
+                sharedContainerViewModel.setSignedMidStatus(status)
+                mobileIdViewModel.resetStatus()
             }
         }
     }
@@ -188,7 +185,7 @@ fun MobileIdView(
                     mobileIdViewModel = mobileIdViewModel,
                     onCancelButtonClick = {
                         dismissSignatureUpdateContainerDialog()
-                        mobileIdViewModel.cancelMobileIdWorkRequest()
+                        mobileIdViewModel.cancelMobileIdWorkRequest(signedContainer)
                     },
                 )
             }

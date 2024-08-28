@@ -25,7 +25,6 @@ import ee.ria.DigiDoc.utilsLib.date.DateUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import org.xmlpull.v1.XmlPullParserException
@@ -77,7 +76,7 @@ class DiagnosticsViewModel
         }
 
         init {
-            CoroutineScope(IO).launch {
+            CoroutineScope(Main).launch {
                 configurationRepository.observeConfigurationUpdates { newConfig ->
                     CoroutineScope(Main).launch {
                         if (updatedConfiguration.value != null) {

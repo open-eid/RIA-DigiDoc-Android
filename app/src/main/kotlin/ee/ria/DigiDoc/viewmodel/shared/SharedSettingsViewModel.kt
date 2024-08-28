@@ -81,11 +81,9 @@ class SharedSettingsViewModel
         val sivaCertificate: LiveData<X509Certificate?> = _sivaCertificate
 
         init {
-            CoroutineScope(IO).launch {
+            CoroutineScope(Main).launch {
                 configurationRepository.observeConfigurationUpdates { newConfig ->
-                    CoroutineScope(Main).launch {
-                        _updatedConfiguration.value = newConfig
-                    }
+                    _updatedConfiguration.value = newConfig
                 }
             }
         }

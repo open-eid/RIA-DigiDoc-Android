@@ -68,10 +68,6 @@ dependencies {
     kapt(libs.google.dagger.hilt.android.compile)
     implementation(libs.androidx.hilt)
 
-    implementation(libs.pdfbox.android) {
-        exclude(group = "org.bouncycastle")
-    }
-
     testImplementation(libs.junit)
     androidTestImplementation(libs.mockito.android)
     androidTestImplementation(libs.kotlinx.coroutines.test)

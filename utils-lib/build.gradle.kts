@@ -50,6 +50,11 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.gson)
     implementation(libs.threegpp.telecom.charsets)
+
+    implementation(libs.pdfbox.android) {
+        exclude(group = "org.bouncycastle")
+    }
+
     testImplementation(libs.junit)
     testImplementation(libs.mockito.core)
     testImplementation(libs.androidx.junit)

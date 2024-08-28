@@ -2,4 +2,4 @@
 
 package ee.ria.DigiDoc.libdigidoclib.exceptions
 
-class ContainerUninitializedException : Exception()
+class ContainerSignaturesEmptyException : Exception()
