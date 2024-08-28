@@ -257,7 +257,7 @@ class DiagnosticsViewModelTest {
     @Test
     fun diagnosticsViewModel_updateConfiguration_success() =
         runTest {
-            viewModel.updateConfiguration()
+            viewModel.updateConfiguration(context)
             verify(configurationLoader).loadCentralConfiguration(context)
         }
 

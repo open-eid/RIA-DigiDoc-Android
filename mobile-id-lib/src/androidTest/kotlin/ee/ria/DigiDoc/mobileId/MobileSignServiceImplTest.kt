@@ -84,6 +84,8 @@ class MobileSignServiceImplTest {
     @Mock
     lateinit var cancelledObserver: Observer<Boolean?>
 
+    private lateinit var signedContainer: SignedContainer
+
     companion object {
         @JvmStatic
         @BeforeClass
@@ -154,13 +156,13 @@ class MobileSignServiceImplTest {
                 ee.ria.DigiDoc.common.R.raw.example,
             )
         runBlocking {
-            SignedContainer.openOrCreate(context, container, listOf(container))
+            signedContainer = SignedContainer.openOrCreate(context, container, listOf(container))
         }
     }
 
     @Test
     fun mobileSignService_setCancelled_success() {
-        mobileSignServiceImpl.setCancelled(true)
+        mobileSignServiceImpl.setCancelled(signedContainer, true)
         verify(cancelledObserver, atLeastOnce()).onChanged(true)
     }
 
@@ -180,6 +182,7 @@ class MobileSignServiceImplTest {
         runTest {
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -207,6 +210,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -234,6 +238,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -263,6 +268,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -294,6 +300,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -336,6 +343,7 @@ class MobileSignServiceImplTest {
 
             whenever(
                 containerWrapper.prepareSignature(
+                    signedContainer = any<SignedContainer>(),
                     cert = any(),
                     roleData = isNull(),
                 ),
@@ -380,10 +388,9 @@ class MobileSignServiceImplTest {
                 ),
             )
 
-            whenever(containerWrapper.container).thenReturn(SignedContainer.rawContainer())
-
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -402,7 +409,7 @@ class MobileSignServiceImplTest {
             verify(responseObserver, atLeastOnce()).onChanged(
                 MobileIdServiceResponse(
                     signature = "MobileIDSignatureValue",
-                    container = SignedContainer.rawContainer(),
+                    container = signedContainer.rawContainer(),
                     status = MobileCreateSignatureProcessStatus.OK,
                 ),
             )
@@ -436,6 +443,7 @@ class MobileSignServiceImplTest {
 
             whenever(
                 containerWrapper.prepareSignature(
+                    signedContainer = any<SignedContainer>(),
                     cert = any(),
                     roleData = isNull(),
                 ),
@@ -480,10 +488,9 @@ class MobileSignServiceImplTest {
                 ),
             )
 
-            whenever(containerWrapper.container).thenReturn(SignedContainer.rawContainer())
-
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -521,6 +528,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -556,6 +564,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -591,6 +600,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -631,6 +641,7 @@ class MobileSignServiceImplTest {
 
             whenever(
                 containerWrapper.prepareSignature(
+                    signedContainer = any<SignedContainer>(),
                     cert = any(),
                     roleData = isNull(),
                 ),
@@ -638,6 +649,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -663,9 +675,10 @@ class MobileSignServiceImplTest {
                 manualProxySettings = manualProxy,
             )
 
-            mobileSignServiceImpl.setCancelled(true)
+            mobileSignServiceImpl.setCancelled(signedContainer, true)
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -702,6 +715,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -738,6 +752,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -774,6 +789,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -810,6 +826,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -846,6 +863,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -882,6 +900,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -922,6 +941,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -962,6 +982,7 @@ class MobileSignServiceImplTest {
 
             whenever(
                 containerWrapper.prepareSignature(
+                    signedContainer = any<SignedContainer>(),
                     cert = any(),
                     roleData = isNull(),
                 ),
@@ -1008,6 +1029,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1048,6 +1070,7 @@ class MobileSignServiceImplTest {
 
             whenever(
                 containerWrapper.prepareSignature(
+                    signedContainer = any<SignedContainer>(),
                     cert = any(),
                     roleData = isNull(),
                 ),
@@ -1084,6 +1107,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1124,6 +1148,7 @@ class MobileSignServiceImplTest {
 
             whenever(
                 containerWrapper.prepareSignature(
+                    signedContainer = any<SignedContainer>(),
                     cert = any(),
                     roleData = isNull(),
                 ),
@@ -1160,6 +1185,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1203,6 +1229,7 @@ class MobileSignServiceImplTest {
 
             whenever(
                 containerWrapper.prepareSignature(
+                    signedContainer = any<SignedContainer>(),
                     cert = any(),
                     roleData = isNull(),
                 ),
@@ -1239,6 +1266,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1279,6 +1307,7 @@ class MobileSignServiceImplTest {
 
             whenever(
                 containerWrapper.prepareSignature(
+                    signedContainer = any<SignedContainer>(),
                     cert = any(),
                     roleData = isNull(),
                 ),
@@ -1315,6 +1344,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1355,6 +1385,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1395,6 +1426,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1438,6 +1470,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1478,6 +1511,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1518,6 +1552,7 @@ class MobileSignServiceImplTest {
 
             whenever(
                 containerWrapper.prepareSignature(
+                    signedContainer = any<SignedContainer>(),
                     cert = any(),
                     roleData = isNull(),
                 ),
@@ -1536,6 +1571,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1576,6 +1612,7 @@ class MobileSignServiceImplTest {
 
             whenever(
                 containerWrapper.prepareSignature(
+                    signedContainer = any<SignedContainer>(),
                     cert = any(),
                     roleData = isNull(),
                 ),
@@ -1594,6 +1631,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1637,6 +1675,7 @@ class MobileSignServiceImplTest {
 
             whenever(
                 containerWrapper.prepareSignature(
+                    signedContainer = any<SignedContainer>(),
                     cert = any(),
                     roleData = isNull(),
                 ),
@@ -1655,6 +1694,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1695,6 +1735,7 @@ class MobileSignServiceImplTest {
 
             whenever(
                 containerWrapper.prepareSignature(
+                    signedContainer = any<SignedContainer>(),
                     cert = any(),
                     roleData = isNull(),
                 ),
@@ -1713,6 +1754,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1753,6 +1795,7 @@ class MobileSignServiceImplTest {
 
             whenever(
                 containerWrapper.prepareSignature(
+                    signedContainer = any<SignedContainer>(),
                     cert = any(),
                     roleData = isNull(),
                 ),
@@ -1760,6 +1803,7 @@ class MobileSignServiceImplTest {
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,

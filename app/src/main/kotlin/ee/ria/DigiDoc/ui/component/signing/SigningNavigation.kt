@@ -470,7 +470,8 @@ fun SigningNavigation(
                                         errorLog(
                                             this.javaClass.simpleName,
                                             "Unable to open container. Unable to get datafiles",
-                                            ex)
+                                            ex,
+                                        )
                                         handleBackButtonClick(
                                             navController,
                                             signingViewModel,
@@ -495,7 +496,7 @@ fun SigningNavigation(
                                         errorLog(
                                             this.javaClass.simpleName,
                                             "Unable to save file. Unable to get datafiles",
-                                            ex
+                                            ex,
                                         )
                                         handleBackButtonClick(
                                             navController,

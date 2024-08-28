@@ -85,6 +85,8 @@ class SmartSignServiceImplTest {
     @Mock
     lateinit var cancelledObserver: Observer<Boolean?>
 
+    private lateinit var signedContainer: SignedContainer
+
     companion object {
         @JvmStatic
         @BeforeClass
@@ -150,13 +152,13 @@ class SmartSignServiceImplTest {
                 ee.ria.DigiDoc.common.R.raw.example,
             )
         runBlocking {
-            SignedContainer.openOrCreate(context, container, listOf(container))
+            signedContainer = SignedContainer.openOrCreate(context, container, listOf(container))
         }
     }
 
     @Test
     fun smartSignService_setCancelled_success() {
-        smartSignServiceImpl.setCancelled(true)
+        smartSignServiceImpl.setCancelled(signedContainer, true)
         verify(cancelledObserver, atLeastOnce()).onChanged(true)
     }
 
@@ -176,6 +178,7 @@ class SmartSignServiceImplTest {
         runTest {
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = null,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -193,6 +196,7 @@ class SmartSignServiceImplTest {
         runTest {
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -219,6 +223,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -244,6 +249,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -270,6 +276,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -303,9 +310,10 @@ class SmartSignServiceImplTest {
                     body = getSmartCertificateRequest,
                 )
 
-            smartSignServiceImpl.setCancelled(true)
+            smartSignServiceImpl.setCancelled(signedContainer, true)
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -372,6 +380,7 @@ class SmartSignServiceImplTest {
 
             whenever(
                 containerWrapper.prepareSignature(
+                    signedContainer = any<SignedContainer>(),
                     cert = any(),
                     roleData = isNull(),
                 ),
@@ -388,6 +397,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -429,6 +439,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -467,6 +478,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -505,6 +517,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -571,6 +584,7 @@ class SmartSignServiceImplTest {
 
             whenever(
                 containerWrapper.prepareSignature(
+                    signedContainer = any<SignedContainer>(),
                     cert = any(),
                     roleData = isNull(),
                 ),
@@ -578,6 +592,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -613,6 +628,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -648,6 +664,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -683,6 +700,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -718,6 +736,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -753,6 +772,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -792,6 +812,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -831,6 +852,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -870,6 +892,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -909,6 +932,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -948,6 +972,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -987,6 +1012,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1029,6 +1055,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1068,6 +1095,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1107,6 +1135,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1173,6 +1202,7 @@ class SmartSignServiceImplTest {
 
             whenever(
                 containerWrapper.prepareSignature(
+                    signedContainer = any<SignedContainer>(),
                     cert = any(),
                     roleData = isNull(),
                 ),
@@ -1189,6 +1219,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1255,6 +1286,7 @@ class SmartSignServiceImplTest {
 
             whenever(
                 containerWrapper.prepareSignature(
+                    signedContainer = any<SignedContainer>(),
                     cert = any(),
                     roleData = isNull(),
                 ),
@@ -1271,6 +1303,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1319,6 +1352,7 @@ class SmartSignServiceImplTest {
 
             whenever(
                 containerWrapper.prepareSignature(
+                    signedContainer = any<SignedContainer>(),
                     cert = any(),
                     roleData = isNull(),
                 ),
@@ -1335,6 +1369,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1374,6 +1409,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1411,6 +1447,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
@@ -1478,6 +1515,7 @@ class SmartSignServiceImplTest {
 
             whenever(
                 containerWrapper.prepareSignature(
+                    signedContainer = any<SignedContainer>(),
                     cert = any(),
                     roleData = isNull(),
                 ),
@@ -1485,6 +1523,7 @@ class SmartSignServiceImplTest {
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
+                signedContainer = signedContainer,
                 request = request,
                 roleDataRequest = null,
                 proxySetting = proxySetting,
