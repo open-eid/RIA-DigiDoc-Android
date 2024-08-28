@@ -45,23 +45,28 @@ class FileOpeningRepositoryImpl
             return fileChooser.launch(contractType)
         }
 
-        override suspend fun removeSignature(signature: SignatureInterface): SignedContainer {
-            return SignedContainer.container().removeSignature(signature)
+        override suspend fun removeSignature(
+            signedContainer: SignedContainer,
+            signature: SignatureInterface,
+        ) {
+            signedContainer.removeSignature(signature)
         }
 
         @Throws(Exception::class)
         override suspend fun addFilesToContainer(
             context: Context,
+            signedContainer: SignedContainer,
             documents: List<File>,
-        ): SignedContainer {
-            return SignedContainer.container()
+        ): Unit =
+            SignedContainer
                 .addDataFiles(
+                    context,
+                    signedContainer,
                     cacheFiles(
                         context,
-                        getContainerFiles(documents),
+                        getContainerFiles(signedContainer, documents),
                     ),
                 )
-        }
 
         @Throws(
             EmptyFileException::class,
@@ -122,9 +127,12 @@ class FileOpeningRepositoryImpl
         }
 
         @Throws(Exception::class)
-        private fun getContainerFiles(documents: List<File>): List<File> {
+        private fun getContainerFiles(
+            signedContainer: SignedContainer,
+            documents: List<File>,
+        ): List<File> {
             val fileList: ArrayList<File> = ArrayList()
-            val fileNamesInContainer: List<String> = getFileNamesInContainer()
+            val fileNamesInContainer: List<String> = getFileNamesInContainer(signedContainer)
             val fileNamesToAdd: List<String> = getFileNamesToAddToContainer(documents)
             for (i in fileNamesToAdd.indices) {
                 if (!fileNamesInContainer.contains(fileNamesToAdd[i])) {
@@ -140,10 +148,10 @@ class FileOpeningRepositoryImpl
         }
 
         @Throws(Exception::class)
-        private fun getFileNamesInContainer(): List<String> {
+        private fun getFileNamesInContainer(signedContainer: SignedContainer): List<String> {
             val containerFileNames: MutableList<String> = java.util.ArrayList()
             val dataFiles: List<DataFileInterface> =
-                SignedContainer.container().getDataFiles()
+                signedContainer.getDataFiles()
 
             for (i in dataFiles.indices) {
                 containerFileNames.add(dataFiles[i].fileName)

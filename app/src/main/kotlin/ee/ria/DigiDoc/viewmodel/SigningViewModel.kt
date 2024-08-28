@@ -2,17 +2,25 @@
 
 package ee.ria.DigiDoc.viewmodel
 
+import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.UNSIGNABLE_CONTAINER_EXTENSIONS
+import ee.ria.DigiDoc.common.Constant.UNSIGNABLE_CONTAINER_MIMETYPES
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
+import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
 import ee.ria.DigiDoc.utilsLib.date.DateUtil.getFormattedDateTime
 import ee.ria.DigiDoc.utilsLib.date.DateUtil.signedDateTimeString
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
+import ee.ria.DigiDoc.utilsLib.extensions.mimeType
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import org.apache.commons.io.FilenameUtils
+import java.io.File
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -50,22 +58,31 @@ class SigningViewModel
             return signedContainer?.getDataFiles()?.any { it.fileSize == 0L } ?: false
         }
 
-        fun isSignButtonShown(signedContainer: SignedContainer?): Boolean {
-            return signedContainer != null && (
-                !UNSIGNABLE_CONTAINER_EXTENSIONS.contains(
-                    FilenameUtils.getExtension(signedContainer.getName())
-                        .lowercase(Locale.getDefault()),
-                ) && !isEmptyFileInContainer(signedContainer)
-            )
-        }
+        fun isSignButtonShown(
+            context: Context,
+            signedContainer: SignedContainer?,
+            isNestedContainer: Boolean,
+        ): Boolean =
+            signedContainer != null &&
+                (!UNSIGNABLE_CONTAINER_MIMETYPES.contains(signedContainer.getContainerFile()?.mimeType(context))) &&
+                (
+                    !UNSIGNABLE_CONTAINER_EXTENSIONS.contains(
+                        FilenameUtils
+                            .getExtension(signedContainer.getName())
+                            .lowercase(Locale.getDefault()),
+                    ) && !isEmptyFileInContainer(signedContainer)
+                ) &&
+                !isNestedContainer
 
-        fun isEncryptButtonShown(signedContainer: SignedContainer?): Boolean {
-            return isExistingContainer(signedContainer)
-        }
+        fun isEncryptButtonShown(
+            signedContainer: SignedContainer?,
+            isNestedContainer: Boolean,
+        ): Boolean = isExistingContainer(signedContainer) && !isNestedContainer
 
-        fun isShareButtonShown(signedContainer: SignedContainer?): Boolean {
-            return isExistingContainer(signedContainer)
-        }
+        fun isShareButtonShown(
+            signedContainer: SignedContainer?,
+            isNestedContainer: Boolean,
+        ): Boolean = isExistingContainer(signedContainer) && !isNestedContainer
 
         fun isRoleEmpty(signature: SignatureInterface): Boolean {
             return signature.signerRoles.isEmpty() && signature.city.isEmpty() &&
@@ -80,8 +97,36 @@ class SigningViewModel
                     inputFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss Z", Locale.getDefault()),
                 )
             } catch (pe: ParseException) {
-                LoggingUtil.errorLog(LOG_TAG, "Error parsing date: $signingTime", pe)
+                errorLog(LOG_TAG, "Error parsing date: $signingTime", pe)
                 return ""
             }
         }
+
+        @Throws(Exception::class)
+        suspend fun openNestedContainer(
+            context: Context,
+            nestedFile: File,
+            sharedContainerViewModel: SharedContainerViewModel,
+        ) {
+            val nestedContainer =
+                SignedContainer.openOrCreate(
+                    context,
+                    nestedFile,
+                    listOf(nestedFile),
+                )
+
+            sharedContainerViewModel.setSignedContainer(nestedContainer)
+        }
+
+        fun getViewIntent(
+            context: Context,
+            file: File,
+        ): Intent =
+            createContainerAction(
+                context = context,
+                fileProviderAuthority = context.getString(R.string.file_provider_authority),
+                file = file,
+                mimeType = file.mimeType(context),
+                action = Intent.ACTION_VIEW,
+            )
     }

@@ -77,6 +77,7 @@ fun RIADigiDocAppScreen(externalFileUri: Uri?) {
                 navController = navController,
                 sharedSignatureViewModel = sharedSignatureViewModel,
                 sharedCertificateViewModel = sharedCertificateViewModel,
+                sharedContainerViewModel = sharedContainerViewModel,
             )
         }
         composable(route = Route.CertificateDetail.route) {

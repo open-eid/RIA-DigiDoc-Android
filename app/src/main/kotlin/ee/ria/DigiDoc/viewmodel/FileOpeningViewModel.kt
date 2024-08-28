@@ -16,7 +16,6 @@ import ee.ria.DigiDoc.domain.repository.FileOpeningRepository
 import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.exceptions.FileAlreadyExistsException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
-import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerUninitializedException
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import java.io.File
@@ -45,7 +44,6 @@ class FileOpeningViewModel
         val filesAdded: LiveData<List<File>?> = _filesAdded
 
         fun resetContainer() {
-            SignedContainer.cleanup()
             _signedContainer.postValue(null)
         }
 
@@ -99,16 +97,13 @@ class FileOpeningViewModel
                     val validFiles: List<File> =
                         fileOpeningRepository.getValidFiles(files, existingSignedContainer)
 
-                    val container =
-                        fileOpeningRepository.addFilesToContainer(
-                            context,
-                            validFiles,
-                        )
-                    _signedContainer.postValue(container)
+                    fileOpeningRepository.addFilesToContainer(
+                        context,
+                        existingSignedContainer,
+                        validFiles,
+                    )
+                    _signedContainer.postValue(existingSignedContainer)
                     _filesAdded.postValue(validFiles)
-                } catch (cue: ContainerUninitializedException) {
-                    errorLog(logTag, "Container uninitialized. Creating new container", cue)
-                    handleFiles(uris)
                 } catch (e: Exception) {
                     _signedContainer.postValue(existingSignedContainer)
                     _errorState.postValue(e.message)

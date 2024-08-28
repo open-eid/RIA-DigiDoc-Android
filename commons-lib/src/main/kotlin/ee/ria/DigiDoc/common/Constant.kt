@@ -112,17 +112,32 @@ object Constant {
 
     const val PDF_EXTENSION = "pdf"
 
-    val NO_REMOVE_SIGNATURE_BUTTON_FILE_EXTENSIONS: Set<String> =
-        setOf("adoc", "ddoc")
-            .plus(ASICS_CONTAINER_EXTENSIONS)
-            .plus(PDF_EXTENSION)
-
-    val UNSIGNABLE_CONTAINER_EXTENSIONS: Set<String> =
-        setOf("adoc", "ddoc").plus(ASICS_CONTAINER_EXTENSIONS)
-
     const val MAXIMUM_PERSONAL_CODE_LENGTH: Int = 11
 
     // Country code (3 numbers) + phone number (7 or more numbers)
     const val MINIMUM_PHONE_NUMBER_LENGTH = 10
     val ALLOWED_PHONE_NUMBER_COUNTRY_CODES = listOf("370", "372")
+
+    // Container mimetypes
+    const val ASICE_MIMETYPE = "application/vnd.etsi.asic-e+zip" // Also .bdoc, .edoc, .sce
+    const val ASICS_MIMETYPE = "application/vnd.etsi.asic-s+zip" // Also .scs
+    const val DDOC_MIMETYPE = "application/x-ddoc"
+    const val ADOC_MIMETYPE = "application/vnd.lt.archyvai.adoc-2008"
+    val SIGNATURE_CONTAINER_MIMETYPES = listOf(ASICE_MIMETYPE, ASICS_MIMETYPE, DDOC_MIMETYPE, ADOC_MIMETYPE)
+
+    const val PDF_MIMETYPE = "application/pdf"
+
+    val NO_REMOVE_SIGNATURE_BUTTON_FILE_EXTENSIONS: Set<String> =
+        setOf("adoc", "ddoc")
+            .plus(ASICS_CONTAINER_EXTENSIONS)
+            .plus(PDF_EXTENSION)
+
+    val NO_REMOVE_SIGNATURE_BUTTON_FILE_MIMETYPES: Set<String> =
+        setOf(ADOC_MIMETYPE, DDOC_MIMETYPE, ASICS_MIMETYPE, PDF_MIMETYPE)
+
+    val UNSIGNABLE_CONTAINER_EXTENSIONS: Set<String> =
+        setOf("adoc", "ddoc").plus(ASICS_CONTAINER_EXTENSIONS)
+
+    val UNSIGNABLE_CONTAINER_MIMETYPES: Set<String> =
+        setOf(ADOC_MIMETYPE, DDOC_MIMETYPE, ASICS_MIMETYPE)
 }

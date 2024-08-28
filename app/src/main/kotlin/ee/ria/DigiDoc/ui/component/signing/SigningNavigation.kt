@@ -7,6 +7,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.res.Configuration
 import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
@@ -59,15 +60,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.NO_REMOVE_SIGNATURE_BUTTON_FILE_EXTENSIONS
-import ee.ria.DigiDoc.libdigidoclib.SignedContainer
+import ee.ria.DigiDoc.common.Constant.NO_REMOVE_SIGNATURE_BUTTON_FILE_MIMETYPES
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
-import ee.ria.DigiDoc.libdigidoclib.utils.FileUtils.getDataFileMimetype
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
 import ee.ria.DigiDoc.ui.component.ContainerFile
 import ee.ria.DigiDoc.ui.component.ContainerName
 import ee.ria.DigiDoc.ui.component.settings.EditValueDialog
+import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
 import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
 import ee.ria.DigiDoc.ui.theme.Dimensions.MAX_DIALOG_WIDTH
@@ -82,14 +83,17 @@ import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.removeExtensionFromContainerFilename
+import ee.ria.DigiDoc.utilsLib.extensions.isContainer
+import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.DigiDoc.utilsLib.toast.ToastUtil.showMessage
 import ee.ria.DigiDoc.viewmodel.SigningViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -110,6 +114,9 @@ fun SigningNavigation(
     val shouldResetContainer by signingViewModel.shouldResetSignedContainer.asFlow().collectAsState(false)
     val context = LocalContext.current
     val signatureAddedSuccess = remember { mutableStateOf(false) }
+    val isNestedContainer = sharedContainerViewModel.isNestedContainer(signedContainer)
+    val showLoadingScreen = remember { mutableStateOf(false) }
+
     BackHandler {
         handleBackButtonClick(navController, signingViewModel, sharedContainerViewModel)
     }
@@ -122,11 +129,15 @@ fun SigningNavigation(
         }
     }
 
+    LaunchedEffect(Unit) {
+        sharedContainerViewModel.setSignedContainer(sharedContainerViewModel.currentSignedContainer())
+    }
+
     LaunchedEffect(sharedContainerViewModel.signedMidStatus) {
         sharedContainerViewModel.signedMidStatus.asFlow().collect { status ->
             status?.let {
                 if (status == MobileCreateSignatureProcessStatus.OK) {
-                    withContext(Dispatchers.Main) {
+                    withContext(Main) {
                         signatureAddedSuccess.value = true
                         delay(3000)
                         signatureAddedSuccess.value = false
@@ -141,7 +152,7 @@ fun SigningNavigation(
         sharedContainerViewModel.signedSidStatus.asFlow().collect { status ->
             status?.let {
                 if (status == SessionStatusResponseProcessStatus.OK) {
-                    withContext(Dispatchers.Main) {
+                    withContext(Main) {
                         signatureAddedSuccess.value = true
                         delay(5000)
                         signatureAddedSuccess.value = false
@@ -177,9 +188,9 @@ fun SigningNavigation(
         bottomBar = {
             SigningBottomBar(
                 modifier = modifier,
-                showSignButton = signingViewModel.isSignButtonShown(signedContainer),
-                showEncryptButton = signingViewModel.isEncryptButtonShown(signedContainer),
-                showShareButton = signingViewModel.isShareButtonShown(signedContainer),
+                showSignButton = signingViewModel.isSignButtonShown(context, signedContainer, isNestedContainer),
+                showEncryptButton = signingViewModel.isEncryptButtonShown(signedContainer, isNestedContainer),
+                showShareButton = signingViewModel.isShareButtonShown(signedContainer, isNestedContainer),
                 onSignClick = {
                     openSignatureDialog.value = true
                 },
@@ -187,14 +198,14 @@ fun SigningNavigation(
                     // TODO: Implement encrypt click
                 },
                 onShareClick = {
-                    val containerFile = SignedContainer.rawContainerFile()
+                    val containerFile = signedContainer?.getContainerFile()
                     if (containerFile != null) {
                         val intent =
                             createContainerAction(
                                 context,
                                 context.getString(R.string.file_provider_authority),
                                 containerFile,
-                                SignedContainer.mimeType(containerFile),
+                                containerFile.mimeType(context),
                                 Intent.ACTION_SEND,
                             )
                         ContextCompat.startActivity(context, intent, null)
@@ -222,7 +233,7 @@ fun SigningNavigation(
                                     ?.let { sharedContainerViewModel.saveContainerFile(it, result) }
                                 showMessage(context, R.string.file_saved)
                             } ?: run {
-                                SignedContainer.rawContainerFile()?.let {
+                                signedContainer?.getContainerFile()?.let {
                                     sharedContainerViewModel.saveContainerFile(it, result)
                                     showMessage(context, R.string.file_saved)
                                 } ?: showMessage(context, R.string.file_saved_error)
@@ -240,17 +251,26 @@ fun SigningNavigation(
             }
             val dismissRemoveFileDialog = {
                 closeRemoveFileDialog()
-                AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, fileRemovalCancelled)
+                AccessibilityUtil.sendAccessibilityEvent(
+                    context,
+                    TYPE_ANNOUNCEMENT,
+                    fileRemovalCancelled,
+                )
             }
             val openRemoveSignatureDialog = remember { mutableStateOf(false) }
             val signatureRemoved = stringResource(id = R.string.signature_removed)
-            val signatureRemovalCancelled = stringResource(id = R.string.signature_removal_cancelled)
+            val signatureRemovalCancelled =
+                stringResource(id = R.string.signature_removal_cancelled)
             val closeSignatureDialog = {
                 openRemoveSignatureDialog.value = false
             }
             val dismissRemoveSignatureDialog = {
                 closeSignatureDialog()
-                AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signatureRemovalCancelled)
+                AccessibilityUtil.sendAccessibilityEvent(
+                    context,
+                    TYPE_ANNOUNCEMENT,
+                    signatureRemovalCancelled,
+                )
             }
 
             val containerNameChanged = stringResource(id = R.string.container_name_changed)
@@ -262,11 +282,19 @@ fun SigningNavigation(
             val openEditContainerNameDialog = remember { mutableStateOf(false) }
             val dismissEditContainerNameDialog = {
                 openEditContainerNameDialog.value = false
-                AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, containerNameChangeCancelled)
+                AccessibilityUtil.sendAccessibilityEvent(
+                    context,
+                    TYPE_ANNOUNCEMENT,
+                    containerNameChangeCancelled,
+                )
             }
             var signedContainerName = signedContainer?.getName() ?: ""
             var containerName by remember { mutableStateOf(TextFieldValue(text = signedContainerName)) }
             val containerExtension = FilenameUtils.getExtension(signedContainerName)
+
+            if (showLoadingScreen.value) {
+                LoadingScreen()
+            }
 
             Column {
                 // Added top bar here instead of Scaffold -> topBar
@@ -275,7 +303,11 @@ fun SigningNavigation(
                     modifier = modifier,
                     title = R.string.signing_title_container_existing,
                     onBackButtonClick = {
-                        handleBackButtonClick(navController, signingViewModel, sharedContainerViewModel)
+                        handleBackButtonClick(
+                            navController,
+                            signingViewModel,
+                            sharedContainerViewModel,
+                        )
                     },
                 )
                 if (signatureAddedSuccess.value) {
@@ -322,16 +354,17 @@ fun SigningNavigation(
                             isContainerSigned =
                                 signedContainer?.getSignatures()
                                     ?.isNotEmpty() == true,
+                            isNestedContainer = isNestedContainer,
                             onEditNameClick = {
                                 openEditContainerNameDialog.value = true
                             },
                             onSaveContainerClick = {
                                 actionDataFile = null
-                                val containerFile = SignedContainer.rawContainerFile()
+                                val containerFile = signedContainer?.getContainerFile()
                                 if (containerFile != null) {
                                     saveFile(
                                         containerFile,
-                                        SignedContainer.mimeType(containerFile),
+                                        containerFile.mimeType(context),
                                         saveFileLauncher,
                                     )
                                 }
@@ -384,21 +417,65 @@ fun SigningNavigation(
                     }
                     signedContainer?.let {
                         items(it.getDataFiles()) { dataFile ->
-                            val file = sharedContainerViewModel.getContainerDataFile(signedContainer, dataFile)
                             ContainerFile(
                                 dataFile = dataFile,
-                                showRemoveButton = signingViewModel.isContainerWithoutSignatures(signedContainer),
+                                showRemoveButton =
+                                    signingViewModel.isContainerWithoutSignatures(
+                                        signedContainer,
+                                    ),
                                 onClickView = {
-                                    if (file != null) {
-                                        val intent =
-                                            createContainerAction(
-                                                context,
-                                                context.getString(R.string.file_provider_authority),
-                                                file,
-                                                SignedContainer.mimeType(file),
-                                                Intent.ACTION_VIEW,
+                                    try {
+                                        val file =
+                                            sharedContainerViewModel.getContainerDataFile(
+                                                signedContainer,
+                                                dataFile,
                                             )
-                                        ContextCompat.startActivity(context, intent, null)
+                                        showLoadingScreen.value = false
+                                        file?.let { nestedFile ->
+                                            if (nestedFile.isContainer(context)) {
+                                                showLoadingScreen.value = true
+                                                CoroutineScope(IO).launch {
+                                                    try {
+                                                        signingViewModel.openNestedContainer(
+                                                            context,
+                                                            nestedFile,
+                                                            sharedContainerViewModel,
+                                                        )
+                                                        showLoadingScreen.value = false
+                                                    } catch (ex: Exception) {
+                                                        withContext(Main) {
+                                                            showLoadingScreen.value = false
+                                                            Toast.makeText(
+                                                                context,
+                                                                ex.localizedMessage,
+                                                                Toast.LENGTH_LONG,
+                                                            ).show()
+                                                        }
+                                                    }
+                                                }
+                                            } else {
+                                                val viewIntent =
+                                                    signingViewModel.getViewIntent(
+                                                        context,
+                                                        nestedFile,
+                                                    )
+                                                ContextCompat.startActivity(
+                                                    context,
+                                                    viewIntent,
+                                                    null,
+                                                )
+                                            }
+                                        }
+                                    } catch (ex: Exception) {
+                                        errorLog(
+                                            this.javaClass.simpleName,
+                                            "Unable to open container. Unable to get datafiles",
+                                            ex)
+                                        handleBackButtonClick(
+                                            navController,
+                                            signingViewModel,
+                                            sharedContainerViewModel,
+                                        )
                                     }
                                 },
                                 onClickRemove = {
@@ -406,14 +483,32 @@ fun SigningNavigation(
                                     openRemoveFileDialog.value = true
                                 },
                                 onClickSave = {
-                                    actionDataFile = dataFile
-                                    saveFile(file, getDataFileMimetype(dataFile), saveFileLauncher)
+                                    try {
+                                        val file =
+                                            sharedContainerViewModel.getContainerDataFile(
+                                                signedContainer,
+                                                dataFile,
+                                            )
+                                        actionDataFile = dataFile
+                                        saveFile(file, dataFile.mediaType, saveFileLauncher)
+                                    } catch (ex: Exception) {
+                                        errorLog(
+                                            this.javaClass.simpleName,
+                                            "Unable to save file. Unable to get datafiles",
+                                            ex
+                                        )
+                                        handleBackButtonClick(
+                                            navController,
+                                            signingViewModel,
+                                            sharedContainerViewModel,
+                                        )
+                                    }
                                 },
                             )
                         }
                     }
 
-                    if (signingViewModel.isContainerWithoutSignatures(signedContainer)) {
+                    if (signingViewModel.isContainerWithoutSignatures(signedContainer) && !isNestedContainer) {
                         item {
                             Row(
                                 modifier =
@@ -468,8 +563,8 @@ fun SigningNavigation(
                     if (signingViewModel.isExistingContainer(signedContainer) ||
                         !signingViewModel.isContainerWithoutSignatures(signedContainer)
                     ) {
-                        signedContainer?.let {
-                            items(it.getSignatures()) { signature ->
+                        if (!signingViewModel.isExistingContainerNoSignatures(signedContainer)) {
+                            item {
                                 HorizontalDivider(
                                     modifier =
                                         modifier
@@ -477,14 +572,20 @@ fun SigningNavigation(
                                             .padding(screenViewLargePadding)
                                             .height(dividerHeight),
                                 )
-
+                            }
+                        }
+                        signedContainer?.let {
+                            items(it.getSignatures()) { signature ->
                                 SignatureComponent(
                                     signature = signature,
                                     signingViewModel = signingViewModel,
                                     showRemoveButton =
-                                        !NO_REMOVE_SIGNATURE_BUTTON_FILE_EXTENSIONS.contains(
-                                            FilenameUtils.getExtension(signedContainer?.getName()),
-                                        ),
+                                        !NO_REMOVE_SIGNATURE_BUTTON_FILE_MIMETYPES.contains(
+                                            signedContainer?.getContainerFile()?.mimeType(context),
+                                        ) &&
+                                            !NO_REMOVE_SIGNATURE_BUTTON_FILE_EXTENSIONS.contains(
+                                                FilenameUtils.getExtension(signedContainer?.getName()),
+                                            ) && !isNestedContainer,
                                     onRemoveButtonClick = {
                                         actionSignature = signature
                                         openRemoveSignatureDialog.value = true
@@ -571,7 +672,6 @@ fun SigningNavigation(
                             okButtonClick = {
                                 CoroutineScope(IO).launch {
                                     signedContainer?.setName(
-                                        context,
                                         "${containerName.text}.$containerExtension",
                                     )
                                 }
@@ -668,8 +768,14 @@ fun handleBackButtonClick(
     sharedContainerViewModel: SharedContainerViewModel,
 ) {
     sharedContainerViewModel.resetExternalFileUri()
-    signingViewModel.handleBackButton()
-    navController.navigateUp()
+    if (sharedContainerViewModel.nestedContainers.size > 1) {
+        sharedContainerViewModel.removeLastContainer()
+        sharedContainerViewModel.setSignedContainer(sharedContainerViewModel.currentSignedContainer())
+    } else {
+        sharedContainerViewModel.clearContainers()
+        signingViewModel.handleBackButton()
+        navController.navigateUp()
+    }
 }
 
 private fun saveFile(
@@ -703,6 +809,7 @@ fun SigningNavigationPreview() {
     val navController = rememberNavController()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
     val sharedSignatureViewModel: SharedSignatureViewModel = hiltViewModel()
+
     RIADigiDocTheme {
         SigningNavigation(
             navController = navController,

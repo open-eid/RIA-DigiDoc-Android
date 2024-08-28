@@ -6,6 +6,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import androidx.activity.result.ActivityResult
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -36,6 +37,9 @@ class SharedContainerViewModel
         private val _signedContainer = MutableLiveData<SignedContainer?>()
         val signedContainer: LiveData<SignedContainer?> = _signedContainer
 
+        private val _nestedContainers = mutableStateListOf<SignedContainer?>()
+        val nestedContainers: List<SignedContainer?> get() = _nestedContainers
+
         private val _signedMidStatus = MutableLiveData<MobileCreateSignatureProcessStatus?>(null)
         val signedMidStatus: LiveData<MobileCreateSignatureProcessStatus?> = _signedMidStatus
 
@@ -55,6 +59,7 @@ class SharedContainerViewModel
 
         fun setSignedContainer(signedContainer: SignedContainer?) {
             _signedContainer.postValue(signedContainer)
+            addNestedContainer(signedContainer)
         }
 
         fun setExternalFileUri(uri: Uri?) {
@@ -66,10 +71,29 @@ class SharedContainerViewModel
         }
 
         fun resetSignedContainer() {
-            SignedContainer.cleanup()
             _signedContainer.postValue(null)
         }
 
+        fun addNestedSignedContainer(signedContainer: SignedContainer?) {
+            _nestedContainers.add(signedContainer)
+        }
+
+        fun removeLastContainer() {
+            if (!_nestedContainers.isEmpty()) {
+                _nestedContainers.removeLast()
+            }
+        }
+
+        fun clearContainers() {
+            _nestedContainers.clear()
+        }
+
+        fun currentSignedContainer(): SignedContainer? = _nestedContainers.last()
+
+        fun isNestedContainer(signedContainer: SignedContainer?): Boolean =
+            nestedContainers.size > 1 && signedContainer == currentSignedContainer()
+
+        @Throws(Exception::class)
         fun getContainerDataFile(
             signedContainer: SignedContainer?,
             dataFile: DataFileInterface,
@@ -89,8 +113,8 @@ class SharedContainerViewModel
             signedContainer: SignedContainer?,
             dataFile: DataFileInterface?,
         ) {
-            val container = dataFile?.let { signedContainer?.removeDataFile(it) }
-            _signedContainer.postValue(container)
+            dataFile?.let { signedContainer?.removeDataFile(it) }
+            _signedContainer.postValue(signedContainer)
         }
 
         @Throws(FileNotFoundException::class, IOException::class)
@@ -114,7 +138,13 @@ class SharedContainerViewModel
             signedContainer: SignedContainer?,
             signature: SignatureInterface?,
         ) {
-            val container = signature?.let { signedContainer?.removeSignature(it) }
-            _signedContainer.postValue(container)
+            signature?.let { signedContainer?.removeSignature(it) }
+            _signedContainer.postValue(signedContainer)
+        }
+
+        private fun addNestedContainer(signedContainer: SignedContainer?) {
+            if (signedContainer != null && !nestedContainers.contains(signedContainer)) {
+                _nestedContainers.add(signedContainer)
+            }
         }
     }

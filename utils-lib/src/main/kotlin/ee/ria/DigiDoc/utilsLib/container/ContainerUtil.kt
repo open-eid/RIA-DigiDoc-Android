@@ -22,6 +22,7 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
+import org.w3c.dom.Document
 import java.io.File
 import java.io.IOException
 import java.util.Locale
@@ -277,5 +278,15 @@ object ContainerUtil {
             }
 
         return intentChooser
+    }
+
+    fun isDdoc(document: Document): Boolean {
+        val documentElementNode = document.documentElement
+
+        if (documentElementNode.nodeName == "SignedDoc") {
+            val attribute = documentElementNode.getAttribute("format")
+            return attribute == "DIGIDOC-XML"
+        }
+        return false
     }
 }

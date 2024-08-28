@@ -17,6 +17,7 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.StringUtils
+import org.w3c.dom.Document
 import java.io.BufferedReader
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -33,6 +34,9 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.text.Normalizer
 import java.util.Objects
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
+import javax.xml.parsers.DocumentBuilderFactory
 
 object FileUtil {
     private val LOG_TAG = javaClass.simpleName
@@ -373,6 +377,42 @@ object FileUtil {
         }
     }
 
+    @Throws(IOException::class)
+    fun getFileInContainerZip(
+        containerFile: File,
+        fileNameToFind: String?,
+        outputFolder: File,
+    ): File? {
+        createDirectoryIfNotExist(outputFolder.path)
+
+        ZipInputStream(containerFile.inputStream()).use { zipInputStream ->
+            var zipEntry: ZipEntry?
+
+            while (zipInputStream.nextEntry.also { zipEntry = it } != null) {
+                val entryName = zipEntry?.name
+                if (entryName != null && entryName == fileNameToFind) {
+                    val outputFile = File(outputFolder, entryName)
+                    FileOutputStream(outputFile).use { outputStream ->
+                        zipInputStream.copyTo(outputStream)
+                    }
+                    return outputFile
+                }
+            }
+        }
+
+        return null
+    }
+
+    fun readFileAsString(file: File): String = file.readText()
+
+    fun deleteFilesInFolder(directory: File) {
+        if (directory.exists()) {
+            directory.deleteRecursively()
+        }
+
+        directory.delete()
+    }
+
     fun writeToFile(
         reader: BufferedReader,
         destinationPath: String,
@@ -396,5 +436,15 @@ object FileUtil {
 
     fun getNameFromFileName(fileName: String): String? {
         return FilenameUtils.getName(fileName)
+    }
+
+    fun parseXMLFile(file: File): Document? {
+        try {
+            val factory = DocumentBuilderFactory.newInstance()
+            val builder = factory.newDocumentBuilder()
+            return builder.parse(file)
+        } catch (ex: Exception) {
+            return null
+        }
     }
 }
