@@ -27,6 +27,7 @@ import ee.ria.DigiDoc.ui.theme.Black
 import ee.ria.DigiDoc.ui.theme.Blue500
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 
 @Composable
 fun ContainerName(
@@ -52,7 +53,7 @@ fun ContainerName(
                 modifier
                     .weight(1f)
                     .semantics(mergeDescendants = true) {
-                        this.contentDescription = "$containerTitle ${name.lowercase()}"
+                        this.contentDescription = "$containerTitle ${formatNumbers(name).lowercase()}"
                     },
         ) {
             Text(

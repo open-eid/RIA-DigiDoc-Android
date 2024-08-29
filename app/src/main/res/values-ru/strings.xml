@@ -188,6 +188,7 @@
     <string name="signature_method_selected">Выбран метод подписи</string>
     <string name="menu_language">Язык</string>
     <string name="menu_language_selected">Язык выбран</string>
+    <string name="item_selected">выбран</string>
 
     <!-- Home -->
     <string name="main_home_navigation_signature_accessibility">Подпись</string>

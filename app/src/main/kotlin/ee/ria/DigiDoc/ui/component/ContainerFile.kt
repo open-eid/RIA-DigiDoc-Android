@@ -35,6 +35,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Red500
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 
 @Composable
@@ -64,7 +65,8 @@ fun ContainerFile(
                         .align(Alignment.CenterVertically)
                         .weight(1f)
                         .semantics {
-                            contentDescription = "${fileText.lowercase()} ${dataFile.fileName.lowercase()}"
+                            contentDescription = "${fileText.lowercase()} " +
+                                formatNumbers(dataFile.fileName).lowercase()
                         },
             ) {
                 MiddleEllipsizeMultilineText(
@@ -86,7 +88,7 @@ fun ContainerFile(
                                 stringResource(
                                     id = R.string.document_remove_button,
                                 )
-                            } ${dataFile.fileName.lowercase()}",
+                            } ${formatNumbers(dataFile.fileName).lowercase()}",
                             tint = Red500,
                         )
                     },
@@ -103,7 +105,7 @@ fun ContainerFile(
                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_save),
                         contentDescription = "${stringResource(
                             id = R.string.document_save_button,
-                        )} ${dataFile.fileName.lowercase()}",
+                        )} ${formatNumbers(dataFile.fileName).lowercase()}",
                         tint = Blue500,
                     )
                 },

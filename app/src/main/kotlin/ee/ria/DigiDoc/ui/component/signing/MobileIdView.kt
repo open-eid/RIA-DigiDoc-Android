@@ -30,14 +30,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
@@ -56,6 +62,7 @@ import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
 import ee.ria.DigiDoc.ui.theme.Blue500
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewSmallPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
@@ -65,6 +72,7 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Arrays
@@ -75,6 +83,7 @@ import java.util.stream.Collectors
 fun MobileIdView(
     modifier: Modifier = Modifier,
     signatureAddController: NavHostController,
+    dismissDialog: () -> Unit = {},
     cancelButtonClick: () -> Unit = {},
     mobileIdViewModel: MobileIdViewModel = hiltViewModel(),
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
@@ -96,6 +105,9 @@ fun MobileIdView(
     val zipLabel = stringResource(id = R.string.main_settings_postal_code_title)
 
     val focusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
+    var roleAndAddressHeadingTextLoaded = false
+
     val keyboardController = LocalSoftwareKeyboardController.current
 
     var countryCodeAndPhoneText by remember {
@@ -160,7 +172,7 @@ fun MobileIdView(
                 sharedContainerViewModel.setSignedContainer(it)
                 mobileIdViewModel.resetSignedContainer()
                 mobileIdViewModel.resetRoleDataRequested()
-                cancelButtonClick()
+                dismissDialog()
             }
         }
     }
@@ -205,7 +217,27 @@ fun MobileIdView(
             Text(
                 text = stringResource(id = R.string.signature_update_signature_role_and_address_info_title),
                 style = MaterialTheme.typography.titleLarge,
-                modifier = modifier.padding(screenViewLargePadding),
+                modifier =
+                    modifier
+                        .padding(screenViewSmallPadding)
+                        .semantics {
+                            heading()
+                        }
+                        .focusRequester(focusRequester)
+                        .focusable(enabled = true)
+                        .focusTarget()
+                        .focusProperties { canFocus = true }
+                        .onGloballyPositioned {
+                            if (!roleAndAddressHeadingTextLoaded) {
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    focusRequester.requestFocus()
+                                    focusManager.clearFocus()
+                                    delay(200)
+                                    focusRequester.requestFocus()
+                                    roleAndAddressHeadingTextLoaded = true
+                                }
+                            }
+                        },
                 textAlign = TextAlign.Center,
             )
             Text(
@@ -213,17 +245,17 @@ fun MobileIdView(
                 style = MaterialTheme.typography.titleLarge,
                 modifier =
                     modifier
-                        .padding(top = screenViewExtraLargePadding, bottom = screenViewLargePadding)
+                        .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
                         .notAccessible(),
             )
             TextField(
                 modifier =
                     modifier
                         .fillMaxWidth()
-                        .padding(bottom = screenViewLargePadding)
-                        .semantics {
-                            contentDescription =
-                                "$roleLabel ${formatNumbers(rolesAndResolutionsText.text)}"
+                        .padding(bottom = screenViewSmallPadding)
+                        .clearAndSetSemantics {
+                            this.contentDescription =
+                                "$roleLabel ${rolesAndResolutionsText.text}"
                         },
                 value = rolesAndResolutionsText,
                 shape = RectangleShape,
@@ -244,17 +276,17 @@ fun MobileIdView(
                 style = MaterialTheme.typography.titleLarge,
                 modifier =
                     modifier
-                        .padding(top = screenViewExtraLargePadding, bottom = screenViewLargePadding)
+                        .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
                         .notAccessible(),
             )
             TextField(
                 modifier =
                     modifier
                         .fillMaxWidth()
-                        .padding(bottom = screenViewLargePadding)
-                        .semantics {
-                            contentDescription =
-                                "$cityLabel ${formatNumbers(cityText.text)}"
+                        .padding(bottom = screenViewSmallPadding)
+                        .clearAndSetSemantics {
+                            this.contentDescription =
+                                "$cityLabel ${cityText.text}"
                         },
                 value = cityText,
                 shape = RectangleShape,
@@ -275,17 +307,17 @@ fun MobileIdView(
                 style = MaterialTheme.typography.titleLarge,
                 modifier =
                     modifier
-                        .padding(top = screenViewExtraLargePadding, bottom = screenViewLargePadding)
+                        .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
                         .notAccessible(),
             )
             TextField(
                 modifier =
                     modifier
                         .fillMaxWidth()
-                        .padding(bottom = screenViewLargePadding)
-                        .semantics {
-                            contentDescription =
-                                "$stateLabel ${formatNumbers(stateText.text)}"
+                        .padding(bottom = screenViewSmallPadding)
+                        .clearAndSetSemantics {
+                            this.contentDescription =
+                                "$stateLabel ${stateText.text}"
                         },
                 value = stateText,
                 shape = RectangleShape,
@@ -306,17 +338,17 @@ fun MobileIdView(
                 style = MaterialTheme.typography.titleLarge,
                 modifier =
                     modifier
-                        .padding(top = screenViewExtraLargePadding, bottom = screenViewLargePadding)
+                        .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
                         .notAccessible(),
             )
             TextField(
                 modifier =
                     modifier
                         .fillMaxWidth()
-                        .padding(bottom = screenViewLargePadding)
-                        .semantics {
-                            contentDescription =
-                                "$countryLabel ${formatNumbers(countryText.text)}"
+                        .padding(bottom = screenViewSmallPadding)
+                        .clearAndSetSemantics {
+                            this.contentDescription =
+                                "$countryLabel ${countryText.text}"
                         },
                 value = countryText,
                 shape = RectangleShape,
@@ -337,16 +369,16 @@ fun MobileIdView(
                 style = MaterialTheme.typography.titleLarge,
                 modifier =
                     modifier
-                        .padding(top = screenViewExtraLargePadding, bottom = screenViewLargePadding)
+                        .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
                         .notAccessible(),
             )
             TextField(
                 modifier =
                     modifier
                         .fillMaxWidth()
-                        .padding(bottom = screenViewLargePadding)
-                        .semantics {
-                            contentDescription =
+                        .padding(bottom = screenViewSmallPadding)
+                        .clearAndSetSemantics {
+                            this.contentDescription =
                                 "$zipLabel ${formatNumbers(zipText.text)}"
                         },
                 value = zipText,
@@ -379,7 +411,10 @@ fun MobileIdView(
             Text(
                 text = stringResource(id = R.string.signature_update_mobile_id_message),
                 style = MaterialTheme.typography.titleLarge,
-                modifier = modifier.padding(screenViewLargePadding),
+                modifier =
+                    modifier
+                        .padding(screenViewLargePadding)
+                        .semantics { heading() },
                 textAlign = TextAlign.Center,
             )
             Text(

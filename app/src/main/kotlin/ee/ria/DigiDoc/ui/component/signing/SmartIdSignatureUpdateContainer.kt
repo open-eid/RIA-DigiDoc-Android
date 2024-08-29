@@ -3,6 +3,7 @@
 package ee.ria.DigiDoc.ui.component.signing
 
 import android.content.res.Configuration
+import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,7 +18,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,6 +32,8 @@ import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Red500
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.SmartIdViewModel
 
 @Composable
@@ -36,6 +42,7 @@ fun SmartIdSignatureUpdateContainer(
     smartIdViewModel: SmartIdViewModel,
     onCancelButtonClick: () -> Unit = {},
 ) {
+    val context = LocalContext.current
     var challengeText by remember { mutableStateOf("") }
     var infoText by remember { mutableStateOf("") }
     val challengeInfoText = stringResource(id = R.string.signature_update_smart_id_info)
@@ -71,6 +78,16 @@ fun SmartIdSignatureUpdateContainer(
         }
     }
 
+    LaunchedEffect(challengeText) {
+        if (challengeText.isNotEmpty()) {
+            AccessibilityUtil.sendAccessibilityEvent(
+                context,
+                TYPE_ANNOUNCEMENT,
+                challengeInfoText,
+            )
+        }
+    }
+
     Column(
         modifier = modifier.padding(screenViewLargePadding),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -83,7 +100,8 @@ fun SmartIdSignatureUpdateContainer(
             modifier =
                 modifier
                     .fillMaxWidth()
-                    .padding(screenViewLargePadding),
+                    .padding(screenViewLargePadding)
+                    .notAccessible(),
         )
         Text(
             textAlign = TextAlign.Center,
@@ -94,11 +112,15 @@ fun SmartIdSignatureUpdateContainer(
             modifier =
                 modifier
                     .fillMaxWidth()
-                    .padding(screenViewLargePadding),
+                    .padding(screenViewLargePadding)
+                    .semantics {
+                        this.contentDescription =
+                            "${context.getString(R.string.challenge_code_text)} $challengeText"
+                    },
         )
 
         Text(
-            text = stringResource(id = R.string.signature_update_smart_id_info),
+            text = infoText,
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Normal,

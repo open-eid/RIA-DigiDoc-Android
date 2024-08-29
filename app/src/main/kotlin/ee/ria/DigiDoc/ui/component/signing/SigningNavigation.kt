@@ -114,6 +114,8 @@ fun SigningNavigation(
     val shouldResetContainer by signingViewModel.shouldResetSignedContainer.asFlow().collectAsState(false)
     val context = LocalContext.current
     val signatureAddedSuccess = remember { mutableStateOf(false) }
+    val signatureAddedSuccessText = stringResource(id = R.string.signature_update_signature_add_success)
+
     val isNestedContainer = sharedContainerViewModel.isNestedContainer(signedContainer)
     val showLoadingScreen = remember { mutableStateOf(false) }
 
@@ -139,6 +141,7 @@ fun SigningNavigation(
                 if (status == MobileCreateSignatureProcessStatus.OK) {
                     withContext(Main) {
                         signatureAddedSuccess.value = true
+                        AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signatureAddedSuccessText)
                         delay(3000)
                         signatureAddedSuccess.value = false
                         sharedContainerViewModel.setSignedMidStatus(null)
@@ -154,6 +157,7 @@ fun SigningNavigation(
                 if (status == SessionStatusResponseProcessStatus.OK) {
                     withContext(Main) {
                         signatureAddedSuccess.value = true
+                        AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signatureAddedSuccessText)
                         delay(5000)
                         signatureAddedSuccess.value = false
                         sharedContainerViewModel.setSignedSidStatus(null)
@@ -167,6 +171,9 @@ fun SigningNavigation(
     val signingCancelled = stringResource(id = R.string.signing_cancelled)
     val dismissDialog = {
         openSignatureDialog.value = false
+    }
+    val cancelButtonClick = {
+        dismissDialog()
         AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signingCancelled)
     }
 
@@ -178,6 +185,7 @@ fun SigningNavigation(
         ) {
             AddSignatureView(
                 signatureAddController = signatureAddController,
+                cancelButtonClick = cancelButtonClick,
                 dismissDialog = dismissDialog,
                 sharedContainerViewModel = sharedContainerViewModel,
             )
@@ -326,7 +334,7 @@ fun SigningNavigation(
                         ) {
                             Text(
                                 modifier = modifier.padding(vertical = itemSpacingPadding),
-                                text = stringResource(id = R.string.signature_update_signature_add_success),
+                                text = signatureAddedSuccessText,
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.background,
                                 fontWeight = FontWeight.Normal,

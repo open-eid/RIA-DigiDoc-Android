@@ -3,6 +3,7 @@
 package ee.ria.DigiDoc.ui.component.signing
 
 import android.content.res.Configuration
+import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,7 +19,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,6 +33,8 @@ import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Red500
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.MobileIdViewModel
 
 @Composable
@@ -37,7 +43,9 @@ fun MobileIdSignatureUpdateContainer(
     mobileIdViewModel: MobileIdViewModel,
     onCancelButtonClick: () -> Unit = {},
 ) {
+    val context = LocalContext.current
     var challengeText by remember { mutableStateOf("") }
+    val challengeInfoText = stringResource(id = R.string.signature_update_mobile_id_info)
 
     LaunchedEffect(mobileIdViewModel.challenge) {
         mobileIdViewModel.challenge.asFlow().collect { challenge ->
@@ -55,6 +63,16 @@ fun MobileIdSignatureUpdateContainer(
         }
     }
 
+    LaunchedEffect(challengeText) {
+        if (challengeText.isNotEmpty()) {
+            AccessibilityUtil.sendAccessibilityEvent(
+                context,
+                TYPE_ANNOUNCEMENT,
+                challengeInfoText,
+            )
+        }
+    }
+
     Column(
         modifier = modifier.padding(screenViewLargePadding),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -67,7 +85,8 @@ fun MobileIdSignatureUpdateContainer(
             modifier =
                 modifier
                     .wrapContentSize()
-                    .padding(screenViewLargePadding),
+                    .padding(screenViewLargePadding)
+                    .notAccessible(),
         )
         Text(
             textAlign = TextAlign.Center,
@@ -78,11 +97,15 @@ fun MobileIdSignatureUpdateContainer(
             modifier =
                 modifier
                     .fillMaxWidth()
-                    .padding(screenViewLargePadding),
+                    .padding(screenViewLargePadding)
+                    .semantics {
+                        this.contentDescription =
+                            "${context.getString(R.string.challenge_code_text)} $challengeText"
+                    },
         )
 
         Text(
-            text = stringResource(id = R.string.signature_update_mobile_id_info),
+            text = challengeInfoText,
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Normal,

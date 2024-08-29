@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.ui.component.shared
 import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
@@ -69,11 +71,18 @@ fun SelectionSpinner(
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
-                modifier = modifier.wrapContentHeight().padding(horizontal = itemSpacingPadding),
+                modifier =
+                    modifier
+                        .wrapContentHeight()
+                        .padding(horizontal = itemSpacingPadding),
             ) {
                 list.forEachIndexed { index, listEntry ->
                     DropdownMenuItem(
-                        modifier = modifier.fillMaxWidth(),
+                        modifier =
+                            modifier
+                                .fillMaxWidth()
+                                .focusProperties { canFocus = true }
+                                .focusable(enabled = true),
                         onClick = {
                             selected = index
                             expanded = false

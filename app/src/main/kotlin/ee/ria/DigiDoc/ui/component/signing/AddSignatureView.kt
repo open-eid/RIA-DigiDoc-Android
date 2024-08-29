@@ -37,12 +37,13 @@ fun AddSignatureView(
     modifier: Modifier = Modifier,
     signatureAddController: NavHostController,
     dismissDialog: () -> Unit = {},
+    cancelButtonClick: () -> Unit = {},
     sharedContainerViewModel: SharedContainerViewModel,
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
 ) {
     val focusManager = LocalFocusManager.current
     val state =
-        rememberScrollableState { delta ->
+        rememberScrollableState { _ ->
             focusManager.clearFocus()
             0f
         }
@@ -75,27 +76,29 @@ fun AddSignatureView(
             ) {
                 composable(route = Route.MobileId.route) {
                     MobileIdView(
-                        cancelButtonClick = dismissDialog,
+                        dismissDialog = dismissDialog,
+                        cancelButtonClick = cancelButtonClick,
                         signatureAddController = signatureAddController,
                         sharedContainerViewModel = sharedContainerViewModel,
                     )
                 }
                 composable(route = Route.SmartId.route) {
                     SmartIdView(
-                        cancelButtonClick = dismissDialog,
+                        dismissDialog = dismissDialog,
+                        cancelButtonClick = cancelButtonClick,
                         signatureAddController = signatureAddController,
                         sharedContainerViewModel = sharedContainerViewModel,
                     )
                 }
                 composable(route = Route.IdCard.route) {
                     IdCardView(
-                        cancelButtonClick = dismissDialog,
+                        cancelButtonClick = cancelButtonClick,
                         signatureAddController = signatureAddController,
                     )
                 }
                 composable(route = Route.NFC.route) {
                     NFCView(
-                        cancelButtonClick = dismissDialog,
+                        cancelButtonClick = cancelButtonClick,
                         signatureAddController = signatureAddController,
                     )
                 }
