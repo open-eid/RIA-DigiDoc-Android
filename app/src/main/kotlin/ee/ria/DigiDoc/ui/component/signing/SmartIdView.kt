@@ -430,8 +430,7 @@ fun SmartIdView(
                     modifier
                         .clearAndSetSemantics {
                             contentDescription =
-                                "$smartIdCountryLabel ${countriesList[selectedCountry]} " +
-                                itemSelectedTitle
+                                "$smartIdCountryLabel ${countriesList[selectedCountry]} $itemSelectedTitle"
                         },
             )
             Text(
