@@ -5,9 +5,7 @@ package ee.ria.DigiDoc.libdigidoclib.utils
 import android.content.Context
 import android.content.res.Resources.NotFoundException
 import android.util.Log
-import android.webkit.MimeTypeMap
 import ee.ria.DigiDoc.libdigidoclib.R
-import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
 import java.io.File
 import java.io.IOException
@@ -78,17 +76,5 @@ object FileUtils {
             }
             true
         }.getOrElse { false }
-    }
-
-    fun getDataFileMimetype(dataFile: DataFileInterface): String? {
-        val extensionIndex: Int = dataFile.fileName.lastIndexOf(".")
-        val extension =
-            if (extensionIndex != -1) dataFile.fileName.substring(extensionIndex + 1) else ""
-        return if (extension.isNotEmpty()) {
-            MimeTypeMap.getSingleton()
-                .getMimeTypeFromExtension(extension)
-        } else {
-            "application/octet-stream"
-        }
     }
 }

@@ -35,6 +35,7 @@ fun ContainerName(
     name: String,
     onEditNameClick: () -> Unit = {},
     onSaveContainerClick: () -> Unit = {},
+    isNestedContainer: Boolean,
     isContainerSigned: Boolean,
 ) {
     Row(
@@ -68,7 +69,7 @@ fun ContainerName(
             )
         }
 
-        if (isContainerSigned) {
+        if (isContainerSigned || isNestedContainer) {
             IconButton(
                 onClick = onSaveContainerClick,
                 content = {

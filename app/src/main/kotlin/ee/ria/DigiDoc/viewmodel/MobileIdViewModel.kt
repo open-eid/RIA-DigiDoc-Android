@@ -24,10 +24,11 @@ import ee.ria.DigiDoc.network.mid.dto.request.MobileCreateSignatureRequest
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator.validatePersonalCode
 import ee.ria.libdigidocpp.Conf
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
@@ -42,6 +43,8 @@ class MobileIdViewModel
         private val mobileSignService: MobileSignService,
         private val configurationRepository: ConfigurationRepository,
     ) : ViewModel() {
+        private val logTag = javaClass.simpleName
+
         private val _signedContainer = MutableLiveData<SignedContainer?>(null)
         val signedContainer: LiveData<SignedContainer?> = _signedContainer
         private val _errorState = MutableLiveData<String?>(null)
@@ -160,8 +163,10 @@ class MobileIdViewModel
             _roleDataRequested.postValue(roleDataRequested)
         }
 
-        fun cancelMobileIdWorkRequest() {
-            mobileSignService.setCancelled(true)
+        fun cancelMobileIdWorkRequest(signedContainer: SignedContainer?) {
+            if (signedContainer != null) {
+                mobileSignService.setCancelled(signedContainer, true)
+            }
         }
 
         private fun resetValues() {
@@ -198,7 +203,7 @@ class MobileIdViewModel
                         displayMessage,
                     )
             val certBundle = ArrayList(configurationProvider?.certBundle ?: emptyList())
-            withContext(Dispatchers.Main) {
+            withContext(Main) {
                 mobileSignService.errorState.observeForever {
                     if (it != null) {
                         _errorState.postValue(it)
@@ -233,21 +238,22 @@ class MobileIdViewModel
                                     },
                                 )
                             } else {
-                                CoroutineScope(Dispatchers.Main).launch {
+                                CoroutineScope(Main).launch {
                                     val signatureInterface =
-                                        if (SignedContainer.container().getSignatures().isEmpty()) {
+                                        if (container?.getSignatures()?.isEmpty() == true) {
                                             null
                                         } else {
-                                            SignedContainer.container().getSignatures()
-                                                .last {
+                                            container
+                                                ?.getSignatures()
+                                                ?.last {
                                                     it.validator.status == ValidatorInterface.Status.Invalid ||
                                                         it.validator.status == ValidatorInterface.Status.Unknown
                                                 }
                                         }
                                     signatureInterface?.let {
-                                        SignedContainer.container().removeSignature(it)
+                                        container?.removeSignature(it)
                                     }
-                                    _signedContainer.postValue(SignedContainer.container())
+                                    _signedContainer.postValue(container)
                                     _errorState.postValue(
                                         messages[status]?.let { res ->
                                             context.getString(
@@ -263,12 +269,11 @@ class MobileIdViewModel
                 mobileSignService.response.observeForever {
                     when (it?.status) {
                         MobileCreateSignatureProcessStatus.OK -> {
-                            CoroutineScope(Dispatchers.Main).launch {
+                            CoroutineScope(Main).launch {
                                 _status.postValue(it.status)
-                                _signedContainer.postValue(SignedContainer.container())
+                                _signedContainer.postValue(container)
                             }
                         }
-
                         else -> {
                             if (it != null) {
                                 _status.postValue(it.status)
@@ -285,18 +290,27 @@ class MobileIdViewModel
                 }
             }
             mobileSignService.resetValues()
-            mobileSignService.processMobileIdRequest(
-                context = context,
-                request = request,
-                roleDataRequest = roleData,
-                proxySetting = proxySetting,
-                manualProxySettings = manualProxySettings,
-                certificateBundle = certBundle,
-                accessTokenPath = Objects.requireNonNull(Conf.instance()).PKCS12Cert(),
-                accessTokenPass = Objects.requireNonNull(Conf.instance()).PKCS12Pass(),
-            )
+            if (container != null) {
+                mobileSignService.processMobileIdRequest(
+                    context = context,
+                    signedContainer = container,
+                    request = request,
+                    roleDataRequest = roleData,
+                    proxySetting = proxySetting,
+                    manualProxySettings = manualProxySettings,
+                    certificateBundle = certBundle,
+                    accessTokenPath = Objects.requireNonNull(Conf.instance()).PKCS12Cert(),
+                    accessTokenPass = Objects.requireNonNull(Conf.instance()).PKCS12Pass(),
+                )
+            } else {
+                CoroutineScope(Main).launch {
+                    _status.postValue(MobileCreateSignatureProcessStatus.GENERAL_ERROR)
+                    _errorState.postValue(context.getString(R.string.signature_update_mobile_id_error_general_client))
+                    errorLog(logTag, "Unable to get container value. Container is 'null'")
+                }
+            }
 
-            withContext(Dispatchers.Main) {
+            withContext(Main) {
                 mobileSignService.errorState.removeObserver {}
                 mobileSignService.challenge.removeObserver {}
                 mobileSignService.status.removeObserver {}

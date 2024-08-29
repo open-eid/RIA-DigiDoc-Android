@@ -63,12 +63,16 @@ interface MobileSignService {
     val errorState: LiveData<String?>
     val cancelled: LiveData<Boolean?>
 
-    fun setCancelled(cancelled: Boolean?)
+    fun setCancelled(
+        signedContainer: SignedContainer,
+        cancelled: Boolean?,
+    )
 
     fun resetValues()
 
     suspend fun processMobileIdRequest(
         context: Context,
+        signedContainer: SignedContainer,
         request: MobileCreateSignatureRequest?,
         roleDataRequest: RoleData?,
         proxySetting: ProxySetting?,
@@ -115,9 +119,12 @@ class MobileSignServiceImpl
             _cancelled.postValue(false)
         }
 
-        override fun setCancelled(cancelled: Boolean?) {
+        override fun setCancelled(
+            signedContainer: SignedContainer,
+            cancelled: Boolean?,
+        ) {
             signatureInterface?.let {
-                SignedContainer.container().removeSignature(it)
+                signedContainer.removeSignature(it)
             }
             _cancelled.postValue(cancelled)
         }
@@ -144,6 +151,7 @@ class MobileSignServiceImpl
 
         override suspend fun processMobileIdRequest(
             context: Context,
+            signedContainer: SignedContainer,
             request: MobileCreateSignatureRequest?,
             roleDataRequest: RoleData?,
             proxySetting: ProxySetting?,
@@ -248,7 +256,7 @@ class MobileSignServiceImpl
                 }
 
                 try {
-                    checkSigningCancelled()
+                    checkSigningCancelled(signedContainer)
                     val call: Call<MobileCreateSignatureCertificateResponse> =
                         midRestServiceClient.getCertificate(certificateRequest)
 
@@ -284,15 +292,16 @@ class MobileSignServiceImpl
                         }
                         val base64Hash: String =
                             containerWrapper.prepareSignature(
+                                signedContainer,
                                 getCertificatePem(response.cert),
                                 roleDataRequest,
                             )
 
                         signatureInterface =
-                            if (SignedContainer.container().getSignatures().isEmpty()) {
+                            if (signedContainer.getSignatures().isEmpty()) {
                                 null
                             } else {
-                                SignedContainer.container().getSignatures()
+                                signedContainer.getSignatures()
                                     .last {
                                         it.validator.status == ValidatorInterface.Status.Invalid ||
                                             it.validator.status == ValidatorInterface.Status.Unknown
@@ -302,7 +311,7 @@ class MobileSignServiceImpl
                             debugLog(logTag, "Posting create signature response")
                             postMobileCreateSignatureResponse(base64Hash)
                             sleep(INITIAL_STATUS_REQUEST_DELAY_IN_MILLISECONDS)
-                            val sessionId = getMobileIdSession(base64Hash, request)
+                            val sessionId = getMobileIdSession(base64Hash, signedContainer, request)
                             if (sessionId == null) {
                                 val errorString = "Session ID missing"
                                 debugLog(logTag, errorString)
@@ -312,6 +321,7 @@ class MobileSignServiceImpl
                             }
                             debugLog(logTag, "Session ID: $sessionId")
                             doCreateSignatureStatusRequestLoop(
+                                signedContainer,
                                 GetMobileCreateSignatureSessionStatusRequest(sessionId),
                             )
                         } else {
@@ -481,8 +491,11 @@ class MobileSignServiceImpl
         }
 
         @Throws(IOException::class, SigningCancelledException::class)
-        private suspend fun doCreateSignatureStatusRequestLoop(request: GetMobileCreateSignatureSessionStatusRequest) {
-            checkSigningCancelled()
+        private suspend fun doCreateSignatureStatusRequestLoop(
+            signedContainer: SignedContainer,
+            request: GetMobileCreateSignatureSessionStatusRequest,
+        ) {
+            checkSigningCancelled(signedContainer)
             val responseCall: Call<MobileCreateSignatureSessionStatusResponse> =
                 midRestServiceClient.getMobileCreateSignatureSessionStatus(
                     request.sessionId,
@@ -528,9 +541,9 @@ class MobileSignServiceImpl
                     )
                 }
                 debugLog(logTag, "Finalizing signature...")
-                containerWrapper.finalizeSignature(response.signature?.value)
+                containerWrapper.finalizeSignature(signedContainer, response.signature?.value)
                 debugLog(logTag, "Posting create signature status response")
-                containerWrapper.container?.let {
+                signedContainer.rawContainer()?.let {
                     postMobileCreateSignatureStatusResponse(
                         response,
                         it,
@@ -546,7 +559,7 @@ class MobileSignServiceImpl
                 }
                 debugLog(logTag, "doCreateSignatureStatusRequestLoop timeout counter: $timeout")
                 sleep(SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS)
-                doCreateSignatureStatusRequestLoop(request)
+                doCreateSignatureStatusRequestLoop(signedContainer, request)
             }
         }
 
@@ -559,9 +572,9 @@ class MobileSignServiceImpl
             return state == MobileCreateSignatureProcessState.COMPLETE
         }
 
-        private fun checkSigningCancelled() {
+        private fun checkSigningCancelled(signedContainer: SignedContainer) {
             if (_cancelled.value == true) {
-                signatureInterface?.let { SignedContainer.container().removeSignature(it) }
+                signatureInterface?.let { signedContainer.removeSignature(it) }
 
                 throw SigningCancelledException("User cancelled signing")
             }
@@ -570,6 +583,7 @@ class MobileSignServiceImpl
         @Throws(IOException::class, SigningCancelledException::class)
         private fun getMobileIdSession(
             hash: String,
+            signedContainer: SignedContainer,
             request: MobileCreateSignatureRequest?,
         ): String? {
             val sessionRequest: PostMobileCreateSignatureSessionRequest = getSessionRequest(request)
@@ -580,7 +594,7 @@ class MobileSignServiceImpl
             val requestString: String = MessageUtil.toJsonString(sessionRequest)
             debugLog(logTag, "Request string: $requestString")
 
-            checkSigningCancelled()
+            checkSigningCancelled(signedContainer)
 
             val call: Call<MobileCreateSignatureSessionResponse> =
                 midRestServiceClient.getMobileCreateSession(requestString)

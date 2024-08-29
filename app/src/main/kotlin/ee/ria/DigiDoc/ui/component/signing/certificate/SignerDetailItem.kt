@@ -6,12 +6,12 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.utilsLib.container.NameUtil
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
 import ee.ria.DigiDoc.utilsLib.extensions.hexString
 import ee.ria.DigiDoc.utilsLib.extensions.x509Certificate
+import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import java.security.cert.X509Certificate
 
 data class SignerDetailItem(
@@ -23,6 +23,7 @@ data class SignerDetailItem(
 ) {
     @Composable
     fun signersDetailItems(
+        sharedContainerViewModel: SharedContainerViewModel,
         signature: SignatureInterface,
         signerIssuerName: String?,
         tsIssuerName: String?,
@@ -71,7 +72,7 @@ data class SignerDetailItem(
             ),
             SignerDetailItem(
                 label = R.string.container_format_label,
-                value = SignedContainer.containerMimetype() ?: "",
+                value = sharedContainerViewModel.currentSignedContainer()?.containerMimetype() ?: "",
                 contentDescription =
                     if (value != null) {
                         "${stringResource(
@@ -95,7 +96,11 @@ data class SignerDetailItem(
             ),
             SignerDetailItem(
                 label = R.string.signed_file_count_label,
-                value = SignedContainer.container().getDataFiles().size.toString(),
+                value =
+                    sharedContainerViewModel.signedContainer.value
+                        ?.getDataFiles()
+                        ?.size
+                        .toString(),
                 contentDescription =
                     if (value != null) {
                         "${stringResource(

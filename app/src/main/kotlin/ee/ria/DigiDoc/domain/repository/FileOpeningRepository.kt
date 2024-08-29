@@ -45,10 +45,14 @@ interface FileOpeningRepository {
     )
     suspend fun addFilesToContainer(
         context: Context,
+        signedContainer: SignedContainer,
         documents: List<File>,
-    ): SignedContainer
+    )
 
-    suspend fun removeSignature(signature: SignatureInterface): SignedContainer
+    suspend fun removeSignature(
+        signedContainer: SignedContainer,
+        signature: SignatureInterface,
+    )
 
     suspend fun checkForValidFiles(files: List<File>)
 

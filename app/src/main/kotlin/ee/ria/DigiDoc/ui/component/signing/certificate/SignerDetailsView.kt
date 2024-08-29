@@ -35,6 +35,7 @@ import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utilsLib.extensions.x509Certificate
 import ee.ria.DigiDoc.viewmodel.SignerDetailViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
 
 @Composable
@@ -44,6 +45,7 @@ fun SignerDetailsView(
     sharedSignatureViewModel: SharedSignatureViewModel,
     sharedCertificateViewModel: SharedCertificateViewModel,
     signerDetailViewModel: SignerDetailViewModel = hiltViewModel(),
+    sharedContainerViewModel: SharedContainerViewModel,
 ) {
     val context = LocalContext.current
     val activity = (context as Activity)
@@ -149,6 +151,7 @@ fun SignerDetailsView(
                             ocspIssuerName = ocspIssuerName,
                             tsSubjectName = tsSubjectName,
                             ocspSubjectName = ocspSubjectName,
+                            sharedContainerViewModel = sharedContainerViewModel,
                         ).forEach { navigationItem ->
                             if (!navigationItem.value.isNullOrEmpty()) {
                                 CertificateDataItem(
