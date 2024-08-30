@@ -88,7 +88,8 @@ class SharedContainerViewModel
             _nestedContainers.clear()
         }
 
-        fun currentSignedContainer(): SignedContainer? = _nestedContainers.last()
+        fun currentSignedContainer(): SignedContainer? =
+            if (_nestedContainers.isNotEmpty())_nestedContainers.last() else null
 
         fun isNestedContainer(signedContainer: SignedContainer?): Boolean =
             nestedContainers.size > 1 && signedContainer == currentSignedContainer()
