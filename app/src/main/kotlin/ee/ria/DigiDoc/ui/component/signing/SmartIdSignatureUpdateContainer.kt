@@ -44,19 +44,21 @@ fun SmartIdSignatureUpdateContainer(
 ) {
     val context = LocalContext.current
     var challengeText by remember { mutableStateOf("") }
-    var infoText by remember { mutableStateOf("") }
+
     val challengeInfoText = stringResource(id = R.string.signature_update_smart_id_info)
     val selectDeviceInfoText = stringResource(id = R.string.signature_update_smart_id_select_device)
+    var infoText by remember { mutableStateOf(challengeInfoText) }
 
     LaunchedEffect(smartIdViewModel.selectDevice) {
         smartIdViewModel.selectDevice.asFlow().collect { selectDevice ->
             selectDevice?.let {
-                infoText = ""
                 if (selectDevice) {
                     infoText = selectDeviceInfoText
-                }
-                if (challengeText.isNotEmpty()) {
-                    infoText = challengeInfoText
+                    AccessibilityUtil.sendAccessibilityEvent(
+                        context,
+                        TYPE_ANNOUNCEMENT,
+                        selectDeviceInfoText,
+                    )
                 }
             }
         }
@@ -80,6 +82,7 @@ fun SmartIdSignatureUpdateContainer(
 
     LaunchedEffect(challengeText) {
         if (challengeText.isNotEmpty()) {
+            infoText = challengeInfoText
             AccessibilityUtil.sendAccessibilityEvent(
                 context,
                 TYPE_ANNOUNCEMENT,
