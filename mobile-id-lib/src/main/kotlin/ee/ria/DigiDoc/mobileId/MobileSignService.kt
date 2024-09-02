@@ -11,6 +11,7 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.MobileIdServiceResponse
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
+import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerSignaturesEmptyException
 import ee.ria.DigiDoc.libdigidoclib.exceptions.SigningCancelledException
 import ee.ria.DigiDoc.mobileId.utils.VerificationCodeUtil
 import ee.ria.DigiDoc.network.mid.dto.MobileCertificateResultType
@@ -123,8 +124,17 @@ class MobileSignServiceImpl
             signedContainer: SignedContainer,
             cancelled: Boolean?,
         ) {
-            signatureInterface?.let {
-                signedContainer.removeSignature(it)
+            try {
+                signatureInterface?.let {
+                    signedContainer.removeSignature(it)
+                }
+            } catch (e: ContainerSignaturesEmptyException) {
+                errorLog(
+                    logTag,
+                    "Failed to remove signature from container. Exception message: ${e.message}. " +
+                        "Exception: ${e.stackTrace.contentToString()}",
+                    e,
+                )
             }
             _cancelled.postValue(cancelled)
         }
@@ -530,7 +540,7 @@ class MobileSignServiceImpl
                     )
                 ) {
                     debugLog(logTag, "Response error: $responseWrapper")
-                    if (status.value == MobileCreateSignatureProcessStatus.USER_CANCELLED) {
+                    if (response.result == MobileCreateSignatureProcessStatus.USER_CANCELLED) {
                         return
                     }
                     throw IOException(
@@ -833,11 +843,11 @@ class MobileSignServiceImpl
                         if (certificateResponse.result != MobileCertificateResultType.OK) {
                             val fault =
                                 RESTServiceFault(
-                                    httpResponse.code(),
-                                    certificateResponse.result,
-                                    certificateResponse.time,
-                                    certificateResponse.traceId,
-                                    certificateResponse.error,
+                                    httpStatus = httpResponse.code(),
+                                    result = certificateResponse.result,
+                                    time = certificateResponse.time,
+                                    traceId = certificateResponse.traceId,
+                                    error = certificateResponse.error,
                                 )
                             postFault(fault)
                             debugLog(
@@ -854,12 +864,12 @@ class MobileSignServiceImpl
                         if (sessionStatusResponse.result != MobileCreateSignatureProcessStatus.OK) {
                             val restServiceFault =
                                 RESTServiceFault(
-                                    httpResponse.code(),
-                                    sessionStatusResponse.state,
-                                    sessionStatusResponse.result,
-                                    sessionStatusResponse.time,
-                                    sessionStatusResponse.traceId,
-                                    sessionStatusResponse.error,
+                                    httpStatus = httpResponse.code(),
+                                    state = sessionStatusResponse.state,
+                                    time = sessionStatusResponse.time,
+                                    traceId = sessionStatusResponse.traceId,
+                                    status = sessionStatusResponse.result,
+                                    error = sessionStatusResponse.error,
                                 )
                             postFault(restServiceFault)
                             debugLog(
