@@ -108,7 +108,7 @@ fun SmartIdView(
 
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
-    var roleAndAddressHeadingTextLoaded = false
+    var roleAndAddressHeadingTextLoaded by remember { mutableStateOf(false) }
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
