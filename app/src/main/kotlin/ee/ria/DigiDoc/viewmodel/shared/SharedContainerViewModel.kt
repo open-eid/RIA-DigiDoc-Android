@@ -19,6 +19,7 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.io.File
@@ -115,6 +116,8 @@ class SharedContainerViewModel
             dataFile: DataFileInterface?,
         ) {
             dataFile?.let { signedContainer?.removeDataFile(it) }
+            _signedContainer.postValue(null)
+            delay(100L)
             _signedContainer.postValue(signedContainer)
         }
 
@@ -135,11 +138,13 @@ class SharedContainerViewModel
             }
         }
 
-        fun removeSignature(
+        suspend fun removeSignature(
             signedContainer: SignedContainer?,
             signature: SignatureInterface?,
         ) {
             signature?.let { signedContainer?.removeSignature(it) }
+            _signedContainer.postValue(null)
+            delay(100L)
             _signedContainer.postValue(signedContainer)
         }
 

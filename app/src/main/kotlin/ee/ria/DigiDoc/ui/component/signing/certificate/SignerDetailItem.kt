@@ -98,7 +98,7 @@ data class SignerDetailItem(
                 label = R.string.signed_file_count_label,
                 value =
                     sharedContainerViewModel.signedContainer.value
-                        ?.getDataFiles()
+                        ?.rawContainer()?.dataFiles()
                         ?.size
                         .toString(),
                 contentDescription =

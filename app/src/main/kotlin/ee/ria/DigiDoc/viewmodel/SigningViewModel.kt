@@ -51,11 +51,11 @@ class SigningViewModel
         }
 
         fun isContainerWithoutSignatures(signedContainer: SignedContainer?): Boolean {
-            return signedContainer?.getSignatures()?.isEmpty() == true
+            return signedContainer?.isSigned() == false
         }
 
         fun isEmptyFileInContainer(signedContainer: SignedContainer?): Boolean {
-            return signedContainer?.getDataFiles()?.any { it.fileSize == 0L } ?: false
+            return signedContainer?.rawContainer()?.dataFiles()?.any { it.fileSize() == 0L } ?: false
         }
 
         fun isSignButtonShown(

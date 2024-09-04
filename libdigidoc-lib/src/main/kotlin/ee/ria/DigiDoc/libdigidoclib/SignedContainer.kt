@@ -24,7 +24,9 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.libdigidocpp.Container
 import ee.ria.libdigidocpp.ContainerOpenCB
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
 import java.io.File
@@ -42,13 +44,25 @@ class SignedContainer
         private var containerFile: File? = null,
         private val isExistingContainer: Boolean = false,
     ) {
-        fun getDataFiles(): List<DataFileInterface> =
-            container?.dataFiles()
-                ?.mapNotNull { DataFileWrapper(it) } ?: emptyList()
+        suspend fun getDataFiles(): List<DataFileInterface> {
+            return CoroutineScope(IO).async {
+                val wrappedDataFile =
+                    container?.dataFiles()
+                        ?.mapNotNull { DataFileWrapper(it) } ?: emptyList()
+                return@async wrappedDataFile
+            }.await()
+        }
 
-        fun getSignatures(): List<SignatureInterface> =
-            container?.signatures()
-                ?.mapNotNull { SignatureWrapper(it) } ?: emptyList()
+        suspend fun getSignatures(): List<SignatureInterface> {
+            return CoroutineScope(IO).async {
+                val wrappedSignature =
+                    container?.signatures()
+                        ?.mapNotNull { SignatureWrapper(it) } ?: emptyList()
+                return@async wrappedSignature
+            }.await()
+        }
+
+        fun isSigned(): Boolean = container?.signatures()?.isNotEmpty() ?: false
 
         fun getName(): String = containerFile?.name ?: DEFAULT_FILENAME
 
