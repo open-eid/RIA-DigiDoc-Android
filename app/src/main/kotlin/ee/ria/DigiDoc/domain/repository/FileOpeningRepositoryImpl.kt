@@ -9,7 +9,6 @@ import androidx.activity.result.ActivityResultLauncher
 import ee.ria.DigiDoc.domain.service.FileOpeningService
 import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
-import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
@@ -123,7 +122,8 @@ class FileOpeningRepositoryImpl
             file: File,
             container: SignedContainer,
         ): Boolean {
-            return container.getDataFiles().any { it.fileName == file.name }
+            return container.rawContainer()?.dataFiles()?.any { it.fileName() == file.name }
+                ?: false
         }
 
         @Throws(Exception::class)
@@ -150,11 +150,13 @@ class FileOpeningRepositoryImpl
         @Throws(Exception::class)
         private fun getFileNamesInContainer(signedContainer: SignedContainer): List<String> {
             val containerFileNames: MutableList<String> = java.util.ArrayList()
-            val dataFiles: List<DataFileInterface> =
-                signedContainer.getDataFiles()
+            val dataFiles =
+                signedContainer.rawContainer()?.dataFiles()
 
-            for (i in dataFiles.indices) {
-                containerFileNames.add(dataFiles[i].fileName)
+            if (dataFiles != null) {
+                for (i in dataFiles.indices) {
+                    containerFileNames.add(dataFiles[i].fileName())
+                }
             }
 
             return containerFileNames

@@ -190,6 +190,10 @@
     <string name="menu_language">Language</string>
     <string name="menu_language_selected">Language selected</string>
     <string name="item_selected">selected</string>
+    <string name="signatures_loading">Signatures loading</string>
+    <string name="signatures_loaded">Signatures loaded</string>
+    <string name="container_files_loading">Container files loading</string>
+    <string name="container_files_loaded">Container files loaded</string>
 
     <!-- Home -->
     <string name="main_home_navigation_signature_accessibility">Signature</string>

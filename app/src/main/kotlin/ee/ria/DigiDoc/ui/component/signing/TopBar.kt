@@ -14,11 +14,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
@@ -26,7 +31,10 @@ import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.PreventResize
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,15 +43,9 @@ fun TopBar(
     @StringRes title: Int,
     onBackButtonClick: () -> Unit = {},
 ) {
-    val focusRequester = remember { FocusRequester() }
+    val headingFocusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
-
-    LaunchedEffect(Unit) {
-        delay(200)
-        focusManager.clearFocus()
-        delay(200)
-        focusRequester.requestFocus()
-    }
+    var headingTextLoaded by remember { mutableStateOf(false) }
 
     CenterAlignedTopAppBar(
         modifier =
@@ -66,8 +68,21 @@ fun TopBar(
                             .semantics {
                                 heading()
                             }
-                            .focusRequester(focusRequester)
-                            .focusable(),
+                            .focusRequester(headingFocusRequester)
+                            .focusable(enabled = true)
+                            .focusTarget()
+                            .focusProperties { canFocus = true }
+                            .onGloballyPositioned {
+                                if (!headingTextLoaded) {
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        headingFocusRequester.requestFocus()
+                                        focusManager.clearFocus()
+                                        delay(200)
+                                        headingFocusRequester.requestFocus()
+                                        headingTextLoaded = true
+                                    }
+                                }
+                            },
                 )
             }
         },
