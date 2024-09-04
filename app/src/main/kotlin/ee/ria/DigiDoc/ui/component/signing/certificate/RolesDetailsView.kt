@@ -78,7 +78,6 @@ fun RolesDetailsView(
                             modifier =
                                 modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = screenViewLargePadding)
                                     .semantics(mergeDescendants = true) {
                                         this.contentDescription = "$roleTitle $roleValue"
                                     },
@@ -86,7 +85,7 @@ fun RolesDetailsView(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Column(
-                                modifier = modifier,
+                                modifier = modifier.padding(screenViewLargePadding),
                             ) {
                                 Text(
                                     text = roleTitle,
@@ -108,7 +107,6 @@ fun RolesDetailsView(
                             modifier =
                                 modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = screenViewLargePadding)
                                     .semantics(mergeDescendants = true) {
                                         this.contentDescription = "$cityTitle $cityValue"
                                     },
@@ -116,7 +114,7 @@ fun RolesDetailsView(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Column(
-                                modifier = modifier,
+                                modifier = modifier.padding(screenViewLargePadding),
                             ) {
                                 Text(
                                     text = cityTitle,
@@ -138,7 +136,6 @@ fun RolesDetailsView(
                             modifier =
                                 modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = screenViewLargePadding)
                                     .semantics(mergeDescendants = true) {
                                         this.contentDescription = "$stateTitle $stateValue"
                                     },
@@ -146,7 +143,7 @@ fun RolesDetailsView(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Column(
-                                modifier = modifier,
+                                modifier = modifier.padding(screenViewLargePadding),
                             ) {
                                 Text(
                                     text = stateTitle,
@@ -168,7 +165,6 @@ fun RolesDetailsView(
                             modifier =
                                 modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = screenViewLargePadding)
                                     .semantics(mergeDescendants = true) {
                                         this.contentDescription = "$countryTitle $countryValue"
                                     },
@@ -176,7 +172,7 @@ fun RolesDetailsView(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Column(
-                                modifier = modifier,
+                                modifier = modifier.padding(screenViewLargePadding),
                             ) {
                                 Text(
                                     text = countryTitle,
@@ -198,7 +194,6 @@ fun RolesDetailsView(
                             modifier =
                                 modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = screenViewLargePadding)
                                     .semantics(mergeDescendants = true) {
                                         this.contentDescription = "$zipTitle ${formatNumbers(zipValue)}"
                                     },
@@ -206,7 +201,7 @@ fun RolesDetailsView(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Column(
-                                modifier = modifier,
+                                modifier = modifier.padding(screenViewLargePadding),
                             ) {
                                 Text(
                                     text = zipTitle,

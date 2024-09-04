@@ -119,8 +119,8 @@ fun SignerDetailsView(
                     Column(
                         modifier =
                             modifier
-                                .verticalScroll(rememberScrollState())
-                                .fillMaxWidth(),
+                                .fillMaxWidth()
+                                .verticalScroll(rememberScrollState()),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         if (signatureStatus != ValidatorInterface.Status.Valid) {
@@ -166,7 +166,7 @@ fun SignerDetailsView(
                             ).forEach { navigationItem ->
                                 if (!navigationItem.value.isNullOrEmpty()) {
                                     CertificateDataItem(
-                                        modifier = modifier.padding(horizontal = itemSpacingPadding),
+                                        modifier = modifier,
                                         detailKey = navigationItem.label,
                                         detailValue = navigationItem.value,
                                         certificate = navigationItem.certificate,
