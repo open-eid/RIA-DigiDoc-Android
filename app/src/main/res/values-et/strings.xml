@@ -189,6 +189,10 @@
     <string name="menu_language">Keel</string>
     <string name="menu_language_selected">Keel valitud</string>
     <string name="item_selected">valitud</string>
+    <string name="signatures_loading">Allkirjade laadimine</string>
+    <string name="signatures_loaded">Allkirjad laaditud</string>
+    <string name="container_files_loading">Konteineri failide laadimine</string>
+    <string name="container_files_loaded">Konteineri failid laaditud</string>
 
     <!-- Home -->
     <string name="main_home_navigation_signature_accessibility">Allkiri</string>

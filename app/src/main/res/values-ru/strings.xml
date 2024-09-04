@@ -189,6 +189,10 @@
     <string name="menu_language">Язык</string>
     <string name="menu_language_selected">Язык выбран</string>
     <string name="item_selected">выбран</string>
+    <string name="signatures_loading">Подписи загружаются</string>
+    <string name="signatures_loaded">Подписи загружены</string>
+    <string name="container_files_loading">Файлы контейнера загружаются</string>
+    <string name="container_files_loaded">Файлы контейнера загружены</string>
 
     <!-- Home -->
     <string name="main_home_navigation_signature_accessibility">Подпись</string>
