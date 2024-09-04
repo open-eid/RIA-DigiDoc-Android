@@ -7,12 +7,14 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -103,7 +105,6 @@ fun SignerDetailsView(
                 modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
                     .focusGroup(),
         ) {
             Column {
@@ -115,65 +116,76 @@ fun SignerDetailsView(
                     },
                 )
                 if (signature != null) {
-                    if (signatureStatus != ValidatorInterface.Status.Valid) {
-                        Column(
-                            modifier = modifier.padding(screenViewLargePadding),
-                        ) {
-                            TagBadge(
-                                text = stringResource(id = R.string.signature_error_details_title),
-                                contentColor = tagContentColor,
-                                backgroundColor = tagBackgroundColor,
-                            )
+                    Column(
+                        modifier =
+                            modifier
+                                .verticalScroll(rememberScrollState())
+                                .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        if (signatureStatus != ValidatorInterface.Status.Valid) {
+                            Column(
+                                modifier = modifier.padding(screenViewLargePadding),
+                            ) {
+                                TagBadge(
+                                    text = stringResource(id = R.string.signature_error_details_title),
+                                    contentColor = tagContentColor,
+                                    backgroundColor = tagBackgroundColor,
+                                )
 
-                            DynamicText(
-                                modifier =
-                                    modifier
-                                        .padding(horizontal = itemSpacingPadding, vertical = screenViewLargePadding),
-                                text = warningText,
-                            )
+                                DynamicText(
+                                    modifier =
+                                        modifier
+                                            .padding(
+                                                horizontal = itemSpacingPadding,
+                                                vertical = screenViewLargePadding,
+                                            ),
+                                    text = warningText,
+                                )
 
-                            ExpandableButton(
-                                modifier = modifier,
-                                title = R.string.signature_error_details_button,
-                                detailText = signature.validator.diagnostics,
-                                contentDescription =
-                                    stringResource(
-                                        id = R.string.signature_error_details_button_accessibility,
-                                    ),
-                            )
-                        }
-                    }
-                    SignerDetailItem()
-                        .signersDetailItems(
-                            signature = signature,
-                            signerIssuerName = signersIssuerName,
-                            tsIssuerName = tsIssuerName,
-                            ocspIssuerName = ocspIssuerName,
-                            tsSubjectName = tsSubjectName,
-                            ocspSubjectName = ocspSubjectName,
-                            sharedContainerViewModel = sharedContainerViewModel,
-                        ).forEach { navigationItem ->
-                            if (!navigationItem.value.isNullOrEmpty()) {
-                                CertificateDataItem(
-                                    modifier = modifier.padding(horizontal = itemSpacingPadding),
-                                    detailKey = navigationItem.label,
-                                    detailValue = navigationItem.value,
-                                    certificate = navigationItem.certificate,
-                                    contentDescription = navigationItem.contentDescription,
-                                    formatForAccessibility = navigationItem.formatForAccessibility,
-                                    onCertificateButtonClick = {
-                                        navigationItem.certificate?.let {
-                                            sharedCertificateViewModel.setCertificate(
-                                                it,
-                                            )
-                                            navController.navigate(
-                                                Route.CertificateDetail.route,
-                                            )
-                                        }
-                                    },
+                                ExpandableButton(
+                                    modifier = modifier,
+                                    title = R.string.signature_error_details_button,
+                                    detailText = signature.validator.diagnostics,
+                                    contentDescription =
+                                        stringResource(
+                                            id = R.string.signature_error_details_button_accessibility,
+                                        ),
                                 )
                             }
                         }
+                        SignerDetailItem()
+                            .signersDetailItems(
+                                signature = signature,
+                                signerIssuerName = signersIssuerName,
+                                tsIssuerName = tsIssuerName,
+                                ocspIssuerName = ocspIssuerName,
+                                tsSubjectName = tsSubjectName,
+                                ocspSubjectName = ocspSubjectName,
+                                sharedContainerViewModel = sharedContainerViewModel,
+                            ).forEach { navigationItem ->
+                                if (!navigationItem.value.isNullOrEmpty()) {
+                                    CertificateDataItem(
+                                        modifier = modifier.padding(horizontal = itemSpacingPadding),
+                                        detailKey = navigationItem.label,
+                                        detailValue = navigationItem.value,
+                                        certificate = navigationItem.certificate,
+                                        contentDescription = navigationItem.contentDescription,
+                                        formatForAccessibility = navigationItem.formatForAccessibility,
+                                        onCertificateButtonClick = {
+                                            navigationItem.certificate?.let {
+                                                sharedCertificateViewModel.setCertificate(
+                                                    it,
+                                                )
+                                                navController.navigate(
+                                                    Route.CertificateDetail.route,
+                                                )
+                                            }
+                                        },
+                                    )
+                                }
+                            }
+                    }
                 }
             }
         }
