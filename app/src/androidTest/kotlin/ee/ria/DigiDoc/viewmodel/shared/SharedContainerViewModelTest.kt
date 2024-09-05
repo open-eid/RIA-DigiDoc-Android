@@ -142,82 +142,102 @@ class SharedContainerViewModelTest {
     }
 
     @Test
-    fun sharedContainerViewModel_getContainerDataFile_success() {
-        val file = createTempFileWithStringContent("test", "Test content")
-        val signedContainer =
-            runBlocking {
-                SignedContainer.openOrCreate(context, file, listOf(file))
+    fun sharedContainerViewModel_getContainerDataFile_success() =
+        runTest {
+            val file = createTempFileWithStringContent("test", "Test content")
+            val signedContainer =
+                runBlocking {
+                    SignedContainer.openOrCreate(context, file, listOf(file))
+                }
+
+            val dataFile = signedContainer.getDataFiles().first()
+
+            val result = viewModel.getContainerDataFile(signedContainer, dataFile)
+
+            if (result != null) {
+                assertEquals(file.name, result.name)
             }
-
-        val dataFile = signedContainer.getDataFiles().first()
-
-        val result = viewModel.getContainerDataFile(signedContainer, dataFile)
-
-        if (result != null) {
-            assertEquals(file.name, result.name)
         }
-    }
 
     @Test
-    fun sharedContainerViewModel_getContainerDataFile_returnNull() {
-        val file = createTempFileWithStringContent("test", "Test content")
-        val signedContainer =
-            runBlocking {
-                SignedContainer.openOrCreate(context, file, listOf(file))
-            }
+    fun sharedContainerViewModel_getContainerDataFile_returnNull() =
+        runTest {
+            val file = createTempFileWithStringContent("test", "Test content")
+            val signedContainer =
+                runBlocking {
+                    SignedContainer.openOrCreate(context, file, listOf(file))
+                }
 
-        val dataFile = signedContainer.getDataFiles().first()
+            val dataFile = signedContainer.getDataFiles().first()
 
-        val result = viewModel.getContainerDataFile(null, dataFile)
+            val result = viewModel.getContainerDataFile(null, dataFile)
 
-        assertNull(result)
-    }
-
-    @Test
-    fun sharedContainerViewModel_removeSignature_success() {
-        val container = AssetFile.getResourceFileAsFile(context, "example.asice", ee.ria.DigiDoc.common.R.raw.example)
-
-        val signedContainer =
-            runBlocking {
-                SignedContainer.openOrCreate(context, container, listOf(container))
-            }
-
-        val signature = signedContainer.getSignatures().first()
-
-        viewModel.removeSignature(signedContainer, signature)
-
-        assertEquals(1, viewModel.signedContainer.value?.getSignatures()?.size)
-    }
+            assertNull(result)
+        }
 
     @Test
-    fun sharedContainerViewModel_removeSignature_returnSameSignaturesIfRemovingNullSignature() {
-        val container = AssetFile.getResourceFileAsFile(context, "example.asice", ee.ria.DigiDoc.common.R.raw.example)
+    fun sharedContainerViewModel_removeSignature_success() =
+        runTest {
+            val container =
+                AssetFile.getResourceFileAsFile(
+                    context,
+                    "example.asice",
+                    ee.ria.DigiDoc.common.R.raw.example,
+                )
 
-        val signedContainer =
-            runBlocking {
-                SignedContainer.openOrCreate(context, container, listOf(container))
-            }
+            val signedContainer =
+                runBlocking {
+                    SignedContainer.openOrCreate(context, container, listOf(container))
+                }
 
-        viewModel.removeSignature(signedContainer, null)
+            val signature = signedContainer.getSignatures().first()
 
-        assertEquals(signedContainer.getSignatures().size, viewModel.signedContainer.value?.getSignatures()?.size)
-    }
+            viewModel.removeSignature(signedContainer, signature)
+
+            assertEquals(1, viewModel.signedContainer.value?.getSignatures()?.size)
+        }
 
     @Test
-    fun sharedContainerViewModel_removeSignature_returnNullIfContainerNull() {
-        val container = AssetFile.getResourceFileAsFile(context, "example.asice", ee.ria.DigiDoc.common.R.raw.example)
+    fun sharedContainerViewModel_removeSignature_returnSameSignaturesIfRemovingNullSignature() =
+        runTest {
+            val container =
+                AssetFile.getResourceFileAsFile(
+                    context,
+                    "example.asice",
+                    ee.ria.DigiDoc.common.R.raw.example,
+                )
 
-        val signedContainer =
-            runBlocking {
-                SignedContainer.openOrCreate(context, container, listOf(container))
-            }
+            val signedContainer =
+                runBlocking {
+                    SignedContainer.openOrCreate(context, container, listOf(container))
+                }
 
-        val signature = signedContainer.getSignatures().first()
+            viewModel.removeSignature(signedContainer, null)
 
-        viewModel.removeSignature(null, signature)
+            assertEquals(signedContainer.getSignatures().size, viewModel.signedContainer.value?.getSignatures()?.size)
+        }
 
-        assertNull(viewModel.signedContainer.value)
-    }
+    @Test
+    fun sharedContainerViewModel_removeSignature_returnNullIfContainerNull() =
+        runTest {
+            val container =
+                AssetFile.getResourceFileAsFile(
+                    context,
+                    "example.asice",
+                    ee.ria.DigiDoc.common.R.raw.example,
+                )
+
+            val signedContainer =
+                runBlocking {
+                    SignedContainer.openOrCreate(context, container, listOf(container))
+                }
+
+            val signature = signedContainer.getSignatures().first()
+
+            viewModel.removeSignature(null, signature)
+
+            assertNull(viewModel.signedContainer.value)
+        }
 
     @Test
     fun sharedContainerViewModel_removeContainerDataFile_success() =
