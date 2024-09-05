@@ -43,9 +43,9 @@ import org.mockito.Mockito.mock
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
-import java.nio.file.NoSuchFileException
 
 @RunWith(MockitoJUnitRunner::class)
 class SignedContainerTest {
@@ -328,7 +328,7 @@ class SignedContainerTest {
             assertEquals(1, createdContainer.getDataFiles().size)
         }
 
-    @Test(expected = NoSuchFileException::class)
+    @Test(expected = FileNotFoundException::class)
     fun signedContainer_openOrCreate_throwExceptionWhenOpeningNonExistentContainer() =
         runTest {
             openOrCreate(context, File("nonExistentFile"), listOf(File("nonExistentDataFile")))
