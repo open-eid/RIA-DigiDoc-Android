@@ -10,7 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.common.test.AssetFile
+import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifierImpl
 import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
@@ -22,7 +22,7 @@ import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
 import ee.ria.DigiDoc.domain.preferences.DataStore
-import ee.ria.DigiDoc.domain.repository.FileOpeningRepository
+import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.MobileIdServiceResponse
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
@@ -39,6 +39,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.Mockito.anyBoolean
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
@@ -166,7 +167,7 @@ class MobileIdViewModelTest {
 
         signedContainer =
             runBlocking {
-                SignedContainer.openOrCreate(context, container, listOf(container))
+                SignedContainer.openOrCreate(context, container, listOf(container), true)
             }
     }
 
@@ -206,7 +207,7 @@ class MobileIdViewModelTest {
         runTest {
             `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
             `when`(
-                fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any()),
+                fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any(), anyBoolean()),
             ).thenReturn(signedContainer)
 
             `when`(mobileIdService.response).thenReturn(
@@ -251,7 +252,7 @@ class MobileIdViewModelTest {
         runTest {
             `when`(configurationRepository.getConfiguration()).thenReturn(null)
             `when`(
-                fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any()),
+                fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any(), anyBoolean()),
             ).thenReturn(signedContainer)
             `when`(mobileIdService.response).thenReturn(
                 MutableLiveData<MobileIdServiceResponse?>(
@@ -293,7 +294,7 @@ class MobileIdViewModelTest {
         runTest {
             `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
             `when`(
-                fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any()),
+                fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any(), anyBoolean()),
             ).thenReturn(signedContainer)
 
             `when`(mobileIdService.response).thenReturn(
@@ -343,7 +344,7 @@ class MobileIdViewModelTest {
         runTest {
             `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
             `when`(
-                fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any()),
+                fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any(), anyBoolean()),
             ).thenReturn(signedContainer)
 
             `when`(mobileIdService.response).thenReturn(
@@ -393,7 +394,7 @@ class MobileIdViewModelTest {
         runTest {
             `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
             `when`(
-                fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any()),
+                fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any(), anyBoolean()),
             ).thenReturn(signedContainer)
 
             `when`(mobileIdService.response).thenReturn(MutableLiveData<MobileIdServiceResponse?>(null))

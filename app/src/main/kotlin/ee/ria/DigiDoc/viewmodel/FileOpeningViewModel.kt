@@ -162,7 +162,10 @@ class FileOpeningViewModel
             }
         }
 
-        fun handleCancelDdocMimeType(context: Context, isExternalFile: Boolean) {
+        fun handleCancelDdocMimeType(
+            context: Context,
+            isExternalFile: Boolean,
+        ) {
             if (isExternalFile) {
                 (context as? Activity)?.finish()
             }

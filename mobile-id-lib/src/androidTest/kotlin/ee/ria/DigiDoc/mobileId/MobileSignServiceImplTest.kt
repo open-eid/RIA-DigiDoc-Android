@@ -6,7 +6,7 @@ import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.test.platform.app.InstrumentationRegistry
-import ee.ria.DigiDoc.common.test.AssetFile
+import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
@@ -156,7 +156,7 @@ class MobileSignServiceImplTest {
                 ee.ria.DigiDoc.common.R.raw.example,
             )
         runBlocking {
-            signedContainer = SignedContainer.openOrCreate(context, container, listOf(container))
+            signedContainer = SignedContainer.openOrCreate(context, container, listOf(container), true)
         }
     }
 

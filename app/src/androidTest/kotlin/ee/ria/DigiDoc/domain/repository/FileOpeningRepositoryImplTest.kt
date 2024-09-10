@@ -8,8 +8,12 @@ import android.net.Uri
 import androidx.activity.result.ActivityResultLauncher
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
+import ee.ria.DigiDoc.common.Constant.ASICE_MIMETYPE
+import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
+import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
-import ee.ria.DigiDoc.common.test.AssetFile
+import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
+import ee.ria.DigiDoc.common.testfiles.file.TestFileUtil.Companion.createZipWithTextFile
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifierImpl
 import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
@@ -19,13 +23,17 @@ import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepositoryImp
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
-import ee.ria.DigiDoc.domain.service.FileOpeningService
+import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
+import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepositoryImpl
+import ee.ria.DigiDoc.domain.service.fileopening.FileOpeningService
+import ee.ria.DigiDoc.domain.service.siva.SivaService
 import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
@@ -41,7 +49,9 @@ class FileOpeningRepositoryImplTest {
     private lateinit var context: Context
     private lateinit var fileOpeningService: FileOpeningService
     private lateinit var fileOpeningRepository: FileOpeningRepository
+    private lateinit var sivaService: SivaService
     private lateinit var contentResolver: ContentResolver
+    private lateinit var signedPdfDocument: File
 
     companion object {
         private lateinit var configurationLoader: ConfigurationLoader
@@ -75,9 +85,15 @@ class FileOpeningRepositoryImplTest {
     fun setUp() =
         runBlocking {
             fileOpeningService = mock(FileOpeningService::class.java)
-            fileOpeningRepository = FileOpeningRepositoryImpl(fileOpeningService)
+            sivaService = mock(SivaService::class.java)
+            fileOpeningRepository = FileOpeningRepositoryImpl(fileOpeningService, sivaService)
             context = InstrumentationRegistry.getInstrumentation().targetContext
             contentResolver = mock(ContentResolver::class.java)
+            signedPdfDocument =
+                AssetFile.getResourceFileAsFile(
+                    context, "example_signed_pdf.pdf",
+                    ee.ria.DigiDoc.common.R.raw.example_signed_pdf,
+                )
         }
 
     @Test
@@ -134,7 +150,7 @@ class FileOpeningRepositoryImplTest {
 
             val existingContainer =
                 runBlocking {
-                    SignedContainer.openOrCreate(context, container, listOf(container))
+                    SignedContainer.openOrCreate(context, container, listOf(container), true)
                 }
 
             runBlocking {
@@ -158,7 +174,7 @@ class FileOpeningRepositoryImplTest {
 
             val signedContainer =
                 runBlocking {
-                    fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris)
+                    fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, true)
                 }
 
             runBlocking {
@@ -180,7 +196,7 @@ class FileOpeningRepositoryImplTest {
 
             val signedContainer =
                 runBlocking {
-                    fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris)
+                    fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, true)
                 }
 
             runBlocking {
@@ -203,7 +219,7 @@ class FileOpeningRepositoryImplTest {
 
             val signedContainer =
                 runBlocking {
-                    fileOpeningRepository.openOrCreateContainer(mockContext, contentResolver, uris)
+                    fileOpeningRepository.openOrCreateContainer(mockContext, contentResolver, uris, true)
                 }
 
             assertEquals("${file.nameWithoutExtension}.$DEFAULT_CONTAINER_EXTENSION", signedContainer.getName())
@@ -226,7 +242,7 @@ class FileOpeningRepositoryImplTest {
 
             val signedContainer =
                 runBlocking {
-                    fileOpeningRepository.openOrCreateContainer(mockContext, contentResolver, uris)
+                    fileOpeningRepository.openOrCreateContainer(mockContext, contentResolver, uris, true)
                 }
 
             assertEquals(1, signedContainer.getDataFiles().size)
@@ -244,7 +260,7 @@ class FileOpeningRepositoryImplTest {
             `when`(fileOpeningService.uriToFile(context, contentResolver, uris.first())).thenReturn(file)
             `when`(fileOpeningService.isFileSizeValid(file)).thenReturn(false)
 
-            runBlocking { fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris) }
+            runBlocking { fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, true) }
         }
 
     @Test(expected = NoSuchElementException::class)
@@ -268,6 +284,50 @@ class FileOpeningRepositoryImplTest {
     fun fileOpeningRepository_getFilesWithValidSize_success() {
         val files = listOf(mock(File::class.java))
         fileOpeningRepository.getFilesWithValidSize(files)
+    }
+
+    @Test
+    fun fileOpeningRepository_isSivaConfirmationNeeded_returnTrueForDDOCContainer() {
+        val file = createZipWithTextFile(DDOC_MIMETYPE)
+        val files = listOf(file)
+        `when`(sivaService.isSivaConfirmationNeeded(context, files)).thenReturn(true)
+        val isSivaConfirmationNeeded = fileOpeningRepository.isSivaConfirmationNeeded(context, files)
+        assertTrue(isSivaConfirmationNeeded)
+    }
+
+    @Test
+    fun fileOpeningRepository_isSivaConfirmationNeeded_returnTrueForASICSContainer() {
+        val file = createZipWithTextFile(ASICS_MIMETYPE)
+        val files = listOf(file)
+        `when`(sivaService.isSivaConfirmationNeeded(context, files)).thenReturn(true)
+        val isSivaConfirmationNeeded = fileOpeningRepository.isSivaConfirmationNeeded(context, files)
+        assertTrue(isSivaConfirmationNeeded)
+    }
+
+    @Test
+    fun fileOpeningRepository_isSivaConfirmationNeeded_returnTrueForSignedPDF() {
+        val files = listOf(signedPdfDocument)
+        `when`(sivaService.isSivaConfirmationNeeded(context, files)).thenReturn(true)
+        val isSivaConfirmationNeeded = fileOpeningRepository.isSivaConfirmationNeeded(context, files)
+        assertTrue(isSivaConfirmationNeeded)
+    }
+
+    @Test
+    fun fileOpeningRepository_isSivaConfirmationNeeded_returnFalse() {
+        val file = createZipWithTextFile(ASICE_MIMETYPE)
+        val files = listOf(file)
+        `when`(sivaService.isSivaConfirmationNeeded(context, files)).thenReturn(false)
+        val isSivaConfirmationNeeded = fileOpeningRepository.isSivaConfirmationNeeded(context, files)
+        assertFalse(isSivaConfirmationNeeded)
+    }
+
+    @Test
+    fun fileOpeningRepository_isSivaConfirmationNeeded_returnFalseForMultipleFiles() {
+        val file = createZipWithTextFile(ASICE_MIMETYPE)
+        val files = listOf(file, mock(File::class.java))
+        `when`(sivaService.isSivaConfirmationNeeded(context, files)).thenReturn(false)
+        val isSivaConfirmationNeeded = fileOpeningRepository.isSivaConfirmationNeeded(context, files)
+        assertFalse(isSivaConfirmationNeeded)
     }
 
     private fun createTempFileWithStringContent(

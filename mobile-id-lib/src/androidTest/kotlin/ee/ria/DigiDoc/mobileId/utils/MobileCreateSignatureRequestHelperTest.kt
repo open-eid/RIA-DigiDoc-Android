@@ -9,7 +9,7 @@ import ee.ria.DigiDoc.common.Constant.SignatureRequest.DIGEST_TYPE
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.DISPLAY_TEXT_FORMAT
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.RELYING_PARTY_NAME
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.RELYING_PARTY_UUID
-import ee.ria.DigiDoc.common.test.AssetFile
+import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer.Companion.openOrCreate
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
@@ -48,7 +48,7 @@ class MobileCreateSignatureRequestHelperTest {
                     ee.ria.DigiDoc.common.R.raw.example,
                 )
 
-            val signedContainer = openOrCreate(context, container, listOf(container))
+            val signedContainer = openOrCreate(context, container, listOf(container), true)
 
             val proxyUrl = "proxyUrl"
             val skUrl = "skUrl"
@@ -91,7 +91,7 @@ class MobileCreateSignatureRequestHelperTest {
                     ee.ria.DigiDoc.common.R.raw.example,
                 )
 
-            val signedContainer = openOrCreate(context, container, listOf(container))
+            val signedContainer = openOrCreate(context, container, listOf(container), true)
 
             val uuid = ""
             val proxyUrl = "proxyUrl"

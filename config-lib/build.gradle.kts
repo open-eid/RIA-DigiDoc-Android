@@ -69,6 +69,8 @@ dependencies {
     debugImplementation(project(":utils-lib", "debugRuntimeElements"))
     releaseImplementation(project(":utils-lib", "releaseRuntimeElements"))
     testImplementation(project(":utils-lib"))
+
+    androidTestImplementation(project(":commons-lib:test-files"))
 }
 
 configurations {

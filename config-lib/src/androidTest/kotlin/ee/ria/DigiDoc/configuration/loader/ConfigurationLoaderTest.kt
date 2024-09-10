@@ -7,7 +7,7 @@ import android.content.SharedPreferences
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.io.Files
 import com.google.gson.Gson
-import ee.ria.DigiDoc.common.test.AssetFile
+import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifier
 import ee.ria.DigiDoc.configuration.properties.ConfigurationProperties

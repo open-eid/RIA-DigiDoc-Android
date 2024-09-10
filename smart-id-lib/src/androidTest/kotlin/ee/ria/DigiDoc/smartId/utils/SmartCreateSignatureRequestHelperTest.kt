@@ -6,7 +6,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.DIGEST_TYPE
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.RELYING_PARTY_NAME
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.RELYING_PARTY_UUID
-import ee.ria.DigiDoc.common.test.AssetFile
+import ee.ria.DigiDoc.common.testfiles.asset.AssetFile.Companion.getResourceFileAsFile
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer.Companion.openOrCreate
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
@@ -38,13 +38,13 @@ class SmartCreateSignatureRequestHelperTest {
         runTest {
             val context = InstrumentationRegistry.getInstrumentation().targetContext
             val container =
-                AssetFile.getResourceFileAsFile(
+                getResourceFileAsFile(
                     context,
                     "example.asice",
                     ee.ria.DigiDoc.common.R.raw.example,
                 )
 
-            val signedContainer = openOrCreate(context, container, listOf(container))
+            val signedContainer = openOrCreate(context, container, listOf(container), true)
 
             val proxyUrl = "proxyUrl"
             val skUrl = "skUrl"

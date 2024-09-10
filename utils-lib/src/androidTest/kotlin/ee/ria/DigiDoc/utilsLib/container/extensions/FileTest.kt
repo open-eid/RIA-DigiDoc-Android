@@ -11,6 +11,7 @@ import com.tom_roush.pdfbox.pdmodel.interactive.digitalsignature.PDSignature
 import ee.ria.DigiDoc.common.Constant.ASICE_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DEFAULT_MIME_TYPE
 import ee.ria.DigiDoc.common.Constant.PDF_EXTENSION
+import ee.ria.DigiDoc.common.testfiles.file.TestFileUtil.Companion.createZipWithTextFile
 import ee.ria.DigiDoc.utilsLib.extensions.isContainer
 import ee.ria.DigiDoc.utilsLib.extensions.isPDF
 import ee.ria.DigiDoc.utilsLib.extensions.isSignedPDF
@@ -29,10 +30,7 @@ import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import java.io.File
 import java.io.FileOutputStream
-import java.io.FileWriter
 import java.io.IOException
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
 
 @RunWith(MockitoJUnitRunner::class)
 class FileTest {
@@ -152,31 +150,6 @@ class FileTest {
         `when`(mimeTypeMap.getMimeTypeFromExtension(file.extension.lowercase())).thenReturn(mimeType)
 
         return file
-    }
-
-    private fun createZipWithTextFile(mimeType: String): File {
-        val textFileName = "mimetype"
-
-        val textFile = File.createTempFile(textFileName, "")
-        textFile.deleteOnExit()
-        FileWriter(textFile).use { writer ->
-            writer.write(mimeType)
-        }
-
-        val zipFile = File.createTempFile("example", ".zip")
-        zipFile.deleteOnExit()
-        ZipOutputStream(FileOutputStream(zipFile)).use { zipOut ->
-            val zipEntry = ZipEntry(textFileName)
-            zipOut.putNextEntry(zipEntry)
-
-            textFile.inputStream().use { input ->
-                input.copyTo(zipOut)
-            }
-
-            zipOut.closeEntry()
-        }
-
-        return zipFile
     }
 
     private fun createSignedPDF(): File? {

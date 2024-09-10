@@ -136,4 +136,6 @@ dependencies {
     implementation(project(":nfc-lib"))
     implementation(project(":id-card-lib"))
     implementation(project(":sign-lib"))
+
+    androidTestImplementation(project(":commons-lib:test-files"))
 }

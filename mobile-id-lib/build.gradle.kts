@@ -66,4 +66,6 @@ dependencies {
     implementation(project(":utils-lib"))
     implementation(project(":commons-lib"))
     implementation(project(":config-lib"))
+
+    androidTestImplementation(project(":commons-lib:test-files"))
 }
