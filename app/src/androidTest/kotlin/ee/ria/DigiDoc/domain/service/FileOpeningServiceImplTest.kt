@@ -6,6 +6,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import androidx.test.platform.app.InstrumentationRegistry
+import ee.ria.DigiDoc.domain.service.fileopening.FileOpeningServiceImpl
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertFalse

@@ -8,7 +8,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
 import ee.ria.DigiDoc.common.Constant.ASICE_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
-import ee.ria.DigiDoc.common.test.AssetFile
+import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifierImpl
 import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
@@ -43,9 +43,9 @@ import org.mockito.Mockito.mock
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import java.io.File
-import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+import java.nio.file.NoSuchFileException
 
 @RunWith(MockitoJUnitRunner::class)
 class SignedContainerTest {
@@ -115,7 +115,7 @@ class SignedContainerTest {
         runTest {
             val dataFiles = listOf(testFile)
 
-            val signedContainer = openOrCreate(context, testFile, dataFiles)
+            val signedContainer = openOrCreate(context, testFile, dataFiles, true)
 
             val result = signedContainer.rawContainer()
 
@@ -127,7 +127,7 @@ class SignedContainerTest {
         runTest {
             val dataFiles = listOf(testFile)
 
-            val signedContainer = openOrCreate(context, testFile, dataFiles)
+            val signedContainer = openOrCreate(context, testFile, dataFiles, true)
 
             val result = signedContainer.getContainerFile()
 
@@ -139,7 +139,7 @@ class SignedContainerTest {
         runTest {
             val dataFiles = listOf(testFile)
 
-            val signedContainer = openOrCreate(context, testFile, dataFiles)
+            val signedContainer = openOrCreate(context, testFile, dataFiles, true)
 
             val result = signedContainer.isExistingContainer()
 
@@ -149,7 +149,7 @@ class SignedContainerTest {
     @Test
     fun signedContainer_isExistingContainer_true() =
         runTest {
-            val signedContainer = openOrCreate(context, container, listOf(container))
+            val signedContainer = openOrCreate(context, container, listOf(container), true)
 
             val result = signedContainer.isExistingContainer()
 
@@ -161,7 +161,7 @@ class SignedContainerTest {
         runTest {
             val dataFiles = listOf(testFile)
 
-            val signedContainer = openOrCreate(context, testFile, dataFiles)
+            val signedContainer = openOrCreate(context, testFile, dataFiles, true)
 
             val result = signedContainer.containerMimetype()
 
@@ -173,7 +173,7 @@ class SignedContainerTest {
         runTest {
             val dataFiles = listOf(testFile)
 
-            val signedContainer = openOrCreate(context, testFile, dataFiles)
+            val signedContainer = openOrCreate(context, testFile, dataFiles, true)
 
             signedContainer.setName("testName")
 
@@ -185,7 +185,7 @@ class SignedContainerTest {
         runTest {
             val dataFiles = listOf(testFile)
 
-            val signedContainer = openOrCreate(context, testFile, dataFiles)
+            val signedContainer = openOrCreate(context, testFile, dataFiles, true)
 
             val result =
                 signedContainer.getContainerFile()?.let {
@@ -200,7 +200,7 @@ class SignedContainerTest {
         runTest {
             val dataFiles = listOf(testFile)
 
-            val signedContainer = openOrCreate(context, testFile, dataFiles)
+            val signedContainer = openOrCreate(context, testFile, dataFiles, true)
 
             val result =
                 signedContainer.getDataFile(
@@ -219,7 +219,7 @@ class SignedContainerTest {
     @Test
     fun signedContainer_removeSignature_successWhenRemovingSignature() =
         runTest {
-            val signedContainer = openOrCreate(context, container, listOf(container))
+            val signedContainer = openOrCreate(context, container, listOf(container), true)
 
             assertEquals(2, signedContainer.getSignatures().size)
 
@@ -233,7 +233,7 @@ class SignedContainerTest {
         runTest {
             val dataFiles = listOf(testFile, dataFile1, dataFile2)
 
-            val signedContainer = openOrCreate(context, testFile, dataFiles)
+            val signedContainer = openOrCreate(context, testFile, dataFiles, true)
 
             assertEquals(3, signedContainer.getDataFiles().size)
 
@@ -246,7 +246,7 @@ class SignedContainerTest {
     fun signedContainer_removeDataFile_throwsException() =
         runTest {
             val dataFiles = listOf(testFile)
-            val signedContainer = openOrCreate(context, testFile, dataFiles)
+            val signedContainer = openOrCreate(context, testFile, dataFiles, true)
             signedContainer.removeDataFile(signedContainer.getDataFiles().first())
         }
 
@@ -255,7 +255,7 @@ class SignedContainerTest {
         runTest {
             val dataFiles = listOf(testFile)
 
-            val signedContainer = openOrCreate(context, testFile, dataFiles)
+            val signedContainer = openOrCreate(context, testFile, dataFiles, true)
 
             SignedContainer.addDataFiles(context, signedContainer, listOf(dataFile1, dataFile2))
 
@@ -267,7 +267,7 @@ class SignedContainerTest {
         runTest {
             val dataFiles = listOf(testFile)
 
-            val signedContainer = openOrCreate(context, testFile, dataFiles)
+            val signedContainer = openOrCreate(context, testFile, dataFiles, true)
 
             assertEquals(1, signedContainer.getDataFiles().size)
             assertEquals(dataFiles[0].name, signedContainer.getDataFiles()[0].fileName)
@@ -284,7 +284,7 @@ class SignedContainerTest {
                     dataFile3,
                 )
 
-            val signedContainer = openOrCreate(context, testFile, dataFiles)
+            val signedContainer = openOrCreate(context, testFile, dataFiles, true)
 
             dataFiles.forEach { file ->
                 file.delete()
@@ -300,7 +300,7 @@ class SignedContainerTest {
     @Test
     fun signedContainer_openOrCreate_successWhenOpeningExistingContainer() =
         runTest {
-            val signedContainer = openOrCreate(context, container, listOf(container))
+            val signedContainer = openOrCreate(context, container, listOf(container), true)
 
             assertEquals(true, signedContainer.isExistingContainer())
             assertEquals(1, signedContainer.getDataFiles().size)
@@ -310,27 +310,27 @@ class SignedContainerTest {
     @Test(expected = NoSuchElementException::class)
     fun signedContainer_openOrCreate_throwExceptionWhenCreatingContainerWithEmptyDataFiles() =
         runTest {
-            openOrCreate(context, testFile, emptyList())
+            openOrCreate(context, testFile, emptyList(), true)
         }
 
     @Test(expected = Exception::class)
     fun signedContainer_openOrCreate_throwExceptionWhenCreatingContainerWithInvalidDataFile() =
         runTest {
-            openOrCreate(context, testFile, listOf(File("testDataFile")))
+            openOrCreate(context, testFile, listOf(File("testDataFile")), true)
         }
 
     @Test
     fun signedContainer_openOrCreate_successWhenCreatingContainerAndFilteringDuplicateDataFiles() =
         runTest {
-            val createdContainer = openOrCreate(context, testFile, listOf(dataFile1, dataFile1))
+            val createdContainer = openOrCreate(context, testFile, listOf(dataFile1, dataFile1), true)
 
             assertEquals(1, createdContainer.getDataFiles().size)
         }
 
-    @Test(expected = FileNotFoundException::class)
+    @Test(expected = NoSuchFileException::class)
     fun signedContainer_openOrCreate_throwExceptionWhenOpeningNonExistentContainer() =
         runTest {
-            openOrCreate(context, File("nonExistentFile"), listOf(File("nonExistentDataFile")))
+            openOrCreate(context, File("nonExistentFile"), listOf(File("nonExistentDataFile")), true)
         }
 
     @Test
@@ -338,7 +338,7 @@ class SignedContainerTest {
         runTest {
             val customFileName = File.createTempFile("customTestFile", ".qwerty", context.filesDir)
 
-            val signedContainer = openOrCreate(context, customFileName, listOf(dataFile1))
+            val signedContainer = openOrCreate(context, customFileName, listOf(dataFile1), true)
 
             customFileName.delete()
 
@@ -353,7 +353,7 @@ class SignedContainerTest {
         runTest {
             val testDataFile = File.createTempFile("dataFile1!@#$€%&=?", ".txt", context.filesDir)
 
-            val createdContainer = openOrCreate(context, testFile, listOf(testDataFile))
+            val createdContainer = openOrCreate(context, testFile, listOf(testDataFile), true)
 
             testDataFile.delete()
 
@@ -366,7 +366,7 @@ class SignedContainerTest {
         runTest {
             val testDataFile = File.createTempFile("dataFile1", "", context.filesDir)
 
-            val signedContainer = openOrCreate(context, testDataFile, listOf(testDataFile))
+            val signedContainer = openOrCreate(context, testDataFile, listOf(testDataFile), true)
 
             testDataFile.delete()
 
@@ -376,7 +376,7 @@ class SignedContainerTest {
     @Test
     fun signedContainer_container_successWhenGettingNewlyCreatedInitializedContainer() =
         runTest {
-            val signedContainer = openOrCreate(context, testFile, listOf(dataFile1))
+            val signedContainer = openOrCreate(context, testFile, listOf(dataFile1), true)
 
             assertEquals(false, signedContainer.isExistingContainer())
             assertEquals(
@@ -390,7 +390,7 @@ class SignedContainerTest {
     @Test
     fun signedContainer_container_successWhenGettingExistingInitializedContainer() =
         runTest {
-            val signedContainer = openOrCreate(context, container, listOf(container))
+            val signedContainer = openOrCreate(context, container, listOf(container), true)
 
             assertEquals(true, signedContainer.isExistingContainer())
             assertEquals("example.asice", signedContainer.getName())
@@ -402,14 +402,14 @@ class SignedContainerTest {
     fun signedContainer_container_throwExceptionWhenRemovingNonExistingSignature() =
         runTest {
             val dataFiles = listOf(testFile)
-            val signedContainer = openOrCreate(context, testFile, dataFiles)
+            val signedContainer = openOrCreate(context, testFile, dataFiles, true)
             signedContainer.removeSignature(mock(SignatureInterface::class.java))
         }
 
     @Test
     fun signedContainer_container_matchesContainerSignatureData() =
         runTest {
-            val signedContainer = openOrCreate(context, container, listOf(container))
+            val signedContainer = openOrCreate(context, container, listOf(container), true)
 
             assertEquals(
                 "O’CONNEŽ-ŠUSLIK TESTNUMBER,MARY ÄNN,60001019906",
@@ -445,7 +445,7 @@ class SignedContainerTest {
     @Test
     fun signedContainer_container_matchesContainerDataFileData() =
         runTest {
-            val signedContainer = openOrCreate(context, container, listOf(container))
+            val signedContainer = openOrCreate(context, container, listOf(container), true)
 
             assertEquals("text.txt", signedContainer.getDataFiles().first().fileName)
             assertEquals(3, signedContainer.getDataFiles().first().fileSize)
@@ -455,7 +455,7 @@ class SignedContainerTest {
     @Test
     fun signedContainer_container_matchesContainerValidatorData() =
         runTest {
-            val signedContainer = openOrCreate(context, container, listOf(container))
+            val signedContainer = openOrCreate(context, container, listOf(container), true)
 
             assertEquals(ValidatorInterface.Status.Unknown, signedContainer.getSignatures().first().validator.status)
             assertNotSame("", signedContainer.getSignatures().first().validator.diagnostics)
@@ -481,9 +481,30 @@ class SignedContainerTest {
                 pdfDocument.close()
             }
 
-            val signedContainer = openOrCreate(context, testPDFFile, listOf(testPDFFile))
+            val signedContainer = openOrCreate(context, testPDFFile, listOf(testPDFFile), true)
 
             assertFalse(signedContainer.getName().endsWith("pdf"))
+        }
+
+    @Test
+    fun signedContainer_getTimestamps_success() =
+        runTest {
+            val signedContainer =
+                SignedContainer(context, null, null, true, listOf(mock(SignatureInterface::class.java)))
+
+            val result = signedContainer.getTimestamps()
+
+            assertNotNull(result)
+        }
+
+    @Test
+    fun signedContainer_getTimestamps_returnNullWithEmptyTimestampList() =
+        runTest {
+            val signedContainer = SignedContainer(context, null, null, true, listOf())
+
+            val result = signedContainer.getTimestamps()
+
+            assertNotNull(result)
         }
 
     // Requires internet access, emulator should be running with internet access and RIA VPN on.
@@ -493,7 +514,7 @@ class SignedContainerTest {
             val isTestEnabled = System.getenv("WITH_EXTRA_DIGIDOC_TESTS")?.toBoolean() ?: false
             assumeTrue("Is test enabled: $isTestEnabled", isTestEnabled)
 
-            val pdfContainer = openOrCreate(context, signedPdfDocument, listOf(signedPdfDocument))
+            val pdfContainer = openOrCreate(context, signedPdfDocument, listOf(signedPdfDocument), true)
 
             assertTrue(pdfContainer.getName().endsWith("pdf"))
         }

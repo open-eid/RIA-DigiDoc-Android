@@ -8,7 +8,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
-import ee.ria.DigiDoc.common.test.AssetFile.Companion.getResourceFileAsFile
+import ee.ria.DigiDoc.common.testfiles.asset.AssetFile.Companion.getResourceFileAsFile
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifierImpl
 import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
@@ -109,7 +109,7 @@ class SigningViewModelTest {
         runTest {
             val file = File.createTempFile("temp", ".txt")
             Files.write(file.toPath(), "content".toByteArray(Charset.defaultCharset()))
-            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
             val isSignButtonShown = viewModel.isSignButtonShown(context, container, false)
 
@@ -121,7 +121,7 @@ class SigningViewModelTest {
         runTest {
             val file = File.createTempFile("temp", ".txt")
 
-            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
             val isSignButtonShown = viewModel.isSignButtonShown(context, container, false)
 
@@ -175,7 +175,7 @@ class SigningViewModelTest {
         runTest {
             val file = File.createTempFile("temp", ".txt")
 
-            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
             val isEmptyFileInContainer = viewModel.isEmptyFileInContainer(container)
 
@@ -188,7 +188,7 @@ class SigningViewModelTest {
             val file = File.createTempFile("temp", ".txt")
             Files.write(file.toPath(), "content".toByteArray(Charset.defaultCharset()))
 
-            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
             val isEmptyFileInContainer = viewModel.isEmptyFileInContainer(container)
 
@@ -205,7 +205,7 @@ class SigningViewModelTest {
                     ee.ria.DigiDoc.common.R.raw.example_no_signatures,
                 )
 
-            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
             val isEncryptButtonShown = viewModel.isEncryptButtonShown(container, false)
 
@@ -217,7 +217,7 @@ class SigningViewModelTest {
         runTest {
             val file = File.createTempFile("temp", ".txt")
 
-            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
             val isEncryptButtonShown = viewModel.isEncryptButtonShown(container, false)
 
@@ -234,7 +234,7 @@ class SigningViewModelTest {
                     ee.ria.DigiDoc.common.R.raw.example_no_signatures,
                 )
 
-            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
             val isShareButtonShown = viewModel.isShareButtonShown(container, false)
 
@@ -246,7 +246,7 @@ class SigningViewModelTest {
         runTest {
             val file = File.createTempFile("temp", ".txt")
 
-            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
             val isShareButtonShown = viewModel.isShareButtonShown(container, false)
 
@@ -263,7 +263,7 @@ class SigningViewModelTest {
                     ee.ria.DigiDoc.common.R.raw.example_no_signatures,
                 )
 
-            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
             val isExistingContainer = viewModel.isExistingContainer(container)
 
@@ -275,7 +275,7 @@ class SigningViewModelTest {
         runTest {
             val file = File.createTempFile("temp", ".txt")
 
-            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
             val isExistingContainer = viewModel.isExistingContainer(container)
 
@@ -300,7 +300,7 @@ class SigningViewModelTest {
                     ee.ria.DigiDoc.common.R.raw.example_no_signatures,
                 )
 
-            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
             val isExistingContainerNoSignatures = viewModel.isExistingContainerNoSignatures(container)
 
@@ -312,7 +312,7 @@ class SigningViewModelTest {
         runTest {
             val file = getResourceFileAsFile(context, "example.asice", ee.ria.DigiDoc.common.R.raw.example)
 
-            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
             val isExistingContainerNoSignatures = viewModel.isExistingContainerNoSignatures(container)
 
@@ -337,7 +337,7 @@ class SigningViewModelTest {
                     ee.ria.DigiDoc.common.R.raw.example_no_signatures,
                 )
 
-            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
             val isContainerWithoutSignatures = viewModel.isContainerWithoutSignatures(container)
 
@@ -349,7 +349,7 @@ class SigningViewModelTest {
         runTest {
             val file = getResourceFileAsFile(context, "example.asice", ee.ria.DigiDoc.common.R.raw.example)
 
-            val container = SignedContainer.openOrCreate(context, file, listOf(file))
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
             val isContainerWithoutSignatures = viewModel.isContainerWithoutSignatures(container)
 
@@ -385,6 +385,7 @@ class SigningViewModelTest {
     @Test
     fun signingViewModel_openNestedContainer_success() =
         runTest {
+            val isSivaConfirmed = true
             val file =
                 getResourceFileAsFile(
                     context,
@@ -392,7 +393,7 @@ class SigningViewModelTest {
                     ee.ria.DigiDoc.common.R.raw.example_nested_container,
                 )
 
-            val signedContainer = SignedContainer.openOrCreate(context, file, listOf(file))
+            val signedContainer = SignedContainer.openOrCreate(context, file, listOf(file), isSivaConfirmed)
 
             sharedContainerViewModel.setSignedContainer(signedContainer)
 
@@ -403,7 +404,7 @@ class SigningViewModelTest {
                 )
 
             if (nestedFile != null) {
-                viewModel.openNestedContainer(context, nestedFile, sharedContainerViewModel)
+                viewModel.openNestedContainer(context, nestedFile, sharedContainerViewModel, isSivaConfirmed)
                 assertEquals(2, sharedContainerViewModel.nestedContainers.size)
             } else {
                 fail("Nested file is null")
@@ -416,7 +417,7 @@ class SigningViewModelTest {
             val file = mock(File::class.java)
             `when`(file.length()).thenReturn(0L)
 
-            viewModel.openNestedContainer(context, file, sharedContainerViewModel)
+            viewModel.openNestedContainer(context, file, sharedContainerViewModel, true)
         }
 
     @Test
@@ -432,5 +433,18 @@ class SigningViewModelTest {
             val viewIntent = viewModel.getViewIntent(context, file)
 
             assertNotNull(viewIntent)
+        }
+
+    @Test
+    fun signingViewModel_isContainerWithTimestamps_returnFalse() =
+        runTest {
+            val file = File.createTempFile("temp", ".txt")
+            Files.write(file.toPath(), "content".toByteArray(Charset.defaultCharset()))
+
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
+
+            val isContainerWithTimestamps = viewModel.isContainerWithTimestamps(container)
+
+            assertFalse(isContainerWithTimestamps)
         }
 }

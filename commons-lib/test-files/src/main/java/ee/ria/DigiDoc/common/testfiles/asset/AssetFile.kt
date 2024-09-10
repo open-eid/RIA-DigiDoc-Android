@@ -1,6 +1,6 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.common.test
+package ee.ria.DigiDoc.common.testfiles.asset
 
 import android.content.Context
 import androidx.annotation.RawRes

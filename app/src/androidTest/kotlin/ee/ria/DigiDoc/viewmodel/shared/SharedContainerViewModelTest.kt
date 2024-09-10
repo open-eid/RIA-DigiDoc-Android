@@ -10,7 +10,7 @@ import androidx.activity.result.ActivityResult
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
-import ee.ria.DigiDoc.common.test.AssetFile
+import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifierImpl
 import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
@@ -20,7 +20,7 @@ import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepositoryImp
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
-import ee.ria.DigiDoc.domain.repository.FileOpeningRepository
+import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerDataFilesEmptyException
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
@@ -147,7 +147,7 @@ class SharedContainerViewModelTest {
             val file = createTempFileWithStringContent("test", "Test content")
             val signedContainer =
                 runBlocking {
-                    SignedContainer.openOrCreate(context, file, listOf(file))
+                    SignedContainer.openOrCreate(context, file, listOf(file), true)
                 }
 
             val dataFile = signedContainer.getDataFiles().first()
@@ -160,20 +160,22 @@ class SharedContainerViewModelTest {
         }
 
     @Test
-    fun sharedContainerViewModel_getContainerDataFile_returnNull() =
-        runTest {
-            val file = createTempFileWithStringContent("test", "Test content")
-            val signedContainer =
-                runBlocking {
-                    SignedContainer.openOrCreate(context, file, listOf(file))
-                }
+    fun sharedContainerViewModel_getContainerDataFile_returnNull() {
+        val file = createTempFileWithStringContent("test", "Test content")
+        val signedContainer =
+            runBlocking {
+                SignedContainer.openOrCreate(context, file, listOf(file), true)
+            }
 
-            val dataFile = signedContainer.getDataFiles().first()
+        val dataFile =
+            runBlocking {
+                signedContainer.getDataFiles().first()
+            }
 
-            val result = viewModel.getContainerDataFile(null, dataFile)
+        val result = viewModel.getContainerDataFile(null, dataFile)
 
-            assertNull(result)
-        }
+        assertNull(result)
+    }
 
     @Test
     fun sharedContainerViewModel_removeSignature_success() =
@@ -187,7 +189,7 @@ class SharedContainerViewModelTest {
 
             val signedContainer =
                 runBlocking {
-                    SignedContainer.openOrCreate(context, container, listOf(container))
+                    SignedContainer.openOrCreate(context, container, listOf(container), true)
                 }
 
             val signature = signedContainer.getSignatures().first()
@@ -209,7 +211,7 @@ class SharedContainerViewModelTest {
 
             val signedContainer =
                 runBlocking {
-                    SignedContainer.openOrCreate(context, container, listOf(container))
+                    SignedContainer.openOrCreate(context, container, listOf(container), true)
                 }
 
             viewModel.removeSignature(signedContainer, null)
@@ -229,7 +231,7 @@ class SharedContainerViewModelTest {
 
             val signedContainer =
                 runBlocking {
-                    SignedContainer.openOrCreate(context, container, listOf(container))
+                    SignedContainer.openOrCreate(context, container, listOf(container), true)
                 }
 
             val signature = signedContainer.getSignatures().first()
@@ -246,7 +248,7 @@ class SharedContainerViewModelTest {
             val anotherFile = createTempFileWithStringContent("test2", "Another file")
             val signedContainer =
                 runBlocking {
-                    SignedContainer.openOrCreate(context, file, listOf(file))
+                    SignedContainer.openOrCreate(context, file, listOf(file), true)
                 }
 
             runBlocking {
@@ -266,7 +268,7 @@ class SharedContainerViewModelTest {
             val file = createTempFileWithStringContent("test", "Test content")
             val signedContainer =
                 runBlocking {
-                    SignedContainer.openOrCreate(context, file, listOf(file))
+                    SignedContainer.openOrCreate(context, file, listOf(file), true)
                 }
 
             val dataFile = signedContainer.getDataFiles().first()
@@ -280,7 +282,7 @@ class SharedContainerViewModelTest {
             val file = createTempFileWithStringContent("test", "Test content")
             val signedContainer =
                 runBlocking {
-                    SignedContainer.openOrCreate(context, file, listOf(file))
+                    SignedContainer.openOrCreate(context, file, listOf(file), true)
                 }
 
             viewModel.removeContainerDataFile(signedContainer, null)
@@ -294,7 +296,7 @@ class SharedContainerViewModelTest {
             val file = createTempFileWithStringContent("test", "Test content")
             val signedContainer =
                 runBlocking {
-                    SignedContainer.openOrCreate(context, file, listOf(file))
+                    SignedContainer.openOrCreate(context, file, listOf(file), true)
                 }
 
             val dataFile = signedContainer.getDataFiles().first()
@@ -324,7 +326,7 @@ class SharedContainerViewModelTest {
         val uris = listOf(uri)
         val signedContainer =
             runBlocking {
-                fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris)
+                fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, true)
             }
 
         viewModel.setSignedContainer(signedContainer)
@@ -338,22 +340,22 @@ class SharedContainerViewModelTest {
         val nestedUris = listOf(mock(Uri::class.java))
 
         runBlocking {
-            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris)).thenReturn(
-                SignedContainer(),
+            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, true)).thenReturn(
+                SignedContainer(context),
             )
-            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, nestedUris)).thenReturn(
-                SignedContainer(),
+            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, nestedUris, true)).thenReturn(
+                SignedContainer(context),
             )
         }
 
         val signedContainer =
             runBlocking {
-                fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris)
+                fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, true)
             }
 
         val nestedSignedContainer =
             runBlocking {
-                fileOpeningRepository.openOrCreateContainer(context, contentResolver, nestedUris)
+                fileOpeningRepository.openOrCreateContainer(context, contentResolver, nestedUris, true)
             }
 
         viewModel.setSignedContainer(signedContainer)
@@ -368,14 +370,14 @@ class SharedContainerViewModelTest {
         val uris = listOf(mock(Uri::class.java))
 
         runBlocking {
-            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris)).thenReturn(
-                SignedContainer(),
+            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, true)).thenReturn(
+                SignedContainer(context),
             )
         }
 
         val signedContainer =
             runBlocking {
-                fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris)
+                fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, true)
             }
 
         viewModel.setSignedContainer(signedContainer)
@@ -397,14 +399,14 @@ class SharedContainerViewModelTest {
         val uris = listOf(mock(Uri::class.java))
 
         runBlocking {
-            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris)).thenReturn(
-                SignedContainer(),
+            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, true)).thenReturn(
+                SignedContainer(context),
             )
         }
 
         val signedContainer =
             runBlocking {
-                fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris)
+                fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, true)
             }
 
         viewModel.setSignedContainer(signedContainer)
@@ -420,7 +422,7 @@ class SharedContainerViewModelTest {
         val uris = listOf(uri)
         val signedContainer =
             runBlocking {
-                fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris)
+                fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, true)
             }
 
         viewModel.setSignedContainer(signedContainer)
@@ -436,22 +438,22 @@ class SharedContainerViewModelTest {
         val nestedUris = listOf(mock(Uri::class.java))
 
         runBlocking {
-            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris)).thenReturn(
-                SignedContainer(),
+            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, true)).thenReturn(
+                SignedContainer(context),
             )
-            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, nestedUris)).thenReturn(
-                SignedContainer(),
+            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, nestedUris, true)).thenReturn(
+                SignedContainer(context),
             )
         }
 
         val signedContainer =
             runBlocking {
-                fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris)
+                fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, true)
             }
 
         val nestedSignedContainer =
             runBlocking {
-                fileOpeningRepository.openOrCreateContainer(context, contentResolver, nestedUris)
+                fileOpeningRepository.openOrCreateContainer(context, contentResolver, nestedUris, true)
             }
 
         viewModel.setSignedContainer(signedContainer)
@@ -461,27 +463,48 @@ class SharedContainerViewModelTest {
     }
 
     @Test
+    fun sharedContainerViewModel_currentSignedContainer_returnNullWhenContainerListEmpty() {
+        val uris = listOf<Uri>()
+        val nestedUris = listOf<Uri>()
+
+        val signedContainer =
+            runBlocking {
+                fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, true)
+            }
+
+        val nestedSignedContainer =
+            runBlocking {
+                fileOpeningRepository.openOrCreateContainer(context, contentResolver, nestedUris, true)
+            }
+
+        viewModel.setSignedContainer(signedContainer)
+        viewModel.addNestedSignedContainer(nestedSignedContainer)
+
+        assertNull(viewModel.currentSignedContainer())
+    }
+
+    @Test
     fun sharedContainerViewModel_isNestedContainer_returnTrue() {
         val uris = listOf(mock(Uri::class.java))
         val nestedUris = listOf(mock(Uri::class.java))
 
         runBlocking {
-            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris)).thenReturn(
-                SignedContainer(),
+            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, true)).thenReturn(
+                SignedContainer(context),
             )
-            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, nestedUris)).thenReturn(
-                SignedContainer(),
+            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, nestedUris, true)).thenReturn(
+                SignedContainer(context),
             )
         }
 
         val signedContainer =
             runBlocking {
-                fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris)
+                fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, true)
             }
 
         val nestedSignedContainer =
             runBlocking {
-                fileOpeningRepository.openOrCreateContainer(context, contentResolver, nestedUris)
+                fileOpeningRepository.openOrCreateContainer(context, contentResolver, nestedUris, true)
             }
 
         viewModel.setSignedContainer(signedContainer)
@@ -496,22 +519,22 @@ class SharedContainerViewModelTest {
         val nestedUris = listOf(mock(Uri::class.java))
 
         runBlocking {
-            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris)).thenReturn(
-                SignedContainer(),
+            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, true)).thenReturn(
+                SignedContainer(context),
             )
-            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, nestedUris)).thenReturn(
-                SignedContainer(),
+            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, nestedUris, true)).thenReturn(
+                SignedContainer(context),
             )
         }
 
         val signedContainer =
             runBlocking {
-                fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris)
+                fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, true)
             }
 
         val nestedSignedContainer =
             runBlocking {
-                fileOpeningRepository.openOrCreateContainer(context, contentResolver, nestedUris)
+                fileOpeningRepository.openOrCreateContainer(context, contentResolver, nestedUris, true)
             }
 
         viewModel.setSignedContainer(signedContainer)
