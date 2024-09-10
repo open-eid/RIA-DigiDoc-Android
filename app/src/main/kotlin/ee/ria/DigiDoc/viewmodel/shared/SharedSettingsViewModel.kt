@@ -315,9 +315,10 @@ class SharedSettingsViewModel
                         }
                     }
                 } catch (e: IOException) {
-                    if (e.message != null && (
-                            e.message!!.contains("CONNECT: 403") ||
-                                e.message!!.contains("Failed to authenticate with proxy")
+                    val message = e.message
+                    if (message != null && (
+                            message.contains("CONNECT: 403") ||
+                                message.contains("Failed to authenticate with proxy")
                         )
                     ) {
                         debugLog(

@@ -58,6 +58,9 @@ class SigningViewModel
             return signedContainer?.rawContainer()?.dataFiles()?.any { it.fileSize() == 0L } ?: false
         }
 
+        fun isContainerWithTimestamps(signedContainer: SignedContainer?): Boolean =
+            signedContainer?.getTimestamps()?.isNotEmpty() == true
+
         fun isSignButtonShown(
             context: Context,
             signedContainer: SignedContainer?,
@@ -107,12 +110,14 @@ class SigningViewModel
             context: Context,
             nestedFile: File,
             sharedContainerViewModel: SharedContainerViewModel,
+            isSivaConfirmed: Boolean,
         ) {
             val nestedContainer =
                 SignedContainer.openOrCreate(
                     context,
                     nestedFile,
                     listOf(nestedFile),
+                    isSivaConfirmed,
                 )
 
             sharedContainerViewModel.setSignedContainer(nestedContainer)

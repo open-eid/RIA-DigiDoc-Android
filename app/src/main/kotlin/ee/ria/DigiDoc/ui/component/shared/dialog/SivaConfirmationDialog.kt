@@ -1,0 +1,34 @@
+@file:Suppress("PackageName", "FunctionName")
+
+package ee.ria.DigiDoc.ui.component.shared.dialog
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.ui.Modifier
+import ee.ria.DigiDoc.R
+
+@Composable
+fun SivaConfirmationDialog(
+    showDialog: MutableState<Boolean>,
+    onResult: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (showDialog.value) {
+        ConfirmationDialog(
+            showDialog = showDialog.value,
+            text1 = R.string.siva_send_message_dialog,
+            text2 = R.string.siva_continue_question,
+            linkText = R.string.siva_read_here,
+            linkUrl = R.string.siva_info_url,
+            modifier = modifier,
+            onConfirm = {
+                showDialog.value = false
+                onResult(true)
+            },
+            onDismiss = {
+                showDialog.value = false
+                onResult(false)
+            },
+        )
+    }
+}

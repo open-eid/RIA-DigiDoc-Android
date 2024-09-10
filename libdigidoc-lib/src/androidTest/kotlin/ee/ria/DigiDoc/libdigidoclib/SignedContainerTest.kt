@@ -189,8 +189,7 @@ class SignedContainerTest {
 
             val result =
                 signedContainer.getContainerFile()?.let {
-                    signedContainer.getContainerFile()!!
-                        .mimeType(context)
+                    signedContainer.getContainerFile()?.mimeType(context)
                 }
 
             assertEquals(ASICE_MIMETYPE, result)

@@ -36,7 +36,7 @@ fun File.mimeType(context: Context): String {
 
         val mimetypeFile = getFileInContainerZip(this, "mimetype", tempContainerFiles)
         mimetypeFile?.let {
-            return readFileAsString(it).also { _ -> deleteFilesInFolder(tempContainerFiles) }
+            return readFileAsString(it).also { _ -> deleteFilesInFolder(tempContainerFiles) }.trim()
         }
     } catch (ze: ZipException) {
         if (parseXMLFile(this)?.let { isDdoc(it) } == true) {

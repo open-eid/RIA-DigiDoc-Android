@@ -56,6 +56,7 @@
     <string name="signing_documents_title">Container files</string>
     <string name="signing_container_documents_title">Container files</string>
     <string name="signing_container_signatures_title">Container signatures</string>
+    <string name="signing_container_timestamps_title">Container timestamps</string>
     <string name="signing_container_signatures_empty">Container is not signed</string>
     <string name="signing_container_signature_created_at">Signed %1$s</string>
 
@@ -65,6 +66,12 @@
     <string name="recent_documents_empty_message">No recent documents</string>
     <string name="recent_documents_remove_button">Remove document</string>
     <string name="recent_documents_remove_confirmation_message">Remove document?</string>
+
+    <!-- SiVa -->
+    <string name="siva_send_message_dialog">This type of signed document will be transmitted to the Digital Signature Validation Service SiVa to verify the validity of the digital signature. Read more information about transmitted data to Digital Signature Validation Service on the website</string>
+    <string name="siva_read_here">here</string>
+    <string name="siva_continue_question">Do you want to continue?</string>
+    <string name="siva_info_url">https://www.id.ee/en/article/data-protection-conditions-for-the-id-software-of-the-national-information-system-authority</string>
 
     <!-- Signature Add -->
     <string name="signature_update_name_update_name">Container name</string>

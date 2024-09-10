@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.libdigidoclib
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
+import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
 import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
@@ -40,9 +41,11 @@ private const val LOG_TAG = "SignedContainer"
 class SignedContainer
     @Inject
     constructor(
+        private val context: Context,
         private val container: Container? = null,
         private var containerFile: File? = null,
         private val isExistingContainer: Boolean = false,
+        private val timestamps: List<SignatureInterface>? = emptyList(),
     ) {
         suspend fun getDataFiles(): List<DataFileInterface> {
             return CoroutineScope(IO).async {
@@ -52,6 +55,32 @@ class SignedContainer
                 return@async wrappedDataFile
             }.await()
         }
+
+        @Throws(Exception::class)
+        suspend fun getNestedTimestampedContainer(): SignedContainer? {
+            if (containerMimetype().equals(ASICS_MIMETYPE, ignoreCase = true) && getDataFiles().size == 1) {
+                val dataFile = container?.dataFiles()?.firstOrNull()
+                val containerRawFile = containerFile
+
+                if (containerRawFile != null && dataFile != null) {
+                    val containerDataFilesDir = ContainerUtil.getContainerDataFilesDir(context, containerRawFile)
+                    val nestedTimestampedFile = getDataFile(DataFileWrapper(dataFile), containerDataFilesDir)
+
+                    return nestedTimestampedFile?.let {
+                        SignedContainer(
+                            context = context,
+                            container = open(context, it, true).rawContainer(),
+                            containerFile = it,
+                            isExistingContainer = true,
+                        )
+                    }
+                }
+            }
+
+            return null
+        }
+
+        fun getTimestamps(): List<SignatureInterface>? = timestamps
 
         suspend fun getSignatures(): List<SignatureInterface> {
             return CoroutineScope(IO).async {
@@ -170,6 +199,7 @@ class SignedContainer
                 @ApplicationContext context: Context,
                 file: File,
                 dataFiles: List<File?>?,
+                isSivaConfirmed: Boolean,
             ): SignedContainer {
                 val isFirstDataFileContainer =
                     dataFiles?.firstOrNull()?.run {
@@ -177,7 +207,7 @@ class SignedContainer
                     } ?: false
                 var containerFileWithExtension = file
 
-                if ((!isFirstDataFileContainer || dataFiles?.size!! > 1) &&
+                if ((!isFirstDataFileContainer || (dataFiles?.size ?: 0) > 1) &&
                     !file.path.endsWith(".$DEFAULT_CONTAINER_EXTENSION")
                 ) {
                     containerFileWithExtension =
@@ -187,7 +217,7 @@ class SignedContainer
                 }
 
                 return if (dataFiles != null && dataFiles.size == 1 && isFirstDataFileContainer) {
-                    open(context, containerFileWithExtension)
+                    open(context, containerFileWithExtension, isSivaConfirmed)
                 } else {
                     create(context, containerFileWithExtension, dataFiles)
                 }
@@ -234,20 +264,21 @@ class SignedContainer
 
                 container.save()
 
-                return SignedContainer(container, file, false)
+                return SignedContainer(context, container, file, false)
             }
 
             @Throws(Exception::class)
             private suspend fun open(
                 context: Context,
                 file: File?,
+                isSivaConfirmed: Boolean,
             ): SignedContainer =
                 try {
                     val openedContainer =
                         withContext(IO) {
-                            Container.open(file?.path ?: "", DigidocContainerOpenCB(true))
+                            Container.open(file?.path ?: "", DigidocContainerOpenCB(isSivaConfirmed))
                         }
-                    SignedContainer(openedContainer, file, true)
+                    SignedContainer(context, openedContainer, file, true)
                 } catch (e: Exception) {
                     handleContainerException(context, e)
                 }
@@ -260,7 +291,8 @@ class SignedContainer
 
                 when {
                     message.startsWith("Failed to connect to host") ||
-                        message.startsWith("Failed to create proxy connection with host") -> {
+                        message.startsWith("Failed to create proxy connection with host") ||
+                        message.startsWith("Failed to create connection with host") -> {
                         throw NoInternetConnectionException(context)
                     }
 

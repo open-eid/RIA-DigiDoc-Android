@@ -56,6 +56,7 @@
     <string name="signing_documents_title">Ümbriku failid</string>
     <string name="signing_container_documents_title">Ümbriku sisu</string>
     <string name="signing_container_signatures_title">Ümbriku allkirjad</string>
+    <string name="signing_container_timestamps_title">Ümbriku ajatemplid</string>
     <string name="signing_container_signatures_empty">Allkirjad puuduvad</string>
     <string name="signing_container_signature_created_at">Allkirjastatud %1$s</string>
 
@@ -65,6 +66,12 @@
     <string name="recent_documents_empty_message">Dokumendid puuduvad</string>
     <string name="recent_documents_remove_button">Eemalda dokument</string>
     <string name="recent_documents_remove_confirmation_message">Soovid eemaldada dokumendi?</string>
+
+    <!-- SiVa -->
+    <string name="siva_send_message_dialog">Seda tüüpi allkirjastatud dokument edastatakse digitaalallkirjade kehtivuse kontrollimiseks valideerimisteenusele SiVa. Digitaalallkirjade kehtivuse kontrollimisel edastatud andmete kohta loe lähemalt veebilehelt</string>
+    <string name="siva_read_here">siit</string>
+    <string name="siva_continue_question">Kas soovid jätkata?</string>
+    <string name="siva_info_url">https://www.id.ee/artikkel/riigi-infosusteemi-ameti-id-tarkvara-andmekaitsetingimused</string>
 
     <!-- Signature Add -->
     <string name="signature_update_name_update_name">Ümbriku nimi</string>

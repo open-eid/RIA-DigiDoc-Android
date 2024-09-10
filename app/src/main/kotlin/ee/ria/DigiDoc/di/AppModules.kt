@@ -16,10 +16,14 @@ import ee.ria.DigiDoc.common.BuildVersionProvider
 import ee.ria.DigiDoc.common.BuildVersionProviderImpl
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.domain.preferences.DataStore
-import ee.ria.DigiDoc.domain.repository.FileOpeningRepository
-import ee.ria.DigiDoc.domain.repository.FileOpeningRepositoryImpl
-import ee.ria.DigiDoc.domain.service.FileOpeningService
-import ee.ria.DigiDoc.domain.service.FileOpeningServiceImpl
+import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
+import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepositoryImpl
+import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
+import ee.ria.DigiDoc.domain.repository.siva.SivaRepositoryImpl
+import ee.ria.DigiDoc.domain.service.fileopening.FileOpeningService
+import ee.ria.DigiDoc.domain.service.fileopening.FileOpeningServiceImpl
+import ee.ria.DigiDoc.domain.service.siva.SivaService
+import ee.ria.DigiDoc.domain.service.siva.SivaServiceImpl
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.manager.ActivityManager
 import ee.ria.DigiDoc.manager.ActivityManagerImpl
@@ -59,9 +63,22 @@ class AppModules {
     fun provideFileOpeningService(): FileOpeningService = FileOpeningServiceImpl()
 
     @Provides
-    fun provideFileOpeningRepository(fileOpeningService: FileOpeningService): FileOpeningRepository =
+    fun provideFileOpeningRepository(
+        fileOpeningService: FileOpeningService,
+        sivaService: SivaService,
+    ): FileOpeningRepository =
         FileOpeningRepositoryImpl(
             fileOpeningService = fileOpeningService,
+            sivaService = sivaService,
+        )
+
+    @Provides
+    fun provideSivaService(): SivaService = SivaServiceImpl()
+
+    @Provides
+    fun provideSivaRepository(sivaService: SivaService): SivaRepository =
+        SivaRepositoryImpl(
+            sivaService = sivaService,
         )
 
     @Provides

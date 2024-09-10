@@ -21,6 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,10 +32,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.Constant.SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES
+import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
+import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
 import ee.ria.DigiDoc.ui.component.signing.Document
 import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.dividerHeight
@@ -43,11 +48,15 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
+import ee.ria.DigiDoc.utilsLib.extensions.mimeType
+import ee.ria.DigiDoc.utilsLib.toast.ToastUtil
 import ee.ria.DigiDoc.viewmodel.RecentDocumentsViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,9 +67,42 @@ fun RecentDocumentsScreen(
     sharedContainerViewModel: SharedContainerViewModel,
     recentDocumentsViewModel: RecentDocumentsViewModel = hiltViewModel(),
 ) {
+    val logTag = "RecentDocumentsScreen"
+
     val context = LocalContext.current
     val activity = (context as Activity)
     markAsSecure(context, activity.window)
+
+    val showLoading = remember { mutableStateOf(false) }
+    val showSivaDialog = remember { mutableStateOf(false) }
+    val selectedDocument = remember { mutableStateOf<File?>(null) }
+
+    val handleResult: (Boolean) -> Unit = { confirmed ->
+        showLoading.value = true
+        val document = selectedDocument.value
+
+        if (document == null) {
+            showLoading.value = false
+        } else {
+            CoroutineScope(IO).launch {
+                try {
+                    val documentMimeType = document.mimeType(context)
+
+                    recentDocumentsViewModel.handleDocument(
+                        document,
+                        documentMimeType,
+                        confirmed,
+                        sharedContainerViewModel,
+                    )
+                } catch (ex: Exception) {
+                    recentDocumentsViewModel.handleError(logTag, ex)
+                } finally {
+                    showLoading.value = false
+                }
+            }
+        }
+    }
+
     val recentDocumentList =
         remember {
             mutableStateOf(
@@ -81,6 +123,27 @@ fun RecentDocumentsScreen(
         closeDocumentDialog()
         AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, documentRemovalCancelled)
     }
+
+    LaunchedEffect(recentDocumentsViewModel.sendToSigningViewWithSiva) {
+        recentDocumentsViewModel.sendToSigningViewWithSiva.asFlow().collect { openSigningView ->
+            if (openSigningView) {
+                recentDocumentsViewModel.handleSendToSigningViewWithSiva(false)
+                navController.navigate(Route.Signing.route)
+            }
+        }
+    }
+
+    LaunchedEffect(recentDocumentsViewModel.errorState) {
+        recentDocumentsViewModel.errorState.asFlow().collect { error ->
+            error?.let {
+                ToastUtil.showMessage(
+                    context,
+                    error,
+                )
+            }
+        }
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -113,14 +176,22 @@ fun RecentDocumentsScreen(
                     Document(
                         name = document.name,
                         onItemClick = {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                val signedContainer = recentDocumentsViewModel.openDocument(document)
-                                sharedContainerViewModel.setSignedContainer(signedContainer)
-                            }
+                            CoroutineScope(IO).launch {
+                                selectedDocument.value = document
+                                if (SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(document.mimeType(context))) {
+                                    showSivaDialog.value = true
+                                } else {
+                                    showSivaDialog.value = false
+                                    val signedContainer = recentDocumentsViewModel.openDocument(document, true)
+                                    sharedContainerViewModel.setSignedContainer(signedContainer)
 
-                            navController.navigate(
-                                Route.Signing.route,
-                            )
+                                    withContext(Main) {
+                                        navController.navigate(
+                                            Route.Signing.route,
+                                        )
+                                    }
+                                }
+                            }
                         },
                         onRemoveButtonClick = {
                             actionDocument = document
@@ -166,6 +237,16 @@ fun RecentDocumentsScreen(
                     }
                 }
             }
+        }
+
+        SivaConfirmationDialog(
+            showDialog = showSivaDialog,
+            modifier = modifier,
+            onResult = handleResult,
+        )
+
+        if (showLoading.value) {
+            LoadingScreen()
         }
     }
 }

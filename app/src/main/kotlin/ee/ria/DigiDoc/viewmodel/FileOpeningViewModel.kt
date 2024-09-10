@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.viewmodel
 
+import android.app.Activity
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
@@ -12,12 +13,15 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.domain.repository.FileOpeningRepository
+import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
+import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.exceptions.FileAlreadyExistsException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
+import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import java.io.File
 import java.io.FileNotFoundException
 import javax.inject.Inject
@@ -29,6 +33,7 @@ class FileOpeningViewModel
         @ApplicationContext private val context: Context,
         private val contentResolver: ContentResolver,
         private val fileOpeningRepository: FileOpeningRepository,
+        private val sivaRepository: SivaRepository,
     ) : ViewModel() {
         private val logTag = javaClass.simpleName
 
@@ -40,6 +45,7 @@ class FileOpeningViewModel
 
         private val _launchFilePicker = MutableLiveData(true)
         val launchFilePicker: LiveData<Boolean?> = _launchFilePicker
+
         private val _filesAdded = MutableLiveData<List<File>?>(null)
         val filesAdded: LiveData<List<File>?> = _filesAdded
 
@@ -71,9 +77,20 @@ class FileOpeningViewModel
             return files
         }
 
+        suspend fun isSivaConfirmationNeeded(uris: List<Uri>): Boolean {
+            val files = urisToFile(context, contentResolver, uris)
+            return fileOpeningRepository.isSivaConfirmationNeeded(context, files)
+        }
+
+        suspend fun getFileMimetype(fileUris: List<Uri>): String? =
+            urisToFile(context, contentResolver, fileUris)
+                .firstOrNull()
+                ?.mimeType(context)
+
         suspend fun handleFiles(
             uris: List<Uri>,
             existingSignedContainer: SignedContainer? = null,
+            isSivaConfirmed: Boolean,
         ) {
             if (existingSignedContainer != null) {
                 try {
@@ -111,13 +128,25 @@ class FileOpeningViewModel
                 }
             } else {
                 try {
-                    val container =
+                    val signedContainer =
                         fileOpeningRepository.openOrCreateContainer(
                             context,
                             contentResolver,
                             uris,
+                            isSivaConfirmed,
                         )
-                    _signedContainer.postValue(container)
+
+                    if (sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed)) {
+                        val nestedTimestampedContainer =
+                            sivaRepository.getTimestampedContainer(
+                                context,
+                                signedContainer,
+                            )
+                        _signedContainer.postValue(nestedTimestampedContainer)
+                    } else {
+                        _signedContainer.postValue(signedContainer)
+                    }
+
                     _filesAdded.postValue(urisToFile(context, contentResolver, uris))
                 } catch (e: Exception) {
                     _signedContainer.postValue(null)
@@ -131,5 +160,22 @@ class FileOpeningViewModel
                     }
                 }
             }
+        }
+
+        fun handleCancelDdocMimeType(context: Context, isExternalFile: Boolean) {
+            if (isExternalFile) {
+                (context as? Activity)?.finish()
+            }
+        }
+
+        suspend fun handleCancelAsicsMimeType(
+            fileUris: List<Uri>,
+            signedContainer: SignedContainer?,
+        ) {
+            handleFiles(fileUris, signedContainer, false)
+        }
+
+        fun resetExternalFileState(sharedContainerViewModel: SharedContainerViewModel) {
+            sharedContainerViewModel.setExternalFileUri(null)
         }
     }

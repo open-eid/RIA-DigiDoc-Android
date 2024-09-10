@@ -23,6 +23,7 @@ fun HrefMessageDialog(
     @StringRes text2: Int,
     @StringRes linkText: Int,
     @StringRes linkUrl: Int,
+    showLinkOnOneLine: Boolean = false,
     cancelButtonClick: () -> Unit = {},
     okButtonClick: () -> Unit = {},
 ) {
@@ -38,6 +39,7 @@ fun HrefMessageDialog(
             text2 = stringResource(text2),
             linkText = stringResource(linkText),
             linkUrl = stringResource(linkUrl),
+            showLinkOnOneLine = showLinkOnOneLine,
             textStyle = MaterialTheme.typography.bodyLarge,
         )
         CancelAndOkButtonRow(

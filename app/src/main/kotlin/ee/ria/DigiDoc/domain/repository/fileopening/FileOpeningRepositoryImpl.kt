@@ -1,12 +1,13 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.domain.repository
+package ee.ria.DigiDoc.domain.repository.fileopening
 
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import androidx.activity.result.ActivityResultLauncher
-import ee.ria.DigiDoc.domain.service.FileOpeningService
+import ee.ria.DigiDoc.domain.service.fileopening.FileOpeningService
+import ee.ria.DigiDoc.domain.service.siva.SivaService
 import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
@@ -23,6 +24,7 @@ class FileOpeningRepositoryImpl
     @Inject
     constructor(
         private val fileOpeningService: FileOpeningService,
+        private val sivaService: SivaService,
     ) : FileOpeningRepository {
         override suspend fun isFileSizeValid(file: File): Boolean {
             return fileOpeningService.isFileSizeValid(file)
@@ -77,6 +79,7 @@ class FileOpeningRepositoryImpl
             context: Context,
             contentResolver: ContentResolver,
             uris: List<Uri>,
+            isSivaConfirmed: Boolean,
         ): SignedContainer {
             val files = mutableListOf<File>()
 
@@ -92,7 +95,7 @@ class FileOpeningRepositoryImpl
             checkForValidFiles(files)
 
             val containerPath = ContainerUtil.addSignatureContainer(context, files.first())
-            return SignedContainer.openOrCreate(context, containerPath, files)
+            return SignedContainer.openOrCreate(context, containerPath, files, isSivaConfirmed)
         }
 
         override suspend fun checkForValidFiles(files: List<File>) {
@@ -125,6 +128,11 @@ class FileOpeningRepositoryImpl
             return container.rawContainer()?.dataFiles()?.any { it.fileName() == file.name }
                 ?: false
         }
+
+        override fun isSivaConfirmationNeeded(
+            context: Context,
+            files: List<File>,
+        ): Boolean = sivaService.isSivaConfirmationNeeded(context, files)
 
         @Throws(Exception::class)
         private fun getContainerFiles(

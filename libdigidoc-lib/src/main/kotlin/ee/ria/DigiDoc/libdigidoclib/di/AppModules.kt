@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.libdigidoclib.di
 
+import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,11 +23,13 @@ class AppModules {
     @Singleton
     @Provides
     fun provideSignedContainer(
+        context: Context,
         container: Container,
         file: File,
         isExistingContainer: Boolean,
     ): SignedContainer =
         SignedContainer(
+            context = context,
             container = container,
             containerFile = file,
             isExistingContainer = isExistingContainer,
