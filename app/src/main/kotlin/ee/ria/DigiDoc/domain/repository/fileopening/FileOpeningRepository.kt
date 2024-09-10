@@ -1,6 +1,6 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.domain.repository
+package ee.ria.DigiDoc.domain.repository.fileopening
 
 import android.content.ContentResolver
 import android.content.Context
@@ -38,6 +38,7 @@ interface FileOpeningRepository {
         context: Context,
         contentResolver: ContentResolver,
         uris: List<Uri>,
+        isSivaConfirmed: Boolean,
     ): SignedContainer
 
     @Throws(
@@ -68,5 +69,10 @@ interface FileOpeningRepository {
     fun isFileAlreadyInContainer(
         file: File,
         container: SignedContainer,
+    ): Boolean
+
+    fun isSivaConfirmationNeeded(
+        context: Context,
+        files: List<File>,
     ): Boolean
 }

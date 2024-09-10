@@ -75,6 +75,7 @@ import ee.ria.DigiDoc.ui.component.settings.EditValueDialog
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
 import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
+import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
 import ee.ria.DigiDoc.ui.theme.Dimensions.MAX_DIALOG_WIDTH
 import ee.ria.DigiDoc.ui.theme.Dimensions.dividerHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
@@ -86,6 +87,7 @@ import ee.ria.DigiDoc.ui.theme.Normal
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.removeExtensionFromContainerFilename
 import ee.ria.DigiDoc.utilsLib.extensions.isContainer
@@ -367,6 +369,14 @@ fun SigningNavigation(
                     }
                 }
 
+            val showSivaDialog = remember { mutableStateOf(false) }
+            var isSivaConfirmed by remember { mutableStateOf(true) }
+
+            val handleResult: (Boolean) -> Unit = { confirmed ->
+                isSivaConfirmed = confirmed
+                showSivaDialog.value = false
+            }
+
             if (showLoadingScreen.value) {
                 LoadingScreen()
             }
@@ -522,6 +532,7 @@ fun SigningNavigation(
                                                                 context,
                                                                 nestedFile,
                                                                 sharedContainerViewModel,
+                                                                isSivaConfirmed,
                                                             )
                                                             showLoadingScreen.value = false
                                                         } catch (ex: Exception) {
@@ -621,6 +632,88 @@ fun SigningNavigation(
                         }
                     }
 
+                    if (signingViewModel.isContainerWithTimestamps(signedContainer)) {
+                        item {
+                            Row(
+                                modifier =
+                                    modifier
+                                        .fillMaxWidth()
+                                        .padding(screenViewLargePadding),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    stringResource(
+                                        id = R.string.signing_container_timestamps_title,
+                                    ),
+                                    modifier =
+                                        modifier
+                                            .weight(1f)
+                                            .semantics { heading() },
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Bold,
+                                    style = MaterialTheme.typography.titleLarge,
+                                )
+                            }
+                        }
+
+                        item {
+                            HorizontalDivider(
+                                modifier =
+                                    modifier
+                                        .fillMaxWidth()
+                                        .padding(screenViewLargePadding)
+                                        .height(dividerHeight)
+                                        .notAccessible(),
+                            )
+                        }
+
+                        signedContainer?.let { container ->
+                            container.getTimestamps()?.let { timestamps ->
+                                items(timestamps) { signature ->
+                                    SignatureComponent(
+                                        signature = signature,
+                                        signingViewModel = signingViewModel,
+                                        showRemoveButton =
+                                            !NO_REMOVE_SIGNATURE_BUTTON_FILE_MIMETYPES.contains(
+                                                signedContainer?.getContainerFile()?.mimeType(context),
+                                            ) &&
+                                                !NO_REMOVE_SIGNATURE_BUTTON_FILE_EXTENSIONS.contains(
+                                                    FilenameUtils.getExtension(signedContainer?.getName()),
+                                                ) && !isNestedContainer,
+                                        onRemoveButtonClick = {
+                                            actionSignature = signature
+                                            openRemoveSignatureDialog.value = true
+                                        },
+                                        showRolesDetailsButton =
+                                            !signingViewModel.isRoleEmpty(
+                                                signature = signature,
+                                            ),
+                                        onRolesDetailsButtonClick = {
+                                            sharedSignatureViewModel.setSignature(signature)
+                                            navController.navigate(
+                                                Route.RolesDetail.route,
+                                            )
+                                        },
+                                        onSignerDetailsButtonClick = {
+                                            sharedSignatureViewModel.setSignature(signature)
+                                            navController.navigate(
+                                                Route.SignerDetail.route,
+                                            )
+                                        },
+                                    )
+                                    HorizontalDivider(
+                                        modifier =
+                                            modifier
+                                                .fillMaxWidth()
+                                                .padding(screenViewLargePadding)
+                                                .height(dividerHeight),
+                                    )
+                                }
+                            }
+                        }
+                    }
+
                     item {
                         Row(
                             modifier =
@@ -644,6 +737,7 @@ fun SigningNavigation(
                             )
                         }
                     }
+
                     if (signingViewModel.isExistingContainer(signedContainer) ||
                         !signingViewModel.isContainerWithoutSignatures(signedContainer)
                     ) {
@@ -857,6 +951,12 @@ fun SigningNavigation(
                     }
                 }
             }
+
+            SivaConfirmationDialog(
+                showDialog = showSivaDialog,
+                modifier = modifier,
+                onResult = handleResult,
+            )
         }
     }
 }

@@ -23,13 +23,14 @@ fun HrefDynamicText(
     text2: String?,
     linkText: String,
     linkUrl: String,
+    showLinkOnOneLine: Boolean,
     textStyle: TextStyle =
         TextStyle(
             textAlign = TextAlign.Start,
         ),
 ) {
     val uriHandler = LocalUriHandler.current
-    val annotatedStringWithLinks = createAnnotatedStringWithLinks(text1, text2, linkText, linkUrl)
+    val annotatedStringWithLinks = createAnnotatedStringWithLinks(text1, text2, linkText, linkUrl, showLinkOnOneLine)
 
     val mStr = "$text1\n$linkText.\n$text2"
     val mStartIndex = mStr.indexOf(linkText)
@@ -54,9 +55,14 @@ fun createAnnotatedStringWithLinks(
     text2: String?,
     linkText: String,
     linkUrl: String,
+    showLinkOnOneLine: Boolean,
 ): AnnotatedString {
     return buildAnnotatedString {
-        append("$text1\n")
+        if (showLinkOnOneLine) {
+            append("$text1 ")
+        } else {
+            append("$text1\n")
+        }
 
         pushStringAnnotation(tag = "URL", annotation = linkUrl)
         withStyle(

@@ -1,6 +1,6 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.domain.service
+package ee.ria.DigiDoc.domain.service.fileopening
 
 import android.content.ContentResolver
 import android.content.Context
