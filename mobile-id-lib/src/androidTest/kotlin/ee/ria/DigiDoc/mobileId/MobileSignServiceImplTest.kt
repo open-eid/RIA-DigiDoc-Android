@@ -161,10 +161,11 @@ class MobileSignServiceImplTest {
     }
 
     @Test
-    fun mobileSignService_setCancelled_success() {
-        mobileSignServiceImpl.setCancelled(signedContainer, true)
-        verify(cancelledObserver, atLeastOnce()).onChanged(true)
-    }
+    fun mobileSignService_setCancelled_success() =
+        runTest {
+            mobileSignServiceImpl.setCancelled(signedContainer, true)
+            verify(cancelledObserver, atLeastOnce()).onChanged(true)
+        }
 
     @Test
     fun mobileSignService_resetValues_success() {

@@ -227,6 +227,7 @@ fun SigningNavigation(
         sharedContainerViewModel.signedMidStatus.asFlow().collect { status ->
             status?.let {
                 if (status == MobileCreateSignatureProcessStatus.OK) {
+                    signatures = signedContainer?.getSignatures() ?: emptyList()
                     withContext(Main) {
                         signatureAddedSuccess.value = true
                         AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signatureAddedSuccessText)
@@ -243,6 +244,7 @@ fun SigningNavigation(
         sharedContainerViewModel.signedSidStatus.asFlow().collect { status ->
             status?.let {
                 if (status == SessionStatusResponseProcessStatus.OK) {
+                    signatures = signedContainer?.getSignatures() ?: emptyList()
                     withContext(Main) {
                         signatureAddedSuccess.value = true
                         AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signatureAddedSuccessText)

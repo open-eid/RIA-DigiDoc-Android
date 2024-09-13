@@ -10,7 +10,6 @@ import ee.ria.DigiDoc.domain.service.fileopening.FileOpeningService
 import ee.ria.DigiDoc.domain.service.siva.SivaService
 import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
-import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import java.io.File
@@ -44,13 +43,6 @@ class FileOpeningRepositoryImpl
             contractType: String,
         ) {
             return fileChooser.launch(contractType)
-        }
-
-        override suspend fun removeSignature(
-            signedContainer: SignedContainer,
-            signature: SignatureInterface,
-        ) {
-            signedContainer.removeSignature(signature)
         }
 
         @Throws(Exception::class)
@@ -88,7 +80,7 @@ class FileOpeningRepositoryImpl
                 if (isFileSizeValid(file)) {
                     files.add(file)
                 } else if (uris.size == 1) {
-                    throw EmptyFileException(context)
+                    throw EmptyFileException()
                 }
             }
 

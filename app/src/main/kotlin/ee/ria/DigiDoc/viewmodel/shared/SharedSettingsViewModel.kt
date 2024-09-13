@@ -30,12 +30,10 @@ import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.DigiDoc.utilsLib.signing.CertificateUtil
-import ee.ria.DigiDoc.utilsLib.toast.ToastUtil.showMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.apache.commons.io.FileUtils
@@ -79,6 +77,9 @@ class SharedSettingsViewModel
 
         private val _sivaCertificate = MutableLiveData<X509Certificate?>()
         val sivaCertificate: LiveData<X509Certificate?> = _sivaCertificate
+
+        private val _errorState = MutableLiveData<Int?>(null)
+        val errorState: LiveData<Int?> = _errorState
 
         init {
             CoroutineScope(Main).launch {
@@ -298,21 +299,15 @@ class SharedSettingsViewModel
                     val response = call.execute()
                     if (response.code == 403) {
                         debugLog(logTag, "Forbidden error with proxy configuration")
-                        withContext(Main) {
-                            showMessage(context, R.string.main_settings_proxy_check_username_and_password)
-                        }
+                        _errorState.postValue(R.string.main_settings_proxy_check_username_and_password)
                     }
 
                     if (response.code != 200) {
                         debugLog(logTag, "No Internet connection detected")
-                        withContext(Main) {
-                            showMessage(context, R.string.main_settings_proxy_check_connection_unsuccessful)
-                        }
+                        _errorState.postValue(R.string.main_settings_proxy_check_connection_unsuccessful)
                     } else {
                         debugLog(logTag, "Internet connection detected successfully")
-                        withContext(Main) {
-                            showMessage(context, R.string.main_settings_proxy_check_connection_success)
-                        }
+                        _errorState.postValue(R.string.main_settings_proxy_check_connection_success)
                     }
                 } catch (e: IOException) {
                     val message = e.message
@@ -321,19 +316,15 @@ class SharedSettingsViewModel
                                 message.contains("Failed to authenticate with proxy")
                         )
                     ) {
-                        debugLog(
+                        errorLog(
                             logTag,
                             "Received HTTP status 403 or failed to authenticate. " +
                                 "Unable to connect with proxy configuration",
                         )
-                        withContext(Main) {
-                            showMessage(context, R.string.main_settings_proxy_check_connection_unsuccessful)
-                        }
+                        _errorState.postValue(R.string.main_settings_proxy_check_connection_unsuccessful)
                     }
-                    debugLog(logTag, "Unable to check Internet connection", e)
-                    withContext(Main) {
-                        showMessage(context, R.string.main_settings_proxy_check_connection_unsuccessful)
-                    }
+                    errorLog(logTag, "Unable to check Internet connection", e)
+                    _errorState.postValue(R.string.main_settings_proxy_check_connection_unsuccessful)
                 }
             }
         }

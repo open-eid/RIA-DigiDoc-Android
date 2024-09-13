@@ -121,6 +121,7 @@ class SignedContainer
             if (container?.signatures()?.isEmpty() == true) {
                 throw ContainerSignaturesEmptyException()
             }
+
             val signatures = container?.signatures()
             if (signatures != null) {
                 for (i in signatures.indices) {
@@ -129,8 +130,8 @@ class SignedContainer
                         break
                     }
                 }
+                container?.save()
             }
-            container?.save()
         }
 
         @Throws(Exception::class)
@@ -293,7 +294,7 @@ class SignedContainer
                     message.startsWith("Failed to connect to host") ||
                         message.startsWith("Failed to create proxy connection with host") ||
                         message.startsWith("Failed to create connection with host") -> {
-                        throw NoInternetConnectionException(context)
+                        throw NoInternetConnectionException()
                     }
 
                     message.startsWith("Failed to create ssl connection with host") -> {

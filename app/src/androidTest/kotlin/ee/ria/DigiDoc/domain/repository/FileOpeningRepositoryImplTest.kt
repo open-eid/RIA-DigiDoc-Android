@@ -154,7 +154,7 @@ class FileOpeningRepositoryImplTest {
                 }
 
             runBlocking {
-                fileOpeningRepository.removeSignature(existingContainer, existingContainer.getSignatures().first())
+                existingContainer.removeSignature(existingContainer.getSignatures().first())
             }
 
             assertEquals(1, existingContainer.getSignatures().size)
