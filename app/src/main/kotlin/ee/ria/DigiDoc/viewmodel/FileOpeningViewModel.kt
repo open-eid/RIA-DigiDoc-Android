@@ -40,8 +40,8 @@ class FileOpeningViewModel
         private val _signedContainer = MutableLiveData<SignedContainer?>(null)
         val signedContainer: LiveData<SignedContainer?> = _signedContainer
 
-        private val _errorState = MutableLiveData<String?>(null)
-        val errorState: LiveData<String?> = _errorState
+        private val _errorState = MutableLiveData<Int?>(null)
+        val errorState: LiveData<Int?> = _errorState
 
         private val _launchFilePicker = MutableLiveData(true)
         val launchFilePicker: LiveData<Boolean?> = _launchFilePicker
@@ -98,7 +98,7 @@ class FileOpeningViewModel
 
                     if (files.size == 1) {
                         if (!fileOpeningRepository.isFileSizeValid(files.first())) {
-                            throw EmptyFileException(context)
+                            throw EmptyFileException()
                         }
                         val isFileAlreadyInContainer =
                             fileOpeningRepository.isFileAlreadyInContainer(
@@ -107,7 +107,7 @@ class FileOpeningViewModel
                             )
 
                         if (isFileAlreadyInContainer) {
-                            throw FileAlreadyExistsException(context)
+                            throw FileAlreadyExistsException()
                         }
                     }
 
@@ -123,7 +123,7 @@ class FileOpeningViewModel
                     _filesAdded.postValue(validFiles)
                 } catch (e: Exception) {
                     _signedContainer.postValue(existingSignedContainer)
-                    _errorState.postValue(e.message)
+                    handleException(e)
                     errorLog(logTag, "Unable to add file to container", e)
                 }
             } else {
@@ -151,13 +151,36 @@ class FileOpeningViewModel
                 } catch (e: Exception) {
                     _signedContainer.postValue(null)
                     errorLog(logTag, "Unable to open or create container", e)
-                    if (e is EmptyFileException || e is NoSuchElementException ||
-                        e is NoInternetConnectionException
-                    ) {
-                        _errorState.postValue(e.message)
+
+                    handleException(e)
+                }
+            }
+        }
+
+        private fun handleException(e: Exception) {
+            when (e) {
+                is EmptyFileException -> {
+                    _errorState.postValue(R.string.empty_file_error)
+                }
+                is NoSuchElementException -> {
+                    _errorState.postValue(R.string.container_open_file_error)
+                }
+                is NoInternetConnectionException -> {
+                    _errorState.postValue(R.string.no_internet_connection)
+                }
+                is java.io.IOException -> {
+                    val message = e.message ?: ""
+                    if (message.startsWith("Failed to create connection with host")) {
+                        _errorState.postValue(R.string.no_internet_connection)
                     } else {
-                        _errorState.postValue(context.getString(R.string.container_open_file_error))
+                        _errorState.postValue(R.string.container_open_file_error)
                     }
+                }
+                is FileAlreadyExistsException -> {
+                    _errorState.postValue(R.string.signature_update_documents_add_error_exists)
+                }
+                else -> {
+                    _errorState.postValue(R.string.container_open_file_error)
                 }
             }
         }

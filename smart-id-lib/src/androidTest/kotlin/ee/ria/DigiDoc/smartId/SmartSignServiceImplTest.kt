@@ -157,10 +157,11 @@ class SmartSignServiceImplTest {
     }
 
     @Test
-    fun smartSignService_setCancelled_success() {
-        smartSignServiceImpl.setCancelled(signedContainer, true)
-        verify(cancelledObserver, atLeastOnce()).onChanged(true)
-    }
+    fun smartSignService_setCancelled_success() =
+        runTest {
+            smartSignServiceImpl.setCancelled(signedContainer, true)
+            verify(cancelledObserver, atLeastOnce()).onChanged(true)
+        }
 
     @Test
     fun mobileSignService_resetValues_success() {

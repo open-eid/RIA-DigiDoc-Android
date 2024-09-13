@@ -18,6 +18,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,6 +49,7 @@ import ee.ria.DigiDoc.utils.Constant.Defaults.DEFAULT_TSA_URL_VALUE
 import ee.ria.DigiDoc.utils.Constant.Defaults.DEFAULT_UUID_VALUE
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
+import ee.ria.DigiDoc.utilsLib.toast.ToastUtil
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -128,6 +130,17 @@ fun SettingsSigningScreen(
     val dismissSettingsSivaCategoryDialog = {
         openSettingsSivaCategoryDialog.value = false
     }
+
+    LaunchedEffect(sharedSettingsViewModel.errorState) {
+        sharedSettingsViewModel.errorState.asFlow().collect { errorState ->
+            errorState?.let {
+                withContext(Main) {
+                    ToastUtil.showMessage(context, errorState)
+                }
+            }
+        }
+    }
+
     if (openSettingsSivaCategoryDialog.value) {
         BasicAlertDialog(
             onDismissRequest = dismissSettingsSivaCategoryDialog,

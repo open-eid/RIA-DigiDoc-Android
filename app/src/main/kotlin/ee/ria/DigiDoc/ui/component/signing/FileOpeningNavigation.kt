@@ -4,7 +4,6 @@ package ee.ria.DigiDoc.ui.component.signing
 
 import android.net.Uri
 import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,6 +27,7 @@ import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utilsLib.toast.ToastUtil
 import ee.ria.DigiDoc.viewmodel.FileOpeningViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -130,7 +130,7 @@ fun FileOpeningNavigation(
         fileOpeningViewModel.errorState.asFlow().collect { errorState ->
             errorState?.let {
                 withContext(Main) {
-                    Toast.makeText(context, errorState, Toast.LENGTH_LONG).show()
+                    ToastUtil.showMessage(context, errorState)
                     if (signedContainer == null) {
                         navController.popBackStack()
                     }

@@ -8,7 +8,6 @@ import android.net.Uri
 import androidx.activity.result.ActivityResultLauncher
 import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
-import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import java.io.File
 import java.io.FileNotFoundException
@@ -48,11 +47,6 @@ interface FileOpeningRepository {
         context: Context,
         signedContainer: SignedContainer,
         documents: List<File>,
-    )
-
-    suspend fun removeSignature(
-        signedContainer: SignedContainer,
-        signature: SignatureInterface,
     )
 
     suspend fun checkForValidFiles(files: List<File>)
