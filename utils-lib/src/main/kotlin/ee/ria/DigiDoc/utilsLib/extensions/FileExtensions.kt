@@ -17,6 +17,7 @@ import ee.ria.DigiDoc.utilsLib.file.FileUtil.deleteFilesInFolder
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.getFileInContainerZip
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.parseXMLFile
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.readFileAsString
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import java.io.File
 import java.io.IOException
 import java.util.zip.ZipException
@@ -25,6 +26,24 @@ import java.util.zip.ZipFile
 private const val FILE_EXTENSIONS_LOG_TAG = "FileExtensions"
 
 fun File.isPDF(context: Context): Boolean = PDF_MIMETYPE == mimeType(context) || PDF_EXTENSION == extension
+
+fun File.isXades(context: Context): Boolean {
+    val tempContainerFiles = File(context.filesDir, "tempContainerFiles")
+
+    try {
+        // Check if file is a zip file. If not, throw ZipException
+        ZipFile(this)
+
+        val signaturesXmlFile = getFileInContainerZip(this, "signatures.xml", tempContainerFiles)
+        val fileExists = signaturesXmlFile?.exists()
+
+        deleteFilesInFolder(tempContainerFiles)
+        return fileExists ?: false
+    } catch (ze: ZipException) {
+        errorLog(FILE_EXTENSIONS_LOG_TAG, "Unable to determine if container is Xades", ze)
+        return false
+    }
+}
 
 fun File.mimeType(context: Context): String {
     val extension = extension.lowercase()

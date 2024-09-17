@@ -21,6 +21,7 @@
     <string name="signature_remove_button">Remove signature</string>
     <string name="container_open_file_error">Could not load selected files</string>
     <string name="empty_file_error">Cannot add empty file to the container.</string>
+    <string name="xades_file_message">This ASICS container contains XADES signature. You are not allowed to add or remove signatures to this container.</string>
 
     <string name="challenge_code_text">Control code:</string>
     <string name="mobile_id_challenge">Mobile-ID signing control code</string>

@@ -136,7 +136,9 @@ class FileOpeningViewModel
                             isSivaConfirmed,
                         )
 
-                    if (sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed)) {
+                    if (sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed) &&
+                        !signedContainer.isXades()
+                    ) {
                         val nestedTimestampedContainer =
                             sivaRepository.getTimestampedContainer(
                                 context,

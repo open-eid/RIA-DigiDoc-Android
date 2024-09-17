@@ -21,6 +21,7 @@
     <string name="signature_remove_button">Удалить подпись</string>
     <string name="container_open_file_error">Не удалось загрузить выбранные файлы</string>
     <string name="empty_file_error">Пустой файл нельзя добавить в контейнер.</string>
+    <string name="xades_file_message">Речь идет о конверте ASICS, содержащемся в подписи XADES. К данному контейнеру нельзя добавить или удалить из него подпись.</string>
 
     <string name="challenge_code_text">Проверочный код:</string>
     <string name="mobile_id_challenge">Проверочный код подписи mobiil-ID</string>

@@ -85,6 +85,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Green500
 import ee.ria.DigiDoc.ui.theme.Normal
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.ui.theme.Yellow500
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.extensions.notAccessible
@@ -123,6 +124,8 @@ fun SigningNavigation(
 
     val signatureAddedSuccess = remember { mutableStateOf(false) }
     val signatureAddedSuccessText = stringResource(id = R.string.signature_update_signature_add_success)
+
+    val xadesText = stringResource(id = R.string.xades_file_message)
 
     val isNestedContainer = sharedContainerViewModel.isNestedContainer(signedContainer)
     val showLoadingScreen = remember { mutableStateOf(false) }
@@ -315,7 +318,7 @@ fun SigningNavigation(
         bottomBar = {
             SigningBottomBar(
                 modifier = modifier,
-                showSignButton = signingViewModel.isSignButtonShown(context, signedContainer, isNestedContainer),
+                showSignButton = signingViewModel.isSignButtonShown(context, signedContainer, isNestedContainer, signedContainer?.isXades() == true),
                 showEncryptButton = signingViewModel.isEncryptButtonShown(signedContainer, isNestedContainer),
                 showShareButton = signingViewModel.isShareButtonShown(signedContainer, isNestedContainer),
                 onSignClick = {
@@ -405,6 +408,32 @@ fun SigningNavigation(
                                 color = MaterialTheme.colorScheme.background,
                                 fontWeight = FontWeight.Normal,
                                 style = MaterialTheme.typography.titleLarge,
+                            )
+                        }
+                    }
+                }
+
+                if (signedContainer?.isXades() == true) {
+                    Column(
+                        modifier =
+                            modifier
+                                .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Surface(
+                            modifier =
+                                modifier
+                                    .fillMaxWidth(),
+                            color = Yellow500,
+                        ) {
+                            Text(
+                                modifier = modifier.padding(itemSpacingPadding),
+                                text = xadesText,
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.background,
+                                fontWeight = FontWeight.Normal,
+                                style = MaterialTheme.typography.bodyLarge,
                             )
                         }
                     }
@@ -673,6 +702,7 @@ fun SigningNavigation(
                         signedContainer?.let { container ->
                             container.getTimestamps()?.let { timestamps ->
                                 items(timestamps) { signature ->
+                                    val isXadesContainer = signedContainer?.isXades() == true
                                     SignatureComponent(
                                         signature = signature,
                                         signingViewModel = signingViewModel,
@@ -682,7 +712,7 @@ fun SigningNavigation(
                                             ) &&
                                                 !NO_REMOVE_SIGNATURE_BUTTON_FILE_EXTENSIONS.contains(
                                                     FilenameUtils.getExtension(signedContainer?.getName()),
-                                                ) && !isNestedContainer,
+                                                ) && !isNestedContainer && !isXadesContainer,
                                         onRemoveButtonClick = {
                                             actionSignature = signature
                                             openRemoveSignatureDialog.value = true
@@ -776,6 +806,7 @@ fun SigningNavigation(
                                 }
                             } else {
                                 items(signatures) { signature ->
+                                    val isXadesContainer = signedContainer?.isXades() == true
                                     SignatureComponent(
                                         signature = signature,
                                         signingViewModel = signingViewModel,
@@ -786,7 +817,7 @@ fun SigningNavigation(
                                             ) &&
                                                 !NO_REMOVE_SIGNATURE_BUTTON_FILE_EXTENSIONS.contains(
                                                     FilenameUtils.getExtension(signedContainer?.getName()),
-                                                ) && !isNestedContainer,
+                                                ) && !isNestedContainer && !isXadesContainer,
                                         onRemoveButtonClick = {
                                             actionSignature = signature
                                             openRemoveSignatureDialog.value = true

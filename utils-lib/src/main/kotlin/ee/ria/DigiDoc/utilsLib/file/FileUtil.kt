@@ -390,8 +390,8 @@ object FileUtil {
 
             while (zipInputStream.nextEntry.also { zipEntry = it } != null) {
                 val entryName = zipEntry?.name
-                if (entryName != null && entryName == fileNameToFind) {
-                    val outputFile = File(outputFolder, entryName)
+                if (entryName != null && File(entryName).name == fileNameToFind) {
+                    val outputFile = File(outputFolder, File(entryName).name)
                     FileOutputStream(outputFile).use { outputStream ->
                         zipInputStream.copyTo(outputStream)
                     }
