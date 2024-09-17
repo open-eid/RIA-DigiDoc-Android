@@ -25,6 +25,7 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.libdigidocpp.Container
 import ee.ria.libdigidocpp.ContainerOpenCB
+import ee.ria.libdigidocpp.Signature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
@@ -58,7 +59,9 @@ class SignedContainer
 
         @Throws(Exception::class)
         suspend fun getNestedTimestampedContainer(): SignedContainer? {
-            if (containerMimetype().equals(ASICS_MIMETYPE, ignoreCase = true) && getDataFiles().size == 1) {
+            if (containerMimetype().equals(ASICS_MIMETYPE, ignoreCase = true) &&
+                getDataFiles().size == 1 && !isXades()
+            ) {
                 val dataFile = container?.dataFiles()?.firstOrNull()
                 val containerRawFile = containerFile
 
@@ -179,6 +182,13 @@ class SignedContainer
         fun rawContainer(): Container? = container
 
         fun containerMimetype(): String? = container?.mediaType()
+
+        fun isXades(): Boolean =
+            containerMimetype().equals(ASICS_MIMETYPE, true) &&
+                container?.signatures()?.stream()
+                    ?.anyMatch { signature: Signature? ->
+                        signature?.profile()?.lowercase()?.contains("bes") ?: false
+                    } ?: false
 
         companion object {
             @Throws(Exception::class)

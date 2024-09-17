@@ -12,6 +12,7 @@ import androidx.lifecycle.Observer
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.testfiles.file.TestFileUtil.Companion.createZipWithTextFile
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifierImpl
 import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
@@ -25,7 +26,6 @@ import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
-import ee.ria.DigiDoc.libdigidoclib.SignedContainer.Companion.openOrCreate
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
@@ -327,6 +327,37 @@ class FileOpeningViewModelTest {
             `when`(sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed)).thenReturn(false)
 
             viewModel.handleFiles(uris, null, isSivaConfirmed = isSivaConfirmed)
+
+            verify(signedContainerObserver, atLeastOnce()).onChanged(signedContainer)
+        }
+
+    @Test
+    fun fileOpeningViewModel_handleFiles_successWithXades() =
+        runTest {
+            val uri: Uri = mock()
+            val uris = listOf(uri)
+            val file = createZipWithTextFile("application/zip", "signatures.xml")
+
+            val isSivaConfirmed = true
+
+            val signedContainer =
+                runBlocking {
+                    SignedContainer.openOrCreate(context, file, listOf(file), isSivaConfirmed)
+                }
+
+            `when`(
+                fileOpeningRepository.openOrCreateContainer(
+                    context,
+                    contentResolver,
+                    uris,
+                    isSivaConfirmed,
+                ),
+            )
+                .thenReturn(signedContainer)
+
+            `when`(sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed)).thenReturn(false)
+
+            viewModel.handleFiles(uris, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(signedContainer)
         }

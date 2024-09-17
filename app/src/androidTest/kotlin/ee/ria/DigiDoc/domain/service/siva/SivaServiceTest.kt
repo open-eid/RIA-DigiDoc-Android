@@ -85,7 +85,7 @@ class SivaServiceTest {
 
     @Test
     fun sivaService_isSivaConfirmationNeeded_returnTrueForDDOCContainer() {
-        val file = createZipWithTextFile(DDOC_MIMETYPE)
+        val file = createZipWithTextFile(DDOC_MIMETYPE, "mimetype")
         val files = listOf(file)
         val isSivaConfirmationNeeded = sivaService.isSivaConfirmationNeeded(context, files)
         assertTrue(isSivaConfirmationNeeded)
@@ -93,7 +93,7 @@ class SivaServiceTest {
 
     @Test
     fun sivaService_isSivaConfirmationNeeded_returnTrueForASICSContainer() {
-        val file = createZipWithTextFile(ASICS_MIMETYPE)
+        val file = createZipWithTextFile(ASICS_MIMETYPE, "mimetype")
         val files = listOf(file)
         val isSivaConfirmationNeeded = sivaService.isSivaConfirmationNeeded(context, files)
         assertTrue(isSivaConfirmationNeeded)
@@ -104,6 +104,14 @@ class SivaServiceTest {
         val files = listOf(signedPdfDocument)
         val isSivaConfirmationNeeded = sivaService.isSivaConfirmationNeeded(context, files)
         assertTrue(isSivaConfirmationNeeded)
+    }
+
+    @Test
+    fun sivaService_isSivaConfirmationNeeded_returnFalseForXades() {
+        val file = createZipWithTextFile(ASICE_MIMETYPE, "signatures.xml")
+        val files = listOf(file)
+        val isSivaConfirmationNeeded = sivaService.isSivaConfirmationNeeded(context, files)
+        assertFalse(isSivaConfirmationNeeded)
     }
 
     @Test

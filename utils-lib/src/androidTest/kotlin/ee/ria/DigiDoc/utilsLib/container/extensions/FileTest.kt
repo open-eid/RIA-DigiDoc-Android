@@ -9,12 +9,14 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.pdmodel.interactive.digitalsignature.PDSignature
 import ee.ria.DigiDoc.common.Constant.ASICE_MIMETYPE
+import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DEFAULT_MIME_TYPE
 import ee.ria.DigiDoc.common.Constant.PDF_EXTENSION
 import ee.ria.DigiDoc.common.testfiles.file.TestFileUtil.Companion.createZipWithTextFile
 import ee.ria.DigiDoc.utilsLib.extensions.isContainer
 import ee.ria.DigiDoc.utilsLib.extensions.isPDF
 import ee.ria.DigiDoc.utilsLib.extensions.isSignedPDF
+import ee.ria.DigiDoc.utilsLib.extensions.isXades
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -46,7 +48,7 @@ class FileTest {
 
     @Test
     fun file_mimeType_success() {
-        val file: File = createZipWithTextFile(ASICE_MIMETYPE)
+        val file: File = createZipWithTextFile(ASICE_MIMETYPE, "mimetype")
 
         val fileMimeType = file.mimeType(context)
 
@@ -70,7 +72,7 @@ class FileTest {
 
     @Test
     fun file_isContainer_success() {
-        val file = createZipWithTextFile(ASICE_MIMETYPE)
+        val file = createZipWithTextFile(ASICE_MIMETYPE, "mimetype")
 
         assertTrue(file.isContainer(context))
     }
@@ -133,6 +135,32 @@ class FileTest {
             assertEquals("application/pdf", signedTestPDFFile.mimeType(context))
         } else {
             fail("PDF file is null")
+        }
+    }
+
+    @Test
+    fun file_isXades_success() {
+        val testFile = createZipWithTextFile(ASICS_MIMETYPE, "signatures.xml")
+
+        val isXades = testFile?.isXades(context)
+
+        if (isXades != null) {
+            assertTrue(isXades)
+        } else {
+            fail("isXades is null")
+        }
+    }
+
+    @Test
+    fun file_isXades_falseWithoutXadesSignature() {
+        val testFile = createZipWithTextFile(ASICS_MIMETYPE, "testFile.txt")
+
+        val isXades = testFile?.isXades(context)
+
+        if (isXades != null) {
+            assertFalse(isXades)
+        } else {
+            fail("isXades is null")
         }
     }
 
