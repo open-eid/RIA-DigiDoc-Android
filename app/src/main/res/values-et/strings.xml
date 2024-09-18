@@ -3,6 +3,8 @@
 
     <string name="back">Tagasi</string>
 
+    <string name="rooted_device">Seda rakendust ei saa kasutada turvamata (ingl rooted) seadmes.</string>
+
     <string name="configuration_initialization_failed">Konfiguratsiooni initsialiseerimine ebaõnnestus</string>
 
     <!-- Container -->

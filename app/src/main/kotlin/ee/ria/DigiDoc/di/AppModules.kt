@@ -28,6 +28,8 @@ import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.manager.ActivityManager
 import ee.ria.DigiDoc.manager.ActivityManagerImpl
 import ee.ria.DigiDoc.network.utils.UserAgentUtil
+import ee.ria.DigiDoc.root.RootChecker
+import ee.ria.DigiDoc.root.RootCheckerImpl
 import javax.inject.Singleton
 
 @Module
@@ -108,4 +110,7 @@ class AppModules {
 
     @Provides
     fun provideGson(): Gson = Gson()
+
+    @Provides
+    fun provideRootChecker(): RootChecker = RootCheckerImpl()
 }

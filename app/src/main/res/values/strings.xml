@@ -3,6 +3,8 @@
 
     <string name="back">Back</string>
 
+    <string name="rooted_device">This app cannot be used in rooted device.</string>
+
     <string name="configuration_initialization_failed">Failed to initialize configuration</string>
 
     <!-- Container -->

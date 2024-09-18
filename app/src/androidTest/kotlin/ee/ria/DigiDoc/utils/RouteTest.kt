@@ -11,6 +11,7 @@ import ee.ria.DigiDoc.utils.Constant.Routes.ID_CARD_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MENU_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MOBILE_ID_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.NFC_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.ROOT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_RIGHTS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_SIGNING_SCREEN
@@ -40,5 +41,6 @@ class RouteTest {
         assertEquals(SETTINGS_SCREEN, Route.Settings.route)
         assertEquals(SETTINGS_RIGHTS_SCREEN, Route.SettingsRights.route)
         assertEquals(SETTINGS_SIGNING_SCREEN, Route.SettingsSigning.route)
+        assertEquals(ROOT_SCREEN, Route.RootScreen.route)
     }
 }

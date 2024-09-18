@@ -16,6 +16,7 @@ import ee.ria.DigiDoc.utils.Constant.Routes.MOBILE_ID_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.NFC_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.RECENT_DOCUMENTS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ROLES_DETAIL_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.ROOT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_RIGHTS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_SIGNING_SCREEN
@@ -66,4 +67,6 @@ sealed class Route(val route: String) {
     data object SettingsRights : Route(SETTINGS_RIGHTS_SCREEN)
 
     data object SettingsSigning : Route(SETTINGS_SIGNING_SCREEN)
+
+    data object RootScreen : Route(ROOT_SCREEN)
 }
