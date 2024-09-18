@@ -8,7 +8,9 @@ import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import ee.ria.DigiDoc.domain.preferences.DataStore
+import ee.ria.DigiDoc.fragment.RootFragment
 import ee.ria.DigiDoc.manager.ActivityManager
+import ee.ria.DigiDoc.root.RootChecker
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -28,9 +30,20 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var activityManager: ActivityManager
 
+    @Inject
+    lateinit var rootChecker: RootChecker
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        if (rootChecker.isRooted()) {
+            setContent {
+                RIADigiDocTheme {
+                    RootFragment()
+                }
+            }
+            return
+        }
         val componentClassName = this.javaClass.name
         val externalFileUri = intent?.data
 

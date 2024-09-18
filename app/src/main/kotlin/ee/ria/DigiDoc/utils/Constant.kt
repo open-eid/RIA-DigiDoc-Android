@@ -33,6 +33,7 @@ object Constant {
         const val SETTINGS_SCREEN = "settings_route"
         const val SETTINGS_RIGHTS_SCREEN = "settings_rights_route"
         const val SETTINGS_SIGNING_SCREEN = "settings_signing_route"
+        const val ROOT_SCREEN = "root_screen_route"
     }
 
     object Defaults {

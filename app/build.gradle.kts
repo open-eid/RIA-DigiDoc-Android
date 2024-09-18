@@ -108,6 +108,9 @@ dependencies {
     kapt(libs.google.dagger.hilt.android.compile)
     implementation(libs.androidx.hilt)
 
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
+
     testImplementation(libs.junit)
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.kotlinx.coroutines.test)

@@ -3,6 +3,8 @@
 
     <string name="back">Назад</string>
 
+    <string name="rooted_device">Данное приложение не может быть использовано на взломанном (root) устройстве.</string>
+
     <string name="configuration_initialization_failed">Не удалось инициализировать конфигурация</string>
 
     <!-- Container -->
