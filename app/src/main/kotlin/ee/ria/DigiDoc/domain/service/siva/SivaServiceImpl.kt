@@ -7,6 +7,7 @@ import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.PDF_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
+import ee.ria.DigiDoc.utilsLib.extensions.isCades
 import ee.ria.DigiDoc.utilsLib.extensions.isSignedPDF
 import ee.ria.DigiDoc.utilsLib.extensions.isXades
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
@@ -33,7 +34,8 @@ class SivaServiceImpl
             val mimetype = file.mimeType(context)
 
             return SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(mimetype) &&
-                !file.isXades(context) || (PDF_MIMETYPE == mimetype && file.isSignedPDF(context))
+                !file.isXades(context) || (PDF_MIMETYPE == mimetype && file.isSignedPDF(context)) ||
+                file.isCades(context)
         }
 
         override suspend fun isTimestampedContainer(

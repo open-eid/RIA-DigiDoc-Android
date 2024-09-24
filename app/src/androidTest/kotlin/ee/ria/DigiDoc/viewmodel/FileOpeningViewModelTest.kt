@@ -363,6 +363,37 @@ class FileOpeningViewModelTest {
         }
 
     @Test
+    fun fileOpeningViewModel_handleFiles_successWithCades() =
+        runTest {
+            val uri: Uri = mock()
+            val uris = listOf(uri)
+            val file = createZipWithTextFile("application/zip", "signatures001.p7s")
+
+            val isSivaConfirmed = true
+
+            val signedContainer =
+                runBlocking {
+                    SignedContainer.openOrCreate(context, file, listOf(file), isSivaConfirmed)
+                }
+
+            `when`(
+                fileOpeningRepository.openOrCreateContainer(
+                    context,
+                    contentResolver,
+                    uris,
+                    isSivaConfirmed,
+                ),
+            )
+                .thenReturn(signedContainer)
+
+            `when`(sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed)).thenReturn(false)
+
+            viewModel.handleFiles(uris, isSivaConfirmed = isSivaConfirmed)
+
+            verify(signedContainerObserver, atLeastOnce()).onChanged(signedContainer)
+        }
+
+    @Test
     fun fileOpeningViewModel_showFileChooser_success() =
         runTest {
             viewModel.showFileChooser(fileChooserLauncher)

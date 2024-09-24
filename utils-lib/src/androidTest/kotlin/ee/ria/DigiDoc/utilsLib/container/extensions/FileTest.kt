@@ -13,6 +13,7 @@ import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DEFAULT_MIME_TYPE
 import ee.ria.DigiDoc.common.Constant.PDF_EXTENSION
 import ee.ria.DigiDoc.common.testfiles.file.TestFileUtil.Companion.createZipWithTextFile
+import ee.ria.DigiDoc.utilsLib.extensions.isCades
 import ee.ria.DigiDoc.utilsLib.extensions.isContainer
 import ee.ria.DigiDoc.utilsLib.extensions.isPDF
 import ee.ria.DigiDoc.utilsLib.extensions.isSignedPDF
@@ -151,6 +152,18 @@ class FileTest {
         }
     }
 
+    fun file_isCades_success() {
+        val testFile = createZipWithTextFile(ASICE_MIMETYPE, "signature001.p7s")
+
+        val isCades = testFile?.isCades(context)
+
+        if (isCades != null) {
+            assertTrue(isCades)
+        } else {
+            fail("isCades is null")
+        }
+    }
+
     @Test
     fun file_isXades_falseWithoutXadesSignature() {
         val testFile = createZipWithTextFile(ASICS_MIMETYPE, "testFile.txt")
@@ -161,6 +174,18 @@ class FileTest {
             assertFalse(isXades)
         } else {
             fail("isXades is null")
+        }
+    }
+
+    fun file_isCades_falseWithoutCadesSignature() {
+        val testFile = createZipWithTextFile(ASICE_MIMETYPE, "testFile.txt")
+
+        val isCades = testFile?.isCades(context)
+
+        if (isCades != null) {
+            assertFalse(isCades)
+        } else {
+            fail("isCades is null")
         }
     }
 

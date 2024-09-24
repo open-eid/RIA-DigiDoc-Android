@@ -66,6 +66,7 @@ class SigningViewModel
             signedContainer: SignedContainer?,
             isNestedContainer: Boolean,
             isXadesContainer: Boolean,
+            isCadesContainer: Boolean,
         ): Boolean =
             signedContainer != null &&
                 (!UNSIGNABLE_CONTAINER_MIMETYPES.contains(signedContainer.getContainerFile()?.mimeType(context))) &&
@@ -76,7 +77,7 @@ class SigningViewModel
                             .lowercase(Locale.getDefault()),
                     ) && !isEmptyFileInContainer(signedContainer)
                 ) &&
-                !isNestedContainer && !isXadesContainer
+                !isNestedContainer && !isXadesContainer && !isCadesContainer
 
         fun isEncryptButtonShown(
             signedContainer: SignedContainer?,

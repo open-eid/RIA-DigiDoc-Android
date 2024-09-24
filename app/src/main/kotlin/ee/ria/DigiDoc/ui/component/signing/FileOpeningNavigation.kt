@@ -130,7 +130,9 @@ fun FileOpeningNavigation(
         fileOpeningViewModel.errorState.asFlow().collect { errorState ->
             errorState?.let {
                 withContext(Main) {
-                    ToastUtil.showMessage(context, errorState)
+                    if (errorState != 0) {
+                        ToastUtil.showMessage(context, errorState)
+                    }
                     if (signedContainer == null) {
                         navController.popBackStack()
                     }
