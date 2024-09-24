@@ -6,6 +6,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
+import com.google.firebase.Firebase
+import com.google.firebase.crashlytics.crashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.fragment.RootFragment
@@ -64,6 +66,8 @@ class MainActivity : ComponentActivity() {
                 activityManager.recreateActivity(this)
             }
         }
+
+        Firebase.crashlytics.isCrashlyticsCollectionEnabled = false
 
         lifecycleScope.launch {
             fileTypeSetup.initializeApplicationFileTypesAssociation(componentClassName)

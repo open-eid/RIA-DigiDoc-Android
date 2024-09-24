@@ -1,3 +1,5 @@
+import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
+
 val appAbiFilters = "arm64-v8a;armeabi-v7a;x86_64"
 
 plugins {
@@ -6,6 +8,8 @@ plugins {
     alias(libs.plugins.compose.compiler)
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.google.firebase.crashlytics)
 }
 
 android {
@@ -50,6 +54,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            configure<CrashlyticsExtension> {
+                nativeSymbolUploadEnabled = true
+                mappingFileUploadEnabled = true
+            }
             enableUnitTestCoverage = true
             enableAndroidTestCoverage = true
         }
@@ -62,6 +70,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            configure<CrashlyticsExtension> {
+                nativeSymbolUploadEnabled = true
+                mappingFileUploadEnabled = true
+            }
         }
     }
     compileOptions {
@@ -105,11 +117,9 @@ dependencies {
     implementation(libs.core.ktx)
     implementation(libs.androidx.core.ktx)
     implementation(libs.google.dagger.hilt.android)
+    implementation(libs.firebase.crashlytics.ktx)
     kapt(libs.google.dagger.hilt.android.compile)
     implementation(libs.androidx.hilt)
-
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.crashlytics)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockito.kotlin)

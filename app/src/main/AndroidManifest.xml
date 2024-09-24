@@ -103,6 +103,10 @@
                 android:resource="@xml/file_provider_paths" />
 
         </provider>
+
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="false" />
     </application>
 
     <queries>

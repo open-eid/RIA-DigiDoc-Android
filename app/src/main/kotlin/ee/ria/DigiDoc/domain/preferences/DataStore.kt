@@ -7,6 +7,7 @@ import android.content.SharedPreferences
 import android.content.res.Resources
 import androidx.preference.PreferenceManager
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.Constant.IS_CRASH_SENDING_ALWAYS_ENABLED
 import ee.ria.DigiDoc.common.Constant.KEY_LOCALE
 import ee.ria.DigiDoc.common.preferences.EncryptedPreferences
 import ee.ria.DigiDoc.network.proxy.ManualProxy
@@ -509,6 +510,14 @@ class DataStore
                 getProxyUsername(),
                 getProxyPassword(),
             )
+        }
+
+        fun getIsCrashSendingAlwaysEnabled(): Boolean {
+            return preferences.getBoolean(IS_CRASH_SENDING_ALWAYS_ENABLED, false)
+        }
+
+        fun setIsCrashSendingAlwaysEnabled(isEnabled: Boolean) {
+            preferences.edit().putBoolean(IS_CRASH_SENDING_ALWAYS_ENABLED, isEnabled).apply()
         }
 
         private fun getEncryptedPreferences(context: Context): SharedPreferences? {

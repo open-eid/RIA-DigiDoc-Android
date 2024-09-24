@@ -18,3 +18,5 @@
 -keep class ee.ria.libdigidocpp.* {
     *;
 }
+
+-keep public class * extends java.lang.Exception
