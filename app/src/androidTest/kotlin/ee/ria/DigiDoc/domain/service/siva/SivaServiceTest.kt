@@ -115,6 +115,14 @@ class SivaServiceTest {
     }
 
     @Test
+    fun sivaService_isSivaConfirmationNeeded_returnTrueForCades() {
+        val file = createZipWithTextFile(ASICE_MIMETYPE, "signatures001.p7s")
+        val files = listOf(file)
+        val isSivaConfirmationNeeded = sivaService.isSivaConfirmationNeeded(context, files)
+        assertTrue(isSivaConfirmationNeeded)
+    }
+
+    @Test
     fun sivaService_isSivaConfirmationNeeded_returnFalse() {
         val file = createZipWithTextFile(ASICE_MIMETYPE)
         val files = listOf(file)

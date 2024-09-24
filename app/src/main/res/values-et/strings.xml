@@ -24,6 +24,7 @@
     <string name="container_open_file_error">Failide laadimine ebaõnnestus</string>
     <string name="empty_file_error">Tühja faili ei saa lisada ümbrikusse.</string>
     <string name="xades_file_message">Tegemist on XADES allkirja sisalduva ASICS ümbrikuga. Sellele ümbrikule ei saa allkirja lisada ega eemaldada.</string>
+    <string name="cades_file_message">Tegemist on CAdES allkirja sisaldava ümbrikuga. Sellele ümbrikule ei saa allkirja lisada ega eemaldada.</string>
 
     <string name="challenge_code_text">Kontrollkood:</string>
     <string name="mobile_id_challenge">Mobiil-ID allkirjastamise kontrollkood</string>

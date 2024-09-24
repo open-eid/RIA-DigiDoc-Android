@@ -8,6 +8,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
 import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
+import ee.ria.DigiDoc.common.testfiles.file.TestFileUtil.Companion.createZipWithTextFile
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifierImpl
 import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
@@ -150,7 +151,7 @@ class RecentDocumentsViewModelTest {
     fun signingViewModel_handleSendToSigningViewWithSiva_sendToSigningViewWithSivaFalseWithOtherMimetype() =
         runTest {
             val mimeType = "some/other-mime"
-            val mockFile = mock(File::class.java)
+            val mockFile = createZipWithTextFile("application/zip")
 
             viewModel.handleDocument(mockFile, mimeType, true, sharedContainerViewModel)
 

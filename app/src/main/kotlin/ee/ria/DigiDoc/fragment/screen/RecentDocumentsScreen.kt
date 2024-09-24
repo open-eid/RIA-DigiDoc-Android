@@ -48,6 +48,7 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
+import ee.ria.DigiDoc.utilsLib.extensions.isCades
 import ee.ria.DigiDoc.utilsLib.extensions.isXades
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.toast.ToastUtil
@@ -179,8 +180,11 @@ fun RecentDocumentsScreen(
                         onItemClick = {
                             CoroutineScope(IO).launch {
                                 selectedDocument.value = document
-                                if (SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(document.mimeType(context)) &&
-                                    !document.isXades(context)
+                                if ((
+                                        SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(
+                                            document.mimeType(context),
+                                        ) || document.isCades(context)
+                                    ) && !document.isXades(context)
                                 ) {
                                     showSivaDialog.value = true
                                 } else {

@@ -59,8 +59,8 @@ class SignedContainer
 
         @Throws(Exception::class)
         suspend fun getNestedTimestampedContainer(): SignedContainer? {
-            if (containerMimetype().equals(ASICS_MIMETYPE, ignoreCase = true) &&
-                getDataFiles().size == 1 && !isXades()
+            if ((containerMimetype().equals(ASICS_MIMETYPE, ignoreCase = true) && getDataFiles().size == 1) ||
+                isCades() && !isXades()
             ) {
                 val dataFile = container?.dataFiles()?.firstOrNull()
                 val containerRawFile = containerFile
@@ -189,6 +189,12 @@ class SignedContainer
                     ?.anyMatch { signature: Signature? ->
                         signature?.profile()?.lowercase()?.contains("bes") ?: false
                     } ?: false
+
+        fun isCades(): Boolean =
+            container?.signatures()?.stream()
+                ?.anyMatch { signature: Signature? ->
+                    signature?.profile()?.lowercase()?.contains("cades") ?: false
+                } ?: false
 
         companion object {
             @Throws(Exception::class)

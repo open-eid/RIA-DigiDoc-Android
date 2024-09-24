@@ -111,7 +111,7 @@ class SigningViewModelTest {
             Files.write(file.toPath(), "content".toByteArray(Charset.defaultCharset()))
             val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
-            val isSignButtonShown = viewModel.isSignButtonShown(context, container, false)
+            val isSignButtonShown = viewModel.isSignButtonShown(context, container, false, false, false)
 
             assertTrue(isSignButtonShown)
         }
@@ -123,7 +123,7 @@ class SigningViewModelTest {
 
             val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
-            val isSignButtonShown = viewModel.isSignButtonShown(context, container, false)
+            val isSignButtonShown = viewModel.isSignButtonShown(context, container, false, false, false)
 
             assertFalse(isSignButtonShown)
         }
@@ -131,7 +131,7 @@ class SigningViewModelTest {
     @Test
     fun signingViewModel_isSignButtonShown_containerIsNullReturnFalse() =
         runTest {
-            val isSignButtonShown = viewModel.isSignButtonShown(context, null, false)
+            val isSignButtonShown = viewModel.isSignButtonShown(context, null, false, false, false)
 
             assertFalse(isSignButtonShown)
         }

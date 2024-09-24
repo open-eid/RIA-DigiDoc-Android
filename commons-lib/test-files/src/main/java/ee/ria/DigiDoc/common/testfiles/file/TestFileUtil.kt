@@ -10,7 +10,10 @@ import java.util.zip.ZipOutputStream
 
 class TestFileUtil {
     companion object {
-        fun createZipWithTextFile(mimeType: String, fileName: String = "text.txt"): File {
+        fun createZipWithTextFile(
+            mimeType: String,
+            fileName: String = "text.txt",
+        ): File {
             val textFile = File.createTempFile(fileName, "")
             textFile.deleteOnExit()
             FileWriter(textFile).use { writer ->

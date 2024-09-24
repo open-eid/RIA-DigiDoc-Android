@@ -380,7 +380,7 @@ object FileUtil {
     @Throws(IOException::class)
     fun getFileInContainerZip(
         containerFile: File,
-        fileNameToFind: String?,
+        fileNameToFind: String,
         outputFolder: File,
     ): File? {
         createDirectoryIfNotExist(outputFolder.path)
@@ -390,7 +390,7 @@ object FileUtil {
 
             while (zipInputStream.nextEntry.also { zipEntry = it } != null) {
                 val entryName = zipEntry?.name
-                if (entryName != null && File(entryName).name == fileNameToFind) {
+                if (entryName != null && File(entryName).name.contains(fileNameToFind)) {
                     val outputFile = File(outputFolder, File(entryName).name)
                     FileOutputStream(outputFile).use { outputStream ->
                         zipInputStream.copyTo(outputStream)

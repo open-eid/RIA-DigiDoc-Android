@@ -11,16 +11,17 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
-import ee.ria.DigiDoc.common.Constant.SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
+import ee.ria.DigiDoc.utilsLib.extensions.isCades
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -42,7 +43,9 @@ class RecentDocumentsViewModel
             isSivaConfirmed: Boolean,
         ): SignedContainer {
             val signedContainer = SignedContainer.openOrCreate(context, document, listOf(document), isSivaConfirmed)
-            if (sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed) && !signedContainer.isXades()) {
+            if (sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed) &&
+                !signedContainer.isXades()
+            ) {
                 return sivaRepository.getTimestampedContainer(context, signedContainer)
             }
 
@@ -59,13 +62,14 @@ class RecentDocumentsViewModel
             confirmed: Boolean,
             sharedContainerViewModel: SharedContainerViewModel,
         ) {
-            if (SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(mimeType)) {
-                if (mimeType == ASICS_MIMETYPE || (mimeType == DDOC_MIMETYPE && confirmed)) {
-                    val signedContainer = openDocument(document, confirmed)
-                    sharedContainerViewModel.setSignedContainer(signedContainer)
+            val isCades = document.isCades(context)
+            val isAsicsOrConfirmedDdoc = mimeType == ASICS_MIMETYPE || (mimeType == DDOC_MIMETYPE && confirmed)
 
-                    handleSendToSigningViewWithSiva(true)
-                }
+            if (isAsicsOrConfirmedDdoc || isCades) {
+                val signedContainer = openDocument(document, confirmed)
+                sharedContainerViewModel.setSignedContainer(signedContainer)
+
+                handleSendToSigningViewWithSiva(true)
             }
         }
 
@@ -79,9 +83,17 @@ class RecentDocumentsViewModel
         ) {
             errorLog(logTag, "Unable to open container from recent documents", ex)
 
-            var errorMessage = R.string.signature_update_mobile_id_error_general_client
+            var errorMessage: Int? = R.string.signature_update_mobile_id_error_general_client
 
             withContext(Main) {
+                val exceptionMessage = ex.message ?: ""
+                if (ex is IOException && exceptionMessage.isNotEmpty() &&
+                    exceptionMessage.contains("Online validation disabled")
+                ) {
+                    errorMessage = null
+                    return@withContext
+                }
+
                 if (ex is NoInternetConnectionException) {
                     errorMessage = R.string.no_internet_connection
                 }

@@ -45,6 +45,24 @@ fun File.isXades(context: Context): Boolean {
     }
 }
 
+fun File.isCades(context: Context): Boolean {
+    val tempContainerFiles = File(context.filesDir, "tempContainerFiles")
+
+    try {
+        // Check if file is a zip file. If not, throw ZipException
+        ZipFile(this)
+
+        val signaturesXmlFile = getFileInContainerZip(this, "p7s", tempContainerFiles)
+        val fileExists = signaturesXmlFile?.exists()
+
+        deleteFilesInFolder(tempContainerFiles)
+        return fileExists ?: false
+    } catch (ze: ZipException) {
+        errorLog(FILE_EXTENSIONS_LOG_TAG, "Unable to determine if container is Xades", ze)
+        return false
+    }
+}
+
 fun File.mimeType(context: Context): String {
     val extension = extension.lowercase()
 

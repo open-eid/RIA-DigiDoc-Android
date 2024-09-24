@@ -20,10 +20,12 @@ import ee.ria.DigiDoc.exceptions.FileAlreadyExistsException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -136,8 +138,8 @@ class FileOpeningViewModel
                             isSivaConfirmed,
                         )
 
-                    if (sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed) &&
-                        !signedContainer.isXades()
+                    if (sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed) ||
+                        signedContainer.isCades() && !signedContainer.isXades()
                     ) {
                         val nestedTimestampedContainer =
                             sivaRepository.getTimestampedContainer(
@@ -170,12 +172,14 @@ class FileOpeningViewModel
                 is NoInternetConnectionException -> {
                     _errorState.postValue(R.string.no_internet_connection)
                 }
-                is java.io.IOException -> {
+                is IOException -> {
                     val message = e.message ?: ""
                     if (message.startsWith("Failed to create connection with host")) {
                         _errorState.postValue(R.string.no_internet_connection)
-                    } else {
-                        _errorState.postValue(R.string.container_open_file_error)
+                    } else if (message.contains("Online validation disabled")) {
+                        debugLog(logTag, "Unable to open container. Sending to SiVa not allowed", e)
+                        _errorState.postValue(0)
+                        return
                     }
                 }
                 is FileAlreadyExistsException -> {
