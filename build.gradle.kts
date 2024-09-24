@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.jlleitschuhKtlint)
     alias(libs.plugins.jetbrainsKotlinJvm) apply false
     alias(libs.plugins.compose.compiler) apply false
+    alias(libs.plugins.google.services) apply false
+    alias(libs.plugins.google.firebase.crashlytics) apply false
 }
 
 subprojects {

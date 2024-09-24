@@ -13,6 +13,8 @@ import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.utils.Route
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
@@ -479,5 +481,30 @@ class DataStoreTest {
         assertEquals(80, result.port)
         assertEquals("", result.username)
         assertEquals("", result.password)
+    }
+
+    @Test
+    fun dataStore_setIsCrashSendingAlwaysEnabled_successWithTrue() {
+        dataStore.setIsCrashSendingAlwaysEnabled(true)
+
+        val result = dataStore.getIsCrashSendingAlwaysEnabled()
+
+        assertTrue(result)
+    }
+
+    @Test
+    fun dataStore_setIsCrashSendingAlwaysEnabled_successWithFalse() {
+        dataStore.setIsCrashSendingAlwaysEnabled(false)
+
+        val result = dataStore.getIsCrashSendingAlwaysEnabled()
+
+        assertFalse(result)
+    }
+
+    @Test
+    fun dataStore_getIsCrashSendingAlwaysEnabled_successInitiallyFalse() {
+        val result = dataStore.getIsCrashSendingAlwaysEnabled()
+
+        assertFalse(result)
     }
 }

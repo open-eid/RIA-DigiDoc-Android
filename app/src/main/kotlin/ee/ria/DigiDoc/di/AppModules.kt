@@ -6,6 +6,7 @@ import android.app.Application
 import android.content.ContentResolver
 import android.content.Context
 import android.speech.tts.TextToSpeech
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
@@ -30,6 +31,8 @@ import ee.ria.DigiDoc.manager.ActivityManagerImpl
 import ee.ria.DigiDoc.network.utils.UserAgentUtil
 import ee.ria.DigiDoc.root.RootChecker
 import ee.ria.DigiDoc.root.RootCheckerImpl
+import ee.ria.DigiDoc.utils.monitoring.CrashDetector
+import ee.ria.DigiDoc.utils.monitoring.CrashDetectorImpl
 import javax.inject.Singleton
 
 @Module
@@ -113,4 +116,10 @@ class AppModules {
 
     @Provides
     fun provideRootChecker(): RootChecker = RootCheckerImpl()
+
+    @Provides
+    fun provideCrashlytics(): FirebaseCrashlytics = FirebaseCrashlytics.getInstance()
+
+    @Provides
+    fun provideCrashDetector(crashlytics: FirebaseCrashlytics): CrashDetector = CrashDetectorImpl(crashlytics)
 }

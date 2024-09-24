@@ -118,6 +118,8 @@ object Constant {
     const val MINIMUM_PHONE_NUMBER_LENGTH = 10
     val ALLOWED_PHONE_NUMBER_COUNTRY_CODES = listOf("370", "372")
 
+    const val IS_CRASH_SENDING_ALWAYS_ENABLED = "IS_CRASH_SENDING_ALWAYS_ENABLED"
+
     // Container mimetypes
     const val ASICE_MIMETYPE = "application/vnd.etsi.asic-e+zip" // Also .bdoc, .edoc, .sce
     const val ASICS_MIMETYPE = "application/vnd.etsi.asic-s+zip" // Also .scs
