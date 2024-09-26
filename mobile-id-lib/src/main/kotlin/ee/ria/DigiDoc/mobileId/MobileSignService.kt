@@ -11,7 +11,6 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.MobileIdServiceResponse
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
-import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerSignaturesEmptyException
 import ee.ria.DigiDoc.libdigidoclib.exceptions.SigningCancelledException
 import ee.ria.DigiDoc.mobileId.utils.VerificationCodeUtil
 import ee.ria.DigiDoc.network.mid.dto.MobileCertificateResultType
@@ -36,6 +35,7 @@ import ee.ria.DigiDoc.utilsLib.signing.TrustManagerUtil
 import ee.ria.DigiDoc.utilsLib.signing.UUIDUtil
 import ee.ria.DigiDoc.utilsLib.text.MessageUtil
 import ee.ria.libdigidocpp.Container
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import org.bouncycastle.util.encoders.Base64
 import retrofit2.Call
@@ -128,7 +128,7 @@ class MobileSignServiceImpl
                 signatureInterface?.let {
                     signedContainer.removeSignature(it)
                 }
-            } catch (e: ContainerSignaturesEmptyException) {
+            } catch (e: Exception) {
                 errorLog(
                     logTag,
                     "Failed to remove signature from container. Exception message: ${e.message}. " +
@@ -307,11 +307,13 @@ class MobileSignServiceImpl
                                 roleDataRequest,
                             )
 
+                        val containerSignatures = signedContainer.getSignatures(Main)
+
                         signatureInterface =
-                            if (signedContainer.getSignatures().isEmpty()) {
+                            if (containerSignatures.isEmpty()) {
                                 null
                             } else {
-                                signedContainer.getSignatures()
+                                containerSignatures
                                     .last {
                                         it.validator.status == ValidatorInterface.Status.Invalid ||
                                             it.validator.status == ValidatorInterface.Status.Unknown
@@ -505,7 +507,12 @@ class MobileSignServiceImpl
             signedContainer: SignedContainer,
             request: GetMobileCreateSignatureSessionStatusRequest,
         ) {
-            checkSigningCancelled(signedContainer)
+            try {
+                checkSigningCancelled(signedContainer)
+            } catch (sce: SigningCancelledException) {
+                errorLog(logTag, "Unable to sign with Mobile-ID. Signing has been cancelled", sce)
+                return
+            }
             val responseCall: Call<MobileCreateSignatureSessionStatusResponse> =
                 midRestServiceClient.getMobileCreateSignatureSessionStatus(
                     request.sessionId,
@@ -582,9 +589,19 @@ class MobileSignServiceImpl
             return state == MobileCreateSignatureProcessState.COMPLETE
         }
 
+        @Throws(SigningCancelledException::class)
         private fun checkSigningCancelled(signedContainer: SignedContainer) {
             if (_cancelled.value == true) {
-                signatureInterface?.let { signedContainer.removeSignature(it) }
+                try {
+                    signatureInterface?.let { signedContainer.removeSignature(it) }
+                } catch (e: Exception) {
+                    debugLog(
+                        logTag,
+                        "Unable to remove signature from container after " +
+                            "cancelling Mobile-ID signing in app: ${e.localizedMessage}",
+                        e,
+                    )
+                }
 
                 throw SigningCancelledException("User cancelled signing")
             }
@@ -604,7 +621,12 @@ class MobileSignServiceImpl
             val requestString: String = MessageUtil.toJsonString(sessionRequest)
             debugLog(logTag, "Request string: $requestString")
 
-            checkSigningCancelled(signedContainer)
+            try {
+                checkSigningCancelled(signedContainer)
+            } catch (sce: SigningCancelledException) {
+                errorLog(logTag, "Unable to sign with Mobile-ID. Signing has been cancelled", sce)
+                return null
+            }
 
             val call: Call<MobileCreateSignatureSessionResponse> =
                 midRestServiceClient.getMobileCreateSession(requestString)

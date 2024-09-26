@@ -24,6 +24,7 @@ import ee.ria.DigiDoc.network.mid.dto.request.MobileCreateSignatureRequest
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
 import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator.validatePersonalCode
 import ee.ria.libdigidocpp.Conf
@@ -239,19 +240,28 @@ class MobileIdViewModel
                                 )
                             } else {
                                 CoroutineScope(Main).launch {
+                                    val containerSignatures = container?.getSignatures(Main)
                                     val signatureInterface =
-                                        if (container?.getSignatures()?.isEmpty() == true) {
+                                        if (containerSignatures?.isEmpty() == true) {
                                             null
                                         } else {
-                                            container
-                                                ?.getSignatures()
+                                            containerSignatures
                                                 ?.last {
                                                     it.validator.status == ValidatorInterface.Status.Invalid ||
                                                         it.validator.status == ValidatorInterface.Status.Unknown
                                                 }
                                         }
                                     signatureInterface?.let {
-                                        container?.removeSignature(it)
+                                        try {
+                                            container?.removeSignature(it)
+                                        } catch (e: Exception) {
+                                            debugLog(
+                                                logTag,
+                                                "Unable to remove Mobile-ID signature after " +
+                                                    "cancelling from device: ${e.localizedMessage}",
+                                                e,
+                                            )
+                                        }
                                     }
                                     _signedContainer.postValue(container)
                                     _errorState.postValue(
