@@ -295,19 +295,28 @@ class SmartIdViewModel
                                 )
                             } else {
                                 CoroutineScope(Main).launch {
+                                    val containerSignatures = container?.getSignatures(Main)
                                     val signatureInterface =
-                                        if (container?.getSignatures()?.isEmpty() == true) {
+                                        if (containerSignatures?.isEmpty() == true) {
                                             null
                                         } else {
-                                            container
-                                                ?.getSignatures()
+                                            containerSignatures
                                                 ?.last {
                                                     it.validator.status == ValidatorInterface.Status.Invalid ||
                                                         it.validator.status == ValidatorInterface.Status.Unknown
                                                 }
                                         }
                                     signatureInterface?.let {
-                                        container?.removeSignature(it)
+                                        try {
+                                            container?.removeSignature(it)
+                                        } catch (e: Exception) {
+                                            debugLog(
+                                                logTag,
+                                                "Unable to remove Smart-ID signature after " +
+                                                    "cancelling from device: ${e.localizedMessage}",
+                                                e,
+                                            )
+                                        }
                                     }
                                     _signedContainer.postValue(container)
                                 }

@@ -22,7 +22,6 @@ import ee.ria.DigiDoc.libdigidoclib.SignedContainer.Companion.openOrCreate
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerDataFilesEmptyException
-import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerSignaturesEmptyException
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
@@ -396,14 +395,6 @@ class SignedContainerTest {
             assertEquals("example.asice", signedContainer.getName())
             assertEquals(1, signedContainer.getDataFiles().size)
             assertEquals(2, signedContainer.getSignatures().size)
-        }
-
-    @Test(expected = ContainerSignaturesEmptyException::class)
-    fun signedContainer_container_throwExceptionWhenRemovingNonExistingSignature() =
-        runTest {
-            val dataFiles = listOf(testFile)
-            val signedContainer = openOrCreate(context, testFile, dataFiles, true)
-            signedContainer.removeSignature(mock(SignatureInterface::class.java))
         }
 
     @Test

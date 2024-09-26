@@ -12,7 +12,6 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureWrapper
 import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerDataFilesEmptyException
-import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerSignaturesEmptyException
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import ee.ria.DigiDoc.libdigidoclib.exceptions.SSLHandshakeException
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
@@ -35,6 +34,7 @@ import java.io.File
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.CoroutineContext
 
 private const val LOG_TAG = "SignedContainer"
 
@@ -85,14 +85,23 @@ class SignedContainer
 
         fun getTimestamps(): List<SignatureInterface>? = timestamps
 
-        suspend fun getSignatures(): List<SignatureInterface> {
-            return CoroutineScope(IO).async {
-                val wrappedSignature =
+        suspend fun getSignatures(thread: CoroutineContext = IO): List<SignatureInterface> =
+            withContext(thread) {
+                try {
                     container?.signatures()
-                        ?.mapNotNull { SignatureWrapper(it) } ?: emptyList()
-                return@async wrappedSignature
-            }.await()
-        }
+                        ?.filterNotNull()
+                        ?.mapNotNull { signature ->
+                            try {
+                                SignatureWrapper(signature)
+                            } catch (e: Exception) {
+                                null
+                            }
+                        } ?: emptyList()
+                } catch (e: Exception) {
+                    errorLog(LOG_TAG, "Unable to get container signatures", e)
+                    emptyList()
+                }
+            }
 
         fun isSigned(): Boolean = container?.signatures()?.isNotEmpty() ?: false
 
@@ -121,12 +130,8 @@ class SignedContainer
 
         @Throws(Exception::class)
         fun removeSignature(signature: SignatureInterface) {
-            if (container?.signatures()?.isEmpty() == true) {
-                throw ContainerSignaturesEmptyException()
-            }
-
             val signatures = container?.signatures()
-            if (signatures != null) {
+            if (!signatures.isNullOrEmpty()) {
                 for (i in signatures.indices) {
                     if (signature.id == signatures[i].id()) {
                         container?.removeSignature(i.toLong())
