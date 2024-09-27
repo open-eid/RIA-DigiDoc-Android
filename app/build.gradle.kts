@@ -145,8 +145,6 @@ dependencies {
     implementation(project(":networking-lib"))
     implementation(project(":utils-lib"))
     implementation(project(":commons-lib"))
-    implementation(project(":smart-card-reader-lib"))
-    implementation(project(":nfc-lib"))
     implementation(project(":id-card-lib"))
     implementation(project(":sign-lib"))
 
