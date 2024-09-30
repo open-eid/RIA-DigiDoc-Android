@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.fragment.screen
 import android.app.Activity
 import android.content.res.Configuration
 import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -214,10 +215,17 @@ fun RecentDocumentsScreen(
                     )
                 }
             } else {
-                Text(
-                    text = stringResource(id = R.string.recent_documents_empty_message),
-                    style = MaterialTheme.typography.bodyLarge,
-                )
+                Box(
+                    modifier =
+                        modifier
+                            .padding(screenViewLargePadding),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.recent_documents_empty_message),
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                }
             }
             if (openRemoveDocumentDialog.value) {
                 BasicAlertDialog(

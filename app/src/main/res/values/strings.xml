@@ -28,6 +28,7 @@
     <string name="document_confirm_removal_button">Confirm file removal</string>
     <string name="signature_remove_button">Remove signature</string>
     <string name="container_open_file_error">Could not load selected files</string>
+    <string name="container_load_error">Error opening container</string>
     <string name="empty_file_error">Cannot add empty file to the container.</string>
     <string name="xades_file_message">This ASICS container contains XADES signature. You are not allowed to add or remove signatures to this container.</string>
     <string name="cades_file_message">This container contains CAdES signature. You are not allowed to add or remove signatures to this container.</string>

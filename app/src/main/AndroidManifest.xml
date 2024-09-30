@@ -107,6 +107,17 @@
         <meta-data
             android:name="firebase_crashlytics_collection_enabled"
             android:value="false" />
+
+        <provider
+            android:name=".provider.SignedContainersDocumentsProvider"
+            android:authorities="@string/document_provider_authority"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS">
+            <intent-filter>
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+            </intent-filter>
+        </provider>
     </application>
 
     <queries>
