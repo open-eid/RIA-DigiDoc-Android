@@ -10,8 +10,8 @@ import android.webkit.URLUtil
 import ee.ria.DigiDoc.common.Constant.ALLOWED_URL_CHARACTERS
 import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
 import ee.ria.DigiDoc.common.Constant.RESTRICTED_FILENAME_CHARACTERS_AND_RTL_CHARACTERS_AS_STRING
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.infoLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.infoLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
@@ -209,23 +209,25 @@ object FileUtil {
             }
             if (files != null) {
                 for (file in files) {
-                    val header = """
+                    if (file.length() > 0 && (file.extension == "log")) {
+                        val header = """
 
 ===== File: ${file.getName()} =====
 
 """
-                    val fileString =
-                        header +
-                            FileUtils.readFileToString(
-                                file,
-                                Charset.defaultCharset(),
-                            )
-                    FileUtils.write(
-                        combinedLogFile,
-                        fileString,
-                        Charset.defaultCharset(),
-                        true,
-                    )
+                        val fileString =
+                            header +
+                                FileUtils.readFileToString(
+                                    file,
+                                    Charset.defaultCharset(),
+                                )
+                        FileUtils.write(
+                            combinedLogFile,
+                            fileString,
+                            Charset.defaultCharset(),
+                            true,
+                        )
+                    }
                 }
             }
             return combinedLogFile
@@ -234,7 +236,7 @@ object FileUtil {
     }
 
     fun getLogsDirectory(context: Context): File {
-        return File(context.filesDir.toString() + "/logs")
+        return File(context.filesDir.toString(), "logs")
     }
 
     fun getCertFile(
@@ -321,9 +323,12 @@ object FileUtil {
         content: String?,
     ) {
         val file = File(filePath)
-        val isDirsCreated = Objects.requireNonNull(file.getParentFile()).mkdirs()
-        if (isDirsCreated) {
-            infoLog(LOG_TAG, "Directories created for $filePath")
+        val parentFile = Objects.requireNonNull(file.getParentFile())
+        if (!parentFile.exists()) {
+            val isDirsCreated = parentFile.mkdirs()
+            if (isDirsCreated) {
+                infoLog(LOG_TAG, "Directories created or already exist for $filePath")
+            }
         }
         try {
             FileOutputStream(file.getAbsoluteFile()).use { outputStream ->
@@ -342,9 +347,12 @@ object FileUtil {
         content: ByteArray?,
     ) {
         val file = File(filePath)
-        val isDirsCreated = Objects.requireNonNull(file.getParentFile()).mkdirs()
-        if (isDirsCreated) {
-            infoLog(LOG_TAG, "Directories created for $filePath")
+        val parentFile = Objects.requireNonNull(file.getParentFile())
+        if (!parentFile.exists()) {
+            val isDirsCreated = parentFile.mkdirs()
+            if (isDirsCreated) {
+                infoLog(LOG_TAG, "Directories created or already exist for $filePath")
+            }
         }
         try {
             FileOutputStream(file).use { os -> os.write(content) }
@@ -358,7 +366,7 @@ object FileUtil {
         if (!destinationDirectory.exists()) {
             val isDirsCreated = destinationDirectory.mkdirs()
             if (isDirsCreated) {
-                infoLog(LOG_TAG, "Directories created for $directory")
+                infoLog(LOG_TAG, "Directories created or already exist for $directory")
             }
         }
     }

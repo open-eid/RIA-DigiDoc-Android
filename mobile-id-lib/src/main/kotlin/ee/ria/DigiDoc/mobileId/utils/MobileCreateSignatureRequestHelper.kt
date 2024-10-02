@@ -12,7 +12,7 @@ import ee.ria.DigiDoc.common.Constant.SignatureRequest.RELYING_PARTY_UUID
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.SUPPORTED_LANGUAGES
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.network.mid.dto.request.MobileCreateSignatureRequest
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.text.MessageUtil
 import java.util.Locale
 

@@ -4,7 +4,7 @@ package ee.ria.DigiDoc.utilsLib.validator
 
 import ee.ria.DigiDoc.common.Constant.MAXIMUM_PERSONAL_CODE_LENGTH
 import ee.ria.DigiDoc.utilsLib.date.DateOfBirthUtil.parseDateOfBirth
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import org.apache.commons.lang3.StringUtils
 import java.time.DateTimeException
 import java.time.LocalDate

@@ -116,6 +116,7 @@ fun DiagnosticsScreen(
                 enableOneTimeLogGeneration = false
                 diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(false)
                 diagnosticsViewModel.dataStore.setIsLogFileGenerationRunning(false)
+                diagnosticsViewModel.resetLogs(context)
                 AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, settingValueChanged)
                 sharedSettingsViewModel.recreateActivity()
             }
@@ -287,6 +288,7 @@ fun DiagnosticsScreen(
                         enableOneTimeLogGeneration = false
                         diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(false)
                         diagnosticsViewModel.dataStore.setIsLogFileGenerationRunning(false)
+                        diagnosticsViewModel.resetLogs(context)
                         AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, settingValueChanged)
                         sharedSettingsViewModel.recreateActivity()
                     }
@@ -320,7 +322,7 @@ fun DiagnosticsScreen(
                                             Intent.EXTRA_TITLE,
                                             sanitizeString(diagnosticsFile.name, ""),
                                         )
-                                        .setType("text/plain")
+                                        .setType("text/x-log")
                                         .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION),
                                     null,
                                 )

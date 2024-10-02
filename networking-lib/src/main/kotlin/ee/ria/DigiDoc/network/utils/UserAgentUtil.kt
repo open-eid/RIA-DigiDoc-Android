@@ -12,7 +12,7 @@ import android.os.Build
 import android.text.TextUtils
 import ee.ria.DigiDoc.common.BuildVersionProvider
 import ee.ria.DigiDoc.common.BuildVersionProviderImpl
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import java.util.Locale
 import java.util.Objects
 import java.util.stream.Collectors

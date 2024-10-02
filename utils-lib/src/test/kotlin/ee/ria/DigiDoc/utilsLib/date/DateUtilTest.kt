@@ -26,7 +26,7 @@ import java.util.TimeZone
 class DateUtilTest {
     @Test
     fun dateUtil_format_successFromEpoch() {
-        val dateFormat = DateUtil.dateFormat.format(Date.from(Instant.EPOCH))
+        val dateFormat = DateUtil.dateTimeFormat.format(Date.from(Instant.EPOCH))
         assertEquals("01-01-1970 00:00:00", dateFormat)
     }
 

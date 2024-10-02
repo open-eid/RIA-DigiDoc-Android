@@ -23,7 +23,8 @@ import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -56,20 +57,13 @@ class DiagnosticsViewModel
 
         private val logTag = "SettingsViewModel"
         private val diagnosticsFileName =
-            "ria_digidoc_" + getAppVersion() + "_diagnostics.txt"
-        private val diagnosticsFilePath: String = (
-            getContext().filesDir.path +
-                File.separator + "diagnostics" + File.separator
-        )
-        private val diagnosticsLogsFilePath =
-            "ria_digidoc_" + getAppVersion() + "_logs.txt"
+            "ria_digidoc_${getAppVersion()}.${getAppVersionCode()}_logs.log"
+        private val diagnosticsFilePath: String = File(getCurrentContext().filesDir.path, "diagnostics").path
 
         private val _updatedConfiguration = MutableLiveData<ConfigurationProvider?>()
         var updatedConfiguration: LiveData<ConfigurationProvider?> = _updatedConfiguration
 
-        private fun getContext(): Context {
-            return context.value ?: appContext
-        }
+        private fun getCurrentContext(): Context = context.value ?: appContext
 
         fun setContext(context: Context) {
             _context.postValue(context)
@@ -89,9 +83,9 @@ class DiagnosticsViewModel
                                     R.string.configuration_is_already_up_to_date
                                 }
                             AccessibilityUtil.sendAccessibilityEvent(
-                                getContext(),
+                                getCurrentContext(),
                                 AccessibilityEvent.TYPE_ANNOUNCEMENT,
-                                getContext().getString(messageResId),
+                                getCurrentContext().getString(messageResId),
                             )
                         }
                         _updatedConfiguration.value = newConfig
@@ -119,7 +113,7 @@ class DiagnosticsViewModel
         }
 
         fun getConfigurationDate(date: Date?): String {
-            val dateFormatted = date?.let { DateUtil.dateFormat.format(it) }
+            val dateFormatted = date?.let { DateUtil.dateTimeFormat.format(it) }
 
             return dateFormatted ?: ""
         }
@@ -137,7 +131,7 @@ class DiagnosticsViewModel
 
         fun getTslCacheData(): List<String> {
             val tslCacheList = ArrayList<String>()
-            val tslCacheDir = File(getContext().cacheDir.absolutePath + "/schema")
+            val tslCacheDir = File(getCurrentContext().cacheDir.absolutePath + "/schema")
             val tslFiles =
                 tslCacheDir.listFiles { _: File?, fileName: String ->
                     fileName.endsWith(
@@ -192,13 +186,17 @@ class DiagnosticsViewModel
         }
 
         fun createLogFile(): File {
-            if (FileUtil.logsExist(FileUtil.getLogsDirectory(getContext()))) {
+            if (FileUtil.logsExist(FileUtil.getLogsDirectory(getCurrentContext()))) {
                 return FileUtil.combineLogFiles(
-                    FileUtil.getLogsDirectory(getContext()),
-                    diagnosticsLogsFilePath,
+                    FileUtil.getLogsDirectory(getCurrentContext()),
+                    diagnosticsFileName,
                 )
             }
             throw FileNotFoundException("Unable to get directory with logs")
+        }
+
+        fun resetLogs(context: Context) {
+            LoggingUtil.resetLogs(FileUtil.getLogsDirectory(context))
         }
 
         fun createDiagnosticsFile(): File {
@@ -215,7 +213,7 @@ class DiagnosticsViewModel
                 }
             }
 
-            val diagnosticsFileLocation = File(diagnosticsFilePath + diagnosticsFileName)
+            val diagnosticsFileLocation = File(diagnosticsFilePath, diagnosticsFileName)
             try {
                 FileOutputStream(diagnosticsFileLocation).use { fileStream ->
                     OutputStreamWriter(fileStream, StandardCharsets.UTF_8)
@@ -235,6 +233,10 @@ class DiagnosticsViewModel
             return BuildConfig.VERSION_NAME
         }
 
+        fun getAppVersionCode(): Int {
+            return BuildConfig.VERSION_CODE
+        }
+
         @Throws(XmlPullParserException::class, IOException::class)
         private fun getTSLFileVersion(
             tslInputStream: InputStream,
@@ -248,113 +250,117 @@ class DiagnosticsViewModel
             val diagnosticsText =
                 buildString {
                     appendLine(
-                        "${getContext().getString(
+                        "${getCurrentContext().getString(
                             R.string.main_diagnostics_application_version_title,
                         )} ${BuildConfig.VERSION_NAME}",
                     )
                     appendLine(
-                        "${getContext().getString(
+                        "${getCurrentContext().getString(
                             R.string.main_diagnostics_operating_system_title,
                         )} Android ${Build.VERSION.RELEASE}",
                     )
 
                     // Category
                     appendLine()
-                    appendLine(getContext().getString(R.string.main_diagnostics_libraries_title))
+                    appendLine(getCurrentContext().getString(R.string.main_diagnostics_libraries_title))
                     appendLine(
-                        "${getContext().getString(
+                        "${getCurrentContext().getString(
                             R.string.main_diagnostics_libdigidocpp_title,
                         )} ${dataStore.getLibdigidocppVersion()}",
                     )
 
                     // Category
                     appendLine()
-                    appendLine(getContext().getString(R.string.main_diagnostics_urls_title))
+                    appendLine(getCurrentContext().getString(R.string.main_diagnostics_urls_title))
                     appendLine(
-                        "${getContext().getString(
+                        "${getCurrentContext().getString(
                             R.string.main_diagnostics_config_url_title,
                         )} ${updatedConfiguration.value?.metaInf?.url}",
                     )
                     appendLine(
-                        "${getContext().getString(
+                        "${getCurrentContext().getString(
                             R.string.main_diagnostics_tsl_url_title,
                         )} ${updatedConfiguration.value?.tslUrl}",
                     )
-                    appendLine("${getContext().getString(R.string.main_diagnostics_siva_url_title)} ${getSivaUrl()}")
-                    appendLine("${getContext().getString(R.string.main_diagnostics_tsa_url_title)} ${getTsaUrl()}")
                     appendLine(
-                        "${getContext().getString(
+                        "${getCurrentContext().getString(R.string.main_diagnostics_siva_url_title)} ${getSivaUrl()}",
+                    )
+                    appendLine(
+                        "${getCurrentContext().getString(R.string.main_diagnostics_tsa_url_title)} ${getTsaUrl()}",
+                    )
+                    appendLine(
+                        "${getCurrentContext().getString(
                             R.string.main_diagnostics_ldap_person_url_title,
                         )} ${updatedConfiguration.value?.ldapPersonUrl}",
                     )
                     appendLine(
-                        "${getContext().getString(
+                        "${getCurrentContext().getString(
                             R.string.main_diagnostics_ldap_corp_url_title,
                         )} ${updatedConfiguration.value?.ldapCorpUrl}",
                     )
                     appendLine(
-                        "${getContext().getString(
+                        "${getCurrentContext().getString(
                             R.string.main_diagnostics_mid_proxy_url_title,
                         )} ${updatedConfiguration.value?.midRestUrl}",
                     )
                     appendLine(
-                        "${getContext().getString(
+                        "${getCurrentContext().getString(
                             R.string.main_diagnostics_mid_sk_url_title,
                         )} ${updatedConfiguration.value?.midSkRestUrl}",
                     )
                     appendLine(
-                        "${getContext().getString(
+                        "${getCurrentContext().getString(
                             R.string.main_diagnostics_sid_v2_proxy_url_title,
                         )} ${updatedConfiguration.value?.sidV2RestUrl}",
                     )
                     appendLine(
-                        "${getContext().getString(
+                        "${getCurrentContext().getString(
                             R.string.main_diagnostics_sid_v2_sk_url_title,
                         )} ${updatedConfiguration.value?.sidV2SkRestUrl}",
                     )
                     appendLine(
-                        "${getContext().getString(
+                        "${getCurrentContext().getString(
                             R.string.main_diagnostics_rpuuid_title,
-                        )} ${getContext().getString(getRpUuid())}",
+                        )} ${getCurrentContext().getString(getRpUuid())}",
                     )
 
                     // Category
                     appendLine()
-                    appendLine(getContext().getString(R.string.main_diagnostics_tsl_cache_title))
+                    appendLine(getCurrentContext().getString(R.string.main_diagnostics_tsl_cache_title))
                     getTslCacheData().forEach { data ->
                         appendLine(data)
                     }
 
                     // Category
                     appendLine()
-                    appendLine(getContext().getString(R.string.main_diagnostics_central_configuration_title))
+                    appendLine(getCurrentContext().getString(R.string.main_diagnostics_central_configuration_title))
                     appendLine(
-                        "${getContext().getString(
+                        "${getCurrentContext().getString(
                             R.string.main_diagnostics_date_title,
                         )} ${updatedConfiguration.value?.metaInf?.date}",
                     )
                     appendLine(
-                        "${getContext().getString(
+                        "${getCurrentContext().getString(
                             R.string.main_diagnostics_serial_title,
                         )} ${updatedConfiguration.value?.metaInf?.serial}",
                     )
                     appendLine(
-                        "${getContext().getString(
+                        "${getCurrentContext().getString(
                             R.string.main_diagnostics_url_title,
                         )} ${updatedConfiguration.value?.metaInf?.url}",
                     )
                     appendLine(
-                        "${getContext().getString(
+                        "${getCurrentContext().getString(
                             R.string.main_diagnostics_version_title,
                         )} ${updatedConfiguration.value?.metaInf?.version}",
                     )
                     appendLine(
-                        "${getContext().getString(
+                        "${getCurrentContext().getString(
                             R.string.main_diagnostics_configuration_update_date,
                         )} ${getConfigurationDate(updatedConfiguration.value?.configurationUpdateDate)}",
                     )
                     appendLine(
-                        "${getContext().getString(
+                        "${getCurrentContext().getString(
                             R.string.main_diagnostics_configuration_last_check_date,
                         )} ${getConfigurationDate(updatedConfiguration.value?.configurationLastUpdateCheckDate)}",
                     )

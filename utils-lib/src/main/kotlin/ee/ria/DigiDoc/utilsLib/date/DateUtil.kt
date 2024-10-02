@@ -13,6 +13,8 @@ import java.util.TimeZone
 
 object DateUtil {
     val dateFormat: SimpleDateFormat
+        get() = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+    val dateTimeFormat: SimpleDateFormat
         get() = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
 
     @Throws(ParseException::class)
@@ -35,7 +37,7 @@ object DateUtil {
 
     @Throws(ParseException::class)
     fun stringToDate(dateString: String): Date? {
-        return dateFormat.parse(dateString)
+        return dateTimeFormat.parse(dateString)
     }
 
     fun getFormattedDateTime(

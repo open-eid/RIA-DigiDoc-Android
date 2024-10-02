@@ -18,7 +18,7 @@ import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
 import ee.ria.DigiDoc.common.Constant.DIR_SIGNATURE_CONTAINERS
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.getFileInDirectory
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
@@ -151,7 +151,7 @@ object ContainerUtil {
 
         if (isDirsCreated || isDirCreated) {
             if (directory != null) {
-                debugLog(LOG_TAG, "Directories created for " + directory.path)
+                debugLog(LOG_TAG, "Directories created or already exist for " + directory.path)
             }
         }
 
@@ -198,7 +198,7 @@ object ContainerUtil {
         val dir = File(context.filesDir, DIR_SIGNATURE_CONTAINERS)
         val isDirsCreated = dir.mkdirs()
         if (isDirsCreated) {
-            debugLog(LOG_TAG, "Directories created for ${dir.path}")
+            debugLog(LOG_TAG, "Directories created or already exist for ${dir.path}")
         }
         return dir
     }

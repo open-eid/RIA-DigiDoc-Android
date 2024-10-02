@@ -10,7 +10,7 @@ import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.getNameFromFileName
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.normalizeUri
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.InputStream

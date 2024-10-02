@@ -22,7 +22,7 @@ import ee.ria.DigiDoc.network.configuration.interceptors.UserAgentInterceptor
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
 import ee.ria.DigiDoc.utilsLib.extensions.removeWhitespaces
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.internal.tls.OkHostnameVerifier
@@ -212,7 +212,7 @@ object FetchAndPackageDefaultConfigurationTask {
                 .append("\n")
                 .append(CONFIGURATION_DOWNLOAD_DATE_PROPERTY)
                 .append("=")
-                .append(DateUtil.dateFormat.format(Date()))
+                .append(DateUtil.dateTimeFormat.format(Date()))
         storeFile(PROPERTIES_FILE_NAME, propertiesFileBuilder.toString())
     }
 

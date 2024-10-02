@@ -94,7 +94,7 @@ import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.removeExtensionFromContai
 import ee.ria.DigiDoc.utilsLib.extensions.isContainer
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.toast.ToastUtil.showMessage
 import ee.ria.DigiDoc.viewmodel.SigningViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel

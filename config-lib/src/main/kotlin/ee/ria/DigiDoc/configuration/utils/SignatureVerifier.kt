@@ -2,7 +2,7 @@
 
 package ee.ria.DigiDoc.configuration.utils
 
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.crypto.params.RSAKeyParameters
 import org.bouncycastle.crypto.util.PublicKeyFactory
