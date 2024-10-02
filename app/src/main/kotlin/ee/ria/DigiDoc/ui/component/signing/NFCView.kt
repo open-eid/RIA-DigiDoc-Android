@@ -431,6 +431,12 @@ fun NFCView(
             )
         } else {
             if (nfcStatus !== NfcSmartCardReaderManager.NfcStatus.NFC_ACTIVE) {
+                SignatureAddRadioGroup(
+                    modifier = modifier,
+                    navController = signatureAddController,
+                    selectedRadioItem = sharedSettingsViewModel.dataStore.getSignatureAddMethod(),
+                    sharedSettingsViewModel = sharedSettingsViewModel,
+                )
                 Image(
                     painter = painterResource(id = R.drawable.ic_icon_nfc),
                     contentDescription = null,
