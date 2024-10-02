@@ -54,8 +54,8 @@ class ConfigurationPropertiesTest {
         val lastUpdated = Date()
         val serial = 123
 
-        val expectedLastUpdateDate = DateUtil.dateFormat.format(lastUpdateCheck)
-        val expectedLastUpdatedDate = DateUtil.dateFormat.format(lastUpdated)
+        val expectedLastUpdateDate = DateUtil.dateTimeFormat.format(lastUpdateCheck)
+        val expectedLastUpdatedDate = DateUtil.dateTimeFormat.format(lastUpdated)
 
         `when`(mockEditor.putString(anyString(), anyString())).thenReturn(mockEditor)
         `when`(mockEditor.putInt(anyString(), anyInt())).thenReturn(mockEditor)
@@ -85,7 +85,7 @@ class ConfigurationPropertiesTest {
     @Test
     fun configurationProperties_updateProperties_updatingUpdatedDateSuccess() {
         val currentDate = Date()
-        val expectedDate = DateUtil.dateFormat.format(currentDate)
+        val expectedDate = DateUtil.dateTimeFormat.format(currentDate)
 
         `when`(mockSharedPreferences.contains(CONFIGURATION_UPDATE_DATE_PROPERTY_NAME)).thenReturn(true)
         `when`(mockSharedPreferences.getString(CONFIGURATION_UPDATE_DATE_PROPERTY_NAME, null)).thenReturn(expectedDate)
@@ -97,7 +97,7 @@ class ConfigurationPropertiesTest {
     @Test
     fun configurationProperties_updateProperties_updatingLastCheckDateSuccess() {
         val currentDate = Date()
-        val expectedDate = DateUtil.dateFormat.format(currentDate)
+        val expectedDate = DateUtil.dateTimeFormat.format(currentDate)
 
         `when`(mockSharedPreferences.contains(CONFIGURATION_LAST_UPDATE_CHECK_DATE_PROPERTY_NAME)).thenReturn(true)
         `when`(

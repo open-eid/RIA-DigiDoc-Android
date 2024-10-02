@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.utilsLib.extensions.formatHexString
 import ee.ria.DigiDoc.utilsLib.extensions.hexString
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import org.apache.commons.text.WordUtils
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.asn1.x500.X500Name

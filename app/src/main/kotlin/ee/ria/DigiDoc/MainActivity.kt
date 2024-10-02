@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
 import dagger.hilt.android.AndroidEntryPoint
@@ -14,8 +15,13 @@ import ee.ria.DigiDoc.fragment.RootFragment
 import ee.ria.DigiDoc.manager.ActivityManager
 import ee.ria.DigiDoc.root.RootChecker
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utilsLib.R.string.main_diagnostics_logging_key
+import ee.ria.DigiDoc.utilsLib.R.string.main_diagnostics_logging_running_key
+import ee.ria.DigiDoc.utilsLib.file.FileUtil
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
 import kotlinx.coroutines.launch
 import java.util.Locale
+import java.util.logging.Logger
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -35,6 +41,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var rootChecker: RootChecker
 
+    @Inject
+    lateinit var loggingUtil: LoggingUtil
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -46,6 +55,7 @@ class MainActivity : ComponentActivity() {
             }
             return
         }
+
         val componentClassName = this.javaClass.name
         val externalFileUri = intent?.data
 
@@ -69,9 +79,24 @@ class MainActivity : ComponentActivity() {
 
         Firebase.crashlytics.isCrashlyticsCollectionEnabled = false
 
+        loggingUtil.handleOneTimeLogging(this)
+        LoggingUtil.resetLogs(FileUtil.getLogsDirectory(this))
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val isDiagnosticsLoggingEnabled = sharedPreferences.getBoolean(getString(main_diagnostics_logging_key), false)
+        val isDiagnosticsLoggingRunning =
+            sharedPreferences.getBoolean(
+                getString(main_diagnostics_logging_running_key),
+                false,
+            )
+        val isLoggingEnabled = BuildConfig.DEBUG || (isDiagnosticsLoggingEnabled && isDiagnosticsLoggingRunning)
         lifecycleScope.launch {
+            LoggingUtil.initialize(
+                applicationContext,
+                Logger.getLogger(MainActivity::class.java.name),
+                isLoggingEnabled,
+            )
             fileTypeSetup.initializeApplicationFileTypesAssociation(componentClassName)
-            librarySetup.setupLibraries(applicationContext)
+            librarySetup.setupLibraries(applicationContext, isLoggingEnabled)
         }
         setContent {
             RIADigiDocTheme {

@@ -28,10 +28,11 @@ import ee.ria.DigiDoc.network.proxy.ProxyUtil
 import ee.ria.DigiDoc.network.proxy.ProxyUtil.getManualProxySettings
 import ee.ria.DigiDoc.network.proxy.ProxyUtil.getProxySetting
 import ee.ria.DigiDoc.network.utils.UserAgentUtil
+import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.getCertFile
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.readFileContent
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.libdigidocpp.Conf
 import ee.ria.libdigidocpp.DigiDocConf
 import ee.ria.libdigidocpp.StringMap
@@ -68,8 +69,12 @@ class Initialization
          * Unzips the schema, access certificate and initializes libdigidocpp.
          */
         @Throws(IOException::class, NotFoundException::class)
-        suspend fun init(context: Context) {
+        suspend fun init(
+            context: Context,
+            isLoggingEnabled: Boolean = false,
+        ) {
             if (isInitialized) {
+                setLibdigidocppLogLevel(isLoggingEnabled)
                 throw AlreadyInitializedException("Libdigidocpp is already initialized")
             }
             coroutineScope {
@@ -92,6 +97,7 @@ class Initialization
                     initLibDigiDocpp(
                         context,
                         getSchemaPath(context),
+                        isLoggingEnabled,
                     )
                 }
             }
@@ -118,19 +124,24 @@ class Initialization
         private suspend fun initLibDigiDocpp(
             context: Context,
             path: String,
+            isLoggingEnabled: Boolean,
         ) {
             initLibDigiDocConfiguration(
                 context,
+                isLoggingEnabled,
             )
             digidoc.initializeLib(UserAgentUtil.getUserAgent(context), path)
             isInitialized = true
         }
 
-        private suspend fun initLibDigiDocConfiguration(context: Context) {
+        private suspend fun initLibDigiDocConfiguration(
+            context: Context,
+            isLoggingEnabled: Boolean,
+        ) {
             val conf = DigiDocConf(getSchemaDir(context).absolutePath)
             Conf.init(conf.transfer())
             if (BuildConfig.BUILD_TYPE.contentEquals("debug")) {
-                initLibDigiDocLogging(context)
+                initLibDigiDocLogging(context, isLoggingEnabled)
             }
 
             forcePKCS12Certificate()
@@ -222,17 +233,24 @@ class Initialization
             DigiDocConf.instance().setPKCS12Cert("798.p12")
         }
 
-        private fun initLibDigiDocLogging(context: Context) {
-            val logDirectory = File(context.filesDir, "/logs")
+        private fun initLibDigiDocLogging(
+            context: Context,
+            isLoggingEnabled: Boolean,
+        ) {
+            val logDirectory = FileUtil.getLogsDirectory(context)
             if (!logDirectory.exists()) {
                 val isDirCreated = logDirectory.mkdir()
                 if (isDirCreated) {
-                    debugLog(libdigidocInitLogTag, "Directories created for ${logDirectory.path}")
+                    debugLog(libdigidocInitLogTag, "Directories created or already exist for ${logDirectory.path}")
                 }
             }
-            DigiDocConf.instance().setLogLevel(libdigidocLogLevel)
+            setLibdigidocppLogLevel(isLoggingEnabled)
             DigiDocConf.instance()
                 .setLogFile(File(logDirectory, "libdigidocpp.log").absolutePath)
+        }
+
+        private fun setLibdigidocppLogLevel(isLoggingEnabled: Boolean) {
+            DigiDocConf.instance().setLogLevel(if (isLoggingEnabled) libdigidocLogLevel else 0)
         }
 
         private fun initProxy(

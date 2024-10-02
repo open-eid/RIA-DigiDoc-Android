@@ -11,7 +11,7 @@ import ee.ria.DigiDoc.utilsLib.extensions.isCades
 import ee.ria.DigiDoc.utilsLib.extensions.isSignedPDF
 import ee.ria.DigiDoc.utilsLib.extensions.isXades
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton

@@ -143,50 +143,36 @@ class FileTest {
     fun file_isXades_success() {
         val testFile = createZipWithTextFile(ASICS_MIMETYPE, "signatures.xml")
 
-        val isXades = testFile?.isXades(context)
+        val isXades = testFile.isXades(context)
 
-        if (isXades != null) {
-            assertTrue(isXades)
-        } else {
-            fail("isXades is null")
-        }
+        assertTrue(isXades)
     }
 
+    @Test
     fun file_isCades_success() {
         val testFile = createZipWithTextFile(ASICE_MIMETYPE, "signature001.p7s")
 
-        val isCades = testFile?.isCades(context)
+        val isCades = testFile.isCades(context)
 
-        if (isCades != null) {
-            assertTrue(isCades)
-        } else {
-            fail("isCades is null")
-        }
+        assertTrue(isCades)
     }
 
     @Test
     fun file_isXades_falseWithoutXadesSignature() {
         val testFile = createZipWithTextFile(ASICS_MIMETYPE, "testFile.txt")
 
-        val isXades = testFile?.isXades(context)
+        val isXades = testFile.isXades(context)
 
-        if (isXades != null) {
-            assertFalse(isXades)
-        } else {
-            fail("isXades is null")
-        }
+        assertFalse(isXades)
     }
 
+    @Test
     fun file_isCades_falseWithoutCadesSignature() {
         val testFile = createZipWithTextFile(ASICE_MIMETYPE, "testFile.txt")
 
-        val isCades = testFile?.isCades(context)
+        val isCades = testFile.isCades(context)
 
-        if (isCades != null) {
-            assertFalse(isCades)
-        } else {
-            fail("isCades is null")
-        }
+        assertFalse(isCades)
     }
 
     private fun mockFile(

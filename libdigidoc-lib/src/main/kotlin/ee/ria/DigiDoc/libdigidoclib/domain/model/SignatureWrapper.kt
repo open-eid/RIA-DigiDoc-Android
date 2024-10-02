@@ -2,7 +2,7 @@
 
 package ee.ria.DigiDoc.libdigidoclib.domain.model
 
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.libdigidocpp.Signature
 import okio.ByteString
 import java.io.IOException

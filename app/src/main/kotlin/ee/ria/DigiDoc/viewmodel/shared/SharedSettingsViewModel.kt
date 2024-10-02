@@ -27,8 +27,8 @@ import ee.ria.DigiDoc.network.siva.SivaSetting
 import ee.ria.DigiDoc.network.utils.NetworkUtil.constructClientBuilder
 import ee.ria.DigiDoc.network.utils.UserAgentUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.signing.CertificateUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO

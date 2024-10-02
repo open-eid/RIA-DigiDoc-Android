@@ -20,8 +20,8 @@ import ee.ria.DigiDoc.utilsLib.extensions.isPDF
 import ee.ria.DigiDoc.utilsLib.extensions.isSignedPDF
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.libdigidocpp.Container
 import ee.ria.libdigidocpp.ContainerOpenCB
 import ee.ria.libdigidocpp.Signature

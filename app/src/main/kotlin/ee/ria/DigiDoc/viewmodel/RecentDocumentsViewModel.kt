@@ -16,7 +16,7 @@ import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import ee.ria.DigiDoc.utilsLib.extensions.isCades
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.withContext

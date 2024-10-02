@@ -264,7 +264,7 @@ class ConfigurationLoaderTest {
             val mockContext = mock(Context::class.java)
             val currentMinusTwoDays = LocalDateTime.now().minusDays(5)
             val currentMinusTwoDaysDate = Date.from(currentMinusTwoDays.atZone(ZoneId.systemDefault()).toInstant())
-            val expectedLastUpdateDate = DateUtil.dateFormat.format(currentMinusTwoDaysDate)
+            val expectedLastUpdateDate = DateUtil.dateTimeFormat.format(currentMinusTwoDaysDate)
 
             `when`(
                 mockContext.getSharedPreferences(CONFIGURATION_PREFERENCES, Context.MODE_PRIVATE),
@@ -291,7 +291,7 @@ class ConfigurationLoaderTest {
             val mockContext = mock(Context::class.java)
             val currentMinusTwoDays = LocalDateTime.now().minusDays(2)
             val currentMinusTwoDaysDate = Date.from(currentMinusTwoDays.atZone(ZoneId.systemDefault()).toInstant())
-            val expectedLastUpdateDate = DateUtil.dateFormat.format(currentMinusTwoDaysDate)
+            val expectedLastUpdateDate = DateUtil.dateTimeFormat.format(currentMinusTwoDaysDate)
 
             `when`(
                 mockContext.getSharedPreferences(CONFIGURATION_PREFERENCES, Context.MODE_PRIVATE),

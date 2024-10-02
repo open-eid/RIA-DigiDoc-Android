@@ -10,7 +10,7 @@ import com.google.android.gms.tasks.Tasks
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.utils.monitoring.CrashDetector
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -38,6 +38,7 @@ class HomeViewModel
         fun setCrashSendingAlwaysEnabled(isEnabled: Boolean) = dataStore.setIsCrashSendingAlwaysEnabled(isEnabled)
 
         fun deleteUnsentReports() {
+            _hasUnsentReports.postValue(Tasks.forResult(false))
             crashDetector.deleteUnsentReports()
         }
 
@@ -47,6 +48,7 @@ class HomeViewModel
                     withContext(IO) {
                         val result = Tasks.await(task)
                         if (result) {
+                            _hasUnsentReports.postValue(Tasks.forResult(false))
                             crashDetector.sendUnsentReports()
                         } else {
                             deleteUnsentReports()

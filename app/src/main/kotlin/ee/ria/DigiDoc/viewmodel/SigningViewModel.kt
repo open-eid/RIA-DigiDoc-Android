@@ -17,7 +17,7 @@ import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
 import ee.ria.DigiDoc.utilsLib.date.DateUtil.getFormattedDateTime
 import ee.ria.DigiDoc.utilsLib.date.DateUtil.signedDateTimeString
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import org.apache.commons.io.FilenameUtils
 import java.io.File

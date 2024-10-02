@@ -17,7 +17,7 @@ import ee.ria.DigiDoc.utilsLib.file.FileUtil.deleteFilesInFolder
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.getFileInContainerZip
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.parseXMLFile
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.readFileAsString
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import java.io.File
 import java.io.IOException
 import java.util.zip.ZipException
@@ -40,7 +40,7 @@ fun File.isXades(context: Context): Boolean {
         deleteFilesInFolder(tempContainerFiles)
         return fileExists ?: false
     } catch (ze: ZipException) {
-        errorLog(FILE_EXTENSIONS_LOG_TAG, "Unable to determine if container is Xades", ze)
+        debugLog(FILE_EXTENSIONS_LOG_TAG, "File is not a Xades container")
         return false
     }
 }
@@ -58,7 +58,7 @@ fun File.isCades(context: Context): Boolean {
         deleteFilesInFolder(tempContainerFiles)
         return fileExists ?: false
     } catch (ze: ZipException) {
-        errorLog(FILE_EXTENSIONS_LOG_TAG, "Unable to determine if container is Xades", ze)
+        debugLog(FILE_EXTENSIONS_LOG_TAG, "File is not a Cades container")
         return false
     }
 }

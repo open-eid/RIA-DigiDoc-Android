@@ -52,7 +52,7 @@ class ConfigurationPropertiesImpl
                 val sharedPreferences =
                     context.getSharedPreferences(CONFIGURATION_PREFERENCES, Context.MODE_PRIVATE)
                 sharedPreferences.edit()
-                    .putString(updateDatePropertyName, DateUtil.dateFormat.format(date))
+                    .putString(updateDatePropertyName, DateUtil.dateTimeFormat.format(date))
                     .apply()
             }
         }
@@ -79,7 +79,7 @@ class ConfigurationPropertiesImpl
                 sharedPreferences.edit()
                     .putString(
                         lastUpdateDateCheckDatePropertyName,
-                        DateUtil.dateFormat.format(date),
+                        DateUtil.dateTimeFormat.format(date),
                     )
                     .apply()
             }

@@ -29,8 +29,8 @@ import ee.ria.DigiDoc.network.mid.rest.ServiceGenerator
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.network.proxy.ProxyUtil
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.signing.TrustManagerUtil
 import ee.ria.DigiDoc.utilsLib.signing.UUIDUtil
 import ee.ria.DigiDoc.utilsLib.text.MessageUtil

@@ -7,7 +7,7 @@ import ee.ria.DigiDoc.common.Constant.TSL_SEQUENCE_NUMBER_ELEMENT
 import ee.ria.DigiDoc.configuration.exception.TSLException
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.createDirectoryIfNotExist
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory

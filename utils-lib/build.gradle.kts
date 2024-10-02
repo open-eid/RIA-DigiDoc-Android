@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    kotlin("kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -50,6 +52,11 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.gson)
     implementation(libs.threegpp.telecom.charsets)
+    implementation(libs.preferencex)
+
+    implementation(libs.google.dagger.hilt.android)
+    kapt(libs.google.dagger.hilt.android.compile)
+    implementation(libs.androidx.hilt)
 
     implementation(libs.pdfbox.android) {
         exclude(group = "org.bouncycastle")

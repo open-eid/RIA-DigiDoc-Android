@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.res.Resources.NotFoundException
 import android.util.Log
 import ee.ria.DigiDoc.libdigidoclib.R
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
@@ -31,7 +31,7 @@ object FileUtils {
         if (schemaDir.mkdirs()) {
             debugLog(
                 LIBDIGIDOC_FILEUTILS_LOG_TAG,
-                "Directories created for ${schemaDir.path}",
+                "Directories created or already exist for ${schemaDir.path}",
             )
         }
         return schemaDir

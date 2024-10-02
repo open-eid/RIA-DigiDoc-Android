@@ -29,8 +29,8 @@ import ee.ria.DigiDoc.network.sid.dto.request.SmartCreateSignatureRequest
 import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
 import ee.ria.DigiDoc.smartId.SmartSignService
 import ee.ria.DigiDoc.smartId.utils.SmartCreateSignatureRequestHelper
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.signing.NotificationUtil
 import ee.ria.DigiDoc.utilsLib.signing.PowerUtil
 import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator.validatePersonalCode
