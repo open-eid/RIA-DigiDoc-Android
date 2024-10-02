@@ -24,6 +24,14 @@ object Constant {
         const val ALTERNATIVE_DISPLAY_TEXT_FORMAT = "UCS-2"
     }
 
+    object NFCConstants {
+        const val PIN1_MIN_LENGTH: Int = 4
+        const val PIN2_MIN_LENGTH: Int = 5
+        const val PIN_MAX_LENGTH: Int = 12
+        const val PUK_MIN_LENGTH: Int = 8
+        const val CAN_LENGTH: Int = 6
+    }
+
     object SmartIdConstants {
         const val SID_BROADCAST_ACTION: String = "ee.ria.DigiDoc.android.smartid.SID_BROADCAST_ACTION"
         const val SID_BROADCAST_TYPE_KEY: String =

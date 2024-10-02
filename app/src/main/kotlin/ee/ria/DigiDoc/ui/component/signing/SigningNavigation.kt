@@ -111,6 +111,7 @@ import java.io.File
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SigningNavigation(
+    activity: Activity,
     navController: NavHostController,
     modifier: Modifier = Modifier,
     sharedContainerViewModel: SharedContainerViewModel,
@@ -263,6 +264,23 @@ fun SigningNavigation(
         }
     }
 
+    LaunchedEffect(sharedContainerViewModel.signedNFCStatus) {
+        sharedContainerViewModel.signedNFCStatus.asFlow().collect { status ->
+            status?.let {
+                if (status == true) {
+                    signatures = signedContainer?.getSignatures() ?: emptyList()
+                    withContext(Main) {
+                        signatureAddedSuccess.value = true
+                        AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signatureAddedSuccessText)
+                        delay(5000)
+                        signatureAddedSuccess.value = false
+                        sharedContainerViewModel.setSignedNFCStatus(null)
+                    }
+                }
+            }
+        }
+    }
+
     LaunchedEffect(signedContainer) {
         signedContainer?.let {
             val pastTime = System.currentTimeMillis()
@@ -296,6 +314,7 @@ fun SigningNavigation(
             properties = DialogProperties(usePlatformDefaultWidth = false),
         ) {
             AddSignatureView(
+                activity = activity,
                 signatureAddController = signatureAddController,
                 cancelButtonClick = cancelButtonClick,
                 dismissDialog = dismissDialog,
@@ -1078,6 +1097,7 @@ fun SigningNavigationPreview() {
 
     RIADigiDocTheme {
         SigningNavigation(
+            activity = LocalContext.current as Activity,
             navController = navController,
             sharedContainerViewModel = sharedContainerViewModel,
             sharedSignatureViewModel = sharedSignatureViewModel,

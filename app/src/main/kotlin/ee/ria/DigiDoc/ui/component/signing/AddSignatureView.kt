@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.ui.component.signing
 
+import android.app.Activity
 import android.content.res.Configuration
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
@@ -18,6 +19,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -34,6 +36,7 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 
 @Composable
 fun AddSignatureView(
+    activity: Activity,
     modifier: Modifier = Modifier,
     signatureAddController: NavHostController,
     dismissDialog: () -> Unit = {},
@@ -98,8 +101,11 @@ fun AddSignatureView(
                 }
                 composable(route = Route.NFC.route) {
                     NFCView(
+                        activity = activity,
+                        dismissDialog = dismissDialog,
                         cancelButtonClick = cancelButtonClick,
                         signatureAddController = signatureAddController,
+                        sharedContainerViewModel = sharedContainerViewModel,
                     )
                 }
             }
@@ -115,6 +121,7 @@ fun AddSignatureViewPreview() {
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
     RIADigiDocTheme {
         AddSignatureView(
+            activity = LocalContext.current as Activity,
             signatureAddController = signatureAddController,
             sharedContainerViewModel = sharedContainerViewModel,
         )

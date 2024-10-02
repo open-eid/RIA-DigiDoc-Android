@@ -1,0 +1,233 @@
+@file:Suppress("PackageName", "MaxLineLength")
+
+package ee.ria.DigiDoc.viewmodel
+
+import android.app.Activity
+import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.Constant.NFCConstants.CAN_LENGTH
+import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN2_MIN_LENGTH
+import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN_MAX_LENGTH
+import ee.ria.DigiDoc.idcard.CertificateType
+import ee.ria.DigiDoc.idcard.TokenWithPace
+import ee.ria.DigiDoc.libdigidoclib.SignedContainer
+import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
+import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
+import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
+import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
+import ee.ria.DigiDoc.smartcardreader.SmartCardReaderException
+import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager
+import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager.NfcStatus
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import org.bouncycastle.util.encoders.Base64
+import org.bouncycastle.util.encoders.Hex
+import javax.inject.Inject
+
+@HiltViewModel
+class NFCViewModel
+    @Inject
+    constructor(
+        private val nfcSmartCardReaderManager: NfcSmartCardReaderManager,
+        private val containerWrapper: ContainerWrapper,
+    ) : ViewModel() {
+        private val logTag = javaClass.simpleName
+
+        private val _signedContainer = MutableLiveData<SignedContainer?>(null)
+        val signedContainer: LiveData<SignedContainer?> = _signedContainer
+        private val _errorState = MutableLiveData<String?>(null)
+        val errorState: LiveData<String?> = _errorState
+        private val _message = MutableLiveData<Int?>(null)
+        val message: LiveData<Int?> = _message
+        private val _nfcStatus = MutableLiveData<NfcStatus?>(null)
+        val nfcStatus: LiveData<NfcStatus?> = _nfcStatus
+        private val _signStatus = MutableLiveData<Boolean?>(null)
+        val signStatus: LiveData<Boolean?> = _signStatus
+
+        private val _roleDataRequested = MutableLiveData(false)
+        val roleDataRequested: LiveData<Boolean?> = _roleDataRequested
+
+        private var signatureInterface: SignatureInterface? = null
+
+        fun resetErrorState() {
+            _errorState.postValue(null)
+        }
+
+        fun resetSignStatus() {
+            _signStatus.postValue(null)
+        }
+
+        fun resetSignedContainer() {
+            _signedContainer.postValue(null)
+        }
+
+        fun resetRoleDataRequested() {
+            _roleDataRequested.postValue(null)
+        }
+
+        fun setRoleDataRequested(roleDataRequested: Boolean) {
+            _roleDataRequested.postValue(roleDataRequested)
+        }
+
+        fun isCANNumberValid(canNumber: String?): Boolean {
+            return !(
+                !canNumber.isNullOrEmpty() &&
+                    !isCANLengthValid(canNumber)
+            )
+        }
+
+        fun isPIN2CodeValid(pin2Code: String?): Boolean {
+            return !(
+                !pin2Code.isNullOrEmpty() &&
+                    !isPIN2LengthValid(pin2Code)
+            )
+        }
+
+        private fun isPIN2LengthValid(pin2Code: String): Boolean {
+            return pin2Code.length in PIN2_MIN_LENGTH..PIN_MAX_LENGTH
+        }
+
+        private fun isCANLengthValid(canNumber: String): Boolean {
+            return canNumber.length == CAN_LENGTH
+        }
+
+        fun positiveButtonEnabled(
+            canNumber: String?,
+            pin2Code: String?,
+        ): Boolean {
+            if (canNumber != null && pin2Code != null) {
+                return isCANLengthValid(canNumber.toString()) &&
+                    isPIN2LengthValid(pin2Code.toString())
+            }
+            return false
+        }
+
+        fun getNFCStatus(activity: Activity): NfcStatus {
+            return nfcSmartCardReaderManager.detectNfcStatus(activity)
+        }
+
+        private fun resetValues() {
+            _errorState.postValue(null)
+            _message.postValue(null)
+            _signStatus.postValue(null)
+            _nfcStatus.postValue(null)
+        }
+
+        fun cancelNFCWorkRequest(signedContainer: SignedContainer?) {
+            if (signedContainer != null) {
+                try {
+                    signatureInterface?.let {
+                        signedContainer.removeSignature(it)
+                    }
+                } catch (e: Exception) {
+                    errorLog(
+                        logTag,
+                        "Failed to remove signature from container. Exception message: ${e.message}. " +
+                            "Exception: ${e.stackTrace.contentToString()}",
+                        e,
+                    )
+                }
+            }
+
+            nfcSmartCardReaderManager.disableNfcReaderMode()
+        }
+
+        private fun checkNFCStatus(nfcStatus: NfcStatus) {
+            _nfcStatus.postValue(nfcStatus)
+            CoroutineScope(Main).launch {
+                when (nfcStatus) {
+                    NfcStatus.NFC_NOT_SUPPORTED -> _message.postValue(R.string.signature_update_nfc_adapter_missing)
+                    NfcStatus.NFC_NOT_ACTIVE -> _message.postValue(R.string.signature_update_nfc_turned_off)
+                    NfcStatus.NFC_ACTIVE -> _message.postValue(R.string.signature_update_nfc_hold)
+                }
+            }
+        }
+
+        suspend fun performNFCWorkRequest(
+            activity: Activity,
+            context: Context,
+            container: SignedContainer?,
+            pin2Code: String,
+            canNumber: String,
+            roleData: RoleData?,
+        ) {
+            resetValues()
+
+            if (container != null) {
+                CoroutineScope(Main).launch {
+                    _message.postValue(R.string.signature_update_nfc_hold)
+                }
+
+                checkNFCStatus(
+                    nfcSmartCardReaderManager.startDiscovery(activity) { nfcReader, exc ->
+                        if ((nfcReader != null) && (exc == null)) {
+                            try {
+                                CoroutineScope(Main).launch {
+                                    _message.postValue(R.string.signature_update_nfc_detected)
+                                }
+                                val card = TokenWithPace.create(nfcReader)
+                                card.tunnel(canNumber)
+                                val signerCert = card.certificate(CertificateType.SIGNING)
+                                debugLog(logTag, "Signer certificate: " + Base64.toBase64String(signerCert))
+
+                                val dataToSignBytes = containerWrapper.prepareSignature(container, signerCert, roleData)
+
+                                CoroutineScope(Main).launch {
+                                    val containerSignatures = container.getSignatures(Main)
+
+                                    signatureInterface =
+                                        if (containerSignatures.isEmpty()) {
+                                            null
+                                        } else {
+                                            containerSignatures
+                                                .last {
+                                                    it.validator.status == ValidatorInterface.Status.Invalid ||
+                                                        it.validator.status == ValidatorInterface.Status.Unknown
+                                                }
+                                        }
+                                }
+                                val pin2 = pin2Code.toByteArray()
+                                val signatureArray = card.calculateSignature(pin2, dataToSignBytes, true)
+                                debugLog(logTag, "Signature: " + Hex.toHexString(signatureArray))
+
+                                containerWrapper.finalizeSignature(container, signatureArray)
+
+                                CoroutineScope(Main).launch {
+                                    _signStatus.postValue(true)
+                                    _signedContainer.postValue(container)
+                                }
+                            } catch (ex: SmartCardReaderException) {
+                                _signStatus.postValue(false)
+
+                                if (ex.message?.contains("TagLostException") == true) {
+                                    _errorState.postValue(context.getString(R.string.signature_update_nfc_tag_lost))
+                                } else {
+                                    _errorState.postValue(
+                                        context.getString(R.string.signature_update_nfc_technical_error),
+                                    )
+                                }
+
+                                errorLog(logTag, "Exception: " + ex.message, ex)
+                            } finally {
+                                nfcSmartCardReaderManager.disableNfcReaderMode()
+                            }
+                        }
+                    },
+                )
+            } else {
+                CoroutineScope(Main).launch {
+                    _nfcStatus.postValue(nfcSmartCardReaderManager.detectNfcStatus(activity))
+                    _signStatus.postValue(false)
+                    _errorState.postValue(context.getString(R.string.signature_update_mobile_id_error_general_client))
+                    errorLog(logTag, "Unable to get container value. Container is 'null'")
+                }
+            }
+        }
+    }

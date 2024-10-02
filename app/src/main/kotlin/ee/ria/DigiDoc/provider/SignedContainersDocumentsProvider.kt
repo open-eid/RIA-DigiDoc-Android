@@ -107,15 +107,17 @@ class SignedContainersDocumentsProvider : DocumentsProvider() {
         }
 
     @Throws(FileNotFoundException::class)
-    private fun getFileForDocId(documentId: String?): File = when (documentId) {
-        null -> throw FileNotFoundException("documentId cannot be null")
-        ROOT_ID, DIR_SIGNATURE_CONTAINERS -> signedDocumentsFolder
-        else -> File(signedDocumentsFolder, documentId).apply {
-            if (!exists()) {
-                throw FileNotFoundException("File not found for documentId: $documentId")
-            }
+    private fun getFileForDocId(documentId: String?): File =
+        when (documentId) {
+            null -> throw FileNotFoundException("documentId cannot be null")
+            ROOT_ID, DIR_SIGNATURE_CONTAINERS -> signedDocumentsFolder
+            else ->
+                File(signedDocumentsFolder, documentId).apply {
+                    if (!exists()) {
+                        throw FileNotFoundException("File not found for documentId: $documentId")
+                    }
+                }
         }
-    }
 
     private fun getDocumentId(file: File): String = if (file == signedDocumentsFolder) ROOT_ID else file.name
 

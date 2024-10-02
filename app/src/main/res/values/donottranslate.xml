@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="mobile_id_country_code_and_phone_number_placeholder">372XXXXXXXX</string>
+    <string name="signature_id_card_pin1">PIN1</string>
+    <string name="signature_id_card_pin2">PIN2</string>
     <string name="main_home_menu_locale_et">Eesti</string>
     <string name="main_home_menu_locale_ru">Русский</string>
     <string name="main_home_menu_locale_en">English</string>
@@ -54,6 +56,7 @@
 
     <string name="main_settings_signature_add_method_key">mainSettingsSignatureAddMethod</string>
     <string name="main_settings_uuid_key">mainSettingsUUID</string>
+    <string name="main_settings_can_key">can</string>
     <string name="main_settings_phone_no_key">mainSettingsMobileNr</string>
     <string name="main_settings_personal_code_key">mainSettingsPersonalCode</string>
     <string name="main_settings_sid_personal_code_key">mainSettingsSmartIdPersonalCode</string>

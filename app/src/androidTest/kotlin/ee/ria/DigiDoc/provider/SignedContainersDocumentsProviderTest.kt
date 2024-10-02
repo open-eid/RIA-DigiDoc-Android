@@ -98,7 +98,12 @@ class SignedContainersDocumentsProviderTest {
 
     @Test
     fun testQueryDocument_withValidDocId() {
-        val tempFile = File.createTempFile("test", ".txt", File("${ApplicationProvider.getApplicationContext<Context>().filesDir}/$DIR_SIGNATURE_CONTAINERS"))
+        val tempFile =
+            File.createTempFile(
+                "test",
+                ".txt",
+                File("${ApplicationProvider.getApplicationContext<Context>().filesDir}/$DIR_SIGNATURE_CONTAINERS"),
+            )
         tempFile.writeText("TestText", StandardCharsets.UTF_8)
 
         tempFile.deleteOnExit()
@@ -143,7 +148,8 @@ class SignedContainersDocumentsProviderTest {
         val tempFile = createZipWithTextFile(ASICE_MIMETYPE, "mimetype")
         tempFile.deleteOnExit()
 
-        val signatureContainersDirectory = File(ApplicationProvider.getApplicationContext<Context>().filesDir, DIR_SIGNATURE_CONTAINERS)
+        val signatureContainersDirectory =
+            File(ApplicationProvider.getApplicationContext<Context>().filesDir, DIR_SIGNATURE_CONTAINERS)
         val sourcePath = Paths.get(tempFile.path)
         val targetPath = Paths.get("${signatureContainersDirectory.path}/${sourcePath.fileName.name}")
         val movedFile = Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING)
@@ -193,8 +199,12 @@ class SignedContainersDocumentsProviderTest {
 
     @Test
     fun testOpenDocument_withValidId() {
-        val tempFile = File.createTempFile("test", ".txt",
-            File("${ApplicationProvider.getApplicationContext<Context>().filesDir}/$DIR_SIGNATURE_CONTAINERS"))
+        val tempFile =
+            File.createTempFile(
+                "test",
+                ".txt",
+                File("${ApplicationProvider.getApplicationContext<Context>().filesDir}/$DIR_SIGNATURE_CONTAINERS"),
+            )
         tempFile.writeText("TestText", StandardCharsets.UTF_8)
 
         tempFile.deleteOnExit()

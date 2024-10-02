@@ -31,6 +31,7 @@ import ee.ria.DigiDoc.manager.ActivityManagerImpl
 import ee.ria.DigiDoc.network.utils.UserAgentUtil
 import ee.ria.DigiDoc.root.RootChecker
 import ee.ria.DigiDoc.root.RootCheckerImpl
+import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager
 import ee.ria.DigiDoc.utils.monitoring.CrashDetector
 import ee.ria.DigiDoc.utils.monitoring.CrashDetectorImpl
 import javax.inject.Singleton
@@ -76,6 +77,9 @@ class AppModules {
             fileOpeningService = fileOpeningService,
             sivaService = sivaService,
         )
+
+    @Provides
+    fun provideNfcSmartCardReaderManager(): NfcSmartCardReaderManager = NfcSmartCardReaderManager()
 
     @Provides
     fun provideSivaService(): SivaService = SivaServiceImpl()

@@ -27,6 +27,7 @@ dependencies {
     debugApi(files("libs/smart-card-reader-lib-debug.aar"))
     releaseApi(files("libs/id-card-lib-release.aar"))
     releaseApi(files("libs/smart-card-reader-lib-release.aar"))
+    implementation(libs.timber)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
