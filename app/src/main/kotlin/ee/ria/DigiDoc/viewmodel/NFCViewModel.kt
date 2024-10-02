@@ -29,6 +29,7 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import org.bouncycastle.util.encoders.Base64
 import org.bouncycastle.util.encoders.Hex
+import java.util.Arrays
 import javax.inject.Inject
 
 @HiltViewModel
@@ -83,15 +84,12 @@ class NFCViewModel
             )
         }
 
-        fun isPIN2CodeValid(pin2Code: String?): Boolean {
-            return !(
-                !pin2Code.isNullOrEmpty() &&
-                    !isPIN2LengthValid(pin2Code)
-            )
+        fun isPIN2CodeValid(pin2Code: ByteArray?): Boolean {
+            return !(pin2Code != null && pin2Code.isNotEmpty() && !isPIN2LengthValid(pin2Code))
         }
 
-        private fun isPIN2LengthValid(pin2Code: String): Boolean {
-            return pin2Code.length in PIN2_MIN_LENGTH..PIN_MAX_LENGTH
+        private fun isPIN2LengthValid(pin2Code: ByteArray): Boolean {
+            return pin2Code.size in PIN2_MIN_LENGTH..PIN_MAX_LENGTH
         }
 
         private fun isCANLengthValid(canNumber: String): Boolean {
@@ -100,11 +98,11 @@ class NFCViewModel
 
         fun positiveButtonEnabled(
             canNumber: String?,
-            pin2Code: String?,
+            pin2Code: ByteArray?,
         ): Boolean {
             if (canNumber != null && pin2Code != null) {
                 return isCANLengthValid(canNumber.toString()) &&
-                    isPIN2LengthValid(pin2Code.toString())
+                    isPIN2LengthValid(pin2Code)
             }
             return false
         }
@@ -154,7 +152,7 @@ class NFCViewModel
             activity: Activity,
             context: Context,
             container: SignedContainer?,
-            pin2Code: String,
+            pin2Code: ByteArray?,
             canNumber: String,
             roleData: RoleData?,
         ) {
@@ -193,8 +191,11 @@ class NFCViewModel
                                                 }
                                         }
                                 }
-                                val pin2 = pin2Code.toByteArray()
-                                val signatureArray = card.calculateSignature(pin2, dataToSignBytes, true)
+
+                                val signatureArray = card.calculateSignature(pin2Code, dataToSignBytes, true)
+                                if (null != pin2Code && pin2Code.isNotEmpty()) {
+                                    Arrays.fill(pin2Code, 0.toByte())
+                                }
                                 debugLog(logTag, "Signature: " + Hex.toHexString(signatureArray))
 
                                 containerWrapper.finalizeSignature(container, signatureArray)

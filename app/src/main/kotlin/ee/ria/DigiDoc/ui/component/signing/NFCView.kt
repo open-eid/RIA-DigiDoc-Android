@@ -89,6 +89,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.nio.charset.StandardCharsets
 import java.util.Arrays
 import java.util.stream.Collectors
 
@@ -545,7 +546,11 @@ fun NFCView(
                 )
                 val pin2CodeErrorText =
                     if (pin2CodeText.text.isNotEmpty()) {
-                        if (!nfcViewModel.isPIN2CodeValid(pin2CodeText.text)) {
+                        if (!nfcViewModel
+                                .isPIN2CodeValid(
+                                    pin2CodeText.text.toByteArray(StandardCharsets.UTF_8),
+                                )
+                        ) {
                             String.format(
                                 stringResource(id = R.string.id_card_sign_pin_invalid_length),
                                 stringResource(id = R.string.signature_id_card_pin2),
@@ -565,8 +570,7 @@ fun NFCView(
                             .fillMaxWidth()
                             .padding(bottom = screenViewLargePadding)
                             .clearAndSetSemantics {
-                                contentDescription =
-                                    "$pin2CodeLabel ${formatNumbers(pin2CodeText.text)}"
+                                contentDescription = pin2CodeLabel
                             },
                     value = pin2CodeText,
                     shape = RectangleShape,
@@ -575,7 +579,9 @@ fun NFCView(
                     },
                     maxLines = 1,
                     singleLine = true,
-                    isError = !nfcViewModel.isPIN2CodeValid(pin2CodeText.text),
+                    isError =
+                        !nfcViewModel
+                            .isPIN2CodeValid(pin2CodeText.text.toByteArray(StandardCharsets.UTF_8)),
                     textStyle = MaterialTheme.typography.titleLarge,
                     visualTransformation =
                         if (pin2CodeVisible) {
@@ -631,7 +637,7 @@ fun NFCView(
             okButtonEnabled =
                 nfcViewModel.positiveButtonEnabled(
                     canNumberText.text,
-                    pin2CodeText.text,
+                    pin2CodeText.text.toByteArray(StandardCharsets.UTF_8),
                 ),
             cancelButtonTitle = R.string.cancel_button,
             okButtonTitle = R.string.sign_button,
@@ -679,7 +685,7 @@ fun NFCView(
                             activity = activity,
                             context = context,
                             container = signedContainer,
-                            pin2Code = pin2CodeText.text,
+                            pin2Code = pin2CodeText.text.toByteArray(StandardCharsets.UTF_8),
                             canNumber = canNumberText.text,
                             roleData = roleDataRequest,
                         )
