@@ -41,7 +41,7 @@ fun IdCardView(
             sharedSettingsViewModel = sharedSettingsViewModel,
         )
         Text(
-            text = stringResource(id = R.string.signature_update_id_card_progress_message_initial),
+            text = stringResource(id = R.string.signature_update_signature_add_method_id_card),
             style = MaterialTheme.typography.titleLarge,
             modifier = modifier.padding(vertical = screenViewLargePadding),
             textAlign = TextAlign.Center,
