@@ -13,17 +13,19 @@ import ee.ria.DigiDoc.common.Constant.NFCConstants.CAN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN2_MIN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN_MAX_LENGTH
 import ee.ria.DigiDoc.idcard.CertificateType
+import ee.ria.DigiDoc.idcard.PaceTunnelException
 import ee.ria.DigiDoc.idcard.TokenWithPace
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
+import ee.ria.DigiDoc.smartcardreader.ApduResponseException
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderException
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager.NfcStatus
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.debugLog
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -209,12 +211,44 @@ class NFCViewModel
 
                                 if (ex.message?.contains("TagLostException") == true) {
                                     _errorState.postValue(context.getString(R.string.signature_update_nfc_tag_lost))
-                                } else {
+                                } else if (ex.message?.contains("CodeVerificationException") == true &&
+                                    ex.message?.contains("Retries left: 2") == true
+                                ) {
+                                    _errorState.postValue(
+                                        context.getString(R.string.signature_update_id_card_sign_pin2_invalid),
+                                    )
+                                } else if (ex.message?.contains("CodeVerificationException") == true &&
+                                    ex.message?.contains("Retries left: 1") == true
+                                ) {
+                                    _errorState.postValue(
+                                        context.getString(R.string.signature_update_id_card_sign_pin2_invalid_final),
+                                    )
+                                } else if (ex.message?.contains("CodeVerificationException") == true &&
+                                    ex.message?.contains("Retries left: 0") == true
+                                ) {
+                                    _errorState.postValue(
+                                        context.getString(R.string.signature_update_id_card_sign_pin2_locked),
+                                    )
+                                } else if (ex is ApduResponseException) {
                                     _errorState.postValue(
                                         context.getString(R.string.signature_update_nfc_technical_error),
                                     )
+                                } else if (ex is PaceTunnelException) {
+                                    _errorState.postValue(
+                                        context.getString(R.string.signature_update_nfc_wrong_can),
+                                    )
+                                } else {
+                                    _errorState.postValue(
+                                        ex.message ?: context.getString(R.string.signature_update_nfc_technical_error),
+                                    )
                                 }
 
+                                errorLog(logTag, "Exception: " + ex.message, ex)
+                            } catch (ex: Exception) {
+                                _signStatus.postValue(false)
+                                _errorState.postValue(
+                                    ex.message ?: context.getString(R.string.signature_update_nfc_technical_error),
+                                )
                                 errorLog(logTag, "Exception: " + ex.message, ex)
                             } finally {
                                 nfcSmartCardReaderManager.disableNfcReaderMode()

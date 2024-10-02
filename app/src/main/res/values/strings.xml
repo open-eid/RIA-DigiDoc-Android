@@ -181,6 +181,10 @@
     <string name="signature_update_mobile_id_error_simultaneous_requests_limit_exceeded">Simultaneous requests limit exceeded</string>
     <string name="signature_update_mobile_id_error_technical_error">Failed to send request. Mobile-ID service has encountered technical errors. Please try again later.</string>
 
+    <string name="signature_update_id_card_sign_pin2_invalid">Wrong PIN2. You have %1$d attempts left.</string>
+    <string name="signature_update_id_card_sign_pin2_invalid_final">Wrong PIN2. You have 1 attempt left until your PIN2 is blocked.</string>
+    <string name="signature_update_id_card_sign_pin2_locked">PIN2 blocked. Go to My eID to unblock it.</string>
+
     <string name="nfc_sign_can_invalid_length">CAN-code must be %1$s digits long</string>
     <string name="nfc_sign_can_location">The 6-digit number is located under the document photo</string>
     <string name="id_card_sign_pin_invalid_length">%1$s code must be at least %2$s and a maximum of %3$s digits long</string>
@@ -192,6 +196,7 @@
     <string name="signature_update_nfc_turned_off">NFC is turned off</string>
     <string name="signature_update_nfc_tag_lost">NFC connection lost</string>
     <string name="signature_update_nfc_technical_error">Technical error</string>
+    <string name="signature_update_nfc_wrong_can">Wrong CAN number</string>
     <string name="signature_update_nfc_hold">Hold your phone near the ID-card</string>
     <string name="signature_update_nfc_detected">Authenticating with ID-card</string>
 

@@ -436,7 +436,9 @@ fun NFCView(
                     contentDescription = null,
                     modifier =
                         modifier
-                            .padding(screenViewLargePadding),
+                            .fillMaxWidth()
+                            .padding(screenViewLargePadding)
+                            .notAccessible(),
                 )
                 val nfcStatusText =
                     if (nfcStatus === NfcSmartCardReaderManager.NfcStatus.NFC_NOT_SUPPORTED) {

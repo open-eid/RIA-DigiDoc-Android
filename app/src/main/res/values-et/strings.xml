@@ -180,6 +180,10 @@
     <string name="signature_update_mobile_id_error_simultaneous_requests_limit_exceeded">Samaaegsete pöördumiste limiit ületatud</string>
     <string name="signature_update_mobile_id_error_technical_error">Päringu saatmine ebaõnnestus. Mobiil-ID teenuses esinevad tehnilised tõrked. Palun proovige mõne aja pärast uuesti.</string>
 
+    <string name="signature_update_id_card_sign_pin2_invalid">Vale PIN2. Saad PIN2-koodi sisestada veel %1$d korda.</string>
+    <string name="signature_update_id_card_sign_pin2_invalid_final">Vale PIN2. Järgmise vale sisestusega lukustub PIN.</string>
+    <string name="signature_update_id_card_sign_pin2_locked">PIN2 on lukus. Mine Minu eID, et avada.</string>
+
     <string name="nfc_sign_can_invalid_length">Ligipääsu number (CAN) peab olema %1$s-kohaline</string>
     <string name="nfc_sign_can_location">6-kohaline number asub dokumendil foto all</string>
     <string name="id_card_sign_pin_invalid_length">%1$s-kood peab olema vähemalt %2$s-kohaline ja maksimaalselt %3$s-kohaline</string>
@@ -192,6 +196,7 @@
     <string name="signature_update_nfc_tag_lost">Kontaktivaba ühendust ei saa luua</string>
     <string name="signature_update_nfc_technical_error">Midagi läks valesti. Palun proovi uuesti</string>
     <string name="signature_update_nfc_hold">Hoia ID-kaarti telefoni lähedal</string>
+    <string name="signature_update_nfc_wrong_can">Vale CAN number</string>
     <string name="signature_update_nfc_detected">ID-kaardiga kontaktivaba ühenduse loomine</string>
 
     <string name="sign_button">Allkirjasta</string>
