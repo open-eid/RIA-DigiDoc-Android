@@ -181,6 +181,19 @@
     <string name="signature_update_mobile_id_error_simultaneous_requests_limit_exceeded">Simultaneous requests limit exceeded</string>
     <string name="signature_update_mobile_id_error_technical_error">Failed to send request. Mobile-ID service has encountered technical errors. Please try again later.</string>
 
+    <string name="nfc_sign_can_invalid_length">CAN-code must be %1$s digits long</string>
+    <string name="nfc_sign_can_location">The 6-digit number is located under the document photo</string>
+    <string name="id_card_sign_pin_invalid_length">%1$s code must be at least %2$s and a maximum of %3$s digits long</string>
+
+    <string name="signature_update_nfc_message">Enter your ID-card access number (CAN) and PIN2 code to sign with ID-card</string>
+    <string name="signature_update_nfc_can">ID-card access number (CAN)</string>
+    <string name="signature_update_nfc_pin2">PIN2 code</string>
+    <string name="signature_update_nfc_adapter_missing">This device does not support contactless connection</string>
+    <string name="signature_update_nfc_turned_off">NFC is turned off</string>
+    <string name="signature_update_nfc_tag_lost">NFC connection lost</string>
+    <string name="signature_update_nfc_technical_error">Technical error</string>
+    <string name="signature_update_nfc_hold">Hold your phone near the ID-card</string>
+    <string name="signature_update_nfc_detected">Authenticating with ID-card</string>
 
     <string name="sign_button">Sign</string>
     <string name="share_button">Share</string>

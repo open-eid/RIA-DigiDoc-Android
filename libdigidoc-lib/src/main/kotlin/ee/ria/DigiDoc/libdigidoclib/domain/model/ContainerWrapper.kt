@@ -17,9 +17,21 @@ interface ContainerWrapper {
     @Throws(CertificateException::class)
     fun prepareSignature(
         signedContainer: SignedContainer?,
+        cert: ByteArray?,
+        roleData: RoleData?,
+    ): ByteArray
+
+    @Throws(CertificateException::class)
+    fun prepareSignature(
+        signedContainer: SignedContainer?,
         cert: String?,
         roleData: RoleData?,
     ): String
+
+    fun finalizeSignature(
+        signedContainer: SignedContainer?,
+        signatureArray: ByteArray,
+    )
 
     fun finalizeSignature(
         signedContainer: SignedContainer?,
@@ -33,14 +45,14 @@ class ContainerWrapperImpl : ContainerWrapper {
     @Throws(CertificateException::class)
     override fun prepareSignature(
         signedContainer: SignedContainer?,
-        cert: String?,
+        cert: ByteArray?,
         roleData: RoleData?,
-    ): String {
+    ): ByteArray {
         signature =
             when {
                 roleData != null && signedContainer != null -> {
                     signedContainer.rawContainer()?.prepareWebSignature(
-                        cert?.let { CertificateUtil.x509Certificate(it).encoded },
+                        cert,
                         SIGNATURE_PROFILE_TS,
                         StringVector(removeEmptyStrings(roleData.roles)),
                         roleData.city,
@@ -51,18 +63,34 @@ class ContainerWrapperImpl : ContainerWrapper {
                 }
                 signedContainer?.rawContainer() != null -> {
                     signedContainer.rawContainer()?.prepareWebSignature(
-                        cert?.let { CertificateUtil.x509Certificate(it).encoded },
+                        cert,
                         SIGNATURE_PROFILE_TS,
                     ) ?: throw IllegalStateException("Failed to prepare signature without role data")
                 }
                 else -> throw IllegalStateException("Unable to get container")
             }
-        val dataToSignBytes: ByteArray =
+        return signature.dataToSign()
+    }
+
+    @Throws(CertificateException::class)
+    override fun prepareSignature(
+        signedContainer: SignedContainer?,
+        cert: String?,
+        roleData: RoleData?,
+    ): String {
+        val dataToSignBytes =
             Base64.encode(
-                signature.dataToSign(),
+                prepareSignature(
+                    signedContainer,
+                    cert?.let {
+                        CertificateUtil.x509Certificate(it).encoded
+                    },
+                    roleData,
+                ),
             )
         val dataToSign = String(dataToSignBytes, StandardCharsets.UTF_8)
-        return dataToSign.removeWhitespaces()
+        dataToSign.removeWhitespaces()
+        return dataToSign
     }
 
     override fun finalizeSignature(
@@ -70,7 +98,14 @@ class ContainerWrapperImpl : ContainerWrapper {
         signatureValue: String?,
     ) {
         val signatureValueBytes: ByteArray = Base64.decode(signatureValue)
-        signature.setSignatureValue(signatureValueBytes)
+        finalizeSignature(signedContainer, signatureValueBytes)
+    }
+
+    override fun finalizeSignature(
+        signedContainer: SignedContainer?,
+        signatureArray: ByteArray,
+    ) {
+        signature.setSignatureValue(signatureArray)
         signature.extendSignatureProfile(SIGNATURE_PROFILE_TS)
         signedContainer?.rawContainer()?.save()
     }

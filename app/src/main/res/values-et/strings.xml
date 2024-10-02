@@ -180,6 +180,19 @@
     <string name="signature_update_mobile_id_error_simultaneous_requests_limit_exceeded">Samaaegsete pöördumiste limiit ületatud</string>
     <string name="signature_update_mobile_id_error_technical_error">Päringu saatmine ebaõnnestus. Mobiil-ID teenuses esinevad tehnilised tõrked. Palun proovige mõne aja pärast uuesti.</string>
 
+    <string name="nfc_sign_can_invalid_length">Ligipääsu number (CAN) peab olema %1$s-kohaline</string>
+    <string name="nfc_sign_can_location">6-kohaline number asub dokumendil foto all</string>
+    <string name="id_card_sign_pin_invalid_length">%1$s-kood peab olema vähemalt %2$s-kohaline ja maksimaalselt %3$s-kohaline</string>
+
+    <string name="signature_update_nfc_message">ID-kaardiga allkirjastamiseks sisesta oma ID-kaardi ligipääsu number (CAN) ja PIN2 kood</string>
+    <string name="signature_update_nfc_can">ID-kaardi ligipääsu number (CAN)</string>
+    <string name="signature_update_nfc_pin2">PIN2 kood</string>
+    <string name="signature_update_nfc_adapter_missing">See seade ei toeta kontaktivaba ühendust</string>
+    <string name="signature_update_nfc_turned_off">NFC on välja lülitatud</string>
+    <string name="signature_update_nfc_tag_lost">Kontaktivaba ühendust ei saa luua</string>
+    <string name="signature_update_nfc_technical_error">Midagi läks valesti. Palun proovi uuesti</string>
+    <string name="signature_update_nfc_hold">Hoia ID-kaarti telefoni lähedal</string>
+    <string name="signature_update_nfc_detected">ID-kaardiga kontaktivaba ühenduse loomine</string>
 
     <string name="sign_button">Allkirjasta</string>
     <string name="share_button">Jaga</string>

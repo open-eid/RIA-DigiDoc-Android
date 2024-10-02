@@ -164,6 +164,19 @@
     <string name="signature_update_mobile_id_error_simultaneous_requests_limit_exceeded">Превышен лимит одновременных запросов</string>
     <string name="signature_update_mobile_id_error_technical_error">Не удалось отправить запрос. Технический сбой услуги mobiil-ID. Пожалуйста, попробуйте позже.</string>
 
+    <string name="nfc_sign_can_invalid_length">Номер доступа (CAN) должен состоять из %1$s-цифр</string>
+    <string name="nfc_sign_can_location">6-значный номер находится под фотографией на документе</string>
+    <string name="id_card_sign_pin_invalid_length">%1$s-код должен состоять минимум из %2$s и максимум из %3$s символов</string>
+
+    <string name="signature_update_nfc_message">Чтобы подписать с помощью ID-карты, введите ее номер доступа (CAN) и PIN2-код</string>
+    <string name="signature_update_nfc_can">Номер доступа ID-карты (CAN)</string>
+    <string name="signature_update_nfc_pin2">PIN2-код</string>
+    <string name="signature_update_nfc_adapter_missing">Данное устройство не поддерживает бесконтактное соединение</string>
+    <string name="signature_update_nfc_turned_off">NFC отключен</string>
+    <string name="signature_update_nfc_tag_lost">Создание бесконтактного соединения не удалось</string>
+    <string name="signature_update_nfc_technical_error">Что-то пошло не так. Пожалуйста, попробуйте еще раз</string>
+    <string name="signature_update_nfc_hold">Удерживайте ID-карту рядом с телефоном</string>
+    <string name="signature_update_nfc_detected">Создание бесконтактного соединения с ID-картой</string>
 
     <string name="signature_update_smart_id_message">Введите свой личный код для подписи с Smart-ID</string>
     <string name="signature_update_smart_id_country">Страна</string>

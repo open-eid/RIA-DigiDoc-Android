@@ -28,6 +28,7 @@ fun SigningScreen(
     val activity = (context as Activity)
     markAsSecure(context, activity.window)
     SigningNavigation(
+        activity = activity,
         modifier = modifier,
         navController = navController,
         sharedContainerViewModel = sharedContainerViewModel,

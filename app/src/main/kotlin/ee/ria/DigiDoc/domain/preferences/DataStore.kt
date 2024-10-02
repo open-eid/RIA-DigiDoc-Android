@@ -56,6 +56,33 @@ class DataStore
             editor.apply()
         }
 
+        fun getCanNumber(): String {
+            val encryptedPreferences: SharedPreferences? = getEncryptedPreferences(context)
+            if (encryptedPreferences != null) {
+                return encryptedPreferences.getString(
+                    resources.getString(R.string.main_settings_can_key),
+                    "",
+                ) ?: ""
+            }
+            errorLog(
+                logTag,
+                "Un" +
+                    "able to read CAN",
+            )
+            return ""
+        }
+
+        fun setCanNumber(can: String) {
+            val encryptedPreferences: SharedPreferences? = getEncryptedPreferences(context)
+            if (encryptedPreferences != null) {
+                val editor: SharedPreferences.Editor = encryptedPreferences.edit()
+                editor.putString(resources.getString(R.string.main_settings_can_key), can)
+                editor.apply()
+                return
+            }
+            errorLog(logTag, "Unable to save CAN")
+        }
+
         fun getPhoneNo(): String {
             return preferences.getString(
                 resources.getString(R.string.main_settings_phone_no_key),

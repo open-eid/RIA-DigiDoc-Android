@@ -47,6 +47,9 @@ class SharedContainerViewModel
         private val _signedSidStatus = MutableLiveData<SessionStatusResponseProcessStatus?>(null)
         val signedSidStatus: LiveData<SessionStatusResponseProcessStatus?> = _signedSidStatus
 
+        private val _signedNFCStatus = MutableLiveData<Boolean?>(null)
+        val signedNFCStatus: LiveData<Boolean?> = _signedNFCStatus
+
         private val _externalFileUri = MutableStateFlow<Uri?>(null)
         val externalFileUri: StateFlow<Uri?> = _externalFileUri
 
@@ -56,6 +59,10 @@ class SharedContainerViewModel
 
         fun setSignedMidStatus(signedStatus: MobileCreateSignatureProcessStatus?) {
             _signedMidStatus.postValue(signedStatus)
+        }
+
+        fun setSignedNFCStatus(signedStatus: Boolean?) {
+            _signedNFCStatus.postValue(signedStatus)
         }
 
         fun setSignedContainer(signedContainer: SignedContainer?) {
