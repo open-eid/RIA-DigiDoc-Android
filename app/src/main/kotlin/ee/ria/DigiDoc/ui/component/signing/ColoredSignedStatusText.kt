@@ -3,7 +3,7 @@
 package ee.ria.DigiDoc.ui.component.signing
 
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -32,7 +32,7 @@ fun ColoredSignedStatusText(
     val tagContentColor = if (isSignatureValidOrWarning) Green800 else Red800
     val additionalTextColor = if (status == ValidatorInterface.Status.Valid) Red800 else Yellow800
 
-    Row {
+    Column {
         TagBadge(
             text = parts[0],
             backgroundColor = tagBackgroundColor,
