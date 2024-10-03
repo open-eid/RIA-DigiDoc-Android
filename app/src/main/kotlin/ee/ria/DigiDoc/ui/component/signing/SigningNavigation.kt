@@ -44,6 +44,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -134,7 +135,7 @@ fun SigningNavigation(
     val isCadesContainer = signedContainer?.isCades() == true
     val showLoadingScreen = remember { mutableStateOf(false) }
 
-    val openRemoveFileDialog = remember { mutableStateOf(false) }
+    val openRemoveFileDialog = rememberSaveable { mutableStateOf(false) }
     val fileRemoved = stringResource(id = R.string.document_removed)
     val fileRemovalCancelled = stringResource(id = R.string.document_removal_cancelled)
     val closeRemoveFileDialog = {
@@ -161,7 +162,7 @@ fun SigningNavigation(
             id = R.string.container_name_change_cancelled,
         )
 
-    val openEditContainerNameDialog = remember { mutableStateOf(false) }
+    val openEditContainerNameDialog = rememberSaveable { mutableStateOf(false) }
     val dismissEditContainerNameDialog = {
         openEditContainerNameDialog.value = false
         AccessibilityUtil.sendAccessibilityEvent(
@@ -174,7 +175,7 @@ fun SigningNavigation(
     var containerName by remember { mutableStateOf(TextFieldValue(text = signedContainerName)) }
     val containerExtension = FilenameUtils.getExtension(signedContainerName)
 
-    val openRemoveSignatureDialog = remember { mutableStateOf(false) }
+    val openRemoveSignatureDialog = rememberSaveable { mutableStateOf(false) }
     val signatureRemoved = stringResource(id = R.string.signature_removed)
     val signatureRemovalCancelled =
         stringResource(id = R.string.signature_removal_cancelled)
@@ -194,7 +195,7 @@ fun SigningNavigation(
         )
     }
 
-    val openSignatureDialog = remember { mutableStateOf(false) }
+    val openSignatureDialog = rememberSaveable { mutableStateOf(false) }
     val signingCancelled = stringResource(id = R.string.signing_cancelled)
     val dismissDialog = {
         openSignatureDialog.value = false
@@ -311,7 +312,10 @@ fun SigningNavigation(
         BasicAlertDialog(
             onDismissRequest = dismissDialog,
             modifier = modifier.fillMaxWidth(MAX_DIALOG_WIDTH),
-            properties = DialogProperties(usePlatformDefaultWidth = false),
+            properties =
+                DialogProperties(
+                    usePlatformDefaultWidth = false,
+                ),
         ) {
             AddSignatureView(
                 activity = activity,

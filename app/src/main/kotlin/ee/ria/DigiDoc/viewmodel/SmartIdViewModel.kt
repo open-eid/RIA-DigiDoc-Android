@@ -3,8 +3,10 @@
 package ee.ria.DigiDoc.viewmodel
 
 import android.Manifest
+import android.app.Activity
 import android.app.Notification
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.ActivityCompat
@@ -212,6 +214,7 @@ class SmartIdViewModel
         }
 
         suspend fun performSmartIdWorkRequest(
+            activity: Activity,
             context: Context,
             displayMessage: String,
             container: SignedContainer?,
@@ -219,6 +222,7 @@ class SmartIdViewModel
             country: Int,
             roleData: RoleData?,
         ) {
+            activity.requestedOrientation = activity.resources.configuration.orientation
             resetValues()
             val configurationProvider = configurationRepository.getConfiguration()
             val uuid = dataStore.getSettingsUUID()
@@ -374,6 +378,7 @@ class SmartIdViewModel
                 smartSignService.challenge.removeObserver {}
                 smartSignService.status.removeObserver {}
                 smartSignService.response.removeObserver {}
+                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             }
         }
 
