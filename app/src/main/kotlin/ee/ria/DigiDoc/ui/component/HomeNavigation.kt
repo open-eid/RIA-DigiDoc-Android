@@ -59,9 +59,9 @@ fun HomeNavigation(
     }
 
     LaunchedEffect(homeViewModel.didAppCrashOnPreviousExecution(), hasUnsentReports) {
-        if (!homeViewModel.isCrashSendingAlwaysEnabled()) {
+        if (!homeViewModel.isCrashSendingAlwaysEnabled() && hasUnsentReports.result) {
             openCrashDetectorDialog.value = true
-        } else {
+        } else if (homeViewModel.isCrashSendingAlwaysEnabled()) {
             CoroutineScope(IO).launch {
                 homeViewModel.sendUnsentReports()
             }

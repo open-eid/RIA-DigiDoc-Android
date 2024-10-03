@@ -5,10 +5,12 @@ package ee.ria.DigiDoc.ui.component.info
 import android.content.res.Configuration
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -28,41 +30,43 @@ fun InfoComponent(
     @StringRes licenseName: Int,
     @StringRes licenseUrl: Int,
 ) {
-    Text(
-        modifier =
-            modifier.padding(
-                horizontal = screenViewLargePadding,
-                vertical = screenViewLargePadding,
-            ),
-        text = stringResource(name),
-        textAlign = TextAlign.Center,
-        style = MaterialTheme.typography.bodyLarge,
-        fontWeight = FontWeight(700),
-    )
-    DynamicText(
-        modifier =
-            modifier.padding(
-                horizontal = screenViewLargePadding,
-                vertical = screenViewSmallPadding,
-            ),
-        text = stringResource(licenseName),
-        textStyle =
-            TextStyle(
-                textAlign = TextAlign.Center,
-            ),
-    )
-    DynamicText(
-        modifier =
-            modifier.padding(
-                horizontal = screenViewLargePadding,
-                vertical = screenViewSmallPadding,
-            ),
-        text = stringResource(licenseUrl),
-        textStyle =
-            TextStyle(
-                textAlign = TextAlign.Center,
-            ),
-    )
+    Column(
+        modifier = modifier.padding(vertical = screenViewSmallPadding).fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            modifier =
+                modifier.padding(
+                    horizontal = screenViewLargePadding,
+                ),
+            text = stringResource(name),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight(700),
+        )
+        DynamicText(
+            modifier =
+                modifier.padding(
+                    horizontal = screenViewLargePadding,
+                ),
+            text = stringResource(licenseName),
+            textStyle =
+                TextStyle(
+                    textAlign = TextAlign.Center,
+                ),
+        )
+        DynamicText(
+            modifier =
+                modifier.padding(
+                    horizontal = screenViewLargePadding,
+                ),
+            text = stringResource(licenseUrl),
+            textStyle =
+                TextStyle(
+                    textAlign = TextAlign.Center,
+                ),
+        )
+    }
 }
 
 @Preview(showBackground = true)

@@ -33,7 +33,6 @@ import ee.ria.DigiDoc.ui.component.shared.DynamicText
 import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewSmallPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 
@@ -75,7 +74,7 @@ fun InfoScreen(
                 modifier =
                     modifier.padding(
                         start = screenViewLargePadding,
-                        top = screenViewSmallPadding,
+                        top = screenViewLargePadding,
                         end = screenViewLargePadding,
                     ),
                 text =
@@ -90,7 +89,7 @@ fun InfoScreen(
                 modifier =
                     modifier.padding(
                         start = screenViewLargePadding,
-                        top = screenViewSmallPadding,
+                        top = screenViewLargePadding,
                         end = screenViewLargePadding,
                     ),
                 text = stringResource(id = R.string.main_about_software_developed_by_title),
@@ -103,7 +102,7 @@ fun InfoScreen(
                 modifier =
                     modifier.padding(
                         start = screenViewLargePadding,
-                        top = screenViewSmallPadding,
+                        top = screenViewLargePadding,
                         end = screenViewLargePadding,
                     ),
                 text = stringResource(id = R.string.main_about_contact_information_title),
