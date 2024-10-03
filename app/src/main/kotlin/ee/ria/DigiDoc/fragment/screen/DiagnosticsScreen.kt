@@ -312,15 +312,15 @@ fun DiagnosticsScreen(
                     title = R.string.main_diagnostics_save_log,
                     onClickItem = {
                         try {
-                            val diagnosticsFile = diagnosticsViewModel.createLogFile()
-                            actionFile = diagnosticsFile
+                            val logFile = diagnosticsViewModel.createLogFile()
+                            actionFile = logFile
                             val saveIntent =
                                 Intent.createChooser(
                                     Intent(Intent.ACTION_CREATE_DOCUMENT)
                                         .addCategory(Intent.CATEGORY_OPENABLE)
                                         .putExtra(
                                             Intent.EXTRA_TITLE,
-                                            sanitizeString(diagnosticsFile.name, ""),
+                                            sanitizeString(logFile.name, ""),
                                         )
                                         .setType("text/x-log")
                                         .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION),
