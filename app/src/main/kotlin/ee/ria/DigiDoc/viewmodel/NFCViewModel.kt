@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.viewmodel
 
 import android.app.Activity
 import android.content.Context
+import android.content.pm.ActivityInfo
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -158,6 +159,7 @@ class NFCViewModel
             canNumber: String,
             roleData: RoleData?,
         ) {
+            activity.requestedOrientation = activity.resources.configuration.orientation
             resetValues()
 
             if (container != null) {
@@ -252,6 +254,7 @@ class NFCViewModel
                                 errorLog(logTag, "Exception: " + ex.message, ex)
                             } finally {
                                 nfcSmartCardReaderManager.disableNfcReaderMode()
+                                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                             }
                         }
                     },

@@ -161,7 +161,7 @@ fun NFCView(
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val openSignatureUpdateContainerDialog = remember { mutableStateOf(false) }
+    val openSignatureUpdateContainerDialog = rememberSaveable { mutableStateOf(false) }
     val dismissSignatureUpdateContainerDialog = {
         openSignatureUpdateContainerDialog.value = false
     }

@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.ui.component.signing
 
+import android.app.Activity
 import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.focusable
@@ -29,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -83,6 +85,7 @@ import java.util.stream.Collectors
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SmartIdView(
+    activity: Activity,
     modifier: Modifier = Modifier,
     signatureAddController: NavHostController,
     dismissDialog: () -> Unit = {},
@@ -172,7 +175,7 @@ fun SmartIdView(
             }
         }
     }
-    val openSignatureUpdateContainerDialog = remember { mutableStateOf(false) }
+    val openSignatureUpdateContainerDialog = rememberSaveable { mutableStateOf(false) }
     val dismissSignatureUpdateContainerDialog = {
         openSignatureUpdateContainerDialog.value = false
     }
@@ -542,6 +545,7 @@ fun SmartIdView(
                     }
                     CoroutineScope(Dispatchers.IO).launch {
                         smartIdViewModel.performSmartIdWorkRequest(
+                            activity = activity,
                             context = context,
                             displayMessage = displayMessage,
                             container = signedContainer,
@@ -565,6 +569,7 @@ fun SmartIdViewPreview() {
     val signatureAddController = rememberNavController()
     RIADigiDocTheme {
         SmartIdView(
+            activity = LocalContext.current as Activity,
             signatureAddController = signatureAddController,
             sharedContainerViewModel = sharedContainerViewModel,
         )

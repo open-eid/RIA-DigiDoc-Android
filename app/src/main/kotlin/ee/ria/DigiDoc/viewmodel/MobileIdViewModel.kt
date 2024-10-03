@@ -2,7 +2,9 @@
 
 package ee.ria.DigiDoc.viewmodel
 
+import android.app.Activity
 import android.content.Context
+import android.content.pm.ActivityInfo
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -178,6 +180,7 @@ class MobileIdViewModel
         }
 
         suspend fun performMobileIdWorkRequest(
+            activity: Activity,
             context: Context,
             displayMessage: String,
             container: SignedContainer?,
@@ -185,6 +188,7 @@ class MobileIdViewModel
             phoneNumber: String,
             roleData: RoleData?,
         ) {
+            activity.requestedOrientation = activity.resources.configuration.orientation
             resetValues()
             val configurationProvider = configurationRepository.getConfiguration()
             val uuid = dataStore.getSettingsUUID()
@@ -326,6 +330,7 @@ class MobileIdViewModel
                 mobileSignService.status.removeObserver {}
                 mobileSignService.result.removeObserver {}
                 mobileSignService.response.removeObserver {}
+                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             }
         }
 

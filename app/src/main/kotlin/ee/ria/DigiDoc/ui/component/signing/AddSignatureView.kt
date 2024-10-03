@@ -79,6 +79,7 @@ fun AddSignatureView(
             ) {
                 composable(route = Route.MobileId.route) {
                     MobileIdView(
+                        activity = activity,
                         dismissDialog = dismissDialog,
                         cancelButtonClick = cancelButtonClick,
                         signatureAddController = signatureAddController,
@@ -87,6 +88,7 @@ fun AddSignatureView(
                 }
                 composable(route = Route.SmartId.route) {
                     SmartIdView(
+                        activity = activity,
                         dismissDialog = dismissDialog,
                         cancelButtonClick = cancelButtonClick,
                         signatureAddController = signatureAddController,
