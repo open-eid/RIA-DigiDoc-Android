@@ -56,8 +56,10 @@ class DiagnosticsViewModel
         val context: LiveData<Context> = _context
 
         private val logTag = "SettingsViewModel"
-        private val diagnosticsFileName =
+        private val logsFileName =
             "ria_digidoc_${getAppVersion()}.${getAppVersionCode()}_logs.log"
+        private val diagnosticsFileName =
+            "ria_digidoc_${getAppVersion()}.${getAppVersionCode()}_diagnostics.log"
         private val diagnosticsFilePath: String = File(getCurrentContext().filesDir.path, "diagnostics").path
 
         private val _updatedConfiguration = MutableLiveData<ConfigurationProvider?>()
@@ -189,7 +191,7 @@ class DiagnosticsViewModel
             if (FileUtil.logsExist(FileUtil.getLogsDirectory(getCurrentContext()))) {
                 return FileUtil.combineLogFiles(
                     FileUtil.getLogsDirectory(getCurrentContext()),
-                    diagnosticsFileName,
+                    logsFileName,
                 )
             }
             throw FileNotFoundException("Unable to get directory with logs")
