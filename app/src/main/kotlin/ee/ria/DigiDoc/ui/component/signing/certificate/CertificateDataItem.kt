@@ -28,7 +28,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Black
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
-import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
@@ -126,7 +125,7 @@ fun CertificateDataItem(
                     tint = Black,
                     modifier =
                         modifier
-                            .padding(start = itemSpacingPadding)
+                            .padding(start = screenViewLargePadding)
                             .size(iconSize)
                             .notAccessible()
                             .constrainAs(dataItemIcon) {
