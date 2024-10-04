@@ -254,7 +254,7 @@ class DiagnosticsViewModel
                     appendLine(
                         "${getCurrentContext().getString(
                             R.string.main_diagnostics_application_version_title,
-                        )} ${BuildConfig.VERSION_NAME}",
+                        )} ${BuildConfig.VERSION_NAME}.${BuildConfig.VERSION_CODE}",
                     )
                     appendLine(
                         "${getCurrentContext().getString(

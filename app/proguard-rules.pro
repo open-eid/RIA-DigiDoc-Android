@@ -26,16 +26,14 @@
 -dontwarn com.gemalto.jp2.JP2Decoder
 -dontwarn com.google.j2objc.annotations.RetainedWith
 
--keep class ee.ria.libdigidocpp.* {
-    *;
-}
+-keep class ee.ria.libdigidocpp.* { *; }
 
--keep public class * extends java.lang.Exception
+-keep public class * extends java.lang.Exception { *; }
 
--keep public class * extends retrofit2.**
--keep public class * extends okhttp3.**
--keep public class * implements retrofit2.**
--keep public class * implements okhttp3.**
+-keep public class * extends retrofit2.** { *; }
+-keep public class * extends okhttp3.** { *; }
+-keep public class * implements retrofit2.** { *; }
+-keep public class * implements okhttp3.** { *; }
 
 # Keep data classes
 -keep class ee.ria.DigiDoc.network.mid.dto.** { *; }
@@ -65,7 +63,7 @@
 # JSR 305 annotations are for embedding nullability information.
 -dontwarn javax.annotation.**
 # A resource is loaded with a relative path so the package of this class must be preserved.
--keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
+-keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase { *; }
 # Animal Sniffer compileOnly dependency to ensure APIs are compatible with older versions of Java.
 -dontwarn org.codehaus.mojo.animal_sniffer.*
 # OkHttp platform used only on JVM and when Conscrypt dependency is available.
@@ -90,8 +88,8 @@
     @com.google.gson.annotations.SerializedName <fields>;
 }
 # Retain generic signatures of TypeToken and its subclasses with R8 version 3.0 and higher.
--keep,allowobfuscation,allowshrinking class com.google.gson.**
--keep,allowobfuscation,allowshrinking class * extends com.google.gson.**
+-keep,allowobfuscation,allowshrinking class com.google.gson.** { *; }
+-keep,allowobfuscation,allowshrinking class * extends com.google.gson.** { *; }
 
 # BouncyCastle
 -keep class org.bouncycastle.** { *; }
