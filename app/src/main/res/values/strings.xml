@@ -17,6 +17,7 @@
     <string name="container_title">Container:</string>
     <string name="documents_add_button">+ Add more files</string>
     <string name="documents_add_button_accessibility">Add more files</string>
+    <string name="container_has">Container has</string>
     <string name="file">File</string>
     <string name="file_saved">File saved</string>
     <string name="file_saved_error">Failed to save file</string>
@@ -30,8 +31,27 @@
     <string name="container_open_file_error">Could not load selected files</string>
     <string name="container_load_error">Error opening container</string>
     <string name="empty_file_error">Cannot add empty file to the container.</string>
+    <string name="empty_file_message">An empty file is attached to the envelope. Remove the empty file from the container to sign.</string>
     <string name="xades_file_message">This ASICS container contains XADES signature. You are not allowed to add or remove signatures to this container.</string>
     <string name="cades_file_message">This container contains CAdES signature. You are not allowed to add or remove signatures to this container.</string>
+    <plurals name="signatures_unknown">
+        <item quantity="one">%1$d UNKNOWN SIGNATURE</item>
+        <item quantity="other">%1$d UNKNOWN SIGNATURES</item>
+        <!-- placeholder to keep line numbers same in different locales -->
+        <!-- placeholder to keep line numbers same in different locales -->
+    </plurals>
+    <plurals name="signatures_invalid">
+        <item quantity="one">%1$d INVALID SIGNATURE</item>
+        <item quantity="other">%1$d INVALID SIGNATURES</item>
+        <!-- placeholder to keep line numbers same in different locales -->
+        <!-- placeholder to keep line numbers same in different locales -->
+    </plurals>
+    <plurals name="signatures_valid">
+        <item quantity="one">%1$d valid signature</item>
+        <item quantity="other">%1$d valid signatures</item>
+        <!-- placeholder to keep line numbers same in different locales -->
+        <!-- placeholder to keep line numbers same in different locales -->
+    </plurals>
 
     <string name="challenge_code_text">Control code:</string>
     <string name="mobile_id_challenge">Mobile-ID signing control code</string>

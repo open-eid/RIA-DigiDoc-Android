@@ -11,6 +11,7 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureWrapper
+import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerDataFilesEmptyException
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import ee.ria.DigiDoc.libdigidoclib.exceptions.SSLHandshakeException
@@ -27,6 +28,7 @@ import ee.ria.libdigidocpp.ContainerOpenCB
 import ee.ria.libdigidocpp.Signature
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
@@ -200,6 +202,25 @@ class SignedContainer
                 ?.anyMatch { signature: Signature? ->
                     signature?.profile()?.lowercase()?.contains("cades") ?: false
                 } ?: false
+
+        suspend fun getSignaturesStatusCount(): Map<ValidatorInterface.Status, Int> {
+            val counts =
+                mutableMapOf(
+                    ValidatorInterface.Status.Valid to 0,
+                    ValidatorInterface.Status.Unknown to 0,
+                    ValidatorInterface.Status.Invalid to 0,
+                )
+
+            val signatures = getSignatures(Main)
+
+            for (signature in signatures) {
+                signature.validator.status.let { status ->
+                    counts[status] = counts[status]?.plus(1) ?: 1
+                }
+            }
+
+            return counts.toMap()
+        }
 
         companion object {
             @Throws(Exception::class)

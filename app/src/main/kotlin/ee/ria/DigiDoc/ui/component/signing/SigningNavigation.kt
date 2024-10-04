@@ -42,6 +42,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -49,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -68,11 +70,13 @@ import ee.ria.DigiDoc.common.Constant.NO_REMOVE_SIGNATURE_BUTTON_FILE_EXTENSIONS
 import ee.ria.DigiDoc.common.Constant.NO_REMOVE_SIGNATURE_BUTTON_FILE_MIMETYPES
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
+import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
 import ee.ria.DigiDoc.ui.component.ContainerFile
 import ee.ria.DigiDoc.ui.component.ContainerName
 import ee.ria.DigiDoc.ui.component.settings.EditValueDialog
+import ee.ria.DigiDoc.ui.component.shared.ContainerMessage
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
 import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
@@ -86,7 +90,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Green500
 import ee.ria.DigiDoc.ui.theme.Normal
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.ui.theme.Yellow500
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.extensions.notAccessible
@@ -130,9 +133,26 @@ fun SigningNavigation(
     val xadesText = stringResource(id = R.string.xades_file_message)
     val cadesText = stringResource(id = R.string.cades_file_message)
 
+    val emptyFileInContainerText = stringResource(id = R.string.empty_file_message)
+
     val isNestedContainer = sharedContainerViewModel.isNestedContainer(signedContainer)
     val isXadesContainer = signedContainer?.isXades() == true
     val isCadesContainer = signedContainer?.isCades() == true
+
+    var validSignaturesCount by remember { mutableIntStateOf(0) }
+    var unknownSignaturesCount by remember { mutableIntStateOf(0) }
+    var invalidSignaturesCount by remember { mutableIntStateOf(0) }
+
+    var isSignaturesCountLoaded by remember { mutableStateOf(false) }
+
+    val containerHasText = stringResource(id = R.string.container_has)
+    val validSignaturesText =
+        pluralStringResource(id = R.plurals.signatures_valid, count = validSignaturesCount, validSignaturesCount)
+    val unknownSignaturesText =
+        pluralStringResource(id = R.plurals.signatures_unknown, count = unknownSignaturesCount, unknownSignaturesCount)
+    val invalidSignaturesText =
+        pluralStringResource(id = R.plurals.signatures_invalid, count = invalidSignaturesCount, invalidSignaturesCount)
+
     val showLoadingScreen = remember { mutableStateOf(false) }
 
     val openRemoveFileDialog = rememberSaveable { mutableStateOf(false) }
@@ -288,9 +308,45 @@ fun SigningNavigation(
             showSignaturesLoadingIndicator.value = true
             signatures = it.getSignatures()
             showSignaturesLoadingIndicator.value = false
+            withContext(Main) {
+                val signatureCounts = signedContainer?.getSignaturesStatusCount()
+                validSignaturesCount = signatureCounts?.get(ValidatorInterface.Status.Valid) ?: 0
+                unknownSignaturesCount =
+                    signatureCounts?.get(ValidatorInterface.Status.Unknown) ?: 0
+                invalidSignaturesCount =
+                    signatureCounts?.get(ValidatorInterface.Status.Invalid) ?: 0
+            }
             val newTime = System.currentTimeMillis()
             if (newTime >= (pastTime + 2 * 1000)) {
                 AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signaturesLoaded)
+            }
+        }
+    }
+
+    LaunchedEffect(signedContainer, validSignaturesCount, unknownSignaturesCount, invalidSignaturesCount) {
+        signedContainer?.let {
+            if (!isSignaturesCountLoaded && signatures.isNotEmpty()) {
+                val announcementText =
+                    when {
+                        unknownSignaturesCount == 0 && invalidSignaturesCount == 0 -> {
+                            validSignaturesCount = signatures.size
+                            "$containerHasText, ${validSignaturesText.lowercase()}"
+                        }
+                        else ->
+                            buildString {
+                                append(containerHasText)
+                                if (unknownSignaturesCount > 0) append(" ${unknownSignaturesText.lowercase()}")
+                                if (invalidSignaturesCount > 0) append(" ${invalidSignaturesText.lowercase()}")
+                            }
+                    }
+
+                delay(1000)
+                isSignaturesCountLoaded = true
+                AccessibilityUtil.sendAccessibilityEvent(
+                    context,
+                    TYPE_ANNOUNCEMENT,
+                    announcementText,
+                )
             }
         }
     }
@@ -421,81 +477,27 @@ fun SigningNavigation(
 
             Column {
                 if (signatureAddedSuccess.value) {
-                    Column(
-                        modifier =
-                            modifier
-                                .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        Surface(
-                            modifier =
-                                modifier
-                                    .fillMaxWidth(),
-                            color = Green500,
-                        ) {
-                            Text(
-                                modifier = modifier.padding(vertical = itemSpacingPadding),
-                                text = signatureAddedSuccessText,
-                                textAlign = TextAlign.Center,
-                                color = MaterialTheme.colorScheme.background,
-                                fontWeight = FontWeight.Normal,
-                                style = MaterialTheme.typography.titleLarge,
-                            )
-                        }
-                    }
+                    ContainerMessage(modifier, signatureAddedSuccessText, Green500)
                 }
 
                 if (isXadesContainer) {
-                    Column(
-                        modifier =
-                            modifier
-                                .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        Surface(
-                            modifier =
-                                modifier
-                                    .fillMaxWidth(),
-                            color = Yellow500,
-                        ) {
-                            Text(
-                                modifier = modifier.padding(itemSpacingPadding),
-                                text = xadesText,
-                                textAlign = TextAlign.Center,
-                                color = MaterialTheme.colorScheme.background,
-                                fontWeight = FontWeight.Normal,
-                                style = MaterialTheme.typography.bodyLarge,
-                            )
-                        }
-                    }
+                    ContainerMessage(modifier, xadesText)
                 }
 
                 if (isCadesContainer) {
-                    Column(
-                        modifier =
-                            modifier
-                                .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        Surface(
-                            modifier =
-                                modifier
-                                    .fillMaxWidth(),
-                            color = Yellow500,
-                        ) {
-                            Text(
-                                modifier = modifier.padding(itemSpacingPadding),
-                                text = cadesText,
-                                textAlign = TextAlign.Center,
-                                color = MaterialTheme.colorScheme.background,
-                                fontWeight = FontWeight.Normal,
-                                style = MaterialTheme.typography.bodyLarge,
-                            )
-                        }
-                    }
+                    ContainerMessage(modifier, cadesText)
+                }
+
+                if (unknownSignaturesCount > 0) {
+                    ContainerMessage(modifier, unknownSignaturesText)
+                }
+
+                if (invalidSignaturesCount > 0) {
+                    ContainerMessage(modifier, invalidSignaturesText)
+                }
+
+                if (signingViewModel.isEmptyFileInContainer(signedContainer)) {
+                    ContainerMessage(modifier, emptyFileInContainerText)
                 }
 
                 LazyColumn(
