@@ -14,6 +14,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
@@ -29,19 +30,22 @@ fun RadioButton(
     val radioColor = radioColor(enabled, selected)
     val textColor = textColor(enabled, selected)
 
-    PrimaryButton(
-        modifier = modifier,
-        title = label,
-        contentDescription = contentDescription,
-        isSubButton = !selected,
-        containerColor = radioColor.value,
-        contentColor = textColor.value,
-        onClickItem = {
-            if (onClick != null) {
-                onClick()
-            }
-        },
-    )
+    PreventResize {
+        PrimaryButton(
+            modifier = modifier,
+            title = label,
+            fontSize = 21.sp,
+            contentDescription = contentDescription,
+            isSubButton = !selected,
+            containerColor = radioColor.value,
+            contentColor = textColor.value,
+            onClickItem = {
+                if (onClick != null) {
+                    onClick()
+                }
+            },
+        )
+    }
 }
 
 @Composable

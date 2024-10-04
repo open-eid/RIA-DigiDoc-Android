@@ -21,6 +21,22 @@ data class SignatureAddRadioItem(
     fun radioItems(): List<SignatureAddRadioItem> {
         return listOf(
             SignatureAddRadioItem(
+                label = R.string.signature_update_signature_add_method_nfc,
+                route = Route.NFC.route,
+                contentDescription =
+                    stringResource(
+                        id = R.string.signature_update_signature_add_method_nfc,
+                    ).lowercase(),
+            ),
+            SignatureAddRadioItem(
+                label = R.string.signature_update_signature_add_method_id_card,
+                route = Route.IdCard.route,
+                contentDescription =
+                    stringResource(
+                        id = R.string.signature_update_signature_add_method_id_card,
+                    ).lowercase(),
+            ),
+            SignatureAddRadioItem(
                 label = R.string.signature_update_signature_add_method_mobile_id,
                 route = Route.MobileId.route,
                 contentDescription =
@@ -34,22 +50,6 @@ data class SignatureAddRadioItem(
                 contentDescription =
                     stringResource(
                         id = R.string.signature_update_signature_add_method_smart_id,
-                    ).lowercase(),
-            ),
-            SignatureAddRadioItem(
-                label = R.string.signature_update_signature_add_method_id_card,
-                route = Route.IdCard.route,
-                contentDescription =
-                    stringResource(
-                        id = R.string.signature_update_signature_add_method_id_card,
-                    ).lowercase(),
-            ),
-            SignatureAddRadioItem(
-                label = R.string.signature_update_signature_add_method_nfc,
-                route = Route.NFC.route,
-                contentDescription =
-                    stringResource(
-                        id = R.string.signature_update_signature_add_method_nfc,
                     ).lowercase(),
             ),
         )
