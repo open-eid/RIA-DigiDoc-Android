@@ -90,8 +90,8 @@
 
     <string name="signature_update_signature_add_method_mobile_id">Mobile-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
-    <string name="signature_update_signature_add_method_id_card">ID-card</string>
-    <string name="signature_update_signature_add_method_nfc">NFC</string>
+    <string name="signature_update_signature_add_method_id_card">ID-card via USB</string>
+    <string name="signature_update_signature_add_method_nfc">ID-card via NFC</string>
     <string name="signature_update_signature_add_success">Signature added</string>
 
     <string name="signature_update_signature_selected_method_mobile_id">Signing option Mobile-ID, tab %1$d of %2$d</string>

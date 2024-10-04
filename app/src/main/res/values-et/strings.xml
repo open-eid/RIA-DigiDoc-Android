@@ -90,8 +90,8 @@
 
     <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
-    <string name="signature_update_signature_add_method_id_card">ID-kaart</string>
-    <string name="signature_update_signature_add_method_nfc">NFC</string>
+    <string name="signature_update_signature_add_method_id_card">ID-kaart läbi USB</string>
+    <string name="signature_update_signature_add_method_nfc">ID-kaart läbi NFC</string>
     <string name="signature_update_signature_add_success">Allkiri lisatud</string>
 
     <string name="signature_update_signature_selected_method_mobile_id">Allkirjastamise viisiks on Mobiil-ID, vahekaart %1$d / %2$d</string>

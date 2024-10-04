@@ -90,8 +90,8 @@
 
     <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
-    <string name="signature_update_signature_add_method_id_card">ID-карта</string>
-    <string name="signature_update_signature_add_method_nfc">NFC</string>
+    <string name="signature_update_signature_add_method_id_card">ID-карта через USB</string>
+    <string name="signature_update_signature_add_method_nfc">ID-карта через NFC</string>
     <string name="signature_update_signature_add_success">Подпись добавлена</string>
 
     <string name="signature_update_signature_selected_method_mobile_id">Метод подписи – Mobiil-ID, вкладка %1$d из %2$d</string>

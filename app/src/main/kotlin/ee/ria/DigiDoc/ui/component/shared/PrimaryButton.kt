@@ -23,6 +23,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.border
 import ee.ria.DigiDoc.ui.theme.Dimensions.buttonCornerShapeSize
@@ -51,6 +52,7 @@ fun PrimaryButton(
             MaterialTheme.colorScheme.background
         },
     enabled: Boolean = true,
+    fontSize: TextUnit = TextUnit.Unspecified,
     onClickItem: () -> Unit = {},
 ) {
     val titleText = stringResource(id = title)
@@ -96,6 +98,7 @@ fun PrimaryButton(
             textAlign = TextAlign.Center,
             text = titleText,
             fontWeight = FontWeight.Bold,
+            fontSize = fontSize,
         )
     }
 }
