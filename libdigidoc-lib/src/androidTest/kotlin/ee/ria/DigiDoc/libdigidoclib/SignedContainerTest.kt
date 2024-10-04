@@ -9,6 +9,7 @@ import com.google.gson.Gson
 import ee.ria.DigiDoc.common.Constant.ASICE_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
 import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
+import ee.ria.DigiDoc.common.testfiles.asset.AssetFile.Companion.getResourceFileAsFile
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifierImpl
 import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
@@ -496,6 +497,39 @@ class SignedContainerTest {
             val result = signedContainer.getTimestamps()
 
             assertNotNull(result)
+        }
+
+    @Test
+    fun signedContainer_getSignaturesStatusCount_success() =
+        runTest {
+            val signedContainer = openOrCreate(context, container, listOf(container), true)
+
+            val signaturesStatuses = signedContainer.getSignaturesStatusCount()
+
+            assertNotNull(signaturesStatuses)
+            assertEquals(0, signaturesStatuses[ValidatorInterface.Status.Valid])
+            assertEquals(2, signaturesStatuses[ValidatorInterface.Status.Unknown])
+            assertEquals(0, signaturesStatuses[ValidatorInterface.Status.Invalid])
+        }
+
+    @Test
+    fun signedContainer_getSignaturesStatusCount_successWithNoSignatures() =
+        runTest {
+            val noSignaturesContainer =
+                getResourceFileAsFile(
+                    context,
+                    "example_no_signatures.asice",
+                    ee.ria.DigiDoc.common.R.raw.example_no_signatures,
+                )
+
+            val signedContainer = openOrCreate(context, noSignaturesContainer, listOf(noSignaturesContainer), true)
+
+            val signaturesStatuses = signedContainer.getSignaturesStatusCount()
+
+            assertNotNull(signaturesStatuses)
+            assertEquals(0, signaturesStatuses[ValidatorInterface.Status.Valid])
+            assertEquals(0, signaturesStatuses[ValidatorInterface.Status.Unknown])
+            assertEquals(0, signaturesStatuses[ValidatorInterface.Status.Invalid])
         }
 
     // Requires internet access, emulator should be running with internet access and RIA VPN on.

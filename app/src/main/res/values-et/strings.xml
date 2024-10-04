@@ -17,6 +17,7 @@
     <string name="container_title">Ümbrik:</string>
     <string name="documents_add_button">+ Lisa veel faile</string>
     <string name="documents_add_button_accessibility">Lisa veel faile</string>
+    <string name="container_has">Ümbrikus </string>
     <string name="file">Fail</string>
     <string name="file_saved">Fail salvestatud</string>
     <string name="file_saved_error">Faili salvestamine ebaõnnestus</string>
@@ -30,8 +31,27 @@
     <string name="container_open_file_error">Failide laadimine ebaõnnestus</string>
     <string name="container_load_error">Ümbriku laadimine ebaõnnestus</string>
     <string name="empty_file_error">Tühja faili ei saa lisada ümbrikusse.</string>
+    <string name="empty_file_message">Ümbrikule on lisatud tühi fail. Allkirjastamiseks eemalda ümbrikust tühi fail.</string>
     <string name="xades_file_message">Tegemist on XADES allkirja sisalduva ASICS ümbrikuga. Sellele ümbrikule ei saa allkirja lisada ega eemaldada.</string>
     <string name="cades_file_message">Tegemist on CAdES allkirja sisaldava ümbrikuga. Sellele ümbrikule ei saa allkirja lisada ega eemaldada.</string>
+    <plurals name="signatures_unknown">
+        <item quantity="one">%1$d ALLKIRI ON TEADMATA</item>
+        <item quantity="other">%1$d ALLKIRJA ON TEADMATA</item>
+        <!-- placeholder to keep line numbers same in different locales -->
+        <!-- placeholder to keep line numbers same in different locales -->
+    </plurals>
+    <plurals name="signatures_invalid">
+        <item quantity="one">%1$d ALLKIRI EI KEHTI</item>
+        <item quantity="other">%1$d ALLKIRJA EI KEHTI</item>
+        <!-- placeholder to keep line numbers same in different locales -->
+        <!-- placeholder to keep line numbers same in different locales -->
+    </plurals>
+    <plurals name="signatures_valid">
+        <item quantity="one">%1$d kehtiv allkiri</item>
+        <item quantity="other">%1$d kehtivat allkirja</item>
+        <!-- placeholder to keep line numbers same in different locales -->
+        <!-- placeholder to keep line numbers same in different locales -->
+    </plurals>
 
     <string name="challenge_code_text">Kontrollkood:</string>
     <string name="mobile_id_challenge">Mobiil-ID allkirjastamise kontrollkood</string>
