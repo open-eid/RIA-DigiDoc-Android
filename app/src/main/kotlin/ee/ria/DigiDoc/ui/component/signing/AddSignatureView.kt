@@ -9,14 +9,15 @@ import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -27,6 +28,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import ee.ria.DigiDoc.ui.component.shared.rememberImeState
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
@@ -51,23 +53,32 @@ fun AddSignatureView(
             0f
         }
 
+    val scrollState = rememberScrollState()
+    val imeState = rememberImeState()
+
+    LaunchedEffect(imeState.value) {
+        if (imeState.value) {
+            scrollState.scrollTo(Int.MAX_VALUE)
+        }
+    }
+
     Surface(
         modifier =
             modifier
-                .wrapContentHeight()
+                .fillMaxHeight()
                 .wrapContentWidth()
                 .padding(itemSpacingPadding)
                 .scrollable(
                     orientation = Orientation.Vertical,
                     state = state,
                 )
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(scrollState),
         shape = RoundedCornerShape(screenViewLargePadding),
     ) {
         Column(
             modifier =
                 modifier
-                    .wrapContentHeight()
+                    .fillMaxHeight()
                     .wrapContentWidth()
                     .padding(itemSpacingPadding),
             horizontalAlignment = Alignment.CenterHorizontally,

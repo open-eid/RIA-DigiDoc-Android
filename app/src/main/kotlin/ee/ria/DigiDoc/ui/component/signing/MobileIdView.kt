@@ -8,7 +8,9 @@ import android.widget.Toast
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -62,6 +64,7 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
 import ee.ria.DigiDoc.ui.theme.Blue500
+import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewSmallPadding
@@ -209,7 +212,10 @@ fun MobileIdView(
     Column(
         modifier =
             modifier
+                .fillMaxHeight()
+                .imePadding()
                 .padding(horizontal = screenViewLargePadding)
+                .padding(bottom = screenViewExtraExtraLargePadding)
                 .pointerInput(Unit) {
                     detectTapGestures(onTap = {
                         focusManager.clearFocus()
