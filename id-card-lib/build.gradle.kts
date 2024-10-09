@@ -26,7 +26,6 @@ dependencies {
     api(project(":id-card-lib:id-lib"))
     api(project(":id-card-lib:smart-lib"))
 
-    implementation(libs.timber)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

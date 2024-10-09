@@ -38,13 +38,12 @@ retrofit = "2.11.0"
 preferencex = "1.1.0"
 androidx-security-crypto = "1.0.0"
 pdfbox-android = "2.0.27.0"
-guava = "33.0.0-android"
+guava = "33.3.1-android"
 coreKtxVersion = "1.6.1"
 androidx-arch-core-testing = "2.2.0"
 firebaseCrashlytics = "3.0.2"
 googleServices = "4.4.2"
 firebaseCrashlyticsKtx = "19.2.0"
-timber = "5.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -91,7 +90,6 @@ guava = {group = "com.google.guava", name = "guava", version.ref = "guava" }
 core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "coreKtxVersion" }
 androidx-arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "androidx-arch-core-testing" }
 firebase-crashlytics-ktx = { group = "com.google.firebase", name = "firebase-crashlytics-ktx", version.ref = "firebaseCrashlyticsKtx" }
-timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
