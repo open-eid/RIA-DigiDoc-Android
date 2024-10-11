@@ -14,13 +14,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,6 +37,7 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignatureScreen(
     modifier: Modifier = Modifier,
@@ -67,7 +72,10 @@ fun SignatureScreen(
                         horizontal = screenViewLargePadding,
                         vertical = screenViewExtraLargePadding,
                     )
-                    .focusable(),
+                    .focusable()
+                    .semantics {
+                        testTagsAsResourceId = true
+                    },
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -87,7 +95,8 @@ fun SignatureScreen(
                         .focusProperties { canFocus = true }
                         .focusTarget()
                         .focusRequester(buttonFocusRequester)
-                        .focusable(),
+                        .focusable()
+                        .testTag("signatureHomeCreateButton"),
                 title = R.string.signature_home_create_button,
                 contentDescription = chooseFileText,
                 onClickItem = onClickToFileChoosingScreen,
@@ -97,7 +106,8 @@ fun SignatureScreen(
                 modifier =
                     modifier
                         .focusProperties { canFocus = true }
-                        .focusable(),
+                        .focusable()
+                        .testTag("signatureHomeRecentDocumentsButton"),
                 title = R.string.main_home_recent,
                 contentDescription = recentDocumentsText,
                 onClickItem = onClickToRecentDocumentsScreen,

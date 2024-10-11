@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.isTraversalGroup
@@ -41,6 +42,7 @@ fun SettingsTextField(
     useDefaultCheckedChange: (Boolean) -> Unit = {},
     title: String,
     contentDescription: String,
+    testTag: String = "",
 ) {
     Column(
         modifier =
@@ -50,7 +52,8 @@ fun SettingsTextField(
                 .semantics {
                     this.contentDescription = contentDescription
                     isTraversalGroup = true
-                },
+                }
+                .testTag(testTag),
     ) {
         Text(
             text = title,

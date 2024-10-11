@@ -18,12 +18,15 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.NavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.signing.TopBar
@@ -33,6 +36,7 @@ import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun RolesDetailsView(
     navController: NavController,
@@ -54,11 +58,16 @@ fun RolesDetailsView(
                 modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .focusGroup(),
+                    .focusGroup()
+                    .semantics {
+                        testTagsAsResourceId = true
+                    },
         ) {
             Column {
                 TopBar(
-                    modifier = modifier,
+                    modifier =
+                        modifier
+                            .testTag("appBar"),
                     title = R.string.signature_update_signature_role_and_address_title_accessibility,
                     onBackButtonClick = {
                         handleBackButtonClick(navController, sharedSignatureViewModel)
@@ -69,7 +78,8 @@ fun RolesDetailsView(
                         modifier =
                             modifier
                                 .verticalScroll(rememberScrollState())
-                                .fillMaxWidth(),
+                                .fillMaxWidth()
+                                .testTag("scrollView"),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         val roleTitle = stringResource(id = R.string.main_settings_role_title)
@@ -96,7 +106,8 @@ fun RolesDetailsView(
                                     modifier =
                                         modifier
                                             .graphicsLayer(alpha = 0.7f)
-                                            .notAccessible(),
+                                            .notAccessible()
+                                            .testTag("signatureUpdateRoleDetailLabel"),
                                 )
                             }
                         }
@@ -125,7 +136,8 @@ fun RolesDetailsView(
                                     modifier =
                                         modifier
                                             .graphicsLayer(alpha = 0.7f)
-                                            .notAccessible(),
+                                            .notAccessible()
+                                            .testTag("signatureUpdateRoleCityDetailLabel"),
                                 )
                             }
                         }
@@ -154,7 +166,8 @@ fun RolesDetailsView(
                                     modifier =
                                         modifier
                                             .graphicsLayer(alpha = 0.7f)
-                                            .notAccessible(),
+                                            .notAccessible()
+                                            .testTag("signatureUpdateRoleStateDetailLabel"),
                                 )
                             }
                         }
@@ -183,7 +196,8 @@ fun RolesDetailsView(
                                     modifier =
                                         modifier
                                             .graphicsLayer(alpha = 0.7f)
-                                            .notAccessible(),
+                                            .notAccessible()
+                                            .testTag("signatureUpdateRoleCountryDetailLabel"),
                                 )
                             }
                         }
@@ -212,7 +226,8 @@ fun RolesDetailsView(
                                     modifier =
                                         modifier
                                             .graphicsLayer(alpha = 0.7f)
-                                            .notAccessible(),
+                                            .notAccessible()
+                                            .testTag("signatureUpdateRoleZipDetailLabel"),
                                 )
                             }
                         }

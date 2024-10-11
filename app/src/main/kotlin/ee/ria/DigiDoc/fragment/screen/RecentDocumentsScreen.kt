@@ -28,9 +28,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
@@ -62,7 +66,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun RecentDocumentsScreen(
     modifier: Modifier = Modifier,
@@ -148,10 +152,16 @@ fun RecentDocumentsScreen(
     }
 
     Scaffold(
-        modifier = modifier,
+        modifier =
+            modifier
+                .semantics {
+                    testTagsAsResourceId = true
+                },
         topBar = {
             TopBar(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("appBar"),
                 title = R.string.recent_documents_title,
                 onBackButtonClick = {
                     navController.navigateUp()
@@ -164,7 +174,8 @@ fun RecentDocumentsScreen(
                 modifier
                     .padding(innerPadding)
                     .verticalScroll(rememberScrollState())
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .testTag("scrollView"),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             if (recentDocumentList.value.isNotEmpty()) {
@@ -222,6 +233,9 @@ fun RecentDocumentsScreen(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
+                        modifier =
+                            modifier
+                                .testTag("recentDocumentsListEmpty"),
                         text = stringResource(id = R.string.recent_documents_empty_message),
                         style = MaterialTheme.typography.bodyLarge,
                     )

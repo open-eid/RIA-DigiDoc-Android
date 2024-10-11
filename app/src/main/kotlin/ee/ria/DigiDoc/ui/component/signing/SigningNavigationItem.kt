@@ -26,6 +26,7 @@ fun signingBottomNavigationItems(
             isSubButton = false,
             showButton = showSignButton,
             onClick = onSignClick,
+            testTag = "signatureUpdateSignatureAddButton",
         ),
         SignatureBottomBarItem(
             label = R.string.crypto_button,
@@ -36,6 +37,7 @@ fun signingBottomNavigationItems(
             isSubButton = true,
             showButton = showEncryptButton,
             onClick = onEncryptClick,
+            testTag = "signatureUpdateSignatureEncryptButton",
         ),
         SignatureBottomBarItem(
             label = R.string.share_button,
@@ -43,6 +45,7 @@ fun signingBottomNavigationItems(
             isSubButton = true,
             showButton = showShareButton,
             onClick = onShareClick,
+            testTag = "signatureUpdateSendButton",
         ),
     )
 }

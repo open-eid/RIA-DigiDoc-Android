@@ -16,6 +16,7 @@ data class HomeNavigationItem(
     val icon: ImageVector = Icons.Filled.Home,
     val route: String = "",
     val contentDescription: String = "",
+    val testTag: String = "",
 ) {
     @Composable
     fun bottomNavigationItems(): List<HomeNavigationItem> {
@@ -28,6 +29,7 @@ data class HomeNavigationItem(
                     stringResource(
                         id = R.string.main_home_navigation_signature_accessibility,
                     ),
+                testTag = "mainHomeNavigationSignature",
             ),
             HomeNavigationItem(
                 label = stringResource(id = R.string.main_home_navigation_crypto),
@@ -37,12 +39,14 @@ data class HomeNavigationItem(
                     stringResource(
                         id = R.string.main_home_navigation_crypto_accessibility,
                     ),
+                testTag = "mainHomeNavigationCrypto",
             ),
             HomeNavigationItem(
                 label = stringResource(id = R.string.main_home_navigation_eid),
                 icon = ImageVector.vectorResource(id = R.drawable.ic_icon_eid),
                 route = Route.EID.route,
                 contentDescription = stringResource(id = R.string.main_home_navigation_eid_accessibility),
+                testTag = "mainHomeNavigationEID",
             ),
         )
     }

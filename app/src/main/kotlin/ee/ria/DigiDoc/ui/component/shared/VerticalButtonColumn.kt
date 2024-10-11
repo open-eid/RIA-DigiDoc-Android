@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
@@ -25,6 +26,7 @@ data class VerticalButtonConfig(
     val containerColor: Color = Normal,
     val contentColor: Color = Color.Blue,
     val onClick: () -> Unit = {},
+    val testTag: String = "",
 )
 
 @Composable
@@ -42,6 +44,7 @@ fun VerticalButtonColumn(
     ) {
         buttonConfigs.forEach { config ->
             PrimaryButton(
+                modifier = modifier.testTag(config.testTag),
                 enabled = config.isEnabled,
                 isSubButton = config.isSubButton,
                 title = config.title,

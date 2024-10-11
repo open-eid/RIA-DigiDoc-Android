@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -47,13 +48,15 @@ fun SignatureAddRadioGroup(
                 .padding(
                     horizontal = screenViewLargePadding,
                     vertical = screenViewExtraLargePadding,
-                ),
+                )
+                .testTag("signatureUpdateSignatureAddMethod"),
     ) {
         SignatureAddRadioItem().radioItems().forEachIndexed { _, navigationItem ->
             RadioButton(
                 modifier =
                     modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .testTag(navigationItem.testTag),
                 selected = navigationItem.route == selectedItem,
                 label = navigationItem.label,
                 contentDescription =

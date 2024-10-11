@@ -16,10 +16,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,6 +40,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun InfoScreen(
     modifier: Modifier = Modifier,
@@ -45,10 +50,16 @@ fun InfoScreen(
     val activity = (context as Activity)
     markAsSecure(context, activity.window)
     Scaffold(
-        modifier = modifier,
+        modifier =
+            modifier
+                .semantics {
+                    testTagsAsResourceId = true
+                },
         topBar = {
             TopBar(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("appBar"),
                 title = R.string.main_about_title,
                 onBackButtonClick = {
                     navController.navigateUp()
@@ -61,7 +72,8 @@ fun InfoScreen(
                 modifier
                     .padding(innerPadding)
                     .verticalScroll(rememberScrollState())
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .testTag("scrollView"),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Image(
@@ -72,11 +84,13 @@ fun InfoScreen(
             )
             Text(
                 modifier =
-                    modifier.padding(
-                        start = screenViewLargePadding,
-                        top = screenViewLargePadding,
-                        end = screenViewLargePadding,
-                    ),
+                    modifier
+                        .padding(
+                            start = screenViewLargePadding,
+                            top = screenViewLargePadding,
+                            end = screenViewLargePadding,
+                        )
+                        .testTag("mainAboutRiaDigiDocVersionTitle"),
                 text =
                     String.format(
                         stringResource(id = R.string.main_about_ria_digidoc_version_title),
@@ -87,11 +101,12 @@ fun InfoScreen(
             )
             DynamicText(
                 modifier =
-                    modifier.padding(
-                        start = screenViewLargePadding,
-                        top = screenViewLargePadding,
-                        end = screenViewLargePadding,
-                    ),
+                    modifier
+                        .padding(
+                            start = screenViewLargePadding,
+                            top = screenViewLargePadding,
+                            end = screenViewLargePadding,
+                        ),
                 text = stringResource(id = R.string.main_about_software_developed_by_title),
                 textStyle =
                     TextStyle(
@@ -100,11 +115,12 @@ fun InfoScreen(
             )
             DynamicText(
                 modifier =
-                    modifier.padding(
-                        start = screenViewLargePadding,
-                        top = screenViewLargePadding,
-                        end = screenViewLargePadding,
-                    ),
+                    modifier
+                        .padding(
+                            start = screenViewLargePadding,
+                            top = screenViewLargePadding,
+                            end = screenViewLargePadding,
+                        ),
                 text = stringResource(id = R.string.main_about_contact_information_title),
                 textStyle =
                     TextStyle(
@@ -128,6 +144,7 @@ fun InfoScreen(
             )
             InfoComponentItem().componentItems().forEachIndexed { _, componentItem ->
                 InfoComponent(
+                    modifier = modifier,
                     name = componentItem.name,
                     licenseName = componentItem.licenseName,
                     licenseUrl = componentItem.licenseUrl,

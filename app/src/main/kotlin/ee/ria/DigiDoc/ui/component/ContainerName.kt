@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
@@ -65,7 +66,8 @@ fun ContainerName(
                 maxLines = 4,
                 modifier =
                     modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .testTag("signatureUpdateListName"),
             )
         }
 
@@ -83,7 +85,8 @@ fun ContainerName(
                 },
                 modifier =
                     modifier
-                        .size(iconSize),
+                        .size(iconSize)
+                        .testTag("signatureUpdateListNameSaveButton"),
             )
         } else {
             IconButton(
@@ -97,7 +100,8 @@ fun ContainerName(
                 },
                 modifier =
                     modifier
-                        .size(iconSize),
+                        .size(iconSize)
+                        .testTag("signatureUpdateListNameUpdateButton"),
             )
         }
     }

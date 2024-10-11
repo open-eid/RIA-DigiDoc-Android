@@ -18,8 +18,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
@@ -31,7 +35,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewSmallPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Red500
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun CrashDialog(
     modifier: Modifier = Modifier,
@@ -40,6 +44,12 @@ fun CrashDialog(
     onAlwaysSendClick: () -> Unit = {},
 ) {
     BasicAlertDialog(
+        modifier =
+            modifier
+                .semantics {
+                    testTagsAsResourceId = true
+                }
+                .testTag("crashReportDialog"),
         onDismissRequest = onDontSendClick,
     ) {
         Surface(
@@ -58,12 +68,14 @@ fun CrashDialog(
                 ) {
                     Text(
                         modifier =
-                            modifier.padding(
-                                start = screenViewLargePadding,
-                                top = screenViewSmallPadding,
-                                end = screenViewLargePadding,
-                            )
-                                .align(Alignment.Center),
+                            modifier
+                                .padding(
+                                    start = screenViewLargePadding,
+                                    top = screenViewSmallPadding,
+                                    end = screenViewLargePadding,
+                                )
+                                .align(Alignment.Center)
+                                .testTag("crashReportDialogHeader"),
                         text = stringResource(R.string.crash_report_dialog_header),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.titleLarge,
@@ -74,11 +86,13 @@ fun CrashDialog(
                     modifier =
                         modifier
                             .fillMaxWidth()
-                            .padding(vertical = screenViewLargePadding),
+                            .padding(vertical = screenViewLargePadding)
+                            .testTag("crashReportDialogText"),
                     text = stringResource(R.string.crash_report_dialog_text),
                     textStyle = MaterialTheme.typography.bodyLarge,
                 )
                 VerticalButtonColumn(
+                    modifier = modifier.testTag("crashReportDialogText"),
                     buttonConfigs =
                         listOf(
                             VerticalButtonConfig(
@@ -90,6 +104,7 @@ fun CrashDialog(
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 contentColor = MaterialTheme.colorScheme.background,
                                 onClick = onSendClick,
+                                testTag = "sendButton",
                             ),
                             VerticalButtonConfig(
                                 title = R.string.crash_report_dialog_always_send_button,
@@ -101,6 +116,7 @@ fun CrashDialog(
                                 containerColor = MaterialTheme.colorScheme.background,
                                 contentColor = MaterialTheme.colorScheme.primary,
                                 onClick = onAlwaysSendClick,
+                                testTag = "alwaysSendButton",
                             ),
                             VerticalButtonConfig(
                                 title = R.string.crash_report_dialog_dont_send_button,
@@ -112,6 +128,7 @@ fun CrashDialog(
                                 containerColor = MaterialTheme.colorScheme.background,
                                 contentColor = Red500,
                                 onClick = onDontSendClick,
+                                testTag = "dontSendButton",
                             ),
                         ),
                 )

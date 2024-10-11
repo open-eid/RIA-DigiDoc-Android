@@ -11,10 +11,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
@@ -22,13 +26,21 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeLarge
 import ee.ria.DigiDoc.ui.theme.Dimensions.toolbarHeight
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun HomeToolbar(
     modifier: Modifier = Modifier,
     onClickMenu: () -> Unit = {},
 ) {
     ConstraintLayout(
-        modifier = modifier.height(toolbarHeight).fillMaxWidth(),
+        modifier =
+            modifier
+                .height(toolbarHeight)
+                .fillMaxWidth()
+                .semantics {
+                    testTagsAsResourceId = true
+                }
+                .testTag("toolbar"),
     ) {
         val (
             digiDocIcon,
@@ -36,23 +48,25 @@ fun HomeToolbar(
         ) = createRefs()
         Image(
             modifier =
-                Modifier
+                modifier
                     .height(toolbarHeight)
                     .padding(start = iconSizeLarge)
                     .constrainAs(digiDocIcon) {
                         start.linkTo(parent.start)
                         end.linkTo(menuButton.start)
-                    },
+                    }
+                    .testTag("mainHomeToolbarLogo"),
             imageVector = ImageVector.vectorResource(id = R.drawable.main_home_toolbar_logo),
             contentDescription = stringResource(id = R.string.main_home_logo),
         )
         IconButton(
             modifier =
-                Modifier
+                modifier
                     .size(iconSizeLarge)
                     .constrainAs(menuButton) {
                         end.linkTo(parent.end)
-                    },
+                    }
+                    .testTag("mainHomeToolbarOverflow"),
             onClick = onClickMenu,
         ) {
             Icon(

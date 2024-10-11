@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.ui.component.shared.TagBadge
 import ee.ria.DigiDoc.ui.theme.Green50
@@ -37,14 +38,20 @@ fun ColoredSignedStatusText(
             text = parts[0],
             backgroundColor = tagBackgroundColor,
             contentColor = tagContentColor,
-            modifier = modifier.focusable(),
+            modifier =
+                modifier
+                    .focusable()
+                    .testTag("signatureUpdateListSignatureStatus"),
         )
 
         if (parts.size > 1) {
             Text(
                 text = " (${parts[1]}",
                 color = additionalTextColor,
-                modifier = modifier.focusable(),
+                modifier =
+                    modifier
+                        .focusable()
+                        .testTag("signatureUpdateListSignatureStatusCaution"),
             )
         }
     }

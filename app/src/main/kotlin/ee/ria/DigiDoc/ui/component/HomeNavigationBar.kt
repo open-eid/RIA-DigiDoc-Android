@@ -19,14 +19,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,6 +40,7 @@ import ee.ria.DigiDoc.ui.component.shared.PreventResize
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Transparent
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun HomeNavigationBar(
     modifier: Modifier = Modifier,
@@ -55,7 +59,13 @@ fun HomeNavigationBar(
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.primary,
         contentColor = MaterialTheme.colorScheme.background,
-        modifier = modifier.fillMaxWidth(),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .semantics {
+                    testTagsAsResourceId = true
+                }
+                .testTag("mainHomeNavigation"),
     ) {
         HomeNavigationItem().bottomNavigationItems().forEachIndexed { index, navigationItem ->
             NavigationBarItem(
@@ -79,7 +89,8 @@ fun HomeNavigationBar(
                         .focusRequester(buttonFocusRequester)
                         .focusable()
                         .focusGroup()
-                        .clearAndSetSemantics {},
+                        .clearAndSetSemantics {}
+                        .testTag(navigationItem.testTag),
                 alwaysShowLabel = true,
                 colors =
                     NavigationBarItemColors(

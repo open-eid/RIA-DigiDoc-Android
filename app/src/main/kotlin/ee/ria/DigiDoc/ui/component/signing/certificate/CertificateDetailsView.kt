@@ -20,12 +20,15 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -44,6 +47,7 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import org.bouncycastle.asn1.x500.style.BCStyle
 import kotlin.text.Charsets.UTF_8
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CertificateDetailsView(
     navController: NavController,
@@ -66,11 +70,16 @@ fun CertificateDetailsView(
                 modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .focusGroup(),
+                    .focusGroup()
+                    .semantics {
+                        testTagsAsResourceId = true
+                    },
         ) {
             Column {
                 TopBar(
-                    modifier = modifier,
+                    modifier =
+                        modifier
+                            .testTag("appBar"),
                     title = R.string.certificate_details_title,
                     onBackButtonClick = {
                         handleBackButtonClick(navController, sharedCertificateViewModel)
@@ -83,7 +92,8 @@ fun CertificateDetailsView(
                         modifier =
                             modifier
                                 .fillMaxWidth()
-                                .verticalScroll(rememberScrollState()),
+                                .verticalScroll(rememberScrollState())
+                                .testTag("scrollView"),
                         horizontalAlignment = Alignment.Start,
                     ) {
                         val publicKeyParameters =
@@ -222,6 +232,7 @@ fun CertificateDetailsView(
                                             }
                                         CertificateDataItem(
                                             modifier = modifier,
+                                            testTag = certificateDetail.testTag,
                                             detailKey = certificateDetail.detailKey,
                                             detailValue = certificateDetail.detailValue,
                                             contentDescription =
@@ -250,7 +261,8 @@ fun CertificateDetailsView(
                                         Text(
                                             modifier =
                                                 modifier
-                                                    .notAccessible(),
+                                                    .notAccessible()
+                                                    .testTag(certificateDetail.testTag),
                                             text = certificateDetail.text,
                                             style = MaterialTheme.typography.titleLarge,
                                             fontWeight = FontWeight.Bold,

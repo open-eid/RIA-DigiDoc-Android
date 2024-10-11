@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -49,13 +50,15 @@ fun LanguageSwitchRadioGroup(
                 .padding(
                     horizontal = screenViewLargePadding,
                     vertical = screenViewExtraLargePadding,
-                ),
+                )
+                .testTag("mainHomeMenuLocale"),
     ) {
         LanguageSwitchRadioItem().radioItems().forEachIndexed { _, languageItem ->
             RadioButton(
                 modifier =
                     modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .testTag(languageItem.testTag),
                 selected = languageItem.locale == selectedItem,
                 label = languageItem.label,
                 contentDescription =

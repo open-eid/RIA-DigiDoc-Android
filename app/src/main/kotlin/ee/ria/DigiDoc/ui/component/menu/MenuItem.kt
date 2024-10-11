@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
@@ -40,12 +41,14 @@ fun MenuItem(
     imageVector: ImageVector,
     title: String,
     contentDescription: String,
+    testTag: String = "",
 ) {
     Button(
         modifier =
             modifier
                 .wrapContentHeight(Alignment.CenterVertically)
-                .padding(horizontal = screenViewExtraLargePadding, vertical = screenViewSmallPadding),
+                .padding(horizontal = screenViewExtraLargePadding, vertical = screenViewSmallPadding)
+                .testTag(testTag),
         shape = RectangleShape,
         colors =
             ButtonColors(

@@ -20,6 +20,7 @@ data class SignerDetailItem(
     val certificate: X509Certificate? = null,
     val contentDescription: String = "",
     val formatForAccessibility: Boolean = false,
+    val testTag: String = "",
 ) {
     @Composable
     fun signersDetailItems(
@@ -43,6 +44,7 @@ data class SignerDetailItem(
                     } else {
                         ""
                     },
+                testTag = "signersCertificateIssuer",
             ),
             SignerDetailItem(
                 label = R.string.signers_certificate_label,
@@ -57,6 +59,7 @@ data class SignerDetailItem(
                         ""
                     },
                 formatForAccessibility = true,
+                testTag = "signersCertificate",
             ),
             SignerDetailItem(
                 label = R.string.signature_method_label,
@@ -69,6 +72,7 @@ data class SignerDetailItem(
                     } else {
                         ""
                     },
+                testTag = "signatureDetailMethod",
             ),
             SignerDetailItem(
                 label = R.string.container_format_label,
@@ -81,6 +85,7 @@ data class SignerDetailItem(
                     } else {
                         ""
                     },
+                testTag = "containerDetailFormat",
             ),
             SignerDetailItem(
                 label = R.string.signature_format_label,
@@ -93,6 +98,7 @@ data class SignerDetailItem(
                     } else {
                         ""
                     },
+                testTag = "signatureDetailFormat",
             ),
             SignerDetailItem(
                 label = R.string.signed_file_count_label,
@@ -109,6 +115,7 @@ data class SignerDetailItem(
                     } else {
                         ""
                     },
+                testTag = "containerDetailSignedFileCount",
             ),
             SignerDetailItem(
                 label = R.string.signature_timestamp_label,
@@ -121,6 +128,7 @@ data class SignerDetailItem(
                     } else {
                         ""
                     },
+                testTag = "signatureDetailTimestamp",
             ),
             SignerDetailItem(
                 label = R.string.signature_timestamp_utc_label,
@@ -133,6 +141,7 @@ data class SignerDetailItem(
                     } else {
                         ""
                     },
+                testTag = "signatureDetailTimestampUTC",
             ),
             SignerDetailItem(
                 label = R.string.hash_value_of_signature_label,
@@ -145,6 +154,7 @@ data class SignerDetailItem(
                     } else {
                         ""
                     },
+                testTag = "signatureDetailHashValue",
             ),
             SignerDetailItem(
                 label = R.string.ts_certificate_issuer_label,
@@ -157,6 +167,7 @@ data class SignerDetailItem(
                     } else {
                         ""
                     },
+                testTag = "signatureDetailTimestampCertificateIssuer",
             ),
             SignerDetailItem(
                 label = R.string.ts_certificate_label,
@@ -170,6 +181,7 @@ data class SignerDetailItem(
                     } else {
                         ""
                     },
+                testTag = "signatureDetailTimestampCertificate",
             ),
             SignerDetailItem(
                 label = R.string.ocsp_certificate_issuer_label,
@@ -182,6 +194,7 @@ data class SignerDetailItem(
                     } else {
                         ""
                     },
+                testTag = "signatureDetailOCSPCertificateIssuer",
             ),
             SignerDetailItem(
                 label = R.string.ocsp_certificate_label,
@@ -195,6 +208,7 @@ data class SignerDetailItem(
                     } else {
                         ""
                     },
+                testTag = "signatureDetailOCSPCertificate",
             ),
             SignerDetailItem(
                 label = R.string.ocsp_time_label,
@@ -207,6 +221,7 @@ data class SignerDetailItem(
                     } else {
                         ""
                     },
+                testTag = "signatureDetailOCSPTime",
             ),
             SignerDetailItem(
                 label = R.string.ocsp_time_utc_label,
@@ -219,6 +234,7 @@ data class SignerDetailItem(
                     } else {
                         ""
                     },
+                testTag = "signatureDetailOCSPTimeUTC",
             ),
             SignerDetailItem(
                 label = R.string.signers_mobile_time_label,
@@ -231,6 +247,7 @@ data class SignerDetailItem(
                     } else {
                         ""
                     },
+                testTag = "signatureDetailSignersMobileTimeUTC",
             ),
         )
 }

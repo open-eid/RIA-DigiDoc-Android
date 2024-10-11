@@ -24,9 +24,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -58,7 +62,7 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun SettingsSigningScreen(
     modifier: Modifier = Modifier,
@@ -295,10 +299,16 @@ fun SettingsSigningScreen(
     }
 
     Scaffold(
-        modifier = modifier,
+        modifier =
+            modifier
+                .semantics {
+                    testTagsAsResourceId = true
+                },
         topBar = {
             TopBar(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("appBar"),
                 title = R.string.main_settings_signing,
                 onBackButtonClick = {
                     navController.navigateUp()
@@ -310,10 +320,12 @@ fun SettingsSigningScreen(
             modifier =
                 modifier
                     .padding(innerPadding)
-                    .verticalScroll(rememberScrollState()),
+                    .verticalScroll(rememberScrollState())
+                    .testTag("scrollView"),
         ) {
             var checkedAskRoleAndAddress by remember { mutableStateOf(getIsRoleAskingEnabled()) }
             SettingsSwitchItem(
+                testTag = "mainSettingsAskRoleAndAddress",
                 modifier = modifier,
                 checked = checkedAskRoleAndAddress,
                 onCheckedChange = {
@@ -324,6 +336,7 @@ fun SettingsSigningScreen(
                 contentDescription = stringResource(id = R.string.main_settings_ask_role_and_address_title).lowercase(),
             )
             SettingsTextField(
+                testTag = "mainSettingsAccessToSigningService",
                 defaultValue = uuidValue,
                 value = fieldValueSettingsAccessToSigningService,
                 onValueChange = {
@@ -343,6 +356,7 @@ fun SettingsSigningScreen(
                 contentDescription = stringResource(id = R.string.main_settings_uuid_title).lowercase(),
             )
             SettingsTextField(
+                testTag = "mainSettingsAccessToTimeStampingService",
                 defaultValue = tsaUrlValue,
                 value = fieldValueSettingsAccessToTimeStampingService,
                 onValueChange = {
@@ -362,6 +376,7 @@ fun SettingsSigningScreen(
                 contentDescription = stringResource(id = R.string.main_settings_tsa_url_title).lowercase(),
             )
             SettingsItem(
+                testTag = "signingSettingsSivaCategory",
                 modifier = modifier,
                 onClickItem = {
                     openSettingsSivaCategoryDialog.value = true
@@ -371,6 +386,7 @@ fun SettingsSigningScreen(
                 contentDescription = stringResource(id = R.string.main_settings_siva_service_title).lowercase(),
             )
             SettingsItem(
+                testTag = "signingSettingsProxyCategory",
                 modifier = modifier,
                 onClickItem = {
                     openSettingsProxyCategoryDialog.value = true

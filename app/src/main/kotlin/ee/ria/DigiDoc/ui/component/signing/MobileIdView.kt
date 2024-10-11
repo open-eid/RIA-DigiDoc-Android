@@ -33,6 +33,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
@@ -44,11 +45,13 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -83,7 +86,7 @@ import kotlinx.coroutines.withContext
 import java.util.Arrays
 import java.util.stream.Collectors
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun MobileIdView(
     activity: Activity,
@@ -220,7 +223,11 @@ fun MobileIdView(
                     detectTapGestures(onTap = {
                         focusManager.clearFocus()
                     })
-                },
+                }
+                .semantics {
+                    testTagsAsResourceId = true
+                }
+                .testTag("signatureUpdateMobileId"),
     ) {
         if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
             Text(
@@ -255,7 +262,8 @@ fun MobileIdView(
                 modifier =
                     modifier
                         .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .notAccessible(),
+                        .notAccessible()
+                        .testTag("signatureUpdateRoleLabel"),
             )
             TextField(
                 modifier =
@@ -265,7 +273,8 @@ fun MobileIdView(
                         .clearAndSetSemantics {
                             this.contentDescription =
                                 "$roleLabel ${rolesAndResolutionsText.text}"
-                        },
+                        }
+                        .testTag("signatureUpdateRoleText"),
                 value = rolesAndResolutionsText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -286,7 +295,8 @@ fun MobileIdView(
                 modifier =
                     modifier
                         .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .notAccessible(),
+                        .notAccessible()
+                        .testTag("signatureUpdateRoleCityLabel"),
             )
             TextField(
                 modifier =
@@ -296,7 +306,8 @@ fun MobileIdView(
                         .clearAndSetSemantics {
                             this.contentDescription =
                                 "$cityLabel ${cityText.text}"
-                        },
+                        }
+                        .testTag("signatureUpdateRoleCityText"),
                 value = cityText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -317,7 +328,8 @@ fun MobileIdView(
                 modifier =
                     modifier
                         .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .notAccessible(),
+                        .notAccessible()
+                        .testTag("signatureUpdateRoleStateLabel"),
             )
             TextField(
                 modifier =
@@ -327,7 +339,8 @@ fun MobileIdView(
                         .clearAndSetSemantics {
                             this.contentDescription =
                                 "$stateLabel ${stateText.text}"
-                        },
+                        }
+                        .testTag("signatureUpdateRoleStateText"),
                 value = stateText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -348,7 +361,8 @@ fun MobileIdView(
                 modifier =
                     modifier
                         .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .notAccessible(),
+                        .notAccessible()
+                        .testTag("signatureUpdateRoleCountryLabel"),
             )
             TextField(
                 modifier =
@@ -358,7 +372,8 @@ fun MobileIdView(
                         .clearAndSetSemantics {
                             this.contentDescription =
                                 "$countryLabel ${countryText.text}"
-                        },
+                        }
+                        .testTag("signatureUpdateRoleCountryText"),
                 value = countryText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -379,7 +394,8 @@ fun MobileIdView(
                 modifier =
                     modifier
                         .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .notAccessible(),
+                        .notAccessible()
+                        .testTag("signatureUpdateRoleZipLabel"),
             )
             TextField(
                 modifier =
@@ -389,7 +405,8 @@ fun MobileIdView(
                         .clearAndSetSemantics {
                             this.contentDescription =
                                 "$zipLabel ${formatNumbers(zipText.text)}"
-                        },
+                        }
+                        .testTag("signatureUpdateRoleZipText"),
                 value = zipText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -423,7 +440,8 @@ fun MobileIdView(
                 modifier =
                     modifier
                         .padding(screenViewLargePadding)
-                        .semantics { heading() },
+                        .semantics { heading() }
+                        .testTag("signatureUpdateMobileIdMessage"),
                 textAlign = TextAlign.Center,
             )
             Text(
@@ -432,7 +450,8 @@ fun MobileIdView(
                 modifier =
                     modifier
                         .padding(vertical = screenViewLargePadding)
-                        .notAccessible(),
+                        .notAccessible()
+                        .testTag("signatureUpdateMobileIdPhoneNoLabel"),
             )
             val countryCodeAndPhoneTextEdited = remember { mutableStateOf(false) }
             val countryCodeAndPhoneErrorText =
@@ -457,7 +476,8 @@ fun MobileIdView(
                             contentDescription =
                                 "$countryCodeAndPhoneNumberLabel " +
                                 "${formatNumbers(countryCodeAndPhoneText.text)} "
-                        },
+                        }
+                        .testTag("signatureUpdateMobileIdPhoneNo"),
                 value = countryCodeAndPhoneText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -488,7 +508,8 @@ fun MobileIdView(
                     modifier =
                         Modifier.fillMaxWidth()
                             .focusable(enabled = true)
-                            .semantics { contentDescription = countryCodeAndPhoneErrorText },
+                            .semantics { contentDescription = countryCodeAndPhoneErrorText }
+                            .testTag("signatureUpdateMobileIdPhoneNoErrorText"),
                     text = countryCodeAndPhoneErrorText,
                     color = Red500,
                 )
@@ -499,7 +520,8 @@ fun MobileIdView(
                 modifier =
                     modifier
                         .padding(top = screenViewExtraLargePadding, bottom = screenViewLargePadding)
-                        .notAccessible(),
+                        .notAccessible()
+                        .testTag("signatureUpdateMobileIdPersonalCodeLabel"),
             )
             val personalCodeErrorText =
                 if (personalCodeText.text.isNotEmpty()) {
@@ -520,7 +542,8 @@ fun MobileIdView(
                         .clearAndSetSemantics {
                             contentDescription =
                                 "$personalCodeLabel ${formatNumbers(personalCodeText.text)}"
-                        },
+                        }
+                        .testTag("signatureUpdateMobileIdPersonalCode"),
                 value = personalCodeText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -541,12 +564,16 @@ fun MobileIdView(
                     modifier =
                         Modifier.fillMaxWidth()
                             .focusable(enabled = true)
-                            .semantics { contentDescription = personalCodeErrorText },
+                            .semantics { contentDescription = personalCodeErrorText }
+                            .testTag("signatureUpdateMobileIdPersonalCodeErrorText"),
                     text = personalCodeErrorText,
                     color = Red500,
                 )
             }
             TextCheckBox(
+                modifier =
+                    modifier
+                        .testTag("signatureUpdateMobileIdRememberMe"),
                 checked = rememberMeCheckedState.value,
                 onCheckedChange = { rememberMeCheckedState.value = it },
                 title = stringResource(id = R.string.signature_update_remember_me),
@@ -554,6 +581,8 @@ fun MobileIdView(
             )
         }
         CancelAndOkButtonRow(
+            okButtonTestTag = "signatureUpdateMobileIdSignButton",
+            cancelButtonTestTag = "signatureUpdateMobileIdCancelSigningButton",
             okButtonEnabled =
                 mobileIdViewModel.positiveButtonEnabled(
                     countryCodeAndPhoneText.text,

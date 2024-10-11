@@ -13,15 +13,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -36,6 +39,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SettingsSivaCategoryDialog(
     modifier: Modifier = Modifier,
@@ -53,12 +57,19 @@ fun SettingsSivaCategoryDialog(
     val sivaDialogTitle = stringResource(id = R.string.main_settings_siva_service_title)
 
     Column(
-        modifier = modifier.padding(itemSpacingPadding),
+        modifier =
+            modifier
+                .padding(itemSpacingPadding)
+                .semantics {
+                    testTagsAsResourceId = true
+                }
+                .testTag("mainSettingsSivaServiceContainer"),
     ) {
         BackButton(
             modifier =
                 modifier
-                    .semantics { traversalIndex = 1f },
+                    .semantics { traversalIndex = 1f }
+                    .testTag("mainSettingsSivaBackButton"),
             onClickBack = onClickBack,
         )
         Text(
@@ -77,29 +88,34 @@ fun SettingsSivaCategoryDialog(
             text = sivaDialogTitle,
             style = MaterialTheme.typography.titleLarge,
         )
-
-        TextRadioButton(
-            modifier =
-                modifier
-                    .semantics { traversalIndex = 2f },
-            title = stringResource(id = R.string.main_settings_siva_default_access_title),
-            contentDescription =
-                "${sivaDialogTitle.lowercase()} " +
-                    stringResource(id = R.string.main_settings_siva_default_access_title).lowercase(),
-            selected = sivaSettingSelected == SivaSetting.DEFAULT.name,
-            onClick = onClickSivaSettingDefault,
-        )
-        TextRadioButton(
-            modifier =
-                modifier
-                    .semantics { traversalIndex = 3f },
-            title = stringResource(id = R.string.main_settings_siva_default_manual_access_title),
-            contentDescription =
-                "${sivaDialogTitle.lowercase()} " +
-                    stringResource(id = R.string.main_settings_siva_default_manual_access_title).lowercase(),
-            selected = sivaSettingSelected == SivaSetting.MANUAL.name,
-            onClick = onClickSivaSettingManual,
-        )
+        Column(
+            modifier = modifier.testTag("mainSettingsSivaServiceChoiceGroup"),
+        ) {
+            TextRadioButton(
+                modifier =
+                    modifier
+                        .semantics { traversalIndex = 2f }
+                        .testTag("mainSettingsSivaServiceDefaultChoice"),
+                title = stringResource(id = R.string.main_settings_siva_default_access_title),
+                contentDescription =
+                    "${sivaDialogTitle.lowercase()} " +
+                        stringResource(id = R.string.main_settings_siva_default_access_title).lowercase(),
+                selected = sivaSettingSelected == SivaSetting.DEFAULT.name,
+                onClick = onClickSivaSettingDefault,
+            )
+            TextRadioButton(
+                modifier =
+                    modifier
+                        .semantics { traversalIndex = 3f }
+                        .testTag("mainSettingsSivaServiceManualChoice"),
+                title = stringResource(id = R.string.main_settings_siva_default_manual_access_title),
+                contentDescription =
+                    "${sivaDialogTitle.lowercase()} " +
+                        stringResource(id = R.string.main_settings_siva_default_manual_access_title).lowercase(),
+                selected = sivaSettingSelected == SivaSetting.MANUAL.name,
+                onClick = onClickSivaSettingManual,
+            )
+        }
 
         TextField(
             enabled = sivaSettingSelected == SivaSetting.MANUAL.name,
@@ -107,7 +123,8 @@ fun SettingsSivaCategoryDialog(
                 modifier
                     .padding(vertical = screenViewLargePadding)
                     .fillMaxWidth()
-                    .semantics { traversalIndex = 4f },
+                    .semantics { traversalIndex = 4f }
+                    .testTag("mainSettingsSivaServiceUrl"),
             value = settingsSivaServiceUrl,
             shape = RectangleShape,
             onValueChange = onSettingsSivaUrlValueChanged,
@@ -137,7 +154,8 @@ fun SettingsSivaCategoryDialog(
                     modifier
                         .padding(horizontal = screenViewLargePadding, vertical = screenViewLargePadding)
                         .fillMaxWidth()
-                        .semantics { traversalIndex = 6f },
+                        .semantics { traversalIndex = 6f }
+                        .testTag("mainSettingsSivaCertificateIssuedTo"),
                 text = stringResource(id = R.string.main_settings_timestamp_cert_issued_to_title) + " " + issuedTo,
             )
             Text(
@@ -145,7 +163,8 @@ fun SettingsSivaCategoryDialog(
                     modifier
                         .padding(horizontal = screenViewLargePadding, vertical = screenViewLargePadding)
                         .fillMaxWidth()
-                        .semantics { traversalIndex = 7f },
+                        .semantics { traversalIndex = 7f }
+                        .testTag("mainSettingsSivaCertificateValidTo"),
                 text = stringResource(id = R.string.main_settings_timestamp_cert_valid_to_title) + " " + validTo,
             )
             PrimaryButton(
@@ -156,7 +175,8 @@ fun SettingsSivaCategoryDialog(
                         .padding(
                             horizontal = screenViewLargePadding,
                         )
-                        .semantics { traversalIndex = 8f },
+                        .semantics { traversalIndex = 8f }
+                        .testTag("mainSettingsSivaCertificateAddCertificateButton"),
                 contentDescription =
                     stringResource(
                         id = R.string.main_settings_timestamp_cert_add_certificate_button,
@@ -172,7 +192,8 @@ fun SettingsSivaCategoryDialog(
                         .padding(
                             horizontal = screenViewLargePadding,
                         )
-                        .semantics { traversalIndex = 9f },
+                        .semantics { traversalIndex = 9f }
+                        .testTag("mainSettingsSivaCertificateShowCertificateButton"),
                 contentDescription =
                     stringResource(
                         id = R.string.main_settings_timestamp_cert_show_certificate_button,
