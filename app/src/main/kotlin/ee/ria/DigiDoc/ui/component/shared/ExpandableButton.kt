@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
@@ -50,7 +51,8 @@ fun ExpandableButton(
         modifier =
             modifier
                 .padding(vertical = screenViewMediumPadding)
-                .animateContentSize(),
+                .animateContentSize()
+                .testTag("signersCertificateTechnicalInformationContainerView"),
     ) {
         Column(
             modifier
@@ -88,6 +90,9 @@ fun ExpandableButton(
                 }
                 Spacer(modifier = modifier.padding(horizontal = itemSpacingPadding))
                 Text(
+                    modifier =
+                        modifier
+                            .testTag("signersCertificateTechnicalInformationButtonTitle"),
                     text = stringResource(id = title),
                     color = MaterialTheme.colorScheme.secondary,
                 )
@@ -102,7 +107,8 @@ fun ExpandableButton(
                                 horizontal = itemSpacingPadding,
                                 vertical = screenViewExtraLargePadding,
                             )
-                            .focusable(),
+                            .focusable()
+                            .testTag("signersCertificateTechnicalInformationText"),
                 )
             }
         }

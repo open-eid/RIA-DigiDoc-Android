@@ -16,6 +16,7 @@ data class SignatureAddRadioItem(
     val icon: ImageVector = Icons.Filled.Home,
     val route: String = "",
     val contentDescription: String = "",
+    val testTag: String = "",
 ) {
     @Composable
     fun radioItems(): List<SignatureAddRadioItem> {
@@ -27,6 +28,7 @@ data class SignatureAddRadioItem(
                     stringResource(
                         id = R.string.signature_update_signature_add_method_nfc,
                     ).lowercase(),
+                testTag = "signatureUpdateSignatureAddMethodNFC",
             ),
             SignatureAddRadioItem(
                 label = R.string.signature_update_signature_add_method_id_card,
@@ -35,6 +37,7 @@ data class SignatureAddRadioItem(
                     stringResource(
                         id = R.string.signature_update_signature_add_method_id_card,
                     ).lowercase(),
+                testTag = "signatureUpdateSignatureAddMethodIdCard",
             ),
             SignatureAddRadioItem(
                 label = R.string.signature_update_signature_add_method_mobile_id,
@@ -43,6 +46,7 @@ data class SignatureAddRadioItem(
                     stringResource(
                         id = R.string.signature_update_signature_add_method_mobile_id,
                     ).lowercase(),
+                testTag = "signatureUpdateSignatureAddMethodMobileId",
             ),
             SignatureAddRadioItem(
                 label = R.string.signature_update_signature_add_method_smart_id,
@@ -51,6 +55,7 @@ data class SignatureAddRadioItem(
                     stringResource(
                         id = R.string.signature_update_signature_add_method_smart_id,
                     ).lowercase(),
+                testTag = "signatureUpdateSignatureAddMethodSmartId",
             ),
         )
     }

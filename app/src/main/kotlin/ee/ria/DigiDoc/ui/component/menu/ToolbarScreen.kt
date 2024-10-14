@@ -14,10 +14,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -26,14 +30,21 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeLarge
 import ee.ria.DigiDoc.ui.theme.Dimensions.toolbarHeight
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ToolbarScreen(
+fun MenuToolbarScreen(
     modifier: Modifier = Modifier,
     onClickBack: () -> Unit = {},
     title: String,
 ) {
     ConstraintLayout(
-        modifier = modifier.height(toolbarHeight).fillMaxWidth(),
+        modifier =
+            modifier
+                .height(toolbarHeight)
+                .fillMaxWidth()
+                .semantics {
+                    testTagsAsResourceId = true
+                },
     ) {
         val (
             titleText,
@@ -44,7 +55,9 @@ fun ToolbarScreen(
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
             modifier =
-                modifier.height(toolbarHeight).padding(start = iconSizeLarge)
+                modifier
+                    .height(toolbarHeight)
+                    .padding(start = iconSizeLarge)
                     .wrapContentHeight(align = Alignment.CenterVertically)
                     .constrainAs(titleText) {
                         start.linkTo(parent.start)
@@ -55,9 +68,12 @@ fun ToolbarScreen(
         )
         IconButton(
             modifier =
-                modifier.size(iconSizeLarge).constrainAs(menuButton) {
-                    end.linkTo(parent.end)
-                },
+                modifier
+                    .size(iconSizeLarge)
+                    .constrainAs(menuButton) {
+                        end.linkTo(parent.end)
+                    }
+                    .testTag("mainHomeMenuCloseButton"),
             onClick = onClickBack,
         ) {
             Icon(
@@ -73,7 +89,7 @@ fun ToolbarScreen(
 @Composable
 fun ToolbarScreenPreview() {
     RIADigiDocTheme {
-        ToolbarScreen(
+        MenuToolbarScreen(
             title = "",
         )
     }

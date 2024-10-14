@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
@@ -67,7 +68,8 @@ fun ContainerFile(
                         .semantics {
                             contentDescription = "${fileText.lowercase()} " +
                                 formatNumbers(dataFile.fileName).lowercase()
-                        },
+                        }
+                        .testTag("signatureUpdateListDocumentName"),
             ) {
                 MiddleEllipsizeMultilineText(
                     text = dataFile.fileName,
@@ -80,7 +82,10 @@ fun ContainerFile(
             if (showRemoveButton) {
                 IconButton(
                     onClick = onClickRemove,
-                    modifier = modifier.size(iconSize),
+                    modifier =
+                        modifier
+                            .size(iconSize)
+                            .testTag("signatureUpdateListDocumentRemoveButton"),
                     content = {
                         Icon(
                             imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
@@ -99,7 +104,10 @@ fun ContainerFile(
 
             IconButton(
                 onClick = onClickSave,
-                modifier = modifier.size(iconSize),
+                modifier =
+                    modifier
+                        .size(iconSize)
+                        .testTag("signatureUpdateListDocumentSaveButton"),
                 content = {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_save),

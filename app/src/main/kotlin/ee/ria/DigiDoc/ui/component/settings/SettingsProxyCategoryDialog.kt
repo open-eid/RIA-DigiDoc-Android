@@ -19,16 +19,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -45,6 +48,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SettingsProxyCategoryDialog(
     modifier: Modifier = Modifier,
@@ -66,12 +70,19 @@ fun SettingsProxyCategoryDialog(
     val proxyDialogTitle = stringResource(id = R.string.main_settings_proxy_title)
 
     Column(
-        modifier = modifier.padding(itemSpacingPadding),
+        modifier =
+            modifier
+                .padding(itemSpacingPadding)
+                .semantics {
+                    testTagsAsResourceId = true
+                }
+                .testTag("mainSettingsProxyContainer"),
     ) {
         BackButton(
             modifier =
                 modifier
-                    .semantics { traversalIndex = 1f },
+                    .semantics { traversalIndex = 1f }
+                    .testTag("mainSettingsProxyBackButton"),
             onClickBack = onClickBack,
         )
         Text(
@@ -90,40 +101,50 @@ fun SettingsProxyCategoryDialog(
             text = proxyDialogTitle,
             style = MaterialTheme.typography.titleLarge,
         )
-        TextRadioButton(
+        Column(
             modifier =
                 modifier
-                    .semantics { traversalIndex = 2f },
-            title = stringResource(id = R.string.main_settings_proxy_no_proxy),
-            contentDescription = stringResource(id = R.string.main_settings_proxy_no_proxy).lowercase(),
-            selected = proxyChoice == ProxySetting.NO_PROXY.name,
-            onClick = onClickNoProxy,
-        )
-        TextRadioButton(
-            modifier =
-                modifier
-                    .semantics { traversalIndex = 3f },
-            title = stringResource(id = R.string.main_settings_proxy_use_system),
-            contentDescription = stringResource(id = R.string.main_settings_proxy_use_system).lowercase(),
-            selected = proxyChoice == ProxySetting.SYSTEM_PROXY.name,
-            onClick = onClickSystemProxy,
-        )
-        TextRadioButton(
-            modifier =
-                modifier
-                    .semantics { traversalIndex = 4f },
-            title = stringResource(id = R.string.main_settings_proxy_manual),
-            contentDescription = stringResource(id = R.string.main_settings_proxy_manual).lowercase(),
-            selected = proxyChoice == ProxySetting.MANUAL_PROXY.name,
-            onClick = onClickManualProxy,
-        )
+                    .testTag("mainSettingsProxyGroup"),
+        ) {
+            TextRadioButton(
+                modifier =
+                    modifier
+                        .semantics { traversalIndex = 2f }
+                        .testTag("mainSettingsProxyNoProxy"),
+                title = stringResource(id = R.string.main_settings_proxy_no_proxy),
+                contentDescription = stringResource(id = R.string.main_settings_proxy_no_proxy).lowercase(),
+                selected = proxyChoice == ProxySetting.NO_PROXY.name,
+                onClick = onClickNoProxy,
+            )
+            TextRadioButton(
+                modifier =
+                    modifier
+                        .semantics { traversalIndex = 3f }
+                        .testTag("mainSettingsProxyUseSystem"),
+                title = stringResource(id = R.string.main_settings_proxy_use_system),
+                contentDescription = stringResource(id = R.string.main_settings_proxy_use_system).lowercase(),
+                selected = proxyChoice == ProxySetting.SYSTEM_PROXY.name,
+                onClick = onClickSystemProxy,
+            )
+            TextRadioButton(
+                modifier =
+                    modifier
+                        .semantics { traversalIndex = 4f }
+                        .testTag("mainSettingsProxyManual"),
+                title = stringResource(id = R.string.main_settings_proxy_manual),
+                contentDescription = stringResource(id = R.string.main_settings_proxy_manual).lowercase(),
+                selected = proxyChoice == ProxySetting.MANUAL_PROXY.name,
+                onClick = onClickManualProxy,
+            )
+        }
         TextField(
             enabled = proxyChoice == ProxySetting.MANUAL_PROXY.name,
             modifier =
                 modifier
                     .padding(vertical = screenViewLargePadding)
                     .fillMaxWidth()
-                    .semantics { traversalIndex = 5f },
+                    .semantics { traversalIndex = 5f }
+                    .testTag("mainSettingsProxyHost"),
             shape = RectangleShape,
             value = proxyHostValue,
             onValueChange = onProxyHostValueChange,
@@ -145,7 +166,8 @@ fun SettingsProxyCategoryDialog(
                 modifier
                     .padding(vertical = screenViewLargePadding)
                     .fillMaxWidth()
-                    .semantics { traversalIndex = 6f },
+                    .semantics { traversalIndex = 6f }
+                    .testTag("mainSettingsProxyPort"),
             shape = RectangleShape,
             value = proxyPortValue,
             onValueChange = onProxyPortValueChange,
@@ -167,7 +189,8 @@ fun SettingsProxyCategoryDialog(
                 modifier
                     .padding(vertical = screenViewLargePadding)
                     .fillMaxWidth()
-                    .semantics { traversalIndex = 7f },
+                    .semantics { traversalIndex = 7f }
+                    .testTag("mainSettingsProxyUsername"),
             shape = RectangleShape,
             value = proxyUsernameValue,
             onValueChange = onProxyUsernameValueChange,
@@ -190,7 +213,8 @@ fun SettingsProxyCategoryDialog(
                 modifier
                     .padding(vertical = screenViewLargePadding)
                     .fillMaxWidth()
-                    .semantics { traversalIndex = 8f },
+                    .semantics { traversalIndex = 8f }
+                    .testTag("mainSettingsProxyPassword"),
             shape = RectangleShape,
             value = proxyPasswordValue,
             onValueChange = onProxyPasswordValueChange,
@@ -224,7 +248,8 @@ fun SettingsProxyCategoryDialog(
                 IconButton(
                     modifier =
                         modifier
-                            .semantics { traversalIndex = 9f },
+                            .semantics { traversalIndex = 9f }
+                            .testTag("mainSettingsProxyPasswordVisibleButton"),
                     onClick = { passwordVisible = !passwordVisible },
                 ) {
                     Icon(imageVector = image, description)
@@ -239,7 +264,8 @@ fun SettingsProxyCategoryDialog(
                     .padding(
                         horizontal = screenViewLargePadding,
                     )
-                    .semantics { traversalIndex = 10f },
+                    .semantics { traversalIndex = 10f }
+                    .testTag("mainSettingsProxyCheckInternetConnectionButton"),
             contentDescription =
                 stringResource(
                     id = R.string.main_settings_proxy_check_connection,

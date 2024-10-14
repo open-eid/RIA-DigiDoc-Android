@@ -12,11 +12,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -32,6 +36,7 @@ import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utilsLib.toast.ToastUtil.showMessage
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
@@ -42,10 +47,16 @@ fun SettingsScreen(
     val activity = (context as Activity)
     markAsSecure(context, activity.window)
     Scaffold(
-        modifier = modifier,
+        modifier =
+            modifier
+                .semantics {
+                    testTagsAsResourceId = true
+                },
         topBar = {
             TopBar(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("appBar"),
                 title = R.string.main_settings_title,
                 onBackButtonClick = {
                     navController.navigateUp()
@@ -57,9 +68,11 @@ fun SettingsScreen(
             modifier =
                 modifier
                     .padding(innerPadding)
-                    .verticalScroll(rememberScrollState()),
+                    .verticalScroll(rememberScrollState())
+                    .testTag("scrollView"),
         ) {
             SettingsItem(
+                testTag = "mainSettingsSigningCategory",
                 modifier = modifier,
                 onClickItem = {
                     navController.navigate(
@@ -71,6 +84,7 @@ fun SettingsScreen(
                 contentDescription = stringResource(id = R.string.main_settings_signing).lowercase(),
             )
             SettingsItem(
+                testTag = "mainSettingsRightsCategory",
                 modifier = modifier,
                 onClickItem = {
                     navController.navigate(
@@ -82,9 +96,13 @@ fun SettingsScreen(
                 contentDescription = stringResource(id = R.string.main_settings_rights).lowercase(),
             )
             PrimaryButton(
-                modifier.fillMaxWidth().wrapContentHeight().padding(
-                    horizontal = screenViewLargePadding,
-                ),
+                modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(
+                        horizontal = screenViewLargePadding,
+                    )
+                    .testTag("mainSettingsUseDefaultSettings"),
                 contentDescription =
                     stringResource(
                         id = R.string.main_settings_use_default_settings_button_title,

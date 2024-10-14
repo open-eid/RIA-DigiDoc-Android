@@ -16,6 +16,7 @@ data class LanguageSwitchRadioItem(
     val icon: ImageVector = Icons.Filled.Home,
     val locale: String = "",
     val contentDescription: String = "",
+    val testTag: String = "",
 ) {
     @Composable
     fun radioItems(): List<LanguageSwitchRadioItem> {
@@ -27,6 +28,7 @@ data class LanguageSwitchRadioItem(
                     stringResource(
                         id = R.string.main_home_menu_locale_et,
                     ).lowercase(),
+                testTag = "mainHomeMenuLocaleEt",
             ),
             LanguageSwitchRadioItem(
                 label = R.string.main_home_menu_locale_ru,
@@ -35,6 +37,7 @@ data class LanguageSwitchRadioItem(
                     stringResource(
                         id = R.string.main_home_menu_locale_ru,
                     ).lowercase(),
+                testTag = "mainHomeMenuLocaleRu",
             ),
             LanguageSwitchRadioItem(
                 label = R.string.main_home_menu_locale_en,
@@ -43,6 +46,7 @@ data class LanguageSwitchRadioItem(
                     stringResource(
                         id = R.string.main_home_menu_locale_en,
                     ).lowercase(),
+                testTag = "mainHomeMenuLocaleEn",
             ),
         )
     }

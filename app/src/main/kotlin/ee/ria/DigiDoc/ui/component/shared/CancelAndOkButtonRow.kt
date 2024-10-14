@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
@@ -32,6 +33,8 @@ fun CancelAndOkButtonRow(
     @StringRes okButtonTitle: Int,
     cancelButtonContentDescription: String,
     okButtonContentDescription: String,
+    okButtonTestTag: String = "",
+    cancelButtonTestTag: String = "",
 ) {
     Row(
         modifier =
@@ -43,7 +46,10 @@ fun CancelAndOkButtonRow(
     ) {
         PrimaryButton(
             enabled = cancelButtonEnabled,
-            modifier = modifier.weight(1f),
+            modifier =
+                modifier
+                    .weight(1f)
+                    .testTag(cancelButtonTestTag),
             isSubButton = true,
             title = cancelButtonTitle,
             contentDescription = cancelButtonContentDescription,
@@ -54,7 +60,10 @@ fun CancelAndOkButtonRow(
         Spacer(modifier = modifier.padding(itemSpacingPadding))
         PrimaryButton(
             enabled = okButtonEnabled,
-            modifier = modifier.weight(1f),
+            modifier =
+                modifier
+                    .weight(1f)
+                    .testTag(okButtonTestTag),
             title = okButtonTitle,
             contentDescription = okButtonContentDescription,
             onClickItem = okButtonClick,

@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
@@ -40,13 +41,15 @@ fun SettingsItem(
     imageVector: ImageVector?,
     title: String,
     contentDescription: String,
+    testTag: String = "",
 ) {
     Button(
         modifier =
             modifier
                 .fillMaxWidth()
                 .padding(vertical = screenViewLargePadding)
-                .wrapContentHeight(),
+                .wrapContentHeight()
+                .testTag(testTag),
         shape = RectangleShape,
         onClick = onClickItem,
         colors =

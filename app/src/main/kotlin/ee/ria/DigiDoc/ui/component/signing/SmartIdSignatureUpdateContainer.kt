@@ -17,11 +17,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,6 +39,7 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.SmartIdViewModel
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SmartIdSignatureUpdateContainer(
     modifier: Modifier = Modifier,
@@ -92,7 +96,13 @@ fun SmartIdSignatureUpdateContainer(
     }
 
     Column(
-        modifier = modifier.padding(screenViewLargePadding),
+        modifier =
+            modifier
+                .padding(screenViewLargePadding)
+                .semantics {
+                    testTagsAsResourceId = true
+                }
+                .testTag("signatureUpdateMobileIdContainer"),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
@@ -119,7 +129,8 @@ fun SmartIdSignatureUpdateContainer(
                     .semantics {
                         this.contentDescription =
                             "${context.getString(R.string.challenge_code_text)} $challengeText"
-                    },
+                    }
+                    .testTag("signatureUpdateSmartIdChallenge"),
         )
 
         Text(
@@ -130,7 +141,8 @@ fun SmartIdSignatureUpdateContainer(
             modifier =
                 modifier
                     .fillMaxWidth()
-                    .padding(screenViewLargePadding),
+                    .padding(screenViewLargePadding)
+                    .testTag("signatureUpdateSmartIdInfo"),
         )
 
         PrimaryButton(
@@ -138,7 +150,8 @@ fun SmartIdSignatureUpdateContainer(
                 modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .padding(horizontal = screenViewLargePadding),
+                    .padding(horizontal = screenViewLargePadding)
+                    .testTag("signatureUpdateSmartIdCancelButton"),
             title = R.string.cancel_button,
             containerColor = MaterialTheme.colorScheme.background,
             contentColor = Red500,

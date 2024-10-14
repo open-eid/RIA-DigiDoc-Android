@@ -30,9 +30,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
@@ -61,7 +65,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun DiagnosticsScreen(
     modifier: Modifier = Modifier,
@@ -123,10 +127,16 @@ fun DiagnosticsScreen(
         }
 
     Scaffold(
-        modifier = modifier,
+        modifier =
+            modifier
+                .semantics {
+                    testTagsAsResourceId = true
+                },
         topBar = {
             TopBar(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("appBar"),
                 title = R.string.main_diagnostics_title,
                 onBackButtonClick = {
                     navController.navigateUp()
@@ -139,16 +149,22 @@ fun DiagnosticsScreen(
                 modifier
                     .padding(innerPadding)
                     .verticalScroll(rememberScrollState())
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .testTag("scrollView"),
             horizontalAlignment = Alignment.Start,
         ) {
             SpannableBoldText(
-                modifier = modifier.padding(top = screenViewLargePadding),
+                modifier =
+                    modifier
+                        .padding(top = screenViewLargePadding)
+                        .testTag("mainDiagnosticsApplicationVersion"),
                 stringResource(id = R.string.main_diagnostics_application_version_title),
                 "${BuildConfig.VERSION_NAME}.${BuildConfig.VERSION_CODE}",
             )
             SpannableBoldText(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("mainDiagnosticsAndroidVersion"),
                 stringResource(id = R.string.main_diagnostics_operating_system_title),
                 "Android " + Build.VERSION.RELEASE,
             )
@@ -164,7 +180,9 @@ fun DiagnosticsScreen(
                     )
                 }
             DiagnosticsText(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("mainDiagnosticsLibdigidocppVersion"),
                 stringResource(id = R.string.main_diagnostics_libdigidocpp_title),
                 libdigidocppVersion.value,
             )
@@ -174,71 +192,97 @@ fun DiagnosticsScreen(
                 "",
             )
             DiagnosticsText(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("mainDiagnosticsConfigUrl"),
                 stringResource(id = R.string.main_diagnostics_config_url_title),
                 currentConfiguration?.metaInf?.url ?: "",
             )
             DiagnosticsText(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("mainDiagnosticsTslUrl"),
                 stringResource(id = R.string.main_diagnostics_tsl_url_title),
                 currentConfiguration?.tslUrl ?: "",
             )
             DiagnosticsText(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("mainDiagnosticsSivaUrl"),
                 stringResource(id = R.string.main_diagnostics_siva_url_title),
                 diagnosticsViewModel.getSivaUrl(),
             )
             DiagnosticsText(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("mainDiagnosticsTsaUrl"),
                 stringResource(id = R.string.main_diagnostics_tsa_url_title),
                 diagnosticsViewModel.getTsaUrl(),
             )
             DiagnosticsText(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("mainDiagnosticsLdapPersonUrl"),
                 stringResource(id = R.string.main_diagnostics_ldap_person_url_title),
                 currentConfiguration?.ldapPersonUrl ?: "",
             )
             DiagnosticsText(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("mainDiagnosticsLdapCorpUrl"),
                 stringResource(id = R.string.main_diagnostics_ldap_corp_url_title),
                 currentConfiguration?.ldapCorpUrl ?: "",
             )
             DiagnosticsText(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("mainDiagnosticsMobileIDUrl"),
                 stringResource(id = R.string.main_diagnostics_mid_proxy_url_title),
                 currentConfiguration?.midRestUrl ?: "",
             )
             DiagnosticsText(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("mainDiagnosticsMobileIDSKUrl"),
                 stringResource(id = R.string.main_diagnostics_mid_sk_url_title),
                 currentConfiguration?.midSkRestUrl ?: "",
             )
             DiagnosticsText(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("mainDiagnosticsSmartIDUrlV2"),
                 stringResource(id = R.string.main_diagnostics_sid_v2_proxy_url_title),
                 currentConfiguration?.sidV2RestUrl ?: "",
             )
             DiagnosticsText(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("mainDiagnosticsSmartIDSKUrlV2"),
                 stringResource(id = R.string.main_diagnostics_sid_v2_sk_url_title),
                 currentConfiguration?.sidV2SkRestUrl ?: "",
             )
             DiagnosticsText(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("mainDiagnosticsRpUuid"),
                 stringResource(id = R.string.main_diagnostics_rpuuid_title),
                 stringResource(diagnosticsViewModel.getRpUuid()),
             )
-            SpannableBoldText(
-                modifier = modifier.padding(top = screenViewLargePadding),
-                stringResource(id = R.string.main_diagnostics_tsl_cache_title),
-                "",
-            )
-            diagnosticsViewModel.getTslCacheData().forEach { data ->
-                Text(
-                    modifier = modifier.padding(horizontal = screenViewLargePadding),
-                    text = data,
-                    style = MaterialTheme.typography.bodyLarge,
+            Column(
+                modifier = modifier.testTag("mainDiagnosticsTslCacheLayout"),
+            ) {
+                SpannableBoldText(
+                    modifier = modifier.padding(top = screenViewLargePadding),
+                    stringResource(id = R.string.main_diagnostics_tsl_cache_title),
+                    "",
                 )
+                diagnosticsViewModel.getTslCacheData().forEach { data ->
+                    Text(
+                        modifier = modifier.padding(horizontal = screenViewLargePadding),
+                        text = data,
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                }
             }
             SpannableBoldText(
                 modifier = modifier.padding(top = screenViewLargePadding),
@@ -246,32 +290,44 @@ fun DiagnosticsScreen(
                 "",
             )
             DiagnosticsText(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("mainDiagnosticsCentralConfigurationDate"),
                 stringResource(id = R.string.main_diagnostics_date_title),
                 currentConfiguration?.metaInf?.date ?: "",
             )
             DiagnosticsText(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("mainDiagnosticsCentralConfigurationSerial"),
                 stringResource(id = R.string.main_diagnostics_serial_title),
                 currentConfiguration?.metaInf?.serial.toString(),
             )
             DiagnosticsText(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("mainDiagnosticsCentralConfigurationUrl"),
                 stringResource(id = R.string.main_diagnostics_url_title),
                 currentConfiguration?.metaInf?.url ?: "",
             )
             DiagnosticsText(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("mainDiagnosticsCentralConfigurationVersion"),
                 stringResource(id = R.string.main_diagnostics_version_title),
                 currentConfiguration?.metaInf?.version.toString(),
             )
             DiagnosticsText(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("mainDiagnosticsCentralConfigurationUpdateDate"),
                 stringResource(id = R.string.main_diagnostics_configuration_update_date),
                 diagnosticsViewModel.getConfigurationDate(currentConfiguration?.configurationUpdateDate),
             )
             DiagnosticsText(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("mainDiagnosticsCentralConfigurationLastCheck"),
                 stringResource(id = R.string.main_diagnostics_configuration_last_check_date),
                 diagnosticsViewModel.getConfigurationDate(currentConfiguration?.configurationLastUpdateCheckDate),
             )
@@ -280,6 +336,9 @@ fun DiagnosticsScreen(
                     id = R.string.main_diagnostics_logging_switch,
                 ).lowercase()
             SettingsSwitchItem(
+                modifier =
+                    Modifier
+                        .testTag("mainDiagnosticsLogging"),
                 checked = enableOneTimeLogGeneration,
                 onCheckedChange = {
                     if (!enableOneTimeLogGeneration) {
@@ -304,7 +363,8 @@ fun DiagnosticsScreen(
                             .wrapContentHeight()
                             .padding(
                                 horizontal = screenViewLargePadding,
-                            ),
+                            )
+                            .testTag("mainDiagnosticsSaveLoggingButton"),
                     contentDescription =
                         stringResource(
                             id = R.string.main_diagnostics_save_log,
@@ -340,7 +400,8 @@ fun DiagnosticsScreen(
                         .wrapContentHeight()
                         .padding(
                             horizontal = screenViewLargePadding,
-                        ),
+                        )
+                        .testTag("configurationUpdateButton"),
                 contentDescription =
                     stringResource(
                         id = R.string.main_diagnostics_configuration_check_for_update_button,
@@ -365,7 +426,8 @@ fun DiagnosticsScreen(
                         .wrapContentHeight()
                         .padding(
                             horizontal = screenViewLargePadding,
-                        ),
+                        )
+                        .testTag("configurationSaveButton"),
                 contentDescription =
                     stringResource(
                         id = R.string.main_diagnostics_configuration_save_diagnostics_button,
@@ -395,6 +457,12 @@ fun DiagnosticsScreen(
             )
             if (openRestartConfirmationDialog.value) {
                 BasicAlertDialog(
+                    modifier =
+                        Modifier
+                            .semantics {
+                                testTagsAsResourceId = true
+                            }
+                            .testTag("mainDiagnosticsRestartConfirmationDialog"),
                     onDismissRequest = dismissRestartConfirmationDialog,
                 ) {
                     Surface(

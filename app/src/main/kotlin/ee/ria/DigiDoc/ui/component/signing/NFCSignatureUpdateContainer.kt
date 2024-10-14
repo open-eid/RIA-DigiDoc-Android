@@ -19,10 +19,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,6 +41,7 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.NFCViewModel
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun NFCSignatureUpdateContainer(
     modifier: Modifier = Modifier,
@@ -75,7 +80,13 @@ fun NFCSignatureUpdateContainer(
     }
 
     Column(
-        modifier = modifier.padding(screenViewLargePadding),
+        modifier =
+            modifier
+                .padding(screenViewLargePadding)
+                .semantics {
+                    testTagsAsResourceId = true
+                }
+                .testTag("signatureUpdateMobileIdContainer"),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Image(
@@ -85,7 +96,8 @@ fun NFCSignatureUpdateContainer(
                 modifier
                     .fillMaxWidth()
                     .padding(screenViewLargePadding)
-                    .notAccessible(),
+                    .notAccessible()
+                    .testTag("nfcDialogIcon"),
         )
         Text(
             text = nfcDialogText,
@@ -95,7 +107,8 @@ fun NFCSignatureUpdateContainer(
             modifier =
                 modifier
                     .wrapContentSize()
-                    .padding(screenViewLargePadding),
+                    .padding(screenViewLargePadding)
+                    .testTag("nfcDialogText"),
         )
 
         PrimaryButton(
@@ -103,7 +116,8 @@ fun NFCSignatureUpdateContainer(
                 modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .padding(horizontal = screenViewLargePadding),
+                    .padding(horizontal = screenViewLargePadding)
+                    .testTag("signatureUpdateNFCCancelButton"),
             title = R.string.cancel_button,
             containerColor = MaterialTheme.colorScheme.background,
             contentColor = Red500,

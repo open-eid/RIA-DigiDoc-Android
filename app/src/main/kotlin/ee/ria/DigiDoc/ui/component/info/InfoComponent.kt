@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -36,9 +37,11 @@ fun InfoComponent(
     ) {
         Text(
             modifier =
-                modifier.padding(
-                    horizontal = screenViewLargePadding,
-                ),
+                modifier
+                    .padding(
+                        horizontal = screenViewLargePadding,
+                    )
+                    .testTag("mainAboutComponentName"),
             text = stringResource(name),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyLarge,
@@ -46,9 +49,11 @@ fun InfoComponent(
         )
         DynamicText(
             modifier =
-                modifier.padding(
-                    horizontal = screenViewLargePadding,
-                ),
+                modifier
+                    .padding(
+                        horizontal = screenViewLargePadding,
+                    )
+                    .testTag("mainAboutComponentLicenseName"),
             text = stringResource(licenseName),
             textStyle =
                 TextStyle(
@@ -57,9 +62,11 @@ fun InfoComponent(
         )
         DynamicText(
             modifier =
-                modifier.padding(
-                    horizontal = screenViewLargePadding,
-                ),
+                modifier
+                    .padding(
+                        horizontal = screenViewLargePadding,
+                    )
+                    .testTag("mainAboutComponentLicenseUrl"),
             text = stringResource(licenseUrl),
             textStyle =
                 TextStyle(

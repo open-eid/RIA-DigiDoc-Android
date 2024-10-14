@@ -15,9 +15,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import ee.ria.DigiDoc.R
@@ -40,6 +44,7 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignerDetailsView(
     navController: NavController,
@@ -105,11 +110,16 @@ fun SignerDetailsView(
                 modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .focusGroup(),
+                    .focusGroup()
+                    .semantics {
+                        testTagsAsResourceId = true
+                    },
         ) {
             Column {
                 TopBar(
-                    modifier = modifier,
+                    modifier =
+                        modifier
+                            .testTag("appBar"),
                     title = R.string.signature_details_title,
                     onBackButtonClick = {
                         handleBackButtonClick(navController, sharedSignatureViewModel)
@@ -120,14 +130,21 @@ fun SignerDetailsView(
                         modifier =
                             modifier
                                 .fillMaxWidth()
-                                .verticalScroll(rememberScrollState()),
+                                .verticalScroll(rememberScrollState())
+                                .testTag("scrollView"),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         if (signatureStatus != ValidatorInterface.Status.Valid) {
                             Column(
-                                modifier = modifier.padding(screenViewLargePadding),
+                                modifier =
+                                    modifier
+                                        .padding(screenViewLargePadding)
+                                        .testTag("signersCertificateErrorContainer"),
                             ) {
                                 TagBadge(
+                                    modifier =
+                                        modifier
+                                            .testTag("signersCertificateErrorTitle"),
                                     text = stringResource(id = R.string.signature_error_details_title),
                                     contentColor = tagContentColor,
                                     backgroundColor = tagBackgroundColor,
@@ -139,7 +156,8 @@ fun SignerDetailsView(
                                             .padding(
                                                 horizontal = itemSpacingPadding,
                                                 vertical = screenViewLargePadding,
-                                            ),
+                                            )
+                                            .testTag("signersCertificateErrorDetails"),
                                     text = warningText,
                                 )
 

@@ -36,6 +36,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
@@ -48,6 +49,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -55,6 +57,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
@@ -96,7 +99,7 @@ import java.nio.charset.StandardCharsets
 import java.util.Arrays
 import java.util.stream.Collectors
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun NFCView(
     activity: Activity,
@@ -245,7 +248,11 @@ fun NFCView(
                     detectTapGestures(onTap = {
                         focusManager.clearFocus()
                     })
-                },
+                }
+                .semantics {
+                    testTagsAsResourceId = true
+                }
+                .testTag("signatureUpdateNFC"),
     ) {
         if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
             Text(
@@ -280,7 +287,8 @@ fun NFCView(
                 modifier =
                     modifier
                         .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .notAccessible(),
+                        .notAccessible()
+                        .testTag("signatureUpdateRoleLabel"),
             )
             TextField(
                 modifier =
@@ -290,7 +298,8 @@ fun NFCView(
                         .clearAndSetSemantics {
                             this.contentDescription =
                                 "$roleLabel ${rolesAndResolutionsText.text}"
-                        },
+                        }
+                        .testTag("signatureUpdateRoleText"),
                 value = rolesAndResolutionsText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -311,7 +320,8 @@ fun NFCView(
                 modifier =
                     modifier
                         .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .notAccessible(),
+                        .notAccessible()
+                        .testTag("signatureUpdateRoleCityLabel"),
             )
             TextField(
                 modifier =
@@ -321,7 +331,8 @@ fun NFCView(
                         .clearAndSetSemantics {
                             this.contentDescription =
                                 "$cityLabel ${cityText.text}"
-                        },
+                        }
+                        .testTag("signatureUpdateRoleCityText"),
                 value = cityText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -342,7 +353,8 @@ fun NFCView(
                 modifier =
                     modifier
                         .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .notAccessible(),
+                        .notAccessible()
+                        .testTag("signatureUpdateRoleStateLabel"),
             )
             TextField(
                 modifier =
@@ -352,7 +364,8 @@ fun NFCView(
                         .clearAndSetSemantics {
                             this.contentDescription =
                                 "$stateLabel ${stateText.text}"
-                        },
+                        }
+                        .testTag("signatureUpdateRoleStateText"),
                 value = stateText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -373,7 +386,8 @@ fun NFCView(
                 modifier =
                     modifier
                         .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .notAccessible(),
+                        .notAccessible()
+                        .testTag("signatureUpdateRoleCountryLabel"),
             )
             TextField(
                 modifier =
@@ -383,7 +397,8 @@ fun NFCView(
                         .clearAndSetSemantics {
                             this.contentDescription =
                                 "$countryLabel ${countryText.text}"
-                        },
+                        }
+                        .testTag("signatureUpdateRoleCountryText"),
                 value = countryText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -404,7 +419,8 @@ fun NFCView(
                 modifier =
                     modifier
                         .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .notAccessible(),
+                        .notAccessible()
+                        .testTag("signatureUpdateRoleZipLabel"),
             )
             TextField(
                 modifier =
@@ -414,7 +430,8 @@ fun NFCView(
                         .clearAndSetSemantics {
                             this.contentDescription =
                                 "$zipLabel ${formatNumbers(zipText.text)}"
-                        },
+                        }
+                        .testTag("signatureUpdateRoleZipText"),
                 value = zipText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -450,7 +467,8 @@ fun NFCView(
                         modifier
                             .fillMaxWidth()
                             .padding(screenViewLargePadding)
-                            .notAccessible(),
+                            .notAccessible()
+                            .testTag("signatureUpdateNFCIcon"),
                 )
                 val nfcStatusText =
                     if (nfcStatus === NfcSmartCardReaderManager.NfcStatus.NFC_NOT_SUPPORTED) {
@@ -464,7 +482,8 @@ fun NFCView(
                     modifier =
                         modifier
                             .padding(screenViewLargePadding)
-                            .semantics { heading() },
+                            .semantics { heading() }
+                            .testTag("signatureUpdateNFCNotFoundMessage"),
                     textAlign = TextAlign.Center,
                 )
             } else {
@@ -480,7 +499,8 @@ fun NFCView(
                     modifier =
                         modifier
                             .padding(screenViewLargePadding)
-                            .semantics { heading() },
+                            .semantics { heading() }
+                            .testTag("signatureUpdateNFCMessage"),
                     textAlign = TextAlign.Center,
                 )
                 Text(
@@ -489,7 +509,8 @@ fun NFCView(
                     modifier =
                         modifier
                             .padding(vertical = screenViewLargePadding)
-                            .notAccessible(),
+                            .notAccessible()
+                            .testTag("signatureUpdateNFCCANLabel"),
                 )
                 val canNumberTextEdited = remember { mutableStateOf(false) }
                 val canNumberErrorText =
@@ -513,7 +534,8 @@ fun NFCView(
                                 contentDescription =
                                     "$canNumberLabel " +
                                     "${formatNumbers(canNumberText.text)} "
-                            },
+                            }
+                            .testTag("signatureUpdateNFCCAN"),
                     value = canNumberText,
                     shape = RectangleShape,
                     onValueChange = {
@@ -545,7 +567,8 @@ fun NFCView(
                             Modifier
                                 .fillMaxWidth()
                                 .focusable(enabled = true)
-                                .semantics { contentDescription = canNumberErrorText },
+                                .semantics { contentDescription = canNumberErrorText }
+                                .testTag("signatureUpdateNFCCANErrorText"),
                         text = canNumberErrorText,
                         color = Red500,
                     )
@@ -556,7 +579,8 @@ fun NFCView(
                     modifier =
                         modifier
                             .padding(top = screenViewExtraLargePadding, bottom = screenViewLargePadding)
-                            .notAccessible(),
+                            .notAccessible()
+                            .testTag("signatureUpdateNFCPIN2Label"),
                 )
                 val pin2CodeErrorText =
                     if (pin2CodeText.text.isNotEmpty()) {
@@ -585,7 +609,8 @@ fun NFCView(
                             .padding(bottom = screenViewLargePadding)
                             .clearAndSetSemantics {
                                 contentDescription = pin2CodeLabel
-                            },
+                            }
+                            .testTag("signatureUpdateNFCPIN2"),
                     value = pin2CodeText,
                     shape = RectangleShape,
                     onValueChange = {
@@ -626,7 +651,8 @@ fun NFCView(
                         IconButton(
                             modifier =
                                 modifier
-                                    .semantics { traversalIndex = 9f },
+                                    .semantics { traversalIndex = 9f }
+                                    .testTag("signatureUpdateNFCPIN2Visible"),
                             onClick = { pin2CodeVisible = !pin2CodeVisible },
                         ) {
                             Icon(imageVector = image, description)
@@ -640,7 +666,8 @@ fun NFCView(
                             Modifier
                                 .fillMaxWidth()
                                 .focusable(enabled = true)
-                                .semantics { contentDescription = pin2CodeErrorText },
+                                .semantics { contentDescription = pin2CodeErrorText }
+                                .testTag("signatureUpdateNFCPIN2ErrorText"),
                         text = pin2CodeErrorText,
                         color = Red500,
                     )
@@ -648,6 +675,8 @@ fun NFCView(
             }
         }
         CancelAndOkButtonRow(
+            okButtonTestTag = "signatureUpdateNFCSignButton",
+            cancelButtonTestTag = "signatureUpdateNFCCancelSigningButton",
             okButtonEnabled =
                 nfcViewModel.positiveButtonEnabled(
                     canNumberText.text,

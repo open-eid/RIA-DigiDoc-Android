@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -68,7 +69,8 @@ fun SignatureComponent(
                 modifier
                     .size(iconSize)
                     .focusable(false)
-                    .clearAndSetSemantics {},
+                    .clearAndSetSemantics {}
+                    .testTag("signatureUpdateListSignatureType"),
         )
         Spacer(modifier = modifier.width(itemSpacingPadding))
 
@@ -99,7 +101,10 @@ fun SignatureComponent(
         ) {
             Text(
                 text = nameText,
-                modifier = modifier.notAccessible(),
+                modifier =
+                    modifier
+                        .notAccessible()
+                        .testTag("signatureUpdateListSignatureName"),
                 fontWeight = FontWeight.Bold,
             )
             ColoredSignedStatusText(
@@ -110,12 +115,18 @@ fun SignatureComponent(
             if (showRolesDetailsButton) {
                 Text(
                     text = roles,
-                    modifier = modifier.notAccessible(),
+                    modifier =
+                        modifier
+                            .notAccessible()
+                            .testTag("signatureUpdateListSignatureRole"),
                 )
             }
             Text(
                 text = signedTime,
-                modifier = modifier.notAccessible(),
+                modifier =
+                    modifier
+                        .notAccessible()
+                        .testTag("signatureUpdateListSignatureCreatedAt"),
             )
         }
         if (showRolesDetailsButton) {
@@ -130,7 +141,8 @@ fun SignatureComponent(
                 },
                 modifier =
                     modifier
-                        .size(iconSize),
+                        .size(iconSize)
+                        .testTag("signatureUpdateListSignatureRoleDetailsButton"),
             )
         }
         Spacer(modifier = modifier.width(itemSpacingPadding))
@@ -150,7 +162,8 @@ fun SignatureComponent(
                 },
                 modifier =
                     modifier
-                        .size(iconSize),
+                        .size(iconSize)
+                        .testTag("signatureUpdateListSignatureRemoveButton"),
             )
         }
     }

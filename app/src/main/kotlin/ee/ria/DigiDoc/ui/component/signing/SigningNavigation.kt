@@ -48,13 +48,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -112,7 +115,7 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
 import java.io.File
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun SigningNavigation(
     activity: Activity,
@@ -384,9 +387,14 @@ fun SigningNavigation(
     }
 
     Scaffold(
+        modifier =
+            modifier
+                .semantics {
+                    testTagsAsResourceId = true
+                },
         topBar = {
             TopBar(
-                modifier = modifier,
+                modifier = modifier.testTag("appBar"),
                 title = R.string.signing_title_container_existing,
                 onBackButtonClick = {
                     handleBackButtonClick(
@@ -477,27 +485,52 @@ fun SigningNavigation(
 
             Column {
                 if (signatureAddedSuccess.value) {
-                    ContainerMessage(modifier, signatureAddedSuccessText, Green500)
+                    ContainerMessage(
+                        modifier = modifier,
+                        text = signatureAddedSuccessText,
+                        testTag = "signatureAddedSuccess",
+                        color = Green500,
+                    )
                 }
 
                 if (isXadesContainer) {
-                    ContainerMessage(modifier, xadesText)
+                    ContainerMessage(
+                        modifier = modifier,
+                        text = xadesText,
+                        testTag = "signatureUpdateListStatusXadesFile",
+                    )
                 }
 
                 if (isCadesContainer) {
-                    ContainerMessage(modifier, cadesText)
+                    ContainerMessage(
+                        modifier = modifier,
+                        text = cadesText,
+                        testTag = "signatureUpdateListStatusCadesFile",
+                    )
                 }
 
                 if (unknownSignaturesCount > 0) {
-                    ContainerMessage(modifier, unknownSignaturesText)
+                    ContainerMessage(
+                        modifier = modifier,
+                        text = unknownSignaturesText,
+                        testTag = "signatureUpdateListStatusUnknown",
+                    )
                 }
 
                 if (invalidSignaturesCount > 0) {
-                    ContainerMessage(modifier, invalidSignaturesText)
+                    ContainerMessage(
+                        modifier = modifier,
+                        text = invalidSignaturesText,
+                        testTag = "signatureUpdateListStatusInvalid",
+                    )
                 }
 
                 if (signingViewModel.isEmptyFileInContainer(signedContainer)) {
-                    ContainerMessage(modifier, emptyFileInContainerText)
+                    ContainerMessage(
+                        modifier = modifier,
+                        text = emptyFileInContainerText,
+                        testTag = "signatureUpdateListStatusEmptyFile",
+                    )
                 }
 
                 LazyColumn(
@@ -560,7 +593,8 @@ fun SigningNavigation(
                                 modifier =
                                     modifier
                                         .weight(1f)
-                                        .semantics { heading() },
+                                        .semantics { heading() }
+                                        .testTag("signatureUpdateListDocumentsSubheadTitle"),
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.Bold,
@@ -595,7 +629,8 @@ fun SigningNavigation(
                                                 .size(loadingBarSize)
                                                 .semantics {
                                                     this.contentDescription = dataFilesLoading
-                                                },
+                                                }
+                                                .testTag("dataFilesLoadingProgress"),
                                     )
                                 }
                             }
@@ -706,6 +741,9 @@ fun SigningNavigation(
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 PrimaryButton(
+                                    modifier =
+                                        modifier
+                                            .testTag("signatureUpdateListDocumentsSubheadButton"),
                                     onClickItem = {
                                         navController.navigate(
                                             Route.FileChoosing.route,
@@ -740,7 +778,8 @@ fun SigningNavigation(
                                     modifier =
                                         modifier
                                             .weight(1f)
-                                            .semantics { heading() },
+                                            .semantics { heading() }
+                                            .testTag("signatureUpdateListTimestampsSubheadTitle"),
                                     textAlign = TextAlign.Center,
                                     color = MaterialTheme.colorScheme.primary,
                                     fontWeight = FontWeight.Bold,
@@ -821,7 +860,8 @@ fun SigningNavigation(
                                 modifier =
                                     modifier
                                         .weight(1f)
-                                        .semantics { heading() },
+                                        .semantics { heading() }
+                                        .testTag("signatureUpdateListSignaturesSubheadTitle"),
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.Bold,
@@ -860,7 +900,8 @@ fun SigningNavigation(
                                                     .size(loadingBarSize)
                                                     .semantics {
                                                         this.contentDescription = signaturesLoading
-                                                    },
+                                                    }
+                                                    .testTag("signaturesLoadingProgress"),
                                         )
                                     }
                                 }
@@ -934,7 +975,10 @@ fun SigningNavigation(
                                     stringResource(
                                         id = R.string.signing_container_signatures_empty,
                                     ),
-                                    modifier = modifier.weight(1f),
+                                    modifier =
+                                        modifier
+                                            .weight(1f)
+                                            .testTag("signatureUpdateListSignaturesEmpty"),
                                     textAlign = TextAlign.Center,
                                 )
                             }
@@ -944,6 +988,11 @@ fun SigningNavigation(
             }
             if (openEditContainerNameDialog.value) {
                 BasicAlertDialog(
+                    modifier =
+                        modifier
+                            .semantics {
+                                testTagsAsResourceId = true
+                            },
                     onDismissRequest = dismissEditContainerNameDialog,
                 ) {
                     Surface(
@@ -952,9 +1001,13 @@ fun SigningNavigation(
                                 .wrapContentHeight()
                                 .wrapContentWidth()
                                 .verticalScroll(rememberScrollState())
-                                .padding(itemSpacingPadding),
+                                .padding(itemSpacingPadding)
+                                .testTag("editContainerNameDialog"),
                     ) {
                         EditValueDialog(
+                            modifier =
+                                modifier
+                                    .testTag("dialogText"),
                             title = stringResource(id = R.string.signature_update_name_update_name),
                             editValue = containerName,
                             onEditValueChange = {
@@ -981,6 +1034,11 @@ fun SigningNavigation(
 
             if (openRemoveFileDialog.value) {
                 BasicAlertDialog(
+                    modifier =
+                        modifier
+                            .semantics {
+                                testTagsAsResourceId = true
+                            },
                     onDismissRequest = dismissRemoveFileDialog,
                 ) {
                     Surface(
@@ -989,9 +1047,13 @@ fun SigningNavigation(
                                 .wrapContentHeight()
                                 .wrapContentWidth()
                                 .padding(screenViewLargePadding)
-                                .verticalScroll(rememberScrollState()),
+                                .verticalScroll(rememberScrollState())
+                                .testTag("documentRemovalDialog"),
                     ) {
                         MessageDialog(
+                            modifier =
+                                modifier
+                                    .testTag("dialogText"),
                             title = removeFileDialogTitle,
                             cancelButtonClick = dismissRemoveFileDialog,
                             okButtonClick = {
@@ -1016,6 +1078,11 @@ fun SigningNavigation(
             }
             if (openRemoveSignatureDialog.value) {
                 BasicAlertDialog(
+                    modifier =
+                        modifier
+                            .semantics {
+                                testTagsAsResourceId = true
+                            },
                     onDismissRequest = dismissRemoveSignatureDialog,
                 ) {
                     Surface(
@@ -1024,9 +1091,13 @@ fun SigningNavigation(
                                 .wrapContentHeight()
                                 .wrapContentWidth()
                                 .verticalScroll(rememberScrollState())
-                                .padding(vertical = screenViewLargePadding),
+                                .padding(vertical = screenViewLargePadding)
+                                .testTag("signatureRemovalDialog"),
                     ) {
                         MessageDialog(
+                            modifier =
+                                modifier
+                                    .testTag("dialogText"),
                             title = removeSignatureDialogTitle,
                             cancelButtonClick = dismissRemoveSignatureDialog,
                             okButtonClick = {

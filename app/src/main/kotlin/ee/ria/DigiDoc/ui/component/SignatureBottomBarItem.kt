@@ -10,4 +10,5 @@ data class SignatureBottomBarItem(
     val isSubButton: Boolean,
     val showButton: Boolean,
     val onClick: () -> Unit = {},
+    val testTag: String = "",
 )

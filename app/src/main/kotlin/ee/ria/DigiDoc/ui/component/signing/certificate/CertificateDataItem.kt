@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
@@ -42,6 +43,7 @@ fun CertificateDataItem(
     contentDescription: String? = null,
     formatForAccessibility: Boolean = false,
     onCertificateButtonClick: () -> Unit = {},
+    testTag: String = "",
 ) {
     val detailKeyText =
         if (detailKey != 0) {
@@ -111,11 +113,18 @@ fun CertificateDataItem(
             ) {
                 Text(
                     text = detailKeyText,
-                    modifier = modifier.notAccessible(),
+                    modifier =
+                        modifier
+                            .notAccessible()
+                            .testTag(testTag + "Title"),
                 )
                 Text(
                     text = detailValue,
-                    modifier = modifier.graphicsLayer(alpha = 0.7f).notAccessible(),
+                    modifier =
+                        modifier
+                            .graphicsLayer(alpha = 0.7f)
+                            .notAccessible()
+                            .testTag(testTag),
                 )
             }
             if (certificate != null) {
@@ -132,7 +141,8 @@ fun CertificateDataItem(
                                 end.linkTo(parent.end)
                                 top.linkTo(parent.top)
                                 bottom.linkTo(parent.bottom)
-                            },
+                            }
+                            .testTag(testTag + "Button"),
                 )
             }
         }

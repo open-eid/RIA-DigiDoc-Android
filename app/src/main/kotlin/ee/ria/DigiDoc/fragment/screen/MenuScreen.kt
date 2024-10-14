@@ -15,11 +15,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -29,7 +33,7 @@ import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.menu.LanguageSwitchRadioGroup
 import ee.ria.DigiDoc.ui.component.menu.MenuItem
-import ee.ria.DigiDoc.ui.component.menu.ToolbarScreen
+import ee.ria.DigiDoc.ui.component.menu.MenuToolbarScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
@@ -38,6 +42,7 @@ import ee.ria.DigiDoc.viewmodel.MenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import java.util.Locale
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MenuScreen(
     modifier: Modifier = Modifier,
@@ -63,9 +68,13 @@ fun MenuScreen(
     markAsSecure(context, activity.window)
 
     Scaffold(
-        modifier = modifier,
+        modifier =
+            modifier
+                .semantics {
+                    testTagsAsResourceId = true
+                },
         topBar = {
-            ToolbarScreen(
+            MenuToolbarScreen(
                 modifier = modifier,
                 onClickBack = {
                     navController.navigateUp()
@@ -79,9 +88,11 @@ fun MenuScreen(
                 modifier
                     .padding(paddingValues = paddingValues)
                     .verticalScroll(rememberScrollState())
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .testTag("scrollView"),
         ) {
             MenuItem(
+                testTag = "mainHomeMenuHelp",
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_help_outline),
                 title = stringResource(id = R.string.main_home_menu_help),
                 contentDescription = helpContentDescription,
@@ -93,6 +104,7 @@ fun MenuScreen(
                 },
             )
             MenuItem(
+                testTag = "mainHomeMenuAccessibility",
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_icon_accessibility),
                 title = stringResource(id = R.string.main_home_menu_accessibility),
                 contentDescription = stringResource(id = R.string.main_home_menu_accessibility_accessibility),
@@ -103,6 +115,7 @@ fun MenuScreen(
                 },
             )
             MenuItem(
+                testTag = "mainHomeMenuSettings",
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_settings),
                 title = stringResource(id = R.string.main_home_menu_settings),
                 contentDescription = stringResource(id = R.string.main_home_menu_settings_accessibility),
@@ -113,6 +126,7 @@ fun MenuScreen(
                 },
             )
             MenuItem(
+                testTag = "mainHomeMenuAbout",
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_info_outline),
                 title = stringResource(id = R.string.main_home_menu_about),
                 contentDescription = stringResource(id = R.string.main_home_menu_about_accessibility),
@@ -123,6 +137,7 @@ fun MenuScreen(
                 },
             )
             MenuItem(
+                testTag = "mainHomeMenuDiagnostics",
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_icon_diagnostics),
                 title = stringResource(id = R.string.main_home_menu_diagnostics),
                 contentDescription = stringResource(id = R.string.main_home_menu_diagnostics_accessibility),

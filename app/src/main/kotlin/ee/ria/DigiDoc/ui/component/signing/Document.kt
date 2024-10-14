@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
@@ -54,7 +55,8 @@ fun Document(
                     this.contentDescription = "$documentTitle ${formatNumbers(name).lowercase()}"
                 }
                 .focusable(true)
-                .clickable(onClick = onItemClick),
+                .clickable(onClick = onItemClick)
+                .testTag("recentDocumentsItem"),
     ) {
         val (
             documentText,
@@ -72,7 +74,8 @@ fun Document(
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
                     }
-                    .focusable(false),
+                    .focusable(false)
+                    .testTag("recentDocumentsItemName"),
             text = name,
             maxLines = 4,
             textColor = textColor,
@@ -86,7 +89,8 @@ fun Document(
                         end.linkTo(parent.end)
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
-                    },
+                    }
+                    .testTag("recentDocumentsItemRemoveButton"),
             onClick = onRemoveButtonClick,
             content = {
                 Icon(

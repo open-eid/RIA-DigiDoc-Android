@@ -15,9 +15,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -30,6 +34,7 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SettingsRightsScreen(
     modifier: Modifier = Modifier,
@@ -45,10 +50,16 @@ fun SettingsRightsScreen(
     markAsSecure(context, activity.window)
     val settingValueChanged = stringResource(id = R.string.setting_value_changed)
     Scaffold(
-        modifier = modifier,
+        modifier =
+            modifier
+                .semantics {
+                    testTagsAsResourceId = true
+                },
         topBar = {
             TopBar(
-                modifier = modifier,
+                modifier =
+                    modifier
+                        .testTag("appBar"),
                 title = R.string.main_settings_rights,
                 onBackButtonClick = {
                     navController.navigateUp()
@@ -60,10 +71,12 @@ fun SettingsRightsScreen(
             modifier =
                 modifier
                     .padding(innerPadding)
-                    .verticalScroll(rememberScrollState()),
+                    .verticalScroll(rememberScrollState())
+                    .testTag("scrollView"),
         ) {
             var checkedOpenAllFileTypes by remember { mutableStateOf(getIsOpenAllFileTypesEnabled()) }
             SettingsSwitchItem(
+                testTag = "mainSettingsOpenAllFileTypes",
                 modifier = modifier,
                 checked = checkedOpenAllFileTypes,
                 onCheckedChange = {
@@ -77,6 +90,7 @@ fun SettingsRightsScreen(
             )
             var checkedAllowScreenshots by remember { mutableStateOf(getIsScreenshotAllowed()) }
             SettingsSwitchItem(
+                testTag = "mainSettingsAllowScreenshots",
                 modifier = modifier,
                 checked = checkedAllowScreenshots,
                 onCheckedChange = {

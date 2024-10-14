@@ -14,6 +14,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -33,6 +34,7 @@ fun SettingsSwitchItem(
     onCheckedChange: (Boolean) -> Unit = {},
     title: String,
     contentDescription: String,
+    testTag: String = "",
 ) {
     ConstraintLayout(
         modifier =
@@ -74,7 +76,8 @@ fun SettingsSwitchItem(
                         end.linkTo(parent.end)
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
-                    },
+                    }
+                    .testTag(testTag),
         )
     }
 }
