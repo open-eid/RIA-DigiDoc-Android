@@ -250,7 +250,7 @@ class MobileIdViewModel
                                             null
                                         } else {
                                             containerSignatures
-                                                ?.last {
+                                                ?.lastOrNull {
                                                     it.validator.status == ValidatorInterface.Status.Invalid ||
                                                         it.validator.status == ValidatorInterface.Status.Unknown
                                                 }
