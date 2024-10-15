@@ -118,6 +118,7 @@ class SharedContainerViewModel
             )
         }
 
+        @Throws(Exception::class)
         suspend fun removeContainerDataFile(
             signedContainer: SignedContainer?,
             dataFile: DataFileInterface?,

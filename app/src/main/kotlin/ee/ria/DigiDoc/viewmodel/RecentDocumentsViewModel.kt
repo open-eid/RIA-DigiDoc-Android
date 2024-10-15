@@ -83,7 +83,7 @@ class RecentDocumentsViewModel
         ) {
             errorLog(logTag, "Unable to open container from recent documents", ex)
 
-            var errorMessage: Int? = R.string.signature_update_mobile_id_error_general_client
+            var errorMessage: Int? = R.string.error_general_client
 
             withContext(Main) {
                 val exceptionMessage = ex.message ?: ""

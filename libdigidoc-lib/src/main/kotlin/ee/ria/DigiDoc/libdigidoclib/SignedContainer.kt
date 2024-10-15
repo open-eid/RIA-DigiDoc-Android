@@ -336,7 +336,7 @@ class SignedContainer
                     message.startsWith("Failed to connect to host") ||
                         message.startsWith("Failed to create proxy connection with host") ||
                         message.startsWith("Failed to create connection with host") -> {
-                        throw NoInternetConnectionException()
+                        throw NoInternetConnectionException(context)
                     }
 
                     message.startsWith("Failed to create ssl connection with host") -> {

@@ -263,7 +263,7 @@ class NFCViewModel
                 CoroutineScope(Main).launch {
                     _nfcStatus.postValue(nfcSmartCardReaderManager.detectNfcStatus(activity))
                     _signStatus.postValue(false)
-                    _errorState.postValue(context.getString(R.string.signature_update_mobile_id_error_general_client))
+                    _errorState.postValue(context.getString(R.string.error_general_client))
                     errorLog(logTag, "Unable to get container value. Container is 'null'")
                 }
             }

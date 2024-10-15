@@ -1063,10 +1063,16 @@ fun SigningNavigation(
                                     handleBackButtonClick(navController, signingViewModel, sharedContainerViewModel)
                                 } else {
                                     CoroutineScope(IO).launch {
-                                        sharedContainerViewModel.removeContainerDataFile(
-                                            signedContainer,
-                                            actionDataFile,
-                                        )
+                                        try {
+                                            sharedContainerViewModel.removeContainerDataFile(
+                                                signedContainer,
+                                                actionDataFile,
+                                            )
+                                        } catch (e: Exception) {
+                                            withContext(Main) {
+                                                showMessage(context, R.string.error_general_client)
+                                            }
+                                        }
                                     }
                                 }
                                 closeRemoveFileDialog()

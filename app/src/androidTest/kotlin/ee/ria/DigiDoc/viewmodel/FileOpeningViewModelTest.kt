@@ -12,6 +12,8 @@ import androidx.lifecycle.Observer
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.R.string.documents_add_error_exists
+import ee.ria.DigiDoc.common.R.string.empty_file_error
 import ee.ria.DigiDoc.common.testfiles.file.TestFileUtil.Companion.createZipWithTextFile
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifierImpl
@@ -244,7 +246,7 @@ class FileOpeningViewModelTest {
             viewModel.handleFiles(uris, existingSignedContainer, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(existingSignedContainer)
-            verify(errorStateObserver, atLeastOnce()).onChanged(R.string.empty_file_error)
+            verify(errorStateObserver, atLeastOnce()).onChanged(empty_file_error)
         }
 
     @Test
@@ -273,7 +275,7 @@ class FileOpeningViewModelTest {
             viewModel.handleFiles(uris, existingSignedContainer, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(existingSignedContainer)
-            verify(errorStateObserver, atLeastOnce()).onChanged(R.string.signature_update_documents_add_error_exists)
+            verify(errorStateObserver, atLeastOnce()).onChanged(documents_add_error_exists)
         }
 
     @Test
@@ -408,7 +410,7 @@ class FileOpeningViewModelTest {
         runTest {
             val uri: Uri = mock()
             val uris = listOf(uri)
-            val exception = EmptyFileException()
+            val exception = EmptyFileException(context)
 
             val isSivaConfirmed = true
 
@@ -425,7 +427,7 @@ class FileOpeningViewModelTest {
             viewModel.handleFiles(uris, null, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
-            verify(errorStateObserver, atLeastOnce()).onChanged(R.string.empty_file_error)
+            verify(errorStateObserver, atLeastOnce()).onChanged(empty_file_error)
         }
 
     @Test
@@ -451,7 +453,7 @@ class FileOpeningViewModelTest {
         runTest {
             val uri: Uri = mock()
             val uris = listOf(uri)
-            val exception = NoInternetConnectionException()
+            val exception = NoInternetConnectionException(context)
 
             val isSivaConfirmed = true
 
