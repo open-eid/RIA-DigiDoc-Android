@@ -22,8 +22,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -43,7 +41,6 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -52,19 +49,16 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -171,8 +165,6 @@ fun NFCView(
     val dismissSignatureUpdateContainerDialog = {
         openSignatureUpdateContainerDialog.value = false
     }
-
-    var pin2CodeVisible by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(nfcViewModel.nfcStatus) {
         nfcViewModel.nfcStatus.asFlow().collect { status ->
@@ -494,7 +486,7 @@ fun NFCView(
                     sharedSettingsViewModel = sharedSettingsViewModel,
                 )
                 Text(
-                    text = stringResource(id = R.string.signature_update_mobile_id_message),
+                    text = stringResource(id = R.string.signature_update_nfc_message),
                     style = MaterialTheme.typography.titleLarge,
                     modifier =
                         modifier
@@ -622,42 +614,12 @@ fun NFCView(
                         !nfcViewModel
                             .isPIN2CodeValid(pin2CodeText.text.toByteArray(StandardCharsets.UTF_8)),
                     textStyle = MaterialTheme.typography.titleLarge,
-                    visualTransformation =
-                        if (pin2CodeVisible) {
-                            VisualTransformation.None
-                        } else {
-                            PasswordVisualTransformation()
-                        },
+                    visualTransformation = PasswordVisualTransformation(),
                     keyboardOptions =
                         KeyboardOptions.Default.copy(
                             imeAction = ImeAction.Next,
                             keyboardType = KeyboardType.NumberPassword,
                         ),
-                    trailingIcon = {
-                        val image =
-                            if (pin2CodeVisible) {
-                                ImageVector.vectorResource(id = R.drawable.ic_visibility)
-                            } else {
-                                ImageVector.vectorResource(id = R.drawable.ic_visibility_off)
-                            }
-                        val description =
-                            if (pin2CodeVisible) {
-                                stringResource(
-                                    id = R.string.hide_password,
-                                )
-                            } else {
-                                stringResource(id = R.string.show_password)
-                            }
-                        IconButton(
-                            modifier =
-                                modifier
-                                    .semantics { traversalIndex = 9f }
-                                    .testTag("signatureUpdateNFCPIN2Visible"),
-                            onClick = { pin2CodeVisible = !pin2CodeVisible },
-                        ) {
-                            Icon(imageVector = image, description)
-                        }
-                    },
                 )
 
                 if (pin2CodeErrorText.isNotEmpty()) {
