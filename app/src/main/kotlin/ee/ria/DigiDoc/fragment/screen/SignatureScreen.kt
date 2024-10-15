@@ -41,14 +41,13 @@ import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 @Composable
 fun SignatureScreen(
     modifier: Modifier = Modifier,
-    focusRequester: FocusRequester = FocusRequester(),
     onClickToFileChoosingScreen: () -> Unit = {},
     onClickToRecentDocumentsScreen: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val activity = (context as Activity)
     markAsSecure(context, activity.window)
-    val buttonFocusRequester = remember { focusRequester }
+    val buttonFocusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
         buttonFocusRequester.requestFocus()

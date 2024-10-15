@@ -17,8 +17,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
@@ -55,12 +53,6 @@ fun HomeNavigation(
 ) {
     val openCrashDetectorDialog = remember { mutableStateOf(false) }
     val hasUnsentReports by homeViewModel.hasUnsentReports.asFlow().collectAsState(Tasks.forResult(false))
-
-    val focusRequester = remember { FocusRequester() }
-
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
 
     LaunchedEffect(homeViewModel.didAppCrashOnPreviousExecution(), hasUnsentReports) {
         if (!homeViewModel.isCrashSendingAlwaysEnabled() && hasUnsentReports.result) {
@@ -148,14 +140,12 @@ fun HomeNavigation(
                     SignatureScreen(
                         onClickToFileChoosingScreen = onClickToFileChoosingScreen,
                         onClickToRecentDocumentsScreen = onClickToRecentDocumentsScreen,
-                        focusRequester = focusRequester,
                         modifier =
                             modifier
                                 .semantics {
                                     isTraversalGroup = true
                                     traversalIndex = 0f
-                                }
-                                .focusRequester(focusRequester),
+                                },
                     )
                 }
                 composable(Route.Crypto.route) {
