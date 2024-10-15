@@ -13,6 +13,8 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.R.string.documents_add_error_exists
+import ee.ria.DigiDoc.common.R.string.empty_file_error
 import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.exceptions.EmptyFileException
@@ -100,7 +102,7 @@ class FileOpeningViewModel
 
                     if (files.size == 1) {
                         if (!fileOpeningRepository.isFileSizeValid(files.first())) {
-                            throw EmptyFileException()
+                            throw EmptyFileException(context)
                         }
                         val isFileAlreadyInContainer =
                             fileOpeningRepository.isFileAlreadyInContainer(
@@ -109,7 +111,7 @@ class FileOpeningViewModel
                             )
 
                         if (isFileAlreadyInContainer) {
-                            throw FileAlreadyExistsException()
+                            throw FileAlreadyExistsException(context)
                         }
                     }
 
@@ -164,7 +166,7 @@ class FileOpeningViewModel
         private fun handleException(e: Exception) {
             when (e) {
                 is EmptyFileException -> {
-                    _errorState.postValue(R.string.empty_file_error)
+                    _errorState.postValue(empty_file_error)
                 }
                 is NoSuchElementException -> {
                     _errorState.postValue(R.string.container_open_file_error)
@@ -183,7 +185,7 @@ class FileOpeningViewModel
                     }
                 }
                 is FileAlreadyExistsException -> {
-                    _errorState.postValue(R.string.signature_update_documents_add_error_exists)
+                    _errorState.postValue(documents_add_error_exists)
                 }
                 else -> {
                     _errorState.postValue(R.string.container_open_file_error)

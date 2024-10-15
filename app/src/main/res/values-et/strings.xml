@@ -6,6 +6,7 @@
     <string name="rooted_device">Seda rakendust ei saa kasutada turvamata (ingl rooted) seadmes.</string>
 
     <string name="configuration_initialization_failed">Konfiguratsiooni initsialiseerimine ebaõnnestus</string>
+    <string name="error_general_client">Midagi läks valesti, proovi uuesti</string>
 
     <string name="crash_report_dialog_header">Kas saata vearaport?</string>
     <string name="crash_report_dialog_text">Rakenduses juhtus viga. Palun saada meile vearaport, et saaksime selle vea parandada.</string>
@@ -30,7 +31,6 @@
     <string name="signature_remove_button">Eemalda allkiri</string>
     <string name="container_open_file_error">Failide laadimine ebaõnnestus</string>
     <string name="container_load_error">Ümbriku laadimine ebaõnnestus</string>
-    <string name="empty_file_error">Tühja faili ei saa lisada ümbrikusse.</string>
     <string name="empty_file_message">Ümbrikule on lisatud tühi fail. Allkirjastamiseks eemalda ümbrikust tühi fail.</string>
     <string name="xades_file_message">Tegemist on XADES allkirja sisalduva ASICS ümbrikuga. Sellele ümbrikule ei saa allkirja lisada ega eemaldada.</string>
     <string name="cades_file_message">Tegemist on CAdES allkirja sisaldava ümbrikuga. Sellele ümbrikule ei saa allkirja lisada ega eemaldada.</string>
@@ -106,7 +106,6 @@
 
     <!-- Signature Add -->
     <string name="signature_update_name_update_name">Ümbriku nimi</string>
-    <string name="signature_update_documents_add_error_exists">Fail on juba ümbrikus olemas</string>
 
     <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
@@ -181,7 +180,6 @@
 
     <string name="signature_update_mobile_id_error_unknown">Tundmatu viga mobiil-IDga allkirjastamisel</string>
     <string name="signature_update_mobile_id_error_local_service_exception">Midagi läks valesti, proovi hiljem uuesti</string>
-    <string name="signature_update_mobile_id_error_general_client">Midagi läks valesti, proovi uuesti</string>
     <string name="signature_update_mobile_id_error_incorrect_input_parameters">Vigane telefoninumber ja/või isikukood, välismaa telefoninumber peab algama riigikoodiga</string>
     <string name="signature_update_mobile_id_error_missing_input_parameters">Puudub telefoninumber ja/või isikukood</string>
     <string name="signature_update_mobile_id_error_ocsp_unauthorized">Mobiilse allkirjastamise teenusele ei õnnestu ligi pääseda</string>

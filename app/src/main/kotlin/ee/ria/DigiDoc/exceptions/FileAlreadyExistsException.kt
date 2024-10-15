@@ -2,4 +2,13 @@
 
 package ee.ria.DigiDoc.exceptions
 
-class FileAlreadyExistsException : Exception()
+import android.content.Context
+
+class FileAlreadyExistsException(
+    private val context: Context,
+) : Exception() {
+    override fun getLocalizedMessage(): String =
+        context.getString(
+            ee.ria.DigiDoc.common.R.string.documents_add_error_exists,
+        )
+}

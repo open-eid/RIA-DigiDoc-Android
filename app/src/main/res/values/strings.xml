@@ -6,6 +6,7 @@
     <string name="rooted_device">This app cannot be used in rooted device.</string>
 
     <string name="configuration_initialization_failed">Failed to initialize configuration</string>
+    <string name="error_general_client">Something went wrong, try again</string>
 
     <string name="crash_report_dialog_header">Send crash report?</string>
     <string name="crash_report_dialog_text">Application crashed. Please send us crash report, so we can fix the problem.</string>
@@ -30,7 +31,6 @@
     <string name="signature_remove_button">Remove signature</string>
     <string name="container_open_file_error">Could not load selected files</string>
     <string name="container_load_error">Error opening container</string>
-    <string name="empty_file_error">Cannot add empty file to the container.</string>
     <string name="empty_file_message">An empty file is attached to the envelope. Remove the empty file from the container to sign.</string>
     <string name="xades_file_message">This ASICS container contains XADES signature. You are not allowed to add or remove signatures to this container.</string>
     <string name="cades_file_message">This container contains CAdES signature. You are not allowed to add or remove signatures to this container.</string>
@@ -106,7 +106,6 @@
 
     <!-- Signature Add -->
     <string name="signature_update_name_update_name">Container name</string>
-    <string name="signature_update_documents_add_error_exists">File already exists in the container</string>
 
     <string name="signature_update_signature_add_method_mobile_id">Mobile-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
@@ -182,7 +181,6 @@
 
     <string name="signature_update_mobile_id_error_unknown">Unknown error occurred when signing with mobile-ID</string>
     <string name="signature_update_mobile_id_error_local_service_exception">Something went wrong, try again later</string>
-    <string name="signature_update_mobile_id_error_general_client">Something went wrong, try again</string>
     <string name="signature_update_mobile_id_error_incorrect_input_parameters">Incorrect mobile number and/or personal code, non-Estonian mobile numbers must be prefixed with the country code</string>
     <string name="signature_update_mobile_id_error_missing_input_parameters">Missing mobile number and/or personal code</string>
     <string name="signature_update_mobile_id_error_ocsp_unauthorized">Unable to access mobile signing service</string>

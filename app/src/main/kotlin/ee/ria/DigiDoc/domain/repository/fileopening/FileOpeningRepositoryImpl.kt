@@ -80,7 +80,7 @@ class FileOpeningRepositoryImpl
                 if (isFileSizeValid(file)) {
                     files.add(file)
                 } else if (uris.size == 1) {
-                    throw EmptyFileException()
+                    throw EmptyFileException(context)
                 }
             }
 

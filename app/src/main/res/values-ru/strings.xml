@@ -6,6 +6,7 @@
     <string name="rooted_device">Данное приложение не может быть использовано на взломанном (root) устройстве.</string>
 
     <string name="configuration_initialization_failed">Не удалось инициализировать конфигурация</string>
+    <string name="error_general_client">Что-то пошло не так, попробуйте снова</string>
 
     <string name="crash_report_dialog_header">Отправить отчет о сбое?</string>
     <string name="crash_report_dialog_text">Похоже, произошел какой-то сбой! Помогите нам решить проблему отправив отчет о сбое.</string>
@@ -30,7 +31,6 @@
     <string name="signature_remove_button">Удалить подпись</string>
     <string name="container_open_file_error">Не удалось загрузить выбранные файлы</string>
     <string name="container_load_error">Ошибка при открывании контейнера</string>
-    <string name="empty_file_error">Пустой файл нельзя добавить в контейнер.</string>
     <string name="empty_file_message">В контейнер добавлен пустой файл. Для подписания удалите из контейнера пустой файл.</string>
     <string name="xades_file_message">Речь идет о конверте ASICS, содержащемся в подписи XADES. К данному контейнеру нельзя добавить или удалить из него подпись.</string>
     <string name="cades_file_message">Этот контейнер содержит подпись CAdES. К данному контейнеру нельзя добавить или удалить из него подпись.</string>
@@ -106,7 +106,6 @@
 
     <!-- Signature Add -->
     <string name="signature_update_name_update_name">Название контейнера</string>
-    <string name="signature_update_documents_add_error_exists">Файл уже существует в контейнере</string>
 
     <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
@@ -165,7 +164,6 @@
 
     <string name="signature_update_mobile_id_error_unknown">Неизвестная ошибка при подписании с помощю mobiil-ID</string>
     <string name="signature_update_mobile_id_error_local_service_exception">Что-то пошло не так, попробуйте позже</string>
-    <string name="signature_update_mobile_id_error_general_client">Что-то пошло не так, попробуйте снова</string>
     <string name="signature_update_mobile_id_error_incorrect_input_parameters">Неверный номер телефона и/или личный код, не эстонские номера телефонов должны начинаться с кода страны</string>
     <string name="signature_update_mobile_id_error_missing_input_parameters">Отсутствует номер телефона и/или личный код</string>
     <string name="signature_update_mobile_id_error_ocsp_unauthorized">Сервис мобильной подписи недоступен</string>

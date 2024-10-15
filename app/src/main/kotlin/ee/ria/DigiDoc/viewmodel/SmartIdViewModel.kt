@@ -127,7 +127,7 @@ class SmartIdViewModel
                 )
                 .put(
                     SessionStatusResponseProcessStatus.MISSING_SESSIONID,
-                    R.string.signature_update_mobile_id_error_general_client,
+                    R.string.error_general_client,
                 )
                 .put(
                     SessionStatusResponseProcessStatus.TOO_MANY_REQUESTS,
@@ -163,7 +163,7 @@ class SmartIdViewModel
                 )
                 .put(
                     SessionStatusResponseProcessStatus.GENERAL_ERROR,
-                    R.string.signature_update_mobile_id_error_general_client,
+                    R.string.error_general_client,
                 )
                 .put(
                     SessionStatusResponseProcessStatus.NO_RESPONSE,
@@ -368,7 +368,7 @@ class SmartIdViewModel
             } else {
                 CoroutineScope(Main).launch {
                     _status.postValue(SessionStatusResponseProcessStatus.GENERAL_ERROR)
-                    _errorState.postValue(context.getString(R.string.signature_update_mobile_id_error_general_client))
+                    _errorState.postValue(context.getString(R.string.error_general_client))
                     errorLog(logTag, "Unable to get container value. Container is 'null'")
                 }
             }
