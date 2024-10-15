@@ -213,19 +213,19 @@ class NFCViewModel
 
                                 if (ex.message?.contains("TagLostException") == true) {
                                     _errorState.postValue(context.getString(R.string.signature_update_nfc_tag_lost))
-                                } else if (ex.message?.contains("CodeVerificationException") == true &&
+                                } else if (ex.message?.contains("PIN2 verification failed") == true &&
                                     ex.message?.contains("Retries left: 2") == true
                                 ) {
                                     _errorState.postValue(
                                         context.getString(R.string.signature_update_id_card_sign_pin2_invalid),
                                     )
-                                } else if (ex.message?.contains("CodeVerificationException") == true &&
+                                } else if (ex.message?.contains("PIN2 verification failed") == true &&
                                     ex.message?.contains("Retries left: 1") == true
                                 ) {
                                     _errorState.postValue(
                                         context.getString(R.string.signature_update_id_card_sign_pin2_invalid_final),
                                     )
-                                } else if (ex.message?.contains("CodeVerificationException") == true &&
+                                } else if (ex.message?.contains("PIN2 verification failed") == true &&
                                     ex.message?.contains("Retries left: 0") == true
                                 ) {
                                     _errorState.postValue(
@@ -248,9 +248,11 @@ class NFCViewModel
                                 errorLog(logTag, "Exception: " + ex.message, ex)
                             } catch (ex: Exception) {
                                 _signStatus.postValue(false)
+
                                 _errorState.postValue(
                                     ex.message ?: context.getString(R.string.signature_update_nfc_technical_error),
                                 )
+
                                 errorLog(logTag, "Exception: " + ex.message, ex)
                             } finally {
                                 nfcSmartCardReaderManager.disableNfcReaderMode()

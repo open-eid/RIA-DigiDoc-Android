@@ -10,6 +10,7 @@ import android.system.ErrnoException
 import android.system.Os
 import android.text.TextUtils
 import android.util.Base64
+import android.widget.Toast
 import androidx.preference.PreferenceManager
 import ee.ria.DigiDoc.common.Constant.DIR_SIVA_CERT
 import ee.ria.DigiDoc.common.Constant.DIR_TSA_CERT
@@ -17,6 +18,7 @@ import ee.ria.DigiDoc.common.preferences.EncryptedPreferences
 import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.libdigidoclib.BuildConfig
+import ee.ria.DigiDoc.libdigidoclib.R
 import ee.ria.DigiDoc.libdigidoclib.exceptions.AlreadyInitializedException
 import ee.ria.DigiDoc.libdigidoclib.utils.FileUtils.getSchemaDir
 import ee.ria.DigiDoc.libdigidoclib.utils.FileUtils.getSchemaPath
@@ -513,6 +515,7 @@ class Initialization
             ) {
                 if (TextUtils.equals(key, preferenceKey)) {
                     overrideVerifyServiceCert(
+                        context,
                         defaultValues,
                         sharedPreferences.getString(key, "")?.let {
                             getCustomCertFile(
@@ -561,17 +564,34 @@ class Initialization
             }
 
             private fun overrideVerifyServiceCert(
+                context: Context,
                 certBundle: List<String>,
                 customSivaCert: String?,
             ) {
-                DigiDocConf.instance().setVerifyServiceCert(ByteArray(0))
-                if (!customSivaCert.isNullOrEmpty()) {
-                    DigiDocConf.instance()
-                        .addVerifyServiceCert(org.bouncycastle.util.encoders.Base64.decode(customSivaCert))
-                }
-                for (cert in certBundle) {
-                    DigiDocConf.instance()
-                        .addVerifyServiceCert(org.bouncycastle.util.encoders.Base64.decode(cert))
+                try {
+                    DigiDocConf.instance().setVerifyServiceCert(ByteArray(0))
+                    if (!customSivaCert.isNullOrEmpty()) {
+                        DigiDocConf.instance()
+                            .addVerifyServiceCert(
+                                org.bouncycastle.util.encoders.Base64.decode(
+                                    customSivaCert,
+                                ),
+                            )
+                    }
+                    for (cert in certBundle) {
+                        DigiDocConf.instance()
+                            .addVerifyServiceCert(org.bouncycastle.util.encoders.Base64.decode(cert))
+                    }
+                } catch (e: Exception) {
+                    errorLog("Libdigidoc-Initialization", "Error adding custom SIVA cert", e)
+                    CoroutineScope(Main).launch {
+                        Toast.makeText(
+                            context,
+                            R.string.libdigidocpp_initialization_failed,
+                            Toast.LENGTH_LONG,
+                        )
+                            .show()
+                    }
                 }
             }
         }
