@@ -18,6 +18,10 @@ import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.StringUtils
 import org.w3c.dom.Document
+import org.w3c.dom.Element
+import org.xml.sax.Attributes
+import org.xml.sax.InputSource
+import org.xml.sax.helpers.DefaultHandler
 import java.io.BufferedReader
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -37,6 +41,7 @@ import java.util.Objects
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.parsers.SAXParserFactory
 
 object FileUtil {
     private val LOG_TAG = javaClass.simpleName
@@ -448,9 +453,44 @@ object FileUtil {
 
     fun parseXMLFile(file: File): Document? {
         try {
-            val factory = DocumentBuilderFactory.newInstance()
-            val builder = factory.newDocumentBuilder()
-            return builder.parse(file)
+            val inputStream = FileInputStream(file)
+            val documentFactory = DocumentBuilderFactory.newInstance()
+            val documentBuilder = documentFactory.newDocumentBuilder()
+            val document = documentBuilder.newDocument()
+
+            val saxFactory = SAXParserFactory.newInstance()
+            val saxParser = saxFactory.newSAXParser()
+
+            var currentElement: Element? = null
+
+            val handler = object : DefaultHandler() {
+                override fun startElement(uri: String?, localName: String?, qName: String?, attributes: Attributes?) {
+                    val tagName = qName ?: return
+                    val element = document.createElement(tagName)
+                    for (i in 0 until (attributes?.length ?: 0)) {
+                        if (attributes != null) {
+                            element.setAttribute(attributes.getQName(i), attributes.getValue(i))
+                        }
+                    }
+                    currentElement?.appendChild(element) ?: document.appendChild(element)
+                    currentElement = element
+                }
+
+                override fun characters(ch: CharArray?, start: Int, length: Int) {
+                    val text = java.lang.String(ch, start, length).trim()
+                    if (text.isNotEmpty()) {
+                        currentElement?.appendChild(document.createTextNode(text))
+                    }
+                }
+
+                override fun endElement(uri: String?, localName: String?, qName: String?) {
+                    currentElement = currentElement?.parentNode as? Element
+                }
+            }
+
+            saxParser.parse(InputSource(inputStream), handler)
+            inputStream.close()
+            return document
         } catch (ex: Exception) {
             return null
         }
