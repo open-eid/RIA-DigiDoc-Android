@@ -3,7 +3,8 @@
 package ee.ria.DigiDoc.ui.component.signing
 
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,6 +17,7 @@ import ee.ria.DigiDoc.ui.theme.Red50
 import ee.ria.DigiDoc.ui.theme.Red800
 import ee.ria.DigiDoc.ui.theme.Yellow800
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ColoredSignedStatusText(
     text: String,
@@ -33,7 +35,7 @@ fun ColoredSignedStatusText(
     val tagContentColor = if (isSignatureValidOrWarning) Green800 else Red800
     val additionalTextColor = if (status == ValidatorInterface.Status.Valid) Red800 else Yellow800
 
-    Column {
+    FlowRow {
         TagBadge(
             text = parts[0],
             backgroundColor = tagBackgroundColor,
