@@ -28,6 +28,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.ui.theme.Blue500
@@ -115,6 +116,8 @@ fun SignatureComponent(
             if (showRolesDetailsButton) {
                 Text(
                     text = roles,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                     modifier =
                         modifier
                             .notAccessible()
