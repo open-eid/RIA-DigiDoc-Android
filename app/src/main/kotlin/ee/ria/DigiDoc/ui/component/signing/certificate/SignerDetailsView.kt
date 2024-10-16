@@ -113,13 +113,12 @@ fun SignerDetailsView(
                     .focusGroup()
                     .semantics {
                         testTagsAsResourceId = true
-                    },
+                    }
+                    .testTag("signerDetailsView"),
         ) {
             Column {
                 TopBar(
-                    modifier =
-                        modifier
-                            .testTag("appBar"),
+                    modifier = modifier,
                     title = R.string.signature_details_title,
                     onBackButtonClick = {
                         handleBackButtonClick(navController, sharedSignatureViewModel)

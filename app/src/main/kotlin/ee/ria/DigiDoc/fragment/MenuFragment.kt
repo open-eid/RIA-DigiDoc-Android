@@ -38,9 +38,7 @@ fun MenuFragment(
         contentColor = Primary500,
     ) {
         MenuScreen(
-            modifier =
-                modifier
-                    .testTag("menuScreen"),
+            modifier = modifier,
             navController = navController,
         )
     }

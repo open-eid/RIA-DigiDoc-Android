@@ -42,9 +42,7 @@ fun RecentDocumentsFragment(
         RecentDocumentsScreen(
             navController = navController,
             sharedContainerViewModel = sharedContainerViewModel,
-            modifier =
-                modifier
-                    .testTag("recentDocumentsScreen"),
+            modifier = modifier,
         )
     }
 }

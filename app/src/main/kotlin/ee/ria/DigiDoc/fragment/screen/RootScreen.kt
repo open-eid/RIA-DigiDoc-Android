@@ -38,7 +38,8 @@ fun RootScreen(modifier: Modifier = Modifier) {
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                },
+                }
+                .testTag("rootScreen"),
     ) { innerPadding ->
         Column(
             modifier = modifier.padding(innerPadding),

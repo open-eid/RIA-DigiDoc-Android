@@ -41,9 +41,7 @@ fun SettingsRightsFragment(
     ) {
         SettingsRightsScreen(
             navController = navController,
-            modifier =
-                modifier
-                    .testTag("settingsRightsScreen"),
+            modifier = modifier,
             getIsScreenshotAllowed = sharedSettingsViewModel.dataStore::getSettingsAllowScreenshots,
             setIsScreenshotAllowed = sharedSettingsViewModel.dataStore::setSettingsAllowScreenshots,
             getIsOpenAllFileTypesEnabled = sharedSettingsViewModel.dataStore::getSettingsOpenAllFileTypes,

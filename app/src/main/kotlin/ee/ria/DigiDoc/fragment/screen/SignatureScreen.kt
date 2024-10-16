@@ -77,6 +77,7 @@ fun SignatureScreen(
                     .semantics {
                         testTagsAsResourceId = true
                     }
+                    .testTag("signatureScreen")
                     .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,

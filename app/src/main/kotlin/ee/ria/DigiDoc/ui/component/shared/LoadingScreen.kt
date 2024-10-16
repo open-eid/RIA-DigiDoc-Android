@@ -32,7 +32,8 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
                     .focusGroup()
                     .semantics {
                         testTagsAsResourceId = true
-                    },
+                    }
+                    .testTag("loadingScreen"),
         ) {
             Box(
                 modifier =

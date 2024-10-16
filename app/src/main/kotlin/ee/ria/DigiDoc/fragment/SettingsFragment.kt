@@ -38,9 +38,7 @@ fun SettingsFragment(
     ) {
         SettingsScreen(
             navController = navController,
-            modifier =
-                modifier
-                    .testTag("settingsScreen"),
+            modifier = modifier,
         )
     }
 }

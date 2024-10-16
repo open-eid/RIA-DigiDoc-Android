@@ -48,12 +48,11 @@ fun AccessibilityScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                },
+                }
+                .testTag("accessibilityScreen"),
         topBar = {
             TopBar(
-                modifier =
-                    modifier
-                        .testTag("appBar"),
+                modifier = modifier,
                 title = R.string.main_accessibility_title,
                 onBackButtonClick = {
                     navController.navigateUp()

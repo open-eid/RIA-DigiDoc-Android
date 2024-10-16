@@ -391,10 +391,11 @@ fun SigningNavigation(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                },
+                }
+                .testTag("signingScreen"),
         topBar = {
             TopBar(
-                modifier = modifier.testTag("appBar"),
+                modifier = modifier,
                 title = R.string.signing_title_container_existing,
                 onBackButtonClick = {
                     handleBackButtonClick(

@@ -61,13 +61,12 @@ fun RolesDetailsView(
                     .focusGroup()
                     .semantics {
                         testTagsAsResourceId = true
-                    },
+                    }
+                    .testTag("rolesDetailsView"),
         ) {
             Column {
                 TopBar(
-                    modifier =
-                        modifier
-                            .testTag("appBar"),
+                    modifier = modifier,
                     title = R.string.signature_update_signature_role_and_address_title_accessibility,
                     onBackButtonClick = {
                         handleBackButtonClick(navController, sharedSignatureViewModel)

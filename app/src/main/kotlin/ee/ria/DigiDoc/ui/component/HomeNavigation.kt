@@ -97,7 +97,8 @@ fun HomeNavigation(
                 .focusGroup()
                 .semantics {
                     testTagsAsResourceId = true
-                },
+                }
+                .testTag("homeScreen"),
         topBar = {
             HomeToolbar(
                 modifier =
@@ -105,8 +106,7 @@ fun HomeNavigation(
                         .semantics {
                             isTraversalGroup = true
                             traversalIndex = 2f
-                        }
-                        .testTag("appBar"),
+                        },
                 onClickMenu = onClickMenu,
             )
         },

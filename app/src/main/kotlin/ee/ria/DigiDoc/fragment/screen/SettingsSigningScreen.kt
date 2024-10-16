@@ -303,12 +303,11 @@ fun SettingsSigningScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                },
+                }
+                .testTag("settingsSigningScreen"),
         topBar = {
             TopBar(
-                modifier =
-                    modifier
-                        .testTag("appBar"),
+                modifier = modifier,
                 title = R.string.main_settings_signing,
                 onBackButtonClick = {
                     navController.navigateUp()
