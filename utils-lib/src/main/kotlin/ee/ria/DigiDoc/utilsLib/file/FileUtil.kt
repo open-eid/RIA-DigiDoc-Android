@@ -463,30 +463,44 @@ object FileUtil {
 
             var currentElement: Element? = null
 
-            val handler = object : DefaultHandler() {
-                override fun startElement(uri: String?, localName: String?, qName: String?, attributes: Attributes?) {
-                    val tagName = qName ?: return
-                    val element = document.createElement(tagName)
-                    for (i in 0 until (attributes?.length ?: 0)) {
-                        if (attributes != null) {
-                            element.setAttribute(attributes.getQName(i), attributes.getValue(i))
+            val handler =
+                object : DefaultHandler() {
+                    override fun startElement(
+                        uri: String?,
+                        localName: String?,
+                        qName: String?,
+                        attributes: Attributes?,
+                    ) {
+                        val tagName = qName ?: return
+                        val element = document.createElement(tagName)
+                        for (i in 0 until (attributes?.length ?: 0)) {
+                            if (attributes != null) {
+                                element.setAttribute(attributes.getQName(i), attributes.getValue(i))
+                            }
+                        }
+                        currentElement?.appendChild(element) ?: document.appendChild(element)
+                        currentElement = element
+                    }
+
+                    override fun characters(
+                        ch: CharArray?,
+                        start: Int,
+                        length: Int,
+                    ) {
+                        val text = java.lang.String(ch, start, length).trim()
+                        if (text.isNotEmpty()) {
+                            currentElement?.appendChild(document.createTextNode(text))
                         }
                     }
-                    currentElement?.appendChild(element) ?: document.appendChild(element)
-                    currentElement = element
-                }
 
-                override fun characters(ch: CharArray?, start: Int, length: Int) {
-                    val text = java.lang.String(ch, start, length).trim()
-                    if (text.isNotEmpty()) {
-                        currentElement?.appendChild(document.createTextNode(text))
+                    override fun endElement(
+                        uri: String?,
+                        localName: String?,
+                        qName: String?,
+                    ) {
+                        currentElement = currentElement?.parentNode as? Element
                     }
                 }
-
-                override fun endElement(uri: String?, localName: String?, qName: String?) {
-                    currentElement = currentElement?.parentNode as? Element
-                }
-            }
 
             saxParser.parse(InputSource(inputStream), handler)
             inputStream.close()

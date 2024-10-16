@@ -329,7 +329,8 @@ class SharedSettingsViewModel
             }
         }
 
-        fun recreateActivity() {
+        fun recreateActivity(shouldResetLogging: Boolean = false) {
+            activityManager.setShouldResetLogging(shouldResetLogging = shouldResetLogging)
             activityManager.setShouldRecreateActivity(true)
         }
     }

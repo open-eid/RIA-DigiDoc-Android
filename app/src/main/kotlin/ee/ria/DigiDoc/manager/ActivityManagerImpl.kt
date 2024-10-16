@@ -14,9 +14,15 @@ class ActivityManagerImpl
     constructor() : ActivityManager {
         private val _shouldRecreateActivity = MutableLiveData(false)
         override val shouldRecreateActivity: LiveData<Boolean> get() = _shouldRecreateActivity
+        private val _shouldResetLogging = MutableLiveData(true)
+        override val shouldResetLogging: LiveData<Boolean> get() = _shouldResetLogging
 
         override fun setShouldRecreateActivity(shouldRecreate: Boolean) {
             _shouldRecreateActivity.postValue(shouldRecreate)
+        }
+
+        override fun setShouldResetLogging(shouldResetLogging: Boolean) {
+            _shouldResetLogging.postValue(shouldResetLogging)
         }
 
         override fun recreateActivity(mainActivity: ComponentActivity) {
