@@ -79,8 +79,14 @@ class MainActivity : ComponentActivity() {
 
         Firebase.crashlytics.isCrashlyticsCollectionEnabled = false
 
-        loggingUtil.handleOneTimeLogging(this)
-        LoggingUtil.resetLogs(FileUtil.getLogsDirectory(this))
+        activityManager.shouldResetLogging.observe(this) { shouldResetLogging ->
+            if (shouldResetLogging) {
+                activityManager.setShouldResetLogging(false)
+                loggingUtil.handleOneTimeLogging(this)
+                LoggingUtil.resetLogs(FileUtil.getLogsDirectory(this))
+            }
+        }
+
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val isDiagnosticsLoggingEnabled = sharedPreferences.getBoolean(getString(main_diagnostics_logging_key), false)
         val isDiagnosticsLoggingRunning =

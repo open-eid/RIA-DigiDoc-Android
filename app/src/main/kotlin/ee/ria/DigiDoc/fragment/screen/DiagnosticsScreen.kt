@@ -122,7 +122,7 @@ fun DiagnosticsScreen(
                 diagnosticsViewModel.dataStore.setIsLogFileGenerationRunning(false)
                 diagnosticsViewModel.resetLogs(context)
                 AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, settingValueChanged)
-                sharedSettingsViewModel.recreateActivity()
+                sharedSettingsViewModel.recreateActivity(true)
             }
         }
 
@@ -349,7 +349,7 @@ fun DiagnosticsScreen(
                         diagnosticsViewModel.dataStore.setIsLogFileGenerationRunning(false)
                         diagnosticsViewModel.resetLogs(context)
                         AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, settingValueChanged)
-                        sharedSettingsViewModel.recreateActivity()
+                        sharedSettingsViewModel.recreateActivity(true)
                     }
                 },
                 title = stringResource(id = R.string.main_diagnostics_logging_switch),
@@ -488,7 +488,7 @@ fun DiagnosticsScreen(
                                     TYPE_ANNOUNCEMENT,
                                     settingValueChanged,
                                 )
-                                sharedSettingsViewModel.recreateActivity()
+                                sharedSettingsViewModel.recreateActivity(true)
                             },
                         )
                     }
