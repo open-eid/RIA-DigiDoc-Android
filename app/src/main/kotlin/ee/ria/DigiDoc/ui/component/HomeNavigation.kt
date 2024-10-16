@@ -133,7 +133,6 @@ fun HomeNavigation(
                 startDestination = Route.Signature.route,
                 modifier =
                     modifier
-                        .padding(paddingValues)
                         .focusable(),
             ) {
                 composable(Route.Signature.route) {
