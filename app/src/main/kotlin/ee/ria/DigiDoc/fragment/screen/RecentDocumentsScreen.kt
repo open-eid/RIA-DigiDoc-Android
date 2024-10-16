@@ -156,12 +156,11 @@ fun RecentDocumentsScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                },
+                }
+                .testTag("recentDocumentsScreen"),
         topBar = {
             TopBar(
-                modifier =
-                    modifier
-                        .testTag("appBar"),
+                modifier = modifier,
                 title = R.string.recent_documents_title,
                 onBackButtonClick = {
                     navController.navigateUp()

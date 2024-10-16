@@ -72,7 +72,8 @@ fun MenuScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                },
+                }
+                .testTag("menuScreen"),
         topBar = {
             MenuToolbarScreen(
                 modifier = modifier,

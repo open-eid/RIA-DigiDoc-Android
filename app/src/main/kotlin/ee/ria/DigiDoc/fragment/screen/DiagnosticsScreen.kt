@@ -131,12 +131,11 @@ fun DiagnosticsScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                },
+                }
+                .testTag("diagnosticsScreen"),
         topBar = {
             TopBar(
-                modifier =
-                    modifier
-                        .testTag("appBar"),
+                modifier = modifier,
                 title = R.string.main_diagnostics_title,
                 onBackButtonClick = {
                     navController.navigateUp()

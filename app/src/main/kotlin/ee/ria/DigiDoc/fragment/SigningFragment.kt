@@ -43,9 +43,7 @@ fun SigningFragment(
     ) {
         SigningScreen(
             navController = navController,
-            modifier =
-                modifier
-                    .testTag("signingScreen"),
+            modifier = modifier,
             sharedContainerViewModel = sharedContainerViewModel,
             sharedSignatureViewModel = sharedSignatureViewModel,
         )

@@ -38,9 +38,7 @@ fun InfoFragment(
     ) {
         InfoScreen(
             navController = navController,
-            modifier =
-                modifier
-                    .testTag("infoScreen"),
+            modifier = modifier,
         )
     }
 }

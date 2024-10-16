@@ -32,9 +32,7 @@ fun RootFragment(modifier: Modifier = Modifier) {
         color = MaterialTheme.colorScheme.background,
     ) {
         RootScreen(
-            modifier =
-                modifier
-                    .testTag("rootScreen"),
+            modifier = modifier,
         )
     }
 }

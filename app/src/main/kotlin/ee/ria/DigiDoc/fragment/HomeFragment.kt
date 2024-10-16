@@ -53,9 +53,7 @@ fun HomeFragment(
         color = MaterialTheme.colorScheme.background,
     ) {
         HomeScreen(
-            modifier =
-                modifier
-                    .testTag("homeScreen"),
+            modifier = modifier,
             navController = navBarNavController,
             onClickToMenuScreen = {
                 navController.navigate(

@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -71,7 +72,8 @@ fun AddSignatureView(
                 modifier
                     .fillMaxHeight()
                     .wrapContentWidth()
-                    .padding(itemSpacingPadding),
+                    .padding(itemSpacingPadding)
+                    .testTag("addSignatureView"),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {

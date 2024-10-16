@@ -54,12 +54,11 @@ fun InfoScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                },
+                }
+                .testTag("infoScreen"),
         topBar = {
             TopBar(
-                modifier =
-                    modifier
-                        .testTag("appBar"),
+                modifier = modifier,
                 title = R.string.main_about_title,
                 onBackButtonClick = {
                     navController.navigateUp()

@@ -41,9 +41,7 @@ fun DiagnosticsFragment(
     ) {
         DiagnosticsScreen(
             navController = navController,
-            modifier =
-                modifier
-                    .testTag("diagnosticsScreen"),
+            modifier = modifier,
             sharedSettingsViewModel = sharedSettingsViewModel,
         )
     }

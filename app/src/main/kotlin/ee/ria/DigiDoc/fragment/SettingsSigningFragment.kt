@@ -41,9 +41,7 @@ fun SettingsSigningFragment(
     ) {
         SettingsSigningScreen(
             navController = navController,
-            modifier =
-                modifier
-                    .testTag("settingsSigningScreen"),
+            modifier = modifier,
             sharedCertificateViewModel = sharedCertificateViewModel,
         )
     }

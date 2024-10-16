@@ -41,9 +41,7 @@ fun FileOpeningFragment(
     ) {
         FileOpeningScreen(
             navController = navController,
-            modifier =
-                modifier
-                    .testTag("fileOpeningScreen"),
+            modifier = modifier,
             sharedContainerViewModel = sharedContainerViewModel,
         )
     }

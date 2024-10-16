@@ -51,12 +51,11 @@ fun SettingsScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                },
+                }
+                .testTag("settingsScreen"),
         topBar = {
             TopBar(
-                modifier =
-                    modifier
-                        .testTag("appBar"),
+                modifier = modifier,
                 title = R.string.main_settings_title,
                 onBackButtonClick = {
                     navController.navigateUp()

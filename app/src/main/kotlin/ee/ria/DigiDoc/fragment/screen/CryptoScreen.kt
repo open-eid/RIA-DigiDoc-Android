@@ -12,8 +12,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -21,13 +25,21 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CryptoScreen(navController: NavController) {
     val context = LocalContext.current
     val activity = (context as Activity)
     markAsSecure(context, activity.window)
     Column(
-        modifier = Modifier.fillMaxSize().padding(screenViewLargePadding),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(screenViewLargePadding)
+                .semantics {
+                    testTagsAsResourceId = true
+                }
+                .testTag("cryptoScreen"),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {

@@ -73,13 +73,12 @@ fun CertificateDetailsView(
                     .focusGroup()
                     .semantics {
                         testTagsAsResourceId = true
-                    },
+                    }
+                    .testTag("certificateDetailsView"),
         ) {
             Column {
                 TopBar(
-                    modifier =
-                        modifier
-                            .testTag("appBar"),
+                    modifier = modifier,
                     title = R.string.certificate_details_title,
                     onBackButtonClick = {
                         handleBackButtonClick(navController, sharedCertificateViewModel)

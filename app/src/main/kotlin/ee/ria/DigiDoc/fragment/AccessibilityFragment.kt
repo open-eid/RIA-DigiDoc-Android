@@ -38,9 +38,7 @@ fun AccessibilityFragment(
     ) {
         AccessibilityScreen(
             navController = navController,
-            modifier =
-                modifier
-                    .testTag("accessibilityFragment"),
+            modifier = modifier,
         )
     }
 }
