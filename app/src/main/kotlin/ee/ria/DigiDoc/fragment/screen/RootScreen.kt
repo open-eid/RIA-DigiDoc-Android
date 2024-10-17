@@ -23,6 +23,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 
@@ -62,6 +63,7 @@ fun RootScreen(modifier: Modifier = Modifier) {
                             .testTag("rootDevice"),
                     textAlign = TextAlign.Center,
                 )
+                InvisibleElement(modifier = modifier)
             }
         }
     }

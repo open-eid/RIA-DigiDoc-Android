@@ -27,6 +27,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.settings.SettingsItem
+import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
 import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
@@ -112,6 +113,7 @@ fun SettingsScreen(
                     showMessage(context, R.string.main_settings_use_default_settings_message)
                 },
             )
+            InvisibleElement(modifier = modifier)
         }
     }
 }

@@ -72,6 +72,7 @@ import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN_MAX_LENGTH
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
+import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.theme.Blue500
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
@@ -225,6 +226,7 @@ fun NFCView(
                         nfcViewModel.cancelNFCWorkRequest(signedContainer)
                     },
                 )
+                InvisibleElement(modifier = modifier)
             }
         }
     }

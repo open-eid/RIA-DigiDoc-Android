@@ -65,6 +65,7 @@ import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
+import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
 import ee.ria.DigiDoc.ui.theme.Blue500
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraExtraLargePadding
@@ -209,6 +210,7 @@ fun MobileIdView(
                         mobileIdViewModel.cancelMobileIdWorkRequest(signedContainer)
                     },
                 )
+                InvisibleElement(modifier = modifier)
             }
         }
     }

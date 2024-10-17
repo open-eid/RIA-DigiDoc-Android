@@ -28,6 +28,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.DynamicText
+import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewSmallPadding
@@ -253,6 +254,7 @@ fun AccessibilityScreen(
                         .testTag("mainAccessibilityIntroductionScreenMagnificationToolsAndroid"),
                 text = stringResource(R.string.main_accessibility_introduction_screen_magnification_tools_android),
             )
+            InvisibleElement(modifier = modifier)
         }
     }
 }

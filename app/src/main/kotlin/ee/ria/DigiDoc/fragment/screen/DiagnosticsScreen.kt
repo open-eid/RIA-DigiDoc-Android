@@ -47,6 +47,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
 import ee.ria.DigiDoc.ui.component.shared.DiagnosticsText
 import ee.ria.DigiDoc.ui.component.shared.HrefMessageDialog
+import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
 import ee.ria.DigiDoc.ui.component.shared.SpannableBoldText
 import ee.ria.DigiDoc.ui.component.signing.TopBar
@@ -490,9 +491,11 @@ fun DiagnosticsScreen(
                                 sharedSettingsViewModel.recreateActivity(true)
                             },
                         )
+                        InvisibleElement(modifier = modifier)
                     }
                 }
             }
+            InvisibleElement(modifier = modifier)
         }
     }
 }

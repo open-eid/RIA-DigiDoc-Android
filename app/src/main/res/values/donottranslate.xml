@@ -6,6 +6,7 @@
     <string name="main_home_menu_locale_et">Eesti</string>
     <string name="main_home_menu_locale_ru">Русский</string>
     <string name="main_home_menu_locale_en">English</string>
+    <string name="last_invisible_element_name">Invisible element</string>
 
     <!-- Main About -->
     <string name="main_about_libdigidocpp_title">libdigidocpp</string>

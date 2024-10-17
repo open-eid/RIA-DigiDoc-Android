@@ -34,6 +34,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.menu.LanguageSwitchRadioGroup
 import ee.ria.DigiDoc.ui.component.menu.MenuItem
 import ee.ria.DigiDoc.ui.component.menu.MenuToolbarScreen
+import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
@@ -152,6 +153,7 @@ fun MenuScreen(
             LanguageSwitchRadioGroup(
                 selectedRadioItem = locale.language,
             )
+            InvisibleElement(modifier = modifier)
         }
     }
 }

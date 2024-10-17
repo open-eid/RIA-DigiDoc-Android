@@ -42,6 +42,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES
+import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
@@ -123,6 +124,10 @@ fun RecentDocumentsScreen(
     val documentRemovalCancelled = stringResource(id = R.string.document_removal_cancelled)
     val removeSignatureDialogTitle =
         stringResource(id = R.string.recent_documents_remove_confirmation_message)
+    val removeSignatureCancelButtonContentDescription =
+        stringResource(id = R.string.signature_update_cancel_signature_removal_button)
+    val removeSignatureOkButtonContentDescription =
+        stringResource(id = R.string.signature_update_confirm_signature_removal_button)
     val closeDocumentDialog = {
         openRemoveDocumentDialog.value = false
     }
@@ -261,10 +266,14 @@ fun RecentDocumentsScreen(
                                 closeDocumentDialog()
                                 AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, documentRemoved)
                             },
+                            cancelButtonContentDescription = removeSignatureCancelButtonContentDescription,
+                            okButtonContentDescription = removeSignatureOkButtonContentDescription,
                         )
+                        InvisibleElement(modifier = modifier)
                     }
                 }
             }
+            InvisibleElement(modifier = modifier)
         }
 
         SivaConfirmationDialog(

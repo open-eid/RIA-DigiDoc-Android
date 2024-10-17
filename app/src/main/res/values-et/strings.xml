@@ -121,6 +121,8 @@
     <string name="signature_update_signature_chosen_method_smart_id">Smart-ID allkirjastamise vahend valitud</string>
     <string name="signature_update_signature_chosen_method_id_card">ID-kaart allkirjastamise vahend valitud</string>
 
+    <string name="signature_update_cancel_signature_removal_button">Katkesta allkirja eemaldamine</string>
+    <string name="signature_update_confirm_signature_removal_button">Kinnita allkirja eemaldamine</string>
     <string name="signature_update_signature_remove_confirmation_message">Soovid eemaldada allkirja?</string>
 
     <string name="signature_update_signature_role_and_address_title">ROLL JA AADRESS</string>

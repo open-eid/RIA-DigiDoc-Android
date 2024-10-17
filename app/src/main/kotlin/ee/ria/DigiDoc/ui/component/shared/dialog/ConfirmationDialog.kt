@@ -14,6 +14,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import ee.ria.DigiDoc.ui.component.shared.HrefMessageDialog
+import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,6 +51,7 @@ fun ConfirmationDialog(
                     cancelButtonClick = onDismiss,
                     okButtonClick = onConfirm,
                 )
+                InvisibleElement(modifier = modifier)
             }
         }
     }
