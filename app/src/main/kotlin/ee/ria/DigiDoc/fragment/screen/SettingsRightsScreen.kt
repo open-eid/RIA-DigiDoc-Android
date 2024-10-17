@@ -28,6 +28,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
+import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
@@ -101,6 +102,7 @@ fun SettingsRightsScreen(
                 title = stringResource(id = R.string.main_settings_allow_screenshots_title),
                 contentDescription = stringResource(id = R.string.main_settings_allow_screenshots_title).lowercase(),
             )
+            InvisibleElement(modifier = modifier)
         }
     }
 }

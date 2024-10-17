@@ -34,6 +34,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.info.InfoComponent
 import ee.ria.DigiDoc.ui.component.info.InfoComponentItem
 import ee.ria.DigiDoc.ui.component.shared.DynamicText
+import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
@@ -149,6 +150,7 @@ fun InfoScreen(
                     licenseUrl = componentItem.licenseUrl,
                 )
             }
+            InvisibleElement(modifier = modifier)
         }
     }
 }

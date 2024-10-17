@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,7 +27,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
@@ -80,6 +83,7 @@ import ee.ria.DigiDoc.ui.component.ContainerFile
 import ee.ria.DigiDoc.ui.component.ContainerName
 import ee.ria.DigiDoc.ui.component.settings.EditValueDialog
 import ee.ria.DigiDoc.ui.component.shared.ContainerMessage
+import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
 import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
@@ -166,6 +170,10 @@ fun SigningNavigation(
     }
     var removeFileDialogTitle =
         stringResource(id = R.string.document_remove_confirmation_message)
+    val removeFileCancelButtonContentDescription =
+        stringResource(id = R.string.document_cancel_removal_button)
+    val removeFileOkButtonContentDescription =
+        stringResource(id = R.string.document_confirm_removal_button)
     if ((signedContainer?.rawContainer()?.dataFiles()?.size ?: 0) == 1) {
         removeFileDialogTitle =
             stringResource(id = R.string.document_remove_last_confirmation_message)
@@ -204,6 +212,10 @@ fun SigningNavigation(
         stringResource(id = R.string.signature_removal_cancelled)
     val removeSignatureDialogTitle =
         stringResource(id = R.string.signature_update_signature_remove_confirmation_message)
+    val removeSignatureCancelButtonContentDescription =
+        stringResource(id = R.string.signature_update_cancel_signature_removal_button)
+    val removeSignatureOkButtonContentDescription =
+        stringResource(id = R.string.signature_update_confirm_signature_removal_button)
 
     val closeSignatureDialog = {
         openRemoveSignatureDialog.value = false
@@ -237,6 +249,8 @@ fun SigningNavigation(
     val showDataFilesLoadingIndicator = remember { mutableStateOf(false) }
     val dataFilesLoading = stringResource(id = R.string.container_files_loading)
     val dataFilesLoaded = stringResource(id = R.string.container_files_loaded)
+
+    val listState = rememberLazyListState()
 
     BackHandler {
         handleBackButtonClick(navController, signingViewModel, sharedContainerViewModel)
@@ -535,8 +549,8 @@ fun SigningNavigation(
                 }
 
                 LazyColumn(
-                    modifier =
-                    modifier,
+                    state = listState,
+                    modifier = modifier.testTag("lazyColumnScrollView"),
                 ) {
                     item {
                         signedContainerName = signedContainer?.getName() ?: ""
@@ -638,6 +652,7 @@ fun SigningNavigation(
                         } else {
                             items(dataFiles) { dataFile ->
                                 ContainerFile(
+                                    modifier = modifier,
                                     dataFile = dataFile,
                                     showRemoveButton =
                                         signingViewModel.isContainerWithoutSignatures(
@@ -804,6 +819,7 @@ fun SigningNavigation(
                             container.getTimestamps()?.let { timestamps ->
                                 items(timestamps) { signature ->
                                     SignatureComponent(
+                                        modifier = modifier,
                                         signature = signature,
                                         signingViewModel = signingViewModel,
                                         showRemoveButton =
@@ -909,6 +925,7 @@ fun SigningNavigation(
                             } else {
                                 items(signatures) { signature ->
                                     SignatureComponent(
+                                        modifier = modifier,
                                         signature = signature,
                                         signingViewModel = signingViewModel,
                                         showRemoveButton =
@@ -985,6 +1002,14 @@ fun SigningNavigation(
                             }
                         }
                     }
+                    item {
+                        Spacer(
+                            modifier = modifier.height(dividerHeight),
+                        )
+                        if (listState.reachedBottom()) {
+                            InvisibleElement(modifier = modifier)
+                        }
+                    }
                 }
             }
             if (openEditContainerNameDialog.value) {
@@ -1029,6 +1054,7 @@ fun SigningNavigation(
                                 )
                             },
                         )
+                        InvisibleElement(modifier = modifier)
                     }
                 }
             }
@@ -1079,7 +1105,10 @@ fun SigningNavigation(
                                 closeRemoveFileDialog()
                                 AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, fileRemoved)
                             },
+                            cancelButtonContentDescription = removeFileCancelButtonContentDescription,
+                            okButtonContentDescription = removeFileOkButtonContentDescription,
                         )
+                        InvisibleElement(modifier = modifier)
                     }
                 }
             }
@@ -1117,7 +1146,10 @@ fun SigningNavigation(
                                 closeSignatureDialog()
                                 AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signatureRemoved)
                             },
+                            cancelButtonContentDescription = removeSignatureCancelButtonContentDescription,
+                            okButtonContentDescription = removeSignatureOkButtonContentDescription,
                         )
+                        InvisibleElement(modifier = modifier)
                     }
                 }
             }
@@ -1169,6 +1201,13 @@ private fun saveFile(
     } catch (e: ActivityNotFoundException) {
         // No activity to handle this kind of files
     }
+}
+
+private fun LazyListState.reachedBottom(): Boolean {
+    val lastVisibleItem = this.layoutInfo.visibleItemsInfo.lastOrNull()
+    return lastVisibleItem?.index != 0 &&
+        this.layoutInfo.totalItemsCount > 5 &&
+        lastVisibleItem?.index == this.layoutInfo.totalItemsCount - 1
 }
 
 @Preview(showBackground = true)

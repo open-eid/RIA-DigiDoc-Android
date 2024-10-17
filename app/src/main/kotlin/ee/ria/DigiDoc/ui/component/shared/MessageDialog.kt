@@ -21,6 +21,8 @@ fun MessageDialog(
     title: String,
     cancelButtonClick: () -> Unit = {},
     okButtonClick: () -> Unit = {},
+    cancelButtonContentDescription: String = stringResource(id = R.string.cancel_button).lowercase(),
+    okButtonContentDescription: String = stringResource(id = R.string.ok_button).lowercase(),
 ) {
     Column(
         modifier = modifier.padding(screenViewLargePadding),
@@ -38,8 +40,8 @@ fun MessageDialog(
             okButtonClick = okButtonClick,
             cancelButtonTitle = R.string.cancel_button,
             okButtonTitle = R.string.ok_button,
-            cancelButtonContentDescription = stringResource(id = R.string.cancel_button).lowercase(),
-            okButtonContentDescription = stringResource(id = R.string.ok_button).lowercase(),
+            cancelButtonContentDescription = cancelButtonContentDescription,
+            okButtonContentDescription = okButtonContentDescription,
         )
     }
 }

@@ -121,6 +121,8 @@
     <string name="signature_update_signature_chosen_method_smart_id">Signing method Smart-ID, selected</string>
     <string name="signature_update_signature_chosen_method_id_card">Signing method ID-Card, selected</string>
 
+    <string name="signature_update_cancel_signature_removal_button">Cancel signature removal</string>
+    <string name="signature_update_confirm_signature_removal_button">Confirm signature removal</string>
     <string name="signature_update_signature_remove_confirmation_message">Remove signature from container?</string>
 
     <string name="signature_update_signature_role_and_address_title">ROLE AND ADDRESS</string>

@@ -28,6 +28,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.ui.component.shared.DynamicText
 import ee.ria.DigiDoc.ui.component.shared.ExpandableButton
+import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.TagBadge
 import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
@@ -202,6 +203,8 @@ fun SignerDetailsView(
                                     )
                                 }
                             }
+
+                        InvisibleElement(modifier = modifier)
                     }
                 }
             }

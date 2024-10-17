@@ -55,7 +55,8 @@ fun ContainerName(
                     .weight(1f)
                     .semantics(mergeDescendants = true) {
                         this.contentDescription = "$containerTitle ${formatNumbers(name).lowercase()}"
-                    },
+                    }
+                    .testTag("signatureUpdateListName"),
         ) {
             Text(
                 text = stringResource(id = R.string.container_title),
@@ -64,10 +65,7 @@ fun ContainerName(
                 text = name,
                 textColor = Black.toArgb(),
                 maxLines = 4,
-                modifier =
-                    modifier
-                        .fillMaxWidth()
-                        .testTag("signatureUpdateListName"),
+                modifier = modifier.fillMaxWidth(),
             )
         }
 

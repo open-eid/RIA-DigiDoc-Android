@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
 import ee.ria.DigiDoc.ui.theme.Black
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
@@ -117,6 +118,7 @@ fun SignatureScreen(
                 isFocusable = true,
                 isSubButton = true,
             )
+            InvisibleElement(modifier = modifier)
         }
     }
 }

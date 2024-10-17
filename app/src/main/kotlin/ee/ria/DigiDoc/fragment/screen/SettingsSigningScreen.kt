@@ -46,6 +46,7 @@ import ee.ria.DigiDoc.ui.component.settings.SettingsProxyCategoryDialog
 import ee.ria.DigiDoc.ui.component.settings.SettingsSivaCategoryDialog
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
 import ee.ria.DigiDoc.ui.component.settings.SettingsTextField
+import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
@@ -189,6 +190,7 @@ fun SettingsSigningScreen(
                     },
                     settingsSivaServiceUrl = settingsSivaServiceUrl,
                 )
+                InvisibleElement(modifier = modifier)
             }
         }
     }
@@ -273,6 +275,7 @@ fun SettingsSigningScreen(
                         )
                     },
                 )
+                InvisibleElement(modifier = modifier)
             }
         }
     }
@@ -394,6 +397,7 @@ fun SettingsSigningScreen(
                 title = stringResource(id = R.string.main_settings_proxy_title),
                 contentDescription = stringResource(id = R.string.main_settings_proxy_title).lowercase(),
             )
+            InvisibleElement(modifier = modifier)
         }
     }
 }

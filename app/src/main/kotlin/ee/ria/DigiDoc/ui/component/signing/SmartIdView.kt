@@ -67,6 +67,7 @@ import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
+import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.SelectionSpinner
 import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraExtraLargePadding
@@ -204,6 +205,7 @@ fun SmartIdView(
                         smartIdViewModel.cancelSmartIdWorkRequest(signedContainer)
                     },
                 )
+                InvisibleElement(modifier = modifier)
             }
         }
     }
