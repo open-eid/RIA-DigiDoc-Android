@@ -120,6 +120,7 @@ dependencies {
     implementation(libs.firebase.crashlytics.ktx)
     kapt(libs.google.dagger.hilt.android.compile)
     implementation(libs.androidx.hilt)
+    implementation(libs.kotlinx.coroutines.rx3)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockito.kotlin)

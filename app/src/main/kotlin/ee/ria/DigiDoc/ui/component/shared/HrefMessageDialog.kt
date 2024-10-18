@@ -20,10 +20,12 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 fun HrefMessageDialog(
     modifier: Modifier = Modifier,
     @StringRes text1: Int,
-    @StringRes text2: Int,
+    @StringRes text1Arg: Int? = null,
+    @StringRes text2: Int?,
     @StringRes linkText: Int,
     @StringRes linkUrl: Int,
     showLinkOnOneLine: Boolean = false,
+    showCancelButton: Boolean = true,
     cancelButtonClick: () -> Unit = {},
     okButtonClick: () -> Unit = {},
 ) {
@@ -35,20 +37,23 @@ fun HrefMessageDialog(
                 modifier
                     .fillMaxWidth()
                     .padding(vertical = screenViewLargePadding),
-            text1 = stringResource(text1),
-            text2 = stringResource(text2),
+            text1 = stringResource(text1, text1Arg?.let { stringResource(it) } ?: ""),
+            text2 = text2?.let { stringResource(it) } ?: "",
             linkText = stringResource(linkText),
             linkUrl = stringResource(linkUrl),
             showLinkOnOneLine = showLinkOnOneLine,
             textStyle = MaterialTheme.typography.bodyLarge,
         )
         CancelAndOkButtonRow(
+            okButtonTestTag = "hrefMessageDialogOkButton",
+            cancelButtonTestTag = "hrefMessageDialogCancelButton",
             cancelButtonClick = cancelButtonClick,
             okButtonClick = okButtonClick,
             cancelButtonTitle = R.string.cancel_button,
             okButtonTitle = R.string.ok_button,
             cancelButtonContentDescription = stringResource(id = R.string.cancel_button).lowercase(),
             okButtonContentDescription = stringResource(id = R.string.ok_button).lowercase(),
+            showCancelButton = showCancelButton,
         )
     }
 }

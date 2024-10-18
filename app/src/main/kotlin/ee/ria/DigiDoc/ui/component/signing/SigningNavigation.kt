@@ -320,6 +320,23 @@ fun SigningNavigation(
         }
     }
 
+    LaunchedEffect(sharedContainerViewModel.signedIDCardStatus) {
+        sharedContainerViewModel.signedIDCardStatus.asFlow().collect { status ->
+            status?.let {
+                if (status == true) {
+                    signatures = signedContainer?.getSignatures() ?: emptyList()
+                    withContext(Main) {
+                        signatureAddedSuccess.value = true
+                        AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signatureAddedSuccessText)
+                        delay(5000)
+                        signatureAddedSuccess.value = false
+                        sharedContainerViewModel.setSignedIDCardStatus(null)
+                    }
+                }
+            }
+        }
+    }
+
     LaunchedEffect(signedContainer) {
         signedContainer?.let {
             val pastTime = System.currentTimeMillis()

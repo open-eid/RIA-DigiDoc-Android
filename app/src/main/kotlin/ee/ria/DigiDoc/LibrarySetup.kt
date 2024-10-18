@@ -34,7 +34,7 @@ class LibrarySetup
                 configurationLoader.initConfiguration(context)
             } catch (ex: Exception) {
                 if (ex !is UnknownHostException && ex !is SocketTimeoutException) {
-                    errorLog(logTag, "Unable to initialize configuration", ex)
+                    errorLog(logTag, "Unable to initialize configuration: ", ex)
                     withContext(Dispatchers.Main) {
                         Toast.makeText(
                             context,

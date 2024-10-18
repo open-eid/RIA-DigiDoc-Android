@@ -157,12 +157,16 @@
     <string name="signature_update_mobile_id_status_internal_error">Техническая ошибка</string>
 
     <string name="signature_update_signature_error_message_exceeded_unsuccessful_requests">Не удалось отправить запрос. Превышено количество неудачных запросов с этого IP-адреса. Пожалуйста, попробуйте позже.</string>
-    <string name="signature_update_signature_error_message_invalid_time_slot">Пожалуйста, проверьте время на своем смарт-устройстве. https://www.id.ee/ru/artikkel/oshibka-ria-digidoc-pozhalujsta-proverte-vremya-na-svoem-smart-ustrojstve/</string>
+    <string name="invalid_time_slot_message">Пожалуйста, проверьте время на своем смарт-устройстве.</string>
+    <string name="invalid_time_slot_url">https://www.id.ee/ru/artikkel/oshibka-ria-digidoc-pozhalujsta-proverte-vremya-na-svoem-smart-ustrojstve/</string>
     <string name="signature_update_signature_error_message_certificate_revoked">Сертификат недействителен</string>
+    <string name="id_card_conditional_speech">ID-карты</string>
 
     <string name="no_internet_connection">Пожалуйста проверьте подключение к интернету</string>
     <string name="invalid_ssl_handshake">Не удалось создать SSL канал передачи данных. Проверьте настройки вашего приложения или обновления программного обеспечения.</string>
-    <string name="signature_update_signature_error_message_too_many_requests">Ваш месячный лимит бесплатных подписей для %1$s превышен. https://www.id.ee/ru/artikkel/dlya-uchrezhdenij-v-kotoryh-v-bolshom-obeme-podpisyvayutsya-dokumenty-s-pomoshhyu-digidoc4-klienta/</string>
+    <string name="too_many_requests_message">Ваш месячный лимит бесплатных подписей для %1$s превышен.</string>
+    <string name="too_many_requests_url">https://www.id.ee/ru/artikkel/dlya-uchrezhdenij-v-kotoryh-v-bolshom-obeme-podpisyvayutsya-dokumenty-s-pomoshhyu-digidoc4-klienta/</string>
+    <string name="additional_information">Дополнительная информация</string>
 
     <string name="signature_update_mobile_id_error_unknown">Неизвестная ошибка при подписании с помощю mobiil-ID</string>
     <string name="signature_update_mobile_id_error_local_service_exception">Что-то пошло не так, попробуйте позже</string>
@@ -217,7 +221,17 @@
     <string name="signature_update_smart_id_error_message_access_rights">Не удалось подписать контейнер. Проверьте настройки доступа услуги Smart-ID. https://www.id.ee/ru/artikkel/dlya-uchrezhdenij-v-kotoryh-v-bolshom-obeme-podpisyvayutsya-dokumenty-s-pomoshhyu-digidoc4-klienta/</string>
     <string name="signature_update_smart_id_error_technical_error">Не удалось отправить запрос. Технический сбой услуги Smart-ID. Пожалуйста, попробуйте позже.</string>
 
-    <string name="signature_update_id_card_progress_message_initial">Подключите считыватель карты и вставьте в него Вашу ID-карту</string>
+    <string name="id_card_status_initial_message">Подключите считыватель карты и вставьте в него Вашу ID-карту</string>
+    <string name="id_card_status_reader_detected_message">Обнаружен считыватель карты. Вставьте в него Вашу ID-карту.</string>
+    <string name="id_card_status_card_detected_message">Обнаружена ID-карта. Запрашивается информация…</string>
+    <string name="id_card_sign_message">Готово к подписанию с использованием ID-карты</string>
+    <string name="id_card_sign_data">%1$s %2$s (%3$s)</string>
+    <string name="id_card_sign_pin2">Введите PIN2</string>
+    <string name="id_card_progress_message_signing">Происходит подписание. Пожалуйста, подождите.</string>
+    <string name="id_card_sign_pin2_wrong">Неверный PIN2</string>
+    <string name="id_card_sign_pin2_invalid">Неверный PIN2. У Вас осталось %1$d попыток.</string>
+    <string name="id_card_sign_pin2_invalid_final">Неверный PIN2. У Вас осталась 1 попытка до блокировки Вашего PIN2.</string>
+    <string name="id_card_sign_pin2_locked">PIN2 заблокирован. Зайдите в Мой eID, чтобы разблокировать его.</string>
 
     <string name="sign_button">Подписать</string>
     <string name="share_button">Поделиться</string>

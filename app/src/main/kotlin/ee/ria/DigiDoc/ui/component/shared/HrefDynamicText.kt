@@ -7,6 +7,7 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -37,7 +38,10 @@ fun HrefDynamicText(
     val mEndIndex = mStartIndex + linkText.length
 
     ClickableText(
-        modifier = modifier.fillMaxWidth(),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .testTag("hrefDynamicText"),
         text = annotatedStringWithLinks,
         style = textStyle,
         onClick = {

@@ -1,6 +1,6 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.libdigidoclib.domain.model
+package ee.ria.DigiDoc.common.model
 
 import org.bouncycastle.asn1.x509.CertificatePolicies
 

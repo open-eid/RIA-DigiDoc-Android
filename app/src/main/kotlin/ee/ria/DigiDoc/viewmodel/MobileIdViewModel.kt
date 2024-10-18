@@ -108,7 +108,7 @@ class MobileIdViewModel
                 )
                 .put(
                     MobileCreateSignatureProcessStatus.TOO_MANY_REQUESTS,
-                    R.string.signature_update_signature_error_message_too_many_requests,
+                    R.string.too_many_requests_message,
                 )
                 .put(
                     MobileCreateSignatureProcessStatus.EXCEEDED_UNSUCCESSFUL_REQUESTS,
@@ -120,7 +120,7 @@ class MobileIdViewModel
                 )
                 .put(
                     MobileCreateSignatureProcessStatus.OCSP_INVALID_TIME_SLOT,
-                    R.string.signature_update_signature_error_message_invalid_time_slot,
+                    R.string.invalid_time_slot_message,
                 )
                 .put(
                     MobileCreateSignatureProcessStatus.CERTIFICATE_REVOKED,

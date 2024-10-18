@@ -25,6 +25,7 @@ import ee.ria.DigiDoc.ui.theme.Red500
 @Composable
 fun CancelAndOkButtonRow(
     modifier: Modifier = Modifier,
+    showCancelButton: Boolean = true,
     cancelButtonEnabled: Boolean = true,
     okButtonEnabled: Boolean = true,
     cancelButtonClick: () -> Unit = {},
@@ -44,20 +45,22 @@ fun CancelAndOkButtonRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
-        PrimaryButton(
-            enabled = cancelButtonEnabled,
-            modifier =
-                modifier
-                    .weight(1f)
-                    .testTag(cancelButtonTestTag),
-            isSubButton = true,
-            title = cancelButtonTitle,
-            contentDescription = cancelButtonContentDescription,
-            containerColor = MaterialTheme.colorScheme.background,
-            contentColor = Red500,
-            onClickItem = cancelButtonClick,
-        )
-        Spacer(modifier = modifier.padding(itemSpacingPadding))
+        if (showCancelButton) {
+            PrimaryButton(
+                enabled = cancelButtonEnabled,
+                modifier =
+                    modifier
+                        .weight(1f)
+                        .testTag(cancelButtonTestTag),
+                isSubButton = true,
+                title = cancelButtonTitle,
+                contentDescription = cancelButtonContentDescription,
+                containerColor = MaterialTheme.colorScheme.background,
+                contentColor = Red500,
+                onClickItem = cancelButtonClick,
+            )
+            Spacer(modifier = modifier.padding(itemSpacingPadding))
+        }
         PrimaryButton(
             enabled = okButtonEnabled,
             modifier =
@@ -81,6 +84,7 @@ fun CancelAndOkButtonRowPreview() {
             okButtonTitle = R.string.sign_button,
             cancelButtonContentDescription = stringResource(id = R.string.cancel_button),
             okButtonContentDescription = stringResource(id = R.string.sign_button),
+            showCancelButton = false,
         )
     }
 }

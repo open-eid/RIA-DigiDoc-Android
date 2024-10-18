@@ -1,8 +1,7 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.libdigidoclib.domain.model
+package ee.ria.DigiDoc.common.model
 
-import okio.ByteString
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.asn1.x500.style.BCStyle
 import org.bouncycastle.cert.X509CertificateHolder
@@ -13,8 +12,8 @@ data class Certificate(
 ) {
     companion object {
         @Throws(IOException::class)
-        fun create(data: ByteString): Certificate {
-            val certificate = X509CertificateHolder(data.toByteArray())
+        fun create(data: ByteArray): Certificate {
+            val certificate = X509CertificateHolder(data)
 
             val rdNs = certificate.subject.getRDNs(ASN1ObjectIdentifier.getInstance(BCStyle.CN))
             val commonName = rdNs[0].first.value.toString().trim { it <= ' ' }
