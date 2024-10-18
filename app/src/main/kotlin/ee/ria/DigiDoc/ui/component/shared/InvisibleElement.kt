@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.ui.component.shared
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,7 +12,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import ee.ria.DigiDoc.R.string.last_invisible_element_name
 import ee.ria.DigiDoc.ui.theme.Dimensions.dividerHeight
-import ee.ria.DigiDoc.utils.extensions.notAccessible
 
 @Composable
 fun InvisibleElement(modifier: Modifier = Modifier) {
@@ -21,7 +21,7 @@ fun InvisibleElement(modifier: Modifier = Modifier) {
             modifier
                 .height(dividerHeight)
                 .alpha(0f)
-                .notAccessible()
+                .focusable(false)
                 .testTag("lastInvisibleElement"),
     )
 }

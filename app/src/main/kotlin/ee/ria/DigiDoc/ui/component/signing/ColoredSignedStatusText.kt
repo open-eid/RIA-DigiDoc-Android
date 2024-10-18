@@ -35,7 +35,9 @@ fun ColoredSignedStatusText(
     val tagContentColor = if (isSignatureValidOrWarning) Green800 else Red800
     val additionalTextColor = if (status == ValidatorInterface.Status.Valid) Red800 else Yellow800
 
-    FlowRow {
+    FlowRow(
+        modifier = modifier,
+    ) {
         TagBadge(
             text = parts[0],
             backgroundColor = tagBackgroundColor,

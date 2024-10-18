@@ -90,7 +90,8 @@ fun RolesDetailsView(
                                     .fillMaxWidth()
                                     .semantics(mergeDescendants = true) {
                                         this.contentDescription = "$roleTitle $roleValue"
-                                    },
+                                    }
+                                    .testTag("signatureUpdateRoleDetailLabel"),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
@@ -106,8 +107,7 @@ fun RolesDetailsView(
                                     modifier =
                                         modifier
                                             .graphicsLayer(alpha = 0.7f)
-                                            .notAccessible()
-                                            .testTag("signatureUpdateRoleDetailLabel"),
+                                            .notAccessible(),
                                 )
                             }
                         }
@@ -120,7 +120,8 @@ fun RolesDetailsView(
                                     .fillMaxWidth()
                                     .semantics(mergeDescendants = true) {
                                         this.contentDescription = "$cityTitle $cityValue"
-                                    },
+                                    }
+                                    .testTag("signatureUpdateRoleCityDetailLabel"),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
@@ -136,8 +137,7 @@ fun RolesDetailsView(
                                     modifier =
                                         modifier
                                             .graphicsLayer(alpha = 0.7f)
-                                            .notAccessible()
-                                            .testTag("signatureUpdateRoleCityDetailLabel"),
+                                            .notAccessible(),
                                 )
                             }
                         }
@@ -150,7 +150,8 @@ fun RolesDetailsView(
                                     .fillMaxWidth()
                                     .semantics(mergeDescendants = true) {
                                         this.contentDescription = "$stateTitle $stateValue"
-                                    },
+                                    }
+                                    .testTag("signatureUpdateRoleStateDetailLabel"),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
@@ -166,8 +167,7 @@ fun RolesDetailsView(
                                     modifier =
                                         modifier
                                             .graphicsLayer(alpha = 0.7f)
-                                            .notAccessible()
-                                            .testTag("signatureUpdateRoleStateDetailLabel"),
+                                            .notAccessible(),
                                 )
                             }
                         }
@@ -180,7 +180,8 @@ fun RolesDetailsView(
                                     .fillMaxWidth()
                                     .semantics(mergeDescendants = true) {
                                         this.contentDescription = "$countryTitle $countryValue"
-                                    },
+                                    }
+                                    .testTag("signatureUpdateRoleCountryDetailLabel"),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
@@ -196,8 +197,7 @@ fun RolesDetailsView(
                                     modifier =
                                         modifier
                                             .graphicsLayer(alpha = 0.7f)
-                                            .notAccessible()
-                                            .testTag("signatureUpdateRoleCountryDetailLabel"),
+                                            .notAccessible(),
                                 )
                             }
                         }
@@ -210,7 +210,8 @@ fun RolesDetailsView(
                                     .fillMaxWidth()
                                     .semantics(mergeDescendants = true) {
                                         this.contentDescription = "$zipTitle ${formatNumbers(zipValue)}"
-                                    },
+                                    }
+                                    .testTag("signatureUpdateRoleZipDetailLabel"),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
@@ -226,8 +227,7 @@ fun RolesDetailsView(
                                     modifier =
                                         modifier
                                             .graphicsLayer(alpha = 0.7f)
-                                            .notAccessible()
-                                            .testTag("signatureUpdateRoleZipDetailLabel"),
+                                            .notAccessible(),
                                 )
                             }
                         }

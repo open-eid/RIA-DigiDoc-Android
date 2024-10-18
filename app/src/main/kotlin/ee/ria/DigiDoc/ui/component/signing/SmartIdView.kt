@@ -53,6 +53,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
@@ -77,7 +78,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewSmallPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
-import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.SmartIdViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
@@ -259,7 +259,7 @@ fun SmartIdView(
                 modifier =
                     modifier
                         .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .notAccessible()
+                        .focusable(false)
                         .testTag("signatureUpdateRoleLabel"),
             )
             TextField(
@@ -268,10 +268,11 @@ fun SmartIdView(
                         .fillMaxWidth()
                         .padding(bottom = screenViewSmallPadding)
                         .clearAndSetSemantics {
+                            testTagsAsResourceId = true
+                            testTag = "signatureUpdateRoleText"
                             this.contentDescription =
                                 "$roleLabel ${rolesAndResolutionsText.text}"
-                        }
-                        .testTag("signatureUpdateRoleText"),
+                        },
                 value = rolesAndResolutionsText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -292,7 +293,7 @@ fun SmartIdView(
                 modifier =
                     modifier
                         .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .notAccessible()
+                        .focusable(false)
                         .testTag("signatureUpdateRoleCityLabel"),
             )
             TextField(
@@ -301,10 +302,11 @@ fun SmartIdView(
                         .fillMaxWidth()
                         .padding(bottom = screenViewSmallPadding)
                         .clearAndSetSemantics {
+                            testTagsAsResourceId = true
+                            testTag = "signatureUpdateRoleCityText"
                             this.contentDescription =
                                 "$cityLabel ${cityText.text}"
-                        }
-                        .testTag("signatureUpdateRoleCityText"),
+                        },
                 value = cityText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -325,7 +327,7 @@ fun SmartIdView(
                 modifier =
                     modifier
                         .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .notAccessible()
+                        .focusable(false)
                         .testTag("signatureUpdateRoleStateLabel"),
             )
             TextField(
@@ -334,10 +336,11 @@ fun SmartIdView(
                         .fillMaxWidth()
                         .padding(bottom = screenViewSmallPadding)
                         .clearAndSetSemantics {
+                            testTagsAsResourceId = true
+                            testTag = "signatureUpdateRoleStateText"
                             this.contentDescription =
                                 "$stateLabel ${stateText.text}"
-                        }
-                        .testTag("signatureUpdateRoleStateText"),
+                        },
                 value = stateText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -358,7 +361,7 @@ fun SmartIdView(
                 modifier =
                     modifier
                         .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .notAccessible()
+                        .focusable(false)
                         .testTag("signatureUpdateRoleCountryLabel"),
             )
             TextField(
@@ -367,10 +370,11 @@ fun SmartIdView(
                         .fillMaxWidth()
                         .padding(bottom = screenViewSmallPadding)
                         .clearAndSetSemantics {
+                            testTagsAsResourceId = true
+                            testTag = "signatureUpdateRoleCountryText"
                             this.contentDescription =
                                 "$countryLabel ${countryText.text}"
-                        }
-                        .testTag("signatureUpdateRoleCountryText"),
+                        },
                 value = countryText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -391,7 +395,7 @@ fun SmartIdView(
                 modifier =
                     modifier
                         .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .notAccessible()
+                        .focusable(false)
                         .testTag("signatureUpdateRoleZipLabel"),
             )
             TextField(
@@ -400,10 +404,11 @@ fun SmartIdView(
                         .fillMaxWidth()
                         .padding(bottom = screenViewSmallPadding)
                         .clearAndSetSemantics {
+                            testTagsAsResourceId = true
+                            testTag = "signatureUpdateRoleZipText"
                             this.contentDescription =
                                 "$zipLabel ${formatNumbers(zipText.text)}"
-                        }
-                        .testTag("signatureUpdateRoleZipText"),
+                        },
                 value = zipText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -447,7 +452,7 @@ fun SmartIdView(
                 modifier =
                     modifier
                         .padding(vertical = screenViewLargePadding)
-                        .notAccessible()
+                        .focusable(false)
                         .testTag("signatureUpdateSmartIdCountryLabel"),
             )
             SelectionSpinner(
@@ -473,7 +478,7 @@ fun SmartIdView(
                             top = screenViewExtraLargePadding,
                             bottom = screenViewLargePadding,
                         )
-                        .notAccessible()
+                        .focusable(false)
                         .testTag("signatureUpdateSmartIdPersonalCodeLabel"),
             )
             val personalCodeErrorText =
@@ -492,6 +497,8 @@ fun SmartIdView(
                         .fillMaxWidth()
                         .padding(bottom = screenViewLargePadding)
                         .clearAndSetSemantics {
+                            testTagsAsResourceId = true
+                            testTag = "signatureUpdateSmartIdPersonalCode"
                             this.contentDescription =
                                 "$smartIdPersonalCodeLabel " +
                                 "${formatNumbers(personalCodeText.text)} "

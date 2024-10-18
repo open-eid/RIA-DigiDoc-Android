@@ -53,6 +53,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
@@ -281,7 +282,7 @@ fun NFCView(
                 modifier =
                     modifier
                         .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .notAccessible()
+                        .focusable(false)
                         .testTag("signatureUpdateRoleLabel"),
             )
             TextField(
@@ -290,10 +291,11 @@ fun NFCView(
                         .fillMaxWidth()
                         .padding(bottom = screenViewSmallPadding)
                         .clearAndSetSemantics {
+                            testTagsAsResourceId = true
+                            testTag = "signatureUpdateRoleText"
                             this.contentDescription =
                                 "$roleLabel ${rolesAndResolutionsText.text}"
-                        }
-                        .testTag("signatureUpdateRoleText"),
+                        },
                 value = rolesAndResolutionsText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -314,7 +316,7 @@ fun NFCView(
                 modifier =
                     modifier
                         .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .notAccessible()
+                        .focusable(false)
                         .testTag("signatureUpdateRoleCityLabel"),
             )
             TextField(
@@ -323,10 +325,11 @@ fun NFCView(
                         .fillMaxWidth()
                         .padding(bottom = screenViewSmallPadding)
                         .clearAndSetSemantics {
+                            testTagsAsResourceId = true
+                            testTag = "signatureUpdateRoleCityText"
                             this.contentDescription =
                                 "$cityLabel ${cityText.text}"
-                        }
-                        .testTag("signatureUpdateRoleCityText"),
+                        },
                 value = cityText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -347,7 +350,7 @@ fun NFCView(
                 modifier =
                     modifier
                         .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .notAccessible()
+                        .focusable(false)
                         .testTag("signatureUpdateRoleStateLabel"),
             )
             TextField(
@@ -356,10 +359,11 @@ fun NFCView(
                         .fillMaxWidth()
                         .padding(bottom = screenViewSmallPadding)
                         .clearAndSetSemantics {
+                            testTagsAsResourceId = true
+                            testTag = "signatureUpdateRoleStateText"
                             this.contentDescription =
                                 "$stateLabel ${stateText.text}"
-                        }
-                        .testTag("signatureUpdateRoleStateText"),
+                        },
                 value = stateText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -380,7 +384,7 @@ fun NFCView(
                 modifier =
                     modifier
                         .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .notAccessible()
+                        .focusable(false)
                         .testTag("signatureUpdateRoleCountryLabel"),
             )
             TextField(
@@ -389,10 +393,11 @@ fun NFCView(
                         .fillMaxWidth()
                         .padding(bottom = screenViewSmallPadding)
                         .clearAndSetSemantics {
+                            testTagsAsResourceId = true
+                            testTag = "signatureUpdateRoleCountryText"
                             this.contentDescription =
                                 "$countryLabel ${countryText.text}"
-                        }
-                        .testTag("signatureUpdateRoleCountryText"),
+                        },
                 value = countryText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -413,7 +418,7 @@ fun NFCView(
                 modifier =
                     modifier
                         .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .notAccessible()
+                        .focusable(false)
                         .testTag("signatureUpdateRoleZipLabel"),
             )
             TextField(
@@ -422,10 +427,11 @@ fun NFCView(
                         .fillMaxWidth()
                         .padding(bottom = screenViewSmallPadding)
                         .clearAndSetSemantics {
+                            testTagsAsResourceId = true
+                            testTag = "signatureUpdateRoleZipText"
                             this.contentDescription =
                                 "$zipLabel ${formatNumbers(zipText.text)}"
-                        }
-                        .testTag("signatureUpdateRoleZipText"),
+                        },
                 value = zipText,
                 shape = RectangleShape,
                 onValueChange = {
@@ -503,7 +509,7 @@ fun NFCView(
                     modifier =
                         modifier
                             .padding(vertical = screenViewLargePadding)
-                            .notAccessible()
+                            .focusable(false)
                             .testTag("signatureUpdateNFCCANLabel"),
                 )
                 val canNumberTextEdited = remember { mutableStateOf(false) }
@@ -525,6 +531,8 @@ fun NFCView(
                         modifier
                             .fillMaxWidth()
                             .clearAndSetSemantics {
+                                testTagsAsResourceId = true
+                                testTag = "signatureUpdateNFCCAN"
                                 contentDescription =
                                     "$canNumberLabel " +
                                     "${formatNumbers(canNumberText.text)} "
@@ -573,7 +581,7 @@ fun NFCView(
                     modifier =
                         modifier
                             .padding(top = screenViewExtraLargePadding, bottom = screenViewLargePadding)
-                            .notAccessible()
+                            .focusable(false)
                             .testTag("signatureUpdateNFCPIN2Label"),
                 )
                 val pin2CodeErrorText =
@@ -602,9 +610,10 @@ fun NFCView(
                             .fillMaxWidth()
                             .padding(bottom = screenViewLargePadding)
                             .clearAndSetSemantics {
+                                testTagsAsResourceId = true
+                                testTag = "signatureUpdateNFCPIN2"
                                 contentDescription = pin2CodeLabel
-                            }
-                            .testTag("signatureUpdateNFCPIN2"),
+                            },
                     value = pin2CodeText,
                     shape = RectangleShape,
                     onValueChange = {

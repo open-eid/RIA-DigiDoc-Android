@@ -82,6 +82,7 @@ fun HomeNavigationBar(
                         )
                         .weight(1f)
                         .semantics {
+                            testTagsAsResourceId = true
                             this.contentDescription = navigationItem.contentDescription
                         }
                         .focusProperties { canFocus = true }
@@ -89,7 +90,6 @@ fun HomeNavigationBar(
                         .focusRequester(buttonFocusRequester)
                         .focusable()
                         .focusGroup()
-                        .clearAndSetSemantics {}
                         .testTag(navigationItem.testTag),
                 alwaysShowLabel = true,
                 colors =

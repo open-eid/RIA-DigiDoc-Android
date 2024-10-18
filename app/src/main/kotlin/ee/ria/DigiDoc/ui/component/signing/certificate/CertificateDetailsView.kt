@@ -254,15 +254,15 @@ fun CertificateDetailsView(
                                                     heading()
                                                 }
                                                 .focusable()
-                                                .focusGroup(),
+                                                .focusGroup()
+                                                .testTag(certificateDetail.testTag),
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically,
                                     ) {
                                         Text(
                                             modifier =
                                                 modifier
-                                                    .notAccessible()
-                                                    .testTag(certificateDetail.testTag),
+                                                    .notAccessible(),
                                             text = certificateDetail.text,
                                             style = MaterialTheme.typography.titleLarge,
                                             fontWeight = FontWeight.Bold,

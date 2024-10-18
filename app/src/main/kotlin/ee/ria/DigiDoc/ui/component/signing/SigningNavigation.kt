@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -461,7 +462,10 @@ fun SigningNavigation(
                 modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .focusGroup(),
+                    .focusGroup()
+                    .semantics {
+                        testTagsAsResourceId = true
+                    },
         ) {
             var actionDataFile by remember { mutableStateOf<DataFileInterface?>(null) }
             var actionSignature by remember { mutableStateOf<SignatureInterface?>(null) }
@@ -495,10 +499,12 @@ fun SigningNavigation(
             }
 
             if (showLoadingScreen.value) {
-                LoadingScreen()
+                LoadingScreen(modifier = modifier)
             }
 
-            Column {
+            Column(
+                modifier = modifier,
+            ) {
                 if (signatureAddedSuccess.value) {
                     ContainerMessage(
                         modifier = modifier,
@@ -817,8 +823,9 @@ fun SigningNavigation(
 
                         signedContainer?.let { container ->
                             container.getTimestamps()?.let { timestamps ->
-                                items(timestamps) { signature ->
+                                itemsIndexed(timestamps) { index, signature ->
                                     SignatureComponent(
+                                        testTag = "signatureUpdateListTimestamps$index",
                                         modifier = modifier,
                                         signature = signature,
                                         signingViewModel = signingViewModel,
@@ -923,8 +930,9 @@ fun SigningNavigation(
                                     }
                                 }
                             } else {
-                                items(signatures) { signature ->
+                                itemsIndexed(signatures) { index, signature ->
                                     SignatureComponent(
+                                        testTag = "signatureUpdateListSignature$index",
                                         modifier = modifier,
                                         signature = signature,
                                         signingViewModel = signingViewModel,
@@ -1031,9 +1039,7 @@ fun SigningNavigation(
                                 .testTag("editContainerNameDialog"),
                     ) {
                         EditValueDialog(
-                            modifier =
-                                modifier
-                                    .testTag("dialogText"),
+                            modifier = modifier,
                             title = stringResource(id = R.string.signature_update_name_update_name),
                             editValue = containerName,
                             onEditValueChange = {
