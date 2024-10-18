@@ -151,6 +151,7 @@ fun MenuScreen(
             )
 
             LanguageSwitchRadioGroup(
+                modifier = modifier,
                 selectedRadioItem = locale.language,
             )
             InvisibleElement(modifier = modifier)

@@ -11,13 +11,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -28,6 +32,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EditValueDialog(
     modifier: Modifier = Modifier,
@@ -38,7 +43,10 @@ fun EditValueDialog(
     okButtonClick: () -> Unit = {},
 ) {
     Column(
-        modifier = modifier.padding(screenViewLargePadding),
+        modifier =
+            modifier
+                .padding(screenViewLargePadding)
+                .testTag("editValueDialog"),
     ) {
         Text(
             modifier =
@@ -56,6 +64,8 @@ fun EditValueDialog(
                 modifier
                     .fillMaxWidth()
                     .clearAndSetSemantics {
+                        testTagsAsResourceId = true
+                        testTag = "editValueDialogTextField"
                         contentDescription =
                             "$title " +
                             "${formatNumbers(editValue.text)} "
@@ -73,12 +83,15 @@ fun EditValueDialog(
                 ),
         )
         CancelAndOkButtonRow(
+            modifier = modifier,
             cancelButtonClick = cancelButtonClick,
             okButtonClick = okButtonClick,
             cancelButtonTitle = R.string.cancel_button,
             okButtonTitle = R.string.ok_button,
             cancelButtonContentDescription = stringResource(id = R.string.cancel_button).lowercase(),
             okButtonContentDescription = stringResource(id = R.string.ok_button).lowercase(),
+            cancelButtonTestTag = "editValueDialogCancelButton",
+            okButtonTestTag = "editValueDialogOkButton",
         )
     }
 }

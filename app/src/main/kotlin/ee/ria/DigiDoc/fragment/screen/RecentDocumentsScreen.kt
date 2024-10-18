@@ -283,7 +283,7 @@ fun RecentDocumentsScreen(
         )
 
         if (showLoading.value) {
-            LoadingScreen()
+            LoadingScreen(modifier = modifier)
         }
     }
 }

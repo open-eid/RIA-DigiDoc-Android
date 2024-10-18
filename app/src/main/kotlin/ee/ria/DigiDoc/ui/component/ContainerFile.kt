@@ -17,6 +17,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.toArgb
@@ -26,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.ui.component.shared.MiddleEllipsizeMultilineText
@@ -39,6 +41,7 @@ import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ContainerFile(
     modifier: Modifier = Modifier,
@@ -66,6 +69,7 @@ fun ContainerFile(
                         .align(Alignment.CenterVertically)
                         .weight(1f)
                         .semantics {
+                            testTagsAsResourceId = true
                             contentDescription = "${fileText.lowercase()} " +
                                 formatNumbers(dataFile.fileName).lowercase()
                         }
@@ -75,7 +79,11 @@ fun ContainerFile(
                     text = dataFile.fileName,
                     textColor = Black.toArgb(),
                     maxLines = 4,
-                    modifier = modifier.fillMaxWidth().notAccessible(),
+                    modifier =
+                        modifier
+                            .fillMaxWidth()
+                            .notAccessible()
+                            .testTag("signatureUpdateListDocumentNameText"),
                 )
             }
 

@@ -18,6 +18,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -26,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import ee.ria.DigiDoc.R
@@ -36,11 +38,11 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
-import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil.getSignatureStatusText
 import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatName
 import ee.ria.DigiDoc.viewmodel.SigningViewModel
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignatureComponent(
     modifier: Modifier = Modifier,
@@ -51,14 +53,18 @@ fun SignatureComponent(
     showRolesDetailsButton: Boolean,
     onRolesDetailsButtonClick: () -> Unit = {},
     onSignerDetailsButtonClick: () -> Unit = {},
+    testTag: String = "",
 ) {
     Row(
         modifier =
             modifier
                 .fillMaxWidth()
                 .padding(horizontal = screenViewLargePadding)
-                .semantics(mergeDescendants = true) {}
-                .focusGroup(),
+                .semantics(mergeDescendants = true) {
+                    testTagsAsResourceId = true
+                }
+                .focusGroup()
+                .testTag(testTag),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -91,6 +97,7 @@ fun SignatureComponent(
             modifier =
                 modifier
                     .semantics(mergeDescendants = true) {
+                        testTagsAsResourceId = true
                         this.contentDescription =
                             "${formatNumbers(nameText)}, $statusText, $roleAndAddress: $roles, $signedTime, $buttonName"
                     }
@@ -102,14 +109,16 @@ fun SignatureComponent(
                 text = nameText,
                 modifier =
                     modifier
-                        .notAccessible()
+                        .focusable(false)
                         .testTag("signatureUpdateListSignatureName"),
                 fontWeight = FontWeight.Bold,
             )
             ColoredSignedStatusText(
                 text = statusText,
                 status = signature.validator.status,
-                modifier = modifier.notAccessible(),
+                modifier =
+                    modifier
+                        .focusable(false),
             )
             if (showRolesDetailsButton) {
                 Text(
@@ -118,7 +127,7 @@ fun SignatureComponent(
                     overflow = TextOverflow.Ellipsis,
                     modifier =
                         modifier
-                            .notAccessible()
+                            .focusable(false)
                             .testTag("signatureUpdateListSignatureRole"),
                 )
             }
@@ -126,7 +135,7 @@ fun SignatureComponent(
                 text = signedTime,
                 modifier =
                     modifier
-                        .notAccessible()
+                        .focusable(false)
                         .testTag("signatureUpdateListSignatureCreatedAt"),
             )
         }

@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.ui.component.signing.certificate
 import android.content.res.Configuration
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,7 +33,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
-import ee.ria.DigiDoc.utils.extensions.notAccessible
 
 @Composable
 fun CertificateDataItem(
@@ -115,7 +115,7 @@ fun CertificateDataItem(
                     text = detailKeyText,
                     modifier =
                         modifier
-                            .notAccessible()
+                            .focusable(false)
                             .testTag(testTag + "Title"),
                 )
                 Text(
@@ -123,7 +123,7 @@ fun CertificateDataItem(
                     modifier =
                         modifier
                             .graphicsLayer(alpha = 0.7f)
-                            .notAccessible()
+                            .focusable(false)
                             .testTag(testTag),
                 )
             }
@@ -136,7 +136,7 @@ fun CertificateDataItem(
                         modifier
                             .padding(start = screenViewLargePadding)
                             .size(iconSize)
-                            .notAccessible()
+                            .focusable(false)
                             .constrainAs(dataItemIcon) {
                                 end.linkTo(parent.end)
                                 top.linkTo(parent.top)

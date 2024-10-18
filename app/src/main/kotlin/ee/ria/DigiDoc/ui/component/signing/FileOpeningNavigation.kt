@@ -214,5 +214,5 @@ fun FileOpeningNavigation(
         onResult = handleResult,
     )
 
-    LoadingScreen()
+    LoadingScreen(modifier = modifier)
 }

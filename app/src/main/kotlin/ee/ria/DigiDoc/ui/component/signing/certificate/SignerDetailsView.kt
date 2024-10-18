@@ -185,6 +185,7 @@ fun SignerDetailsView(
                                 if (!navigationItem.value.isNullOrEmpty()) {
                                     CertificateDataItem(
                                         modifier = modifier,
+                                        testTag = navigationItem.testTag,
                                         detailKey = navigationItem.label,
                                         detailValue = navigationItem.value,
                                         certificate = navigationItem.certificate,
