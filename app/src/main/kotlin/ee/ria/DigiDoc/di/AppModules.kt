@@ -21,6 +21,8 @@ import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepositoryImpl
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepositoryImpl
+import ee.ria.DigiDoc.domain.service.IdCardService
+import ee.ria.DigiDoc.domain.service.IdCardServiceImpl
 import ee.ria.DigiDoc.domain.service.fileopening.FileOpeningService
 import ee.ria.DigiDoc.domain.service.fileopening.FileOpeningServiceImpl
 import ee.ria.DigiDoc.domain.service.siva.SivaService
@@ -126,4 +128,7 @@ class AppModules {
 
     @Provides
     fun provideCrashDetector(crashlytics: FirebaseCrashlytics): CrashDetector = CrashDetectorImpl(crashlytics)
+
+    @Provides
+    fun provideIdCardService(): IdCardService = IdCardServiceImpl()
 }

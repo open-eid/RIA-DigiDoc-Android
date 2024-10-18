@@ -2,9 +2,9 @@
 
 package ee.ria.DigiDoc.libdigidoclib.domain.model
 
+import ee.ria.DigiDoc.common.model.Certificate
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.libdigidocpp.Signature
-import okio.ByteString
 import java.io.IOException
 
 class SignatureWrapper(signature: Signature) : SignatureInterface {
@@ -47,7 +47,7 @@ class SignatureWrapper(signature: Signature) : SignatureInterface {
         var commonName: String?
         try {
             commonName =
-                Certificate.create(ByteString.of(*signature.signingCertificateDer()))
+                Certificate.create(signature.signingCertificateDer())
                     .friendlyName
         } catch (e: IOException) {
             errorLog(logTag, "Can't parse certificate to get CN", e)

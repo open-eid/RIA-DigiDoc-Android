@@ -34,7 +34,7 @@ fun ContainerMessage(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(bottom = itemSpacingPadding)
+                .padding(vertical = itemSpacingPadding)
                 .semantics {
                     testTagsAsResourceId = true
                 },

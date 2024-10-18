@@ -44,6 +44,7 @@ androidx-arch-core-testing = "2.2.0"
 firebaseCrashlytics = "3.0.2"
 googleServices = "4.4.2"
 firebaseCrashlyticsKtx = "19.2.0"
+kotlinxCoroutinesRx3 = "1.9.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -90,6 +91,7 @@ guava = {group = "com.google.guava", name = "guava", version.ref = "guava" }
 core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "coreKtxVersion" }
 androidx-arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "androidx-arch-core-testing" }
 firebase-crashlytics-ktx = { group = "com.google.firebase", name = "firebase-crashlytics-ktx", version.ref = "firebaseCrashlyticsKtx" }
+kotlinx-coroutines-rx3 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-rx3", version.ref = "kotlinxCoroutinesRx3" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

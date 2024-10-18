@@ -54,7 +54,7 @@ class ServiceGeneratorImpl : ServiceGenerator {
     private val logTag = javaClass.simpleName
     private lateinit var loggingInterceptor: HttpLoggingInterceptor
 
-    @Throws(CertificateException::class, NoSuchAlgorithmException::class)
+    @Throws(CertificateException::class, NoSuchAlgorithmException::class, IllegalArgumentException::class)
     override fun createService(
         context: Context,
         sslContext: SSLContext?,

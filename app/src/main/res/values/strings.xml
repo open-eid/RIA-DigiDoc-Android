@@ -151,7 +151,17 @@
     <string name="signature_update_smart_id_error_message_access_rights">Failed to sign container. Check your Smart-ID service access settings. https://www.id.ee/en/article/for-organisations-that-sign-large-quantities-of-documents-using-digidoc4-client/</string>
     <string name="signature_update_smart_id_error_technical_error">Failed to send request. Smart-ID service has encountered technical errors. Please try again later.</string>
 
-    <string name="signature_update_id_card_progress_message_initial">Connect the card reader and insert your ID-card into the reader</string>
+    <string name="id_card_status_initial_message">Connect the card reader and insert your ID-card into the reader.</string>
+    <string name="id_card_status_reader_detected_message">Reader found. Insert your ID-card into the reader.</string>
+    <string name="id_card_status_card_detected_message">ID-card found. Requesting information…</string>
+    <string name="id_card_sign_message">Ready to sign with ID-card</string>
+    <string name="id_card_sign_data">%1$s %2$s (%3$s)</string>
+    <string name="id_card_sign_pin2">Enter PIN2</string>
+    <string name="id_card_progress_message_signing">Signing in progress. Please wait.</string>
+    <string name="id_card_sign_pin2_wrong">Wrong PIN2</string>
+    <string name="id_card_sign_pin2_invalid">Wrong PIN2. You have %1$d attempts left.</string>
+    <string name="id_card_sign_pin2_invalid_final">Wrong PIN2. You have 1 attempt left until your PIN2 is blocked.</string>
+    <string name="id_card_sign_pin2_locked">PIN2 blocked. Go to My eID to unblock it.</string>
 
     <string name="signature_update_mobile_id_invalid_country_code">Invalid country code.</string>
     <string name="signature_update_mobile_id_invalid_phone_number">Phone number is not valid.</string>
@@ -174,12 +184,16 @@
     <string name="signature_update_mobile_id_status_internal_error">Technical error</string>
 
     <string name="signature_update_signature_error_message_exceeded_unsuccessful_requests">Failed to send request. The number of unsuccessful request from this IP address has been exceeded. Please try again later.</string>
-    <string name="signature_update_signature_error_message_invalid_time_slot">Please check your smart device time. https://www.id.ee/en/article/ria-digidoc-error-please-check-your-smart-device-time/</string>
+    <string name="invalid_time_slot_message">Please check your smart device time.</string>
+    <string name="invalid_time_slot_url">https://www.id.ee/en/article/ria-digidoc-error-please-check-your-smart-device-time/</string>
     <string name="signature_update_signature_error_message_certificate_revoked">Certificate status revoked</string>
+    <string name="id_card_conditional_speech">ID-card\'s</string>
 
     <string name="no_internet_connection">Please check your internet connection</string>
     <string name="invalid_ssl_handshake">SSL handshake failed. Check your application settings or software upgrades</string>
-    <string name="signature_update_signature_error_message_too_many_requests">The limit for %1$s digital signatures per month has been reached. https://www.id.ee/en/article/for-organisations-that-sign-large-quantities-of-documents-using-digidoc4-client/</string>
+    <string name="too_many_requests_message">The limit for %1$s digital signatures per month has been reached.</string>
+    <string name="too_many_requests_url">https://www.id.ee/en/article/for-organisations-that-sign-large-quantities-of-documents-using-digidoc4-client/</string>
+    <string name="additional_information">Additional information</string>
 
     <string name="signature_update_mobile_id_error_unknown">Unknown error occurred when signing with mobile-ID</string>
     <string name="signature_update_mobile_id_error_local_service_exception">Something went wrong, try again later</string>

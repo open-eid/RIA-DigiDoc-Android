@@ -173,6 +173,15 @@ class SmartSignServiceImpl
                                 manualProxySettings,
                             )
                     }
+                } catch (iae: IllegalArgumentException) {
+                    errorLog(
+                        logTag,
+                        "Can't create create service. Exception message: ${iae.message}. " +
+                            "Exception: ${iae.stackTrace.contentToString()}",
+                        iae,
+                    )
+                    postFault(ServiceFault(SessionStatusResponseProcessStatus.GENERAL_ERROR))
+                    return
                 } catch (e: CertificateException) {
                     postFault(ServiceFault(SessionStatusResponseProcessStatus.INVALID_SSL_HANDSHAKE))
                     errorLog(

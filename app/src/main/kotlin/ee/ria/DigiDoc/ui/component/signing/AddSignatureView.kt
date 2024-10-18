@@ -109,8 +109,11 @@ fun AddSignatureView(
                 }
                 composable(route = Route.IdCard.route) {
                     IdCardView(
+                        activity = activity,
                         cancelButtonClick = cancelButtonClick,
+                        dismissDialog = dismissDialog,
                         signatureAddController = signatureAddController,
+                        sharedContainerViewModel = sharedContainerViewModel,
                     )
                 }
                 composable(route = Route.NFC.route) {

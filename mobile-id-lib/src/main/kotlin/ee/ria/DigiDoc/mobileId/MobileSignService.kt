@@ -229,6 +229,15 @@ class MobileSignServiceImpl
                         setErrorState(errorString)
                         return
                     }
+                } catch (iae: IllegalArgumentException) {
+                    errorLog(
+                        logTag,
+                        "Can't create create service. Exception message: ${iae.message}. " +
+                            "Exception: ${iae.stackTrace.contentToString()}",
+                        iae,
+                    )
+                    postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.GENERAL_ERROR))
+                    return
                 } catch (e: CertificateException) {
                     errorLog(
                         logTag,

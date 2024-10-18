@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
@@ -37,12 +36,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -69,12 +64,12 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
+import ee.ria.DigiDoc.ui.component.shared.RoleDataView
 import ee.ria.DigiDoc.ui.component.shared.SelectionSpinner
 import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewSmallPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
@@ -83,11 +78,8 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Arrays
-import java.util.stream.Collectors
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -227,208 +219,7 @@ fun SmartIdView(
                 .testTag("signatureUpdateSmartId"),
     ) {
         if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
-            Text(
-                text = stringResource(id = R.string.signature_update_signature_role_and_address_info_title),
-                style = MaterialTheme.typography.titleLarge,
-                modifier =
-                    modifier
-                        .padding(screenViewSmallPadding)
-                        .semantics {
-                            heading()
-                        }
-                        .focusRequester(focusRequester)
-                        .focusable(enabled = true)
-                        .focusTarget()
-                        .focusProperties { canFocus = true }
-                        .onGloballyPositioned {
-                            if (!roleAndAddressHeadingTextLoaded) {
-                                CoroutineScope(Dispatchers.Main).launch {
-                                    focusRequester.requestFocus()
-                                    focusManager.clearFocus()
-                                    delay(200)
-                                    focusRequester.requestFocus()
-                                    roleAndAddressHeadingTextLoaded = true
-                                }
-                            }
-                        },
-                textAlign = TextAlign.Center,
-            )
-            Text(
-                text = roleLabel,
-                style = MaterialTheme.typography.titleLarge,
-                modifier =
-                    modifier
-                        .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .focusable(false)
-                        .testTag("signatureUpdateRoleLabel"),
-            )
-            TextField(
-                modifier =
-                    modifier
-                        .fillMaxWidth()
-                        .padding(bottom = screenViewSmallPadding)
-                        .clearAndSetSemantics {
-                            testTagsAsResourceId = true
-                            testTag = "signatureUpdateRoleText"
-                            this.contentDescription =
-                                "$roleLabel ${rolesAndResolutionsText.text}"
-                        },
-                value = rolesAndResolutionsText,
-                shape = RectangleShape,
-                onValueChange = {
-                    rolesAndResolutionsText = it
-                },
-                maxLines = 1,
-                singleLine = true,
-                textStyle = MaterialTheme.typography.titleLarge,
-                keyboardOptions =
-                    KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Next,
-                        keyboardType = KeyboardType.Ascii,
-                    ),
-            )
-            Text(
-                text = cityLabel,
-                style = MaterialTheme.typography.titleLarge,
-                modifier =
-                    modifier
-                        .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .focusable(false)
-                        .testTag("signatureUpdateRoleCityLabel"),
-            )
-            TextField(
-                modifier =
-                    modifier
-                        .fillMaxWidth()
-                        .padding(bottom = screenViewSmallPadding)
-                        .clearAndSetSemantics {
-                            testTagsAsResourceId = true
-                            testTag = "signatureUpdateRoleCityText"
-                            this.contentDescription =
-                                "$cityLabel ${cityText.text}"
-                        },
-                value = cityText,
-                shape = RectangleShape,
-                onValueChange = {
-                    cityText = it
-                },
-                maxLines = 1,
-                singleLine = true,
-                textStyle = MaterialTheme.typography.titleLarge,
-                keyboardOptions =
-                    KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Next,
-                        keyboardType = KeyboardType.Ascii,
-                    ),
-            )
-            Text(
-                text = stateLabel,
-                style = MaterialTheme.typography.titleLarge,
-                modifier =
-                    modifier
-                        .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .focusable(false)
-                        .testTag("signatureUpdateRoleStateLabel"),
-            )
-            TextField(
-                modifier =
-                    modifier
-                        .fillMaxWidth()
-                        .padding(bottom = screenViewSmallPadding)
-                        .clearAndSetSemantics {
-                            testTagsAsResourceId = true
-                            testTag = "signatureUpdateRoleStateText"
-                            this.contentDescription =
-                                "$stateLabel ${stateText.text}"
-                        },
-                value = stateText,
-                shape = RectangleShape,
-                onValueChange = {
-                    stateText = it
-                },
-                maxLines = 1,
-                singleLine = true,
-                textStyle = MaterialTheme.typography.titleLarge,
-                keyboardOptions =
-                    KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Next,
-                        keyboardType = KeyboardType.Ascii,
-                    ),
-            )
-            Text(
-                text = countryLabel,
-                style = MaterialTheme.typography.titleLarge,
-                modifier =
-                    modifier
-                        .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .focusable(false)
-                        .testTag("signatureUpdateRoleCountryLabel"),
-            )
-            TextField(
-                modifier =
-                    modifier
-                        .fillMaxWidth()
-                        .padding(bottom = screenViewSmallPadding)
-                        .clearAndSetSemantics {
-                            testTagsAsResourceId = true
-                            testTag = "signatureUpdateRoleCountryText"
-                            this.contentDescription =
-                                "$countryLabel ${countryText.text}"
-                        },
-                value = countryText,
-                shape = RectangleShape,
-                onValueChange = {
-                    countryText = it
-                },
-                maxLines = 1,
-                singleLine = true,
-                textStyle = MaterialTheme.typography.titleLarge,
-                keyboardOptions =
-                    KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Next,
-                        keyboardType = KeyboardType.Ascii,
-                    ),
-            )
-            Text(
-                text = zipLabel,
-                style = MaterialTheme.typography.titleLarge,
-                modifier =
-                    modifier
-                        .padding(top = screenViewSmallPadding, bottom = screenViewSmallPadding)
-                        .focusable(false)
-                        .testTag("signatureUpdateRoleZipLabel"),
-            )
-            TextField(
-                modifier =
-                    modifier
-                        .fillMaxWidth()
-                        .padding(bottom = screenViewSmallPadding)
-                        .clearAndSetSemantics {
-                            testTagsAsResourceId = true
-                            testTag = "signatureUpdateRoleZipText"
-                            this.contentDescription =
-                                "$zipLabel ${formatNumbers(zipText.text)}"
-                        },
-                value = zipText,
-                shape = RectangleShape,
-                onValueChange = {
-                    zipText = it
-                },
-                maxLines = 1,
-                singleLine = true,
-                textStyle = MaterialTheme.typography.titleLarge,
-                keyboardOptions =
-                    KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Done,
-                        keyboardType = KeyboardType.Ascii,
-                    ),
-                keyboardActions =
-                    KeyboardActions(
-                        onDone = {
-                            keyboardController?.hide()
-                        },
-                    ),
-            )
+            RoleDataView(modifier, sharedSettingsViewModel)
         } else {
             SignatureAddRadioGroup(
                 modifier = modifier,
@@ -567,28 +358,25 @@ fun SmartIdView(
                     }
                     var roleDataRequest: RoleData? = null
                     if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
-                        val roles =
-                            Arrays.stream(
-                                rolesAndResolutionsText.text.split(",".toRegex())
-                                    .dropLastWhile { it.isEmpty() }
-                                    .toTypedArray(),
-                            )
-                                .map { obj: String -> obj.trim { it <= ' ' } }
-                                .collect(Collectors.toList())
-
-                        sharedSettingsViewModel.dataStore.setRoles(rolesAndResolutionsText.text)
-                        sharedSettingsViewModel.dataStore.setRoleCity(cityText.text)
-                        sharedSettingsViewModel.dataStore.setRoleState(stateText.text)
-                        sharedSettingsViewModel.dataStore.setRoleCountry(countryText.text)
-                        sharedSettingsViewModel.dataStore.setRoleZip(zipText.text)
+                        val roles = sharedSettingsViewModel.dataStore.getRoles()
+                        val rolesList =
+                            roles
+                                .split(",")
+                                .map { it.trim() }
+                                .filter { it.isNotEmpty() }
+                                .toList()
+                        val city = sharedSettingsViewModel.dataStore.getRoleCity()
+                        val state = sharedSettingsViewModel.dataStore.getRoleState()
+                        val country = sharedSettingsViewModel.dataStore.getRoleCountry()
+                        val zip = sharedSettingsViewModel.dataStore.getRoleZip()
 
                         roleDataRequest =
                             RoleData(
-                                roles = roles,
-                                city = cityText.text,
-                                state = stateText.text,
-                                country = countryText.text,
-                                zip = zipText.text,
+                                roles = rolesList,
+                                city = city,
+                                state = state,
+                                country = country,
+                                zip = zip,
                             )
                     }
                     CoroutineScope(Dispatchers.IO).launch {
