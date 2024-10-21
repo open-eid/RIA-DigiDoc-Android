@@ -37,6 +37,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.Mockito.anyString
 import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
@@ -345,7 +346,7 @@ class MobileSignServiceImplTest {
             whenever(
                 containerWrapper.prepareSignature(
                     signedContainer = any<SignedContainer>(),
-                    cert = any(),
+                    cert = anyString(),
                     roleData = isNull(),
                 ),
             ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==")
@@ -445,7 +446,7 @@ class MobileSignServiceImplTest {
             whenever(
                 containerWrapper.prepareSignature(
                     signedContainer = any<SignedContainer>(),
-                    cert = any(),
+                    cert = anyString(),
                     roleData = isNull(),
                 ),
             ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==")
@@ -643,7 +644,7 @@ class MobileSignServiceImplTest {
             whenever(
                 containerWrapper.prepareSignature(
                     signedContainer = any<SignedContainer>(),
-                    cert = any(),
+                    cert = anyString(),
                     roleData = isNull(),
                 ),
             ).thenThrow(CertificateException("test error message"))
@@ -984,7 +985,7 @@ class MobileSignServiceImplTest {
             whenever(
                 containerWrapper.prepareSignature(
                     signedContainer = any<SignedContainer>(),
-                    cert = any(),
+                    cert = anyString(),
                     roleData = isNull(),
                 ),
             ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==")
@@ -1072,7 +1073,7 @@ class MobileSignServiceImplTest {
             whenever(
                 containerWrapper.prepareSignature(
                     signedContainer = any<SignedContainer>(),
-                    cert = any(),
+                    cert = anyString(),
                     roleData = isNull(),
                 ),
             ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==")
@@ -1150,7 +1151,7 @@ class MobileSignServiceImplTest {
             whenever(
                 containerWrapper.prepareSignature(
                     signedContainer = any<SignedContainer>(),
-                    cert = any(),
+                    cert = anyString(),
                     roleData = isNull(),
                 ),
             ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==")
@@ -1231,7 +1232,7 @@ class MobileSignServiceImplTest {
             whenever(
                 containerWrapper.prepareSignature(
                     signedContainer = any<SignedContainer>(),
-                    cert = any(),
+                    cert = anyString(),
                     roleData = isNull(),
                 ),
             ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==")
@@ -1309,7 +1310,7 @@ class MobileSignServiceImplTest {
             whenever(
                 containerWrapper.prepareSignature(
                     signedContainer = any<SignedContainer>(),
-                    cert = any(),
+                    cert = anyString(),
                     roleData = isNull(),
                 ),
             ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==")
@@ -1554,7 +1555,7 @@ class MobileSignServiceImplTest {
             whenever(
                 containerWrapper.prepareSignature(
                     signedContainer = any<SignedContainer>(),
-                    cert = any(),
+                    cert = anyString(),
                     roleData = isNull(),
                 ),
             ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==")
@@ -1614,7 +1615,7 @@ class MobileSignServiceImplTest {
             whenever(
                 containerWrapper.prepareSignature(
                     signedContainer = any<SignedContainer>(),
-                    cert = any(),
+                    cert = anyString(),
                     roleData = isNull(),
                 ),
             ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==")
@@ -1677,7 +1678,7 @@ class MobileSignServiceImplTest {
             whenever(
                 containerWrapper.prepareSignature(
                     signedContainer = any<SignedContainer>(),
-                    cert = any(),
+                    cert = anyString(),
                     roleData = isNull(),
                 ),
             ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==")
@@ -1737,7 +1738,7 @@ class MobileSignServiceImplTest {
             whenever(
                 containerWrapper.prepareSignature(
                     signedContainer = any<SignedContainer>(),
-                    cert = any(),
+                    cert = anyString(),
                     roleData = isNull(),
                 ),
             ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==")
@@ -1797,7 +1798,7 @@ class MobileSignServiceImplTest {
             whenever(
                 containerWrapper.prepareSignature(
                     signedContainer = any<SignedContainer>(),
-                    cert = any(),
+                    cert = anyString(),
                     roleData = isNull(),
                 ),
             ).thenReturn("")

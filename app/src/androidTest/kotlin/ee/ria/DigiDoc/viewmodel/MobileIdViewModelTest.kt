@@ -4,9 +4,11 @@ package ee.ria.DigiDoc.viewmodel
 
 import android.content.ContentResolver
 import android.content.Context
+import androidx.activity.ComponentActivity
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
 import ee.ria.DigiDoc.R
@@ -33,6 +35,7 @@ import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -69,7 +72,7 @@ class MobileIdViewModelTest {
     lateinit var errorStateObserver: Observer<String?>
 
     @Mock
-    lateinit var signedContainterObserver: Observer<SignedContainer?>
+    lateinit var signedContainerObserver: Observer<SignedContainer?>
 
     @Mock
     lateinit var statusObserver: Observer<MobileCreateSignatureProcessStatus?>
@@ -79,6 +82,9 @@ class MobileIdViewModelTest {
 
     @Mock
     lateinit var challengeObserver: Observer<String?>
+
+    private lateinit var scenario: ActivityScenario<ComponentActivity>
+    private lateinit var activity: ComponentActivity
 
     private lateinit var signedContainer: SignedContainer
 
@@ -155,8 +161,14 @@ class MobileIdViewModelTest {
         viewModel.errorState.observeForever(errorStateObserver)
         viewModel.status.observeForever(statusObserver)
         viewModel.roleDataRequested.observeForever(roleDataRequestedObserver)
-        viewModel.signedContainer.observeForever(signedContainterObserver)
+        viewModel.signedContainer.observeForever(signedContainerObserver)
         viewModel.challenge.observeForever(challengeObserver)
+
+        scenario = ActivityScenario.launch(ComponentActivity::class.java)
+
+        scenario.onActivity { activityInstance ->
+            activity = activityInstance
+        }
 
         val container =
             AssetFile.getResourceFileAsFile(
@@ -171,6 +183,11 @@ class MobileIdViewModelTest {
             }
     }
 
+    @After
+    fun cleanup() {
+        scenario.close()
+    }
+
     @Test
     fun mobileIdViewModel_performMobileIdWorkRequest_errorState() =
         runTest {
@@ -183,6 +200,7 @@ class MobileIdViewModelTest {
             `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>("Some error occurred"))
 
             viewModel.performMobileIdWorkRequest(
+                activity,
                 context,
                 "test message",
                 signedContainer,
@@ -197,7 +215,7 @@ class MobileIdViewModelTest {
                 atLeastOnce(),
             ).processMobileIdRequest(any(), any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any())
             verify(errorStateObserver, atLeastOnce()).onChanged("Some error occurred")
-            verify(signedContainterObserver, atLeastOnce()).onChanged(null)
+            verify(signedContainerObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(null)
             verify(challengeObserver, atLeastOnce()).onChanged(null)
         }
@@ -228,6 +246,7 @@ class MobileIdViewModelTest {
             `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>(null))
 
             viewModel.performMobileIdWorkRequest(
+                activity,
                 context,
                 "test message",
                 signedContainer,
@@ -242,7 +261,7 @@ class MobileIdViewModelTest {
                 atLeastOnce(),
             ).processMobileIdRequest(any(), any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any())
             verify(errorStateObserver, atLeastOnce()).onChanged(null)
-            verify(signedContainterObserver, atLeastOnce()).onChanged(any<SignedContainer>())
+            verify(signedContainerObserver, atLeastOnce()).onChanged(any<SignedContainer>())
             verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.OK)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
         }
@@ -270,6 +289,7 @@ class MobileIdViewModelTest {
             `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>(null))
 
             viewModel.performMobileIdWorkRequest(
+                activity,
                 context,
                 "test message",
                 signedContainer,
@@ -284,7 +304,7 @@ class MobileIdViewModelTest {
                 atLeastOnce(),
             ).processMobileIdRequest(any(), any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any())
             verify(errorStateObserver, atLeastOnce()).onChanged(context.getString(R.string.no_internet_connection))
-            verify(signedContainterObserver, atLeastOnce()).onChanged(null)
+            verify(signedContainerObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.NO_RESPONSE)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
         }
@@ -317,6 +337,7 @@ class MobileIdViewModelTest {
             `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>(null))
 
             viewModel.performMobileIdWorkRequest(
+                activity,
                 context,
                 "test message",
                 signedContainer,
@@ -334,7 +355,7 @@ class MobileIdViewModelTest {
                 errorStateObserver,
                 atLeastOnce(),
             ).onChanged(context.getString(R.string.signature_update_mobile_id_status_expired_transaction))
-            verify(signedContainterObserver, atLeastOnce()).onChanged(null)
+            verify(signedContainerObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.NOT_MID_CLIENT)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
         }
@@ -367,6 +388,7 @@ class MobileIdViewModelTest {
             `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>(null))
 
             viewModel.performMobileIdWorkRequest(
+                activity,
                 context,
                 "test message",
                 signedContainer,
@@ -384,7 +406,7 @@ class MobileIdViewModelTest {
                 errorStateObserver,
                 atLeastOnce(),
             ).onChanged(null)
-            verify(signedContainterObserver, atLeastOnce()).onChanged(null)
+            verify(signedContainerObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.USER_CANCELLED)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
         }
@@ -411,6 +433,7 @@ class MobileIdViewModelTest {
             `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>(null))
 
             viewModel.performMobileIdWorkRequest(
+                activity,
                 context,
                 "test message",
                 signedContainer,
@@ -428,7 +451,7 @@ class MobileIdViewModelTest {
                 errorStateObserver,
                 atLeastOnce(),
             ).onChanged(context.getString(R.string.signature_update_mobile_id_error_not_mobile_id_user))
-            verify(signedContainterObserver, atLeastOnce()).onChanged(null)
+            verify(signedContainerObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(null)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
         }
@@ -451,7 +474,7 @@ class MobileIdViewModelTest {
     fun mobileIdViewModel_resetSignedContainer_success() =
         runTest {
             viewModel.resetSignedContainer()
-            verify(signedContainterObserver, atLeastOnce()).onChanged(null)
+            verify(signedContainerObserver, atLeastOnce()).onChanged(null)
         }
 
     @Test

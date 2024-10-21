@@ -11,6 +11,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import ee.ria.DigiDoc.smartcardreader.SmartCardReaderManager
 import ee.ria.DigiDoc.smartcardreader.usb.AcsUsbSmartCardReader
 import ee.ria.DigiDoc.smartcardreader.usb.IdentivUsbSmartCardReader
 import ee.ria.DigiDoc.smartcardreader.usb.UsbSmartCardReader
@@ -27,9 +28,7 @@ class AppModules {
         context: Context,
         usbManager: UsbManager,
         readers: ImmutableList<UsbSmartCardReader>,
-    ): UsbSmartCardReaderManager {
-        return UsbSmartCardReaderManager(context, usbManager, readers)
-    }
+    ): SmartCardReaderManager = UsbSmartCardReaderManager(context, usbManager, readers)
 
     @Provides
     @Singleton

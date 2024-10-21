@@ -28,6 +28,13 @@ interface ContainerWrapper {
         roleData: RoleData?,
     ): String
 
+    @Throws(CertificateException::class)
+    fun prepareSignature(
+        signedContainer: SignedContainer,
+        signCertificateData: ByteArray,
+        signatureProfile: String,
+    ): Signature?
+
     fun finalizeSignature(
         signedContainer: SignedContainer?,
         signatureArray: ByteArray,
@@ -91,6 +98,20 @@ class ContainerWrapperImpl : ContainerWrapper {
         val dataToSign = String(dataToSignBytes, StandardCharsets.UTF_8)
         dataToSign.removeWhitespaces()
         return dataToSign
+    }
+
+    @Throws(Exception::class)
+    override fun prepareSignature(
+        signedContainer: SignedContainer,
+        signCertificateData: ByteArray,
+        signatureProfile: String,
+    ): Signature {
+        signature = signedContainer.rawContainer()?.prepareWebSignature(
+            signCertificateData,
+            signatureProfile,
+        ) ?: throw Exception("Unable to prepare signature")
+
+        return signature
     }
 
     override fun finalizeSignature(

@@ -213,7 +213,6 @@ class DiagnosticsViewModelTest {
 
     @Test
     fun diagnosticsViewModel_getConfigurationDate_returnsFormattedStringForNonNullDate() {
-        // Prepare
         val calendar =
             Calendar.getInstance().apply {
                 set(2023, Calendar.JANUARY, 1) // Year, Month, Day
@@ -222,17 +221,15 @@ class DiagnosticsViewModelTest {
         val expectedFormat = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
         val expected = expectedFormat.format(date)
 
-        // Act
         val result = viewModel.getConfigurationDate(date)
 
-        // Assert
         assertEquals(expected, result)
     }
 
     @Test
     fun diagnosticsViewModel_createDiagnosticsFile_success() {
         val diagnosticsFileName =
-            "ria_digidoc_${viewModel.getAppVersion()}.${viewModel.getAppVersionCode()}_logs.log"
+            "ria_digidoc_${viewModel.getAppVersion()}.${viewModel.getAppVersionCode()}_diagnostics.log"
         val diagnosticsFilePath: String = File(context.filesDir.path, "diagnostics").path
         val resultFile = viewModel.createDiagnosticsFile()
 

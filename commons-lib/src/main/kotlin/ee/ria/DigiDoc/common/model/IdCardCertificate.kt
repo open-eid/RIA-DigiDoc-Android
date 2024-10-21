@@ -2,9 +2,7 @@
 
 package ee.ria.DigiDoc.common.model
 
-import org.bouncycastle.asn1.x509.CertificatePolicies
-import org.bouncycastle.asn1.x9.X9ObjectIdentifiers
-import org.bouncycastle.cert.X509CertificateHolder
+import ee.ria.DigiDoc.common.certificate.CertificateService
 import java.io.IOException
 
 data class IdCardCertificate(
@@ -14,17 +12,13 @@ data class IdCardCertificate(
 ) {
     companion object {
         @Throws(IOException::class)
-        fun create(data: ByteArray): IdCardCertificate {
-            val certificate = X509CertificateHolder(data)
-
-            val extensions = certificate.extensions
-
-            val certificatePolicies = CertificatePolicies.fromExtensions(extensions)
-            val type = EIDType.parse(certificatePolicies)
-
-            val ellipticCurve =
-                certificate.subjectPublicKeyInfo.algorithm.algorithm
-                    .equals(X9ObjectIdentifiers.id_ecPublicKey)
+        fun create(
+            data: ByteArray,
+            certificateService: CertificateService,
+        ): IdCardCertificate {
+            val certificate = certificateService.parseCertificate(data)
+            val type = certificateService.extractEIDType(certificate)
+            val ellipticCurve = certificateService.isEllipticCurve(certificate)
 
             return IdCardCertificate(
                 type,
