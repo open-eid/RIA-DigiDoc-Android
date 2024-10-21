@@ -36,6 +36,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.Mockito.anyString
 import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
@@ -382,7 +383,7 @@ class SmartSignServiceImplTest {
             whenever(
                 containerWrapper.prepareSignature(
                     signedContainer = any<SignedContainer>(),
-                    cert = any(),
+                    cert = anyString(),
                     roleData = isNull(),
                 ),
             ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==")
@@ -586,7 +587,7 @@ class SmartSignServiceImplTest {
             whenever(
                 containerWrapper.prepareSignature(
                     signedContainer = any<SignedContainer>(),
-                    cert = any(),
+                    cert = anyString(),
                     roleData = isNull(),
                 ),
             ).thenThrow(CertificateException(""))
@@ -1204,7 +1205,7 @@ class SmartSignServiceImplTest {
             whenever(
                 containerWrapper.prepareSignature(
                     signedContainer = any<SignedContainer>(),
-                    cert = any(),
+                    cert = anyString(),
                     roleData = isNull(),
                 ),
             ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==")
@@ -1288,7 +1289,7 @@ class SmartSignServiceImplTest {
             whenever(
                 containerWrapper.prepareSignature(
                     signedContainer = any<SignedContainer>(),
-                    cert = any(),
+                    cert = anyString(),
                     roleData = isNull(),
                 ),
             ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==")
@@ -1354,7 +1355,7 @@ class SmartSignServiceImplTest {
             whenever(
                 containerWrapper.prepareSignature(
                     signedContainer = any<SignedContainer>(),
-                    cert = any(),
+                    cert = anyString(),
                     roleData = isNull(),
                 ),
             ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==")
@@ -1517,7 +1518,7 @@ class SmartSignServiceImplTest {
             whenever(
                 containerWrapper.prepareSignature(
                     signedContainer = any<SignedContainer>(),
-                    cert = any(),
+                    cert = anyString(),
                     roleData = isNull(),
                 ),
             ).thenReturn("")

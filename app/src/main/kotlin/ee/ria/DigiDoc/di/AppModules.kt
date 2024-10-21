@@ -15,6 +15,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import ee.ria.DigiDoc.common.BuildVersionProvider
 import ee.ria.DigiDoc.common.BuildVersionProviderImpl
+import ee.ria.DigiDoc.common.certificate.CertificateService
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
@@ -27,6 +28,7 @@ import ee.ria.DigiDoc.domain.service.fileopening.FileOpeningService
 import ee.ria.DigiDoc.domain.service.fileopening.FileOpeningServiceImpl
 import ee.ria.DigiDoc.domain.service.siva.SivaService
 import ee.ria.DigiDoc.domain.service.siva.SivaServiceImpl
+import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.manager.ActivityManager
 import ee.ria.DigiDoc.manager.ActivityManagerImpl
@@ -130,5 +132,8 @@ class AppModules {
     fun provideCrashDetector(crashlytics: FirebaseCrashlytics): CrashDetector = CrashDetectorImpl(crashlytics)
 
     @Provides
-    fun provideIdCardService(): IdCardService = IdCardServiceImpl()
+    fun provideIdCardService(
+        containerWrapper: ContainerWrapper,
+        certificateService: CertificateService,
+    ): IdCardService = IdCardServiceImpl(containerWrapper, certificateService)
 }

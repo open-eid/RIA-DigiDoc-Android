@@ -17,8 +17,8 @@ import ee.ria.DigiDoc.idcard.Token
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
+import ee.ria.DigiDoc.smartcardreader.SmartCardReaderManager
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderStatus
-import ee.ria.DigiDoc.smartcardreader.usb.UsbSmartCardReaderManager
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -33,7 +33,7 @@ import javax.inject.Inject
 class IdCardViewModel
     @Inject
     constructor(
-        private val usbSmartCardReaderManager: UsbSmartCardReaderManager,
+        private val smartCardReaderManager: SmartCardReaderManager,
         private val idCardService: IdCardService,
     ) : ViewModel() {
         private val logTag = javaClass.simpleName
@@ -59,47 +59,23 @@ class IdCardViewModel
         private val _dialogError = MutableLiveData<String?>(null)
         val dialogError: LiveData<String?> = _dialogError
 
-        private val _roleDataRequested = MutableLiveData(false)
+        private val _roleDataRequested = MutableLiveData<Boolean?>(null)
         val roleDataRequested: LiveData<Boolean?> = _roleDataRequested
 
         init {
             CoroutineScope(Main).launch {
-                usbSmartCardReaderManager.status().asFlow().distinctUntilChanged().collect { status ->
+                smartCardReaderManager.status().asFlow().distinctUntilChanged().collect { status ->
                     _idCardStatus.postValue(status)
                 }
             }
         }
-
-        private suspend fun getPIN2RetryCount(context: Context): Int =
-            withContext(IO) {
-                try {
-                    val token =
-                        withContext(Main) {
-                            Token.create(usbSmartCardReaderManager.connectedReader())
-                        }
-
-                    val idCardData = idCardService.data(token)
-
-                    idCardData.pin2RetryCount
-                } catch (e: Exception) {
-                    _signStatus.postValue(false)
-
-                    _errorState.postValue(
-                        context.getString(R.string.error_general_client),
-                    )
-                    errorLog(logTag, "Unable to get ID-card PIN2 retry count: ${e.message}", e)
-
-                    resetValues()
-                    -1
-                }
-            }
 
         suspend fun loadPersonalData(context: Context) =
             withContext(IO) {
                 try {
                     val token =
                         withContext(IO) {
-                            Token.create(usbSmartCardReaderManager.connectedReader())
+                            Token.create(smartCardReaderManager.connectedReader())
                         }
 
                     val personalData = idCardService.data(token).personalData
@@ -130,7 +106,7 @@ class IdCardViewModel
             try {
                 val token: Token =
                     withContext(Main) {
-                        Token.create(usbSmartCardReaderManager.connectedReader())
+                        Token.create(smartCardReaderManager.connectedReader())
                     }
 
                 val signedContainerResult: SignedContainer =
@@ -149,6 +125,42 @@ class IdCardViewModel
                 activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             }
         }
+
+        suspend fun removePendingSignature(signedContainer: SignedContainer) {
+            val signatures = signedContainer.getSignatures(Main)
+            if (signatures.isNotEmpty()) {
+                val lastSignatureStatus = signatures.last().validator.status
+                if (lastSignatureStatus == ValidatorInterface.Status.Invalid ||
+                    lastSignatureStatus == ValidatorInterface.Status.Unknown
+                ) {
+                    signedContainer.removeSignature(signatures.last())
+                }
+            }
+        }
+
+        private suspend fun getPIN2RetryCount(context: Context): Int =
+            withContext(IO) {
+                try {
+                    val token =
+                        withContext(Main) {
+                            Token.create(smartCardReaderManager.connectedReader())
+                        }
+
+                    val idCardData = idCardService.data(token)
+
+                    idCardData.pin2RetryCount
+                } catch (e: Exception) {
+                    _signStatus.postValue(false)
+
+                    _errorState.postValue(
+                        context.getString(R.string.error_general_client),
+                    )
+                    errorLog(logTag, "Unable to get ID-card PIN2 retry count: ${e.message}", e)
+
+                    resetValues()
+                    -1
+                }
+            }
 
         private suspend fun handleSigningError(
             context: Context,
@@ -278,17 +290,5 @@ class IdCardViewModel
             resetRoleDataRequested()
             resetSignStatus()
             resetSignedContainer()
-        }
-
-        suspend fun removePendingSignature(signedContainer: SignedContainer) {
-            val signatures = signedContainer.getSignatures(Main)
-            if (signatures.isNotEmpty()) {
-                val lastSignatureStatus = signatures.last().validator.status
-                if (lastSignatureStatus == ValidatorInterface.Status.Invalid ||
-                    lastSignatureStatus == ValidatorInterface.Status.Unknown
-                ) {
-                    signedContainer.removeSignature(signatures.last())
-                }
-            }
         }
     }

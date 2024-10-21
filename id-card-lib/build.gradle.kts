@@ -22,6 +22,20 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+
+    buildTypes {
+        debug {
+            enableUnitTestCoverage = true
+            enableAndroidTestCoverage = true
+        }
+    }
+
+    packaging {
+        resources {
+            pickFirsts += "/META-INF/{AL2.0,LGPL2.1}"
+            pickFirsts += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
+        }
+    }
 }
 
 dependencies {
@@ -36,12 +50,18 @@ dependencies {
     implementation(libs.google.dagger.hilt.android)
     kapt(libs.google.dagger.hilt.android.compile)
     implementation(libs.androidx.hilt)
+    implementation(libs.kotlinx.coroutines.rx3)
 
     testImplementation(libs.junit)
+    testImplementation(libs.mockito.core)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.mockito.android)
+    androidTestImplementation(libs.mockito.kotlin)
 
     implementation(project(":libdigidoc-lib"))
     implementation(project(":commons-lib"))
     implementation(project(":utils-lib"))
+    implementation(project(":config-lib"))
+    androidTestImplementation(project(":commons-lib:test-files"))
 }

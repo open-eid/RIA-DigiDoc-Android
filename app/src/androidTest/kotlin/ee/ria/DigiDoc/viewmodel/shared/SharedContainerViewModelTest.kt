@@ -33,6 +33,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -332,6 +333,32 @@ class SharedContainerViewModelTest {
         viewModel.setSignedContainer(signedContainer)
 
         assertEquals(signedContainer, viewModel.signedContainer.value)
+    }
+
+    @Test
+    fun sharedContainerViewModel_setSignedIDCardStatus_successWithTrue() {
+        viewModel.setSignedIDCardStatus(true)
+
+        val signedIdCardStatus = viewModel.signedIDCardStatus.value
+
+        if (signedIdCardStatus != null) {
+            assertTrue(signedIdCardStatus)
+        } else {
+            fail("signedIDCardStatus is null")
+        }
+    }
+
+    @Test
+    fun sharedContainerViewModel_setSignedIDCardStatus_successWithFalse() {
+        viewModel.setSignedIDCardStatus(false)
+
+        val signedIdCardStatus = viewModel.signedIDCardStatus.value
+
+        if (signedIdCardStatus != null) {
+            assertFalse(signedIdCardStatus)
+        } else {
+            fail("signedIDCardStatus is null")
+        }
     }
 
     @Test

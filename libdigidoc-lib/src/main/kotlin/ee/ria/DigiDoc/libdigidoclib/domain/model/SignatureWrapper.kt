@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.libdigidoclib.domain.model
 
+import ee.ria.DigiDoc.common.certificate.CertificateServiceImpl
 import ee.ria.DigiDoc.common.model.Certificate
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.libdigidocpp.Signature
@@ -47,7 +48,7 @@ class SignatureWrapper(signature: Signature) : SignatureInterface {
         var commonName: String?
         try {
             commonName =
-                Certificate.create(signature.signingCertificateDer())
+                Certificate.create(signature.signingCertificateDer(), CertificateServiceImpl())
                     .friendlyName
         } catch (e: IOException) {
             errorLog(logTag, "Can't parse certificate to get CN", e)

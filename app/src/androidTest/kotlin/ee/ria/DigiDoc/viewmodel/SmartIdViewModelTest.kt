@@ -4,9 +4,11 @@ package ee.ria.DigiDoc.viewmodel
 
 import android.content.ContentResolver
 import android.content.Context
+import androidx.activity.ComponentActivity
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
 import ee.ria.DigiDoc.R
@@ -32,6 +34,7 @@ import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -68,7 +71,7 @@ class SmartIdViewModelTest {
     lateinit var errorStateObserver: Observer<String?>
 
     @Mock
-    lateinit var signedContainterObserver: Observer<SignedContainer?>
+    lateinit var signedContainerObserver: Observer<SignedContainer?>
 
     @Mock
     lateinit var statusObserver: Observer<SessionStatusResponseProcessStatus?>
@@ -81,6 +84,9 @@ class SmartIdViewModelTest {
 
     @Mock
     lateinit var selectDeviceObserver: Observer<Boolean?>
+
+    private lateinit var scenario: ActivityScenario<ComponentActivity>
+    private lateinit var activity: ComponentActivity
 
     private lateinit var signedContainer: SignedContainer
 
@@ -156,10 +162,16 @@ class SmartIdViewModelTest {
             )
         viewModel.errorState.observeForever(errorStateObserver)
         viewModel.status.observeForever(statusObserver)
-        viewModel.signedContainer.observeForever(signedContainterObserver)
+        viewModel.signedContainer.observeForever(signedContainerObserver)
         viewModel.roleDataRequested.observeForever(roleDataRequestedObserver)
         viewModel.challenge.observeForever(challengeObserver)
         viewModel.selectDevice.observeForever(selectDeviceObserver)
+
+        scenario = ActivityScenario.launch(ComponentActivity::class.java)
+
+        scenario.onActivity { activityInstance ->
+            activity = activityInstance
+        }
 
         val container =
             AssetFile.getResourceFileAsFile(
@@ -174,6 +186,11 @@ class SmartIdViewModelTest {
             }
     }
 
+    @After
+    fun cleanup() {
+        scenario.close()
+    }
+
     @Test
     fun smartIdViewModel_performSmartIdWorkRequest_errorState() =
         runTest {
@@ -185,7 +202,15 @@ class SmartIdViewModelTest {
             `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(null))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>("Some error occurred"))
 
-            viewModel.performSmartIdWorkRequest(context, "test message", signedContainer, "45611283812", 0, null)
+            viewModel.performSmartIdWorkRequest(
+                activity,
+                context,
+                "test message",
+                signedContainer,
+                "45611283812",
+                0,
+                null,
+            )
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -198,7 +223,7 @@ class SmartIdViewModelTest {
                 any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any(),
             )
             verify(errorStateObserver, atLeastOnce()).onChanged("Some error occurred")
-            verify(signedContainterObserver, atLeastOnce()).onChanged(null)
+            verify(signedContainerObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(null)
             verify(challengeObserver, atLeastOnce()).onChanged(null)
             verify(selectDeviceObserver, atLeastOnce()).onChanged(false)
@@ -227,7 +252,15 @@ class SmartIdViewModelTest {
             `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(false))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performSmartIdWorkRequest(context, "test message", signedContainer, "45611283812", 0, null)
+            viewModel.performSmartIdWorkRequest(
+                activity,
+                context,
+                "test message",
+                signedContainer,
+                "45611283812",
+                0,
+                null,
+            )
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -240,7 +273,7 @@ class SmartIdViewModelTest {
                 any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any(),
             )
             verify(errorStateObserver, atLeastOnce()).onChanged(null)
-            verify(signedContainterObserver, atLeastOnce()).onChanged(any<SignedContainer>())
+            verify(signedContainerObserver, atLeastOnce()).onChanged(any<SignedContainer>())
             verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.OK)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
             verify(selectDeviceObserver, atLeastOnce()).onChanged(false)
@@ -265,7 +298,15 @@ class SmartIdViewModelTest {
             `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(true))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performSmartIdWorkRequest(context, "test message", signedContainer, "45611283812", 0, null)
+            viewModel.performSmartIdWorkRequest(
+                activity,
+                context,
+                "test message",
+                signedContainer,
+                "45611283812",
+                0,
+                null,
+            )
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -278,7 +319,7 @@ class SmartIdViewModelTest {
                 any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any(),
             )
             verify(errorStateObserver, atLeastOnce()).onChanged(context.getString(R.string.no_internet_connection))
-            verify(signedContainterObserver, atLeastOnce()).onChanged(null)
+            verify(signedContainerObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.NO_RESPONSE)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
             verify(selectDeviceObserver, atLeastOnce()).onChanged(true)
@@ -303,7 +344,15 @@ class SmartIdViewModelTest {
             `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(true))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performSmartIdWorkRequest(context, "test message", signedContainer, "45611283812", 0, null)
+            viewModel.performSmartIdWorkRequest(
+                activity,
+                context,
+                "test message",
+                signedContainer,
+                "45611283812",
+                0,
+                null,
+            )
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -319,7 +368,7 @@ class SmartIdViewModelTest {
                 errorStateObserver,
                 atLeastOnce(),
             ).onChanged(context.getString(R.string.signature_update_mobile_id_status_user_cancel))
-            verify(signedContainterObserver, atLeastOnce()).onChanged(null)
+            verify(signedContainerObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.USER_REFUSED)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
             verify(selectDeviceObserver, atLeastOnce()).onChanged(true)
@@ -344,7 +393,15 @@ class SmartIdViewModelTest {
             `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(true))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performSmartIdWorkRequest(context, "test message", signedContainer, "45611283812", 0, null)
+            viewModel.performSmartIdWorkRequest(
+                activity,
+                context,
+                "test message",
+                signedContainer,
+                "45611283812",
+                0,
+                null,
+            )
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -360,7 +417,7 @@ class SmartIdViewModelTest {
                 errorStateObserver,
                 atLeastOnce(),
             ).onChanged(null)
-            verify(signedContainterObserver, atLeastOnce()).onChanged(null)
+            verify(signedContainerObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.USER_CANCELLED)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
             verify(selectDeviceObserver, atLeastOnce()).onChanged(true)
@@ -398,7 +455,7 @@ class SmartIdViewModelTest {
     fun smartIdViewModel_resetSignedContainer_success() =
         runTest {
             viewModel.resetSignedContainer()
-            verify(signedContainterObserver, atLeastOnce()).onChanged(null)
+            verify(signedContainerObserver, atLeastOnce()).onChanged(null)
         }
 
     @Test
