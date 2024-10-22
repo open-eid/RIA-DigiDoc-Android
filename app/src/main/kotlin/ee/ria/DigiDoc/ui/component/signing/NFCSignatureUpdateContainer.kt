@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.ui.component.signing
 
 import android.content.res.Configuration
 import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,6 +46,7 @@ import ee.ria.DigiDoc.viewmodel.NFCViewModel
 @Composable
 fun NFCSignatureUpdateContainer(
     modifier: Modifier = Modifier,
+    @DrawableRes nfcImage: Int = R.drawable.ic_icon_nfc,
     nfcViewModel: NFCViewModel,
     onCancelButtonClick: () -> Unit = {},
 ) {
@@ -90,7 +92,7 @@ fun NFCSignatureUpdateContainer(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Image(
-            painter = painterResource(id = R.drawable.ic_icon_nfc),
+            painter = painterResource(id = nfcImage),
             contentDescription = null,
             modifier =
                 modifier
