@@ -10,8 +10,8 @@ import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.utilsLib.extensions.isCades
 import ee.ria.DigiDoc.utilsLib.extensions.isSignedPDF
 import ee.ria.DigiDoc.utilsLib.extensions.isXades
-import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
+import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -19,7 +19,9 @@ import javax.inject.Singleton
 @Singleton
 class SivaServiceImpl
     @Inject
-    constructor() : SivaService {
+    constructor(
+        private val mimeTypeResolver: MimeTypeResolver,
+    ) : SivaService {
         private val logTag = "SivaService"
 
         override fun isSivaConfirmationNeeded(
@@ -31,7 +33,7 @@ class SivaServiceImpl
             }
 
             val file = files.first()
-            val mimetype = file.mimeType(context)
+            val mimetype = mimeTypeResolver.mimeType(file)
 
             return SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(mimetype) &&
                 !file.isXades(context) || (PDF_MIMETYPE == mimetype && file.isSignedPDF(context)) ||

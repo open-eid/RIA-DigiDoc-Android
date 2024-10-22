@@ -49,6 +49,7 @@ dependencies {
     implementation(libs.material)
     api(libs.commons.io)
     api(libs.commons.text)
+    api(libs.commons.codec)
     implementation(libs.guava)
     implementation(libs.gson)
     implementation(libs.threegpp.telecom.charsets)

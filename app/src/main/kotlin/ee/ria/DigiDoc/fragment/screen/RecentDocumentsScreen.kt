@@ -41,6 +41,7 @@ import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
 import ee.ria.DigiDoc.common.Constant.SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
@@ -56,7 +57,6 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utilsLib.extensions.isCades
 import ee.ria.DigiDoc.utilsLib.extensions.isXades
-import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.toast.ToastUtil
 import ee.ria.DigiDoc.viewmodel.RecentDocumentsViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
@@ -94,11 +94,11 @@ fun RecentDocumentsScreen(
         } else {
             CoroutineScope(IO).launch {
                 try {
-                    val documentMimeType = document.mimeType(context)
+                    val documentMimeType = recentDocumentsViewModel.getMimetype(document)
 
                     recentDocumentsViewModel.handleDocument(
                         document,
-                        documentMimeType,
+                        documentMimeType ?: DEFAULT_CONTAINER_EXTENSION,
                         confirmed,
                         sharedContainerViewModel,
                     )
@@ -198,7 +198,7 @@ fun RecentDocumentsScreen(
                                 selectedDocument.value = document
                                 if ((
                                         SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(
-                                            document.mimeType(context),
+                                            recentDocumentsViewModel.getMimetype(document),
                                         ) || document.isCades(context)
                                     ) && !document.isXades(context)
                                 ) {

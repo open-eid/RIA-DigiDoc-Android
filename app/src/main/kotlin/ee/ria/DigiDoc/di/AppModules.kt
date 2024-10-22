@@ -38,6 +38,7 @@ import ee.ria.DigiDoc.root.RootCheckerImpl
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager
 import ee.ria.DigiDoc.utils.monitoring.CrashDetector
 import ee.ria.DigiDoc.utils.monitoring.CrashDetectorImpl
+import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
 import javax.inject.Singleton
 
 @Module
@@ -86,7 +87,7 @@ class AppModules {
     fun provideNfcSmartCardReaderManager(): NfcSmartCardReaderManager = NfcSmartCardReaderManager()
 
     @Provides
-    fun provideSivaService(): SivaService = SivaServiceImpl()
+    fun provideSivaService(mimeTypeResolver: MimeTypeResolver): SivaService = SivaServiceImpl(mimeTypeResolver)
 
     @Provides
     fun provideSivaRepository(sivaService: SivaService): SivaRepository =

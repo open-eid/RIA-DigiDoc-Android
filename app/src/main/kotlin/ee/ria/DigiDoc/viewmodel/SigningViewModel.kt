@@ -16,8 +16,8 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
 import ee.ria.DigiDoc.utilsLib.date.DateUtil.getFormattedDateTime
 import ee.ria.DigiDoc.utilsLib.date.DateUtil.signedDateTimeString
-import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
+import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import org.apache.commons.io.FilenameUtils
 import java.io.File
@@ -29,7 +29,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SigningViewModel
     @Inject
-    constructor() : ViewModel() {
+    constructor(private val mimeTypeResolver: MimeTypeResolver) : ViewModel() {
         companion object {
             private const val LOG_TAG = "SigningViewModel"
         }
@@ -69,7 +69,11 @@ class SigningViewModel
             isCadesContainer: Boolean,
         ): Boolean =
             signedContainer != null &&
-                (!UNSIGNABLE_CONTAINER_MIMETYPES.contains(signedContainer.getContainerFile()?.mimeType(context))) &&
+                (
+                    !UNSIGNABLE_CONTAINER_MIMETYPES.contains(
+                        getMimetype(signedContainer.getContainerFile()),
+                    )
+                ) &&
                 (
                     !UNSIGNABLE_CONTAINER_EXTENSIONS.contains(
                         FilenameUtils
@@ -133,7 +137,9 @@ class SigningViewModel
                 context = context,
                 fileProviderAuthority = context.getString(R.string.file_provider_authority),
                 file = file,
-                mimeType = file.mimeType(context),
+                mimeType = getMimetype(file),
                 action = Intent.ACTION_VIEW,
             )
+
+        fun getMimetype(file: File?): String = mimeTypeResolver.mimeType(file)
     }

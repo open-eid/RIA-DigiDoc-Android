@@ -20,7 +20,7 @@ class SignerDetailViewModel
 
         fun getIssuerCommonName(x509Certificate: X509Certificate?): String {
             if (x509Certificate == null) {
-                errorLog(logTag, "Certificate is null")
+                errorLog(logTag, "Unable to get issuer common name: certificate is null or it doesn't exist")
                 return ""
             }
 
@@ -36,7 +36,7 @@ class SignerDetailViewModel
 
         fun getSubjectCommonName(x509Certificate: X509Certificate?): String {
             if (x509Certificate == null) {
-                errorLog(logTag, "Certificate is null")
+                errorLog(logTag, "Unable to get subject common name: certificate is null or it doesn't exist")
                 return ""
             }
 

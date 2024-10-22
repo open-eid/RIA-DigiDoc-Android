@@ -111,14 +111,15 @@ object Constant {
     const val DEFAULT_MIME_TYPE = "text/plain"
     private val ASICS_CONTAINER_EXTENSIONS: Set<String> = setOf("asics", "scs")
 
+    const val DDOC_EXTENSION = "ddoc"
+    const val PDF_EXTENSION = "pdf"
+
     val CONTAINER_EXTENSIONS: Set<String> =
         setOf("asice", "sce", "adoc", "bdoc", "ddoc", "edoc")
             .plus(ASICS_CONTAINER_EXTENSIONS)
 
     val NON_LEGACY_CONTAINER_EXTENSIONS: Set<String> =
         setOf("asice", "sce", "bdoc")
-
-    const val PDF_EXTENSION = "pdf"
 
     const val MAXIMUM_PERSONAL_CODE_LENGTH: Int = 11
 

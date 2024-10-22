@@ -104,7 +104,6 @@ import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.removeExtensionFromContainerFilename
 import ee.ria.DigiDoc.utilsLib.extensions.isContainer
-import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.toast.ToastUtil.showMessage
@@ -465,7 +464,7 @@ fun SigningNavigation(
                                 context,
                                 context.getString(R.string.file_provider_authority),
                                 containerFile,
-                                containerFile.mimeType(context),
+                                signingViewModel.getMimetype(containerFile),
                                 Intent.ACTION_SEND,
                             )
                         ContextCompat.startActivity(context, intent, null)
@@ -598,7 +597,7 @@ fun SigningNavigation(
                                     if (containerFile != null) {
                                         saveFile(
                                             containerFile,
-                                            containerFile.mimeType(context),
+                                            signingViewModel.getMimetype(containerFile),
                                             saveFileLauncher,
                                         )
                                     }
@@ -848,7 +847,7 @@ fun SigningNavigation(
                                         signingViewModel = signingViewModel,
                                         showRemoveButton =
                                             !NO_REMOVE_SIGNATURE_BUTTON_FILE_MIMETYPES.contains(
-                                                signedContainer?.getContainerFile()?.mimeType(context),
+                                                signingViewModel.getMimetype(signedContainer?.getContainerFile()),
                                             ) &&
                                                 !NO_REMOVE_SIGNATURE_BUTTON_FILE_EXTENSIONS.contains(
                                                     FilenameUtils.getExtension(signedContainer?.getName()),
@@ -955,8 +954,7 @@ fun SigningNavigation(
                                         signingViewModel = signingViewModel,
                                         showRemoveButton =
                                             !NO_REMOVE_SIGNATURE_BUTTON_FILE_MIMETYPES.contains(
-                                                signedContainer?.getContainerFile()
-                                                    ?.mimeType(context),
+                                                signingViewModel.getMimetype(signedContainer?.getContainerFile()),
                                             ) &&
                                                 !NO_REMOVE_SIGNATURE_BUTTON_FILE_EXTENSIONS.contains(
                                                     FilenameUtils.getExtension(signedContainer?.getName()),
