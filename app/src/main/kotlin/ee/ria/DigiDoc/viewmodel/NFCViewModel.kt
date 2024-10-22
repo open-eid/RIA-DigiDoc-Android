@@ -151,7 +151,7 @@ class NFCViewModel
             }
         }
 
-        suspend fun performNFCWorkRequest(
+        fun performNFCWorkRequest(
             activity: Activity,
             context: Context,
             container: SignedContainer?,
@@ -217,7 +217,7 @@ class NFCViewModel
                                     ex.message?.contains("Retries left: 2") == true
                                 ) {
                                     _errorState.postValue(
-                                        context.getString(R.string.signature_update_id_card_sign_pin2_invalid),
+                                        context.getString(R.string.signature_update_id_card_sign_pin2_invalid, 2),
                                     )
                                 } else if (ex.message?.contains("PIN2 verification failed") == true &&
                                     ex.message?.contains("Retries left: 1") == true
