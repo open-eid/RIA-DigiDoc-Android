@@ -26,12 +26,13 @@ jetbrainsKotlinJvm = "1.9.0"
 mockito-core = "5.11.0"
 mockito-android = "5.11.0"
 mockito-kotlin = "5.2.1"
-kotlinx-coroutines-test = "1.8.0"
+kotlinx-coroutines-test = "1.9.0"
 gson = "2.10.1"
 jackson-databind = "2.15.4"
 threegpp-telecom-charsets = "1.0.1"
 commons-io = "2.16.1"
 commons-text = "1.11.0"
+commonsCodec = "1.17.1"
 bouncy-castle = "1.78"
 okhttp = "4.12.0"
 retrofit = "2.11.0"
@@ -78,6 +79,7 @@ jackson-databind = { group = "com.fasterxml.jackson.core", name = "jackson-datab
 threegpp-telecom-charsets = { group = "com.github.brake.threegpp", name = "telecom-charsets", version.ref = "threegpp-telecom-charsets" }
 commons-io = { group = "commons-io", name = "commons-io", version.ref = "commons-io" }
 commons-text = { group = "org.apache.commons", name = "commons-text", version.ref = "commons-text" }
+commons-codec = { module = "commons-codec:commons-codec", version.ref = "commonsCodec" }
 bouncy-castle = { group = "org.bouncycastle", name = "bcpkix-jdk18on", version.ref = "bouncy-castle" }
 okhttp3 = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 okhttp3-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }

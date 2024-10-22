@@ -8,6 +8,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
+import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeCache
+import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeCacheImpl
+import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
+import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolverImpl
 import java.util.logging.Logger
 import javax.inject.Singleton
 
@@ -20,4 +24,15 @@ class UtilModules {
         LoggingUtil().apply {
             LoggingUtil.initialize(context, Logger.getLogger(UtilModules::class.java.name), false)
         }
+
+    @Provides
+    @Singleton
+    fun provideMimeTypeCache(context: Context): MimeTypeCache = MimeTypeCacheImpl(context)
+
+    @Provides
+    @Singleton
+    fun provideMimeTypeResolver(
+        context: Context,
+        mimeTypeCache: MimeTypeCache,
+    ): MimeTypeResolver = MimeTypeResolverImpl(context, mimeTypeCache)
 }

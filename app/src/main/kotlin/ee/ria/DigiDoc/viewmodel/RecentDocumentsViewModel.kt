@@ -17,6 +17,7 @@ import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import ee.ria.DigiDoc.utilsLib.extensions.isCades
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
+import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.withContext
@@ -30,6 +31,7 @@ class RecentDocumentsViewModel
     constructor(
         @ApplicationContext private val context: Context,
         private val sivaRepository: SivaRepository,
+        private val mimeTypeResolver: MimeTypeResolver,
     ) : ViewModel() {
         private val _sendToSigningViewWithSiva = MutableLiveData(false)
         val sendToSigningViewWithSiva: LiveData<Boolean> = _sendToSigningViewWithSiva
@@ -101,4 +103,6 @@ class RecentDocumentsViewModel
                 _errorState.postValue(errorMessage)
             }
         }
+
+        fun getMimetype(file: File?): String? = mimeTypeResolver.mimeType(file)
     }

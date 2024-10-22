@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.Constant.CONTAINER_MIME_TYPE
 import ee.ria.DigiDoc.common.R.string.documents_add_error_exists
 import ee.ria.DigiDoc.common.R.string.empty_file_error
 import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
@@ -21,9 +22,9 @@ import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.exceptions.FileAlreadyExistsException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
-import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
+import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import java.io.File
 import java.io.FileNotFoundException
@@ -38,6 +39,7 @@ class FileOpeningViewModel
         private val contentResolver: ContentResolver,
         private val fileOpeningRepository: FileOpeningRepository,
         private val sivaRepository: SivaRepository,
+        private val mimeTypeResolver: MimeTypeResolver,
     ) : ViewModel() {
         private val logTag = javaClass.simpleName
 
@@ -86,10 +88,15 @@ class FileOpeningViewModel
             return fileOpeningRepository.isSivaConfirmationNeeded(context, files)
         }
 
-        suspend fun getFileMimetype(fileUris: List<Uri>): String? =
-            urisToFile(context, contentResolver, fileUris)
-                .firstOrNull()
-                ?.mimeType(context)
+        suspend fun getFileMimetype(fileUris: List<Uri>): String? {
+            val file =
+                urisToFile(context, contentResolver, fileUris)
+                    .firstOrNull()
+            if (file != null) {
+                return mimeTypeResolver.mimeType(file)
+            }
+            return CONTAINER_MIME_TYPE
+        }
 
         suspend fun handleFiles(
             uris: List<Uri>,
@@ -156,7 +163,8 @@ class FileOpeningViewModel
                     _filesAdded.postValue(urisToFile(context, contentResolver, uris))
                 } catch (e: Exception) {
                     _signedContainer.postValue(null)
-                    errorLog(logTag, "Unable to open or create container", e)
+                    _launchFilePicker.postValue(false)
+                    errorLog(logTag, "Unable to open or create container: ", e)
 
                     handleException(e)
                 }
