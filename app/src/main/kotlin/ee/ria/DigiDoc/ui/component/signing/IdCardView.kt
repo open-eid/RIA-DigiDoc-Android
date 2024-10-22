@@ -104,7 +104,7 @@ fun IdCardView(
     val dialogError by idCardViewModel.dialogError.asFlow().collectAsState(null)
 
     val idCardStatusInitialMessage = stringResource(id = R.string.id_card_status_initial_message)
-    var idCardStatusMessage = remember { mutableStateOf(idCardStatusInitialMessage) }
+    val idCardStatusMessage = remember { mutableStateOf(idCardStatusInitialMessage) }
     val idCardStatusReaderDetectedMessage = stringResource(id = R.string.id_card_status_reader_detected_message)
     val idCardStatusCardDetectedMessage = stringResource(id = R.string.id_card_status_card_detected_message)
     val idCardStatusSigningMessage = stringResource(id = R.string.id_card_progress_message_signing)

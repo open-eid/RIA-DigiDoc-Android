@@ -34,12 +34,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -101,17 +99,7 @@ fun MobileIdView(
     val countryCodeAndPhoneNumberLabel = stringResource(id = R.string.signature_update_mobile_id_phone_no)
     val personalCodeLabel = stringResource(id = R.string.signature_update_mobile_id_personal_code)
 
-    val roleLabel = stringResource(id = R.string.main_settings_role_title)
-    val cityLabel = stringResource(id = R.string.main_settings_city_title)
-    val stateLabel = stringResource(id = R.string.main_settings_county_title)
-    val countryLabel = stringResource(id = R.string.main_settings_country_title)
-    val zipLabel = stringResource(id = R.string.main_settings_postal_code_title)
-
     val focusManager = LocalFocusManager.current
-    val focusRequester = remember { FocusRequester() }
-    var roleAndAddressHeadingTextLoaded by remember { mutableStateOf(false) }
-
-    val keyboardController = LocalSoftwareKeyboardController.current
 
     var countryCodeAndPhoneText by remember {
         mutableStateOf(
@@ -130,22 +118,6 @@ fun MobileIdView(
         )
     }
     val rememberMeCheckedState = remember { mutableStateOf(true) }
-
-    var rolesAndResolutionsText by remember {
-        mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getRoles()))
-    }
-    var cityText by remember {
-        mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getRoleCity()))
-    }
-    var stateText by remember {
-        mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getRoleState()))
-    }
-    var countryText by remember {
-        mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getRoleCountry()))
-    }
-    var zipText by remember {
-        mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getRoleZip()))
-    }
 
     val displayMessage = stringResource(id = R.string.signature_update_mobile_id_display_message)
 

@@ -140,7 +140,7 @@ class NFCViewModel
             nfcSmartCardReaderManager.disableNfcReaderMode()
         }
 
-        private fun checkNFCStatus(nfcStatus: NfcStatus) {
+        fun checkNFCStatus(nfcStatus: NfcStatus) {
             _nfcStatus.postValue(nfcStatus)
             CoroutineScope(Main).launch {
                 when (nfcStatus) {

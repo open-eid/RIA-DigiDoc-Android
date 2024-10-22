@@ -35,12 +35,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -66,7 +65,7 @@ import ee.ria.DigiDoc.common.Constant.NFCConstants.CAN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN2_MIN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN_MAX_LENGTH
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
-import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager
+import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager.NfcStatus
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
@@ -104,6 +103,7 @@ fun NFCView(
 
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
     var nfcStatus by remember { mutableStateOf(nfcViewModel.getNFCStatus(activity)) }
+    var nfcImage by remember { mutableStateOf(R.drawable.ic_icon_nfc) }
 
     val roleDataRequested by nfcViewModel.roleDataRequested.asFlow().collectAsState(null)
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
@@ -128,33 +128,7 @@ fun NFCView(
         )
     }
 
-    val roleLabel = stringResource(id = R.string.main_settings_role_title)
-    val cityLabel = stringResource(id = R.string.main_settings_city_title)
-    val stateLabel = stringResource(id = R.string.main_settings_county_title)
-    val countryLabel = stringResource(id = R.string.main_settings_country_title)
-    val zipLabel = stringResource(id = R.string.main_settings_postal_code_title)
-
-    var rolesAndResolutionsText by remember {
-        mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getRoles()))
-    }
-    var cityText by remember {
-        mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getRoleCity()))
-    }
-    var stateText by remember {
-        mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getRoleState()))
-    }
-    var countryText by remember {
-        mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getRoleCountry()))
-    }
-    var zipText by remember {
-        mutableStateOf(TextFieldValue(text = sharedSettingsViewModel.dataStore.getRoleZip()))
-    }
-
     val focusManager = LocalFocusManager.current
-    val focusRequester = remember { FocusRequester() }
-    var roleAndAddressHeadingTextLoaded by remember { mutableStateOf(false) }
-
-    val keyboardController = LocalSoftwareKeyboardController.current
 
     val openSignatureUpdateContainerDialog = rememberSaveable { mutableStateOf(false) }
     val dismissSignatureUpdateContainerDialog = {
@@ -214,6 +188,7 @@ fun NFCView(
             ) {
                 NFCSignatureUpdateContainer(
                     modifier = modifier,
+                    nfcImage = nfcImage,
                     nfcViewModel = nfcViewModel,
                     onCancelButtonClick = {
                         dismissSignatureUpdateContainerDialog()
@@ -237,6 +212,9 @@ fun NFCView(
                         focusManager.clearFocus()
                     })
                 }
+                .onGloballyPositioned {
+                    nfcViewModel.checkNFCStatus(nfcViewModel.getNFCStatus(activity))
+                }
                 .semantics {
                     testTagsAsResourceId = true
                 }
@@ -245,7 +223,9 @@ fun NFCView(
         if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
             RoleDataView(modifier, sharedSettingsViewModel)
         } else {
-            if (nfcStatus !== NfcSmartCardReaderManager.NfcStatus.NFC_ACTIVE) {
+            if (nfcStatus !== NfcStatus.NFC_ACTIVE) {
+                nfcImage = R.drawable.ic_icon_nfc_not_found
+
                 SignatureAddRadioGroup(
                     modifier = modifier,
                     navController = signatureAddController,
@@ -253,7 +233,7 @@ fun NFCView(
                     sharedSettingsViewModel = sharedSettingsViewModel,
                 )
                 Image(
-                    painter = painterResource(id = R.drawable.ic_icon_nfc),
+                    painter = painterResource(id = nfcImage),
                     contentDescription = null,
                     modifier =
                         modifier
@@ -263,7 +243,7 @@ fun NFCView(
                             .testTag("signatureUpdateNFCIcon"),
                 )
                 val nfcStatusText =
-                    if (nfcStatus === NfcSmartCardReaderManager.NfcStatus.NFC_NOT_SUPPORTED) {
+                    if (nfcStatus === NfcStatus.NFC_NOT_SUPPORTED) {
                         stringResource(id = R.string.signature_update_nfc_adapter_missing)
                     } else {
                         stringResource(id = R.string.signature_update_nfc_turned_off)
@@ -273,12 +253,15 @@ fun NFCView(
                     style = MaterialTheme.typography.titleLarge,
                     modifier =
                         modifier
+                            .fillMaxWidth()
                             .padding(screenViewLargePadding)
                             .semantics { heading() }
                             .testTag("signatureUpdateNFCNotFoundMessage"),
                     textAlign = TextAlign.Center,
                 )
             } else {
+                nfcImage = R.drawable.ic_icon_nfc
+
                 SignatureAddRadioGroup(
                     modifier = modifier,
                     navController = signatureAddController,
