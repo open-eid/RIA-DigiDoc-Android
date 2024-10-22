@@ -19,7 +19,6 @@ import ee.ria.DigiDoc.idcard.TokenWithPace
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
-import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.smartcardreader.ApduResponseException
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderException
@@ -28,6 +27,7 @@ import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager.NfcStatus
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import org.bouncycastle.util.encoders.Base64
@@ -57,8 +57,6 @@ class NFCViewModel
 
         private val _roleDataRequested = MutableLiveData(false)
         val roleDataRequested: LiveData<Boolean?> = _roleDataRequested
-
-        private var signatureInterface: SignatureInterface? = null
 
         fun resetErrorState() {
             _errorState.postValue(null)
@@ -121,21 +119,20 @@ class NFCViewModel
             _nfcStatus.postValue(null)
         }
 
-        fun cancelNFCWorkRequest(signedContainer: SignedContainer?) {
-            if (signedContainer != null) {
-                try {
-                    signatureInterface?.let {
-                        signedContainer.removeSignature(it)
-                    }
-                } catch (e: Exception) {
-                    errorLog(
-                        logTag,
-                        "Failed to remove signature from container. Exception message: ${e.message}. " +
-                            "Exception: ${e.stackTrace.contentToString()}",
-                        e,
-                    )
+        suspend fun removePendingSignature(signedContainer: SignedContainer) {
+            val signatures = signedContainer.getSignatures(Main)
+            if (signatures.isNotEmpty()) {
+                val lastSignatureStatus = signatures.last().validator.status
+                if (lastSignatureStatus == ValidatorInterface.Status.Invalid ||
+                    lastSignatureStatus == ValidatorInterface.Status.Unknown
+                ) {
+                    signedContainer.removeSignature(signatures.last())
                 }
             }
+        }
+
+        suspend fun cancelNFCWorkRequest(signedContainer: SignedContainer) {
+            removePendingSignature(signedContainer)
 
             nfcSmartCardReaderManager.disableNfcReaderMode()
         }
@@ -181,21 +178,6 @@ class NFCViewModel
 
                                 val dataToSignBytes = containerWrapper.prepareSignature(container, signerCert, roleData)
 
-                                CoroutineScope(Main).launch {
-                                    val containerSignatures = container.getSignatures(Main)
-
-                                    signatureInterface =
-                                        if (containerSignatures.isEmpty()) {
-                                            null
-                                        } else {
-                                            containerSignatures
-                                                .lastOrNull {
-                                                    it.validator.status == ValidatorInterface.Status.Invalid ||
-                                                        it.validator.status == ValidatorInterface.Status.Unknown
-                                                }
-                                        }
-                                }
-
                                 val signatureArray = card.calculateSignature(pin2Code, dataToSignBytes, true)
                                 if (null != pin2Code && pin2Code.isNotEmpty()) {
                                     Arrays.fill(pin2Code, 0.toByte())
@@ -210,6 +192,9 @@ class NFCViewModel
                                 }
                             } catch (ex: SmartCardReaderException) {
                                 _signStatus.postValue(false)
+                                CoroutineScope(IO).launch {
+                                    removePendingSignature(container)
+                                }
 
                                 if (ex.message?.contains("TagLostException") == true) {
                                     _errorState.postValue(context.getString(R.string.signature_update_nfc_tag_lost))

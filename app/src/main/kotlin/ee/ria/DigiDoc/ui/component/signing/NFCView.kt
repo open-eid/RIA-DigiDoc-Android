@@ -192,7 +192,9 @@ fun NFCView(
                     nfcViewModel = nfcViewModel,
                     onCancelButtonClick = {
                         dismissSignatureUpdateContainerDialog()
-                        nfcViewModel.cancelNFCWorkRequest(signedContainer)
+                        CoroutineScope(IO).launch {
+                            signedContainer?.let { nfcViewModel.cancelNFCWorkRequest(it) }
+                        }
                     },
                 )
                 InvisibleElement(modifier = modifier)
