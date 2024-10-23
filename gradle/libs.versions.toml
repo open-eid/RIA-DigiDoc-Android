@@ -2,7 +2,7 @@
 compileSdkVersion = "34"
 minSdkVersion = "30"
 targetSdkVersion = "34"
-versionCode = "63"
+versionCode = "64"
 versionName = "3.0.0"
 
 agp = "8.7.1"
@@ -44,7 +44,7 @@ coreKtxVersion = "1.6.1"
 androidx-arch-core-testing = "2.2.0"
 firebaseCrashlytics = "3.0.2"
 googleServices = "4.4.2"
-firebaseCrashlyticsKtx = "19.2.0"
+firebaseCrashlyticsKtx = "19.2.1"
 kotlinxCoroutinesRx3 = "1.9.0"
 
 [libraries]
