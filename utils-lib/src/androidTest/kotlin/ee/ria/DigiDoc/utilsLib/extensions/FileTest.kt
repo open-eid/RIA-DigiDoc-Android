@@ -1,6 +1,6 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.utilsLib.container.extensions
+package ee.ria.DigiDoc.utilsLib.extensions
 
 import android.content.Context
 import android.graphics.pdf.PdfDocument
@@ -13,12 +13,7 @@ import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DEFAULT_MIME_TYPE
 import ee.ria.DigiDoc.common.Constant.PDF_EXTENSION
 import ee.ria.DigiDoc.common.testfiles.file.TestFileUtil.Companion.createZipWithTextFile
-import ee.ria.DigiDoc.utilsLib.extensions.isCades
-import ee.ria.DigiDoc.utilsLib.extensions.isContainer
-import ee.ria.DigiDoc.utilsLib.extensions.isPDF
-import ee.ria.DigiDoc.utilsLib.extensions.isSignedPDF
-import ee.ria.DigiDoc.utilsLib.extensions.isXades
-import ee.ria.DigiDoc.utilsLib.extensions.mimeType
+import org.apache.commons.codec.digest.DigestUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -32,6 +27,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 
@@ -173,6 +169,30 @@ class FileTest {
         val isCades = testFile.isCades(context)
 
         assertFalse(isCades)
+    }
+
+    @Test
+    fun file_md5Hash_success() {
+        val testFile = createZipWithTextFile(ASICS_MIMETYPE, "testFile.txt")
+
+        var expectedMd5: String?
+
+        FileInputStream(testFile).use { fis ->
+            expectedMd5 = DigestUtils.md5Hex(fis)
+        }
+
+        val result = testFile.md5Hash()
+
+        assertEquals(expectedMd5, result)
+    }
+
+    @Test
+    fun file_md5Hash_returnEmptyHashWhenExceptionOccurs() {
+        val testFile = File("")
+
+        val result = testFile.md5Hash()
+
+        assertEquals("", result)
     }
 
     private fun mockFile(

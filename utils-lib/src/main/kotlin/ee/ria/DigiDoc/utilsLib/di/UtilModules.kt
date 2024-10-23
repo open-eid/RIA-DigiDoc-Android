@@ -31,8 +31,5 @@ class UtilModules {
 
     @Provides
     @Singleton
-    fun provideMimeTypeResolver(
-        context: Context,
-        mimeTypeCache: MimeTypeCache,
-    ): MimeTypeResolver = MimeTypeResolverImpl(context, mimeTypeCache)
+    fun provideMimeTypeResolver(mimeTypeCache: MimeTypeCache): MimeTypeResolver = MimeTypeResolverImpl(mimeTypeCache)
 }

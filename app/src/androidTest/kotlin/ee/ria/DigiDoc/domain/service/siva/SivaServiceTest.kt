@@ -21,6 +21,9 @@ import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
+import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeCacheImpl
+import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
+import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolverImpl
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertFalse
@@ -28,10 +31,14 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
+import org.mockito.Mock
 import org.mockito.Mockito.mock
 import java.io.File
 
 class SivaServiceTest {
+    @Mock
+    private lateinit var mimeTypeResolver: MimeTypeResolver
+
     private lateinit var sivaService: SivaService
     private lateinit var containerFile: File
     private lateinit var signedPdfDocument: File
@@ -39,8 +46,9 @@ class SivaServiceTest {
     @Before
     fun setUp() =
         runBlocking {
+            mimeTypeResolver = MimeTypeResolverImpl(MimeTypeCacheImpl(context))
             context = InstrumentationRegistry.getInstrumentation().targetContext
-            sivaService = SivaServiceImpl()
+            sivaService = SivaServiceImpl(mimeTypeResolver)
             signedPdfDocument =
                 AssetFile.getResourceFileAsFile(
                     context, "example_signed_pdf.pdf",

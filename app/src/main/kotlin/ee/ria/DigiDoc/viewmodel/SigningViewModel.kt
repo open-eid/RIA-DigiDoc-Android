@@ -62,7 +62,6 @@ class SigningViewModel
             signedContainer?.getTimestamps()?.isNotEmpty() == true
 
         fun isSignButtonShown(
-            context: Context,
             signedContainer: SignedContainer?,
             isNestedContainer: Boolean,
             isXadesContainer: Boolean,
@@ -71,7 +70,7 @@ class SigningViewModel
             signedContainer != null &&
                 (
                     !UNSIGNABLE_CONTAINER_MIMETYPES.contains(
-                        getMimetype(signedContainer.getContainerFile()),
+                        signedContainer.getContainerFile()?.let { getMimetype(it) },
                     )
                 ) &&
                 (
@@ -137,9 +136,9 @@ class SigningViewModel
                 context = context,
                 fileProviderAuthority = context.getString(R.string.file_provider_authority),
                 file = file,
-                mimeType = getMimetype(file),
+                mimeType = getMimetype(file) ?: "",
                 action = Intent.ACTION_VIEW,
             )
 
-        fun getMimetype(file: File?): String = mimeTypeResolver.mimeType(file)
+        fun getMimetype(file: File): String? = mimeTypeResolver.mimeType(file)
     }

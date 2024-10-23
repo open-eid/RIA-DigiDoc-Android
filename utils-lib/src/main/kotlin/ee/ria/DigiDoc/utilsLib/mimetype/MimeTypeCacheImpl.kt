@@ -19,8 +19,7 @@ class MimeTypeCacheImpl
     ) : MimeTypeCache {
         private val cache = mutableMapOf<String, MimeTypeCacheEntry>()
 
-        override fun getMimeType(fileUri: String): String {
-            val file = File(fileUri)
+        override fun getMimeType(file: File): String {
             val md5 = file.md5Hash()
 
             return cache[md5]?.mimeType ?: run {
