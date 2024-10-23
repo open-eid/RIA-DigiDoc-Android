@@ -2,8 +2,10 @@
 
 package ee.ria.DigiDoc.utilsLib.mimetype
 
+import java.io.File
+
 interface MimeTypeCache {
-    fun getMimeType(fileUri: String): String
+    fun getMimeType(file: File): String
 
     fun setMimeType(
         md5: String,

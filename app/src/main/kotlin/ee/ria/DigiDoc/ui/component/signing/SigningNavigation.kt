@@ -442,7 +442,6 @@ fun SigningNavigation(
                 modifier = modifier,
                 showSignButton =
                     signingViewModel.isSignButtonShown(
-                        context,
                         signedContainer,
                         isNestedContainer,
                         isXadesContainer,
@@ -464,7 +463,7 @@ fun SigningNavigation(
                                 context,
                                 context.getString(R.string.file_provider_authority),
                                 containerFile,
-                                signingViewModel.getMimetype(containerFile),
+                                signingViewModel.getMimetype(containerFile) ?: "",
                                 Intent.ACTION_SEND,
                             )
                         ContextCompat.startActivity(context, intent, null)
@@ -847,7 +846,8 @@ fun SigningNavigation(
                                         signingViewModel = signingViewModel,
                                         showRemoveButton =
                                             !NO_REMOVE_SIGNATURE_BUTTON_FILE_MIMETYPES.contains(
-                                                signingViewModel.getMimetype(signedContainer?.getContainerFile()),
+                                                signedContainer?.getContainerFile()
+                                                    ?.let { signingViewModel.getMimetype(it) },
                                             ) &&
                                                 !NO_REMOVE_SIGNATURE_BUTTON_FILE_EXTENSIONS.contains(
                                                     FilenameUtils.getExtension(signedContainer?.getName()),
@@ -954,7 +954,8 @@ fun SigningNavigation(
                                         signingViewModel = signingViewModel,
                                         showRemoveButton =
                                             !NO_REMOVE_SIGNATURE_BUTTON_FILE_MIMETYPES.contains(
-                                                signingViewModel.getMimetype(signedContainer?.getContainerFile()),
+                                                signedContainer?.getContainerFile()
+                                                    ?.let { container -> signingViewModel.getMimetype(container) },
                                             ) &&
                                                 !NO_REMOVE_SIGNATURE_BUTTON_FILE_EXTENSIONS.contains(
                                                     FilenameUtils.getExtension(signedContainer?.getName()),

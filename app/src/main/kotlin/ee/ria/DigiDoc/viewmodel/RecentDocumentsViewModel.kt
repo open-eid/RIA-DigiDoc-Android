@@ -104,5 +104,5 @@ class RecentDocumentsViewModel
             }
         }
 
-        fun getMimetype(file: File?): String? = mimeTypeResolver.mimeType(file)
+        fun getMimetype(file: File): String? = mimeTypeResolver.mimeType(file)
     }

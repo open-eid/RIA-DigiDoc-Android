@@ -8,6 +8,8 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
+import ee.ria.DigiDoc.common.Constant.ASICE_MIMETYPE
+import ee.ria.DigiDoc.common.Constant.DEFAULT_MIME_TYPE
 import ee.ria.DigiDoc.common.testfiles.asset.AssetFile.Companion.getResourceFileAsFile
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifierImpl
@@ -21,6 +23,9 @@ import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
+import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeCache
+import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
+import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolverImpl
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -41,6 +46,7 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import java.io.File
@@ -57,6 +63,11 @@ class SigningViewModelTest {
 
     @Mock
     lateinit var contentResolver: ContentResolver
+
+    @Mock
+    lateinit var mimeTypeCache: MimeTypeCache
+
+    lateinit var mimeTypeResolver: MimeTypeResolver
 
     companion object {
         private var context: Context = InstrumentationRegistry.getInstrumentation().targetContext
@@ -92,9 +103,14 @@ class SigningViewModelTest {
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        viewModel = SigningViewModel()
+        mimeTypeResolver = MimeTypeResolverImpl(mimeTypeCache)
+        viewModel = SigningViewModel(mimeTypeResolver)
         viewModel.shouldResetSignedContainer.observeForever(shouldResetSignedContainerObserver)
-        sharedContainerViewModel = SharedContainerViewModel(mock(Context::class.java), contentResolver)
+        sharedContainerViewModel =
+            SharedContainerViewModel(
+                mock(Context::class.java),
+                contentResolver,
+            )
     }
 
     @Test
@@ -107,11 +123,13 @@ class SigningViewModelTest {
     @Test
     fun signingViewModel_isSignButtonShown_returnTrue() =
         runTest {
+            `when`(mimeTypeCache.getMimeType(anyOrNull())).thenReturn(ASICE_MIMETYPE)
+
             val file = File.createTempFile("temp", ".txt")
             Files.write(file.toPath(), "content".toByteArray(Charset.defaultCharset()))
             val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
-            val isSignButtonShown = viewModel.isSignButtonShown(context, container, false, false, false)
+            val isSignButtonShown = viewModel.isSignButtonShown(container, false, false, false)
 
             assertTrue(isSignButtonShown)
         }
@@ -119,11 +137,13 @@ class SigningViewModelTest {
     @Test
     fun signingViewModel_isSignButtonShown_emptyFileInContainerReturnFalse() =
         runTest {
+            `when`(mimeTypeCache.getMimeType(anyOrNull())).thenReturn(ASICE_MIMETYPE)
+
             val file = File.createTempFile("temp", ".txt")
 
             val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
-            val isSignButtonShown = viewModel.isSignButtonShown(context, container, false, false, false)
+            val isSignButtonShown = viewModel.isSignButtonShown(container, false, false, false)
 
             assertFalse(isSignButtonShown)
         }
@@ -131,7 +151,7 @@ class SigningViewModelTest {
     @Test
     fun signingViewModel_isSignButtonShown_containerIsNullReturnFalse() =
         runTest {
-            val isSignButtonShown = viewModel.isSignButtonShown(context, null, false, false, false)
+            val isSignButtonShown = viewModel.isSignButtonShown(null, false, false, false)
 
             assertFalse(isSignButtonShown)
         }
@@ -423,6 +443,8 @@ class SigningViewModelTest {
     @Test
     fun signingViewModel_getViewIntent_success() =
         runTest {
+            `when`(mimeTypeCache.getMimeType(anyOrNull())).thenReturn(ASICE_MIMETYPE)
+
             val file =
                 getResourceFileAsFile(
                     context,
@@ -446,5 +468,57 @@ class SigningViewModelTest {
             val isContainerWithTimestamps = viewModel.isContainerWithTimestamps(container)
 
             assertFalse(isContainerWithTimestamps)
+        }
+
+    @Test
+    fun signingViewModel_getMimetype_success() =
+        runTest {
+            `when`(mimeTypeCache.getMimeType(anyOrNull())).thenReturn(ASICE_MIMETYPE)
+
+            val file = File.createTempFile("temp", ".txt")
+            Files.write(file.toPath(), "content".toByteArray(Charset.defaultCharset()))
+
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
+
+            val containerFile = container.getContainerFile()
+
+            if (containerFile != null) {
+                val mimetype = viewModel.getMimetype(containerFile)
+                assertEquals(ASICE_MIMETYPE, mimetype)
+            } else {
+                fail("containerFile is null")
+            }
+        }
+
+    @Test
+    fun signingViewModel_getMimetype_defaultMimeType() =
+        runTest {
+            `when`(mimeTypeCache.getMimeType(anyOrNull())).thenReturn("")
+
+            val file = File.createTempFile("temp", ".txt")
+            Files.write(file.toPath(), "content".toByteArray(Charset.defaultCharset()))
+
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
+
+            val containerFile = container.getContainerFile()
+
+            if (containerFile != null) {
+                val mimetype = viewModel.getMimetype(containerFile)
+                assertEquals(DEFAULT_MIME_TYPE, mimetype)
+            } else {
+                fail("containerFile is null")
+            }
+        }
+
+    @Test
+    fun signingViewModel_getMimetype_successGettingFileMimetype() =
+        runTest {
+            `when`(mimeTypeCache.getMimeType(anyOrNull())).thenReturn("text/plain")
+
+            val file = File.createTempFile("temp", ".txt")
+
+            val mimetype = viewModel.getMimetype(file)
+
+            assertEquals("text/plain", mimetype)
         }
 }

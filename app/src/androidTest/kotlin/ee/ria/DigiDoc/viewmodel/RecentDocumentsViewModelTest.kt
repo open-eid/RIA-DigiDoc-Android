@@ -7,6 +7,8 @@ import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
+import ee.ria.DigiDoc.common.Constant.ASICE_MIMETYPE
+import ee.ria.DigiDoc.common.Constant.DEFAULT_MIME_TYPE
 import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
 import ee.ria.DigiDoc.common.testfiles.file.TestFileUtil.Companion.createZipWithTextFile
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
@@ -22,6 +24,9 @@ import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
+import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeCache
+import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
+import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolverImpl
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -51,6 +56,11 @@ class RecentDocumentsViewModelTest {
 
     @Mock
     private lateinit var sivaRepository: SivaRepository
+
+    @Mock
+    private lateinit var mimeTypeCache: MimeTypeCache
+
+    private lateinit var mimeTypeResolver: MimeTypeResolver
 
     private lateinit var container: File
     private lateinit var signedContainer: SignedContainer
@@ -90,7 +100,8 @@ class RecentDocumentsViewModelTest {
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        viewModel = RecentDocumentsViewModel(context, sivaRepository)
+        mimeTypeResolver = MimeTypeResolverImpl(mimeTypeCache)
+        viewModel = RecentDocumentsViewModel(context, sivaRepository, mimeTypeResolver)
 
         container =
             AssetFile.getResourceFileAsFile(
@@ -104,11 +115,15 @@ class RecentDocumentsViewModelTest {
                 SignedContainer.openOrCreate(context, container, listOf(container), true)
             }
 
-        sharedContainerViewModel = SharedContainerViewModel(context, mock(ContentResolver::class.java))
+        sharedContainerViewModel =
+            SharedContainerViewModel(
+                context,
+                mock(ContentResolver::class.java),
+            )
     }
 
     @Test
-    fun signingViewModel_openDocument_success() =
+    fun recentDocumentsViewModel_openDocument_success() =
         runBlocking {
             val container =
                 AssetFile.getResourceFileAsFile(
@@ -125,7 +140,7 @@ class RecentDocumentsViewModelTest {
         }
 
     @Test
-    fun signingViewModel_openDocument_successWithTimestampedContainer(): Unit =
+    fun recentDocumentsViewModel_openDocument_successWithTimestampedContainer(): Unit =
         runBlocking {
             val tempFile = File.createTempFile("testFile", ".asics", ContainerUtil.signatureContainersDir(context))
             tempFile.deleteOnExit()
@@ -138,7 +153,7 @@ class RecentDocumentsViewModelTest {
         }
 
     @Test
-    fun signingViewModel_getRecentDocumentList_success() {
+    fun recentDocumentsViewModel_getRecentDocumentList_success() {
         ContainerUtil.signatureContainersDir(context).delete()
         val tempFile = File.createTempFile("testFile", ".asice", ContainerUtil.signatureContainersDir(context))
         tempFile.deleteOnExit()
@@ -148,7 +163,7 @@ class RecentDocumentsViewModelTest {
     }
 
     @Test
-    fun signingViewModel_handleSendToSigningViewWithSiva_sendToSigningViewWithSivaFalseWithOtherMimetype() =
+    fun recentDocumentsViewModel_handleSendToSigningViewWithSiva_sendToSigningViewWithSivaFalseWithOtherMimetype() =
         runTest {
             val mimeType = "some/other-mime"
             val mockFile = createZipWithTextFile("application/zip")
@@ -164,7 +179,7 @@ class RecentDocumentsViewModelTest {
         }
 
     @Test
-    fun signingViewModel_handleSendToSigningViewWithSiva_sendToSigningViewWithSivaTrue() =
+    fun recentDocumentsViewModel_handleSendToSigningViewWithSiva_sendToSigningViewWithSivaTrue() =
         runTest {
             viewModel.handleSendToSigningViewWithSiva(true)
 
@@ -178,7 +193,7 @@ class RecentDocumentsViewModelTest {
         }
 
     @Test
-    fun signingViewModel_handleSendToSigningViewWithSiva_sendToSigningViewWithSivaFalse() =
+    fun recentDocumentsViewModel_handleSendToSigningViewWithSiva_sendToSigningViewWithSivaFalse() =
         runTest {
             viewModel.handleSendToSigningViewWithSiva(false)
 
@@ -189,5 +204,37 @@ class RecentDocumentsViewModelTest {
             } else {
                 fail("sendToSigningViewWithSiva cannot be null")
             }
+        }
+
+    @Test
+    fun recentDocumentsViewModel_getMimetype_success() =
+        runTest {
+            `when`(mimeTypeCache.getMimeType(anyOrNull())).thenReturn(ASICE_MIMETYPE)
+
+            val mimetype = viewModel.getMimetype(container)
+
+            assertEquals(ASICE_MIMETYPE, mimetype)
+        }
+
+    @Test
+    fun recentDocumentsViewModel_getMimetype_defaultMimeType() =
+        runTest {
+            `when`(mimeTypeCache.getMimeType(anyOrNull())).thenReturn("")
+
+            val mimetype = viewModel.getMimetype(container)
+
+            assertEquals(DEFAULT_MIME_TYPE, mimetype)
+        }
+
+    @Test
+    fun recentDocumentsViewModel_getMimetype_successGettingFileMimetype() =
+        runTest {
+            `when`(mimeTypeCache.getMimeType(anyOrNull())).thenReturn("text/plain")
+
+            val file = File.createTempFile("temp", ".txt")
+
+            val mimetype = viewModel.getMimetype(file)
+
+            assertEquals("text/plain", mimetype)
         }
 }

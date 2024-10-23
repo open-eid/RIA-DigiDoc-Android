@@ -30,6 +30,7 @@ import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
+import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -89,6 +90,9 @@ class FileOpeningViewModelTest {
     @Mock
     lateinit var sivaRepository: SivaRepository
 
+    @Mock
+    lateinit var mimeTypeResolver: MimeTypeResolver
+
     private lateinit var viewModel: FileOpeningViewModel
 
     companion object {
@@ -122,7 +126,11 @@ class FileOpeningViewModelTest {
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        viewModel = FileOpeningViewModel(context, contentResolver, fileOpeningRepository, sivaRepository)
+        viewModel =
+            FileOpeningViewModel(
+                context, contentResolver, fileOpeningRepository,
+                sivaRepository, mimeTypeResolver,
+            )
         viewModel.signedContainer.observeForever(signedContainerObserver)
         viewModel.errorState.observeForever(errorStateObserver)
         viewModel.launchFilePicker.observeForever(launchFilePickerObserver)
