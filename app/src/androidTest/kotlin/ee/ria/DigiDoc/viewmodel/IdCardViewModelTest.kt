@@ -21,7 +21,6 @@ import ee.ria.DigiDoc.idcard.CodeVerificationException
 import ee.ria.DigiDoc.idcard.PersonalData
 import ee.ria.DigiDoc.idcard.Token
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
-import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.smartcardreader.SmartCardReader
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderManager
@@ -68,9 +67,6 @@ class IdCardViewModelTest {
 
     @Mock
     private lateinit var idCardService: IdCardService
-
-    @Mock
-    private lateinit var containerWrapper: ContainerWrapper
 
     @Mock
     private lateinit var certificateService: CertificateService

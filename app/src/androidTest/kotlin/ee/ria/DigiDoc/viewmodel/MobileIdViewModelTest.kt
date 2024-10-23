@@ -662,7 +662,7 @@ class MobileIdViewModelTest {
     @Test
     fun mobileIdViewModel_positiveButtonEnabled_phoneNumberNullReturnFalse() =
         runTest {
-            val result = viewModel.positiveButtonEnabled("3725629421", null)
+            val result = viewModel.positiveButtonEnabled(null, "38308263913")
             assertFalse(result)
         }
 

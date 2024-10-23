@@ -3,7 +3,6 @@
 package ee.ria.DigiDoc.common.model
 
 import ee.ria.DigiDoc.common.certificate.CertificateService
-import org.bouncycastle.cert.X509CertificateHolder
 import java.io.IOException
 
 data class Certificate(

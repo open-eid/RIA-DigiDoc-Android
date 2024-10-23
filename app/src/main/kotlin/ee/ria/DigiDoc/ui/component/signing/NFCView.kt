@@ -192,7 +192,9 @@ fun NFCView(
                     nfcViewModel = nfcViewModel,
                     onCancelButtonClick = {
                         dismissSignatureUpdateContainerDialog()
-                        nfcViewModel.cancelNFCWorkRequest(signedContainer)
+                        CoroutineScope(IO).launch {
+                            signedContainer?.let { nfcViewModel.cancelNFCWorkRequest(it) }
+                        }
                     },
                 )
                 InvisibleElement(modifier = modifier)
@@ -290,7 +292,7 @@ fun NFCView(
                 val canNumberTextEdited = remember { mutableStateOf(false) }
                 val canNumberErrorText =
                     if (canNumberTextEdited.value && canNumberText.text.isNotEmpty()) {
-                        if (!nfcViewModel.isCANNumberValid(canNumberText.text)) {
+                        if (nfcViewModel.shouldShowCANNumberError(canNumberText.text)) {
                             String.format(
                                 stringResource(id = R.string.nfc_sign_can_invalid_length),
                                 CAN_LENGTH,
@@ -330,7 +332,7 @@ fun NFCView(
                     singleLine = true,
                     isError =
                         canNumberTextEdited.value &&
-                            !nfcViewModel.isCANNumberValid(canNumberText.text),
+                            nfcViewModel.shouldShowCANNumberError(canNumberText.text),
                     textStyle = MaterialTheme.typography.titleLarge,
                     keyboardOptions =
                         KeyboardOptions.Default.copy(
@@ -361,8 +363,8 @@ fun NFCView(
                 )
                 val pin2CodeErrorText =
                     if (pin2CodeText.text.isNotEmpty()) {
-                        if (!nfcViewModel
-                                .isPIN2CodeValid(
+                        if (nfcViewModel
+                                .shouldShowPIN2CodeError(
                                     pin2CodeText.text.toByteArray(StandardCharsets.UTF_8),
                                 )
                         ) {
@@ -397,8 +399,8 @@ fun NFCView(
                     maxLines = 1,
                     singleLine = true,
                     isError =
-                        !nfcViewModel
-                            .isPIN2CodeValid(pin2CodeText.text.toByteArray(StandardCharsets.UTF_8)),
+                        nfcViewModel
+                            .shouldShowPIN2CodeError(pin2CodeText.text.toByteArray(StandardCharsets.UTF_8)),
                     textStyle = MaterialTheme.typography.titleLarge,
                     visualTransformation = PasswordVisualTransformation(),
                     keyboardOptions =
