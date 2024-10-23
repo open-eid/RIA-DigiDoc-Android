@@ -78,15 +78,15 @@ class NFCViewModel
             _roleDataRequested.postValue(roleDataRequested)
         }
 
-        fun isCANNumberValid(canNumber: String?): Boolean {
-            return !(
+        fun shouldShowCANNumberError(canNumber: String?): Boolean {
+            return (
                 !canNumber.isNullOrEmpty() &&
                     !isCANLengthValid(canNumber)
             )
         }
 
-        fun isPIN2CodeValid(pin2Code: ByteArray?): Boolean {
-            return !(pin2Code != null && pin2Code.isNotEmpty() && !isPIN2LengthValid(pin2Code))
+        fun shouldShowPIN2CodeError(pin2Code: ByteArray?): Boolean {
+            return (pin2Code != null && pin2Code.isNotEmpty() && !isPIN2LengthValid(pin2Code))
         }
 
         private fun isPIN2LengthValid(pin2Code: ByteArray): Boolean {

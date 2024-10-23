@@ -197,73 +197,73 @@ class NFCViewModelTest {
         }
 
     @Test
-    fun nfcViewModel_isCANNumberValid_success() =
+    fun nfcViewModel_shouldShowCANNumberError_false() =
         runTest {
-            val result = viewModel.isCANNumberValid("444222")
-            assertTrue(result)
-        }
-
-    @Test
-    fun nfcViewModel_isCANNumberValid_nullReturnTrue() =
-        runTest {
-            val result = viewModel.isCANNumberValid(null)
-            assertTrue(result)
-        }
-
-    @Test
-    fun nfcViewModel_isCANNumberValid_isEmptyReturnTrue() =
-        runTest {
-            val result = viewModel.isCANNumberValid("")
-            assertTrue(result)
-        }
-
-    @Test
-    fun nfcViewModel_isCANNumberValid_returnFalseMinLength() =
-        runTest {
-            val result = viewModel.isCANNumberValid("44422")
+            val result = viewModel.shouldShowCANNumberError("444222")
             assertFalse(result)
         }
 
     @Test
-    fun nfcViewModel_isCANNumberValid_returnFalseMaxLength() =
+    fun nfcViewModel_shouldShowCANNumberError_nullReturnFalse() =
         runTest {
-            val result = viewModel.isCANNumberValid("4442222")
+            val result = viewModel.shouldShowCANNumberError(null)
             assertFalse(result)
         }
 
     @Test
-    fun nfcViewModel_isPIN2CodeValid_success() =
+    fun nfcViewModel_isCANNumberValid_shouldShowEmptyReturnFalse() =
         runTest {
-            val result = viewModel.isPIN2CodeValid(byteArrayOf(1, 1, 5, 5, 5))
-            assertTrue(result)
-        }
-
-    @Test
-    fun nfcViewModel_isPIN2CodeValid_isNullReturnTrue() =
-        runTest {
-            val result = viewModel.isPIN2CodeValid(null)
-            assertTrue(result)
-        }
-
-    @Test
-    fun nfcViewModel_isPIN2CodeValid_isEmptyReturnTrue() =
-        runTest {
-            val result = viewModel.isPIN2CodeValid(byteArrayOf())
-            assertTrue(result)
-        }
-
-    @Test
-    fun nfcViewModel_isPIN2CodeValid_returnFalseMinLength() =
-        runTest {
-            val result = viewModel.isPIN2CodeValid(byteArrayOf(1, 1, 5, 5))
+            val result = viewModel.shouldShowCANNumberError("")
             assertFalse(result)
         }
 
     @Test
-    fun nfcViewModel_isPIN2CodeValid_returnFalseMaxLength() =
+    fun nfcViewModel_shouldShowCANNumberError_returnTrueMinLength() =
         runTest {
-            val result = viewModel.isPIN2CodeValid(byteArrayOf(1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7))
+            val result = viewModel.shouldShowCANNumberError("44422")
+            assertTrue(result)
+        }
+
+    @Test
+    fun nfcViewModel_shouldShowCANNumberError_returnTrueMaxLength() =
+        runTest {
+            val result = viewModel.shouldShowCANNumberError("4442222")
+            assertTrue(result)
+        }
+
+    @Test
+    fun nfcViewModel_shouldShowPIN2CodeError_false() =
+        runTest {
+            val result = viewModel.shouldShowPIN2CodeError(byteArrayOf(1, 1, 5, 5, 5))
             assertFalse(result)
+        }
+
+    @Test
+    fun nfcViewModel_isPIN2CodeValid_shouldShowNullReturnFalse() =
+        runTest {
+            val result = viewModel.shouldShowPIN2CodeError(null)
+            assertFalse(result)
+        }
+
+    @Test
+    fun nfcViewModel_isPIN2CodeValid_shouldShowEmptyReturnFalse() =
+        runTest {
+            val result = viewModel.shouldShowPIN2CodeError(byteArrayOf())
+            assertFalse(result)
+        }
+
+    @Test
+    fun nfcViewModel_shouldShowPIN2CodeError_returnTrueMinLength() =
+        runTest {
+            val result = viewModel.shouldShowPIN2CodeError(byteArrayOf(1, 1, 5, 5))
+            assertTrue(result)
+        }
+
+    @Test
+    fun nfcViewModel_shouldShowPIN2CodeError_returnTrueMaxLength() =
+        runTest {
+            val result = viewModel.shouldShowPIN2CodeError(byteArrayOf(1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7))
+            assertTrue(result)
         }
 
     @Test
