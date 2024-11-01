@@ -469,6 +469,16 @@ class DataStore
             )
         }
 
+        fun isValidPortNumber(portNumber: String): Boolean {
+            try {
+                val number = portNumber.toInt()
+                return number in 1..65535
+            } catch (e: NumberFormatException) {
+                errorLog(logTag, "Invalid number: $portNumber", e)
+                return false
+            }
+        }
+
         fun setProxyUsername(username: String) {
             val editor = preferences.edit()
             editor.putString(
