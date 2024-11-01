@@ -39,6 +39,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.ui.component.shared.BackButton
@@ -47,12 +48,15 @@ import ee.ria.DigiDoc.ui.component.shared.TextRadioButton
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.ui.theme.Red500
+import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SettingsProxyCategoryDialog(
     modifier: Modifier = Modifier,
     onClickBack: () -> Unit = {},
+    sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
     proxyChoice: String = ProxySetting.NO_PROXY.name,
     proxyHostValue: TextFieldValue = TextFieldValue(""),
     onProxyHostValueChange: (TextFieldValue) -> Unit = {},
@@ -68,6 +72,7 @@ fun SettingsProxyCategoryDialog(
     checkConnectionClick: () -> Unit = {},
 ) {
     val proxyDialogTitle = stringResource(id = R.string.main_settings_proxy_title)
+    val isValidPortNumber = sharedSettingsViewModel.dataStore::isValidPortNumber
 
     Column(
         modifier =
@@ -160,6 +165,16 @@ fun SettingsProxyCategoryDialog(
                     keyboardType = KeyboardType.Ascii,
                 ),
         )
+        val proxyPortErrorText =
+            if (proxyPortValue.text.isNotEmpty()) {
+                if (!isValidPortNumber(proxyPortValue.text)) {
+                    stringResource(id = R.string.main_settings_proxy_port_error)
+                } else {
+                    ""
+                }
+            } else {
+                ""
+            }
         TextField(
             enabled = proxyChoice == ProxySetting.MANUAL_PROXY.name,
             modifier =
@@ -174,15 +189,28 @@ fun SettingsProxyCategoryDialog(
             label = {
                 Text(text = stringResource(id = R.string.main_settings_proxy_port))
             },
+            isError = !isValidPortNumber(proxyPortValue.text),
             maxLines = 1,
             singleLine = true,
             textStyle = MaterialTheme.typography.titleLarge,
+            visualTransformation = VisualTransformation.None,
             keyboardOptions =
                 KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Next,
-                    keyboardType = KeyboardType.Decimal,
+                    keyboardType = KeyboardType.NumberPassword,
                 ),
         )
+        if (proxyPortErrorText.isNotEmpty()) {
+            Text(
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .focusable(enabled = true)
+                        .semantics { contentDescription = proxyPortErrorText }
+                        .testTag("mainSettingsProxyPortErrorText"),
+                text = proxyPortErrorText,
+                color = Red500,
+            )
+        }
         TextField(
             enabled = proxyChoice == ProxySetting.MANUAL_PROXY.name,
             modifier =

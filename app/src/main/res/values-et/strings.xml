@@ -380,6 +380,7 @@
     <string name="main_settings_proxy_manual">Proksi seaded määratakse käsitsi</string>
     <string name="main_settings_proxy_host">Host</string>
     <string name="main_settings_proxy_port">Port</string>
+    <string name="main_settings_proxy_port_error">Min 1, max 65535</string>
     <string name="main_settings_proxy_username">Kasutajanimi</string>
     <string name="main_settings_proxy_password">Parool</string>
     <string name="main_settings_proxy_check_connection">Kontrolli internetiühendust</string>

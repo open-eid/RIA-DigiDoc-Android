@@ -90,6 +90,7 @@ fun SettingsSigningScreen(
     val setProxyHost = sharedSettingsViewModel.dataStore::setProxyHost
     val getProxyPort = sharedSettingsViewModel.dataStore::getProxyPort
     val setProxyPort = sharedSettingsViewModel.dataStore::setProxyPort
+    val isValidPortNumber = sharedSettingsViewModel.dataStore::isValidPortNumber
     val getProxyUsername = sharedSettingsViewModel.dataStore::getProxyUsername
     val setProxyUsername = sharedSettingsViewModel.dataStore::setProxyUsername
     val getProxyPassword = sharedSettingsViewModel.dataStore::getProxyPassword
@@ -226,6 +227,7 @@ fun SettingsSigningScreen(
             ) {
                 SettingsProxyCategoryDialog(
                     onClickBack = dismissSettingsProxyCategoryDialog,
+                    sharedSettingsViewModel = sharedSettingsViewModel,
                     proxyChoice = settingsProxyChoice.value,
                     onClickNoProxy = {
                         settingsProxyChoice.value = ProxySetting.NO_PROXY.name
@@ -245,13 +247,24 @@ fun SettingsSigningScreen(
                         setProxyHost(it.text)
                     },
                     proxyPortValue = settingsProxyPort,
-                    onProxyPortValueChange = {
-                        settingsProxyPort = it
-                        if (it.text.isEmpty()) {
+                    onProxyPortValueChange = { proxyPortString ->
+                        settingsProxyPort = proxyPortString
+                        if (proxyPortString.text.isEmpty()) {
                             settingsProxyPort = TextFieldValue("80")
                             setProxyPort(80)
                         } else {
-                            setProxyPort(it.text.toInt())
+                            try {
+                                val proxyPortInt =
+                                    if (!isValidPortNumber(proxyPortString.text)) {
+                                        80
+                                    } else {
+                                        proxyPortString.text.trim { it <= ' ' }.toInt()
+                                    }
+                                setProxyPort(proxyPortInt)
+                            } catch (e: NumberFormatException) {
+                                settingsProxyPort = TextFieldValue("80")
+                                setProxyPort(80)
+                            }
                         }
                     },
                     proxyUsernameValue = settingsProxyUsername,

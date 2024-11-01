@@ -69,7 +69,7 @@ fun TopBar(
                     text = stringResource(id = title),
                     maxLines = 1,
                     modifier =
-                        Modifier
+                        modifier
                             .semantics {
                                 heading()
                             }

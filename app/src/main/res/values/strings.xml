@@ -382,6 +382,7 @@
     <string name="main_settings_proxy_manual">Manual proxy configuration</string>
     <string name="main_settings_proxy_host">Host</string>
     <string name="main_settings_proxy_port">Port</string>
+    <string name="main_settings_proxy_port_error">Min 1, max 65535</string>
     <string name="main_settings_proxy_username">Username</string>
     <string name="main_settings_proxy_password">Password</string>
     <string name="main_settings_proxy_check_connection">Check connection</string>
