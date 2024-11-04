@@ -7,7 +7,7 @@ import android.content.SharedPreferences
 import android.view.Window
 import android.view.WindowManager
 import androidx.preference.PreferenceManager
-import com.takisoft.preferencex.BuildConfig
+import ee.ria.DigiDoc.BuildConfig
 import ee.ria.DigiDoc.R
 
 object SecureUtil {
