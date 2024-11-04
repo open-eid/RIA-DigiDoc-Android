@@ -1,5 +1,5 @@
 [versions]
-compileSdkVersion = "34"
+compileSdkVersion = "35"
 minSdkVersion = "30"
 targetSdkVersion = "34"
 versionCode = "65"
