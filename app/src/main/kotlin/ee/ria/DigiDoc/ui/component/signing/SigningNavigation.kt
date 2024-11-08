@@ -67,7 +67,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.DialogProperties
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
@@ -91,6 +90,7 @@ import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
 import ee.ria.DigiDoc.ui.theme.Dimensions.MAX_DIALOG_WIDTH
 import ee.ria.DigiDoc.ui.theme.Dimensions.dividerHeight
+import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
@@ -466,7 +466,7 @@ fun SigningNavigation(
                                 signingViewModel.getMimetype(containerFile) ?: "",
                                 Intent.ACTION_SEND,
                             )
-                        ContextCompat.startActivity(context, intent, null)
+                        context.startActivity(intent, null)
                     }
                 },
             )
@@ -716,8 +716,7 @@ fun SigningNavigation(
                                                             context,
                                                             nestedFile,
                                                         )
-                                                    ContextCompat.startActivity(
-                                                        context,
+                                                    context.startActivity(
                                                         viewIntent,
                                                         null,
                                                     )
@@ -1028,7 +1027,7 @@ fun SigningNavigation(
                     }
                     item {
                         Spacer(
-                            modifier = modifier.height(dividerHeight),
+                            modifier = modifier.height(invisibleElementHeight),
                         )
                         if (listState.reachedBottom()) {
                             InvisibleElement(modifier = modifier)
@@ -1227,9 +1226,9 @@ private fun saveFile(
 
 private fun LazyListState.reachedBottom(): Boolean {
     val lastVisibleItem = this.layoutInfo.visibleItemsInfo.lastOrNull()
-    return lastVisibleItem?.index != 0 &&
+    return lastVisibleItem != null && lastVisibleItem.index != 0 &&
         this.layoutInfo.totalItemsCount > 5 &&
-        lastVisibleItem?.index == this.layoutInfo.totalItemsCount - 1
+        lastVisibleItem.index == this.layoutInfo.totalItemsCount - 1
 }
 
 @Preview(showBackground = true)

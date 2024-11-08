@@ -11,7 +11,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import ee.ria.DigiDoc.R.string.last_invisible_element_name
-import ee.ria.DigiDoc.ui.theme.Dimensions.dividerHeight
+import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
 
 @Composable
 fun InvisibleElement(modifier: Modifier = Modifier) {
@@ -19,8 +19,8 @@ fun InvisibleElement(modifier: Modifier = Modifier) {
         text = stringResource(id = last_invisible_element_name),
         modifier =
             modifier
-                .height(dividerHeight)
-                .alpha(0f)
+                .height(invisibleElementHeight)
+                .alpha(0.01f)
                 .focusable(false)
                 .testTag("lastInvisibleElement"),
     )
