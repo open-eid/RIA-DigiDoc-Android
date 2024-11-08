@@ -91,6 +91,7 @@ import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
 import ee.ria.DigiDoc.ui.theme.Dimensions.MAX_DIALOG_WIDTH
 import ee.ria.DigiDoc.ui.theme.Dimensions.dividerHeight
+import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
@@ -1028,7 +1029,7 @@ fun SigningNavigation(
                     }
                     item {
                         Spacer(
-                            modifier = modifier.height(dividerHeight),
+                            modifier = modifier.height(invisibleElementHeight),
                         )
                         if (listState.reachedBottom()) {
                             InvisibleElement(modifier = modifier)
@@ -1227,9 +1228,9 @@ private fun saveFile(
 
 private fun LazyListState.reachedBottom(): Boolean {
     val lastVisibleItem = this.layoutInfo.visibleItemsInfo.lastOrNull()
-    return lastVisibleItem?.index != 0 &&
+    return lastVisibleItem != null && lastVisibleItem.index != 0 &&
         this.layoutInfo.totalItemsCount > 5 &&
-        lastVisibleItem?.index == this.layoutInfo.totalItemsCount - 1
+        lastVisibleItem.index == this.layoutInfo.totalItemsCount - 1
 }
 
 @Preview(showBackground = true)
