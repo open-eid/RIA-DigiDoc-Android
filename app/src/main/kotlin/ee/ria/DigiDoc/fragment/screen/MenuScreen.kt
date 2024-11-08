@@ -25,7 +25,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
@@ -102,7 +101,7 @@ fun MenuScreen(
                     val browserIntent =
                         Intent(Intent.ACTION_VIEW, Uri.parse(context.getString(R.string.main_home_menu_help_url)))
 
-                    ContextCompat.startActivity(context, browserIntent, null)
+                    context.startActivity(browserIntent, null)
                 },
             )
             MenuItem(

@@ -67,7 +67,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.DialogProperties
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
@@ -467,7 +466,7 @@ fun SigningNavigation(
                                 signingViewModel.getMimetype(containerFile) ?: "",
                                 Intent.ACTION_SEND,
                             )
-                        ContextCompat.startActivity(context, intent, null)
+                        context.startActivity(intent, null)
                     }
                 },
             )
@@ -717,8 +716,7 @@ fun SigningNavigation(
                                                             context,
                                                             nestedFile,
                                                         )
-                                                    ContextCompat.startActivity(
-                                                        context,
+                                                    context.startActivity(
                                                         viewIntent,
                                                         null,
                                                     )
