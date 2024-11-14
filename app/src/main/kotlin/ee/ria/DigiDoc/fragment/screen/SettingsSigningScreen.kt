@@ -369,6 +369,7 @@ fun SettingsSigningScreen(
                 },
                 title = stringResource(id = R.string.main_settings_uuid_title),
                 contentDescription = stringResource(id = R.string.main_settings_uuid_title).lowercase(),
+                isPasswordField = true,
             )
             SettingsTextField(
                 testTag = "mainSettingsAccessToTimeStampingService",
