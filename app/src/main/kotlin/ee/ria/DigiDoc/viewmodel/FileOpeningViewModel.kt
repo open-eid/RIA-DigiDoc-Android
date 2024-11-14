@@ -190,6 +190,10 @@ class FileOpeningViewModel
                         debugLog(logTag, "Unable to open container. Sending to SiVa not allowed", e)
                         _errorState.postValue(0)
                         return
+                    } else if (message.startsWith("Signature validation failed")) {
+                        _errorState.postValue(R.string.container_load_error)
+                    } else {
+                        _errorState.postValue(R.string.container_open_file_error)
                     }
                 }
                 is FileAlreadyExistsException -> {
