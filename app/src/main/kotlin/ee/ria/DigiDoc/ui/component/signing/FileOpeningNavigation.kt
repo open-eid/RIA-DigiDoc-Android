@@ -25,14 +25,15 @@ import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
+import ee.ria.DigiDoc.ui.component.toast.ToastUtil
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
-import ee.ria.DigiDoc.utilsLib.toast.ToastUtil
 import ee.ria.DigiDoc.viewmodel.FileOpeningViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -54,7 +55,7 @@ fun FileOpeningNavigation(
         showSivaDialog.value = false
         fileOpeningViewModel.resetExternalFileState(sharedContainerViewModel)
         CoroutineScope(IO).launch {
-            fileOpeningViewModel.handleFiles(fileUris, signedContainer, true)
+            fileOpeningViewModel.handleFiles(context, fileUris, signedContainer, true)
             fileUris = emptyList()
         }
     }
@@ -73,6 +74,7 @@ fun FileOpeningNavigation(
                 }
                 ASICS_MIMETYPE -> {
                     fileOpeningViewModel.handleCancelAsicsMimeType(
+                        context,
                         fileUris,
                         signedContainer,
                     )
@@ -125,13 +127,14 @@ fun FileOpeningNavigation(
 
     val fileAddedText = stringResource(id = R.string.file_added)
     val filesAddedText = stringResource(id = R.string.files_added)
+    var errorText by remember { mutableStateOf("") }
 
     LaunchedEffect(fileOpeningViewModel.errorState) {
         fileOpeningViewModel.errorState.asFlow().collect { errorState ->
             errorState?.let {
                 withContext(Main) {
-                    if (errorState != 0) {
-                        ToastUtil.showMessage(context, errorState)
+                    if (errorState != "") {
+                        errorText = errorState
                     }
                     if (signedContainer == null) {
                         navController.popBackStack()
@@ -174,6 +177,8 @@ fun FileOpeningNavigation(
         fileOpeningViewModel.signedContainer.asFlow().collect { signedContainer ->
             signedContainer?.let {
                 sharedContainerViewModel.setSignedContainer(it)
+                delay(2000)
+
                 navController.navigate(Route.Signing.route) {
                     popUpTo(Route.Home.route) {
                         inclusive = false
@@ -213,6 +218,10 @@ fun FileOpeningNavigation(
         modifier = modifier,
         onResult = handleResult,
     )
+
+    if (errorText.isNotEmpty()) {
+        ToastUtil.DigiDocToast(errorText)
+    }
 
     LoadingScreen(modifier = modifier)
 }

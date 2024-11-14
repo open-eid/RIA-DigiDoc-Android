@@ -29,6 +29,7 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
+import java.util.stream.Collectors
 import javax.inject.Inject
 
 @HiltViewModel
@@ -46,8 +47,8 @@ class FileOpeningViewModel
         private val _signedContainer = MutableLiveData<SignedContainer?>(null)
         val signedContainer: LiveData<SignedContainer?> = _signedContainer
 
-        private val _errorState = MutableLiveData<Int?>(null)
-        val errorState: LiveData<Int?> = _errorState
+        private val _errorState = MutableLiveData<String?>(null)
+        val errorState: LiveData<String?> = _errorState
 
         private val _launchFilePicker = MutableLiveData(true)
         val launchFilePicker: LiveData<Boolean?> = _launchFilePicker
@@ -99,6 +100,7 @@ class FileOpeningViewModel
         }
 
         suspend fun handleFiles(
+            context: Context,
             uris: List<Uri>,
             existingSignedContainer: SignedContainer? = null,
             isSivaConfirmed: Boolean,
@@ -118,12 +120,22 @@ class FileOpeningViewModel
                             )
 
                         if (isFileAlreadyInContainer) {
-                            throw FileAlreadyExistsException(context)
+                            throw FileAlreadyExistsException(context, files.first().name)
                         }
                     }
 
                     val validFiles: List<File> =
                         fileOpeningRepository.getValidFiles(files, existingSignedContainer)
+
+                    val filesAlreadyInContainer: List<File> =
+                        files.stream()
+                            .filter { file -> !validFiles.contains(file) }
+                            .collect(Collectors.toList())
+
+                    if (filesAlreadyInContainer.isNotEmpty()) {
+                        val fileNames = filesAlreadyInContainer.joinToString(", ") { it.name }
+                        _errorState.postValue(context.getString(documents_add_error_exists, fileNames))
+                    }
 
                     fileOpeningRepository.addFilesToContainer(
                         context,
@@ -134,7 +146,7 @@ class FileOpeningViewModel
                     _filesAdded.postValue(validFiles)
                 } catch (e: Exception) {
                     _signedContainer.postValue(existingSignedContainer)
-                    handleException(e)
+                    handleException(context, e)
                     errorLog(logTag, "Unable to add file to container", e)
                 }
             } else {
@@ -166,41 +178,44 @@ class FileOpeningViewModel
                     _launchFilePicker.postValue(false)
                     errorLog(logTag, "Unable to open or create container: ", e)
 
-                    handleException(e)
+                    handleException(context, e)
                 }
             }
         }
 
-        private fun handleException(e: Exception) {
+        private fun handleException(
+            context: Context,
+            e: Exception,
+        ) {
             when (e) {
                 is EmptyFileException -> {
-                    _errorState.postValue(empty_file_error)
+                    _errorState.postValue(context.getString(empty_file_error))
                 }
                 is NoSuchElementException -> {
-                    _errorState.postValue(R.string.container_open_file_error)
+                    _errorState.postValue(context.getString(R.string.container_open_file_error))
                 }
                 is NoInternetConnectionException -> {
-                    _errorState.postValue(R.string.no_internet_connection)
+                    _errorState.postValue(context.getString(R.string.no_internet_connection))
                 }
                 is IOException -> {
                     val message = e.message ?: ""
                     if (message.startsWith("Failed to create connection with host")) {
-                        _errorState.postValue(R.string.no_internet_connection)
+                        _errorState.postValue(context.getString(R.string.no_internet_connection))
                     } else if (message.contains("Online validation disabled")) {
                         debugLog(logTag, "Unable to open container. Sending to SiVa not allowed", e)
-                        _errorState.postValue(0)
+                        _errorState.postValue("")
                         return
                     } else if (message.startsWith("Signature validation failed")) {
-                        _errorState.postValue(R.string.container_load_error)
+                        _errorState.postValue(context.getString(R.string.container_load_error))
                     } else {
-                        _errorState.postValue(R.string.container_open_file_error)
+                        _errorState.postValue(context.getString(R.string.container_open_file_error))
                     }
                 }
                 is FileAlreadyExistsException -> {
-                    _errorState.postValue(documents_add_error_exists)
+                    _errorState.postValue(e.localizedMessage)
                 }
                 else -> {
-                    _errorState.postValue(R.string.container_open_file_error)
+                    _errorState.postValue(context.getString(R.string.container_open_file_error))
                 }
             }
         }
@@ -215,10 +230,11 @@ class FileOpeningViewModel
         }
 
         suspend fun handleCancelAsicsMimeType(
+            context: Context,
             fileUris: List<Uri>,
             signedContainer: SignedContainer?,
         ) {
-            handleFiles(fileUris, signedContainer, false)
+            handleFiles(context, fileUris, signedContainer, false)
         }
 
         fun resetExternalFileState(sharedContainerViewModel: SharedContainerViewModel) {

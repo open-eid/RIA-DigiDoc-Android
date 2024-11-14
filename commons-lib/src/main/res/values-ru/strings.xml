@@ -3,5 +3,6 @@
     <string name="no_internet_connection">Пожалуйста проверьте подключение к интернету</string>
     <string name="invalid_ssl_handshake">Не удалось создать SSL канал передачи данных. Проверьте настройки вашего приложения или обновления программного обеспечения.</string>
     <string name="empty_file_error">Пустой файл нельзя добавить в контейнер.</string>
-    <string name="documents_add_error_exists">Файл уже существует в контейнере</string>
+    <string name="document_add_error_exists">Файл %1$s уже существует в контейнере</string>
+    <string name="documents_add_error_exists">Файлы %1$s уже существуют в контейнере</string>
 </resources>

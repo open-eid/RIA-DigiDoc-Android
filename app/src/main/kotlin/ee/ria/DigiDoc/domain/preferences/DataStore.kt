@@ -13,10 +13,10 @@ import ee.ria.DigiDoc.common.preferences.EncryptedPreferences
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.network.siva.SivaSetting
+import ee.ria.DigiDoc.ui.component.toast.ToastUtil
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
-import ee.ria.DigiDoc.utilsLib.toast.ToastUtil
 import ee.ria.libdigidocpp.digidoc
 import java.io.IOException
 import java.security.GeneralSecurityException

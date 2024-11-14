@@ -25,6 +25,9 @@ object Dimensions {
     val screenViewLargePadding = 16.dp
     val screenViewExtraLargePadding = 24.dp
     val screenViewExtraExtraLargePadding = 48.dp
+    val toastPadding = 100.dp
+    val toastRoundShapeCorner = 8.dp
+    val toastMinSize = 48.dp
 
     val itemSpacingPadding = 8.dp
 

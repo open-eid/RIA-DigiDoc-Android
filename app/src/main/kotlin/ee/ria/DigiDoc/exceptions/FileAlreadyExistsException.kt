@@ -6,9 +6,11 @@ import android.content.Context
 
 class FileAlreadyExistsException(
     private val context: Context,
+    private val fileName: String,
 ) : Exception() {
     override fun getLocalizedMessage(): String =
         context.getString(
-            ee.ria.DigiDoc.common.R.string.documents_add_error_exists,
+            ee.ria.DigiDoc.common.R.string.document_add_error_exists,
+            fileName,
         )
 }
