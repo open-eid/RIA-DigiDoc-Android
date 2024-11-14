@@ -12,6 +12,7 @@ import androidx.lifecycle.Observer
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.R.string.document_add_error_exists
 import ee.ria.DigiDoc.common.R.string.documents_add_error_exists
 import ee.ria.DigiDoc.common.R.string.empty_file_error
 import ee.ria.DigiDoc.common.testfiles.file.TestFileUtil.Companion.createZipWithTextFile
@@ -43,8 +44,8 @@ import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mock
-import org.mockito.Mockito.anyInt
 import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
@@ -82,7 +83,7 @@ class FileOpeningViewModelTest {
     lateinit var filesAddedObserver: Observer<List<File>?>
 
     @Mock
-    lateinit var errorStateObserver: Observer<Int?>
+    lateinit var errorStateObserver: Observer<String?>
 
     @Mock
     lateinit var launchFilePickerObserver: Observer<Boolean?>
@@ -177,15 +178,18 @@ class FileOpeningViewModelTest {
                 SignedContainer.addDataFiles(context, signedContainer, listOf(anotherFile))
             }
 
-            val uriToFile = fileOpeningRepository.uriToFile(context, contentResolver, uri)
+            `when`(
+                fileOpeningRepository.uriToFile(context, contentResolver, uri),
+            )
+                .thenReturn(anotherFile)
 
             `when`(
-                fileOpeningRepository.isFileSizeValid(uriToFile),
+                fileOpeningRepository.isFileSizeValid(anotherFile),
             )
                 .thenReturn(true)
 
             `when`(
-                fileOpeningRepository.isFileAlreadyInContainer(uriToFile, signedContainer),
+                fileOpeningRepository.isFileAlreadyInContainer(anotherFile, signedContainer),
             )
                 .thenReturn(false)
 
@@ -194,10 +198,14 @@ class FileOpeningViewModelTest {
             )
                 .thenReturn(listOf(file))
 
-            viewModel.handleFiles(uris, signedContainer, true)
+            viewModel.handleFiles(context, uris, signedContainer, true)
 
             verify(filesAddedObserver, atLeastOnce()).onChanged(listOf(file))
             verify(signedContainerObserver, atLeastOnce()).onChanged(signedContainer)
+            verify(
+                errorStateObserver,
+                atLeastOnce(),
+            ).onChanged(context.getString(documents_add_error_exists, anotherFile.name))
         }
 
     @Test
@@ -227,10 +235,10 @@ class FileOpeningViewModelTest {
                 ),
             )
                 .thenThrow(exception)
-            viewModel.handleFiles(uris, existingSignedContainer, isSivaConfirmed = isSivaConfirmed)
+            viewModel.handleFiles(context, uris, existingSignedContainer, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(existingSignedContainer)
-            verify(errorStateObserver, atLeastOnce()).onChanged(R.string.container_open_file_error)
+            verify(errorStateObserver, atLeastOnce()).onChanged(context.getString(R.string.container_open_file_error))
         }
 
     @Test
@@ -251,10 +259,10 @@ class FileOpeningViewModelTest {
             )
                 .thenReturn(false)
 
-            viewModel.handleFiles(uris, existingSignedContainer, isSivaConfirmed = isSivaConfirmed)
+            viewModel.handleFiles(context, uris, existingSignedContainer, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(existingSignedContainer)
-            verify(errorStateObserver, atLeastOnce()).onChanged(empty_file_error)
+            verify(errorStateObserver, atLeastOnce()).onChanged(context.getString(empty_file_error))
         }
 
     @Test
@@ -263,27 +271,34 @@ class FileOpeningViewModelTest {
             val uri: Uri = mock()
             val uris = listOf(uri)
             val file = createTempFileWithStringContent("test", content = "Test content")
+            val anotherFile = createTempFileWithStringContent("test", content = "Test content")
 
             val isSivaConfirmed = true
-
-            val uriToFile = fileOpeningRepository.uriToFile(context, contentResolver, uri)
 
             val existingSignedContainer = SignedContainer.openOrCreate(context, file, listOf(file), isSivaConfirmed)
 
             `when`(
-                fileOpeningRepository.isFileSizeValid(uriToFile),
+                fileOpeningRepository.uriToFile(context, contentResolver, uri),
+            )
+                .thenReturn(anotherFile)
+
+            `when`(
+                fileOpeningRepository.isFileSizeValid(anotherFile),
             )
                 .thenReturn(true)
 
             `when`(
-                fileOpeningRepository.isFileAlreadyInContainer(uriToFile, existingSignedContainer),
+                fileOpeningRepository.isFileAlreadyInContainer(anotherFile, existingSignedContainer),
             )
                 .thenReturn(true)
 
-            viewModel.handleFiles(uris, existingSignedContainer, isSivaConfirmed = isSivaConfirmed)
+            viewModel.handleFiles(context, uris, existingSignedContainer, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(existingSignedContainer)
-            verify(errorStateObserver, atLeastOnce()).onChanged(documents_add_error_exists)
+            verify(
+                errorStateObserver,
+                atLeastOnce(),
+            ).onChanged(context.getString(document_add_error_exists, anotherFile.name))
         }
 
     @Test
@@ -312,7 +327,7 @@ class FileOpeningViewModelTest {
 
             `when`(sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed)).thenReturn(false)
 
-            viewModel.handleFiles(uris, isSivaConfirmed = isSivaConfirmed)
+            viewModel.handleFiles(context, uris, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(signedContainer)
         }
@@ -336,7 +351,7 @@ class FileOpeningViewModelTest {
 
             `when`(sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed)).thenReturn(false)
 
-            viewModel.handleFiles(uris, null, isSivaConfirmed = isSivaConfirmed)
+            viewModel.handleFiles(context, uris, null, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(signedContainer)
         }
@@ -367,7 +382,7 @@ class FileOpeningViewModelTest {
 
             `when`(sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed)).thenReturn(false)
 
-            viewModel.handleFiles(uris, isSivaConfirmed = isSivaConfirmed)
+            viewModel.handleFiles(context, uris, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(signedContainer)
         }
@@ -398,7 +413,7 @@ class FileOpeningViewModelTest {
 
             `when`(sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed)).thenReturn(false)
 
-            viewModel.handleFiles(uris, isSivaConfirmed = isSivaConfirmed)
+            viewModel.handleFiles(context, uris, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(signedContainer)
         }
@@ -432,10 +447,10 @@ class FileOpeningViewModelTest {
             )
                 .thenThrow(exception)
 
-            viewModel.handleFiles(uris, null, isSivaConfirmed = isSivaConfirmed)
+            viewModel.handleFiles(context, uris, null, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
-            verify(errorStateObserver, atLeastOnce()).onChanged(empty_file_error)
+            verify(errorStateObserver, atLeastOnce()).onChanged(context.getString(empty_file_error))
         }
 
     @Test
@@ -450,10 +465,10 @@ class FileOpeningViewModelTest {
             `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, isSivaConfirmed))
                 .thenThrow(exception)
 
-            viewModel.handleFiles(uris, null, isSivaConfirmed = isSivaConfirmed)
+            viewModel.handleFiles(context, uris, null, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
-            verify(errorStateObserver).onChanged(anyInt())
+            verify(errorStateObserver).onChanged(anyString())
         }
 
     @Test
@@ -468,10 +483,10 @@ class FileOpeningViewModelTest {
             `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, isSivaConfirmed))
                 .thenThrow(exception)
 
-            viewModel.handleFiles(uris, null, isSivaConfirmed = isSivaConfirmed)
+            viewModel.handleFiles(context, uris, null, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
-            verify(errorStateObserver).onChanged(R.string.no_internet_connection)
+            verify(errorStateObserver).onChanged(context.getString(R.string.no_internet_connection))
         }
 
     @Test
@@ -485,7 +500,7 @@ class FileOpeningViewModelTest {
             `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, isSivaConfirmed))
                 .thenReturn(null)
 
-            viewModel.handleFiles(uris, null, isSivaConfirmed = isSivaConfirmed)
+            viewModel.handleFiles(context, uris, null, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
         }
@@ -502,10 +517,10 @@ class FileOpeningViewModelTest {
             `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, isSivaConfirmed))
                 .thenThrow(exception)
 
-            viewModel.handleFiles(uris, null, isSivaConfirmed = isSivaConfirmed)
+            viewModel.handleFiles(context, uris, null, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
-            verify(errorStateObserver).onChanged(R.string.container_open_file_error)
+            verify(errorStateObserver).onChanged(context.getString(R.string.container_open_file_error))
         }
 
     @Test
@@ -513,7 +528,7 @@ class FileOpeningViewModelTest {
         runTest {
             val uris = emptyList<Uri>()
 
-            viewModel.handleFiles(uris, null, isSivaConfirmed = true)
+            viewModel.handleFiles(context, uris, null, isSivaConfirmed = true)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
             verify(errorStateObserver).onChanged(null)

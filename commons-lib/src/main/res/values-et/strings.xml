@@ -3,5 +3,6 @@
     <string name="no_internet_connection">Palun kontrolli internetiühendust</string>
     <string name="invalid_ssl_handshake">SSL ühenduskanali loomine ebaõnnestus. Kontrolli rakenduse seadeid või tarkvara uuendusi</string>
     <string name="empty_file_error">Tühja faili ei saa lisada ümbrikusse.</string>
-    <string name="documents_add_error_exists">Fail on juba ümbrikus olemas</string>
+    <string name="document_add_error_exists">Fail %1$s on juba ümbrikus olemas</string>
+    <string name="documents_add_error_exists">Failid %1$s on juba ümbrikus olemas</string>
 </resources>
