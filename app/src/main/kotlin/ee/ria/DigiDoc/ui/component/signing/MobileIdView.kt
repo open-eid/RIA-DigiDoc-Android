@@ -117,7 +117,7 @@ fun MobileIdView(
             ),
         )
     }
-    val rememberMeCheckedState = remember { mutableStateOf(true) }
+    val rememberMeCheckedState = rememberSaveable { mutableStateOf(true) }
 
     val displayMessage = stringResource(id = R.string.signature_update_mobile_id_display_message)
 
@@ -378,6 +378,9 @@ fun MobileIdView(
                     if (rememberMeCheckedState.value) {
                         sharedSettingsViewModel.dataStore.setPhoneNo(countryCodeAndPhoneText.text)
                         sharedSettingsViewModel.dataStore.setPersonalCode(personalCodeText.text)
+                    } else {
+                        sharedSettingsViewModel.dataStore.setPhoneNo("")
+                        sharedSettingsViewModel.dataStore.setPersonalCode("")
                     }
 
                     var roleDataRequest: RoleData? = null

@@ -112,7 +112,7 @@ fun SmartIdView(
             ),
         )
     }
-    val rememberMeCheckedState = remember { mutableStateOf(true) }
+    val rememberMeCheckedState = rememberSaveable { mutableStateOf(true) }
 
     val itemSelectedTitle = stringResource(id = R.string.item_selected)
     val displayMessage = stringResource(id = R.string.signature_update_mobile_id_display_message)
@@ -328,6 +328,9 @@ fun SmartIdView(
                     if (rememberMeCheckedState.value) {
                         sharedSettingsViewModel.dataStore.setSidPersonalCode(personalCodeText.text)
                         sharedSettingsViewModel.dataStore.setCountry(selectedCountry)
+                    } else {
+                        sharedSettingsViewModel.dataStore.setSidPersonalCode("")
+                        sharedSettingsViewModel.dataStore.setCountry(0)
                     }
                     var roleDataRequest: RoleData? = null
                     if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
