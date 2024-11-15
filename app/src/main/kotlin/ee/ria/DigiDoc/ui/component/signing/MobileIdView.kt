@@ -4,7 +4,6 @@ package ee.ria.DigiDoc.ui.component.signing
 
 import android.app.Activity
 import android.content.res.Configuration
-import android.widget.Toast
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
@@ -62,6 +61,7 @@ import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
 import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
+import ee.ria.DigiDoc.ui.component.toast.ToastUtil
 import ee.ria.DigiDoc.ui.theme.Blue500
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
@@ -117,6 +117,8 @@ fun MobileIdView(
             ),
         )
     }
+    var errorText by remember { mutableStateOf("") }
+
     val rememberMeCheckedState = rememberSaveable { mutableStateOf(true) }
 
     val displayMessage = stringResource(id = R.string.signature_update_mobile_id_display_message)
@@ -134,7 +136,10 @@ fun MobileIdView(
         mobileIdViewModel.errorState.asFlow().collect { errorState ->
             errorState?.let {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, errorState, Toast.LENGTH_LONG).show()
+                    if (errorState != "") {
+                        errorText = errorState
+                    }
+
                     mobileIdViewModel.resetErrorState()
                 }
             }
@@ -151,6 +156,11 @@ fun MobileIdView(
             }
         }
     }
+
+    if (errorText.isNotEmpty()) {
+        ToastUtil.DigiDocToast(errorText)
+    }
+
     val openSignatureUpdateContainerDialog = rememberSaveable { mutableStateOf(false) }
     val dismissSignatureUpdateContainerDialog = {
         openSignatureUpdateContainerDialog.value = false

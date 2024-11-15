@@ -3,6 +3,7 @@
 package ee.ria.DigiDoc.ui.component.toast
 
 import android.content.Context
+import android.content.res.Configuration
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
@@ -25,12 +26,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.ui.theme.Dimensions.border
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewSmallPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.toastMinSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.toastPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.toastRoundShapeCorner
+import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 object ToastUtil {
     fun showMessage(
@@ -107,7 +110,7 @@ object ToastUtil {
                             )
                             .fillMaxWidth()
                             .padding(screenViewSmallPadding),
-                    horizontalArrangement = Arrangement.End,
+                    horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
@@ -119,5 +122,27 @@ object ToastUtil {
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun SmartIdViewPreview() {
+    RIADigiDocTheme {
+        ToastUtil.SetView(
+            messageTxt = "Test message",
+            backgroundColor = Info().getBackgroundColor(),
+            borderColor = Info().getBorderColor(),
+            textColor = Info().getTextColor(),
+            padding =
+                PaddingValues(
+                    top = screenViewLargePadding,
+                    start = screenViewSmallPadding,
+                    end = screenViewSmallPadding,
+                    bottom = toastPadding,
+                ),
+            contentAlignment = Alignment.BottomCenter,
+        )
     }
 }
