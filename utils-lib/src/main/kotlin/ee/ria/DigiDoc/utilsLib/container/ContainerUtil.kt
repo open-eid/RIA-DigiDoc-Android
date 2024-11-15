@@ -285,7 +285,7 @@ object ContainerUtil {
 
         if (documentElementNode.nodeName == "SignedDoc") {
             val attribute = documentElementNode.getAttribute("format")
-            return attribute == "DIGIDOC-XML"
+            return attribute == "DIGIDOC-XML" || attribute == "SK-XML"
         }
         return false
     }
