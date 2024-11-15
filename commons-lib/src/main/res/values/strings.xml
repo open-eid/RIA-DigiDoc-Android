@@ -2,7 +2,7 @@
 <resources>
     <string name="no_internet_connection">Please check your internet connection</string>
     <string name="invalid_ssl_handshake">SSL handshake failed. Check your application settings or software upgrades</string>
-    <string name="empty_file_error">Tühja faili ei saa lisada ümbrikusse.</string>
+    <string name="empty_file_error">Cannot add empty file to the container.</string>
     <string name="document_add_error_exists">File %1$s already exists in the container</string>
     <string name="documents_add_error_exists">Files %1$s already exist in the container</string>
 </resources>
