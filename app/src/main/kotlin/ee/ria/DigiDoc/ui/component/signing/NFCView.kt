@@ -4,7 +4,6 @@ package ee.ria.DigiDoc.ui.component.signing
 
 import android.app.Activity
 import android.content.res.Configuration
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -69,6 +68,7 @@ import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager.NfcStatus
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
+import ee.ria.DigiDoc.ui.component.toast.ToastUtil
 import ee.ria.DigiDoc.ui.theme.Blue500
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
@@ -127,7 +127,7 @@ fun NFCView(
             ),
         )
     }
-
+    var errorText by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
 
     val openSignatureUpdateContainerDialog = rememberSaveable { mutableStateOf(false) }
@@ -156,7 +156,10 @@ fun NFCView(
         nfcViewModel.errorState.asFlow().collect { errorState ->
             errorState?.let {
                 withContext(Main) {
-                    Toast.makeText(context, errorState, Toast.LENGTH_LONG).show()
+                    if (errorState != "") {
+                        errorText = errorState
+                    }
+
                     nfcViewModel.resetErrorState()
                 }
             }
@@ -172,6 +175,10 @@ fun NFCView(
                 dismissDialog()
             }
         }
+    }
+
+    if (errorText.isNotEmpty()) {
+        ToastUtil.DigiDocToast(errorText)
     }
 
     if (openSignatureUpdateContainerDialog.value) {

@@ -4,7 +4,6 @@ package ee.ria.DigiDoc.ui.component.signing
 
 import android.app.Activity
 import android.content.res.Configuration
-import android.widget.Toast
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -64,6 +63,7 @@ import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.HrefMessageDialog
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
+import ee.ria.DigiDoc.ui.component.toast.ToastUtil
 import ee.ria.DigiDoc.ui.theme.Blue300
 import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraExtraLargePadding
@@ -120,7 +120,7 @@ fun IdCardView(
     var roleDataRequest: RoleData? by remember { mutableStateOf(null) }
     val roleDataRequested by idCardViewModel.roleDataRequested.asFlow().collectAsState(null)
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
-
+    var errorText by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
 
     LaunchedEffect(Unit) {
@@ -177,7 +177,10 @@ fun IdCardView(
                     idCardViewModel.resetErrorState()
                 }
                 withContext(Main) {
-                    Toast.makeText(context, errorState, Toast.LENGTH_LONG).show()
+                    if (errorState != "") {
+                        errorText = errorState
+                    }
+
                     pin2Value = TextFieldValue("")
                     dismissDialog()
                 }
@@ -220,6 +223,9 @@ fun IdCardView(
                 idCardViewModel.resetRoleDataRequested()
                 dismissDialog()
             }
+    }
+    if (errorText.isNotEmpty()) {
+        ToastUtil.DigiDocToast(errorText)
     }
 
     Column(
@@ -425,7 +431,7 @@ fun IdCardView(
     if (showErrorDialog.value) {
         var text1 = 0
         var text1Arg: Int? = null
-        var text2 = null
+        val text2 = null
         var linkText = 0
         var linkUrl = 0
         if (dialogError?.contains("Too Many Requests") == true) {
