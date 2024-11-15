@@ -132,9 +132,11 @@ object Constant {
     // Container mimetypes
     const val ASICE_MIMETYPE = "application/vnd.etsi.asic-e+zip" // Also .bdoc, .edoc, .sce
     const val ASICS_MIMETYPE = "application/vnd.etsi.asic-s+zip" // Also .scs
+    const val BDOC_MIMETYPE = "application/vnd.bdoc-1.0"
     const val DDOC_MIMETYPE = "application/x-ddoc"
     const val ADOC_MIMETYPE = "application/vnd.lt.archyvai.adoc-2008"
-    val SIGNATURE_CONTAINER_MIMETYPES = listOf(ASICE_MIMETYPE, ASICS_MIMETYPE, DDOC_MIMETYPE, ADOC_MIMETYPE)
+    val SIGNATURE_CONTAINER_MIMETYPES =
+        listOf(ASICE_MIMETYPE, ASICS_MIMETYPE, BDOC_MIMETYPE, DDOC_MIMETYPE, ADOC_MIMETYPE)
 
     const val PDF_MIMETYPE = "application/pdf"
 
