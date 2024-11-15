@@ -13,14 +13,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -50,11 +46,6 @@ fun SignatureScreen(
     val context = LocalContext.current
     val activity = (context as Activity)
     markAsSecure(context, activity.window)
-    val buttonFocusRequester = remember { FocusRequester() }
-
-    LaunchedEffect(Unit) {
-        buttonFocusRequester.requestFocus()
-    }
 
     val chooseFileText =
         stringResource(
@@ -98,7 +89,6 @@ fun SignatureScreen(
                     modifier
                         .focusProperties { canFocus = true }
                         .focusTarget()
-                        .focusRequester(buttonFocusRequester)
                         .focusable()
                         .testTag("signatureHomeCreateButton"),
                 title = R.string.signature_home_create_button,

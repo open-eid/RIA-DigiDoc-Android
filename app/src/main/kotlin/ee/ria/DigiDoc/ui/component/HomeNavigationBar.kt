@@ -14,16 +14,13 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -44,15 +41,8 @@ import ee.ria.DigiDoc.ui.theme.Transparent
 @Composable
 fun HomeNavigationBar(
     modifier: Modifier = Modifier,
-    focusRequester: FocusRequester = FocusRequester(),
     navController: NavHostController,
 ) {
-    val buttonFocusRequester = remember { focusRequester }
-
-    LaunchedEffect(Unit) {
-        buttonFocusRequester.requestFocus()
-    }
-
     var navigationSelectedItem by remember {
         mutableIntStateOf(0)
     }
@@ -87,7 +77,6 @@ fun HomeNavigationBar(
                         }
                         .focusProperties { canFocus = true }
                         .focusTarget()
-                        .focusRequester(buttonFocusRequester)
                         .focusable()
                         .focusGroup()
                         .testTag(navigationItem.testTag),
