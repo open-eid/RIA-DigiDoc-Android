@@ -5,11 +5,14 @@ package ee.ria.DigiDoc
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
 import dagger.hilt.android.AndroidEntryPoint
+import ee.ria.DigiDoc.common.model.AppState
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.fragment.RootFragment
 import ee.ria.DigiDoc.manager.ActivityManager
@@ -25,7 +28,7 @@ import java.util.logging.Logger
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
     @Inject
     lateinit var librarySetup: LibrarySetup
 
@@ -45,7 +48,7 @@ class MainActivity : ComponentActivity() {
     lateinit var loggingUtil: LoggingUtil
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        super<ComponentActivity>.onCreate(savedInstanceState)
 
         if (rootChecker.isRooted()) {
             setContent {
@@ -55,6 +58,8 @@ class MainActivity : ComponentActivity() {
             }
             return
         }
+
+        lifecycle.addObserver(this)
 
         val componentClassName = this.javaClass.name
         val externalFileUri = intent?.data
@@ -109,5 +114,15 @@ class MainActivity : ComponentActivity() {
                 RIADigiDocAppScreen(externalFileUri)
             }
         }
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        super<DefaultLifecycleObserver>.onStart(owner)
+        AppState.isAppInForeground = true
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        super<DefaultLifecycleObserver>.onStop(owner)
+        AppState.isAppInForeground = false
     }
 }

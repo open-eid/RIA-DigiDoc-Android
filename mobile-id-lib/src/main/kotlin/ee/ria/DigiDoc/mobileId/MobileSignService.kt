@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.mobileId
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import ee.ria.DigiDoc.common.model.AppState
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.MobileIdServiceResponse
@@ -522,6 +523,14 @@ class MobileSignServiceImpl
                 errorLog(logTag, "Unable to sign with Mobile-ID. Signing has been cancelled", sce)
                 return
             }
+
+            // Wait until the app is in the foreground to avoid networking errors
+            while (!AppState.isAppInForeground) {
+                debugLog(logTag, "Mobile-ID: App is in the background, waiting to return to foreground...")
+                delay(1000)
+                timeout += 1000
+            }
+
             val responseCall: Call<MobileCreateSignatureSessionStatusResponse> =
                 midRestServiceClient.getMobileCreateSignatureSessionStatus(
                     request.sessionId,
