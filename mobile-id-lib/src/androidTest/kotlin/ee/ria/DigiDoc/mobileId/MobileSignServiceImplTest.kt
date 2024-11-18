@@ -6,6 +6,7 @@ import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.test.platform.app.InstrumentationRegistry
+import ee.ria.DigiDoc.common.model.AppState
 import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
@@ -136,6 +137,7 @@ class MobileSignServiceImplTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         context = InstrumentationRegistry.getInstrumentation().targetContext
+        AppState.isAppInForeground = true
         serviceGenerator = mock(ServiceGenerator::class.java)
         containerWrapper = mock(ContainerWrapper::class.java)
         mobileSignServiceImpl =

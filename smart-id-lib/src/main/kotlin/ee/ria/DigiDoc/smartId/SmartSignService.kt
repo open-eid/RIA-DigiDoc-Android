@@ -9,6 +9,7 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import ee.ria.DigiDoc.common.Constant
+import ee.ria.DigiDoc.common.model.AppState
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
@@ -474,7 +475,7 @@ class SmartSignServiceImpl
         }
 
         @Throws(IOException::class, SigningCancelledException::class)
-        private fun doSessionStatusRequestLoop(
+        private suspend fun doSessionStatusRequestLoop(
             signedContainer: SignedContainer,
             request: Call<SessionResponse>,
             certRequest: Boolean,
@@ -494,6 +495,13 @@ class SmartSignServiceImpl
             }
 
             while (timeout < TIMEOUT_CANCEL) {
+                // Wait until the app is in the foreground to avoid networking errors
+                while (!AppState.isAppInForeground) {
+                    debugLog(logTag, "Smart-ID: App is in the background, waiting to return to foreground...")
+                    delay(1000)
+                    timeout += 1000
+                }
+
                 debugLog(logTag, "doSessionStatusRequestLoop timeout counter: $timeout")
                 val sessionStatusResponse: SessionStatusResponse? =
                     handleRequest(
