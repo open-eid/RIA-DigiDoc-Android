@@ -427,7 +427,14 @@ fun SigningNavigation(
         topBar = {
             TopBar(
                 modifier = modifier,
-                title = R.string.signing_title_container_existing,
+                title =
+                    if (signingViewModel.isExistingContainer(signedContainer) ||
+                        !signingViewModel.isContainerWithoutSignatures(signedContainer)
+                    ) {
+                        R.string.signing_title_container_existing
+                    } else {
+                        R.string.signing_title_new_container
+                    },
                 onBackButtonClick = {
                     handleBackButtonClick(
                         navController,
