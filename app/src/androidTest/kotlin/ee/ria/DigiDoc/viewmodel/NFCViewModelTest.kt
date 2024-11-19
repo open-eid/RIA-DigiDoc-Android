@@ -404,7 +404,7 @@ class NFCViewModelTest {
 
             val messageObserver: Observer<Int?> = mock()
             viewModel.message.observeForever(messageObserver)
-            verify(messageObserver, atLeastOnce()).onChanged(R.string.signature_update_nfc_hold)
+            verify(messageObserver, atLeastOnce()).onChanged(R.string.signature_update_nfc_adapter_missing)
             viewModel.message.removeObserver(messageObserver)
         }
 

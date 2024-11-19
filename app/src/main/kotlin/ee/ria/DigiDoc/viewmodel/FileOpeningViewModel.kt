@@ -70,7 +70,7 @@ class FileOpeningViewModel
             _launchFilePicker.postValue(false)
         }
 
-        @Throws(FileNotFoundException::class)
+        @Throws(FileNotFoundException::class, SecurityException::class)
         suspend fun urisToFile(
             context: Context,
             contentResolver: ContentResolver,
@@ -85,16 +85,27 @@ class FileOpeningViewModel
         }
 
         suspend fun isSivaConfirmationNeeded(uris: List<Uri>): Boolean {
-            val files = urisToFile(context, contentResolver, uris)
-            return fileOpeningRepository.isSivaConfirmationNeeded(context, files)
+            try {
+                val files = urisToFile(context, contentResolver, uris)
+                return fileOpeningRepository.isSivaConfirmationNeeded(context, files)
+            } catch (e: Exception) {
+                errorLog(logTag, "Unable to check if SiVa confirmation is needed", e)
+                handleException(context, e)
+                return false
+            }
         }
 
         suspend fun getFileMimetype(fileUris: List<Uri>): String? {
-            val file =
-                urisToFile(context, contentResolver, fileUris)
-                    .firstOrNull()
-            if (file != null) {
-                return mimeTypeResolver.mimeType(file)
+            try {
+                val file =
+                    urisToFile(context, contentResolver, fileUris)
+                        .firstOrNull()
+                if (file != null) {
+                    return mimeTypeResolver.mimeType(file)
+                }
+            } catch (e: Exception) {
+                errorLog(logTag, "Unable to get file mimetype", e)
+                handleException(context, e)
             }
             return CONTAINER_MIME_TYPE
         }

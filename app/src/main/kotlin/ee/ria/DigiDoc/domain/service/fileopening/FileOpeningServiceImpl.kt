@@ -30,7 +30,7 @@ class FileOpeningServiceImpl : FileOpeningService {
         }
     }
 
-    @Throws(FileNotFoundException::class)
+    @Throws(FileNotFoundException::class, SecurityException::class)
     override suspend fun uriToFile(
         context: Context,
         contentResolver: ContentResolver,
@@ -54,7 +54,15 @@ class FileOpeningServiceImpl : FileOpeningService {
         cursor?.use {
             if (it.moveToFirst() && !it.isNull(0)) {
                 displayName = it.getString(0)?.let { name ->
-                    sanitizeString(name, "")
+                    sanitizeString(name, "")?.trim()?.let {
+                        if (it.isEmpty() || it.startsWith(".")) {
+                            "$DEFAULT_FILENAME${it}"
+                        } else if (it.endsWith(".")) {
+                            DEFAULT_FILENAME
+                        } else {
+                            it
+                        }
+                    }
                 }?.let { sanitized ->
                     getNameFromFileName(sanitized)
                 } ?: DEFAULT_FILENAME

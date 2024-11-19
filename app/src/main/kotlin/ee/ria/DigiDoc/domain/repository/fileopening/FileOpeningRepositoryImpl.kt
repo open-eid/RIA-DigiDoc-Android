@@ -29,7 +29,7 @@ class FileOpeningRepositoryImpl
             return fileOpeningService.isFileSizeValid(file)
         }
 
-        @Throws(FileNotFoundException::class)
+        @Throws(FileNotFoundException::class, SecurityException::class)
         override suspend fun uriToFile(
             context: Context,
             contentResolver: ContentResolver,
@@ -65,6 +65,7 @@ class FileOpeningRepositoryImpl
             EmptyFileException::class,
             NoSuchElementException::class,
             NoInternetConnectionException::class,
+            SecurityException::class,
             Exception::class,
         )
         override suspend fun openOrCreateContainer(

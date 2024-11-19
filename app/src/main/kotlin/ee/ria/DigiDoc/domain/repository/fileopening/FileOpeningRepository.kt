@@ -15,7 +15,7 @@ import java.io.FileNotFoundException
 interface FileOpeningRepository {
     suspend fun isFileSizeValid(file: File): Boolean
 
-    @Throws(FileNotFoundException::class)
+    @Throws(FileNotFoundException::class, SecurityException::class)
     suspend fun uriToFile(
         context: Context,
         contentResolver: ContentResolver,
