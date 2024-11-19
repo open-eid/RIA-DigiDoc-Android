@@ -12,6 +12,8 @@ import androidx.lifecycle.Observer
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.Constant.ASICE_MIMETYPE
+import ee.ria.DigiDoc.common.Constant.CONTAINER_MIME_TYPE
 import ee.ria.DigiDoc.common.R.string.document_add_error_exists
 import ee.ria.DigiDoc.common.R.string.documents_add_error_exists
 import ee.ria.DigiDoc.common.R.string.empty_file_error
@@ -36,6 +38,8 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import okio.FileNotFoundException
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -580,6 +584,47 @@ class FileOpeningViewModelTest {
             val isSivaConfirmationNeeded = viewModel.isSivaConfirmationNeeded(uris)
 
             assertTrue(isSivaConfirmationNeeded)
+        }
+
+    @Test
+    fun fileOpeningViewModel_isSivaConfirmationNeeded_returnFalseWhenExceptionThrown() =
+        runTest {
+            val uris = listOf(mock(Uri::class.java), mock(Uri::class.java))
+
+            `when`(fileOpeningRepository.uriToFile(context, mock(ContentResolver::class.java), uris.first()))
+                .thenThrow(FileNotFoundException())
+
+            val isSivaConfirmationNeeded = viewModel.isSivaConfirmationNeeded(uris)
+
+            assertFalse(isSivaConfirmationNeeded)
+        }
+
+    @Test
+    fun fileOpeningViewModel_getFileMimetype_returnCorrectMimeType() =
+        runTest {
+            val file = createTempFileWithStringContent("test", "asice", "testContent")
+            val uris = listOf(Uri.fromFile(file))
+
+            `when`(fileOpeningRepository.uriToFile(context, contentResolver, uris.first())).thenReturn(file)
+            `when`(mimeTypeResolver.mimeType(file)).thenReturn(ASICE_MIMETYPE)
+            `when`(fileOpeningRepository.isSivaConfirmationNeeded(context, listOf(file))).thenReturn(true)
+
+            val mimetype = viewModel.getFileMimetype(uris)
+
+            assertEquals(ASICE_MIMETYPE, mimetype)
+        }
+
+    @Test
+    fun fileOpeningViewModel_getFileMimetype_returnDefaultContainerMimeTypeWhenExceptionThrown() =
+        runTest {
+            val uris = listOf(mock(Uri::class.java), mock(Uri::class.java))
+
+            `when`(fileOpeningRepository.uriToFile(context, mock(ContentResolver::class.java), uris.first()))
+                .thenThrow(FileNotFoundException())
+
+            val mimetype = viewModel.getFileMimetype(uris)
+
+            assertEquals(CONTAINER_MIME_TYPE, mimetype)
         }
 
     @Test
