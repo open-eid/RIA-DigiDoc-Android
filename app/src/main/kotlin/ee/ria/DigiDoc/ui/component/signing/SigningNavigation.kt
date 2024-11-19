@@ -72,8 +72,10 @@ import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.NO_REMOVE_SIGNATURE_BUTTON_FILE_EXTENSIONS
 import ee.ria.DigiDoc.common.Constant.NO_REMOVE_SIGNATURE_BUTTON_FILE_MIMETYPES
+import ee.ria.DigiDoc.common.Constant.SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
@@ -105,6 +107,7 @@ import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.removeExtensionFromContainerFilename
 import ee.ria.DigiDoc.utilsLib.extensions.isContainer
+import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.viewmodel.SigningViewModel
@@ -506,11 +509,59 @@ fun SigningNavigation(
                 }
 
             val showSivaDialog = remember { mutableStateOf(false) }
-            var isSivaConfirmed by remember { mutableStateOf(true) }
+            var nestedFile by remember { mutableStateOf<File?>(null) }
 
-            val handleResult: (Boolean) -> Unit = { confirmed ->
-                isSivaConfirmed = confirmed
+            val openNestedContainer: (nestedContainer: File, isSivaConfirmed: Boolean) -> Unit =
+                { nestedContainer, isSivaConfirmed ->
+                    CoroutineScope(IO).launch {
+                        try {
+                            signingViewModel.openNestedContainer(
+                                context,
+                                nestedContainer,
+                                sharedContainerViewModel,
+                                isSivaConfirmed,
+                            )
+                            showLoadingScreen.value = false
+                        } catch (ex: Exception) {
+                            withContext(Main) {
+                                errorLog(
+                                    this.javaClass.simpleName,
+                                    "Unable to open nested container",
+                                    ex,
+                                )
+                                showLoadingScreen.value = false
+                                Toast.makeText(
+                                    context,
+                                    ex.localizedMessage,
+                                    Toast.LENGTH_LONG,
+                                ).show()
+                            }
+                        }
+                    }
+                }
+
+            val handleSivaConfirmation: () -> Unit = {
                 showSivaDialog.value = false
+                nestedFile?.let { file ->
+                    openNestedContainer(file, true)
+                }
+            }
+
+            val handleSivaCancel: () -> Unit = {
+                showSivaDialog.value = false
+                nestedFile?.let { file ->
+                    if (DDOC_MIMETYPE != file.mimeType(context)) {
+                        openNestedContainer(file, false)
+                    }
+                }
+            }
+
+            val handleResult: (Boolean) -> Unit = { isSivaConfirmed ->
+                if (isSivaConfirmed) {
+                    handleSivaConfirmation()
+                } else {
+                    handleSivaCancel()
+                }
             }
 
             if (showLoadingScreen.value) {
@@ -681,40 +732,30 @@ fun SigningNavigation(
                                         ),
                                     onClickView = {
                                         try {
-                                            val file =
+                                            val containerDataFile =
                                                 sharedContainerViewModel.getContainerDataFile(
                                                     signedContainer,
                                                     dataFile,
                                                 )
                                             showLoadingScreen.value = false
-                                            file?.let { nestedFile ->
-                                                if (nestedFile.isContainer(context)) {
-                                                    showLoadingScreen.value = true
-                                                    CoroutineScope(IO).launch {
-                                                        try {
-                                                            signingViewModel.openNestedContainer(
-                                                                context,
-                                                                nestedFile,
-                                                                sharedContainerViewModel,
-                                                                isSivaConfirmed,
-                                                            )
-                                                            showLoadingScreen.value = false
-                                                        } catch (ex: Exception) {
-                                                            withContext(Main) {
-                                                                showLoadingScreen.value = false
-                                                                Toast.makeText(
-                                                                    context,
-                                                                    ex.localizedMessage,
-                                                                    Toast.LENGTH_LONG,
-                                                                ).show()
-                                                            }
-                                                        }
+                                            containerDataFile?.let { dataFile ->
+                                                if (dataFile.isContainer(context)) {
+                                                    nestedFile = dataFile
+                                                    val nestedFileMimetype = dataFile.mimeType(context)
+                                                    if (SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(
+                                                            nestedFileMimetype,
+                                                        )
+                                                    ) {
+                                                        showSivaDialog.value = true
+                                                    } else {
+                                                        showLoadingScreen.value = true
+                                                        handleSivaConfirmation()
                                                     }
                                                 } else {
                                                     val viewIntent =
                                                         signingViewModel.getViewIntent(
                                                             context,
-                                                            nestedFile,
+                                                            dataFile,
                                                         )
                                                     context.startActivity(
                                                         viewIntent,

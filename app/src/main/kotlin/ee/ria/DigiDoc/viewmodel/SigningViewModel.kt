@@ -9,13 +9,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.UNSIGNABLE_CONTAINER_EXTENSIONS
 import ee.ria.DigiDoc.common.Constant.UNSIGNABLE_CONTAINER_MIMETYPES
+import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
 import ee.ria.DigiDoc.utilsLib.date.DateUtil.getFormattedDateTime
 import ee.ria.DigiDoc.utilsLib.date.DateUtil.signedDateTimeString
+import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
@@ -29,7 +32,10 @@ import javax.inject.Inject
 @HiltViewModel
 class SigningViewModel
     @Inject
-    constructor(private val mimeTypeResolver: MimeTypeResolver) : ViewModel() {
+    constructor(
+        private val sivaRepository: SivaRepository,
+        private val mimeTypeResolver: MimeTypeResolver,
+    ) : ViewModel() {
         companion object {
             private const val LOG_TAG = "SigningViewModel"
         }
@@ -125,7 +131,12 @@ class SigningViewModel
                     isSivaConfirmed,
                 )
 
-            sharedContainerViewModel.setSignedContainer(nestedContainer)
+            if (ASICS_MIMETYPE == nestedFile.mimeType(context)) {
+                val timestampedNestedContainer = getTimestampedContainer(context, nestedContainer, isSivaConfirmed)
+                sharedContainerViewModel.setSignedContainer(timestampedNestedContainer)
+            } else {
+                sharedContainerViewModel.setSignedContainer(nestedContainer)
+            }
         }
 
         fun getViewIntent(
@@ -141,4 +152,18 @@ class SigningViewModel
             )
 
         fun getMimetype(file: File): String? = mimeTypeResolver.mimeType(file)
+
+        suspend fun getTimestampedContainer(
+            context: Context,
+            signedContainer: SignedContainer,
+            isSivaConfirmed: Boolean,
+        ): SignedContainer {
+            if (sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed) &&
+                !signedContainer.isXades()
+            ) {
+                return sivaRepository.getTimestampedContainer(context, signedContainer)
+            }
+
+            return signedContainer
+        }
     }

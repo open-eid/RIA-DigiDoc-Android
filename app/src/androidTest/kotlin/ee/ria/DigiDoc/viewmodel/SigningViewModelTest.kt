@@ -9,8 +9,10 @@ import androidx.lifecycle.Observer
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
 import ee.ria.DigiDoc.common.Constant.ASICE_MIMETYPE
+import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DEFAULT_MIME_TYPE
 import ee.ria.DigiDoc.common.testfiles.asset.AssetFile.Companion.getResourceFileAsFile
+import ee.ria.DigiDoc.common.testfiles.file.TestFileUtil.Companion.createZipWithTextFile
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifierImpl
 import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
@@ -20,6 +22,7 @@ import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepositoryImp
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
+import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
@@ -60,6 +63,9 @@ class SigningViewModelTest {
 
     @Mock
     lateinit var shouldResetSignedContainerObserver: Observer<Boolean?>
+
+    @Mock
+    lateinit var sivaRepository: SivaRepository
 
     @Mock
     lateinit var contentResolver: ContentResolver
@@ -104,7 +110,7 @@ class SigningViewModelTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         mimeTypeResolver = MimeTypeResolverImpl(mimeTypeCache)
-        viewModel = SigningViewModel(mimeTypeResolver)
+        viewModel = SigningViewModel(sivaRepository, mimeTypeResolver)
         viewModel.shouldResetSignedContainer.observeForever(shouldResetSignedContainerObserver)
         sharedContainerViewModel =
             SharedContainerViewModel(
@@ -430,6 +436,35 @@ class SigningViewModelTest {
                 fail("Nested file is null")
             }
         }
+
+    @Test
+    fun signingViewModel_getTimestampedContainer_success() = runTest {
+        val mockContainer = createZipWithTextFile(ASICS_MIMETYPE)
+        val mockTimeStampedContainer = createZipWithTextFile(ASICS_MIMETYPE, "mockTimestamp")
+
+        val signedContainer = SignedContainer.openOrCreate(context, mockContainer, listOf(mockContainer), true)
+        val timestampedContainer = SignedContainer.openOrCreate(context, mockTimeStampedContainer, listOf(mockTimeStampedContainer), true)
+
+        `when`(sivaRepository.isTimestampedContainer(signedContainer, true)).thenReturn(true)
+        `when`(sivaRepository.getTimestampedContainer(context, signedContainer)).thenReturn(timestampedContainer)
+
+        val tsContainer = viewModel.getTimestampedContainer(context, signedContainer, true)
+
+        assertNotNull(tsContainer)
+    }
+
+    @Test
+    fun signingViewModel_getTimestampedContainer_successWhenSivaNotConfirmed() = runTest {
+        val mockContainer = createZipWithTextFile(ASICS_MIMETYPE)
+
+        val signedContainer = SignedContainer.openOrCreate(context, mockContainer, listOf(mockContainer), true)
+
+        `when`(sivaRepository.isTimestampedContainer(signedContainer, false)).thenReturn(false)
+
+        val container = viewModel.getTimestampedContainer(context, signedContainer, false)
+
+        assertNotNull(container)
+    }
 
     @Test(expected = Exception::class)
     fun signingViewModel_openNestedContainer_throwExceptionWhenOpeningContainerUnsuccessful() =
