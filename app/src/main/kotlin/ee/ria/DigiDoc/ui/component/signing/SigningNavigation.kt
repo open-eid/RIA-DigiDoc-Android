@@ -1237,7 +1237,7 @@ fun handleBackButtonClick(
     signingViewModel: SigningViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
 ) {
-    sharedContainerViewModel.resetExternalFileUri()
+    sharedContainerViewModel.resetExternalFileUris()
     if (sharedContainerViewModel.nestedContainers.size > 1) {
         sharedContainerViewModel.removeLastContainer()
         sharedContainerViewModel.setSignedContainer(sharedContainerViewModel.currentSignedContainer())

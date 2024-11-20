@@ -573,25 +573,25 @@ class SharedContainerViewModelTest {
     @Test
     fun sharedContainerViewModel_setExternalFileUri_success() =
         runTest {
-            val uri = Uri.parse("content://example/uri")
+            val uris = listOf(Uri.parse("content://example/uri"))
 
-            viewModel.setExternalFileUri(uri)
+            viewModel.setExternalFileUris(uris)
 
-            viewModel.externalFileUri.take(1).collect { collectedUri ->
-                assertEquals(collectedUri, uri)
+            viewModel.externalFileUris.take(1).collect { collectedUri ->
+                assertEquals(collectedUri, uris)
             }
         }
 
     @Test
     fun sharedContainerViewModel_resetExternalFileUri_success() =
         runTest {
-            val uri = Uri.parse("content://example/uri")
-            viewModel.setExternalFileUri(uri)
+            val uris = listOf(Uri.parse("content://example/uri"))
+            viewModel.setExternalFileUris(uris)
 
-            viewModel.resetExternalFileUri()
+            viewModel.resetExternalFileUris()
 
-            viewModel.externalFileUri.take(1).collect { collectedUri ->
-                assertNull(collectedUri)
+            viewModel.externalFileUris.take(1).collect { collectedUri ->
+                assertEquals(listOf<Uri>(), collectedUri)
             }
         }
 

@@ -46,7 +46,7 @@ fun FileOpeningNavigation(
 ) {
     val context = LocalContext.current
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
-    val externalFileUri by sharedContainerViewModel.externalFileUri.collectAsState()
+    val externalFileUris by sharedContainerViewModel.externalFileUris.collectAsState()
     val showSivaDialog = remember { mutableStateOf(false) }
     var isExternalFile by remember { mutableStateOf(false) }
     var fileUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
@@ -148,7 +148,7 @@ fun FileOpeningNavigation(
     BackHandler {
         CoroutineScope(Main).launch {
             fileOpeningViewModel.resetContainer()
-            if (externalFileUri != null) {
+            if (externalFileUris.isNotEmpty()) {
                 navController.popBackStack()
             } else {
                 navController.navigateUp()
@@ -191,7 +191,7 @@ fun FileOpeningNavigation(
     }
 
     LaunchedEffect(fileOpeningViewModel.launchFilePicker) {
-        if (externalFileUri == null) {
+        if (externalFileUris.isEmpty()) {
             fileOpeningViewModel.launchFilePicker.asFlow().collect { launchFilePicker ->
                 launchFilePicker?.let {
                     if (it) {
@@ -200,11 +200,11 @@ fun FileOpeningNavigation(
                 }
             }
         } else {
-            externalFileUri?.let { fileUri ->
-                fileUris = listOf(fileUri)
+            externalFileUris.let { extFileUris ->
+                fileUris = extFileUris
                 isExternalFile = true
                 CoroutineScope(IO).launch {
-                    if (fileOpeningViewModel.isSivaConfirmationNeeded(listOf(fileUri))) {
+                    if (fileOpeningViewModel.isSivaConfirmationNeeded(extFileUris)) {
                         showSivaDialog.value = true
                     } else {
                         handleSivaConfirmation()

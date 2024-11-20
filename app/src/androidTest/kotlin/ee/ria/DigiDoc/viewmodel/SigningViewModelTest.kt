@@ -438,33 +438,41 @@ class SigningViewModelTest {
         }
 
     @Test
-    fun signingViewModel_getTimestampedContainer_success() = runTest {
-        val mockContainer = createZipWithTextFile(ASICS_MIMETYPE)
-        val mockTimeStampedContainer = createZipWithTextFile(ASICS_MIMETYPE, "mockTimestamp")
+    fun signingViewModel_getTimestampedContainer_success() =
+        runTest {
+            val mockContainer = createZipWithTextFile(ASICS_MIMETYPE)
+            val mockTimeStampedContainer = createZipWithTextFile(ASICS_MIMETYPE, "mockTimestamp")
 
-        val signedContainer = SignedContainer.openOrCreate(context, mockContainer, listOf(mockContainer), true)
-        val timestampedContainer = SignedContainer.openOrCreate(context, mockTimeStampedContainer, listOf(mockTimeStampedContainer), true)
+            val signedContainer = SignedContainer.openOrCreate(context, mockContainer, listOf(mockContainer), true)
+            val timestampedContainer =
+                SignedContainer.openOrCreate(
+                    context,
+                    mockTimeStampedContainer,
+                    listOf(mockTimeStampedContainer),
+                    true,
+                )
 
-        `when`(sivaRepository.isTimestampedContainer(signedContainer, true)).thenReturn(true)
-        `when`(sivaRepository.getTimestampedContainer(context, signedContainer)).thenReturn(timestampedContainer)
+            `when`(sivaRepository.isTimestampedContainer(signedContainer, true)).thenReturn(true)
+            `when`(sivaRepository.getTimestampedContainer(context, signedContainer)).thenReturn(timestampedContainer)
 
-        val tsContainer = viewModel.getTimestampedContainer(context, signedContainer, true)
+            val tsContainer = viewModel.getTimestampedContainer(context, signedContainer, true)
 
-        assertNotNull(tsContainer)
-    }
+            assertNotNull(tsContainer)
+        }
 
     @Test
-    fun signingViewModel_getTimestampedContainer_successWhenSivaNotConfirmed() = runTest {
-        val mockContainer = createZipWithTextFile(ASICS_MIMETYPE)
+    fun signingViewModel_getTimestampedContainer_successWhenSivaNotConfirmed() =
+        runTest {
+            val mockContainer = createZipWithTextFile(ASICS_MIMETYPE)
 
-        val signedContainer = SignedContainer.openOrCreate(context, mockContainer, listOf(mockContainer), true)
+            val signedContainer = SignedContainer.openOrCreate(context, mockContainer, listOf(mockContainer), true)
 
-        `when`(sivaRepository.isTimestampedContainer(signedContainer, false)).thenReturn(false)
+            `when`(sivaRepository.isTimestampedContainer(signedContainer, false)).thenReturn(false)
 
-        val container = viewModel.getTimestampedContainer(context, signedContainer, false)
+            val container = viewModel.getTimestampedContainer(context, signedContainer, false)
 
-        assertNotNull(container)
-    }
+            assertNotNull(container)
+        }
 
     @Test(expected = Exception::class)
     fun signingViewModel_openNestedContainer_throwExceptionWhenOpeningContainerUnsuccessful() =

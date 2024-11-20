@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.viewmodel.shared
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import androidx.activity.result.ActivityResult
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.LiveData
@@ -53,8 +54,8 @@ class SharedContainerViewModel
         private val _signedIDCardStatus = MutableLiveData<Boolean?>(null)
         val signedIDCardStatus: LiveData<Boolean?> = _signedIDCardStatus
 
-        private val _externalFileUri = MutableStateFlow<Uri?>(null)
-        val externalFileUri: StateFlow<Uri?> = _externalFileUri
+        private val _externalFileUris = MutableStateFlow<List<Uri>>(listOf())
+        val externalFileUris: StateFlow<List<Uri>> = _externalFileUris
 
         fun setSignedSidStatus(signedStatus: SessionStatusResponseProcessStatus?) {
             _signedSidStatus.postValue(signedStatus)
@@ -77,12 +78,12 @@ class SharedContainerViewModel
             addNestedContainer(signedContainer)
         }
 
-        fun setExternalFileUri(uri: Uri?) {
-            _externalFileUri.value = uri
+        fun setExternalFileUris(uris: List<Uri>) {
+            _externalFileUris.value = uris
         }
 
-        fun resetExternalFileUri() {
-            _externalFileUri.value = null
+        fun resetExternalFileUris() {
+            _externalFileUris.value = listOf<Uri>()
         }
 
         fun resetSignedContainer() {
@@ -94,8 +95,12 @@ class SharedContainerViewModel
         }
 
         fun removeLastContainer() {
-            if (!_nestedContainers.isEmpty()) {
-                _nestedContainers.removeLast()
+            _nestedContainers.takeIf { it.isNotEmpty() }?.let {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    it.removeLast()
+                } else {
+                    it.removeAt(it.size - 1)
+                }
             }
         }
 
