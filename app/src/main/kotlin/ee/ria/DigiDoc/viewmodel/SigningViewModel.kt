@@ -91,12 +91,22 @@ class SigningViewModel
         fun isEncryptButtonShown(
             signedContainer: SignedContainer?,
             isNestedContainer: Boolean,
-        ): Boolean = isExistingContainer(signedContainer) && !isNestedContainer
+        ): Boolean =
+            (
+                isExistingContainer(signedContainer) ||
+                    !isContainerWithoutSignatures(signedContainer)
+            ) &&
+                !isNestedContainer
 
         fun isShareButtonShown(
             signedContainer: SignedContainer?,
             isNestedContainer: Boolean,
-        ): Boolean = isExistingContainer(signedContainer) && !isNestedContainer
+        ): Boolean =
+            (
+                isExistingContainer(signedContainer) ||
+                    !isContainerWithoutSignatures(signedContainer)
+            ) &&
+                !isNestedContainer
 
         fun isRoleEmpty(signature: SignatureInterface): Boolean {
             return signature.signerRoles.isEmpty() && signature.city.isEmpty() &&

@@ -28,10 +28,10 @@ fun HomeFragment(
     navController: NavHostController,
     navBarNavController: NavHostController,
     modifier: Modifier = Modifier,
-    externalFileUri: Uri?,
+    externalFileUris: List<Uri>,
 ) {
     LaunchedEffect(Unit) {
-        if (externalFileUri != null) {
+        if (externalFileUris.isNotEmpty()) {
             navController.navigate(Route.FileChoosing.route) {
                 popUpTo(Route.Home.route) {
                     inclusive = false
@@ -84,7 +84,7 @@ fun HomeFragmentPreview() {
         HomeFragment(
             navController = navController,
             navBarNavController = navBarNavController,
-            externalFileUri = Uri.EMPTY,
+            externalFileUris = listOf(),
         )
     }
 }

@@ -249,6 +249,6 @@ class FileOpeningViewModel
         }
 
         fun resetExternalFileState(sharedContainerViewModel: SharedContainerViewModel) {
-            sharedContainerViewModel.setExternalFileUri(null)
+            sharedContainerViewModel.setExternalFileUris(listOf())
         }
     }

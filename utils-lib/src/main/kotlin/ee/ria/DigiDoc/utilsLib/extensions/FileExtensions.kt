@@ -43,7 +43,7 @@ fun File.isXades(context: Context): Boolean {
         deleteFilesInFolder(tempContainerFiles)
         return fileExists ?: false
     } catch (ze: ZipException) {
-        debugLog(FILE_EXTENSIONS_LOG_TAG, "File is not a Xades container")
+        debugLog(FILE_EXTENSIONS_LOG_TAG, "File is not a Xades container", ze)
         return false
     }
 }
@@ -61,7 +61,7 @@ fun File.isCades(context: Context): Boolean {
         deleteFilesInFolder(tempContainerFiles)
         return fileExists ?: false
     } catch (ze: ZipException) {
-        debugLog(FILE_EXTENSIONS_LOG_TAG, "File is not a Cades container")
+        debugLog(FILE_EXTENSIONS_LOG_TAG, "File is not a Cades container", ze)
         return false
     }
 }

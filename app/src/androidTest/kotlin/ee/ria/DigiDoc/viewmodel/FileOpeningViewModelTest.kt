@@ -38,7 +38,6 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import okio.FileNotFoundException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -60,6 +59,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verifyNoInteractions
 import java.io.File
+import java.io.FileNotFoundException
 import java.nio.charset.Charset
 import java.nio.file.Files
 
@@ -653,7 +653,7 @@ class FileOpeningViewModelTest {
             val sharedContainerViewModel = SharedContainerViewModel(context, contentResolver)
             viewModel.resetExternalFileState(sharedContainerViewModel)
 
-            assertNull(sharedContainerViewModel.externalFileUri.value)
+            assertEquals(listOf<Uri>(), sharedContainerViewModel.externalFileUris.value)
         }
 
     private fun createTempFileWithStringContent(

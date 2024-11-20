@@ -21,6 +21,7 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utilsLib.R.string.main_diagnostics_logging_key
 import ee.ria.DigiDoc.utilsLib.R.string.main_diagnostics_logging_running_key
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
+import ee.ria.DigiDoc.utilsLib.file.FileUtil.getExternalFileUris
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -62,7 +63,8 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
         lifecycle.addObserver(this)
 
         val componentClassName = this.javaClass.name
-        val externalFileUri = intent?.data
+
+        val externalFileUris = getExternalFileUris(intent)
 
         val locale = dataStore.getLocale()
         if (locale != null) {
@@ -111,7 +113,7 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
         }
         setContent {
             RIADigiDocTheme {
-                RIADigiDocAppScreen(externalFileUri)
+                RIADigiDocAppScreen(externalFileUris)
             }
         }
     }

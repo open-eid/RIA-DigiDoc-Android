@@ -3,6 +3,7 @@
 package ee.ria.DigiDoc.utilsLib.file
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.os.ParcelFileDescriptor
@@ -508,5 +509,16 @@ object FileUtil {
         } catch (ex: Exception) {
             return null
         }
+    }
+
+    fun getExternalFileUris(intent: Intent): List<Uri> {
+        val externalFileUris = mutableListOf<Uri>()
+        intent.data?.let { externalFileUris.add(it) }
+        intent.clipData?.let { clipData ->
+            for (i in 0 until clipData.itemCount) {
+                clipData.getItemAt(i)?.uri?.let { externalFileUris.add(it) }
+            }
+        }
+        return externalFileUris
     }
 }
