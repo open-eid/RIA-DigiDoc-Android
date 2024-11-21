@@ -66,15 +66,13 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
 
         val externalFileUris = getExternalFileUris(intent)
 
-        val locale = dataStore.getLocale()
-        if (locale != null) {
-            Locale.setDefault(locale)
-            val config = resources.configuration
-            config.setLocale(locale)
+        val locale = dataStore.getLocale() ?: Locale("en")
+        Locale.setDefault(locale)
+        val config = resources.configuration
+        config.setLocale(locale)
 
-            createConfigurationContext(config)
-            resources.updateConfiguration(config, resources.displayMetrics)
-        }
+        val context = createConfigurationContext(config)
+        resources.updateConfiguration(config, resources.displayMetrics)
 
         // Observe if activity needs to be recreated for changes to take effect (eg. Settings)
         activityManager.shouldRecreateActivity.observe(this) { shouldRecreate ->
@@ -109,7 +107,7 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
                 isLoggingEnabled,
             )
             fileTypeSetup.initializeApplicationFileTypesAssociation(componentClassName)
-            librarySetup.setupLibraries(applicationContext, isLoggingEnabled)
+            librarySetup.setupLibraries(context, isLoggingEnabled)
         }
         setContent {
             RIADigiDocTheme {
