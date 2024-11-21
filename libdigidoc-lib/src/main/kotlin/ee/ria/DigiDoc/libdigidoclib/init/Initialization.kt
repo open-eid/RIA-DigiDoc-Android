@@ -123,7 +123,7 @@ class Initialization
             System.loadLibrary("digidoc_java")
         }
 
-        private suspend fun initLibDigiDocpp(
+        private fun initLibDigiDocpp(
             context: Context,
             path: String,
             isLoggingEnabled: Boolean,
@@ -136,7 +136,7 @@ class Initialization
             isInitialized = true
         }
 
-        private suspend fun initLibDigiDocConfiguration(
+        private fun initLibDigiDocConfiguration(
             context: Context,
             isLoggingEnabled: Boolean,
         ) {
@@ -423,7 +423,7 @@ class Initialization
             DigiDocConf.instance().setOCSPUrls(stringMap)
         }
 
-        private suspend fun loadConfiguration(context: Context) {
+        private fun loadConfiguration(context: Context) {
             configurationRepository.getConfiguration()?.let { overrideConfiguration(context, it) }
             CoroutineScope(Main).launch {
                 configurationRepository.observeConfigurationUpdates { newConfig ->
@@ -583,11 +583,11 @@ class Initialization
                             .addVerifyServiceCert(org.bouncycastle.util.encoders.Base64.decode(cert))
                     }
                 } catch (e: Exception) {
-                    errorLog("Libdigidoc-Initialization", "Error adding custom SIVA cert", e)
+                    errorLog("Libdigidoc-Initialization", "Error adding custom SiVa certificate", e)
                     CoroutineScope(Main).launch {
                         Toast.makeText(
                             context,
-                            R.string.libdigidocpp_initialization_failed,
+                            context.getString(R.string.libdigidocpp_custom_siva_cert_error),
                             Toast.LENGTH_LONG,
                         )
                             .show()

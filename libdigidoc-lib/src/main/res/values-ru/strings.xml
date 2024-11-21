@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="libdigidocpp_initialization_failed">Не удалось инициализировать Libdigidocpp</string>
-
+    <string name="libdigidocpp_custom_siva_cert_error">Ошибка при добавлении сертификата SiVa!</string>
     <string name="signing_container_signature_status_valid">Подпись действительна</string>
     <string name="signing_container_signature_status_warning">(Предупреждения)</string>
     <string name="signing_container_signature_status_non_qscd">(Ограничения)</string>

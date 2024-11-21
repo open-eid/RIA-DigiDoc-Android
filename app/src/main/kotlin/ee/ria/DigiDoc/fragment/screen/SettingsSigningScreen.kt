@@ -100,6 +100,7 @@ fun SettingsSigningScreen(
     val getSivaSetting = sharedSettingsViewModel.dataStore::getSivaSetting
     val setSettingsSivaUrl = sharedSettingsViewModel.dataStore::setSettingsSivaUrl
     val setSivaSetting = sharedSettingsViewModel.dataStore::setSivaSetting
+    val defaultSivaServiceUrl = configuration?.sivaUrl ?: getSettingsSivaUrl()
     var settingsSivaServiceUrl by remember { mutableStateOf(TextFieldValue(text = getSettingsSivaUrl())) }
     sharedSettingsViewModel.updateData(settingsSivaServiceUrl.text)
     val issuedTo by sharedSettingsViewModel.issuedTo.asFlow().collectAsState(
@@ -190,6 +191,7 @@ fun SettingsSigningScreen(
                         setSettingsSivaUrl(it.text)
                     },
                     settingsSivaServiceUrl = settingsSivaServiceUrl,
+                    defaultSivaServiceUrl = defaultSivaServiceUrl,
                 )
                 InvisibleElement(modifier = modifier)
             }

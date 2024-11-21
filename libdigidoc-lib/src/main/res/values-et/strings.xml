@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="libdigidocpp_initialization_failed">Libdigidocpp initsialiseerimine ebaõnnestus</string>
-
+    <string name="libdigidocpp_custom_siva_cert_error">Viga SiVa sertifikaadi lisamisel!</string>
     <string name="signing_container_signature_status_valid">Allkiri on kehtiv</string>
     <string name="signing_container_signature_status_warning">(Hoiatused)</string>
     <string name="signing_container_signature_status_non_qscd">(Piirangud)</string>

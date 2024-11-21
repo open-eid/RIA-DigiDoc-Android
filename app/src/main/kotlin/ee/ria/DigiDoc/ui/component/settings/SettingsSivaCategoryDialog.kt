@@ -47,6 +47,7 @@ fun SettingsSivaCategoryDialog(
     issuedTo: String = "",
     validTo: String = "",
     settingsSivaServiceUrl: TextFieldValue = TextFieldValue(""),
+    defaultSivaServiceUrl: String = "",
     onClickBack: () -> Unit = {},
     onClickSivaSettingDefault: () -> Unit = {},
     onClickSivaSettingManual: () -> Unit = {},
@@ -130,6 +131,9 @@ fun SettingsSivaCategoryDialog(
             onValueChange = onSettingsSivaUrlValueChanged,
             label = {
                 Text(text = stringResource(id = R.string.main_settings_siva_service_url))
+            },
+            placeholder = {
+                Text(text = defaultSivaServiceUrl)
             },
             maxLines = 1,
             singleLine = true,
