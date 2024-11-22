@@ -636,6 +636,39 @@ class IdCardViewModelTest {
         }
 
     @Test
+    fun idCardViewModel_sign_handleFailedToCreateConnectionWithHost() =
+        runTest {
+            `when`(smartCardReaderManager.status()).thenReturn(Observable.just(SmartCardReaderStatus.CARD_DETECTED))
+
+            val pin2 = byteArrayOf(1, 2, 3)
+            val signedContainer = SignedContainer.openOrCreate(context, container, listOf(container), true)
+
+            val exception = Exception("Failed to create connection with host")
+
+            val mockPersonalData = mock(PersonalData::class.java)
+
+            val mockSmartCardReader = mock(SmartCardReader::class.java)
+            `when`(mockSmartCardReader.atr()).thenReturn(Hex.decode("3bdb960080b1fe451f830012233f536549440f9000f1"))
+            `when`(smartCardReaderManager.connectedReader()).thenReturn(mockSmartCardReader)
+
+            `when`(token.personalData()).thenReturn(mockPersonalData)
+
+            `when`(mockComponentActivity.resources).thenReturn(resources)
+            `when`(resources.configuration).thenReturn(context.resources.configuration)
+
+            `when`(idCardService.data(anyOrNull())).thenThrow(Exception())
+            `when`(idCardService.signContainer(anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull())).thenThrow(
+                exception,
+            )
+
+            viewModel.sign(mockComponentActivity, context, signedContainer, pin2, null)
+
+            assertNotNull(viewModel.errorState.value)
+            assertEquals(context.getString(R.string.no_internet_connection), viewModel.errorState.value)
+            assertNull(viewModel.roleDataRequested.value)
+        }
+
+    @Test
     fun idCardViewModel_sign_handleFailedToCreateProxyConnectionWithHost() =
         runTest {
             `when`(smartCardReaderManager.status()).thenReturn(Observable.just(SmartCardReaderStatus.CARD_DETECTED))
