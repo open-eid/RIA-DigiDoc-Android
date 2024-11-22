@@ -38,6 +38,7 @@ interface FileOpeningRepository {
         contentResolver: ContentResolver,
         uris: List<Uri>,
         isSivaConfirmed: Boolean,
+        forceFirstDataFileContainer: Boolean = false,
     ): SignedContainer
 
     @Throws(
