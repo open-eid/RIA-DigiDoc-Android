@@ -73,6 +73,7 @@ class FileOpeningRepositoryImpl
             contentResolver: ContentResolver,
             uris: List<Uri>,
             isSivaConfirmed: Boolean,
+            forceFirstDataFileContainer: Boolean,
         ): SignedContainer {
             val files = mutableListOf<File>()
 
@@ -88,7 +89,13 @@ class FileOpeningRepositoryImpl
             checkForValidFiles(files)
 
             val containerPath = ContainerUtil.addSignatureContainer(context, files.first())
-            return SignedContainer.openOrCreate(context, containerPath, files, isSivaConfirmed)
+            return SignedContainer.openOrCreate(
+                context,
+                containerPath,
+                files,
+                isSivaConfirmed,
+                forceFirstDataFileContainer,
+            )
         }
 
         override suspend fun checkForValidFiles(files: List<File>) {

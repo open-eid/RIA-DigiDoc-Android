@@ -115,6 +115,7 @@ class FileOpeningViewModel
             uris: List<Uri>,
             existingSignedContainer: SignedContainer? = null,
             isSivaConfirmed: Boolean,
+            forceFirstDataFileContainer: Boolean = false,
         ) {
             if (existingSignedContainer != null) {
                 try {
@@ -168,6 +169,7 @@ class FileOpeningViewModel
                             contentResolver,
                             uris,
                             isSivaConfirmed,
+                            forceFirstDataFileContainer,
                         )
 
                     if (sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed) ||
