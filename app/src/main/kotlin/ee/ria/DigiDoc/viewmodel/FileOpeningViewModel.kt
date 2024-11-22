@@ -47,8 +47,8 @@ class FileOpeningViewModel
         private val _signedContainer = MutableLiveData<SignedContainer?>(null)
         val signedContainer: LiveData<SignedContainer?> = _signedContainer
 
-        private val _errorState = MutableLiveData<String?>(null)
-        val errorState: LiveData<String?> = _errorState
+        private val _errorState = MutableLiveData<Pair<Int, String?>?>(null)
+        val errorState: LiveData<Pair<Int, String?>?> = _errorState
 
         private val _launchFilePicker = MutableLiveData(true)
         val launchFilePicker: LiveData<Boolean?> = _launchFilePicker
@@ -145,7 +145,7 @@ class FileOpeningViewModel
 
                     if (filesAlreadyInContainer.isNotEmpty()) {
                         val fileNames = filesAlreadyInContainer.joinToString(", ") { it.name }
-                        _errorState.postValue(context.getString(documents_add_error_exists, fileNames))
+                        _errorState.postValue(Pair(documents_add_error_exists, fileNames))
                     }
 
                     fileOpeningRepository.addFilesToContainer(
@@ -200,33 +200,37 @@ class FileOpeningViewModel
         ) {
             when (e) {
                 is EmptyFileException -> {
-                    _errorState.postValue(context.getString(empty_file_error))
+                    _errorState.postValue(Pair(empty_file_error, null))
                 }
                 is NoSuchElementException -> {
-                    _errorState.postValue(context.getString(R.string.container_open_file_error))
+                    _errorState.postValue(Pair(R.string.container_open_file_error, null))
                 }
                 is NoInternetConnectionException -> {
-                    _errorState.postValue(context.getString(R.string.no_internet_connection))
+                    _errorState.postValue(Pair(R.string.no_internet_connection, null))
                 }
                 is IOException -> {
                     val message = e.message ?: ""
-                    if (message.startsWith("Failed to create connection with host")) {
-                        _errorState.postValue(context.getString(R.string.no_internet_connection))
+                    if (message.startsWith("Failed to create connection with host") ||
+                        message.contains("StorageFileLoadException[connection_failure]")
+                    ) {
+                        _errorState.postValue(Pair(R.string.no_internet_connection, null))
                     } else if (message.contains("Online validation disabled")) {
                         debugLog(logTag, "Unable to open container. Sending to SiVa not allowed", e)
-                        _errorState.postValue("")
+                        _errorState.postValue(null)
                         return
                     } else if (message.startsWith("Signature validation failed")) {
-                        _errorState.postValue(context.getString(R.string.container_load_error))
+                        _errorState.postValue(Pair(R.string.container_load_error, null))
                     } else {
-                        _errorState.postValue(context.getString(R.string.container_open_file_error))
+                        _errorState.postValue(Pair(R.string.container_open_file_error, null))
                     }
                 }
                 is FileAlreadyExistsException -> {
-                    _errorState.postValue(e.localizedMessage)
+                    _errorState.postValue(
+                        Pair(ee.ria.DigiDoc.common.R.string.document_add_error_exists, e.getFileName()),
+                    )
                 }
                 else -> {
-                    _errorState.postValue(context.getString(R.string.container_open_file_error))
+                    _errorState.postValue(Pair(R.string.container_open_file_error, null))
                 }
             }
         }

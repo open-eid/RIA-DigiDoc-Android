@@ -13,4 +13,8 @@ class FileAlreadyExistsException(
             ee.ria.DigiDoc.common.R.string.document_add_error_exists,
             fileName,
         )
+
+    fun getFileName(): String {
+        return fileName
+    }
 }

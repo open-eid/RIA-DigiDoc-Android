@@ -185,7 +185,11 @@ class IdCardViewModel
                         "Unable to sign with ID-card - OCSP response not in valid time slot",
                     )
                 message.contains("Certificate status: revoked") -> showRevokedCertificateError(context, e)
-                message.contains("Failed to connect") -> showNetworkError(context, e)
+                message.contains("Failed to connect") || message.contains("Failed to create connection with host") ->
+                    showNetworkError(
+                        context,
+                        e,
+                    )
                 message.contains("Failed to create proxy connection with host") -> showProxyError(context, e)
                 else -> showGeneralError(context, e)
             }

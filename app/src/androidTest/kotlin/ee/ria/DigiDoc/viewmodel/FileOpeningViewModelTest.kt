@@ -47,7 +47,6 @@ import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mock
 import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.mock
@@ -87,7 +86,7 @@ class FileOpeningViewModelTest {
     lateinit var filesAddedObserver: Observer<List<File>?>
 
     @Mock
-    lateinit var errorStateObserver: Observer<String?>
+    lateinit var errorStateObserver: Observer<Pair<Int, String?>?>
 
     @Mock
     lateinit var launchFilePickerObserver: Observer<Boolean?>
@@ -209,7 +208,7 @@ class FileOpeningViewModelTest {
             verify(
                 errorStateObserver,
                 atLeastOnce(),
-            ).onChanged(context.getString(documents_add_error_exists, anotherFile.name))
+            ).onChanged(Pair(documents_add_error_exists, anotherFile.name))
         }
 
     @Test
@@ -242,7 +241,7 @@ class FileOpeningViewModelTest {
             viewModel.handleFiles(context, uris, existingSignedContainer, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(existingSignedContainer)
-            verify(errorStateObserver, atLeastOnce()).onChanged(context.getString(R.string.container_open_file_error))
+            verify(errorStateObserver, atLeastOnce()).onChanged(Pair(R.string.container_open_file_error, null))
         }
 
     @Test
@@ -266,7 +265,7 @@ class FileOpeningViewModelTest {
             viewModel.handleFiles(context, uris, existingSignedContainer, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(existingSignedContainer)
-            verify(errorStateObserver, atLeastOnce()).onChanged(context.getString(empty_file_error))
+            verify(errorStateObserver, atLeastOnce()).onChanged(Pair(empty_file_error, null))
         }
 
     @Test
@@ -302,7 +301,7 @@ class FileOpeningViewModelTest {
             verify(
                 errorStateObserver,
                 atLeastOnce(),
-            ).onChanged(context.getString(document_add_error_exists, anotherFile.name))
+            ).onChanged(Pair(document_add_error_exists, anotherFile.name))
         }
 
     @Test
@@ -454,7 +453,7 @@ class FileOpeningViewModelTest {
             viewModel.handleFiles(context, uris, null, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
-            verify(errorStateObserver, atLeastOnce()).onChanged(context.getString(empty_file_error))
+            verify(errorStateObserver, atLeastOnce()).onChanged(Pair(empty_file_error, null))
         }
 
     @Test
@@ -472,7 +471,7 @@ class FileOpeningViewModelTest {
             viewModel.handleFiles(context, uris, null, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
-            verify(errorStateObserver).onChanged(anyString())
+            verify(errorStateObserver).onChanged(any<Pair<Int, String?>>())
         }
 
     @Test
@@ -490,7 +489,7 @@ class FileOpeningViewModelTest {
             viewModel.handleFiles(context, uris, null, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
-            verify(errorStateObserver).onChanged(context.getString(R.string.no_internet_connection))
+            verify(errorStateObserver).onChanged(Pair(R.string.no_internet_connection, null))
         }
 
     @Test
@@ -524,7 +523,7 @@ class FileOpeningViewModelTest {
             viewModel.handleFiles(context, uris, null, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
-            verify(errorStateObserver).onChanged(context.getString(R.string.container_open_file_error))
+            verify(errorStateObserver).onChanged(Pair(R.string.container_open_file_error, null))
         }
 
     @Test

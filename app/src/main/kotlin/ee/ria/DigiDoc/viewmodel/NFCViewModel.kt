@@ -34,6 +34,7 @@ import org.bouncycastle.util.encoders.Base64
 import org.bouncycastle.util.encoders.Hex
 import java.util.Arrays
 import javax.inject.Inject
+import kotlin.text.contains
 
 @HiltViewModel
 class NFCViewModel
@@ -234,9 +235,20 @@ class NFCViewModel
                             } catch (ex: Exception) {
                                 _signStatus.postValue(false)
 
-                                _errorState.postValue(
-                                    ex.message ?: context.getString(R.string.signature_update_nfc_technical_error),
-                                )
+                                val message = ex.message ?: ""
+
+                                when {
+                                    message.contains("Failed to connect") ||
+                                        message.contains("Failed to create connection with host") ->
+                                        showNetworkError(
+                                            context,
+                                            ex,
+                                        )
+                                    message.contains(
+                                        "Failed to create proxy connection with host",
+                                    ) -> showProxyError(context, ex)
+                                    else -> showTechnicalError(context, ex)
+                                }
 
                                 errorLog(logTag, "Exception: " + ex.message, ex)
                             } finally {
@@ -254,5 +266,29 @@ class NFCViewModel
                     errorLog(logTag, "Unable to get container value. Container is 'null'")
                 }
             }
+        }
+
+        private fun showNetworkError(
+            context: Context,
+            e: Exception,
+        ) {
+            _errorState.postValue(context.getString(R.string.no_internet_connection))
+            errorLog(logTag, "Unable to sign with NFC - Unable to connect to Internet", e)
+        }
+
+        private fun showProxyError(
+            context: Context,
+            e: Exception,
+        ) {
+            _errorState.postValue(context.getString(R.string.main_settings_proxy_invalid_settings))
+            errorLog(logTag, "Unable to sign with NFC - Unable to create proxy connection with host", e)
+        }
+
+        private fun showTechnicalError(
+            context: Context,
+            e: Exception,
+        ) {
+            _errorState.postValue(context.getString(R.string.signature_update_nfc_technical_error))
+            errorLog(logTag, "Unable to sign with NFC: ${e.message}", e)
         }
     }

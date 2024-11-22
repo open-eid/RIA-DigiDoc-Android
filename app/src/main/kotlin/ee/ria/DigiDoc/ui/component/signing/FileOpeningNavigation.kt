@@ -127,13 +127,13 @@ fun FileOpeningNavigation(
 
     val fileAddedText = stringResource(id = R.string.file_added)
     val filesAddedText = stringResource(id = R.string.files_added)
-    var errorText by remember { mutableStateOf("") }
+    var errorText by remember { mutableStateOf(Pair<Int, String?>(0, null)) }
 
     LaunchedEffect(fileOpeningViewModel.errorState) {
         fileOpeningViewModel.errorState.asFlow().collect { errorState ->
             errorState?.let {
                 withContext(Main) {
-                    if (errorState != "") {
+                    if (errorState.first != 0) {
                         errorText = errorState
                     }
                     delay(2000)
@@ -220,8 +220,9 @@ fun FileOpeningNavigation(
         onResult = handleResult,
     )
 
-    if (errorText.isNotEmpty()) {
-        ToastUtil.DigiDocToast(errorText)
+    if (errorText.first != 0) {
+        ToastUtil.DigiDocToast(context.getString(errorText.first, errorText.second))
+        errorText = Pair(0, null)
     }
 
     LoadingScreen(modifier = modifier)

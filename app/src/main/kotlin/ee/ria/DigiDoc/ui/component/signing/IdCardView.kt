@@ -182,7 +182,6 @@ fun IdCardView(
                     }
 
                     pin2Value = TextFieldValue("")
-                    dismissDialog()
                 }
             }
     }
@@ -226,6 +225,7 @@ fun IdCardView(
     }
     if (errorText.isNotEmpty()) {
         ToastUtil.DigiDocToast(errorText)
+        dismissDialog()
     }
 
     Column(
@@ -292,9 +292,10 @@ fun IdCardView(
                 ) {
                     Text(
                         modifier =
-                            modifier.padding(
-                                horizontal = screenViewLargePadding,
-                            )
+                            modifier
+                                .padding(
+                                    horizontal = screenViewLargePadding,
+                                )
                                 .testTag("idCardSignMessage"),
                         text = stringResource(R.string.id_card_sign_message),
                         textAlign = TextAlign.Center,
@@ -303,9 +304,10 @@ fun IdCardView(
 
                     Text(
                         modifier =
-                            modifier.padding(
-                                horizontal = screenViewLargePadding,
-                            )
+                            modifier
+                                .padding(
+                                    horizontal = screenViewLargePadding,
+                                )
                                 .testTag("idCardSignData")
                                 .padding(vertical = screenViewLargePadding),
                         text =
@@ -354,7 +356,8 @@ fun IdCardView(
                     if (!pinError.isNullOrEmpty()) {
                         Text(
                             modifier =
-                                modifier.padding(vertical = screenViewLargePadding)
+                                modifier
+                                    .padding(vertical = screenViewLargePadding)
                                     .fillMaxWidth()
                                     .focusable(enabled = true)
                                     .semantics { contentDescription = pinError ?: "" }
