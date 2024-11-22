@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.ui.component.signing
 
 import android.app.Activity
 import android.content.res.Configuration
+import android.net.Uri
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
@@ -17,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -27,6 +29,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,8 +39,12 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.viewmodel.FileOpeningViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -49,7 +56,9 @@ fun AddSignatureView(
     cancelButtonClick: () -> Unit = {},
     sharedContainerViewModel: SharedContainerViewModel,
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
+    fileOpeningViewModel: FileOpeningViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val state =
         rememberScrollableState { _ ->
@@ -58,6 +67,31 @@ fun AddSignatureView(
         }
 
     val scrollState = rememberScrollState()
+
+    LaunchedEffect(Unit) {
+        sharedContainerViewModel.signedContainer.asFlow().collect { signedContainer ->
+            if (signedContainer?.isLegacy() == true) {
+                fileOpeningViewModel.resetExternalFileState(sharedContainerViewModel)
+                CoroutineScope(IO).launch {
+                    fileOpeningViewModel.handleFiles(
+                        context = context,
+                        uris = listOf(Uri.fromFile(signedContainer.getContainerFile())),
+                        existingSignedContainer = null,
+                        isSivaConfirmed = true,
+                        forceFirstDataFileContainer = true,
+                    )
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(fileOpeningViewModel.signedContainer) {
+        fileOpeningViewModel.signedContainer.asFlow().collect { signedContainer ->
+            signedContainer?.let {
+                sharedContainerViewModel.setSignedContainer(it)
+            }
+        }
+    }
 
     Surface(
         modifier =

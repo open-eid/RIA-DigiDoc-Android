@@ -119,7 +119,7 @@ object Constant {
             .plus(ASICS_CONTAINER_EXTENSIONS)
 
     val NON_LEGACY_CONTAINER_EXTENSIONS: Set<String> =
-        setOf("asice", "sce", "bdoc")
+        setOf("asice", "sce", "bdoc", "edoc")
 
     const val MAXIMUM_PERSONAL_CODE_LENGTH: Int = 11
 

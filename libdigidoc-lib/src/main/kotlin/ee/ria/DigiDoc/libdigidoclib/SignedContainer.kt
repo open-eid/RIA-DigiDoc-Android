@@ -7,6 +7,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
 import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
+import ee.ria.DigiDoc.common.Constant.NON_LEGACY_CONTAINER_EXTENSIONS
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
@@ -190,6 +191,11 @@ class SignedContainer
 
         fun containerMimetype(): String? = container?.mediaType()
 
+        fun isLegacy(): Boolean =
+            containerFile?.let {
+                !NON_LEGACY_CONTAINER_EXTENSIONS.contains(it.extension)
+            } ?: false
+
         fun isXades(): Boolean =
             containerMimetype().equals(ASICS_MIMETYPE, true) &&
                 container?.signatures()?.stream()
@@ -243,11 +249,17 @@ class SignedContainer
                 file: File,
                 dataFiles: List<File?>?,
                 isSivaConfirmed: Boolean,
+                forceFirstDataFileContainer: Boolean? = null,
             ): SignedContainer {
                 val isFirstDataFileContainer =
-                    dataFiles?.firstOrNull()?.run {
-                        isContainer(context) || (isPDF(context) && isSignedPDF(context))
-                    } ?: false
+                    if (forceFirstDataFileContainer == true) {
+                        false
+                    } else {
+                        dataFiles?.firstOrNull()?.run {
+                            isContainer(context) || (isPDF(context) && isSignedPDF(context))
+                        } ?: false
+                    }
+
                 var containerFileWithExtension = file
 
                 if ((!isFirstDataFileContainer || (dataFiles?.size ?: 0) > 1) &&
