@@ -30,6 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.bouncycastle.util.encoders.Base64
 import org.bouncycastle.util.encoders.Hex
 import java.util.Arrays
@@ -149,7 +150,7 @@ class NFCViewModel
             }
         }
 
-        fun performNFCWorkRequest(
+        suspend fun performNFCWorkRequest(
             activity: Activity,
             context: Context,
             container: SignedContainer?,
@@ -161,7 +162,7 @@ class NFCViewModel
             resetValues()
 
             if (container != null) {
-                CoroutineScope(Main).launch {
+                withContext(Main) {
                     _message.postValue(R.string.signature_update_nfc_hold)
                 }
 
@@ -259,7 +260,7 @@ class NFCViewModel
                     },
                 )
             } else {
-                CoroutineScope(Main).launch {
+                withContext(Main) {
                     _nfcStatus.postValue(nfcSmartCardReaderManager.detectNfcStatus(activity))
                     _signStatus.postValue(false)
                     _errorState.postValue(context.getString(R.string.error_general_client))

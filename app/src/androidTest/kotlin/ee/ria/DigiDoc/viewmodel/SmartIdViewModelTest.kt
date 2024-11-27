@@ -234,7 +234,13 @@ class SmartIdViewModelTest {
         runTest {
             `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
             `when`(
-                fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any(), anyBoolean()),
+                fileOpeningRepository.openOrCreateContainer(
+                    eq(context),
+                    eq(contentResolver),
+                    any(),
+                    anyBoolean(),
+                    anyBoolean(),
+                ),
             ).thenReturn(signedContainer)
 
             `when`(smartSignService.response).thenReturn(
@@ -284,7 +290,13 @@ class SmartIdViewModelTest {
         runTest {
             `when`(configurationRepository.getConfiguration()).thenReturn(null)
             `when`(
-                fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any(), anyBoolean()),
+                fileOpeningRepository.openOrCreateContainer(
+                    eq(context),
+                    eq(contentResolver),
+                    any(),
+                    anyBoolean(),
+                    anyBoolean(),
+                ),
             ).thenReturn(signedContainer)
 
             `when`(smartSignService.response).thenReturn(
@@ -330,7 +342,13 @@ class SmartIdViewModelTest {
         runTest {
             `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
             `when`(
-                fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any(), anyBoolean()),
+                fileOpeningRepository.openOrCreateContainer(
+                    eq(context),
+                    eq(contentResolver),
+                    any(),
+                    anyBoolean(),
+                    anyBoolean(),
+                ),
             ).thenReturn(signedContainer)
 
             `when`(smartSignService.response).thenReturn(MutableLiveData<SmartIDServiceResponse?>(null))
@@ -379,7 +397,13 @@ class SmartIdViewModelTest {
         runTest {
             `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
             `when`(
-                fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any(), anyBoolean()),
+                fileOpeningRepository.openOrCreateContainer(
+                    eq(context),
+                    eq(contentResolver),
+                    any(),
+                    anyBoolean(),
+                    anyBoolean(),
+                ),
             ).thenReturn(signedContainer)
 
             `when`(smartSignService.response).thenReturn(MutableLiveData<SmartIDServiceResponse?>(null))

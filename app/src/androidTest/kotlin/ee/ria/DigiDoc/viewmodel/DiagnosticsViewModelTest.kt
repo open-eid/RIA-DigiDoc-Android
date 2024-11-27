@@ -231,7 +231,7 @@ class DiagnosticsViewModelTest {
         val diagnosticsFileName =
             "ria_digidoc_${viewModel.getAppVersion()}.${viewModel.getAppVersionCode()}_diagnostics.log"
         val diagnosticsFilePath: String = File(context.filesDir.path, "diagnostics").path
-        val resultFile = viewModel.createDiagnosticsFile()
+        val resultFile = viewModel.createDiagnosticsFile(context)
 
         assertEquals(File(diagnosticsFilePath, diagnosticsFileName).path, resultFile.path)
         assertTrue(resultFile.exists())
@@ -242,7 +242,7 @@ class DiagnosticsViewModelTest {
         val diagnosticsLogsFilePath =
             "ria_digidoc_${viewModel.getAppVersion()}.${viewModel.getAppVersionCode()}_logs.log"
         val logFolder = FileUtil.getLogsDirectory(context)
-        val resultFile = viewModel.createLogFile()
+        val resultFile = viewModel.createLogFile(context)
 
         assertEquals(File(logFolder.path, diagnosticsLogsFilePath).path, resultFile.path)
         assertTrue(resultFile.exists())

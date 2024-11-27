@@ -6,6 +6,7 @@ import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeCache
@@ -20,14 +21,18 @@ import javax.inject.Singleton
 class UtilModules {
     @Provides
     @Singleton
-    fun provideLoggingUtil(context: Context): LoggingUtil =
+    fun provideLoggingUtil(
+        @ApplicationContext context: Context,
+    ): LoggingUtil =
         LoggingUtil().apply {
             LoggingUtil.initialize(context, Logger.getLogger(UtilModules::class.java.name), false)
         }
 
     @Provides
     @Singleton
-    fun provideMimeTypeCache(context: Context): MimeTypeCache = MimeTypeCacheImpl(context)
+    fun provideMimeTypeCache(
+        @ApplicationContext context: Context,
+    ): MimeTypeCache = MimeTypeCacheImpl(context)
 
     @Provides
     @Singleton

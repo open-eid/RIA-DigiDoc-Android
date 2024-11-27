@@ -225,7 +225,13 @@ class MobileIdViewModelTest {
         runTest {
             `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
             `when`(
-                fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any(), anyBoolean()),
+                fileOpeningRepository.openOrCreateContainer(
+                    eq(context),
+                    eq(contentResolver),
+                    any(),
+                    anyBoolean(),
+                    anyBoolean(),
+                ),
             ).thenReturn(signedContainer)
 
             `when`(mobileIdService.response).thenReturn(
@@ -271,7 +277,13 @@ class MobileIdViewModelTest {
         runTest {
             `when`(configurationRepository.getConfiguration()).thenReturn(null)
             `when`(
-                fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any(), anyBoolean()),
+                fileOpeningRepository.openOrCreateContainer(
+                    eq(context),
+                    eq(contentResolver),
+                    any(),
+                    anyBoolean(),
+                    anyBoolean(),
+                ),
             ).thenReturn(signedContainer)
             `when`(mobileIdService.response).thenReturn(
                 MutableLiveData<MobileIdServiceResponse?>(
@@ -314,7 +326,13 @@ class MobileIdViewModelTest {
         runTest {
             `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
             `when`(
-                fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any(), anyBoolean()),
+                fileOpeningRepository.openOrCreateContainer(
+                    eq(context),
+                    eq(contentResolver),
+                    any(),
+                    anyBoolean(),
+                    anyBoolean(),
+                ),
             ).thenReturn(signedContainer)
 
             `when`(mobileIdService.response).thenReturn(
@@ -365,7 +383,13 @@ class MobileIdViewModelTest {
         runTest {
             `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
             `when`(
-                fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any(), anyBoolean()),
+                fileOpeningRepository.openOrCreateContainer(
+                    eq(context),
+                    eq(contentResolver),
+                    any(),
+                    anyBoolean(),
+                    anyBoolean(),
+                ),
             ).thenReturn(signedContainer)
 
             `when`(mobileIdService.response).thenReturn(
@@ -416,7 +440,13 @@ class MobileIdViewModelTest {
         runTest {
             `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
             `when`(
-                fileOpeningRepository.openOrCreateContainer(eq(context), eq(contentResolver), any(), anyBoolean()),
+                fileOpeningRepository.openOrCreateContainer(
+                    eq(context),
+                    eq(contentResolver),
+                    any(),
+                    anyBoolean(),
+                    anyBoolean(),
+                ),
             ).thenReturn(signedContainer)
 
             `when`(mobileIdService.response).thenReturn(MutableLiveData<MobileIdServiceResponse?>(null))

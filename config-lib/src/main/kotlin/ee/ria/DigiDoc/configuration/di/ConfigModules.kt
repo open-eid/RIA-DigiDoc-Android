@@ -7,6 +7,7 @@ import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifier
@@ -56,7 +57,7 @@ class ConfigModules {
 
     @Provides
     fun provideConfigurationRepository(
-        context: Context,
+        @ApplicationContext context: Context,
         configurationLoader: ConfigurationLoader,
     ): ConfigurationRepository = ConfigurationRepositoryImpl(context, configurationLoader)
 
