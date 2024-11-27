@@ -46,32 +46,26 @@ import javax.inject.Inject
 class DiagnosticsViewModel
     @Inject
     constructor(
-        @ApplicationContext private val appContext: Context,
+        @ApplicationContext private val context: Context,
         val dataStore: DataStore,
         private val configurationLoader: ConfigurationLoader,
         private val configurationRepository: ConfigurationRepository,
         private val contentResolver: ContentResolver,
     ) : ViewModel() {
-        private val _context = MutableLiveData(appContext)
-        val context: LiveData<Context> = _context
-
         private val logTag = "SettingsViewModel"
         private val logsFileName =
             "ria_digidoc_${getAppVersion()}.${getAppVersionCode()}_logs.log"
         private val diagnosticsFileName =
             "ria_digidoc_${getAppVersion()}.${getAppVersionCode()}_diagnostics.log"
-        private val diagnosticsFilePath: String = File(getCurrentContext().filesDir.path, "diagnostics").path
 
         private val _updatedConfiguration = MutableLiveData<ConfigurationProvider?>()
         var updatedConfiguration: LiveData<ConfigurationProvider?> = _updatedConfiguration
 
-        private fun getCurrentContext(): Context = context.value ?: appContext
-
-        fun setContext(context: Context) {
-            _context.postValue(context)
+        init {
+            observeConfigurationUpdates(context)
         }
 
-        init {
+        fun observeConfigurationUpdates(context: Context) {
             CoroutineScope(Main).launch {
                 configurationRepository.observeConfigurationUpdates { newConfig ->
                     CoroutineScope(Main).launch {
@@ -85,9 +79,9 @@ class DiagnosticsViewModel
                                     R.string.configuration_is_already_up_to_date
                                 }
                             AccessibilityUtil.sendAccessibilityEvent(
-                                getCurrentContext(),
+                                context,
                                 AccessibilityEvent.TYPE_ANNOUNCEMENT,
-                                getCurrentContext().getString(messageResId),
+                                context.getString(messageResId),
                             )
                         }
                         _updatedConfiguration.value = newConfig
@@ -131,9 +125,9 @@ class DiagnosticsViewModel
             return uuid
         }
 
-        fun getTslCacheData(): List<String> {
+        fun getTslCacheData(context: Context): List<String> {
             val tslCacheList = ArrayList<String>()
-            val tslCacheDir = File(getCurrentContext().cacheDir.absolutePath + "/schema")
+            val tslCacheDir = File(context.cacheDir.absolutePath + "/schema")
             val tslFiles =
                 tslCacheDir.listFiles { _: File?, fileName: String ->
                     fileName.endsWith(
@@ -187,10 +181,10 @@ class DiagnosticsViewModel
             }
         }
 
-        fun createLogFile(): File {
-            if (FileUtil.logsExist(FileUtil.getLogsDirectory(getCurrentContext()))) {
+        fun createLogFile(context: Context): File {
+            if (FileUtil.logsExist(FileUtil.getLogsDirectory(context))) {
                 return FileUtil.combineLogFiles(
-                    FileUtil.getLogsDirectory(getCurrentContext()),
+                    FileUtil.getLogsDirectory(context),
                     logsFileName,
                 )
             }
@@ -201,7 +195,8 @@ class DiagnosticsViewModel
             LoggingUtil.resetLogs(FileUtil.getLogsDirectory(context))
         }
 
-        fun createDiagnosticsFile(): File {
+        fun createDiagnosticsFile(context: Context): File {
+            val diagnosticsFilePath: String = File(context.filesDir.path, "diagnostics").path
             val root = File(diagnosticsFilePath)
             if (!root.exists()) {
                 val isDirectoryCreated = root.mkdirs()
@@ -220,7 +215,7 @@ class DiagnosticsViewModel
                 FileOutputStream(diagnosticsFileLocation).use { fileStream ->
                     OutputStreamWriter(fileStream, StandardCharsets.UTF_8)
                         .use { writer ->
-                            writer.append(formatDiagnosticsText())
+                            writer.append(formatDiagnosticsText(context))
                             writer.flush()
                             return diagnosticsFileLocation
                         }
@@ -248,121 +243,121 @@ class DiagnosticsViewModel
             return FileUtil.normalizeText(tslFileName) + " (" + version + ")"
         }
 
-        private fun formatDiagnosticsText(): String {
+        private fun formatDiagnosticsText(context: Context): String {
             val diagnosticsText =
                 buildString {
                     appendLine(
-                        "${getCurrentContext().getString(
+                        "${context.getString(
                             R.string.main_diagnostics_application_version_title,
                         )} ${BuildConfig.VERSION_NAME}.${BuildConfig.VERSION_CODE}",
                     )
                     appendLine(
-                        "${getCurrentContext().getString(
+                        "${context.getString(
                             R.string.main_diagnostics_operating_system_title,
                         )} Android ${Build.VERSION.RELEASE}",
                     )
 
                     // Category
                     appendLine()
-                    appendLine(getCurrentContext().getString(R.string.main_diagnostics_libraries_title))
+                    appendLine(context.getString(R.string.main_diagnostics_libraries_title))
                     appendLine(
-                        "${getCurrentContext().getString(
+                        "${context.getString(
                             R.string.main_diagnostics_libdigidocpp_title,
                         )} ${dataStore.getLibdigidocppVersion()}",
                     )
 
                     // Category
                     appendLine()
-                    appendLine(getCurrentContext().getString(R.string.main_diagnostics_urls_title))
+                    appendLine(context.getString(R.string.main_diagnostics_urls_title))
                     appendLine(
-                        "${getCurrentContext().getString(
+                        "${context.getString(
                             R.string.main_diagnostics_config_url_title,
                         )} ${updatedConfiguration.value?.metaInf?.url}",
                     )
                     appendLine(
-                        "${getCurrentContext().getString(
+                        "${context.getString(
                             R.string.main_diagnostics_tsl_url_title,
                         )} ${updatedConfiguration.value?.tslUrl}",
                     )
                     appendLine(
-                        "${getCurrentContext().getString(R.string.main_diagnostics_siva_url_title)} ${getSivaUrl()}",
+                        "${context.getString(R.string.main_diagnostics_siva_url_title)} ${getSivaUrl()}",
                     )
                     appendLine(
-                        "${getCurrentContext().getString(R.string.main_diagnostics_tsa_url_title)} ${getTsaUrl()}",
+                        "${context.getString(R.string.main_diagnostics_tsa_url_title)} ${getTsaUrl()}",
                     )
                     appendLine(
-                        "${getCurrentContext().getString(
+                        "${context.getString(
                             R.string.main_diagnostics_ldap_person_url_title,
                         )} ${updatedConfiguration.value?.ldapPersonUrl}",
                     )
                     appendLine(
-                        "${getCurrentContext().getString(
+                        "${context.getString(
                             R.string.main_diagnostics_ldap_corp_url_title,
                         )} ${updatedConfiguration.value?.ldapCorpUrl}",
                     )
                     appendLine(
-                        "${getCurrentContext().getString(
+                        "${context.getString(
                             R.string.main_diagnostics_mid_proxy_url_title,
                         )} ${updatedConfiguration.value?.midRestUrl}",
                     )
                     appendLine(
-                        "${getCurrentContext().getString(
+                        "${context.getString(
                             R.string.main_diagnostics_mid_sk_url_title,
                         )} ${updatedConfiguration.value?.midSkRestUrl}",
                     )
                     appendLine(
-                        "${getCurrentContext().getString(
+                        "${context.getString(
                             R.string.main_diagnostics_sid_v2_proxy_url_title,
                         )} ${updatedConfiguration.value?.sidV2RestUrl}",
                     )
                     appendLine(
-                        "${getCurrentContext().getString(
+                        "${context.getString(
                             R.string.main_diagnostics_sid_v2_sk_url_title,
                         )} ${updatedConfiguration.value?.sidV2SkRestUrl}",
                     )
                     appendLine(
-                        "${getCurrentContext().getString(
+                        "${context.getString(
                             R.string.main_diagnostics_rpuuid_title,
-                        )} ${getCurrentContext().getString(getRpUuid())}",
+                        )} ${context.getString(getRpUuid())}",
                     )
 
                     // Category
                     appendLine()
-                    appendLine(getCurrentContext().getString(R.string.main_diagnostics_tsl_cache_title))
-                    getTslCacheData().forEach { data ->
+                    appendLine(context.getString(R.string.main_diagnostics_tsl_cache_title))
+                    getTslCacheData(context).forEach { data ->
                         appendLine(data)
                     }
 
                     // Category
                     appendLine()
-                    appendLine(getCurrentContext().getString(R.string.main_diagnostics_central_configuration_title))
+                    appendLine(context.getString(R.string.main_diagnostics_central_configuration_title))
                     appendLine(
-                        "${getCurrentContext().getString(
+                        "${context.getString(
                             R.string.main_diagnostics_date_title,
                         )} ${updatedConfiguration.value?.metaInf?.date}",
                     )
                     appendLine(
-                        "${getCurrentContext().getString(
+                        "${context.getString(
                             R.string.main_diagnostics_serial_title,
                         )} ${updatedConfiguration.value?.metaInf?.serial}",
                     )
                     appendLine(
-                        "${getCurrentContext().getString(
+                        "${context.getString(
                             R.string.main_diagnostics_url_title,
                         )} ${updatedConfiguration.value?.metaInf?.url}",
                     )
                     appendLine(
-                        "${getCurrentContext().getString(
+                        "${context.getString(
                             R.string.main_diagnostics_version_title,
                         )} ${updatedConfiguration.value?.metaInf?.version}",
                     )
                     appendLine(
-                        "${getCurrentContext().getString(
+                        "${context.getString(
                             R.string.main_diagnostics_configuration_update_date,
                         )} ${getConfigurationDate(updatedConfiguration.value?.configurationUpdateDate)}",
                     )
                     appendLine(
-                        "${getCurrentContext().getString(
+                        "${context.getString(
                             R.string.main_diagnostics_configuration_last_check_date,
                         )} ${getConfigurationDate(updatedConfiguration.value?.configurationLastUpdateCheckDate)}",
                     )

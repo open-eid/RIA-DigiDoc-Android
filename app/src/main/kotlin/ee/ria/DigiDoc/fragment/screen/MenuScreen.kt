@@ -13,8 +13,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -53,19 +56,17 @@ fun MenuScreen(
     val context = LocalContext.current
     val activity = (context as Activity)
 
-    menuViewModel.setContext(context)
+    markAsSecure(context, activity.window)
 
     val locale = sharedSettingsViewModel.dataStore.getLocale() ?: Locale.getDefault()
-    val helpContentDescription by menuViewModel.helpViewContentDescription.asFlow().collectAsState(
-        stringResource(R.string.main_home_menu_help) + " " +
-            TextUtil.splitTextAndJoin(
-                stringResource(R.string.main_home_menu_help_url_short),
-                "",
-                " ",
-            ),
-    )
+    val isEstonianLanguageUsed = remember { mutableStateOf(false) }
+    val isTtsInitialized by menuViewModel.isTtsInitialized.asFlow().collectAsState(false)
 
-    markAsSecure(context, activity.window)
+    LaunchedEffect(isTtsInitialized) {
+        if (isTtsInitialized) {
+            isEstonianLanguageUsed.value = menuViewModel.isEstonianLanguageUsed()
+        }
+    }
 
     Scaffold(
         modifier =
@@ -96,7 +97,19 @@ fun MenuScreen(
                 testTag = "mainHomeMenuHelp",
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_help_outline),
                 title = stringResource(id = R.string.main_home_menu_help),
-                contentDescription = helpContentDescription,
+                contentDescription =
+                    if (isEstonianLanguageUsed.value) {
+                        context.getString(R.string.main_home_menu_help) +
+                            " link " +
+                            "w w w punkt i d punkt e e"
+                    } else {
+                        context.getString(R.string.main_home_menu_help) + " " +
+                            TextUtil.splitTextAndJoin(
+                                context.getString(R.string.main_home_menu_help_url_short),
+                                "",
+                                " ",
+                            )
+                    },
                 onClickItem = {
                     val browserIntent =
                         Intent(Intent.ACTION_VIEW, Uri.parse(context.getString(R.string.main_home_menu_help_url)))

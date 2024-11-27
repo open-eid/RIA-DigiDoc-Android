@@ -77,8 +77,6 @@ fun DiagnosticsScreen(
     val context = LocalContext.current
     val activity = (context as Activity)
 
-    diagnosticsViewModel.setContext(context)
-
     markAsSecure(context, activity.window)
     val currentConfiguration by
         diagnosticsViewModel.updatedConfiguration.asFlow().collectAsState(
@@ -276,7 +274,7 @@ fun DiagnosticsScreen(
                     stringResource(id = R.string.main_diagnostics_tsl_cache_title),
                     "",
                 )
-                diagnosticsViewModel.getTslCacheData().forEach { data ->
+                diagnosticsViewModel.getTslCacheData(context).forEach { data ->
                     Text(
                         modifier = modifier.padding(horizontal = screenViewLargePadding),
                         text = data,
@@ -372,7 +370,7 @@ fun DiagnosticsScreen(
                     title = R.string.main_diagnostics_save_log,
                     onClickItem = {
                         try {
-                            val logFile = diagnosticsViewModel.createLogFile()
+                            val logFile = diagnosticsViewModel.createLogFile(context)
                             actionFile = logFile
                             val saveIntent =
                                 Intent.createChooser(
@@ -435,7 +433,7 @@ fun DiagnosticsScreen(
                 title = R.string.main_diagnostics_configuration_save_diagnostics_button,
                 onClickItem = {
                     try {
-                        val diagnosticsFile = diagnosticsViewModel.createDiagnosticsFile()
+                        val diagnosticsFile = diagnosticsViewModel.createDiagnosticsFile(context)
                         actionFile = diagnosticsFile
                         val saveIntent =
                             Intent.createChooser(

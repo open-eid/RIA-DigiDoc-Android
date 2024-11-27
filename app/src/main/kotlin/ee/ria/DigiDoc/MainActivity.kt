@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,6 +19,8 @@ import ee.ria.DigiDoc.fragment.RootFragment
 import ee.ria.DigiDoc.manager.ActivityManager
 import ee.ria.DigiDoc.root.RootChecker
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.locale.LocaleUtil
+import ee.ria.DigiDoc.utils.locale.LocaleUtilImpl
 import ee.ria.DigiDoc.utilsLib.R.string.main_diagnostics_logging_key
 import ee.ria.DigiDoc.utilsLib.R.string.main_diagnostics_logging_running_key
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
@@ -46,6 +49,9 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
     lateinit var rootChecker: RootChecker
 
     @Inject
+    lateinit var localeUtil: LocaleUtil
+
+    @Inject
     lateinit var loggingUtil: LoggingUtil
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,12 +73,7 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
         val externalFileUris = getExternalFileUris(intent)
 
         val locale = dataStore.getLocale() ?: Locale("en")
-        Locale.setDefault(locale)
-        val config = resources.configuration
-        config.setLocale(locale)
-
-        val context = createConfigurationContext(config)
-        resources.updateConfiguration(config, resources.displayMetrics)
+        localeUtil.updateLocale(applicationContext, locale)
 
         // Observe if activity needs to be recreated for changes to take effect (eg. Settings)
         activityManager.shouldRecreateActivity.observe(this) { shouldRecreate ->
@@ -107,13 +108,21 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
                 isLoggingEnabled,
             )
             fileTypeSetup.initializeApplicationFileTypesAssociation(componentClassName)
-            librarySetup.setupLibraries(context, isLoggingEnabled)
+            librarySetup.setupLibraries(applicationContext, isLoggingEnabled)
         }
         setContent {
             RIADigiDocTheme {
                 RIADigiDocAppScreen(externalFileUris)
             }
         }
+    }
+
+    override fun attachBaseContext(newBase: Context?) {
+        // Instantiating here manually, as "attachBaseContext" runs before Hilt
+        val localeUtilImpl = LocaleUtilImpl()
+        val language = localeUtilImpl.getPreferredLanguage(newBase)
+        val localizedContext = newBase?.let { localeUtilImpl.updateLocale(it, Locale(language)) }
+        super.attachBaseContext(localizedContext)
     }
 
     override fun onStart(owner: LifecycleOwner) {

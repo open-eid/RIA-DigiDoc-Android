@@ -10,6 +10,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderManager
 import ee.ria.DigiDoc.smartcardreader.usb.AcsUsbSmartCardReader
@@ -25,14 +26,16 @@ class AppModules {
     @Provides
     @Singleton
     fun provideUsbSmartCardReaderManager(
-        context: Context,
+        @ApplicationContext context: Context,
         usbManager: UsbManager,
         readers: ImmutableList<UsbSmartCardReader>,
     ): SmartCardReaderManager = UsbSmartCardReaderManager(context, usbManager, readers)
 
     @Provides
     @Singleton
-    fun provideUsbManager(context: Context): UsbManager = (context.getSystemService(Context.USB_SERVICE) as UsbManager)
+    fun provideUsbManager(
+        @ApplicationContext context: Context,
+    ): UsbManager = (context.getSystemService(Context.USB_SERVICE) as UsbManager)
 
     @Provides
     fun provideUsbSmartCardReaderList(

@@ -5,7 +5,6 @@ package ee.ria.DigiDoc.di
 import android.app.Application
 import android.content.ContentResolver
 import android.content.Context
-import android.speech.tts.TextToSpeech
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.gson.Gson
 import dagger.Module
@@ -17,6 +16,8 @@ import ee.ria.DigiDoc.common.BuildVersionProvider
 import ee.ria.DigiDoc.common.BuildVersionProviderImpl
 import ee.ria.DigiDoc.common.certificate.CertificateService
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
+import ee.ria.DigiDoc.domain.model.tts.TextToSpeechWrapper
+import ee.ria.DigiDoc.domain.model.tts.TextToSpeechWrapperImpl
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepositoryImpl
@@ -36,6 +37,8 @@ import ee.ria.DigiDoc.network.utils.UserAgentUtil
 import ee.ria.DigiDoc.root.RootChecker
 import ee.ria.DigiDoc.root.RootCheckerImpl
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager
+import ee.ria.DigiDoc.utils.locale.LocaleUtil
+import ee.ria.DigiDoc.utils.locale.LocaleUtilImpl
 import ee.ria.DigiDoc.utils.monitoring.CrashDetector
 import ee.ria.DigiDoc.utils.monitoring.CrashDetectorImpl
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
@@ -50,25 +53,12 @@ class AppModules {
     }
 
     @Provides
-    fun provideContext(
-        @ApplicationContext appContext: Context,
-    ): Context {
-        return appContext
-    }
-
-    @Provides
-    fun provideDataStore(context: Context): DataStore =
+    fun provideDataStore(
+        @ApplicationContext context: Context,
+    ): DataStore =
         DataStore(
             context = context,
         )
-
-    @Provides
-    @Singleton
-    fun provideTextToSpeech(
-        @ApplicationContext context: Context,
-    ): TextToSpeech {
-        return TextToSpeech(context, null)
-    }
 
     @Provides
     fun provideFileOpeningService(): FileOpeningService = FileOpeningServiceImpl()
@@ -108,7 +98,7 @@ class AppModules {
 
     @Provides
     fun provideUserAgent(
-        context: Context,
+        @ApplicationContext context: Context,
         buildVersionProvider: BuildVersionProvider,
     ): String {
         return UserAgentUtil.getUserAgent(context, buildVersionProvider)
@@ -137,4 +127,17 @@ class AppModules {
         containerWrapper: ContainerWrapper,
         certificateService: CertificateService,
     ): IdCardService = IdCardServiceImpl(containerWrapper, certificateService)
+
+    @Provides
+    fun provideTextToSpeechWrapper(
+        @ApplicationContext context: Context,
+    ): TextToSpeechWrapper {
+        return TextToSpeechWrapperImpl(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLocaleUtil(): LocaleUtil {
+        return LocaleUtilImpl()
+    }
 }
