@@ -408,6 +408,7 @@ fun SigningNavigation(
             properties =
                 DialogProperties(
                     usePlatformDefaultWidth = false,
+                    dismissOnClickOutside = false,
                 ),
         ) {
             AddSignatureView(

@@ -64,6 +64,7 @@ import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
 import ee.ria.DigiDoc.ui.component.shared.SelectionSpinner
 import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
+import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.component.toast.ToastUtil
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
@@ -103,8 +104,8 @@ fun SmartIdView(
     val focusManager = LocalFocusManager.current
 
     val countriesList = stringArrayResource(id = R.array.smart_id_country)
-    var selectedCountry by remember { mutableIntStateOf(sharedSettingsViewModel.dataStore.getCountry()) }
-    var personalCodeText by remember {
+    var selectedCountry by rememberSaveable { mutableIntStateOf(sharedSettingsViewModel.dataStore.getCountry()) }
+    var personalCodeText by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
             TextFieldValue(
                 text = sharedSettingsViewModel.dataStore.getSidPersonalCode(),
@@ -117,6 +118,21 @@ fun SmartIdView(
     val itemSelectedTitle = stringResource(id = R.string.item_selected)
     val displayMessage = stringResource(id = R.string.signature_update_mobile_id_display_message)
     var errorText by remember { mutableStateOf("") }
+
+    val saveFormParams = {
+        if (rememberMeCheckedState.value) {
+            sharedSettingsViewModel.dataStore.setSidPersonalCode(personalCodeText.text)
+            sharedSettingsViewModel.dataStore.setCountry(selectedCountry)
+        } else {
+            sharedSettingsViewModel.dataStore.setSidPersonalCode("")
+            sharedSettingsViewModel.dataStore.setCountry(0)
+        }
+    }
+
+    val openSignatureUpdateContainerDialog = rememberSaveable { mutableStateOf(false) }
+    val dismissSignatureUpdateContainerDialog = {
+        openSignatureUpdateContainerDialog.value = false
+    }
 
     LaunchedEffect(smartIdViewModel.status) {
         smartIdViewModel.status.asFlow().collect { status ->
@@ -156,10 +172,6 @@ fun SmartIdView(
         ToastUtil.DigiDocToast(errorText)
     }
 
-    val openSignatureUpdateContainerDialog = rememberSaveable { mutableStateOf(false) }
-    val dismissSignatureUpdateContainerDialog = {
-        openSignatureUpdateContainerDialog.value = false
-    }
     if (openSignatureUpdateContainerDialog.value) {
         BasicAlertDialog(
             onDismissRequest = dismissSignatureUpdateContainerDialog,
@@ -254,8 +266,9 @@ fun SmartIdView(
                         .focusable(false)
                         .testTag("signatureUpdateSmartIdPersonalCodeLabel"),
             )
+            val personalCodeTextEdited = rememberSaveable { mutableStateOf(false) }
             val personalCodeErrorText =
-                if (personalCodeText.text.isNotEmpty()) {
+                if (personalCodeTextEdited.value && personalCodeText.text.isNotEmpty()) {
                     if (!smartIdViewModel.isPersonalCodeCorrect(personalCodeText.text)) {
                         stringResource(id = R.string.signature_update_mobile_id_invalid_personal_code)
                     } else {
@@ -281,10 +294,11 @@ fun SmartIdView(
                 shape = RectangleShape,
                 onValueChange = {
                     personalCodeText = it
+                    personalCodeTextEdited.value = true
                 },
                 maxLines = 1,
                 singleLine = true,
-                isError = !smartIdViewModel.isPersonalCodeValid(personalCodeText.text),
+                isError = personalCodeTextEdited.value && !smartIdViewModel.isPersonalCodeValid(personalCodeText.text),
                 textStyle = MaterialTheme.typography.titleLarge,
                 keyboardOptions =
                     KeyboardOptions(
@@ -327,6 +341,7 @@ fun SmartIdView(
             okButtonContentDescription = stringResource(id = R.string.sign_button),
             cancelButtonClick = {
                 smartIdViewModel.resetRoleDataRequested()
+                saveFormParams()
                 cancelButtonClick()
             },
             okButtonClick = {
@@ -334,13 +349,7 @@ fun SmartIdView(
                     smartIdViewModel.setRoleDataRequested(true)
                 } else {
                     openSignatureUpdateContainerDialog.value = true
-                    if (rememberMeCheckedState.value) {
-                        sharedSettingsViewModel.dataStore.setSidPersonalCode(personalCodeText.text)
-                        sharedSettingsViewModel.dataStore.setCountry(selectedCountry)
-                    } else {
-                        sharedSettingsViewModel.dataStore.setSidPersonalCode("")
-                        sharedSettingsViewModel.dataStore.setCountry(0)
-                    }
+                    saveFormParams()
                     var roleDataRequest: RoleData? = null
                     if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
                         val roles = sharedSettingsViewModel.dataStore.getRoles()
