@@ -34,7 +34,6 @@ import org.bouncycastle.util.encoders.Base64
 import org.bouncycastle.util.encoders.Hex
 import java.util.Arrays
 import javax.inject.Inject
-import kotlin.text.contains
 
 @HiltViewModel
 class NFCViewModel
@@ -55,7 +54,8 @@ class NFCViewModel
         val nfcStatus: LiveData<NfcStatus?> = _nfcStatus
         private val _signStatus = MutableLiveData<Boolean?>(null)
         val signStatus: LiveData<Boolean?> = _signStatus
-
+        private val _shouldResetPIN2 = MutableLiveData(false)
+        val shouldResetPIN2: LiveData<Boolean?> = _shouldResetPIN2
         private val _roleDataRequested = MutableLiveData(false)
         val roleDataRequested: LiveData<Boolean?> = _roleDataRequested
 
@@ -69,6 +69,10 @@ class NFCViewModel
 
         fun resetSignedContainer() {
             _signedContainer.postValue(null)
+        }
+
+        fun resetShouldResetPIN2() {
+            _shouldResetPIN2.postValue(null)
         }
 
         fun resetRoleDataRequested() {
@@ -202,18 +206,21 @@ class NFCViewModel
                                 } else if (ex.message?.contains("PIN2 verification failed") == true &&
                                     ex.message?.contains("Retries left: 2") == true
                                 ) {
+                                    _shouldResetPIN2.postValue(true)
                                     _errorState.postValue(
                                         context.getString(R.string.signature_update_id_card_sign_pin2_invalid, 2),
                                     )
                                 } else if (ex.message?.contains("PIN2 verification failed") == true &&
                                     ex.message?.contains("Retries left: 1") == true
                                 ) {
+                                    _shouldResetPIN2.postValue(true)
                                     _errorState.postValue(
                                         context.getString(R.string.signature_update_id_card_sign_pin2_invalid_final),
                                     )
                                 } else if (ex.message?.contains("PIN2 verification failed") == true &&
                                     ex.message?.contains("Retries left: 0") == true
                                 ) {
+                                    _shouldResetPIN2.postValue(true)
                                     _errorState.postValue(
                                         context.getString(R.string.signature_update_id_card_sign_pin2_locked),
                                     )

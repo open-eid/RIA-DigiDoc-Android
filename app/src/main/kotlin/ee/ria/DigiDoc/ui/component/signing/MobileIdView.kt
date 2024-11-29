@@ -61,6 +61,7 @@ import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
 import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
+import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.component.toast.ToastUtil
 import ee.ria.DigiDoc.ui.theme.Blue500
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraExtraLargePadding
@@ -101,7 +102,7 @@ fun MobileIdView(
 
     val focusManager = LocalFocusManager.current
 
-    var countryCodeAndPhoneText by remember {
+    var countryCodeAndPhoneText by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
             TextFieldValue(
                 text = sharedSettingsViewModel.dataStore.getPhoneNo(),
@@ -109,7 +110,7 @@ fun MobileIdView(
             ),
         )
     }
-    var personalCodeText by remember {
+    var personalCodeText by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
             TextFieldValue(
                 text = sharedSettingsViewModel.dataStore.getPersonalCode(),
@@ -118,10 +119,23 @@ fun MobileIdView(
         )
     }
     var errorText by remember { mutableStateOf("") }
-
     val rememberMeCheckedState = rememberSaveable { mutableStateOf(true) }
-
     val displayMessage = stringResource(id = R.string.signature_update_mobile_id_display_message)
+
+    val saveFormParams = {
+        if (rememberMeCheckedState.value) {
+            sharedSettingsViewModel.dataStore.setPhoneNo(countryCodeAndPhoneText.text)
+            sharedSettingsViewModel.dataStore.setPersonalCode(personalCodeText.text)
+        } else {
+            sharedSettingsViewModel.dataStore.setPhoneNo("")
+            sharedSettingsViewModel.dataStore.setPersonalCode("")
+        }
+    }
+
+    val openSignatureUpdateContainerDialog = rememberSaveable { mutableStateOf(false) }
+    val dismissSignatureUpdateContainerDialog = {
+        openSignatureUpdateContainerDialog.value = false
+    }
 
     LaunchedEffect(mobileIdViewModel.status) {
         mobileIdViewModel.status.asFlow().collect { status ->
@@ -161,10 +175,6 @@ fun MobileIdView(
         ToastUtil.DigiDocToast(errorText)
     }
 
-    val openSignatureUpdateContainerDialog = rememberSaveable { mutableStateOf(false) }
-    val dismissSignatureUpdateContainerDialog = {
-        openSignatureUpdateContainerDialog.value = false
-    }
     if (openSignatureUpdateContainerDialog.value) {
         BasicAlertDialog(
             onDismissRequest = dismissSignatureUpdateContainerDialog,
@@ -234,7 +244,7 @@ fun MobileIdView(
                         .focusable(false)
                         .testTag("signatureUpdateMobileIdPhoneNoLabel"),
             )
-            val countryCodeAndPhoneTextEdited = remember { mutableStateOf(false) }
+            val countryCodeAndPhoneTextEdited = rememberSaveable { mutableStateOf(false) }
             val countryCodeAndPhoneErrorText =
                 if (countryCodeAndPhoneTextEdited.value && countryCodeAndPhoneText.text.isNotEmpty()) {
                     if (mobileIdViewModel.isCountryCodeMissing(countryCodeAndPhoneText.text)) {
@@ -305,8 +315,9 @@ fun MobileIdView(
                         .focusable(false)
                         .testTag("signatureUpdateMobileIdPersonalCodeLabel"),
             )
+            val personalCodeTextEdited = rememberSaveable { mutableStateOf(false) }
             val personalCodeErrorText =
-                if (personalCodeText.text.isNotEmpty()) {
+                if (personalCodeTextEdited.value && personalCodeText.text.isNotEmpty()) {
                     if (!mobileIdViewModel.isPersonalCodeCorrect(personalCodeText.text)) {
                         stringResource(id = R.string.signature_update_mobile_id_invalid_personal_code)
                     } else {
@@ -331,10 +342,11 @@ fun MobileIdView(
                 shape = RectangleShape,
                 onValueChange = {
                     personalCodeText = it
+                    personalCodeTextEdited.value = true
                 },
                 maxLines = 1,
                 singleLine = true,
-                isError = !mobileIdViewModel.isPersonalCodeValid(personalCodeText.text),
+                isError = personalCodeTextEdited.value && !mobileIdViewModel.isPersonalCodeValid(personalCodeText.text),
                 textStyle = MaterialTheme.typography.titleLarge,
                 keyboardOptions =
                     KeyboardOptions.Default.copy(
@@ -378,6 +390,7 @@ fun MobileIdView(
             cancelButtonClick =
                 {
                     mobileIdViewModel.resetRoleDataRequested()
+                    saveFormParams()
                     cancelButtonClick()
                 },
             okButtonClick = {
@@ -385,13 +398,7 @@ fun MobileIdView(
                     mobileIdViewModel.setRoleDataRequested(true)
                 } else {
                     openSignatureUpdateContainerDialog.value = true
-                    if (rememberMeCheckedState.value) {
-                        sharedSettingsViewModel.dataStore.setPhoneNo(countryCodeAndPhoneText.text)
-                        sharedSettingsViewModel.dataStore.setPersonalCode(personalCodeText.text)
-                    } else {
-                        sharedSettingsViewModel.dataStore.setPhoneNo("")
-                        sharedSettingsViewModel.dataStore.setPersonalCode("")
-                    }
+                    saveFormParams()
 
                     var roleDataRequest: RoleData? = null
                     if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {

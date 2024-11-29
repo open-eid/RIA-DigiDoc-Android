@@ -149,6 +149,18 @@ class NFCViewModelTest {
         }
 
     @Test
+    fun nfcViewModel_resetShouldResetPIN2_success() =
+        runTest {
+            val shouldResetPIN2Observer: Observer<Boolean?> = mock()
+            viewModel.shouldResetPIN2.observeForever(shouldResetPIN2Observer)
+
+            viewModel.resetShouldResetPIN2()
+            verify(shouldResetPIN2Observer, atLeastOnce()).onChanged(null)
+
+            viewModel.roleDataRequested.removeObserver(shouldResetPIN2Observer)
+        }
+
+    @Test
     fun nfcViewModel_resetRoleDataRequested_success() =
         runTest {
             val roleDataRequestedObserver: Observer<Boolean?> = mock()

@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -68,6 +69,7 @@ import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager.NfcStatus
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
+import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.component.toast.ToastUtil
 import ee.ria.DigiDoc.ui.theme.Blue500
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraExtraLargePadding
@@ -103,7 +105,7 @@ fun NFCView(
 
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
     var nfcStatus by remember { mutableStateOf(nfcViewModel.getNFCStatus(activity)) }
-    var nfcImage by remember { mutableStateOf(R.drawable.ic_icon_nfc) }
+    var nfcImage by remember { mutableIntStateOf(R.drawable.ic_icon_nfc) }
 
     val roleDataRequested by nfcViewModel.roleDataRequested.asFlow().collectAsState(null)
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
@@ -111,7 +113,7 @@ fun NFCView(
     val canNumberLabel = stringResource(id = R.string.signature_update_nfc_can)
     val pin2CodeLabel = stringResource(id = R.string.signature_update_nfc_pin2)
 
-    var canNumberText by remember {
+    var canNumberText by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
             TextFieldValue(
                 text = sharedSettingsViewModel.dataStore.getCanNumber(),
@@ -119,7 +121,7 @@ fun NFCView(
             ),
         )
     }
-    var pin2CodeText by remember {
+    var pin2CodeText by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
             TextFieldValue(
                 text = "",
@@ -129,10 +131,27 @@ fun NFCView(
     }
     var errorText by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
-
     val openSignatureUpdateContainerDialog = rememberSaveable { mutableStateOf(false) }
     val dismissSignatureUpdateContainerDialog = {
         openSignatureUpdateContainerDialog.value = false
+    }
+    val saveFormParams = {
+        sharedSettingsViewModel.dataStore.setCanNumber(canNumberText.text)
+    }
+
+    LaunchedEffect(nfcViewModel.shouldResetPIN2) {
+        nfcViewModel.shouldResetPIN2.asFlow().collect { bool ->
+            bool?.let {
+                if (bool) {
+                    pin2CodeText =
+                        TextFieldValue(
+                            text = "",
+                            selection = TextRange.Zero,
+                        )
+                    nfcViewModel.resetShouldResetPIN2()
+                }
+            }
+        }
     }
 
     LaunchedEffect(nfcViewModel.nfcStatus) {
@@ -296,7 +315,7 @@ fun NFCView(
                             .focusable(false)
                             .testTag("signatureUpdateNFCCANLabel"),
                 )
-                val canNumberTextEdited = remember { mutableStateOf(false) }
+                val canNumberTextEdited = rememberSaveable { mutableStateOf(false) }
                 val canNumberErrorText =
                     if (canNumberTextEdited.value && canNumberText.text.isNotEmpty()) {
                         if (nfcViewModel.shouldShowCANNumberError(canNumberText.text)) {
@@ -368,8 +387,9 @@ fun NFCView(
                             .focusable(false)
                             .testTag("signatureUpdateNFCPIN2Label"),
                 )
+                val pin2CodeTextEdited = rememberSaveable { mutableStateOf(false) }
                 val pin2CodeErrorText =
-                    if (pin2CodeText.text.isNotEmpty()) {
+                    if (pin2CodeTextEdited.value && pin2CodeText.text.isNotEmpty()) {
                         if (nfcViewModel
                                 .shouldShowPIN2CodeError(
                                     pin2CodeText.text.toByteArray(StandardCharsets.UTF_8),
@@ -402,12 +422,14 @@ fun NFCView(
                     shape = RectangleShape,
                     onValueChange = {
                         pin2CodeText = it
+                        pin2CodeTextEdited.value = true
                     },
                     maxLines = 1,
                     singleLine = true,
                     isError =
-                        nfcViewModel
-                            .shouldShowPIN2CodeError(pin2CodeText.text.toByteArray(StandardCharsets.UTF_8)),
+                        pin2CodeTextEdited.value &&
+                            nfcViewModel
+                                .shouldShowPIN2CodeError(pin2CodeText.text.toByteArray(StandardCharsets.UTF_8)),
                     textStyle = MaterialTheme.typography.titleLarge,
                     visualTransformation = PasswordVisualTransformation(),
                     keyboardOptions =
@@ -446,6 +468,7 @@ fun NFCView(
             cancelButtonClick =
                 {
                     nfcViewModel.resetRoleDataRequested()
+                    saveFormParams()
                     cancelButtonClick()
                 },
             okButtonClick = {
@@ -453,7 +476,7 @@ fun NFCView(
                     nfcViewModel.setRoleDataRequested(true)
                 } else {
                     openSignatureUpdateContainerDialog.value = true
-                    sharedSettingsViewModel.dataStore.setCanNumber(canNumberText.text)
+                    saveFormParams()
                     var roleDataRequest: RoleData? = null
                     if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
                         val roles = sharedSettingsViewModel.dataStore.getRoles()
