@@ -247,8 +247,8 @@ class SharedSettingsViewModelTest {
 
         assertEquals(validUrl, viewModel.previousSivaUrl.value)
         assertNotNull(viewModel.sivaCertificate.value)
-        assertEquals("DigiCert Inc", viewModel.issuedTo.value)
-        assertEquals("01.10.2024", viewModel.validTo.value)
+        assertEquals("*.eesti.ee", viewModel.issuedTo.value)
+        assertEquals("01.10.2024 (Expired)", viewModel.validTo.value)
     }
 
     @Test(expected = Test.None::class)
