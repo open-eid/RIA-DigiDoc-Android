@@ -243,7 +243,7 @@ class SharedSettingsViewModelTest {
         viewModel.handleFile(uri)
 
         val validUrl = "https://valid-siva-url.com"
-        viewModel.updateData(validUrl)
+        viewModel.updateData(validUrl, context)
 
         assertEquals(validUrl, viewModel.previousSivaUrl.value)
         assertNotNull(viewModel.sivaCertificate.value)
@@ -258,7 +258,7 @@ class SharedSettingsViewModelTest {
         viewModel.handleFile(uri)
 
         val validUrl = "https://valid-siva-url.com"
-        viewModel.updateData(validUrl)
+        viewModel.updateData(validUrl, context)
 
         assertEquals(validUrl, viewModel.previousSivaUrl.value)
     }

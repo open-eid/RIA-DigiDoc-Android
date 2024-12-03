@@ -198,24 +198,28 @@ class SharedSettingsViewModel
             return "-"
         }
 
-        private fun getIssuer(certificateHolder: X509CertificateHolder): String {
-            val organizationRDNs = certificateHolder.issuer.getRDNs(BCStyle.O)
+        private fun getSubject(certificateHolder: X509CertificateHolder): String {
+            val organizationRDNs = certificateHolder.subject.getRDNs(BCStyle.O)
+            val organizationUnitRDNs = certificateHolder.subject.getRDNs(BCStyle.OU)
+            val commonNameRDNs = certificateHolder.subject.getRDNs(BCStyle.CN)
+
+            if (commonNameRDNs.isNotEmpty()) {
+                return commonNameRDNs[0].first.value.toString()
+            }
             if (organizationRDNs.isNotEmpty()) {
                 return organizationRDNs[0].first.value.toString()
             }
-            val organizationUnitRDNs = certificateHolder.issuer.getRDNs(BCStyle.OU)
             if (organizationUnitRDNs.isNotEmpty()) {
                 return organizationUnitRDNs[0].first.value.toString()
-            }
-            val commonNameRDNs = certificateHolder.issuer.getRDNs(BCStyle.CN)
-            if (commonNameRDNs.isNotEmpty()) {
-                return commonNameRDNs[0].first.value.toString()
             }
 
             return "-"
         }
 
-        fun updateData(sivaServiceUrl: String) {
+        fun updateData(
+            sivaServiceUrl: String,
+            context: Context,
+        ) {
             _previousSivaUrl.postValue(sivaServiceUrl)
 
             val sivaCertName: String = dataStore.getSettingsSivaCertName()
@@ -227,9 +231,15 @@ class SharedSettingsViewModel
                     val sivaCert = CertificateUtil.x509Certificate(fileContents)
                     _sivaCertificate.postValue(sivaCert)
                     val certificateHolder: X509CertificateHolder = JcaX509CertificateHolder(sivaCert)
-                    val issuer: String = getIssuer(certificateHolder)
+                    val issuer: String = getSubject(certificateHolder)
                     _issuedTo.postValue(issuer)
-                    _validTo.postValue(getFormattedDateTime(certificateHolder.notAfter))
+                    val notAfter: Date = certificateHolder.notAfter
+                    if (notAfter.before(Date())) {
+                        val expiredText = context.getString(R.string.main_settings_siva_certificate_expired)
+                        _validTo.postValue("${getFormattedDateTime(notAfter)} ($expiredText)")
+                    } else {
+                        _validTo.postValue(getFormattedDateTime(notAfter))
+                    }
                 } catch (e: CertificateException) {
                     errorLog(logTag, "Unable to get SiVa certificate", e)
 
