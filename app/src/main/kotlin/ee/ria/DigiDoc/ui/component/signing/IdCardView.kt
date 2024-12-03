@@ -32,6 +32,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -110,7 +111,7 @@ fun IdCardView(
     val idCardStatusSigningMessage = stringResource(id = R.string.id_card_progress_message_signing)
 
     val isSigning = remember { mutableStateOf(false) }
-    val showErrorDialog = remember { mutableStateOf(false) }
+    val showErrorDialog = rememberSaveable { mutableStateOf(false) }
 
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
 

@@ -72,6 +72,9 @@ class MobileIdViewModelTest {
     lateinit var errorStateObserver: Observer<String?>
 
     @Mock
+    lateinit var dialogErrorObserver: Observer<Int?>
+
+    @Mock
     lateinit var signedContainerObserver: Observer<SignedContainer?>
 
     @Mock
@@ -158,6 +161,7 @@ class MobileIdViewModelTest {
                 mobileIdService,
                 configurationRepository,
             )
+        viewModel.dialogError.observeForever(dialogErrorObserver)
         viewModel.errorState.observeForever(errorStateObserver)
         viewModel.status.observeForever(statusObserver)
         viewModel.roleDataRequested.observeForever(roleDataRequestedObserver)
@@ -318,6 +322,124 @@ class MobileIdViewModelTest {
             verify(errorStateObserver, atLeastOnce()).onChanged(context.getString(R.string.no_internet_connection))
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.NO_RESPONSE)
+            verify(challengeObserver, atLeastOnce()).onChanged("0660")
+        }
+
+    @Test
+    fun mobileIdViewModel_performMobileIdWorkRequest_responseStatusOCSP_INVALID_TIME_SLOT() =
+        runTest {
+            `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
+            `when`(
+                fileOpeningRepository.openOrCreateContainer(
+                    eq(context),
+                    eq(contentResolver),
+                    any(),
+                    anyBoolean(),
+                    anyBoolean(),
+                ),
+            ).thenReturn(signedContainer)
+
+            `when`(mobileIdService.response).thenReturn(
+                MutableLiveData<MobileIdServiceResponse?>(
+                    MobileIdServiceResponse(
+                        MobileCreateSignatureProcessStatus.OCSP_INVALID_TIME_SLOT,
+                        null,
+                        "signature",
+                    ),
+                ),
+            )
+            `when`(
+                mobileIdService.status,
+            ).thenReturn(
+                MutableLiveData<MobileCreateSignatureProcessStatus?>(
+                    MobileCreateSignatureProcessStatus.OCSP_INVALID_TIME_SLOT,
+                ),
+            )
+            `when`(mobileIdService.challenge).thenReturn(MutableLiveData<String?>("0660"))
+            `when`(mobileIdService.cancelled).thenReturn(MutableLiveData<Boolean?>(true))
+            `when`(mobileIdService.result).thenReturn(MutableLiveData<MobileCertificateResultType?>(null))
+            `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>(null))
+
+            viewModel.performMobileIdWorkRequest(
+                activity,
+                context,
+                "test message",
+                signedContainer,
+                "45611283812",
+                "5629421",
+                null,
+            )
+
+            verify(mobileIdService, atLeastOnce()).resetValues()
+            verify(
+                mobileIdService,
+                atLeastOnce(),
+            ).processMobileIdRequest(any(), any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any())
+            verify(
+                dialogErrorObserver,
+                atLeastOnce(),
+            ).onChanged(R.string.invalid_time_slot_message)
+            verify(signedContainerObserver, atLeastOnce()).onChanged(null)
+            verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.OCSP_INVALID_TIME_SLOT)
+            verify(challengeObserver, atLeastOnce()).onChanged("0660")
+        }
+
+    @Test
+    fun mobileIdViewModel_performMobileIdWorkRequest_responseStatusTOO_MANY_REQUESTS() =
+        runTest {
+            `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
+            `when`(
+                fileOpeningRepository.openOrCreateContainer(
+                    eq(context),
+                    eq(contentResolver),
+                    any(),
+                    anyBoolean(),
+                    anyBoolean(),
+                ),
+            ).thenReturn(signedContainer)
+
+            `when`(mobileIdService.response).thenReturn(
+                MutableLiveData<MobileIdServiceResponse?>(
+                    MobileIdServiceResponse(
+                        MobileCreateSignatureProcessStatus.TOO_MANY_REQUESTS,
+                        null,
+                        "signature",
+                    ),
+                ),
+            )
+            `when`(
+                mobileIdService.status,
+            ).thenReturn(
+                MutableLiveData<MobileCreateSignatureProcessStatus?>(
+                    MobileCreateSignatureProcessStatus.TOO_MANY_REQUESTS,
+                ),
+            )
+            `when`(mobileIdService.challenge).thenReturn(MutableLiveData<String?>("0660"))
+            `when`(mobileIdService.cancelled).thenReturn(MutableLiveData<Boolean?>(true))
+            `when`(mobileIdService.result).thenReturn(MutableLiveData<MobileCertificateResultType?>(null))
+            `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>(null))
+
+            viewModel.performMobileIdWorkRequest(
+                activity,
+                context,
+                "test message",
+                signedContainer,
+                "45611283812",
+                "5629421",
+                null,
+            )
+
+            verify(mobileIdService, atLeastOnce()).resetValues()
+            verify(
+                mobileIdService,
+                atLeastOnce(),
+            ).processMobileIdRequest(any(), any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any())
+            verify(
+                dialogErrorObserver,
+                atLeastOnce(),
+            ).onChanged(R.string.too_many_requests_message)
+            verify(signedContainerObserver, atLeastOnce()).onChanged(null)
+            verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.TOO_MANY_REQUESTS)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
         }
 
@@ -484,6 +606,13 @@ class MobileIdViewModelTest {
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(null)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
+        }
+
+    @Test
+    fun mobileIdViewModel_resetDialogErrorState_success() =
+        runTest {
+            viewModel.resetDialogErrorState()
+            verify(dialogErrorObserver, atLeastOnce()).onChanged(0)
         }
 
     @Test

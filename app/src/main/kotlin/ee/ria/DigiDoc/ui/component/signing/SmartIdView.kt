@@ -6,8 +6,10 @@ import android.app.Activity
 import android.content.res.Configuration
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -32,6 +34,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -60,6 +63,7 @@ import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
+import ee.ria.DigiDoc.ui.component.shared.HrefMessageDialog
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
 import ee.ria.DigiDoc.ui.component.shared.SelectionSpinner
@@ -77,6 +81,8 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -94,7 +100,7 @@ fun SmartIdView(
 ) {
     val context = LocalContext.current
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
-
+    val dialogError by smartIdViewModel.dialogError.asFlow().collectAsState(0)
     val roleDataRequested by smartIdViewModel.roleDataRequested.asFlow().collectAsState(null)
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
 
@@ -118,6 +124,7 @@ fun SmartIdView(
     val itemSelectedTitle = stringResource(id = R.string.item_selected)
     val displayMessage = stringResource(id = R.string.signature_update_mobile_id_display_message)
     var errorText by remember { mutableStateOf("") }
+    val showErrorDialog = rememberSaveable { mutableStateOf(false) }
 
     val saveFormParams = {
         if (rememberMeCheckedState.value) {
@@ -146,7 +153,7 @@ fun SmartIdView(
     LaunchedEffect(smartIdViewModel.errorState) {
         smartIdViewModel.errorState.asFlow().collect { errorState ->
             errorState?.let {
-                withContext(Dispatchers.Main) {
+                withContext(Main) {
                     if (errorState != "") {
                         errorText = errorState
                     }
@@ -166,6 +173,17 @@ fun SmartIdView(
                 dismissDialog()
             }
         }
+    }
+
+    LaunchedEffect(smartIdViewModel.dialogError) {
+        smartIdViewModel.dialogError.asFlow()
+            .filterNotNull()
+            .collect {
+                withContext(Main) {
+                    smartIdViewModel.resetErrorState()
+                    showErrorDialog.value = true
+                }
+            }
     }
 
     if (errorText.isNotEmpty()) {
@@ -195,6 +213,52 @@ fun SmartIdView(
             }
         }
     }
+
+    if (showErrorDialog.value) {
+        var text1Arg: Int? = null
+        val text2 = null
+        var linkText = 0
+        var linkUrl = 0
+        if (dialogError == R.string.too_many_requests_message) {
+            text1Arg = R.string.id_card_conditional_speech
+            linkText = R.string.additional_information
+            linkUrl = R.string.too_many_requests_url
+        } else if (dialogError == R.string.invalid_time_slot_message) {
+            linkText = R.string.additional_information
+            linkUrl = R.string.invalid_time_slot_url
+        }
+        Box(modifier = modifier.fillMaxSize()) {
+            BasicAlertDialog(
+                onDismissRequest = { dismissDialog() },
+            ) {
+                Surface(
+                    modifier =
+                        modifier
+                            .wrapContentHeight()
+                            .wrapContentWidth()
+                            .padding(screenViewLargePadding)
+                            .verticalScroll(rememberScrollState()),
+                ) {
+                    HrefMessageDialog(
+                        modifier = modifier.align(Alignment.Center),
+                        text1 = dialogError,
+                        text1Arg = text1Arg,
+                        text2 = text2,
+                        linkText = linkText,
+                        linkUrl = linkUrl,
+                        cancelButtonClick = {},
+                        okButtonClick = {
+                            smartIdViewModel.resetDialogErrorState()
+                            dismissDialog()
+                        },
+                        showCancelButton = false,
+                    )
+                }
+            }
+            InvisibleElement(modifier = modifier)
+        }
+    }
+
     Column(
         modifier =
             modifier

@@ -60,6 +60,9 @@ class MobileIdViewModel
         private val _roleDataRequested = MutableLiveData(false)
         val roleDataRequested: LiveData<Boolean?> = _roleDataRequested
 
+        private val _dialogError = MutableLiveData(0)
+        val dialogError: LiveData<Int> = _dialogError
+
         private val faults: ImmutableMap<MobileCertificateResultType, Int> =
             ImmutableMap.builder<MobileCertificateResultType, Int>()
                 .put(
@@ -146,6 +149,10 @@ class MobileIdViewModel
                 )
                 .build()
 
+        fun resetDialogErrorState() {
+            _dialogError.postValue(0)
+        }
+
         fun resetErrorState() {
             _errorState.postValue(null)
         }
@@ -169,6 +176,27 @@ class MobileIdViewModel
         fun cancelMobileIdWorkRequest(signedContainer: SignedContainer?) {
             if (signedContainer != null) {
                 mobileSignService.setCancelled(signedContainer, true)
+            }
+        }
+
+        private fun setErrorState(
+            context: Context,
+            status: MobileCreateSignatureProcessStatus?,
+        ) {
+            val res = messages[status]
+
+            if (res == R.string.too_many_requests_message ||
+                res == R.string.invalid_time_slot_message
+            ) {
+                _dialogError.postValue(res)
+            } else {
+                _errorState.postValue(
+                    res?.let {
+                        context.getString(
+                            it,
+                        )
+                    },
+                )
             }
         }
 
@@ -235,13 +263,7 @@ class MobileIdViewModel
                         _status.postValue(status)
                         if (status != MobileCreateSignatureProcessStatus.OK) {
                             if (status != MobileCreateSignatureProcessStatus.USER_CANCELLED) {
-                                _errorState.postValue(
-                                    messages[status]?.let { res ->
-                                        context.getString(
-                                            res,
-                                        )
-                                    },
-                                )
+                                setErrorState(context, status)
                             } else {
                                 CoroutineScope(Main).launch {
                                     val containerSignatures = container?.getSignatures(Main)
@@ -268,13 +290,7 @@ class MobileIdViewModel
                                         }
                                     }
                                     _signedContainer.postValue(container)
-                                    _errorState.postValue(
-                                        messages[status]?.let { res ->
-                                            context.getString(
-                                                res,
-                                            )
-                                        },
-                                    )
+                                    setErrorState(context, status)
                                 }
                             }
                         }
@@ -291,13 +307,7 @@ class MobileIdViewModel
                         else -> {
                             if (it != null) {
                                 _status.postValue(it.status)
-                                _errorState.postValue(
-                                    messages[it.status]?.let { res ->
-                                        context.getString(
-                                            res,
-                                        )
-                                    },
-                                )
+                                setErrorState(context, it.status)
                             }
                         }
                     }

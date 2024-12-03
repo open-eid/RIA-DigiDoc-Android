@@ -71,6 +71,9 @@ class SmartIdViewModelTest {
     lateinit var errorStateObserver: Observer<String?>
 
     @Mock
+    lateinit var dialogErrorObserver: Observer<Int>
+
+    @Mock
     lateinit var signedContainerObserver: Observer<SignedContainer?>
 
     @Mock
@@ -161,6 +164,7 @@ class SmartIdViewModelTest {
                 configurationRepository,
             )
         viewModel.errorState.observeForever(errorStateObserver)
+        viewModel.dialogError.observeForever(dialogErrorObserver)
         viewModel.status.observeForever(statusObserver)
         viewModel.signedContainer.observeForever(signedContainerObserver)
         viewModel.roleDataRequested.observeForever(roleDataRequestedObserver)
@@ -338,6 +342,120 @@ class SmartIdViewModelTest {
         }
 
     @Test
+    fun smartIdViewModel_performSmartIdWorkRequest_responseStatusOCSP_INVALID_TIME_SLOT() =
+        runTest {
+            `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
+            `when`(
+                fileOpeningRepository.openOrCreateContainer(
+                    eq(context),
+                    eq(contentResolver),
+                    any(),
+                    anyBoolean(),
+                    anyBoolean(),
+                ),
+            ).thenReturn(signedContainer)
+
+            `when`(smartSignService.response).thenReturn(MutableLiveData<SmartIDServiceResponse?>(null))
+            `when`(
+                smartSignService.status,
+            ).thenReturn(
+                MutableLiveData<SessionStatusResponseProcessStatus?>(
+                    SessionStatusResponseProcessStatus.OCSP_INVALID_TIME_SLOT,
+                ),
+            )
+            `when`(smartSignService.challenge).thenReturn(MutableLiveData<String?>("0660"))
+            `when`(smartSignService.cancelled).thenReturn(MutableLiveData<Boolean?>(true))
+            `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(true))
+            `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
+
+            viewModel.performSmartIdWorkRequest(
+                activity,
+                context,
+                "test message",
+                signedContainer,
+                "45611283812",
+                0,
+                null,
+            )
+
+            verify(smartSignService, atLeastOnce()).resetValues()
+            verify(
+                smartSignService,
+                atLeastOnce(),
+            ).processSmartIdRequest(
+                eq(
+                    context,
+                ),
+                any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any(),
+            )
+            verify(
+                dialogErrorObserver,
+                atLeastOnce(),
+            ).onChanged(R.string.invalid_time_slot_message)
+            verify(signedContainerObserver, atLeastOnce()).onChanged(null)
+            verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.OCSP_INVALID_TIME_SLOT)
+            verify(challengeObserver, atLeastOnce()).onChanged("0660")
+            verify(selectDeviceObserver, atLeastOnce()).onChanged(true)
+        }
+
+    @Test
+    fun smartIdViewModel_performSmartIdWorkRequest_responseStatusTOO_MANY_REQUESTS() =
+        runTest {
+            `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
+            `when`(
+                fileOpeningRepository.openOrCreateContainer(
+                    eq(context),
+                    eq(contentResolver),
+                    any(),
+                    anyBoolean(),
+                    anyBoolean(),
+                ),
+            ).thenReturn(signedContainer)
+
+            `when`(smartSignService.response).thenReturn(MutableLiveData<SmartIDServiceResponse?>(null))
+            `when`(
+                smartSignService.status,
+            ).thenReturn(
+                MutableLiveData<SessionStatusResponseProcessStatus?>(
+                    SessionStatusResponseProcessStatus.TOO_MANY_REQUESTS,
+                ),
+            )
+            `when`(smartSignService.challenge).thenReturn(MutableLiveData<String?>("0660"))
+            `when`(smartSignService.cancelled).thenReturn(MutableLiveData<Boolean?>(true))
+            `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(true))
+            `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
+
+            viewModel.performSmartIdWorkRequest(
+                activity,
+                context,
+                "test message",
+                signedContainer,
+                "45611283812",
+                0,
+                null,
+            )
+
+            verify(smartSignService, atLeastOnce()).resetValues()
+            verify(
+                smartSignService,
+                atLeastOnce(),
+            ).processSmartIdRequest(
+                eq(
+                    context,
+                ),
+                any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any(),
+            )
+            verify(
+                dialogErrorObserver,
+                atLeastOnce(),
+            ).onChanged(R.string.too_many_requests_message)
+            verify(signedContainerObserver, atLeastOnce()).onChanged(null)
+            verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.TOO_MANY_REQUESTS)
+            verify(challengeObserver, atLeastOnce()).onChanged("0660")
+            verify(selectDeviceObserver, atLeastOnce()).onChanged(true)
+        }
+
+    @Test
     fun smartIdViewModel_performSmartIdWorkRequest_responseStatusUserRefused() =
         runTest {
             `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
@@ -459,6 +577,13 @@ class SmartIdViewModelTest {
         runTest {
             viewModel.setRoleDataRequested(true)
             verify(roleDataRequestedObserver, atLeastOnce()).onChanged(true)
+        }
+
+    @Test
+    fun smartIdViewModel_resetDialogErrorState_success() =
+        runTest {
+            viewModel.resetDialogErrorState()
+            verify(dialogErrorObserver, atLeastOnce()).onChanged(0)
         }
 
     @Test

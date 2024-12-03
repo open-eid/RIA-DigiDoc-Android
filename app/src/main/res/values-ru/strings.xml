@@ -161,6 +161,8 @@
     <string name="invalid_time_slot_url">https://www.id.ee/ru/artikkel/oshibka-ria-digidoc-pozhalujsta-proverte-vremya-na-svoem-smart-ustrojstve/</string>
     <string name="signature_update_signature_error_message_certificate_revoked">Сертификат недействителен</string>
     <string name="id_card_conditional_speech">ID-карты</string>
+    <string name="mobile_id_conditional_speech">Mobiil-ID</string>
+    <string name="smart_id_conditional_speech">Smart-ID</string>
 
     <string name="no_internet_connection">Пожалуйста проверьте подключение к интернету</string>
     <string name="invalid_ssl_handshake">Не удалось создать SSL канал передачи данных. Проверьте настройки вашего приложения или обновления программного обеспечения.</string>
