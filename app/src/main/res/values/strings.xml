@@ -413,6 +413,7 @@
     <string name="main_settings_siva_default_access_title">Use default access</string>
     <string name="main_settings_siva_default_manual_access_title">Use manually configured access</string>
     <string name="main_settings_siva_service_url">SiVa service URL</string>
+    <string name="main_settings_siva_certificate_expired">Expired</string>
     <string name="main_settings_proxy_invalid_settings">Failed to connect with service server. Please check your network settings or try again later.</string>
     <string name="main_settings_siva_certificate_title">Digital Signature Validation Service SiVa SSL certificate</string>
 

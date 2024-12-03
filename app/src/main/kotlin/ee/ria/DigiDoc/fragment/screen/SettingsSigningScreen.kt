@@ -102,7 +102,7 @@ fun SettingsSigningScreen(
     val setSivaSetting = sharedSettingsViewModel.dataStore::setSivaSetting
     val defaultSivaServiceUrl = configuration?.sivaUrl ?: getSettingsSivaUrl()
     var settingsSivaServiceUrl by remember { mutableStateOf(TextFieldValue(text = getSettingsSivaUrl())) }
-    sharedSettingsViewModel.updateData(settingsSivaServiceUrl.text)
+    sharedSettingsViewModel.updateData(settingsSivaServiceUrl.text, context)
     val issuedTo by sharedSettingsViewModel.issuedTo.asFlow().collectAsState(
         "",
     )
@@ -125,7 +125,7 @@ fun SettingsSigningScreen(
                 CoroutineScope(Dispatchers.IO).launch {
                     sharedSettingsViewModel.handleFile(uri)
                     withContext(Main) {
-                        sharedSettingsViewModel.updateData(settingsSivaServiceUrl.text)
+                        sharedSettingsViewModel.updateData(settingsSivaServiceUrl.text, context)
                     }
                 }
             },

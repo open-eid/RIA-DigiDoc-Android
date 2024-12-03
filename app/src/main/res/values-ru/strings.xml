@@ -411,6 +411,7 @@
     <string name="main_settings_siva_default_access_title">Использовать доступ, назначенный по умолчанию</string>
     <string name="main_settings_siva_default_manual_access_title">Использовать доступ, назначенный вручную</string>
     <string name="main_settings_siva_service_url">URL услуги валидации SiVa</string>
+    <string name="main_settings_siva_certificate_expired">Недействителен</string>
     <string name="main_settings_proxy_invalid_settings">Не удалось связаться с сервером услуги. Пожалуйста, проверьте настройки сети или повторите попытку позже.</string>
     <string name="main_settings_siva_certificate_title">Сертификат услуги валидации SiVa SSL</string>
 
