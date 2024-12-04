@@ -354,9 +354,10 @@ class SmartSignServiceImpl
                     )
                     return
                 } catch (e: Exception) {
+                    val message = e.message
                     errorLog(
                         logTag,
-                        "Exception message: ${e.message}. " +
+                        "Exception message: $message. " +
                             "Exception: ${e.stackTrace.contentToString()}",
                         e,
                     )
@@ -367,69 +368,65 @@ class SmartSignServiceImpl
                         return
                     }
 
-                    if (!e.message.isNullOrEmpty() && e.message?.contains("Too Many Requests") == true) {
+                    if (!message.isNullOrEmpty() && message.contains("Too Many Requests")) {
                         postFault(ServiceFault(SessionStatusResponseProcessStatus.TOO_MANY_REQUESTS))
                         errorLog(
                             logTag,
                             "Failed to sign with Smart-ID - Too Many Requests. " +
-                                "Exception message: ${e.message}. " +
+                                "Exception message: $message. " +
                                 "Exception: ${e.stackTrace.contentToString()}",
                             e,
                         )
-                    } else if (!e.message.isNullOrEmpty() && e.message?.contains(
+                    } else if (!message.isNullOrEmpty() &&
+                        message.contains(
                             "OCSP response not in valid time slot",
-                        ) == true
+                        )
                     ) {
                         postFault(ServiceFault(SessionStatusResponseProcessStatus.OCSP_INVALID_TIME_SLOT))
                         errorLog(
                             logTag,
                             "Failed to sign with Smart-ID - OCSP response not in valid time slot. " +
-                                "Exception message: ${e.message}. " +
+                                "Exception message: $message. " +
                                 "Exception: ${e.stackTrace.contentToString()}",
                             e,
                         )
-                    } else if (!e.message.isNullOrEmpty() &&
-                        e.message?.contains("Certificate status: revoked") == true
-                    ) {
+                    } else if (!message.isNullOrEmpty() && message.contains("Certificate status: revoked")) {
                         postFault(ServiceFault(SessionStatusResponseProcessStatus.CERTIFICATE_REVOKED))
                         errorLog(
                             logTag,
                             "Failed to sign with Smart-ID - Certificate status: revoked. " +
-                                "Exception message: ${e.message}. " +
+                                "Exception message: $message. " +
                                 "Exception: ${e.stackTrace.contentToString()}",
                             e,
                         )
-                    } else if (!e.message.isNullOrEmpty() &&
-                        e.message?.contains("Failed to connect") == true
-                    ) {
+                    } else if (!message.isNullOrEmpty() && message.contains("Failed to connect")) {
                         postFault(ServiceFault(SessionStatusResponseProcessStatus.NO_RESPONSE))
                         errorLog(
                             logTag,
                             "Failed to sign with Smart-ID - Failed to connect to host. " +
-                                "Exception message: ${e.message}. " +
+                                "Exception message: $message. " +
                                 "Exception: ${e.stackTrace.contentToString()}",
                             e,
                         )
-                    } else if (!e.message.isNullOrEmpty() && e.message?.startsWith(
-                            "Failed to create ssl connection with host",
-                        ) == true
+                    } else if (!message.isNullOrEmpty() &&
+                        message.startsWith("Failed to create ssl connection with host")
                     ) {
                         postFault(ServiceFault(SessionStatusResponseProcessStatus.INVALID_SSL_HANDSHAKE))
                         errorLog(
                             logTag,
                             "Failed to sign with Smart-ID - Failed to create ssl connection with host. " +
-                                "Exception message: ${e.message}. " +
+                                "Exception message: $message. " +
                                 "Exception: ${e.stackTrace.contentToString()}",
                             e,
                         )
                     } else {
                         postFault(
-                            ServiceFault(SessionStatusResponseProcessStatus.GENERAL_ERROR, e.message),
+                            ServiceFault(SessionStatusResponseProcessStatus.GENERAL_ERROR, message),
                         )
                         errorLog(
                             logTag,
                             "Failed to sign with Smart-ID. " +
-                                "Exception message: ${e.message}. " +
+                                "Exception message: $message. " +
                                 "Exception: ${e.stackTrace.contentToString()}",
                             e,
                         )

@@ -187,6 +187,8 @@
     <string name="invalid_time_slot_url">https://www.id.ee/artikkel/ria-digidoc-viga-palun-kontrollige-oma-nutiseadme-kellaaega/</string>
     <string name="signature_update_signature_error_message_certificate_revoked">Sertifikaat on kehtetu</string>
     <string name="id_card_conditional_speech">ID-kaardi</string>
+    <string name="mobile_id_conditional_speech">Mobiil-ID</string>
+    <string name="smart_id_conditional_speech">Smart-ID</string>
 
     <string name="no_internet_connection">Palun kontrolli internetiühendust</string>
     <string name="invalid_ssl_handshake">SSL ühenduskanali loomine ebaõnnestus. Kontrolli rakenduse seadeid või tarkvara uuendusi</string>

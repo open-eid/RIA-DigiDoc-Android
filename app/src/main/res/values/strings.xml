@@ -188,6 +188,8 @@
     <string name="invalid_time_slot_url">https://www.id.ee/en/article/ria-digidoc-error-please-check-your-smart-device-time/</string>
     <string name="signature_update_signature_error_message_certificate_revoked">Certificate status revoked</string>
     <string name="id_card_conditional_speech">ID-card\'s</string>
+    <string name="mobile_id_conditional_speech">Mobile-ID</string>
+    <string name="smart_id_conditional_speech">Smart-ID</string>
 
     <string name="no_internet_connection">Please check your internet connection</string>
     <string name="invalid_ssl_handshake">SSL handshake failed. Check your application settings or software upgrades</string>
