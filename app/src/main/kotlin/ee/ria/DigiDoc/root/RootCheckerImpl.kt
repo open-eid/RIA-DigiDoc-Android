@@ -10,13 +10,16 @@ import javax.inject.Singleton
 class RootCheckerImpl
     @Inject
     constructor(
-        private val rootRelatedDirectories: List<File> =
+        private val rootRelatedDirectories: List<File>,
+    ) : RootChecker {
+        constructor() : this(
             listOf(
                 File("/sbin"),
                 File("/su/bin"),
                 File("/system/bin/su"),
             ),
-    ) : RootChecker {
+        )
+
         override fun isRooted(): Boolean = deviceHasRootRelatedDirectories(rootRelatedDirectories)
 
         override fun isRootRelatedDirectory(directory: File): Boolean = directory.exists()
