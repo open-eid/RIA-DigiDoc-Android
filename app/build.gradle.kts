@@ -147,7 +147,6 @@ dependencies {
     implementation(project(":utils-lib"))
     implementation(project(":commons-lib"))
     implementation(project(":id-card-lib"))
-    implementation(project(":sign-lib"))
 
     androidTestImplementation(project(":commons-lib:test-files"))
 }
