@@ -2,7 +2,7 @@
 compileSdkVersion = "35"
 minSdkVersion = "31"
 targetSdkVersion = "35"
-versionCode = "68"
+versionCode = "69"
 versionName = "3.0.0"
 
 agp = "8.7.3"
