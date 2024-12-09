@@ -81,6 +81,7 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -180,6 +181,7 @@ fun MobileIdView(
     LaunchedEffect(mobileIdViewModel.dialogError) {
         mobileIdViewModel.dialogError.asFlow()
             .filterNotNull()
+            .filterNot { it == 0 }
             .collect {
                 withContext(Main) {
                     mobileIdViewModel.resetErrorState()
