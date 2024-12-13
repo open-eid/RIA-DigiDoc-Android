@@ -22,9 +22,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.ui.theme.Dimensions.border
@@ -49,6 +53,7 @@ object ToastUtil {
 
     @Composable
     fun DigiDocToast(
+        modifier: Modifier = Modifier,
         message: String,
         duration: Int = Toast.LENGTH_LONG,
         padding: PaddingValues =
@@ -62,6 +67,7 @@ object ToastUtil {
     ) {
         val digiDocInfoToast = DigiDocToast(LocalContext.current)
         digiDocInfoToast.MakeToast(
+            modifier = modifier,
             message = message,
             duration = duration,
             type = Info(),
@@ -71,6 +77,7 @@ object ToastUtil {
         digiDocInfoToast.show()
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun SetView(
         modifier: Modifier = Modifier,
@@ -86,7 +93,11 @@ object ToastUtil {
             modifier =
                 modifier
                     .fillMaxSize()
-                    .padding(padding),
+                    .padding(padding)
+                    .semantics {
+                        testTagsAsResourceId = true
+                    }
+                    .testTag("toastViewBox"),
             contentAlignment = contentAlignment,
         ) {
             Surface(
@@ -114,7 +125,12 @@ object ToastUtil {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        modifier = modifier,
+                        modifier =
+                            modifier
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("toastViewText"),
                         text = messageTxt,
                         textAlign = TextAlign.Start,
                         color = textColor,
