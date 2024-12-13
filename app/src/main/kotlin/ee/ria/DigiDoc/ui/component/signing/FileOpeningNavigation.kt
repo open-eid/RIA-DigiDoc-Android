@@ -221,7 +221,10 @@ fun FileOpeningNavigation(
     )
 
     if (errorText.first != 0) {
-        ToastUtil.DigiDocToast(context.getString(errorText.first, errorText.second))
+        ToastUtil.DigiDocToast(
+            modifier = modifier,
+            message = context.getString(errorText.first, errorText.second),
+        )
         errorText = Pair(0, null)
     }
 

@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
@@ -20,6 +21,7 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 class DigiDocToast(context: Context) : Toast(context) {
     @Composable
     fun MakeToast(
+        modifier: Modifier = Modifier,
         message: String,
         duration: Int = LENGTH_LONG,
         type: DigiDocToastProperty,
@@ -32,6 +34,7 @@ class DigiDocToast(context: Context) : Toast(context) {
 
         views.setContent {
             ToastUtil.SetView(
+                modifier = modifier,
                 messageTxt = message,
                 backgroundColor = type.getBackgroundColor(),
                 borderColor = type.getBorderColor(),

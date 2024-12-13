@@ -197,7 +197,10 @@ fun NFCView(
     }
 
     if (errorText.isNotEmpty()) {
-        ToastUtil.DigiDocToast(errorText)
+        ToastUtil.DigiDocToast(
+            modifier = modifier,
+            message = errorText,
+        )
     }
 
     if (openSignatureUpdateContainerDialog.value) {
