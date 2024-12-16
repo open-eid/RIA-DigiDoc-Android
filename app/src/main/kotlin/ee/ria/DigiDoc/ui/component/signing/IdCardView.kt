@@ -229,6 +229,7 @@ fun IdCardView(
             modifier = modifier,
             message = errorText,
         )
+        errorText = ""
         dismissDialog()
     }
 

@@ -193,6 +193,7 @@ fun SmartIdView(
             modifier = modifier,
             message = errorText,
         )
+        errorText = ""
     }
 
     if (openSignatureUpdateContainerDialog.value) {
