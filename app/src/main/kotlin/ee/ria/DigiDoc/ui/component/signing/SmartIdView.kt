@@ -319,7 +319,9 @@ fun SmartIdView(
                 modifier =
                     modifier
                         .clearAndSetSemantics {
-                            contentDescription =
+                            testTagsAsResourceId = true
+                            testTag = "signatureUpdateSmartIdCountry"
+                            this.contentDescription =
                                 "$smartIdCountryLabel ${countriesList[selectedCountry]} $itemSelectedTitle"
                         }
                         .testTag("signatureUpdateSmartIdCountry"),
