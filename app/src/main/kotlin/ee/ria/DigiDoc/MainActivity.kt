@@ -6,6 +6,7 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -56,7 +57,7 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super<ComponentActivity>.onCreate(savedInstanceState)
-
+        installSplashScreen()
         if (rootChecker.isRooted()) {
             setContent {
                 RIADigiDocTheme {
