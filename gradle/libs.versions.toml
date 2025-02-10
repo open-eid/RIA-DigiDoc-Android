@@ -17,6 +17,7 @@ lifecycleRuntimeKtx = "2.8.7"
 navigationCompose = "2.8.6"
 constraintlayoutCompose = "1.1.0"
 composeBom = "2025.01.01"
+coreSplashscreen = "1.0.1"
 jlleitschuhKtlint = "12.1.2"
 dagger = "2.55"
 hilt = "1.2.0"
@@ -55,6 +56,7 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
