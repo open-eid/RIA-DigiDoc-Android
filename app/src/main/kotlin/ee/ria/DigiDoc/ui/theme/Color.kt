@@ -5,88 +5,99 @@ package ee.ria.DigiDoc.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // primary
-val Primary900 = Color(0xFF07142a)
-val Primary800 = Color(0xFF091a36)
-val Primary700 = Color(0xFF0c2246)
-val Primary600 = Color(0xFF0f2c5a)
 val Primary500 = Color(0xFF003168)
 val Primary400 = Color(0xFF415982)
-val Primary300 = Color(0xFF607496)
-val Primary200 = Color(0xFF92a0b7)
-val Primary100 = Color(0xFFb5bfcf)
-val Primary50 = Color(0xFFe7eaef)
-
-// secondary
-val Secondary900 = Color(0xFF5d2617)
-val Secondary800 = Color(0xFF7a321e)
-val Secondary700 = Color(0xFF9e4026)
-val Secondary600 = Color(0xFFca5231)
-val Secondary500 = Color(0xFFf04e23)
-val Secondary400 = Color(0xFFe57b5e)
-val Secondary300 = Color(0xFFe99078)
-val Secondary200 = Color(0xFFf0b3a3)
-val Secondary100 = Color(0xFFf5ccc1)
-val Secondary50 = Color(0xFFfcefeb)
 
 // yellow
-val Yellow900 = Color(0xFF644a22)
 val Yellow800 = Color(0xFF83612d)
-val Yellow700 = Color(0xFFaa7e3a)
-val Yellow600 = Color(0xFFd9a14a)
 val Yellow500 = Color(0xFFfbae38)
-val Yellow400 = Color(0xFFf2c174)
-val Yellow300 = Color(0xFFf4cb8a)
-val Yellow200 = Color(0xFFf8dbaf)
-val Yellow100 = Color(0xFFfae7c9)
 val Yellow50 = Color(0xFFfdf7ee)
 
 // red
-val Red900 = Color(0xFF42171e)
 val Red800 = Color(0xFF571e27)
-val Red700 = Color(0xFF702632)
-val Red600 = Color(0xFF903141)
 val Red500 = Color(0xFFad2a45)
-val Red400 = Color(0xFFb15e6c)
-val Red300 = Color(0xFFbe7884)
-val Red200 = Color(0xFFd2a3aa)
-val Red100 = Color(0xFFe1c1c6)
 val Red50 = Color(0xFFf5ebed)
 
 // green
-val Green900 = Color(0xFF0f2519)
-val Green800 = Color(0xFF143020)
-val Green700 = Color(0xFF1a3e2a)
-val Green600 = Color(0xFF215036)
 val Green500 = Color(0xFF005938)
-val Green400 = Color(0xFF507962)
-val Green300 = Color(0xFF6c8f7c)
-val Green200 = Color(0xFF9ab2a5)
-val Green100 = Color(0xFFbbcbc2)
-val Green50 = Color(0xFFe9eeeb)
 
 // blue
-val Blue50 = Color(0xFFEAF1F8)
-val Blue100 = Color(0xFFBFD3E8)
-val Blue200 = Color(0xFF9FBDDD)
 val Blue300 = Color(0xFF749FCE)
-val Blue400 = Color(0xFF598DC5)
 val Blue500 = Color(0xFF2F70B6)
-val Blue600 = Color(0xFF2B66A6)
-val Blue700 = Color(0xFF215081)
-val Blue800 = Color(0xFF1A3E64)
-val Blue900 = Color(0xFF142F4C)
 
-// surface
+val Primary = Color(0xFF65558F)
+val BlueBackground = Color(0xFF003168)
+val Green_2_50 = Color(0xFFEAF8EA)
+val Green_2_700 = Color(0xFF218123)
+val SurfaceContainerHigh = Color(0xFFE7E8EE)
+val OnSurfaceVariant = Color(0xFF49454F)
+val OutlineVariant = Color(0xFFCAC4D0)
+
+// light
+val LightPrimary = Color(0xFF002048)
+val LightPrimaryContainer = Color(0xFF194178)
+val LightSecondaryContainer = Color(0xFFD9E4FF)
+val LightOnPrimary = Color.White
+val LightOnPrimaryContainer = Color(0xFFC5D7FF)
+val LightOnSecondaryContainer = Color(0xFF3D4960)
+val LightOutline = Color(0xFF747781)
+val LightOutlineVariant = Color(0xFFC3C6D1)
+val LightSurface = Color(0xFFFAF9FE)
+val LightSurfaceContainer = Color(0xFFEEEDF3)
+val LightSurfaceContainerLow = Color(0xFFF4F3F8)
+val LightSurfaceContainerHigh = Color(0xFFE8E7ED)
+val LightSurfaceContainerHighest = Color(0xFFE2E2E7)
+val LightOnSurface = Color(0xFF1A1C1F)
+val LightOnSurfaceVariant = Color(0xFF434750)
+val LightInversePrimary = Color(0xFFAAC7FF)
+val LightInverseSurface = Color(0xFF2F3034)
+val LightInverseOnSurface = Color(0xFFF1F0F5)
+
+// light high contrast
+val LightHighContrastSurface = LightSurface
+val LightHighContrastOnSurface = Color.Black
+val LightHighContrastOnSurfaceVariant = Color(0xFF20242C)
+
+// light medium contrast
+val LightMediumContrastPrimaryContainer = LightPrimaryContainer
+val LightMediumContrastOnPrimaryContainer = Color.White
+val LightMediumContrastOutlineVariant = Color(0xFF777A84)
+val LightMediumContrastSurface = LightSurface
+val LightMediumContrastSurfaceContainerLow = LightSurfaceContainerLow
+val LightMediumContrastOnSurface = LightOnSurface
+
+// dark
+val DarkPrimary = Color(0xFFAAC7FF)
+val DarkPrimaryContainer = Color(0xFF002958)
+val DarkSecondaryContainer = Color(0xFF313D54)
+val DarkOnPrimary = Color(0xFF002F65)
+val DarkOnPrimaryContainer = Color(0xFF95B6F5)
+val DarkOnSecondaryContainer = Color(0xFFC4D1ED)
+val DarkOutline = Color(0xFF8D909B)
+val DarkOutlineVariant = Color(0xFF434750)
+val DarkSurface = Color(0xFF121317)
+val DarkSurfaceContainer = Color(0xFF1E2023)
+val DarkSurfaceContainerLow = Color(0xFF1A1C1F)
+val DarkSurfaceContainerHigh = Color(0xFF282A2E)
+val DarkSurfaceContainerHighest = Color(0xFF333539)
+val DarkOnSurface = Color(0xFFE2E2E7)
+val DarkOnSurfaceVariant = Color(0xFFC3C6D1)
+val DarkInversePrimary = Color(0xFF3B5E97)
+val DarkInverseSurface = Color(0xFFE2E2E7)
+val DarkInverseOnSurface = Color(0xFF2F3034)
+
+// dark high contrast
+val DarkHighContrastSurface = DarkSurface
+val DarkHighContrastSurfaceContainer = DarkSurfaceContainer
+val DarkHighContrastSurfaceContainerLow = DarkSurfaceContainerLow
+val DarkHighContrastOnSurface = Color.White
+val DarkHighContrastOnSurfaceVariant = Color(0xFFFBFAFF)
+val DarkHighContrastOutlineVariant = Color(0xFFC8CAD5)
+val DarkHighContrastPrimaryContainer = Color(0xFFB1CBFF)
+val DarkHighContrastOnPrimaryContainer = Color.Black
+
+// general
 val White = Color.White
-val WhiteHover = Color(0xFFf3f5f7)
-val WhiteActive = Color(0xFFd9dee6)
-val Light = Color(0xFFf3f5f7)
-val LightHover = Color(0xFFd9dee6)
-val LightActive = Color(0xFFc4cbd8)
-val Normal = Color(0xFFe7eaef)
-val NormalHover = Color(0xFFcbd1dd)
-val NormalActive = Color(0xFFaeb9ca)
-val Dark = Color(0xFFdbe0e8)
-
+val Normal = Color(0xFFe7eaef) // TODO: Remove this color after design update
 val Transparent = Color(0x00FFFFFF)
 val Black = Color(0xFF000000)

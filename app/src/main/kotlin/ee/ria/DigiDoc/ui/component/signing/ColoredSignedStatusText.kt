@@ -11,8 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.ui.component.shared.TagBadge
-import ee.ria.DigiDoc.ui.theme.Green50
-import ee.ria.DigiDoc.ui.theme.Green800
+import ee.ria.DigiDoc.ui.theme.Green_2_50
+import ee.ria.DigiDoc.ui.theme.Green_2_700
 import ee.ria.DigiDoc.ui.theme.Red50
 import ee.ria.DigiDoc.ui.theme.Red800
 import ee.ria.DigiDoc.ui.theme.Yellow800
@@ -31,8 +31,8 @@ fun ColoredSignedStatusText(
             status == ValidatorInterface.Status.Warning ||
             status == ValidatorInterface.Status.NonQSCD
 
-    val tagBackgroundColor = if (isSignatureValidOrWarning) Green50 else Red50
-    val tagContentColor = if (isSignatureValidOrWarning) Green800 else Red800
+    val tagBackgroundColor = if (isSignatureValidOrWarning) Green_2_50 else Red50
+    val tagContentColor = if (isSignatureValidOrWarning) Green_2_700 else Red800
     val additionalTextColor = if (status == ValidatorInterface.Status.Valid) Red800 else Yellow800
 
     FlowRow(

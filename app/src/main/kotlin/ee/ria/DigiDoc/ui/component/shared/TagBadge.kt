@@ -15,16 +15,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
-import ee.ria.DigiDoc.ui.theme.Green50
-import ee.ria.DigiDoc.ui.theme.Green800
+import ee.ria.DigiDoc.ui.theme.Green_2_50
+import ee.ria.DigiDoc.ui.theme.Green_2_700
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
 fun TagBadge(
     text: String,
     modifier: Modifier = Modifier,
-    backgroundColor: Color = Green50,
-    contentColor: Color = Green800,
+    backgroundColor: Color = Green_2_50,
+    contentColor: Color = Green_2_700,
 ) {
     Box(
         modifier =

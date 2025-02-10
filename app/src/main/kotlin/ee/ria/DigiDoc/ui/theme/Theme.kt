@@ -19,29 +19,68 @@ import androidx.core.view.WindowCompat
 
 private val DarkColorScheme =
     darkColorScheme(
-        primary = Primary50,
-        secondary = Primary200,
+        primary = DarkPrimary,
+        onPrimary = DarkOnPrimary,
+        primaryContainer = DarkPrimaryContainer,
+        onPrimaryContainer = DarkOnPrimaryContainer,
+        secondary = DarkSecondaryContainer,
+        onSecondary = DarkOnSecondaryContainer,
+        secondaryContainer = DarkSecondaryContainer,
+        onSecondaryContainer = DarkOnSecondaryContainer,
+        // TODO: Change this color
         tertiary = Primary400,
+        // TODO: Add tertiary colors
+        // onTertiary = DarkOnTertiary,
+        // tertiaryContainer = DarkTertiaryContainer,
+        // onTertiaryContainer = DarkOnTertiaryContainer,
         background = Black,
-        inverseSurface = White,
+        onBackground = White,
+        outline = DarkOutline,
+        outlineVariant = DarkOutlineVariant,
+        surface = DarkSurface,
+        // surfaceVariant = DarkSurfaceVariant, // TODO: Add this color
+        onSurface = DarkOnSurface,
+        onSurfaceVariant = DarkOnSurfaceVariant,
+        surfaceContainer = DarkSurfaceContainer,
+        surfaceContainerLow = DarkSurfaceContainerLow,
+        surfaceContainerHigh = DarkSurfaceContainerHigh,
+        surfaceContainerHighest = DarkSurfaceContainerHighest,
+        inversePrimary = DarkInversePrimary,
+        inverseSurface = DarkInverseSurface,
+        inverseOnSurface = DarkInverseOnSurface,
     )
 
 private val LightColorScheme =
     lightColorScheme(
-        primary = Primary500,
-        secondary = Primary400,
-        tertiary = Primary200,
+        primary = LightPrimary,
+        onPrimary = LightOnPrimary,
+        primaryContainer = LightPrimaryContainer,
+        onPrimaryContainer = LightOnPrimaryContainer,
+        secondary = LightSecondaryContainer,
+        onSecondary = LightOnSecondaryContainer,
+        secondaryContainer = LightSecondaryContainer,
+        onSecondaryContainer = LightOnSecondaryContainer,
+        // TODO: Change this color
+        tertiary = Primary400,
+        // TODO: Add tertiary colors
+        // onTertiary = LightOnTertiary,
+        // tertiaryContainer = LightTertiaryContainer,
+        // onTertiaryContainer = LightOnTertiaryContainer,
         background = White,
-        inverseSurface = Black,
-    /* Other default colors to override
-    background = Color(0xFFFFFFFF),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-     */
+        onBackground = Black,
+        outline = LightOutline,
+        outlineVariant = LightOutlineVariant,
+        surface = LightSurface,
+        // surfaceVariant = LightSurfaceVariant, // TODO: Add this color
+        onSurface = LightOnSurface,
+        onSurfaceVariant = LightOnSurfaceVariant,
+        surfaceContainer = LightSurfaceContainer,
+        surfaceContainerLow = LightSurfaceContainerLow,
+        surfaceContainerHigh = LightSurfaceContainerHigh,
+        surfaceContainerHighest = LightSurfaceContainerHighest,
+        inversePrimary = LightInversePrimary,
+        inverseSurface = LightInverseSurface,
+        inverseOnSurface = LightInverseOnSurface,
     )
 
 @Composable
