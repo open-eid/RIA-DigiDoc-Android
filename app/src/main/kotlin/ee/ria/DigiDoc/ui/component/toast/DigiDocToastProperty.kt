@@ -3,9 +3,9 @@
 package ee.ria.DigiDoc.ui.component.toast
 
 import androidx.compose.ui.graphics.Color
-import ee.ria.DigiDoc.ui.theme.Blue50
-import ee.ria.DigiDoc.ui.theme.Blue500
-import ee.ria.DigiDoc.ui.theme.Blue900
+import ee.ria.DigiDoc.ui.theme.LightOnSecondaryContainer
+import ee.ria.DigiDoc.ui.theme.LightOutline
+import ee.ria.DigiDoc.ui.theme.LightSecondaryContainer
 
 interface DigiDocToastProperty {
     fun getBackgroundColor(): Color
@@ -16,9 +16,9 @@ interface DigiDocToastProperty {
 }
 
 class Info : DigiDocToastProperty {
-    override fun getBackgroundColor(): Color = Blue50
+    override fun getBackgroundColor(): Color = LightSecondaryContainer
 
-    override fun getBorderColor(): Color = Blue500
+    override fun getBorderColor(): Color = LightOutline
 
-    override fun getTextColor(): Color = Blue900
+    override fun getTextColor(): Color = LightOnSecondaryContainer
 }
