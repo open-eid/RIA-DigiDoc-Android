@@ -107,7 +107,15 @@ fun RIADigiDocTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
+            val color = colorScheme.primary.toArgb()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                window.decorView.setOnApplyWindowInsetsListener { view, windowInsets ->
+                    view.setBackgroundColor(color)
+                    windowInsets
+                }
+            } else {
+                window.statusBarColor = color
+            }
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
         }
     }

@@ -5,6 +5,8 @@ package ee.ria.DigiDoc.configuration.repository
 import android.content.Context
 import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
 import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
+import ee.ria.DigiDoc.network.proxy.ManualProxy
+import ee.ria.DigiDoc.network.proxy.ProxySetting
 import kotlinx.coroutines.flow.filterNotNull
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,8 +23,11 @@ class ConfigurationRepositoryImpl
         }
 
         @Throws(Exception::class)
-        override suspend fun getCentralConfiguration(): ConfigurationProvider? {
-            configurationLoader.loadCentralConfiguration(context)
+        override suspend fun getCentralConfiguration(
+            proxySetting: ProxySetting?,
+            manualProxy: ManualProxy,
+        ): ConfigurationProvider? {
+            configurationLoader.loadCentralConfiguration(context, proxySetting, manualProxy)
             return getConfiguration()
         }
 

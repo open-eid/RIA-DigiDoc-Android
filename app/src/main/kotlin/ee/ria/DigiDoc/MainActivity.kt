@@ -6,6 +6,10 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -57,7 +61,11 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super<ComponentActivity>.onCreate(savedInstanceState)
+
         installSplashScreen()
+
+        enableEdgeToEdge()
+
         if (rootChecker.isRooted()) {
             setContent {
                 RIADigiDocTheme {
@@ -112,8 +120,10 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
             librarySetup.setupLibraries(applicationContext, isLoggingEnabled)
         }
         setContent {
-            RIADigiDocTheme {
-                RIADigiDocAppScreen(externalFileUris)
+            Box(Modifier.safeDrawingPadding()) {
+                RIADigiDocTheme {
+                    RIADigiDocAppScreen(externalFileUris)
+                }
             }
         }
     }
