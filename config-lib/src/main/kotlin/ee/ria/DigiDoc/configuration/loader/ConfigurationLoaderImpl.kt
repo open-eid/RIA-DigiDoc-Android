@@ -19,6 +19,8 @@ import ee.ria.DigiDoc.configuration.utils.Constant.CACHE_CONFIG_FOLDER
 import ee.ria.DigiDoc.configuration.utils.Constant.DEFAULT_CONFIG_JSON
 import ee.ria.DigiDoc.configuration.utils.Constant.DEFAULT_CONFIG_PUB
 import ee.ria.DigiDoc.configuration.utils.Constant.DEFAULT_CONFIG_RSA
+import ee.ria.DigiDoc.network.proxy.ManualProxy
+import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,7 +46,11 @@ class ConfigurationLoaderImpl
         private val configurationFlow = MutableStateFlow<ConfigurationProvider?>(null)
 
         @Throws(Exception::class)
-        override suspend fun initConfiguration(context: Context) {
+        override suspend fun initConfiguration(
+            context: Context,
+            proxySetting: ProxySetting?,
+            manualProxy: ManualProxy,
+        ) {
             val cacheDir = File(context.cacheDir, CACHE_CONFIG_FOLDER)
             if (!cacheDir.exists()) {
                 cacheDir.mkdir()
@@ -58,7 +64,7 @@ class ConfigurationLoaderImpl
                     context,
                 )
             ) {
-                loadCentralConfiguration(context)
+                loadCentralConfiguration(context, proxySetting, manualProxy)
             }
         }
 
@@ -118,7 +124,7 @@ class ConfigurationLoaderImpl
                     configurationFlow.value = configurationProvider
                 } else {
                     val currentDate = Date()
-                    configurationProvider?.configurationUpdateDate = configurationProvider?.configurationUpdateDate
+                    configurationProvider?.configurationUpdateDate = configurationProvider.configurationUpdateDate
                         ?: configurationFlow.value?.configurationUpdateDate
                     configurationProvider?.configurationLastUpdateCheckDate = currentDate
                     configurationProperties.setConfigurationLastCheckDate(context, currentDate)
@@ -187,7 +193,11 @@ class ConfigurationLoaderImpl
         }
 
         @Throws(Exception::class)
-        override suspend fun loadCentralConfiguration(context: Context) {
+        override suspend fun loadCentralConfiguration(
+            context: Context,
+            proxySetting: ProxySetting?,
+            manualProxy: ManualProxy,
+        ) {
             val cachedSignature =
                 ConfigurationCache.getCachedFile(context, CACHED_CONFIG_RSA)
 
@@ -195,7 +205,12 @@ class ConfigurationLoaderImpl
 
             loadConfigurationProperty(context)
 
-            val centralSignature = Base64.decode(centralConfigurationRepository.fetchSignature().trim())
+            centralConfigurationRepository.setupProxy(proxySetting, manualProxy)
+
+            val centralSignature =
+                Base64.decode(
+                    centralConfigurationRepository.fetchSignature().trim(),
+                )
 
             if (!currentSignature.contentEquals(centralSignature)) {
                 val centralConfig = centralConfigurationRepository.fetchConfiguration()

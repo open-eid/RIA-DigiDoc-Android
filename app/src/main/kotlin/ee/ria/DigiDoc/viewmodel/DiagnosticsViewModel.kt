@@ -162,7 +162,11 @@ class DiagnosticsViewModel
 
         @Throws(Exception::class)
         suspend fun updateConfiguration(context: Context) {
-            configurationLoader.loadCentralConfiguration(context)
+            configurationLoader.loadCentralConfiguration(
+                context,
+                dataStore.getProxySetting(),
+                dataStore.getManualProxySettings(),
+            )
         }
 
         fun saveFile(

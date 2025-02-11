@@ -6,12 +6,19 @@ import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepository
 import ee.ria.DigiDoc.network.configuration.interceptors.NetworkInterceptor
 import ee.ria.DigiDoc.network.configuration.interceptors.UserAgentInterceptor
+import ee.ria.DigiDoc.network.proxy.ManualProxy
+import ee.ria.DigiDoc.network.proxy.ProxyConfig
+import ee.ria.DigiDoc.network.proxy.ProxySetting
+import ee.ria.DigiDoc.network.proxy.ProxyUtil
+import okhttp3.Authenticator
+import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
 import okhttp3.internal.tls.OkHostnameVerifier
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import java.net.Proxy
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,7 +30,16 @@ interface CentralConfigurationService {
 
     suspend fun fetchSignature(): String
 
-    fun constructHttpClient(defaultTimeout: Long): OkHttpClient
+    suspend fun setupProxy(
+        proxySetting: ProxySetting?,
+        manualProxy: ManualProxy,
+    )
+
+    fun constructHttpClient(
+        defaultTimeout: Long,
+        proxySetting: ProxySetting?,
+        manualProxySettings: ManualProxy,
+    ): OkHttpClient
 
     fun constructRetrofit(
         baseUrl: String,
@@ -39,12 +55,14 @@ class CentralConfigurationServiceImpl
         private val configurationProperty: ConfigurationProperty,
     ) : CentralConfigurationService {
         private val defaultTimeout = 5L
+        private var proxySetting: ProxySetting = ProxySetting.NO_PROXY
+        private var manualProxy: ManualProxy = ManualProxy("", 80, "", "")
 
         override suspend fun fetchConfiguration(): String {
             val retrofit =
                 constructRetrofit(
                     configurationProperty.centralConfigurationServiceUrl,
-                    constructHttpClient(defaultTimeout),
+                    constructHttpClient(defaultTimeout, proxySetting, manualProxy),
                 ).create(CentralConfigurationRepository::class.java)
 
             return retrofit.fetchConfiguration()
@@ -54,7 +72,7 @@ class CentralConfigurationServiceImpl
             val retrofit =
                 constructRetrofit(
                     configurationProperty.centralConfigurationServiceUrl,
-                    constructHttpClient(defaultTimeout),
+                    constructHttpClient(defaultTimeout, proxySetting, manualProxy),
                 ).create(CentralConfigurationRepository::class.java)
 
             return retrofit.fetchPublicKey()
@@ -65,14 +83,32 @@ class CentralConfigurationServiceImpl
             val retrofit =
                 constructRetrofit(
                     configurationProperty.centralConfigurationServiceUrl,
-                    constructHttpClient(defaultTimeout),
+                    constructHttpClient(defaultTimeout, proxySetting, manualProxy),
                 ).create(CentralConfigurationRepository::class.java)
 
             return retrofit.fetchSignature()
         }
 
-        override fun constructHttpClient(defaultTimeout: Long): OkHttpClient {
+        override suspend fun setupProxy(
+            proxySetting: ProxySetting?,
+            manualProxy: ManualProxy,
+        ) {
+            this.proxySetting = proxySetting ?: ProxySetting.NO_PROXY
+            this.manualProxy = manualProxy
+        }
+
+        override fun constructHttpClient(
+            defaultTimeout: Long,
+            proxySetting: ProxySetting?,
+            manualProxySettings: ManualProxy,
+        ): OkHttpClient {
+            val proxyConfig: ProxyConfig = ProxyUtil.getProxy(proxySetting, manualProxySettings)
+
             return OkHttpClient.Builder()
+                .proxy(if (proxySetting === ProxySetting.NO_PROXY) Proxy.NO_PROXY else proxyConfig.proxy())
+                .proxyAuthenticator(
+                    if (proxySetting === ProxySetting.NO_PROXY) Authenticator.NONE else proxyConfig.authenticator(),
+                )
                 .addInterceptor(
                     HttpLoggingInterceptor().apply {
                         level = HttpLoggingInterceptor.Level.BODY
@@ -82,6 +118,7 @@ class CentralConfigurationServiceImpl
                 .addInterceptor(NetworkInterceptor())
                 .hostnameVerifier(OkHostnameVerifier)
                 .connectTimeout(defaultTimeout, TimeUnit.SECONDS)
+                .connectionPool(ConnectionPool(0, 5, TimeUnit.SECONDS))
                 .readTimeout(defaultTimeout, TimeUnit.SECONDS)
                 .callTimeout(defaultTimeout, TimeUnit.SECONDS)
                 .writeTimeout(defaultTimeout, TimeUnit.SECONDS)

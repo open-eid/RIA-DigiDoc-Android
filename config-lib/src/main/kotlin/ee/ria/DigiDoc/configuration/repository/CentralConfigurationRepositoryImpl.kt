@@ -3,6 +3,8 @@
 package ee.ria.DigiDoc.configuration.repository
 
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationService
+import ee.ria.DigiDoc.network.proxy.ManualProxy
+import ee.ria.DigiDoc.network.proxy.ProxySetting
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,5 +25,12 @@ class CentralConfigurationRepositoryImpl
         @Throws(Exception::class)
         override suspend fun fetchSignature(): String {
             return configurationService.fetchSignature()
+        }
+
+        override suspend fun setupProxy(
+            proxySetting: ProxySetting?,
+            manualProxy: ManualProxy,
+        ) {
+            return configurationService.setupProxy(proxySetting, manualProxy)
         }
     }
