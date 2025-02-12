@@ -16,6 +16,7 @@ import ee.ria.DigiDoc.fragment.DiagnosticsFragment
 import ee.ria.DigiDoc.fragment.FileOpeningFragment
 import ee.ria.DigiDoc.fragment.HomeFragment
 import ee.ria.DigiDoc.fragment.InfoFragment
+import ee.ria.DigiDoc.fragment.InitFragment
 import ee.ria.DigiDoc.fragment.MenuFragment
 import ee.ria.DigiDoc.fragment.RecentDocumentsFragment
 import ee.ria.DigiDoc.fragment.RootFragment
@@ -44,10 +45,21 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
 
     sharedContainerViewModel.setExternalFileUris(externalFileUris)
 
+    var startDestination = Route.Init.route
+    if (sharedSettingsViewModel.dataStore.getLocale() != null) {
+        startDestination = Route.Home.route
+    }
+
     NavHost(
         navController = navController,
-        startDestination = Route.Home.route,
+        startDestination = startDestination,
     ) {
+        composable(route = Route.Init.route) {
+            InitFragment(
+                navController = navController,
+                externalFileUris = sharedContainerViewModel.externalFileUris.collectAsState().value,
+            )
+        }
         composable(route = Route.Home.route) {
             HomeFragment(
                 navController = navController,

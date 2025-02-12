@@ -12,6 +12,7 @@ object Constant {
 
     // ee.ria.DigiDoc.utils.Route
     object Routes {
+        const val INIT_SCREEN = "init_route"
         const val HOME_SCREEN = "home_route"
         const val MENU_SCREEN = "menu_route"
         const val SIGNATURE_SCREEN = "signature_route"

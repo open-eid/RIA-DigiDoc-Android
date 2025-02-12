@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="digidoc">DIGIDOC</string>
+    <string name="ria">Rɪɪɢɪ Iɴꜰᴏꜱüꜱᴛᴇᴇᴍɪ Aᴍᴇᴛ</string>
+
     <string name="mobile_id_country_code_and_phone_number_placeholder">372XXXXXXXX</string>
     <string name="signature_id_card_pin1">PIN1</string>
     <string name="signature_id_card_pin2">PIN2</string>
     <string name="main_home_menu_locale_et">Eesti</string>
     <string name="main_home_menu_locale_ru">Русский</string>
     <string name="main_home_menu_locale_en">English</string>
+
+    <string name="init_lang_locale_et">Eesti keeles</string>
+    <string name="init_lang_locale_ru">Русский язык</string>
+    <string name="init_lang_locale_en">In English</string>
+
     <string name="last_invisible_element_name">Invisible element</string>
 
     <!-- Main About -->

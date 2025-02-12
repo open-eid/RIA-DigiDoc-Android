@@ -11,6 +11,7 @@ import ee.ria.DigiDoc.utils.Constant.Routes.FILE_CHOOSING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.HOME_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ID_CARD_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.INFO_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.INIT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MENU_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MOBILE_ID_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.NFC_SCREEN
@@ -26,6 +27,8 @@ import ee.ria.DigiDoc.utils.Constant.Routes.SIGNING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SMART_ID_SCREEN
 
 sealed class Route(val route: String) {
+    data object Init : Route(INIT_SCREEN)
+
     data object Home : Route(HOME_SCREEN)
 
     data object Menu : Route(MENU_SCREEN)

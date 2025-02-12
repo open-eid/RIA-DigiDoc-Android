@@ -26,6 +26,7 @@ val Blue300 = Color(0xFF749FCE)
 val Blue500 = Color(0xFF2F70B6)
 
 val Primary = Color(0xFF65558F)
+val OnPrimary = Color.White
 val BlueBackground = Color(0xFF003168)
 val Green_2_50 = Color(0xFFEAF8EA)
 val Green_2_700 = Color(0xFF218123)
