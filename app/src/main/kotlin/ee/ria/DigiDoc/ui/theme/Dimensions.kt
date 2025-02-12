@@ -34,4 +34,11 @@ object Dimensions {
     // Strokes
     val noBorderStroke = 0.dp
     val border = 2.dp
+
+    val XSPadding = 8.dp
+    val SPadding = 16.dp
+    val MPadding = 24.dp
+    val LPadding = 32.dp
+    val XLPadding = 48.dp
+    val XXLPadding = 64.dp
 }

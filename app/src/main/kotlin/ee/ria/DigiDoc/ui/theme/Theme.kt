@@ -3,7 +3,6 @@
 package ee.ria.DigiDoc.ui.theme
 
 import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -92,7 +91,7 @@ fun RIADigiDocTheme(
 ) {
     val colorScheme =
         when {
-            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            dynamicColor -> {
                 val context = LocalContext.current
                 if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
             }
@@ -111,7 +110,7 @@ fun RIADigiDocTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = getTypography(LocalContext.current),
+        typography = getTypography(),
         content = content,
     )
 }
