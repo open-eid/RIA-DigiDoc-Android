@@ -30,7 +30,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewMediumPadding
@@ -84,7 +84,7 @@ fun ExpandableButton(
                         tint = MaterialTheme.colorScheme.secondary,
                         modifier =
                             modifier
-                                .size(iconSize)
+                                .size(iconSizeXXS)
                                 .notAccessible(),
                     )
                 }

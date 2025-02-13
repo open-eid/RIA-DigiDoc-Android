@@ -29,7 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeLarge
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
@@ -76,14 +76,14 @@ fun SettingsItem(
                 settingsButtonIcon,
                 settingsButtonArrow,
             ) = createRefs()
-            var endPadding = iconSizeLarge
+            var endPadding = iconSizeXS
             if (imageVector != null) {
                 Icon(
                     imageVector = imageVector,
                     contentDescription = null,
                     modifier =
                         modifier
-                            .size(iconSizeLarge)
+                            .size(iconSizeXS)
                             .padding(horizontal = screenViewLargePadding)
                             .wrapContentHeight(align = Alignment.CenterVertically)
                             .constrainAs(settingsButtonIcon) {
@@ -92,7 +92,7 @@ fun SettingsItem(
                                 bottom.linkTo(parent.bottom)
                             },
                 )
-                endPadding = iconSizeLarge * 2
+                endPadding = iconSizeXS * 2
             }
 
             Text(
@@ -120,7 +120,7 @@ fun SettingsItem(
                 modifier =
                     modifier
                         .padding(start = screenViewLargePadding)
-                        .size(iconSizeLarge)
+                        .size(iconSizeXS)
                         .wrapContentHeight(align = Alignment.CenterVertically)
                         .constrainAs(settingsButtonArrow) {
                             end.linkTo(parent.end)

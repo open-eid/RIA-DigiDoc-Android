@@ -327,7 +327,7 @@ fun SettingsSigningScreen(
             TopBar(
                 modifier = modifier,
                 title = R.string.main_settings_signing,
-                onBackButtonClick = {
+                onLeftButtonClick = {
                     navController.navigateUp()
                 },
             )

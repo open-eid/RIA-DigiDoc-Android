@@ -26,7 +26,6 @@ import ee.ria.DigiDoc.utils.Route
 @Composable
 fun HomeFragment(
     navController: NavHostController,
-    navBarNavController: NavHostController,
     modifier: Modifier = Modifier,
     externalFileUris: List<Uri>,
 ) {
@@ -54,20 +53,10 @@ fun HomeFragment(
     ) {
         HomeScreen(
             modifier = modifier,
-            navController = navBarNavController,
-            onClickToMenuScreen = {
+            navController = navController,
+            onClickMenu = {
                 navController.navigate(
                     Route.Menu.route,
-                )
-            },
-            onClickToFileChoosingScreen = {
-                navController.navigate(
-                    Route.FileChoosing.route,
-                )
-            },
-            onClickToRecentDocumentsScreen = {
-                navController.navigate(
-                    Route.RecentDocuments.route,
                 )
             },
         )
@@ -83,7 +72,6 @@ fun HomeFragmentPreview() {
     RIADigiDocTheme {
         HomeFragment(
             navController = navController,
-            navBarNavController = navBarNavController,
             externalFileUris = listOf(),
         )
     }

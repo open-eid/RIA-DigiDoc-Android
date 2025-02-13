@@ -167,7 +167,7 @@ fun RecentDocumentsScreen(
             TopBar(
                 modifier = modifier,
                 title = R.string.recent_documents_title,
-                onBackButtonClick = {
+                onLeftButtonClick = {
                     navController.navigateUp()
                 },
             )

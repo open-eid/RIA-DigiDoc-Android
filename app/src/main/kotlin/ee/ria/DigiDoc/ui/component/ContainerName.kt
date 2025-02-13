@@ -28,7 +28,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.MiddleEllipsizeMultilineText
 import ee.ria.DigiDoc.ui.theme.Black
 import ee.ria.DigiDoc.ui.theme.Blue500
-import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 
@@ -90,7 +90,7 @@ fun ContainerName(
                 },
                 modifier =
                     modifier
-                        .size(iconSize)
+                        .size(iconSizeXXS)
                         .testTag("signatureUpdateListNameSaveButton"),
             )
         } else {
@@ -105,7 +105,7 @@ fun ContainerName(
                 },
                 modifier =
                     modifier
-                        .size(iconSize)
+                        .size(iconSizeXXS)
                         .testTag("signatureUpdateListNameUpdateButton"),
             )
         }

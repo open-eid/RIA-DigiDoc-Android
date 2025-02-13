@@ -69,7 +69,7 @@ fun RolesDetailsView(
                 TopBar(
                     modifier = modifier,
                     title = R.string.signature_update_signature_role_and_address_title_accessibility,
-                    onBackButtonClick = {
+                    onLeftButtonClick = {
                         handleBackButtonClick(navController, sharedSignatureViewModel)
                     },
                 )

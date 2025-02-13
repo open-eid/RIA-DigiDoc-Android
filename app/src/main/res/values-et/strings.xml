@@ -1,5 +1,16 @@
 <resources>
     <string name="app_name">RIA DigiDoc</string>
+    <string name="main_home_version">versioon %1$s</string>
+
+    <!-- Home Screen actions -->
+    <string name="main_home_open_document_title">Ava dokument</string>
+    <string name="main_home_open_document_description">Seejärel vali soovikorral tegevus</string>
+    <string name="main_home_signature_title">Allkiri</string>
+    <string name="main_home_signature_description">Lisa failid ja allkirjasta</string>
+    <string name="main_home_crypto_title">Krüpto</string>
+    <string name="main_home_crypto_description">Krüpteeri ja dekrüpteeri</string>
+    <string name="main_home_my_eid_title">Minu eID</string>
+    <string name="main_home_my_eid_description">Näe ja muuda oma eID andmeid</string>
 
     <string name="back">Tagasi</string>
 

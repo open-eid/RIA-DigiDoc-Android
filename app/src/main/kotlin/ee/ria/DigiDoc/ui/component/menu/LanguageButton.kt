@@ -36,7 +36,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.BlueBackground
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.OnPrimary
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
@@ -55,7 +55,7 @@ fun LanguageButton(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(vertical = SPadding)
+                .padding(vertical = XSPadding)
                 .wrapContentHeight()
                 .semantics {
                     testTagsAsResourceId = true
@@ -82,8 +82,8 @@ fun LanguageButton(
                     .align(Alignment.CenterVertically),
         ) {
             val (
-                settingsButtonText,
-                settingsButtonArrow,
+                languageButtonText,
+                languageButtonArrow,
             ) = createRefs()
 
             Text(
@@ -95,9 +95,8 @@ fun LanguageButton(
                         .semantics {
                             this.contentDescription = contentDescription
                         }
-                        .constrainAs(settingsButtonText) {
+                        .constrainAs(languageButtonText) {
                             start.linkTo(parent.start)
-                            end.linkTo(settingsButtonArrow.start)
                             top.linkTo(parent.top)
                             bottom.linkTo(parent.bottom)
                         },
@@ -110,10 +109,10 @@ fun LanguageButton(
                 modifier =
                     modifier
                         .padding(XSPadding)
-                        .size(iconSize)
+                        .size(iconSizeXXS)
                         .wrapContentHeight(align = Alignment.CenterVertically)
-                        .constrainAs(settingsButtonArrow) {
-                            start.linkTo(settingsButtonText.end)
+                        .constrainAs(languageButtonArrow) {
+                            start.linkTo(languageButtonText.end)
                             top.linkTo(parent.top)
                             bottom.linkTo(parent.bottom)
                         },
@@ -128,7 +127,9 @@ fun LanguageButton(
 fun SettingsItemPreview() {
     RIADigiDocTheme {
         Surface(color = BlueBackground) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
                 LanguageButton(
                     label = R.string.main_home_menu_locale_et,
                     contentDescription =

@@ -121,7 +121,7 @@ fun SignerDetailsView(
                 TopBar(
                     modifier = modifier,
                     title = R.string.signature_details_title,
-                    onBackButtonClick = {
+                    onLeftButtonClick = {
                         handleBackButtonClick(navController, sharedSignatureViewModel)
                     },
                 )

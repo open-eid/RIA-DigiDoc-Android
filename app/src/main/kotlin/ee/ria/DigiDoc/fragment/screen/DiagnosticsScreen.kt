@@ -136,7 +136,7 @@ fun DiagnosticsScreen(
             TopBar(
                 modifier = modifier,
                 title = R.string.main_diagnostics_title,
-                onBackButtonClick = {
+                onLeftButtonClick = {
                     navController.navigateUp()
                 },
             )

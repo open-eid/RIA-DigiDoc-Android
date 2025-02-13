@@ -22,7 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeLarge
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.extensions.notAccessible
@@ -53,7 +53,7 @@ fun SettingsSwitchItem(
                 modifier
                     .notAccessible()
                     .wrapContentSize()
-                    .padding(start = screenViewLargePadding, end = iconSizeLarge)
+                    .padding(start = screenViewLargePadding, end = iconSizeXS)
                     .padding(end = screenViewLargePadding)
                     .padding(end = screenViewLargePadding)
                     .constrainAs(settingsRightsItemText) {
@@ -71,7 +71,7 @@ fun SettingsSwitchItem(
                 modifier
                     .semantics { this.contentDescription = contentDescription }
                     .padding(end = screenViewLargePadding)
-                    .size(iconSizeLarge)
+                    .size(iconSizeXS)
                     .constrainAs(settingsRightsItemCheck) {
                         end.linkTo(parent.end)
                         top.linkTo(parent.top)

@@ -8,6 +8,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.MaterialTheme
@@ -28,8 +29,9 @@ import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.menu.LanguageChoiceButtonGroup
 import ee.ria.DigiDoc.ui.theme.Dimensions.LPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XLPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.XXLPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXL
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
@@ -66,6 +68,7 @@ fun InitScreen(
                 contentDescription = stringResource(id = R.string.app_name),
                 modifier =
                     modifier
+                        .height(iconSizeXXL)
                         .padding(
                             start = XLPadding,
                             top = LPadding,
@@ -74,11 +77,11 @@ fun InitScreen(
                         ),
             )
             Text(
-                text = stringResource(id = R.string.digidoc),
+                text = stringResource(id = R.string.digidoc_all_caps),
                 style = MaterialTheme.typography.displayLarge,
                 modifier =
                     modifier
-                        .padding(bottom = XXLPadding)
+                        .padding(bottom = LPadding)
                         .fillMaxWidth()
                         .wrapContentHeight(),
             )
@@ -97,7 +100,7 @@ fun InitScreen(
             style = MaterialTheme.typography.displaySmall,
             modifier =
                 modifier
-                    .padding(bottom = XXLPadding)
+                    .padding(bottom = MPadding)
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)
                     .wrapContentHeight(),

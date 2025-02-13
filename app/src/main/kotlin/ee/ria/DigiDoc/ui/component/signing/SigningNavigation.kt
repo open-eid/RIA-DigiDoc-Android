@@ -439,7 +439,7 @@ fun SigningNavigation(
                     } else {
                         R.string.signing_title_new_container
                     },
-                onBackButtonClick = {
+                onLeftButtonClick = {
                     handleBackButtonClick(
                         navController,
                         signingViewModel,

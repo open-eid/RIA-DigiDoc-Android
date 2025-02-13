@@ -29,7 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.MiddleEllipsizeMultilineText
-import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewSmallPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
@@ -66,7 +66,7 @@ fun Document(
             modifier =
                 modifier
                     .wrapContentSize()
-                    .padding(start = screenViewLargePadding, end = iconSize)
+                    .padding(start = screenViewLargePadding, end = iconSizeXXS)
                     .padding(end = screenViewLargePadding)
                     .padding(end = screenViewLargePadding)
                     .constrainAs(documentText) {
@@ -84,7 +84,7 @@ fun Document(
             modifier =
                 modifier
                     .padding(end = screenViewLargePadding)
-                    .size(iconSize)
+                    .size(iconSizeXXS)
                     .constrainAs(removeIcon) {
                         end.linkTo(parent.end)
                         top.linkTo(parent.top)

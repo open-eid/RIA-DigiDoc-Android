@@ -33,7 +33,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.ui.theme.Blue500
-import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Red500
@@ -73,7 +73,7 @@ fun SignatureComponent(
             contentDescription = null,
             modifier =
                 modifier
-                    .size(iconSize)
+                    .size(iconSizeXXS)
                     .focusable(false)
                     .testTag("signatureUpdateListSignatureType"),
         )
@@ -151,7 +151,7 @@ fun SignatureComponent(
                 },
                 modifier =
                     modifier
-                        .size(iconSize)
+                        .size(iconSizeXXS)
                         .testTag("signatureUpdateListSignatureRoleDetailsButton"),
             )
         }
@@ -172,7 +172,7 @@ fun SignatureComponent(
                 },
                 modifier =
                     modifier
-                        .size(iconSize)
+                        .size(iconSizeXXS)
                         .testTag("signatureUpdateListSignatureRemoveButton"),
             )
         }
