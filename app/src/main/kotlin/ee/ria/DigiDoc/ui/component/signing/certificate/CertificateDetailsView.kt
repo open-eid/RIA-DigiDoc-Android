@@ -81,7 +81,7 @@ fun CertificateDetailsView(
                 TopBar(
                     modifier = modifier,
                     title = R.string.certificate_details_title,
-                    onBackButtonClick = {
+                    onLeftButtonClick = {
                         handleBackButtonClick(navController, sharedCertificateViewModel)
                     },
                 )

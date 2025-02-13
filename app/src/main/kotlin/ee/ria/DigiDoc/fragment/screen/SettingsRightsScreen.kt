@@ -61,7 +61,7 @@ fun SettingsRightsScreen(
             TopBar(
                 modifier = modifier,
                 title = R.string.main_settings_rights,
-                onBackButtonClick = {
+                onLeftButtonClick = {
                     navController.navigateUp()
                 },
             )

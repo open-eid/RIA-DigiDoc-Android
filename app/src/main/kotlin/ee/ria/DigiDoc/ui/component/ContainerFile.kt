@@ -34,7 +34,7 @@ import ee.ria.DigiDoc.ui.component.shared.MiddleEllipsizeMultilineText
 import ee.ria.DigiDoc.ui.theme.Black
 import ee.ria.DigiDoc.ui.theme.Blue500
 import ee.ria.DigiDoc.ui.theme.Dimensions.dividerHeight
-import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Red500
@@ -92,7 +92,7 @@ fun ContainerFile(
                     onClick = onClickRemove,
                     modifier =
                         modifier
-                            .size(iconSize)
+                            .size(iconSizeXXS)
                             .testTag("signatureUpdateListDocumentRemoveButton"),
                     content = {
                         Icon(
@@ -114,7 +114,7 @@ fun ContainerFile(
                 onClick = onClickSave,
                 modifier =
                     modifier
-                        .size(iconSize)
+                        .size(iconSizeXXS)
                         .testTag("signatureUpdateListDocumentSaveButton"),
                 content = {
                     Icon(

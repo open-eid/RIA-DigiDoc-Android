@@ -61,7 +61,7 @@ fun InfoScreen(
             TopBar(
                 modifier = modifier,
                 title = R.string.main_about_title,
-                onBackButtonClick = {
+                onLeftButtonClick = {
                     navController.navigateUp()
                 },
             )

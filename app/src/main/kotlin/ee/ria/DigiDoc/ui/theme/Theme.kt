@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.ui.theme
 
 import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -15,6 +16,9 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import ee.ria.DigiDoc.ui.theme.Dimensions.buttonCornerRadius
+
+val buttonRoundedCornerShape = RoundedCornerShape(buttonCornerRadius)
 
 private val DarkColorScheme =
     darkColorScheme(

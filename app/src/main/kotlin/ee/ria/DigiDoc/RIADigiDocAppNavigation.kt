@@ -63,7 +63,6 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
         composable(route = Route.Home.route) {
             HomeFragment(
                 navController = navController,
-                navBarNavController = navBarNavController,
                 externalFileUris = sharedContainerViewModel.externalFileUris.collectAsState().value,
             )
         }

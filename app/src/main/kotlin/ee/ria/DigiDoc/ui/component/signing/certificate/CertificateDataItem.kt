@@ -29,7 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Black
-import ee.ria.DigiDoc.ui.theme.Dimensions.iconSize
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
@@ -135,7 +135,7 @@ fun CertificateDataItem(
                     modifier =
                         modifier
                             .padding(start = screenViewLargePadding)
-                            .size(iconSize)
+                            .size(iconSizeXXS)
                             .focusable(false)
                             .constrainAs(dataItemIcon) {
                                 end.linkTo(parent.end)

@@ -11,8 +11,11 @@ object Dimensions {
     val invisibleElementHeight = 1.dp
 
     // Sizes
-    val iconSize = 24.dp
-    val iconSizeLarge = 48.dp
+    val iconSizeXXS = 24.dp
+    val iconSizeXS = 48.dp
+    val iconSizeM = 72.dp
+    val iconSizeXXL = 144.dp
+
     val loadingBarSize = 64.dp
     val buttonCornerShapeSize = 4.dp
     const val MAX_DIALOG_WIDTH = 0.98f
@@ -34,6 +37,9 @@ object Dimensions {
     // Strokes
     val noBorderStroke = 0.dp
     val border = 2.dp
+
+    val buttonShadowElevation = 1.dp
+    val buttonCornerRadius = 12.dp
 
     val XSPadding = 8.dp
     val SPadding = 16.dp

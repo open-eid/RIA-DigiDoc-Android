@@ -55,7 +55,7 @@ fun AccessibilityScreen(
             TopBar(
                 modifier = modifier,
                 title = R.string.main_accessibility_title,
-                onBackButtonClick = {
+                onLeftButtonClick = {
                     navController.navigateUp()
                 },
             )

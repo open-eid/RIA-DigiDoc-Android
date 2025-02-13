@@ -58,7 +58,7 @@ fun SettingsScreen(
             TopBar(
                 modifier = modifier,
                 title = R.string.main_settings_title,
-                onBackButtonClick = {
+                onLeftButtonClick = {
                     navController.navigateUp()
                 },
             )
