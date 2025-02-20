@@ -54,11 +54,6 @@ fun HomeFragment(
         HomeScreen(
             modifier = modifier,
             navController = navController,
-            onClickMenu = {
-                navController.navigate(
-                    Route.Menu.route,
-                )
-            },
         )
     }
 }
@@ -68,7 +63,6 @@ fun HomeFragment(
 @Composable
 fun HomeFragmentPreview() {
     val navController = rememberNavController()
-    val navBarNavController = rememberNavController()
     RIADigiDocTheme {
         HomeFragment(
             navController = navController,

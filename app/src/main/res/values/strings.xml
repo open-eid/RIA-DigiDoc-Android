@@ -86,11 +86,24 @@
     <string name="main_home_menu_help">HELP</string>
     <string name="main_home_menu_help_url_short">link www.id.ee</string>
     <string name="main_home_menu_help_url">https://www.id.ee/en/id-help/</string>
-    <string name="main_home_menu_accessibility">ACCESSIBILITY</string>
+    <string name="main_home_menu_accessibility">Accessibility</string>
     <string name="main_home_recent">Recent documents</string>
     <string name="main_home_menu_settings">SETTINGS</string>
-    <string name="main_home_menu_about">INFO</string>
-    <string name="main_home_menu_diagnostics">DIAGNOSTICS</string>
+    <string name="main_home_menu_about">About DigiDoc app</string>
+    <string name="main_home_menu_diagnostics">Accessibility</string>
+
+    <string name="main_menu_add_file">Add file</string>
+    <string name="main_menu_recent_documents">Recent documents</string>
+    <string name="main_menu_open_file">Open file</string>
+    <string name="main_menu_save_file">Save file</string>
+    <string name="main_menu_remove_file">Remove file</string>
+    <string name="main_menu_change_name">Change container name</string>
+    <string name="main_menu_save_container">Save container</string>
+    <string name="main_menu_encrypt_container">Encrypt container</string>
+
+    <string name="main_settings_menu_language">Language selection</string>
+    <string name="main_settings_menu_appearance">Appearance</string>
+    <string name="main_settings_menu_signing">Signing settings</string>
 
     <!-- Signing -->
     <string name="signing_title_new_container">Signing</string>
@@ -318,10 +331,23 @@
     <!-- Menu -->
     <string name="main_home_menu_help_accessibility">Help</string>
     <string name="main_home_menu_settings_accessibility">Settings</string>
-    <string name="main_home_menu_about_accessibility">Info</string>
+    <string name="main_home_menu_about_accessibility">About DigiDoc app</string>
     <string name="main_home_menu_diagnostics_accessibility">Diagnostics</string>
     <string name="main_home_menu_recent_accessibility">Recent documents</string>
     <string name="main_home_menu_accessibility_accessibility">Accessibility</string>
+
+    <string name="main_menu_add_file_accessibility">Add file</string>
+    <string name="main_menu_recent_documents_accessibility">Recent documents</string>
+    <string name="main_menu_open_file_accessibility">Open file</string>
+    <string name="main_menu_save_file_accessibility">Save file</string>
+    <string name="main_menu_remove_file_accessibility">Remove file</string>
+    <string name="main_menu_change_name_accessibility">Change container name</string>
+    <string name="main_menu_save_container_accessibility">Save container</string>
+    <string name="main_menu_encrypt_container_accessibility">Encrypt container</string>
+
+    <string name="main_settings_menu_language_accessibility">Language selection</string>
+    <string name="main_settings_menu_appearance_accessibility">Appearance</string>
+    <string name="main_settings_menu_signing_accessibility">Signing settings</string>
 
     <string name="configuration_is_already_up_to_date">configuration is already up-to-date</string>
     <string name="configuration_updated">Configuration updated</string>
