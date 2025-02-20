@@ -85,11 +85,24 @@
     <string name="main_home_menu_help">ПОМОЩЬ</string>
     <string name="main_home_menu_help_url_short">линк www.id.ee</string>
     <string name="main_home_menu_help_url">https://www.id.ee/ru/id-pomoshh/</string>
-    <string name="main_home_menu_accessibility">ДОСТУПНОСТЬ</string>
+    <string name="main_home_menu_accessibility">Доступность</string>
     <string name="main_home_recent">Недавние документы</string>
     <string name="main_home_menu_settings">НАСТРОЙКИ</string>
-    <string name="main_home_menu_about">ИНФОРМАЦИЯ</string>
-    <string name="main_home_menu_diagnostics">ДИАГНОСТИКА</string>
+    <string name="main_home_menu_about">О приложении DigiDoc</string>
+    <string name="main_home_menu_diagnostics">Диагностика</string>
+
+    <string name="main_menu_add_file">Добавить файл</string>
+    <string name="main_menu_recent_documents">Недавние документы</string>
+    <string name="main_menu_open_file">Открыть файл</string>
+    <string name="main_menu_save_file">Сохранить файл</string>
+    <string name="main_menu_remove_file">Удалить файл</string>
+    <string name="main_menu_change_name">Изменить имя контейнера</string>
+    <string name="main_menu_save_container">Сохранить контейнер</string>
+    <string name="main_menu_encrypt_container">Зашифривать контейнер</string>
+
+    <string name="main_settings_menu_language">Выбор языка</string>
+    <string name="main_settings_menu_appearance">Внешний вид</string>
+    <string name="main_settings_menu_signing">Настройки подписания</string>
 
     <!-- Signing -->
     <string name="signing_title_new_container">Подписание</string>
@@ -317,9 +330,22 @@
     <string name="main_home_menu_help_accessibility">Помощь</string>
     <string name="main_home_menu_recent_accessibility">Недавние документы</string>
     <string name="main_home_menu_settings_accessibility">Настройки</string>
-    <string name="main_home_menu_about_accessibility">Информация</string>
+    <string name="main_home_menu_about_accessibility">О приложении DigiDoc</string>
     <string name="main_home_menu_diagnostics_accessibility">Диагностика</string>
     <string name="main_home_menu_accessibility_accessibility">Доступность</string>
+
+    <string name="main_menu_add_file_accessibility">Добавить файл</string>
+    <string name="main_menu_recent_documents_accessibility">Недавние документы</string>
+    <string name="main_menu_open_file_accessibility">Открыть файл</string>
+    <string name="main_menu_save_file_accessibility">Сохранить файл</string>
+    <string name="main_menu_remove_file_accessibility">Удалить файл</string>
+    <string name="main_menu_change_name_accessibility">Изменить имя контейнера</string>
+    <string name="main_menu_save_container_accessibility">Сохранить контейнер</string>
+    <string name="main_menu_encrypt_container_accessibility">Зашифривать контейнер</string>
+
+    <string name="main_settings_menu_language_accessibility">Выбор языка</string>
+    <string name="main_settings_menu_appearance_accessibility">Внешний вид</string>
+    <string name="main_settings_menu_signing_accessibility">Настройки подписания</string>
 
     <string name="configuration_is_already_up_to_date">У вас последняя версия конфигурации</string>
     <string name="configuration_updated">Конфигурация удачно обновлена</string>

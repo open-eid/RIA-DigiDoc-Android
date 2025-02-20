@@ -1,0 +1,98 @@
+@file:Suppress("PackageName", "FunctionName")
+
+package ee.ria.DigiDoc.ui.component.menu
+
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.navigation.NavHostController
+import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
+import ee.ria.DigiDoc.utils.Route
+
+@Suppress("NAME_SHADOWING")
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsMenuBottomSheet(
+    modifier: Modifier = Modifier,
+    navController: NavHostController,
+    isBottomSheetVisible: MutableState<Boolean> = mutableStateOf(false),
+    @StringRes firstButtonStringRes: Int = R.string.main_settings_menu_language,
+    @StringRes secondButtonStringRes: Int = R.string.main_settings_menu_appearance,
+    @StringRes thirdButtonStringRes: Int = R.string.main_settings_menu_signing,
+    @StringRes firstButtonStringResContentDescription: Int = R.string.main_settings_menu_language_accessibility,
+    @StringRes secondButtonStringResContentDescription: Int = R.string.main_settings_menu_appearance_accessibility,
+    @StringRes thirdButtonStringResContentDescription: Int = R.string.main_settings_menu_signing_accessibility,
+    @DrawableRes firstButtonIcon: Int = R.drawable.ic_m3_chat_bubble_48dp_wght400,
+    @DrawableRes secondButtonIcon: Int = R.drawable.ic_m3_invert_colors_48dp_wght400,
+    @DrawableRes thirdButtonIcon: Int = R.drawable.ic_m3_stylus_note_48dp_wght400,
+    firstButtonClick: (() -> Unit)? = null,
+    secondButtonClick: (() -> Unit)? = null,
+    thirdButtonClick: (() -> Unit)? = null,
+    testTag: String = "menuSettingsBottomSheet",
+    firstButtonTestTag: String = "menuSettingsLanguageButton",
+    secondButtonTestTag: String = "menuSettingsAppearanceButton",
+    thirdButtonTestTag: String = "menuSettingsSigningButton",
+) {
+    if (isBottomSheetVisible.value) {
+        val firstButtonClick = firstButtonClick ?: {}
+        val secondButtonClick = secondButtonClick ?: {}
+        val thirdButtonClick =
+            thirdButtonClick ?: {
+                navController.navigate(
+                    Route.Settings.route,
+                )
+            }
+        ModalBottomSheet(
+            modifier = modifier,
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            onDismissRequest = { isBottomSheetVisible.value = false },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        ) {
+            Column(
+                modifier =
+                    Modifier
+                        .semantics {
+                            testTagsAsResourceId = true
+                        }
+                        .testTag(testTag)
+                        .fillMaxWidth()
+                        .padding(SPadding),
+            ) {
+                ThreeButtonMenu(
+                    modifier = modifier,
+                    firstButtonStringRes = firstButtonStringRes,
+                    secondButtonStringRes = secondButtonStringRes,
+                    thirdButtonStringRes = thirdButtonStringRes,
+                    firstButtonStringResContentDescription = firstButtonStringResContentDescription,
+                    secondButtonStringResContentDescription = secondButtonStringResContentDescription,
+                    thirdButtonStringResContentDescription = thirdButtonStringResContentDescription,
+                    firstButtonIcon = firstButtonIcon,
+                    secondButtonIcon = secondButtonIcon,
+                    thirdButtonIcon = thirdButtonIcon,
+                    firstButtonClick = firstButtonClick,
+                    secondButtonClick = secondButtonClick,
+                    thirdButtonClick = thirdButtonClick,
+                    firstButtonTestTag = firstButtonTestTag,
+                    secondButtonTestTag = secondButtonTestTag,
+                    thirdButtonTestTag = thirdButtonTestTag,
+                )
+            }
+        }
+    }
+}

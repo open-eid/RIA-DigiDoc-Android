@@ -27,17 +27,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
@@ -52,6 +51,9 @@ import ee.ria.DigiDoc.BuildConfig
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.home.HomeViewActionButton
 import ee.ria.DigiDoc.ui.component.main.CrashDialog
+import ee.ria.DigiDoc.ui.component.menu.MainMenuBottomSheet
+import ee.ria.DigiDoc.ui.component.menu.OpenMenuBottomSheet
+import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
@@ -69,7 +71,6 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    onClickMenu: () -> Unit = {},
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -77,6 +78,12 @@ fun HomeScreen(
     markAsSecure(context, activity.window)
     val openCrashDetectorDialog = remember { mutableStateOf(false) }
     val hasUnsentReports by homeViewModel.hasUnsentReports.asFlow().collectAsState(Tasks.forResult(false))
+
+    val isMainMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
+    val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
+    val isOpenMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
+
+    var openMenuAddFileNavigateTo = Route.FileChoosing.route
 
     LaunchedEffect(homeViewModel.didAppCrashOnPreviousExecution(), hasUnsentReports) {
         if (!homeViewModel.isCrashSendingAlwaysEnabled() && hasUnsentReports.result) {
@@ -131,12 +138,44 @@ fun HomeScreen(
                             isTraversalGroup = true
                             traversalIndex = 2f
                         },
-                leftIcon = ImageVector.vectorResource(id = R.drawable.ic_m3_menu_48dp_wght400),
+                leftIcon = R.drawable.ic_m3_menu_48dp_wght400,
                 title = null,
-                onLeftButtonClick = onClickMenu,
+                onLeftButtonClick = {
+                    isMainMenuBottomSheetVisible.value = true
+                    isSettingsMenuBottomSheetVisible.value = false
+                },
+                onRightSecondaryButtonClick = {
+                    isSettingsMenuBottomSheetVisible.value = true
+                    isMainMenuBottomSheetVisible.value = false
+                },
             )
         },
     ) { paddingValues ->
+        MainMenuBottomSheet(
+            navController = navController,
+            isBottomSheetVisible = isMainMenuBottomSheetVisible,
+        )
+
+        SettingsMenuBottomSheet(
+            navController = navController,
+            isBottomSheetVisible = isSettingsMenuBottomSheetVisible,
+        )
+
+        OpenMenuBottomSheet(
+            isBottomSheetVisible = isOpenMenuBottomSheetVisible,
+            firstButtonClick = {
+                navController.navigate(
+                    openMenuAddFileNavigateTo,
+                    // TODO: Differentiate cases for open document/signature/encrypt
+                )
+            },
+            secondButtonClick = {
+                navController.navigate(
+                    Route.RecentDocuments.route,
+                )
+            },
+        )
+
         Surface(
             color = MaterialTheme.colorScheme.surface,
             modifier =
@@ -220,9 +259,8 @@ fun HomeScreen(
                                 stringResource(id = R.string.main_home_open_document_title) + " " +
                                     stringResource(id = R.string.main_home_open_document_description),
                             onClickItem = {
-                                navController.navigate(
-                                    Route.FileChoosing.route,
-                                )
+                                openMenuAddFileNavigateTo = Route.FileChoosing.route
+                                isOpenMenuBottomSheetVisible.value = true
                                 // TODO: Customize additionally so that it navigates to Open document screen
                             },
                             testTag = "homeOpenDocumentButton",
@@ -236,9 +274,8 @@ fun HomeScreen(
                                 stringResource(id = R.string.main_home_signature_title) + " " +
                                     stringResource(id = R.string.main_home_signature_description),
                             onClickItem = {
-                                navController.navigate(
-                                    Route.FileChoosing.route,
-                                )
+                                openMenuAddFileNavigateTo = Route.FileChoosing.route
+                                isOpenMenuBottomSheetVisible.value = true
                                 // TODO: Customize additionally so that it navigates to Signing  screen
                             },
                             testTag = "homeSignatureButton",
@@ -252,7 +289,9 @@ fun HomeScreen(
                                 stringResource(id = R.string.main_home_crypto_title) + " " +
                                     stringResource(id = R.string.main_home_crypto_description),
                             onClickItem = {
-                                // TODO: Implement navigation to Crypto screen
+                                openMenuAddFileNavigateTo = Route.FileChoosing.route
+                                isOpenMenuBottomSheetVisible.value = true
+                                // TODO: Customize additionally so that it navigates to Crypto  screen
                             },
                             testTag = "homeCryptoButton",
                         )
