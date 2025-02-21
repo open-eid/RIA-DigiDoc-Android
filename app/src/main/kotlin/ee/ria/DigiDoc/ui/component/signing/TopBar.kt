@@ -103,7 +103,7 @@ fun TopBar(
                 .testTag("toolbar"),
         colors =
             TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.background,
+                containerColor = MaterialTheme.colorScheme.surface,
                 titleContentColor = MaterialTheme.colorScheme.onSurface,
             ),
         navigationIcon = {
