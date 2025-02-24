@@ -21,6 +21,8 @@ import ee.ria.DigiDoc.configuration.utils.Constant.CACHE_CONFIG_FOLDER
 import ee.ria.DigiDoc.configuration.utils.Constant.CONFIGURATION_LAST_UPDATE_CHECK_DATE_PROPERTY_NAME
 import ee.ria.DigiDoc.configuration.utils.Constant.CONFIGURATION_PREFERENCES
 import ee.ria.DigiDoc.configuration.utils.Constant.PROPERTIES_FILE_NAME
+import ee.ria.DigiDoc.network.proxy.ManualProxy
+import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -69,6 +71,9 @@ class ConfigurationLoaderTest {
     private lateinit var publicKeyFile: File
     private lateinit var signatureFile: File
 
+    private lateinit var proxySetting: ProxySetting
+    private lateinit var manualProxy: ManualProxy
+
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().targetContext
@@ -92,6 +97,9 @@ class ConfigurationLoaderTest {
         Files.copy(confFile, File(File(context.cacheDir, CACHE_CONFIG_FOLDER), CACHED_CONFIG_JSON))
         Files.copy(publicKeyFile, File(File(context.cacheDir, CACHE_CONFIG_FOLDER), CACHED_CONFIG_PUB))
         Files.copy(signatureFile, File(File(context.cacheDir, CACHE_CONFIG_FOLDER), CACHED_CONFIG_RSA))
+
+        proxySetting = ProxySetting.NO_PROXY
+        manualProxy = ManualProxy("", 80, "", "")
     }
 
     @After
@@ -121,7 +129,7 @@ class ConfigurationLoaderTest {
                 ),
             )
 
-            configurationLoader.initConfiguration(context)
+            configurationLoader.initConfiguration(context, proxySetting, manualProxy)
 
             assertNotNull(configurationLoader.getConfigurationFlow())
         }
@@ -188,7 +196,7 @@ class ConfigurationLoaderTest {
                 writer.write("dGVzdDI=")
             }
 
-            configurationLoader.loadCentralConfiguration(context)
+            configurationLoader.loadCentralConfiguration(context, proxySetting, manualProxy)
 
             assertNotNull(configurationLoader.getConfigurationFlow().value)
 
@@ -228,7 +236,7 @@ class ConfigurationLoaderTest {
                 writer.write(String(Base64.decode(centralSignature)))
             }
 
-            configurationLoader.loadCentralConfiguration(context)
+            configurationLoader.loadCentralConfiguration(context, proxySetting, manualProxy)
 
             assertNotNull(configurationLoader.getConfigurationFlow().value)
 

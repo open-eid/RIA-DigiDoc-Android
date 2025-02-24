@@ -24,6 +24,8 @@ import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
+import ee.ria.DigiDoc.network.proxy.ManualProxy
+import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
@@ -86,6 +88,9 @@ class DiagnosticsViewModelTest {
             configurationUpdateDate = null,
         )
 
+    private lateinit var proxySetting: ProxySetting
+    private lateinit var manualProxy: ManualProxy
+
     companion object {
         private lateinit var configurationLoader: ConfigurationLoader
         private lateinit var configurationRepository: ConfigurationRepository
@@ -133,6 +138,8 @@ class DiagnosticsViewModelTest {
                 configurationRepository,
                 contentResolver,
             )
+        proxySetting = ProxySetting.NO_PROXY
+        manualProxy = ManualProxy("", 80, "", "")
     }
 
     @Test
@@ -252,7 +259,7 @@ class DiagnosticsViewModelTest {
     fun diagnosticsViewModel_updateConfiguration_success() =
         runTest {
             viewModel.updateConfiguration(context)
-            verify(configurationLoader).loadCentralConfiguration(context)
+            verify(configurationLoader).loadCentralConfiguration(context, proxySetting, manualProxy)
         }
 
     @Test

@@ -7,6 +7,8 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
+import ee.ria.DigiDoc.network.proxy.ManualProxy
+import ee.ria.DigiDoc.network.proxy.ProxySetting
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
@@ -36,12 +38,18 @@ class ConfigurationViewModelTest {
     @Mock
     private lateinit var configurationProviderObserver: Observer<ConfigurationProvider>
 
+    private lateinit var proxySetting: ProxySetting
+    private lateinit var manualProxy: ManualProxy
+
     private lateinit var viewModel: ConfigurationViewModel
 
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
         viewModel = ConfigurationViewModel(repository)
+
+        proxySetting = ProxySetting.NO_PROXY
+        manualProxy = ManualProxy("", 80, "", "")
     }
 
     @Test
@@ -61,13 +69,13 @@ class ConfigurationViewModelTest {
     fun configurationViewModel_fetchConfiguration_configurationIsFetchedAndChanged() =
         runBlocking {
             val configurationProvider = createMockConfigurationProvider()
-            `when`(repository.getCentralConfiguration())
+            `when`(repository.getCentralConfiguration(proxySetting, manualProxy))
                 .thenReturn(configurationProvider)
             viewModel.configuration.observeForever(configurationProviderObserver)
 
-            viewModel.fetchConfiguration(0L)
+            viewModel.fetchConfiguration(0L, proxySetting, manualProxy)
 
-            verify(repository, times(1)).getCentralConfiguration()
+            verify(repository, times(1)).getCentralConfiguration(proxySetting, manualProxy)
             verify(configurationProviderObserver, times(1))
                 .onChanged(configurationProvider)
         }
@@ -76,13 +84,13 @@ class ConfigurationViewModelTest {
     fun configurationViewModel_fetchConfiguration_configurationFetchedButNotChanged() =
         runBlocking {
             val configurationProvider = createMockConfigurationProvider()
-            `when`(repository.getCentralConfiguration())
+            `when`(repository.getCentralConfiguration(proxySetting, manualProxy))
                 .thenReturn(configurationProvider)
             viewModel.configuration.observeForever(configurationProviderObserver)
 
-            viewModel.fetchConfiguration(Date().time)
+            viewModel.fetchConfiguration(Date().time, proxySetting, manualProxy)
 
-            verify(repository, times(1)).getCentralConfiguration()
+            verify(repository, times(1)).getCentralConfiguration(proxySetting, manualProxy)
             verify(configurationProviderObserver, never())
                 .onChanged(configurationProvider)
         }

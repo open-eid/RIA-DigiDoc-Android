@@ -35,8 +35,8 @@ object TSLUtil {
             throw ioe
         }
 
+        createDirectoryIfNotExist(destination)
         if (!tslFiles.isNullOrEmpty()) {
-            createDirectoryIfNotExist(destination)
             for (fileName in tslFiles) {
                 if (isXMLFile(fileName) && shouldCopyTSL(context, assetsPath, fileName, destination)) {
                     copyTSLFromAssets(context, assetsPath, fileName, destination)

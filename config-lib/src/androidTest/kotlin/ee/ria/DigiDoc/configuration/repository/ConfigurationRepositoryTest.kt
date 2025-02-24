@@ -5,6 +5,8 @@ package ee.ria.DigiDoc.configuration.repository
 import android.content.Context
 import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
 import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
+import ee.ria.DigiDoc.network.proxy.ManualProxy
+import ee.ria.DigiDoc.network.proxy.ProxySetting
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,11 +43,17 @@ class ConfigurationRepositoryTest {
 
     private val configurationFlow = MutableStateFlow<ConfigurationProvider?>(null)
 
+    private lateinit var proxySetting: ProxySetting
+    private lateinit var manualProxy: ManualProxy
+
     @Before
     fun setUp() {
         `when`(configurationLoader.getConfigurationFlow()).thenReturn(configurationFlow)
         configurationRepository = ConfigurationRepositoryImpl(context, configurationLoader)
         Dispatchers.setMain(testDispatcher)
+
+        proxySetting = ProxySetting.NO_PROXY
+        manualProxy = ManualProxy("", 80, "", "")
     }
 
     @After
@@ -61,6 +69,9 @@ class ConfigurationRepositoryTest {
         val result = configurationRepository.getConfiguration()
         assertNotNull(result)
         assertEquals(configurationProvider, result)
+
+        proxySetting = ProxySetting.NO_PROXY
+        manualProxy = ManualProxy("", 80, "", "")
     }
 
     @Test
@@ -77,10 +88,10 @@ class ConfigurationRepositoryTest {
             val configurationProvider = mockConfigurationProvider()
             configurationFlow.value = configurationProvider
 
-            val result = configurationRepository.getCentralConfiguration()
+            val result = configurationRepository.getCentralConfiguration(proxySetting, manualProxy)
             assertNotNull(result)
             assertEquals(configurationProvider, result)
-            verify(configurationLoader).loadCentralConfiguration(context)
+            verify(configurationLoader).loadCentralConfiguration(context, proxySetting, manualProxy)
         }
 
     @Test
