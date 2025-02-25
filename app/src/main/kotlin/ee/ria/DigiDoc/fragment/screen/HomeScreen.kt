@@ -186,7 +186,11 @@ fun HomeScreen(
             Column(
                 modifier =
                     modifier
-                        .fillMaxSize()
+                        .semantics {
+                            testTagsAsResourceId = true
+                        }
+                        .testTag("scrollView")
+                        .fillMaxWidth()
                         .verticalScroll(rememberScrollState()),
                 horizontalAlignment = CenterHorizontally,
             ) {
