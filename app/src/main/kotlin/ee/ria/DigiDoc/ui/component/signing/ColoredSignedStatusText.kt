@@ -44,6 +44,7 @@ fun ColoredSignedStatusText(
             contentColor = tagContentColor,
             modifier =
                 modifier
+                    .alignByBaseline()
                     .focusable()
                     .testTag("signatureUpdateListSignatureStatus"),
         )
@@ -54,6 +55,7 @@ fun ColoredSignedStatusText(
                 color = additionalTextColor,
                 modifier =
                     modifier
+                        .alignByBaseline()
                         .focusable()
                         .testTag("signatureUpdateListSignatureStatusCaution"),
             )

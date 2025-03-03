@@ -4,8 +4,10 @@ package ee.ria.DigiDoc
 
 import android.content.res.Configuration
 import android.net.Uri
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -62,12 +64,14 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
         }
         composable(route = Route.Home.route) {
             HomeFragment(
+                modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 externalFileUris = sharedContainerViewModel.externalFileUris.collectAsState().value,
             )
         }
         composable(route = Route.Menu.route) {
             MenuFragment(
+                modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
             )
         }
@@ -80,12 +84,14 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
         }
         composable(route = Route.RolesDetail.route) {
             RolesDetailsView(
+                modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 sharedSignatureViewModel = sharedSignatureViewModel,
             )
         }
         composable(route = Route.SignerDetail.route) {
             SignerDetailsView(
+                modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 sharedSignatureViewModel = sharedSignatureViewModel,
                 sharedCertificateViewModel = sharedCertificateViewModel,
@@ -94,57 +100,68 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
         }
         composable(route = Route.CertificateDetail.route) {
             CertificateDetailsView(
+                modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 sharedCertificateViewModel = sharedCertificateViewModel,
             )
         }
         composable(route = Route.Accessibility.route) {
             AccessibilityFragment(
+                modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
             )
         }
         composable(route = Route.Info.route) {
             InfoFragment(
+                modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
             )
         }
         composable(route = Route.Diagnostics.route) {
             DiagnosticsFragment(
+                modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 sharedSettingsViewModel = sharedSettingsViewModel,
             )
         }
         composable(route = Route.RecentDocuments.route) {
             RecentDocumentsFragment(
+                modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 sharedContainerViewModel = sharedContainerViewModel,
             )
         }
         composable(route = Route.Settings.route) {
             SettingsFragment(
+                modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
             )
         }
         composable(route = Route.SettingsRights.route) {
             SettingsRightsFragment(
+                modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 sharedSettingsViewModel = sharedSettingsViewModel,
             )
         }
         composable(route = Route.SettingsSigning.route) {
             SettingsSigningFragment(
+                modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 sharedCertificateViewModel = sharedCertificateViewModel,
             )
         }
         composable(route = Route.FileChoosing.route) {
             FileOpeningFragment(
+                modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 sharedContainerViewModel = sharedContainerViewModel,
             )
         }
         composable(route = Route.RootScreen.route) {
-            RootFragment()
+            RootFragment(
+                modifier = Modifier.safeDrawingPadding(),
+            )
         }
     }
 }

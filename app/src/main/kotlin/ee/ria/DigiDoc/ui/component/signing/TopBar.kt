@@ -7,6 +7,7 @@ import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -42,6 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.PreventResize
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.utilsLib.text.TextUtil
 import ee.ria.DigiDoc.viewmodel.MenuViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -115,6 +117,11 @@ fun TopBar(
                     imageVector = ImageVector.vectorResource(id = leftIcon),
                     contentDescription = stringResource(id = leftIconContentDescription),
                     tint = MaterialTheme.colorScheme.onSurface,
+                    modifier =
+                        modifier
+                            .size(iconSizeXXS)
+                            .focusable(false)
+                            .testTag("leftNavigationButton"),
                 )
             }
         },
@@ -173,6 +180,11 @@ fun TopBar(
                             stringResource(id = rightPrimaryIconContentDescription)
                         },
                     tint = MaterialTheme.colorScheme.onSurface,
+                    modifier =
+                        modifier
+                            .size(iconSizeXXS)
+                            .focusable(false)
+                            .testTag("rightPrimaryNavigationButton"),
                 )
             }
             IconButton(
@@ -183,6 +195,11 @@ fun TopBar(
                     imageVector = ImageVector.vectorResource(id = rightSecondaryIcon),
                     contentDescription = stringResource(id = rightSecondaryIconContentDescription),
                     tint = MaterialTheme.colorScheme.onSurface,
+                    modifier =
+                        modifier
+                            .size(iconSizeXXS)
+                            .focusable(false)
+                            .testTag("rightSecondaryNavigationButton"),
                 )
             }
         },

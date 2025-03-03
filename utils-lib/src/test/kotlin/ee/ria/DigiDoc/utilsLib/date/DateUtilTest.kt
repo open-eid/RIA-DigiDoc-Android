@@ -33,11 +33,11 @@ class DateUtilTest {
     @Test
     fun dateUtil_format_successFromDateString() {
         val inputDateString = "1970-01-01T03:00:00Z"
-        val expectedOutputDateString = "01.01.1970 03:00:00"
+        val expectedOutputDateString = FormattedDateTime(date = "01.01.1970", time = "03:00")
 
         val outputDateString =
             try {
-                DateUtil.signedDateTimeString(inputDateString)
+                DateUtil.signedDateTime(inputDateString)
             } catch (e: ParseException) {
                 e.printStackTrace()
                 fail("Signed date must succeed with valid date string")
@@ -52,7 +52,7 @@ class DateUtilTest {
 
         val outputDateString =
             try {
-                DateUtil.signedDateTimeString(inputDateString)
+                DateUtil.signedDateTime(inputDateString)
             } catch (e: ParseException) {
                 e.printStackTrace()
                 ""
@@ -65,7 +65,7 @@ class DateUtilTest {
     fun dateUtil_format_returnEmptyStringWithEmptyDateString() {
         val outputDateString =
             try {
-                DateUtil.signedDateTimeString("")
+                DateUtil.signedDateTime("")
             } catch (e: ParseException) {
                 e.printStackTrace()
                 ""
@@ -84,9 +84,9 @@ class DateUtilTest {
 
         `when`(inputDateFormatMock.parse(signedDateString)).thenReturn(nullDate)
 
-        val result: String = DateUtil.signedDateTimeString(signedDateString, inputDateFormatMock, outputDateFormatMock)
+        val result = DateUtil.signedDateTime(signedDateString, inputDateFormatMock, outputDateFormatMock)
 
-        assertEquals("", result)
+        assertEquals(FormattedDateTime("", ""), result)
         verify(inputDateFormatMock, times(1)).parse(signedDateString)
         verify(outputDateFormatMock, never()).format(any(Date::class.java))
     }

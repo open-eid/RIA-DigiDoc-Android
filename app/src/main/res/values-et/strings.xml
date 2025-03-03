@@ -25,14 +25,21 @@
     <string name="crash_report_dialog_always_send_button">Saada Alati</string>
     <string name="crash_report_dialog_dont_send_button">Ära saada</string>
 
+    <string name="clear_text">Tühjenda tekst</string>
+
     <!-- Container -->
-    <string name="container_title">Ümbrik:</string>
-    <string name="documents_add_button">+ Lisa veel faile</string>
-    <string name="documents_add_button_accessibility">Lisa veel faile</string>
+    <string name="container_title">Ümbrik</string>
+    <string name="signed_container_title">Allkirjastatud ümbrik</string>
+    <string name="documents_add_button">Lisa veel faile</string>
+    <string name="container_save">Salvesta ümbrik</string>
+    <string name="save">Salvesta</string>
     <string name="container_has">Ümbrikus </string>
+    <string name="more_options">Veel valikuid</string>
     <string name="file">Fail</string>
     <string name="file_saved">Fail salvestatud</string>
     <string name="file_saved_error">Faili salvestamine ebaõnnestus</string>
+    <string name="remove_title">Eemalda</string>
+    <string name="remove_container">Eemalda ümbrik</string>
     <string name="document_remove_button">Eemalda dokument</string>
     <string name="document_save_button">Salvesta fail ümbrikust</string>
     <string name="document_remove_confirmation_message">Soovid eemaldada faili ümbrikust?</string>
@@ -113,7 +120,9 @@
     <string name="signing_container_signatures_title">Ümbriku allkirjad</string>
     <string name="signing_container_timestamps_title">Ümbriku ajatemplid</string>
     <string name="signing_container_signatures_empty">Allkirjad puuduvad</string>
-    <string name="signing_container_signature_created_at">Allkirjastatud %1$s</string>
+    <string name="signing_container_signature_created_at">Allkirjastatud %1$s kell %2$s</string>
+    <string name="signing_close_container_title">Sulge ümbrik</string>
+    <string name="signing_close_container_message">Oled sulgemas ümbrikut. Palun vali, mida ümbrikuga edasi teha: </string>
 
     <!-- Recent Documents -->
     <string name="document">Dokument</string>
@@ -132,6 +141,7 @@
     <string name="siva_info_url">https://www.id.ee/artikkel/riigi-infosusteemi-ameti-id-tarkvara-andmekaitsetingimused</string>
 
     <!-- Signature Add -->
+    <string name="signature_update_title">Ümbriku allkirjastamine</string>
     <string name="signature_update_name_update_name">Ümbriku nimi</string>
 
     <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>
@@ -263,6 +273,8 @@
     <string name="signature_update_nfc_detected">ID-kaardiga kontaktivaba ühenduse loomine</string>
 
     <string name="sign_button">Allkirjasta</string>
+    <string name="add_signature_button">Lisa uus allkiri</string>
+    <string name="extend_signature_button">Pikenda allkirja</string>
     <string name="share_button">Jaga</string>
     <string name="yes_button">JAH</string>
     <string name="remove_button">Eemalda</string>

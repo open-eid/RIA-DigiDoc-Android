@@ -31,13 +31,13 @@ class NameUtilTest {
 
         val formattedName = formatName(name)
 
-        assertEquals("John, Doe, Jane", formattedName)
+        assertEquals("John Doe, Jane", formattedName)
     }
 
     @Test
     fun nameUtil_formatName_successWithMultipleNamesAndTrimmedSpaces() {
         val input = "Doe ,  John , 123"
-        val expectedOutput = "John, Doe, 123"
+        val expectedOutput = "John Doe, 123"
         val result = formatName(input)
         assertEquals(expectedOutput, result)
     }
@@ -79,7 +79,7 @@ class NameUtilTest {
     @Test
     fun nameUtil_formatName_returnFormattedWithThreeComponents() {
         val input = "Doe,John,123"
-        val expectedOutput = "John, Doe, 123"
+        val expectedOutput = "John Doe, 123"
         val result = formatName(input)
         assertEquals(expectedOutput, result)
     }
@@ -95,7 +95,7 @@ class NameUtilTest {
     @Test
     fun nameUtil_formatName_returnWithoutSlashes() {
         val input = "Doe\\,John\\,123"
-        val expectedOutput = "John, Doe, 123"
+        val expectedOutput = "John Doe, 123"
         val result = formatName(input)
         assertEquals(expectedOutput, result)
     }

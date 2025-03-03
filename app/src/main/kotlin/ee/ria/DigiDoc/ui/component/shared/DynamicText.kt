@@ -31,7 +31,7 @@ fun DynamicText(
     text: String,
     textStyle: TextStyle =
         TextStyle(
-            color = MaterialTheme.colorScheme.onSurface,
+            color = MaterialTheme.colorScheme.onBackground,
             fontSize = MaterialTheme.typography.bodyLarge.fontSize,
             textAlign = TextAlign.Start,
         ),

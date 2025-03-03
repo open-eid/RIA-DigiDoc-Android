@@ -2,7 +2,9 @@
 
 package ee.ria.DigiDoc.ui.component.shared
 
+import android.graphics.Typeface
 import android.text.TextUtils
+import android.util.TypedValue
 import android.view.View
 import android.view.View.NOT_FOCUSABLE
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
@@ -11,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.viewinterop.AndroidView
 
 @Composable
@@ -19,6 +23,7 @@ fun MiddleEllipsizeMultilineText(
     text: String?,
     textColor: Int,
     maxLines: Int = 1,
+    textStyle: TextStyle = TextStyle(),
 ) {
     val context = LocalContext.current
     val middleEllipsizeMultilineTextView =
@@ -59,5 +64,14 @@ fun MiddleEllipsizeMultilineText(
         )
 
         textView.setTextColor(textColor)
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, textStyle.fontSize.value)
+        textView.setTypeface(
+            null,
+            if (textStyle.fontWeight == FontWeight.Bold) {
+                Typeface.BOLD
+            } else {
+                Typeface.NORMAL
+            },
+        )
     }
 }
