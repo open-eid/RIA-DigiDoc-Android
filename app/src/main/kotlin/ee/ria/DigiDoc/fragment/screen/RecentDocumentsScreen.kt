@@ -152,12 +152,13 @@ fun RecentDocumentsScreen(
 
     val documentRemoved = stringResource(id = R.string.document_removed)
     val documentRemovalCancelled = stringResource(id = R.string.document_removal_cancelled)
-    val removeSignatureDialogTitle = R.string.recent_documents_remove_confirmation_message
 
-    val removeSignatureCancelButtonTitle = R.string.cancel_button
-    val removeSignatureOkButtonTitle = R.string.remove_button
-    val removeSignatureCancelButtonContentDescription = R.string.signature_update_cancel_signature_removal_button
-    val removeSignatureOkButtonContentDescription = R.string.signature_update_confirm_signature_removal_button
+    val removeSignatureDialogMessage =
+        stringResource(id = R.string.recent_documents_remove_confirmation_message)
+    val removeSignatureCancelButtonContentDescription =
+        stringResource(id = R.string.signature_update_cancel_signature_removal_button)
+    val removeSignatureOkButtonContentDescription =
+        stringResource(id = R.string.signature_update_confirm_signature_removal_button)
     val closeDocumentDialog = {
         openRemoveDocumentDialog.value = false
     }
@@ -237,7 +238,7 @@ fun RecentDocumentsScreen(
                     modifier =
                         modifier
                             .fillMaxWidth()
-                            .padding(horizontal = SPadding)
+                            .padding(SPadding)
                             .semantics { heading() }
                             .focusable(enabled = true)
                             .focusTarget()
@@ -509,20 +510,22 @@ fun RecentDocumentsScreen(
                             .verticalScroll(rememberScrollState()),
                 ) {
                     MessageDialog(
-                        title = removeSignatureDialogTitle,
-                        cancelButtonClick = dismissRemoveDocumentDialog,
-                        okButtonClick = {
-                            actionDocument?.delete()
-                            recentDocumentList.value = recentDocumentsViewModel.getRecentDocumentList()
-                            dismissSearch()
-                            closeDocumentDialog()
-                            AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, documentRemoved)
-                        },
-                        leftButtonTitle = removeSignatureCancelButtonTitle,
-                        rightButtonTitle = removeSignatureOkButtonTitle,
-                        leftButtonContentDescription = removeSignatureCancelButtonContentDescription,
-                        rightButtonContentDescription = removeSignatureOkButtonContentDescription,
-                    )
+                            modifier = modifier,
+                            title = stringResource(R.string.signature_remove_button),
+                            message = removeSignatureDialogMessage,
+                            showIcons = false,
+                            dismissButtonText = stringResource(R.string.cancel_button),
+                            confirmButtonText = stringResource(R.string.remove_title),
+                            dismissButtonContentDescription = removeSignatureCancelButtonContentDescription,
+                            confirmButtonContentDescription = removeSignatureOkButtonContentDescription,
+                            onDismiss = dismissRemoveDocumentDialog,
+                            onConfirm = {
+                                actionDocument?.delete()
+                                recentDocumentList.value = recentDocumentsViewModel.getRecentDocumentList()
+                                closeDocumentDialog()
+                                AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, documentRemoved)
+                            },
+                        )
                     InvisibleElement(modifier = modifier)
                 }
             }

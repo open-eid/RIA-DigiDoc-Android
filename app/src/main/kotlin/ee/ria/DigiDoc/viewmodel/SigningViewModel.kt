@@ -7,6 +7,7 @@ import android.content.Intent
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
@@ -15,17 +16,14 @@ import ee.ria.DigiDoc.common.Constant.UNSIGNABLE_CONTAINER_MIMETYPES
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
+import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
-import ee.ria.DigiDoc.utilsLib.date.DateUtil.getFormattedDateTime
-import ee.ria.DigiDoc.utilsLib.date.DateUtil.signedDateTimeString
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import kotlinx.coroutines.launch
 import org.apache.commons.io.FilenameUtils
 import java.io.File
-import java.text.ParseException
-import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
 
@@ -114,18 +112,6 @@ class SigningViewModel
                 signature.countryName.isEmpty() && signature.postalCode.isEmpty()
         }
 
-        fun getFormattedDate(signingTime: String): String {
-            try {
-                return signedDateTimeString(
-                    signedDateString = getFormattedDateTime(signingTime, false),
-                    inputFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss Z", Locale.getDefault()),
-                )
-            } catch (pe: ParseException) {
-                errorLog(LOG_TAG, "Error parsing date: $signingTime", pe)
-                return ""
-            }
-        }
-
         @Throws(Exception::class)
         suspend fun openNestedContainer(
             context: Context,
@@ -175,5 +161,11 @@ class SigningViewModel
             }
 
             return signedContainer
+        }
+
+        fun showMessage(message: String) {
+            viewModelScope.launch {
+                SnackBarManager.showMessage(message)
+            }
         }
     }

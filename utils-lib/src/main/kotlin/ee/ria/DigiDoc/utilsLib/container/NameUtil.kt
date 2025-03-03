@@ -11,7 +11,8 @@ object NameUtil {
         val formattedNameComponents =
             if (nameComponents.size == 3) {
                 val (lastname, firstname, code) = nameComponents
-                "$firstname, $lastname, $code".trim()
+                "${firstname.lowercase().replaceFirstChar { it.uppercaseChar() }} " +
+                    "${lastname.lowercase().replaceFirstChar { it.uppercaseChar() }}, $code".trim()
             } else {
                 nameComponents.joinToString(separator = ", ").trim()
             }

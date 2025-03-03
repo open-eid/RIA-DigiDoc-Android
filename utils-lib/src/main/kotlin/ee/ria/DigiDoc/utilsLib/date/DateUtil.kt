@@ -11,6 +11,8 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
+data class FormattedDateTime(val date: String, val time: String)
+
 object DateUtil {
     val dateFormat: SimpleDateFormat
         get() = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
@@ -18,13 +20,22 @@ object DateUtil {
         get() = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
 
     @Throws(ParseException::class)
-    fun signedDateTimeString(
+    fun signedDateTime(
         signedDateString: String,
         inputFormat: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()),
-        outputFormat: SimpleDateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault()),
-    ): String {
-        val date = inputFormat.parse(signedDateString)
-        return date?.let { outputFormat.format(it) } ?: ""
+        outputDateFormat: SimpleDateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()),
+        outputTimeFormat: SimpleDateFormat = SimpleDateFormat("HH:mm", Locale.getDefault()),
+    ): FormattedDateTime {
+        val date: Date? = inputFormat.parse(signedDateString)
+
+        return if (date != null) {
+            FormattedDateTime(
+                date = outputDateFormat.format(date),
+                time = outputTimeFormat.format(date),
+            )
+        } else {
+            FormattedDateTime("", "")
+        }
     }
 
     @Throws(DateTimeParseException::class)

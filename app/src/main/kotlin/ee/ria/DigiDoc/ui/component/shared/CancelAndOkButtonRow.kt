@@ -9,11 +9,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
@@ -37,35 +41,32 @@ fun CancelAndOkButtonRow(
     Row(
         modifier =
             modifier
-                .fillMaxWidth()
-                .padding(vertical = XSPadding),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceEvenly,
+                .fillMaxWidth(),
+        horizontalArrangement = Arrangement.End,
     ) {
         if (showCancelButton) {
-            Spacer(modifier = modifier.weight(1f).padding(XSPadding))
-            PrimaryButton(
+            TextButton(
+                onClick = cancelButtonClick,
                 enabled = cancelButtonEnabled,
                 modifier =
                     modifier
-                        .weight(1f)
-                        .testTag(cancelButtonTestTag),
-                title = cancelButtonTitle,
-                contentDescription = cancelButtonContentDescription,
-                onClickItem = cancelButtonClick,
-            )
-            Spacer(modifier = modifier.padding(XSPadding))
+                        .semantics { contentDescription = cancelButtonContentDescription }
+                        .testTag(okButtonTestTag),
+            ) {
+                Text(text = stringResource(cancelButtonTitle))
+            }
         }
-        PrimaryButton(
+        Spacer(modifier = modifier.width(XSPadding))
+        TextButton(
+            onClick = okButtonClick,
             enabled = okButtonEnabled,
             modifier =
                 modifier
-                    .weight(1f)
-                    .testTag(okButtonTestTag),
-            title = okButtonTitle,
-            contentDescription = okButtonContentDescription,
-            onClickItem = okButtonClick,
-        )
+                    .semantics { contentDescription = okButtonContentDescription }
+                    .testTag(cancelButtonTestTag),
+        ) {
+            Text(text = stringResource(okButtonTitle))
+        }
     }
 }
 

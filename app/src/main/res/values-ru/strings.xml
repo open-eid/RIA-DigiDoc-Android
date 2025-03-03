@@ -25,14 +25,21 @@
     <string name="crash_report_dialog_always_send_button">Всегда отправлять</string>
     <string name="crash_report_dialog_dont_send_button">Не отправлять</string>
 
+    <string name="clear_text">Очистить текст</string>
+
     <!-- Container -->
-    <string name="container_title">Контейнер:</string>
-    <string name="documents_add_button">+ Добавить больше файлов</string>
-    <string name="documents_add_button_accessibility">Добавить больше файлов</string>
+    <string name="container_title">Контейнер</string>
+    <string name="signed_container_title">Подписано контейнер</string>
+    <string name="documents_add_button">Добавить больше файлов</string>
+    <string name="container_save">Сохраните контейнер</string>
+    <string name="save">Сохраните</string>
     <string name="container_has">Содержание контейнера</string>
+    <string name="more_options">Расширить подпись</string>
     <string name="file">Файл</string>
     <string name="file_saved">Файл сохранен</string>
     <string name="file_saved_error">Не удалось сохранить файл</string>
+    <string name="remove_title">Удалить</string>
+    <string name="remove_container">Удалить контейнер</string>
     <string name="document_remove_button">Удалить файл</string>
     <string name="document_save_button">Сохраните файл</string>
     <string name="document_remove_confirmation_message">Удалить файл из контейнера?</string>
@@ -113,7 +120,9 @@
     <string name="signing_container_signatures_title">Подписи контейнера</string>
     <string name="signing_container_timestamps_title">Временные штампы контейнерa</string>
     <string name="signing_container_signatures_empty">Контейнер не подписан</string>
-    <string name="signing_container_signature_created_at">Подписано %1$s</string>
+    <string name="signing_container_signature_created_at">Подписано %1$s в %2$s</string>
+    <string name="signing_close_container_title">Закрыть контейнер</string>
+    <string name="signing_close_container_message">Вы собираетесь закрыть контейнер. Выберите, что делать с контейнером: </string>
 
     <!-- Recent Documents -->
     <string name="document">Документ</string>
@@ -132,6 +141,7 @@
     <string name="siva_info_url">https://www.id.ee/ru/artikkel/usloviya-zashhity-dannyh-programmnogo-obespecheniya-id-karty-departamenta-gosudarstvennoj-infosistemy</string>
 
     <!-- Signature Add -->
+    <string name="signature_update_title">Подписание контейнера</string>
     <string name="signature_update_name_update_name">Название контейнера</string>
 
     <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>
@@ -263,6 +273,8 @@
     <string name="id_card_sign_pin2_locked">PIN2 заблокирован. Зайдите в Мой eID, чтобы разблокировать его.</string>
 
     <string name="sign_button">Подписать</string>
+    <string name="add_signature_button">Добавить новый подпись</string>
+    <string name="extend_signature_button">Расширить подпись</string>
     <string name="share_button">Поделиться</string>
     <string name="yes_button">ДА</string>
     <string name="remove_button">Удалить</string>
