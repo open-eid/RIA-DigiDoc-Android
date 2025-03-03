@@ -233,7 +233,7 @@ fun RecentDocumentsScreen(
             if (!expanded) {
                 Text(
                     text = stringResource(id = R.string.recent_documents_title),
-                    maxLines = 1,
+                    maxLines = 2,
                     modifier =
                         modifier
                             .fillMaxWidth()
@@ -243,6 +243,7 @@ fun RecentDocumentsScreen(
                             .focusTarget()
                             .focusProperties { canFocus = true },
                     textAlign = TextAlign.Start,
+                    style = MaterialTheme.typography.headlineSmall,
                 )
             }
             val searchBarPadding =
