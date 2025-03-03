@@ -3,8 +3,8 @@
 package ee.ria.DigiDoc.ui.theme
 
 import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -89,6 +89,7 @@ private val LightColorScheme =
         inverseOnSurface = LightInverseOnSurface,
     )
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RIADigiDocTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -110,16 +111,12 @@ fun RIADigiDocTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            val color = colorScheme.primary.toArgb()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                window.decorView.setOnApplyWindowInsetsListener { view, windowInsets ->
-                    view.setBackgroundColor(color)
-                    windowInsets
-                }
-            } else {
-                window.statusBarColor = color
+            val color = colorScheme.surface.toArgb()
+            window.decorView.setOnApplyWindowInsetsListener { view, windowInsets ->
+                view.setBackgroundColor(color)
+                windowInsets
             }
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
 

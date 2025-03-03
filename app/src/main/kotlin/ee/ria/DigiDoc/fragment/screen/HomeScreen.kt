@@ -49,7 +49,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.tasks.Tasks
 import ee.ria.DigiDoc.BuildConfig
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.component.home.HomeViewActionButton
+import ee.ria.DigiDoc.ui.component.home.ActionButton
 import ee.ria.DigiDoc.ui.component.main.CrashDialog
 import ee.ria.DigiDoc.ui.component.menu.MainMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.menu.OpenMenuBottomSheet
@@ -230,7 +230,7 @@ fun HomeScreen(
                             )
                         }
                         Text(
-                            modifier = modifier,
+                            modifier = modifier.padding(XSPadding),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             text =
@@ -254,11 +254,11 @@ fun HomeScreen(
                                 .align(Center),
                         horizontalAlignment = CenterHorizontally,
                     ) {
-                        HomeViewActionButton(
+                        ActionButton(
                             modifier = modifier,
                             icon = R.drawable.ic_m3_attach_file_48dp_wght400,
                             title = R.string.main_home_open_document_title,
-                            description = R.string.main_home_open_document_description,
+                            description = stringResource(R.string.main_home_open_document_description),
                             contentDescription =
                                 stringResource(id = R.string.main_home_open_document_title) + " " +
                                     stringResource(id = R.string.main_home_open_document_description),
@@ -269,11 +269,11 @@ fun HomeScreen(
                             },
                             testTag = "homeOpenDocumentButton",
                         )
-                        HomeViewActionButton(
+                        ActionButton(
                             modifier = modifier,
                             icon = R.drawable.ic_m3_stylus_note_48dp_wght400,
                             title = R.string.main_home_signature_title,
-                            description = R.string.main_home_signature_description,
+                            description = stringResource(R.string.main_home_signature_description),
                             contentDescription =
                                 stringResource(id = R.string.main_home_signature_title) + " " +
                                     stringResource(id = R.string.main_home_signature_description),
@@ -284,11 +284,11 @@ fun HomeScreen(
                             },
                             testTag = "homeSignatureButton",
                         )
-                        HomeViewActionButton(
+                        ActionButton(
                             modifier = modifier,
                             icon = R.drawable.ic_m3_encrypted_48dp_wght400,
                             title = R.string.main_home_crypto_title,
-                            description = R.string.main_home_crypto_description,
+                            description = stringResource(R.string.main_home_crypto_description),
                             contentDescription =
                                 stringResource(id = R.string.main_home_crypto_title) + " " +
                                     stringResource(id = R.string.main_home_crypto_description),
@@ -299,11 +299,11 @@ fun HomeScreen(
                             },
                             testTag = "homeCryptoButton",
                         )
-                        HomeViewActionButton(
+                        ActionButton(
                             modifier = modifier,
                             icon = R.drawable.ic_m3_co_present_48dp_wght400,
                             title = R.string.main_home_my_eid_title,
-                            description = R.string.main_home_my_eid_description,
+                            description = stringResource(R.string.main_home_my_eid_description),
                             contentDescription =
                                 stringResource(id = R.string.main_home_my_eid_title) + " " +
                                     stringResource(id = R.string.main_home_my_eid_description),

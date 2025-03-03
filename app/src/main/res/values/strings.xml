@@ -12,7 +12,6 @@
     <string name="main_home_my_eid_title">My eID</string>
     <string name="main_home_my_eid_description">View and modify your eID data</string>
 
-
     <string name="back">Back</string>
 
     <string name="rooted_device">This app cannot be used in rooted device.</string>
@@ -26,14 +25,21 @@
     <string name="crash_report_dialog_always_send_button">Always Send</string>
     <string name="crash_report_dialog_dont_send_button">Don\'t Send</string>
 
+    <string name="clear_text">Clear text</string>
+
     <!-- Container -->
-    <string name="container_title">Container:</string>
-    <string name="documents_add_button">+ Add more files</string>
-    <string name="documents_add_button_accessibility">Add more files</string>
+    <string name="container_title">Container</string>
+    <string name="signed_container_title">Signed container</string>
+    <string name="documents_add_button">Add more files</string>
+    <string name="container_save">Save container</string>
+    <string name="save">Save</string>
     <string name="container_has">Container has</string>
+    <string name="more_options">More options</string>
     <string name="file">File</string>
     <string name="file_saved">File saved</string>
     <string name="file_saved_error">Failed to save file</string>
+    <string name="remove_title">Remove</string>
+    <string name="remove_container">Remove container</string>
     <string name="document_remove_button">Remove document</string>
     <string name="document_save_button">Save file</string>
     <string name="document_remove_confirmation_message">Remove file from container?</string>
@@ -114,7 +120,9 @@
     <string name="signing_container_signatures_title">Container signatures</string>
     <string name="signing_container_timestamps_title">Container timestamps</string>
     <string name="signing_container_signatures_empty">Container is not signed</string>
-    <string name="signing_container_signature_created_at">Signed %1$s</string>
+    <string name="signing_container_signature_created_at">Signed %1$s at %2$s</string>
+    <string name="signing_close_container_title">Close container</string>
+    <string name="signing_close_container_message">You are about to close the container. Please choose what to do with the container: </string>
 
     <!-- Recent Documents -->
     <string name="document">Document</string>
@@ -133,6 +141,7 @@
     <string name="siva_info_url">https://www.id.ee/en/article/data-protection-conditions-for-the-id-software-of-the-national-information-system-authority</string>
 
     <!-- Signature Add -->
+    <string name="signature_update_title">Container signing</string>
     <string name="signature_update_name_update_name">Container name</string>
 
     <string name="signature_update_signature_add_method_mobile_id">Mobile-ID</string>
@@ -265,6 +274,8 @@
     <string name="signature_update_nfc_detected">Authenticating with ID-card</string>
 
     <string name="sign_button">Sign</string>
+    <string name="add_signature_button">Add new signature</string>
+    <string name="extend_signature_button">Extend signature</string>
     <string name="share_button">Share</string>
     <string name="yes_button">YES</string>
     <string name="remove_button">Remove</string>
