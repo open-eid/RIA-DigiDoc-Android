@@ -117,6 +117,9 @@
 
     <!-- Recent Documents -->
     <string name="document">Документ</string>
+    <string name="recent_documents_search">Поиск документа…</string>
+    <string name="recent_documents_search_cancel">Отменить поиск документа</string>
+    <string name="recent_documents_search_empty">Недавние документы не найдены</string>
     <string name="recent_documents_title">Недавние документы</string>
     <string name="recent_documents_empty_message">Недавние документы отсутствуют</string>
     <string name="recent_documents_remove_button">Удалить файл</string>
@@ -262,6 +265,7 @@
     <string name="sign_button">Подписать</string>
     <string name="share_button">Поделиться</string>
     <string name="yes_button">ДА</string>
+    <string name="remove_button">Удалить</string>
     <string name="cancel_button">Отменить</string>
     <string name="ok_button">OK</string>
 

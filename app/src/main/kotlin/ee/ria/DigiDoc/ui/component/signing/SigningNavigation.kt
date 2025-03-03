@@ -9,6 +9,7 @@ import android.content.res.Configuration
 import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -171,15 +172,11 @@ fun SigningNavigation(
     val closeRemoveFileDialog = {
         openRemoveFileDialog.value = false
     }
-    var removeFileDialogTitle =
-        stringResource(id = R.string.document_remove_confirmation_message)
-    val removeFileCancelButtonContentDescription =
-        stringResource(id = R.string.document_cancel_removal_button)
-    val removeFileOkButtonContentDescription =
-        stringResource(id = R.string.document_confirm_removal_button)
+    var removeFileDialogTitle = R.string.document_remove_confirmation_message
+    val removeFileCancelButtonContentDescription = R.string.document_cancel_removal_button
+    val removeFileOkButtonContentDescription = R.string.document_confirm_removal_button
     if ((signedContainer?.rawContainer()?.dataFiles()?.size ?: 0) == 1) {
-        removeFileDialogTitle =
-            stringResource(id = R.string.document_remove_last_confirmation_message)
+        removeFileDialogTitle = R.string.document_remove_last_confirmation_message
     }
     val dismissRemoveFileDialog = {
         closeRemoveFileDialog()
@@ -213,12 +210,9 @@ fun SigningNavigation(
     val signatureRemoved = stringResource(id = R.string.signature_removed)
     val signatureRemovalCancelled =
         stringResource(id = R.string.signature_removal_cancelled)
-    val removeSignatureDialogTitle =
-        stringResource(id = R.string.signature_update_signature_remove_confirmation_message)
-    val removeSignatureCancelButtonContentDescription =
-        stringResource(id = R.string.signature_update_cancel_signature_removal_button)
-    val removeSignatureOkButtonContentDescription =
-        stringResource(id = R.string.signature_update_confirm_signature_removal_button)
+    val removeSignatureDialogTitle = R.string.signature_update_signature_remove_confirmation_message
+    val removeSignatureCancelButtonContentDescription = R.string.signature_update_cancel_signature_removal_button
+    val removeSignatureOkButtonContentDescription = R.string.signature_update_confirm_signature_removal_button
 
     val closeSignatureDialog = {
         openRemoveSignatureDialog.value = false
@@ -1175,8 +1169,8 @@ fun SigningNavigation(
                                 closeRemoveFileDialog()
                                 AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, fileRemoved)
                             },
-                            cancelButtonContentDescription = removeFileCancelButtonContentDescription,
-                            okButtonContentDescription = removeFileOkButtonContentDescription,
+                            leftButtonContentDescription = removeFileCancelButtonContentDescription,
+                            rightButtonContentDescription = removeFileOkButtonContentDescription,
                         )
                         InvisibleElement(modifier = modifier)
                     }
@@ -1216,8 +1210,8 @@ fun SigningNavigation(
                                 closeSignatureDialog()
                                 AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signatureRemoved)
                             },
-                            cancelButtonContentDescription = removeSignatureCancelButtonContentDescription,
-                            okButtonContentDescription = removeSignatureOkButtonContentDescription,
+                            leftButtonContentDescription = removeSignatureCancelButtonContentDescription,
+                            rightButtonContentDescription = removeSignatureOkButtonContentDescription,
                         )
                         InvisibleElement(modifier = modifier)
                     }
@@ -1290,7 +1284,7 @@ fun SigningNavigationPreview() {
 
     RIADigiDocTheme {
         SigningNavigation(
-            activity = LocalContext.current as Activity,
+            activity = LocalActivity.current!!,
             navController = navController,
             sharedContainerViewModel = sharedContainerViewModel,
             sharedSignatureViewModel = sharedSignatureViewModel,

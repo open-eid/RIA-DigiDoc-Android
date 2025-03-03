@@ -6,6 +6,7 @@ import android.content.res.Configuration
 import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
@@ -43,14 +44,9 @@ fun PrimaryButton(
         if (isSubButton) {
             MaterialTheme.colorScheme.background
         } else {
-            MaterialTheme.colorScheme.primary
+            Color.Transparent
         },
-    contentColor: Color =
-        if (isSubButton) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            MaterialTheme.colorScheme.background
-        },
+    contentColor: Color = MaterialTheme.colorScheme.primary,
     enabled: Boolean = true,
     fontSize: TextUnit = TextUnit.Unspecified,
     onClickItem: () -> Unit = {},
@@ -108,6 +104,9 @@ fun PrimaryButton(
 @Composable
 fun PrimaryButtonPreview() {
     RIADigiDocTheme {
-        PrimaryButton(title = R.string.signature_home_create_button)
+        Column {
+            PrimaryButton(title = R.string.signature_home_create_button)
+            PrimaryButton(title = R.string.signature_home_create_button, isSubButton = true)
+        }
     }
 }
