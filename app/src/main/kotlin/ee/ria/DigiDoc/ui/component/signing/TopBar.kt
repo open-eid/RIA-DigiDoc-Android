@@ -123,7 +123,7 @@ fun TopBar(
                 PreventResize {
                     Text(
                         text = stringResource(id = title),
-                        maxLines = 1,
+                        maxLines = 2,
                         modifier =
                             modifier
                                 .semantics { heading() }

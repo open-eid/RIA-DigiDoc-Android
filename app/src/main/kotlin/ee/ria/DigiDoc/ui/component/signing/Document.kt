@@ -29,11 +29,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.MiddleEllipsizeMultilineText
+import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewSmallPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 
 @Composable
@@ -48,7 +47,7 @@ fun Document(
     ConstraintLayout(
         modifier =
             modifier
-                .padding(vertical = screenViewSmallPadding)
+                .padding(vertical = XSPadding)
                 .wrapContentHeight()
                 .fillMaxWidth()
                 .semantics {
@@ -59,18 +58,30 @@ fun Document(
                 .testTag("recentDocumentsItem"),
     ) {
         val (
+            folderIcon,
             documentText,
             removeIcon,
         ) = createRefs()
+        Icon(
+            modifier =
+                modifier
+                    .padding(start = SPadding, end = XSPadding)
+                    .size(iconSizeXXS)
+                    .constrainAs(folderIcon) {
+                        start.linkTo(parent.start)
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                    },
+            imageVector = ImageVector.vectorResource(R.drawable.ic_m3_folder_48dp_wght400),
+            contentDescription = null,
+        )
         MiddleEllipsizeMultilineText(
             modifier =
                 modifier
                     .wrapContentSize()
-                    .padding(start = screenViewLargePadding, end = iconSizeXXS)
-                    .padding(end = screenViewLargePadding)
-                    .padding(end = screenViewLargePadding)
+                    .padding(end = iconSizeXXS * 2 + XSPadding * 2 + SPadding * 2)
                     .constrainAs(documentText) {
-                        start.linkTo(parent.start)
+                        start.linkTo(folderIcon.end)
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
                     }
@@ -83,7 +94,7 @@ fun Document(
         IconButton(
             modifier =
                 modifier
-                    .padding(end = screenViewLargePadding)
+                    .padding(end = SPadding)
                     .size(iconSizeXXS)
                     .constrainAs(removeIcon) {
                         end.linkTo(parent.end)
@@ -94,13 +105,12 @@ fun Document(
             onClick = onRemoveButtonClick,
             content = {
                 Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_m3_delete_48dp_wght400),
                     contentDescription = "${
                         stringResource(
                             id = R.string.recent_documents_remove_button,
                         )
                     } ${formatNumbers(name).lowercase()}",
-                    tint = Red500,
                 )
             },
         )

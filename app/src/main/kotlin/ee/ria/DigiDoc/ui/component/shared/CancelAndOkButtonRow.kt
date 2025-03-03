@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,10 +16,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.ui.theme.Red500
 
 @Composable
 fun CancelAndOkButtonRow(
@@ -41,25 +38,23 @@ fun CancelAndOkButtonRow(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(vertical = screenViewLargePadding),
+                .padding(vertical = XSPadding),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
         if (showCancelButton) {
+            Spacer(modifier = modifier.weight(1f).padding(XSPadding))
             PrimaryButton(
                 enabled = cancelButtonEnabled,
                 modifier =
                     modifier
                         .weight(1f)
                         .testTag(cancelButtonTestTag),
-                isSubButton = true,
                 title = cancelButtonTitle,
                 contentDescription = cancelButtonContentDescription,
-                containerColor = MaterialTheme.colorScheme.background,
-                contentColor = Red500,
                 onClickItem = cancelButtonClick,
             )
-            Spacer(modifier = modifier.padding(itemSpacingPadding))
+            Spacer(modifier = modifier.padding(XSPadding))
         }
         PrimaryButton(
             enabled = okButtonEnabled,
@@ -84,7 +79,7 @@ fun CancelAndOkButtonRowPreview() {
             okButtonTitle = R.string.sign_button,
             cancelButtonContentDescription = stringResource(id = R.string.cancel_button),
             okButtonContentDescription = stringResource(id = R.string.sign_button),
-            showCancelButton = false,
+            showCancelButton = true,
         )
     }
 }

@@ -40,6 +40,7 @@ object Dimensions {
 
     val buttonShadowElevation = 1.dp
     val buttonCornerRadius = 12.dp
+    val dialogCornerRadius = 24.dp
 
     val XSPadding = 8.dp
     val MSPadding = 12.dp

@@ -118,10 +118,13 @@
 
     <!-- Recent Documents -->
     <string name="document">Document</string>
-    <string name="recent_documents_title">Recent documents</string>
-    <string name="recent_documents_empty_message">No recent documents</string>
-    <string name="recent_documents_remove_button">Remove document</string>
-    <string name="recent_documents_remove_confirmation_message">Remove document?</string>
+    <string name="recent_documents_search">Search container…</string>
+    <string name="recent_documents_search_cancel">Cancel search container</string>
+    <string name="recent_documents_search_empty">No recent containers found</string>
+    <string name="recent_documents_title">Recent containers</string>
+    <string name="recent_documents_empty_message">No recent containers</string>
+    <string name="recent_documents_remove_button">Remove container</string>
+    <string name="recent_documents_remove_confirmation_message">Remove container?</string>
 
     <!-- SiVa -->
     <string name="siva_send_message_dialog">This type of signed document will be transmitted to the Digital Signature Validation Service SiVa to verify the validity of the digital signature. Read more information about transmitted data to Digital Signature Validation Service on the website</string>
@@ -264,6 +267,7 @@
     <string name="sign_button">Sign</string>
     <string name="share_button">Share</string>
     <string name="yes_button">YES</string>
+    <string name="remove_button">Remove</string>
     <string name="cancel_button">Cancel</string>
     <string name="ok_button">OK</string>
 

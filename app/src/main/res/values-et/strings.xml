@@ -117,10 +117,13 @@
 
     <!-- Recent Documents -->
     <string name="document">Dokument</string>
-    <string name="recent_documents_title">Hiljutised dokumendid</string>
-    <string name="recent_documents_empty_message">Dokumendid puuduvad</string>
-    <string name="recent_documents_remove_button">Eemalda dokument</string>
-    <string name="recent_documents_remove_confirmation_message">Soovid eemaldada dokumendi?</string>
+    <string name="recent_documents_search">Otsi ümbrikku…</string>
+    <string name="recent_documents_search_cancel">Katkesta ümbrikku otsing</string>
+    <string name="recent_documents_search_empty">Hiljutisi ümbrikke ei ole leitud</string>
+    <string name="recent_documents_title">Hiljutised ümbrikud</string>
+    <string name="recent_documents_empty_message">Ümbrikud puuduvad</string>
+    <string name="recent_documents_remove_button">Eemalda ümbrik</string>
+    <string name="recent_documents_remove_confirmation_message">Soovid eemaldada ümbriku?</string>
 
     <!-- SiVa -->
     <string name="siva_send_message_dialog">Seda tüüpi allkirjastatud dokument edastatakse digitaalallkirjade kehtivuse kontrollimiseks valideerimisteenusele SiVa. Digitaalallkirjade kehtivuse kontrollimisel edastatud andmete kohta loe lähemalt veebilehelt</string>
@@ -262,7 +265,8 @@
     <string name="sign_button">Allkirjasta</string>
     <string name="share_button">Jaga</string>
     <string name="yes_button">JAH</string>
-    <string name="cancel_button">Katkesta</string>
+    <string name="remove_button">Eemalda</string>
+    <string name="cancel_button">Tühista</string>
     <string name="ok_button">OK</string>
 
     <!-- Crypto -->
