@@ -895,8 +895,9 @@ fun SigningNavigation(
                             confirmButtonText = stringResource(R.string.remove_title),
                             dismissButtonContentDescription = removeFileCancelButtonContentDescription,
                             confirmButtonContentDescription = removeFileOkButtonContentDescription,
-                            onDismiss = dismissRemoveFileDialog,
-                            onConfirm = {
+                            onDismissRequest = dismissRemoveFileDialog,
+                            onDismissButton = dismissRemoveFileDialog,
+                            onConfirmButton = {
                                 if ((signedContainer?.rawContainer()?.dataFiles()?.size ?: 0) == 1) {
                                     signedContainer?.getContainerFile()?.delete()
                                     sharedContainerViewModel.resetSignedContainer()
@@ -950,8 +951,9 @@ fun SigningNavigation(
                             confirmButtonText = stringResource(R.string.remove_title),
                             dismissButtonContentDescription = removeSignatureCancelButtonContentDescription,
                             confirmButtonContentDescription = removeSignatureOkButtonContentDescription,
-                            onDismiss = dismissRemoveSignatureDialog,
-                            onConfirm = {
+                            onDismissRequest = dismissRemoveSignatureDialog,
+                            onDismissButton = dismissRemoveSignatureDialog,
+                            onConfirmButton = {
                                 CoroutineScope(IO).launch {
                                     sharedContainerViewModel.removeSignature(
                                         signedContainer,
@@ -1054,14 +1056,17 @@ fun SigningNavigation(
                     confirmButtonText = stringResource(R.string.remove_title),
                     dismissButtonContentDescription = saveContainerMessage,
                     confirmButtonContentDescription = removeContainerMessage,
-                    onDismiss = {
+                    onDismissRequest = {
+                        showContainerCloseConfirmationDialog.value = false
+                    },
+                    onDismissButton = {
                         saveFile(
                             signedContainer?.getContainerFile(),
                             signedContainer?.containerMimetype(),
                             saveFileLauncher,
                         )
                     },
-                    onConfirm = {
+                    onConfirmButton = {
                         showContainerCloseConfirmationDialog.value = false
                         signedContainer?.getContainerFile()?.delete()
                         sharedContainerViewModel.resetSignedContainer()

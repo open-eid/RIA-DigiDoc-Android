@@ -34,13 +34,14 @@ fun MessageDialog(
     confirmButtonText: String,
     dismissButtonContentDescription: String,
     confirmButtonContentDescription: String,
-    onDismiss: () -> Unit = {},
-    onConfirm: () -> Unit = {},
+    onDismissRequest: () -> Unit = {},
+    onDismissButton: () -> Unit = {},
+    onConfirmButton: () -> Unit = {},
 ) {
     val dismissIconResource = ImageVector.vectorResource(id = dismissIcon)
     val confirmIconResource = ImageVector.vectorResource(id = confirmIcon)
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = onDismissRequest,
         title = {
             Text(text = title, style = MaterialTheme.typography.headlineSmall)
         },
@@ -53,7 +54,7 @@ fun MessageDialog(
             )
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            TextButton(onClick = onDismissButton) {
                 if (showIcons) {
                     Icon(
                         modifier =
@@ -68,7 +69,7 @@ fun MessageDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) {
+            TextButton(onClick = onConfirmButton) {
                 if (showIcons) {
                     Icon(
                         modifier =

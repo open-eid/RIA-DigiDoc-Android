@@ -5,7 +5,6 @@ package ee.ria.DigiDoc.fragment.screen
 import android.app.Activity
 import android.content.res.Configuration
 import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
-import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,14 +14,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -32,7 +27,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SearchBarDefaults.inputFieldColors
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,7 +39,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -81,7 +74,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.ui.theme.dialogRoundedCornerShape
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
@@ -492,43 +484,25 @@ fun RecentDocumentsScreen(
             }
         }
         if (openRemoveDocumentDialog.value) {
-            BasicAlertDialog(
-                modifier =
-                    modifier
-                        .padding(paddingValues)
-                        .padding(XSPadding)
-                        .clip(dialogRoundedCornerShape)
-                        .background(MaterialTheme.colorScheme.surfaceContainer),
+            MessageDialog(
+                modifier = modifier,
+                title = stringResource(R.string.signature_remove_button),
+                message = removeSignatureDialogMessage,
+                showIcons = false,
+                dismissButtonText = stringResource(R.string.cancel_button),
+                confirmButtonText = stringResource(R.string.remove_title),
+                dismissButtonContentDescription = removeSignatureCancelButtonContentDescription,
+                confirmButtonContentDescription = removeSignatureOkButtonContentDescription,
                 onDismissRequest = dismissRemoveDocumentDialog,
-            ) {
-                Surface(
-                    color = MaterialTheme.colorScheme.surfaceContainer,
-                    modifier =
-                        modifier
-                            .wrapContentHeight()
-                            .wrapContentWidth()
-                            .verticalScroll(rememberScrollState()),
-                ) {
-                    MessageDialog(
-                            modifier = modifier,
-                            title = stringResource(R.string.signature_remove_button),
-                            message = removeSignatureDialogMessage,
-                            showIcons = false,
-                            dismissButtonText = stringResource(R.string.cancel_button),
-                            confirmButtonText = stringResource(R.string.remove_title),
-                            dismissButtonContentDescription = removeSignatureCancelButtonContentDescription,
-                            confirmButtonContentDescription = removeSignatureOkButtonContentDescription,
-                            onDismiss = dismissRemoveDocumentDialog,
-                            onConfirm = {
-                                actionDocument?.delete()
-                                recentDocumentList.value = recentDocumentsViewModel.getRecentDocumentList()
-                                closeDocumentDialog()
-                                AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, documentRemoved)
-                            },
-                        )
-                    InvisibleElement(modifier = modifier)
-                }
-            }
+                onDismissButton = dismissRemoveDocumentDialog,
+                onConfirmButton = {
+                    actionDocument?.delete()
+                    recentDocumentList.value = recentDocumentsViewModel.getRecentDocumentList()
+                    dismissSearch()
+                    closeDocumentDialog()
+                    AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, documentRemoved)
+                },
+            )
         }
 
         SivaConfirmationDialog(
