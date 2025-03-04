@@ -55,6 +55,8 @@ fun MessageDialog(
                 Text(
                     modifier =
                         modifier
+                            .fillMaxWidth()
+                            .padding(end = iconSizeXXS + XSPadding * 3)
                             .constrainAs(text) {
                                 start.linkTo(parent.start)
                                 top.linkTo(parent.top)
@@ -75,9 +77,7 @@ fun MessageDialog(
                 ) {
                     Icon(
                         modifier =
-                            modifier
-                                .padding(XSPadding)
-                                .size(iconSizeXXS),
+                            modifier.size(iconSizeXXS),
                         imageVector = ImageVector.vectorResource(id = R.drawable.ic_m3_close_48dp_wght400),
                         contentDescription = null,
                     )
@@ -132,7 +132,7 @@ fun MessageDialogPreview() {
     RIADigiDocTheme {
         MessageDialog(
             modifier = Modifier,
-            title = "Dialog title ".repeat(5),
+            title = "Dialog titles n ".repeat(5),
             message = "Dialog message",
             showIcons = true,
             dismissButtonText = "Cancel",
