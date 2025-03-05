@@ -149,6 +149,7 @@
     <string name="signature_update_signature_add_method_id_card">ID-card via USB</string>
     <string name="signature_update_signature_add_method_nfc">ID-card via NFC</string>
     <string name="signature_update_signature_add_success">Signature added</string>
+    <string name="signature_update_signature_add">Add signature</string>
 
     <string name="signature_update_signature_selected_method_mobile_id">Signing option Mobile-ID, tab %1$d of %2$d</string>
     <string name="signature_update_signature_selected_method_smart_id">Signing option Smart-ID, tab %1$d of %2$d</string>
@@ -277,6 +278,7 @@
     <string name="add_signature_button">Add new signature</string>
     <string name="extend_signature_button">Extend signature</string>
     <string name="share_button">Share</string>
+    <string name="share_button_accessibility">Share container</string>
     <string name="yes_button">YES</string>
     <string name="remove_button">Remove</string>
     <string name="cancel_button">Cancel</string>
