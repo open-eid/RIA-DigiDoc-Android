@@ -18,7 +18,9 @@ import java.io.File
 fun ContainerBottomSheet(
     modifier: Modifier,
     showSheet: MutableState<Boolean>,
+    isEditContainerButtonShown: Boolean = true,
     openEditContainerNameDialog: MutableState<Boolean>,
+    isEncryptButtonShown: Boolean = true,
     signedContainer: SignedContainer?,
     saveFileLauncher: ActivityResultLauncher<Intent>,
     saveFile: (File?, String?, ActivityResultLauncher<Intent>) -> Unit,
@@ -32,6 +34,7 @@ fun ContainerBottomSheet(
         buttons =
             listOf(
                 BottomSheetButton(
+                    showButton = isEditContainerButtonShown,
                     icon = R.drawable.ic_m3_edit_48dp_wght400,
                     text = stringResource(R.string.signing_container_name_update_button),
                 ) {
@@ -48,6 +51,7 @@ fun ContainerBottomSheet(
                     )
                 },
                 BottomSheetButton(
+                    showButton = isEncryptButtonShown,
                     icon = R.drawable.ic_m3_encrypted_48dp_wght400,
                     text = stringResource(R.string.crypto_button),
                     isExtraActionButtonShown = true,
