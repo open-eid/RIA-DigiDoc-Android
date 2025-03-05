@@ -63,7 +63,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -77,7 +76,6 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
-import ee.ria.DigiDoc.ui.component.home.ActionButton
 import ee.ria.DigiDoc.ui.component.settings.EditValueDialog
 import ee.ria.DigiDoc.ui.component.shared.ContainerMessage
 import ee.ria.DigiDoc.ui.component.shared.DataFileItem
@@ -514,7 +512,9 @@ fun SigningNavigation(
         topBar = {
             TopBar(
                 modifier = modifier,
-                title = null,
+                title =
+                    signedContainer?.takeIf { it.isSigned() }
+                        ?.let { R.string.signing_container_documents_title },
                 leftIcon = R.drawable.ic_m3_close_48dp_wght400,
                 onLeftButtonClick = {
                     if (!isNestedContainer) {
@@ -555,16 +555,6 @@ fun SigningNavigation(
                     )
                 },
                 isUnsignedContainer = signedContainer?.isSigned() == false,
-                onExtraActionsButtonClick = {
-                    showSignedContainerBottomSheet.value = true
-                },
-                onSaveSignedContainerClick = {
-                    saveFile(
-                        signedContainer?.getContainerFile(),
-                        signedContainer?.containerMimetype(),
-                        saveFileLauncher,
-                    )
-                },
             )
         },
     ) { innerPadding ->
@@ -709,39 +699,35 @@ fun SigningNavigation(
                                 text = removeExtensionFromContainerFilename(signedContainerName),
                             )
                         signedContainer?.let {
-                            if (signingViewModel.isContainerWithoutSignatures(signedContainer) && !isNestedContainer) {
+                            val isSignedContainer =
+                                !signingViewModel.isContainerWithoutSignatures(signedContainer) &&
+                                    !isNestedContainer
+                            if (!isSignedContainer) {
                                 Text(
                                     modifier = modifier.padding(bottom = SPadding),
                                     text = stringResource(R.string.signature_update_title),
                                     style = MaterialTheme.typography.headlineMedium,
                                     textAlign = TextAlign.Start,
                                 )
-                                ActionButton(
-                                    icon = R.drawable.ic_m3_folder_48dp_wght400,
-                                    modifier = modifier,
-                                    onClickItem = {
-                                        showContainerBottomSheet.value = true
-                                    },
-                                    title = R.string.container_title,
-                                    description = signedContainerName,
-                                    contentDescription = "$containerTitle $signedContainerName",
-                                    testTag = "containerActionButton",
-                                )
-                            } else {
-                                Text(
-                                    text = stringResource(R.string.signed_container_title),
-                                    style = MaterialTheme.typography.titleSmall,
-                                    textAlign = TextAlign.Start,
-                                )
-                                Text(
-                                    modifier = modifier.padding(bottom = SPadding),
-                                    text = signedContainerName,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis,
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    textAlign = TextAlign.Start,
-                                )
                             }
+                            ContainerNameView(
+                                icon = R.drawable.ic_m3_stylus_note_48dp_wght400,
+                                name = signedContainerName,
+                                showActionButtons = isSignedContainer,
+                                leftActionButtonName = R.string.signature_update_signature_add,
+                                rightActionButtonName = R.string.crypto_button,
+                                leftActionButtonContentDescription = R.string.signature_update_signature_add,
+                                rightActionButtonContentDescription = R.string.crypto_button_accessibility,
+                                onLeftActionButtonClick = {
+                                    openSignatureDialog.value = true
+                                },
+                                onRightActionButtonClick = {
+                                    // TODO: Implement encrypt click
+                                },
+                                onMoreOptionsActionButtonClick = {
+                                    showContainerBottomSheet.value = true
+                                },
+                            )
                         }
                     }
                     signedContainer?.let {
@@ -1006,7 +992,9 @@ fun SigningNavigation(
             ContainerBottomSheet(
                 modifier = modifier,
                 showSheet = showContainerBottomSheet,
+                isEditContainerButtonShown = signedContainer?.isSigned() == false,
                 openEditContainerNameDialog = openEditContainerNameDialog,
+                isEncryptButtonShown = signedContainer?.isSigned() == false,
                 signedContainer = signedContainer,
                 saveFileLauncher = saveFileLauncher,
                 saveFile = ::saveFile,

@@ -4,22 +4,24 @@ package ee.ria.DigiDoc.ui.component.shared
 
 import android.content.res.Configuration
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
@@ -42,42 +44,29 @@ fun MessageDialog(
 ) {
     val dismissIconResource = ImageVector.vectorResource(id = dismissIcon)
     val confirmIconResource = ImageVector.vectorResource(id = confirmIcon)
+
     AlertDialog(
         onDismissRequest = onDismissRequest,
         title = {
-            ConstraintLayout(
-                modifier = modifier.fillMaxWidth(),
+            Row(
+                modifier =
+                    modifier
+                        .fillMaxWidth()
+                        .padding(vertical = SPadding),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                val (
-                    text,
-                    icon,
-                ) = createRefs()
                 Text(
-                    modifier =
-                        modifier
-                            .fillMaxWidth()
-                            .padding(end = iconSizeXXS + XSPadding * 3)
-                            .constrainAs(text) {
-                                start.linkTo(parent.start)
-                                top.linkTo(parent.top)
-                                bottom.linkTo(parent.bottom)
-                            },
                     text = title,
-                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = modifier.weight(1f),
                 )
+
                 IconButton(
-                    modifier =
-                        modifier
-                            .constrainAs(icon) {
-                                end.linkTo(parent.end)
-                                top.linkTo(parent.top)
-                                bottom.linkTo(parent.bottom)
-                            },
                     onClick = onDismissRequest,
+                    modifier = modifier,
                 ) {
                     Icon(
-                        modifier =
-                            modifier.size(iconSizeXXS),
+                        modifier = modifier.size(iconSizeXXS),
                         imageVector = ImageVector.vectorResource(id = R.drawable.ic_m3_close_48dp_wght400),
                         contentDescription = null,
                     )
@@ -86,9 +75,7 @@ fun MessageDialog(
         },
         text = {
             DynamicText(
-                modifier =
-                    modifier
-                        .fillMaxWidth(),
+                modifier = modifier.fillMaxWidth(),
                 text = message,
             )
         },

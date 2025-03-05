@@ -20,8 +20,6 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 fun SigningBottomBar(
     modifier: Modifier,
     isUnsignedContainer: Boolean,
-    onExtraActionsButtonClick: () -> Unit = {},
-    onSaveSignedContainerClick: () -> Unit = {},
     onSignClick: () -> Unit = {},
     onShareClick: () -> Unit = {},
     onAddMoreFiles: () -> Unit = {},
@@ -49,15 +47,10 @@ fun SigningBottomBar(
         } else {
             SignedContainerBottomBar(
                 modifier = modifier,
-                leftButtonIcon = R.drawable.ic_more_vert,
-                leftButtonContentDescription = stringResource(R.string.more_options),
-                onLeftButtonClick = onExtraActionsButtonClick,
-                secondLeftButtonIcon = R.drawable.ic_m3_download_48dp_wght400,
-                secondLeftButtonContentDescription = stringResource(R.string.container_save),
-                onSecondLeftButtonClick = onSaveSignedContainerClick,
-                rightButtonContentDescription = stringResource(R.string.container_save),
-                rightButtonIcon = R.drawable.ic_m3_ios_share_48dp_wght400,
-                onRightButtonClick = onShareClick,
+                shareButtonIcon = R.drawable.ic_m3_ios_share_48dp_wght400,
+                shareButtonName = R.string.share_button,
+                shareButtonContentDescription = R.string.share_button_accessibility,
+                onShareButtonClick = onShareClick,
             )
         }
     }

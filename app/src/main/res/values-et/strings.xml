@@ -149,6 +149,7 @@
     <string name="signature_update_signature_add_method_id_card">ID-kaart läbi USB</string>
     <string name="signature_update_signature_add_method_nfc">ID-kaart läbi NFC</string>
     <string name="signature_update_signature_add_success">Allkiri lisatud</string>
+    <string name="signature_update_signature_add">Lisa allkiri</string>
 
     <string name="signature_update_signature_selected_method_mobile_id">Allkirjastamise viisiks on Mobiil-ID, vahekaart %1$d / %2$d</string>
     <string name="signature_update_signature_selected_method_smart_id">Allkirjastamise viisiks on Smart-ID, vahekaart %1$d / %2$d</string>
@@ -276,6 +277,7 @@
     <string name="add_signature_button">Lisa uus allkiri</string>
     <string name="extend_signature_button">Pikenda allkirja</string>
     <string name="share_button">Jaga</string>
+    <string name="share_button_accessibility">Jaga ümbrikut</string>
     <string name="yes_button">JAH</string>
     <string name="remove_button">Eemalda</string>
     <string name="cancel_button">Tühista</string>
