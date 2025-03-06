@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.ui.component.signing.certificate
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -35,7 +37,8 @@ import androidx.navigation.NavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.signing.TopBar
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
@@ -65,27 +68,40 @@ fun CertificateDetailsView(
         handleBackButtonClick(navController, sharedCertificateViewModel)
     }
 
-    Scaffold { innerPadding ->
+    Scaffold(
+        modifier =
+            modifier
+                .semantics {
+                    testTagsAsResourceId = true
+                }
+                .testTag("certificateDetailsScreen"),
+        topBar = {
+            TopBar(
+                modifier = modifier,
+                title = R.string.signature_details_title,
+                onLeftButtonClick = {
+                    handleBackButtonClick(navController, sharedCertificateViewModel)
+                },
+            )
+        },
+    ) { innerPadding ->
         Surface(
             modifier =
                 modifier
                     .fillMaxSize()
                     .padding(innerPadding)
+                    .background(MaterialTheme.colorScheme.primary)
                     .focusGroup()
                     .semantics {
                         testTagsAsResourceId = true
-                    }
-                    .testTag("certificateDetailsView"),
-        ) {
-            Column {
-                TopBar(
-                    modifier = modifier,
-                    title = R.string.certificate_details_title,
-                    onLeftButtonClick = {
-                        handleBackButtonClick(navController, sharedCertificateViewModel)
                     },
-                )
-
+        ) {
+            Column(
+                modifier =
+                    modifier
+                        .padding(SPadding)
+                        .testTag("certificateDetailContainer"),
+            ) {
                 val certificateHolder = certificateDetailViewModel.certificateToJcaX509(certificate)
                 if (certificate != null && certificateHolder != null) {
                     Column(
@@ -232,6 +248,7 @@ fun CertificateDetailsView(
                                             }
                                         CertificateDataItem(
                                             modifier = modifier,
+                                            icon = 0,
                                             testTag = certificateDetail.testTag,
                                             detailKey = certificateDetail.detailKey,
                                             detailValue = certificateDetail.detailValue,
@@ -239,6 +256,7 @@ fun CertificateDetailsView(
                                                 "$detailKeyText, ${certificateDetail.detailValue}".lowercase(),
                                             formatForAccessibility = certificateDetail.formatForAccessibility,
                                         )
+                                        HorizontalDivider()
                                     }
                                 }
 
@@ -246,8 +264,8 @@ fun CertificateDetailsView(
                                     Row(
                                         modifier =
                                             modifier
+                                                .padding(top = MPadding, bottom = SPadding)
                                                 .fillMaxWidth()
-                                                .padding(screenViewLargePadding)
                                                 .semantics(mergeDescendants = true) {
                                                     this.contentDescription =
                                                         formatNumbers(certificateDetail.text).lowercase()

@@ -66,8 +66,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
@@ -134,6 +136,8 @@ fun SigningNavigation(
     val shouldResetContainer by signingViewModel.shouldResetSignedContainer.asFlow().collectAsState(false)
     val context = LocalContext.current
 
+    var isViewInitialized by rememberSaveable { mutableStateOf(false) }
+
     val clickedDataFile = remember { mutableStateOf<DataFileInterface?>(null) }
     val clickedSignature = remember { mutableStateOf<SignatureInterface?>(null) }
 
@@ -143,7 +147,6 @@ fun SigningNavigation(
     val xadesText = stringResource(id = R.string.xades_file_message)
     val cadesText = stringResource(id = R.string.cades_file_message)
 
-    val containerTitle = stringResource(id = R.string.container_title)
     val emptyFileInContainerText = stringResource(id = R.string.empty_file_message)
 
     val isNestedContainer = sharedContainerViewModel.isNestedContainer(signedContainer)
@@ -447,7 +450,10 @@ fun SigningNavigation(
             val pastTime = System.currentTimeMillis()
             showDataFilesLoadingIndicator.value = true
             dataFiles = it.getDataFiles()
-            signingViewModel.showMessage(containerFilesLoaded)
+            if (!isViewInitialized) {
+                signingViewModel.showMessage(containerFilesLoaded)
+                isViewInitialized = true
+            }
             showDataFilesLoadingIndicator.value = false
             val newTime = System.currentTimeMillis()
             if (newTime >= (pastTime + 2 * 1000)) {

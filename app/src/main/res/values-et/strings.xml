@@ -163,6 +163,11 @@
     <string name="signature_update_confirm_signature_removal_button">Kinnita allkirja eemaldamine</string>
     <string name="signature_update_signature_remove_confirmation_message">Soovid eemaldada allkirja?</string>
 
+    <string name="signature_details_role_and_address_title">Allkirjastaja</string>
+    <string name="signature_details_signer_details_title">Allkiri</string>
+
+    <string name="link">Link</string>
+
     <string name="signature_update_signature_role_and_address_title">ROLL JA AADRESS</string>
     <string name="signature_update_signature_role_and_address_title_accessibility">Roll ja aadress</string>
     <string name="signature_update_signature_role_and_address_info_title">Sisesta oma roll ja aadress</string>
