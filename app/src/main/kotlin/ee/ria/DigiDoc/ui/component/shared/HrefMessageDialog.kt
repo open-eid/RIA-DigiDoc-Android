@@ -11,6 +11,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
@@ -42,7 +44,12 @@ fun HrefMessageDialog(
             linkText = stringResource(linkText),
             linkUrl = stringResource(linkUrl),
             showLinkOnOneLine = showLinkOnOneLine,
-            textStyle = MaterialTheme.typography.bodyLarge,
+            textStyle =
+                TextStyle(
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    textAlign = TextAlign.Start,
+                ),
         )
         CancelAndOkButtonRow(
             okButtonTestTag = "hrefMessageDialogOkButton",

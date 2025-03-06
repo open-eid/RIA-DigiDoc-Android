@@ -76,6 +76,7 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
+import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.EditValueDialog
 import ee.ria.DigiDoc.ui.component.shared.ContainerMessage
 import ee.ria.DigiDoc.ui.component.shared.DataFileItem
@@ -134,6 +135,10 @@ fun SigningNavigation(
     val shouldResetContainer by signingViewModel.shouldResetSignedContainer.asFlow().collectAsState(false)
     val context = LocalContext.current
 
+    val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
+
+    var isViewInitialized by rememberSaveable { mutableStateOf(false) }
+
     val clickedDataFile = remember { mutableStateOf<DataFileInterface?>(null) }
     val clickedSignature = remember { mutableStateOf<SignatureInterface?>(null) }
 
@@ -143,7 +148,6 @@ fun SigningNavigation(
     val xadesText = stringResource(id = R.string.xades_file_message)
     val cadesText = stringResource(id = R.string.cades_file_message)
 
-    val containerTitle = stringResource(id = R.string.container_title)
     val emptyFileInContainerText = stringResource(id = R.string.empty_file_message)
 
     val isNestedContainer = sharedContainerViewModel.isNestedContainer(signedContainer)
@@ -447,7 +451,10 @@ fun SigningNavigation(
             val pastTime = System.currentTimeMillis()
             showDataFilesLoadingIndicator.value = true
             dataFiles = it.getDataFiles()
-            signingViewModel.showMessage(containerFilesLoaded)
+            if (!isViewInitialized) {
+                signingViewModel.showMessage(containerFilesLoaded)
+                isViewInitialized = true
+            }
             showDataFilesLoadingIndicator.value = false
             val newTime = System.currentTimeMillis()
             if (newTime >= (pastTime + 2 * 1000)) {
@@ -527,6 +534,9 @@ fun SigningNavigation(
                         )
                     }
                 },
+                onRightSecondaryButtonClick = {
+                    isSettingsMenuBottomSheetVisible.value = true
+                },
             )
         },
         bottomBar = {
@@ -557,12 +567,16 @@ fun SigningNavigation(
                 isUnsignedContainer = signedContainer?.isSigned() == false,
             )
         },
-    ) { innerPadding ->
+    ) { paddingValues ->
+        SettingsMenuBottomSheet(
+            navController = navController,
+            isBottomSheetVisible = isSettingsMenuBottomSheetVisible,
+        )
         Surface(
             modifier =
                 modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
+                    .padding(paddingValues)
                     .background(MaterialTheme.colorScheme.primary)
                     .focusGroup()
                     .semantics {

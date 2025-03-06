@@ -54,24 +54,6 @@ fun SignatureBottomSheet(
                         }
                     },
                 ),
-                // TODO: Update signature roles after design update
-                BottomSheetButton(
-                    showButton = clickedSignature.value?.signerRoles?.isEmpty() == false,
-                    icon = R.drawable.ic_m3_co_present_48dp_wght400,
-                    text =
-                        stringResource(
-                            R.string.signature_update_signature_role_and_address_title,
-                        ).lowercase().replaceFirstChar {
-                            it.uppercaseChar()
-                        },
-                    isExtraActionButtonShown = true,
-                    onClick = {
-                        clickedSignature.value?.let { signature ->
-                            sharedSignatureViewModel.setSignature(signature)
-                            navController.navigate(Route.RolesDetail.route)
-                        }
-                    },
-                ),
                 BottomSheetButton(
                     showButton =
                         !NO_REMOVE_SIGNATURE_BUTTON_FILE_MIMETYPES.contains(

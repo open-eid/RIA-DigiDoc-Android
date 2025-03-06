@@ -5,10 +5,12 @@ package ee.ria.DigiDoc.ui.component.signing
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.TextStyle
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.ui.component.shared.TagBadge
 import ee.ria.DigiDoc.ui.theme.Green_2_50
@@ -58,6 +60,7 @@ fun ColoredSignedStatusText(
                         .alignByBaseline()
                         .focusable()
                         .testTag("signatureUpdateListSignatureStatusCaution"),
+                style = TextStyle(fontSize = MaterialTheme.typography.bodyMedium.fontSize),
             )
         }
     }

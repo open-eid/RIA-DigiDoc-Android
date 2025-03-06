@@ -24,16 +24,8 @@ fun StyledNameText(
             if (nameParts.size == 2) {
                 val (fullName, code) = nameParts
 
-                val nameSplit = fullName.split(" ")
-                val firstName = nameSplit.getOrNull(0) ?: ""
-                val lastName = nameSplit.getOrNull(1) ?: ""
-
                 pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
-                append("$firstName ")
-                pop()
-
-                pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
-                append(lastName)
+                append(fullName)
                 pop()
 
                 append(", $code")
