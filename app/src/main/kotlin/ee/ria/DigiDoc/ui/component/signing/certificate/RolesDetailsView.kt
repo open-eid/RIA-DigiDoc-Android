@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -20,17 +22,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
-import ee.ria.DigiDoc.ui.component.signing.TopBar
+import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
@@ -66,17 +68,11 @@ fun RolesDetailsView(
                     .testTag("rolesDetailsView"),
         ) {
             Column {
-                TopBar(
-                    modifier = modifier,
-                    title = R.string.signature_update_signature_role_and_address_title_accessibility,
-                    onLeftButtonClick = {
-                        handleBackButtonClick(navController, sharedSignatureViewModel)
-                    },
-                )
                 if (signature != null) {
                     Column(
                         modifier =
                             modifier
+                                .padding(vertical = XSPadding)
                                 .verticalScroll(rememberScrollState())
                                 .fillMaxWidth()
                                 .testTag("scrollView"),
@@ -101,16 +97,20 @@ fun RolesDetailsView(
                                 Text(
                                     text = roleTitle,
                                     modifier = modifier.notAccessible(),
+                                    color = MaterialTheme.colorScheme.onSecondary,
+                                    textAlign = TextAlign.Start,
+                                    style = MaterialTheme.typography.labelMedium,
                                 )
                                 Text(
                                     text = roleValue,
-                                    modifier =
-                                        modifier
-                                            .graphicsLayer(alpha = 0.7f)
-                                            .notAccessible(),
+                                    modifier = modifier.notAccessible(),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    textAlign = TextAlign.Start,
                                 )
                             }
                         }
+
+                        HorizontalDivider()
 
                         val cityTitle = stringResource(id = R.string.main_settings_city_title)
                         val cityValue = signature.city
@@ -131,16 +131,20 @@ fun RolesDetailsView(
                                 Text(
                                     text = cityTitle,
                                     modifier = modifier.notAccessible(),
+                                    color = MaterialTheme.colorScheme.onSecondary,
+                                    textAlign = TextAlign.Start,
+                                    style = MaterialTheme.typography.labelMedium,
                                 )
                                 Text(
                                     text = cityValue,
-                                    modifier =
-                                        modifier
-                                            .graphicsLayer(alpha = 0.7f)
-                                            .notAccessible(),
+                                    modifier = modifier.notAccessible(),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    textAlign = TextAlign.Start,
                                 )
                             }
                         }
+
+                        HorizontalDivider()
 
                         val stateTitle = stringResource(id = R.string.main_settings_county_title)
                         val stateValue = signature.stateOrProvince
@@ -161,16 +165,20 @@ fun RolesDetailsView(
                                 Text(
                                     text = stateTitle,
                                     modifier = modifier.notAccessible(),
+                                    color = MaterialTheme.colorScheme.onSecondary,
+                                    textAlign = TextAlign.Start,
+                                    style = MaterialTheme.typography.labelMedium,
                                 )
                                 Text(
                                     text = stateValue,
-                                    modifier =
-                                        modifier
-                                            .graphicsLayer(alpha = 0.7f)
-                                            .notAccessible(),
+                                    modifier = modifier.notAccessible(),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    textAlign = TextAlign.Start,
                                 )
                             }
                         }
+
+                        HorizontalDivider()
 
                         val countryTitle = stringResource(id = R.string.main_settings_country_title)
                         val countryValue = signature.countryName
@@ -191,16 +199,20 @@ fun RolesDetailsView(
                                 Text(
                                     text = countryTitle,
                                     modifier = modifier.notAccessible(),
+                                    color = MaterialTheme.colorScheme.onSecondary,
+                                    textAlign = TextAlign.Start,
+                                    style = MaterialTheme.typography.labelMedium,
                                 )
                                 Text(
                                     text = countryValue,
-                                    modifier =
-                                        modifier
-                                            .graphicsLayer(alpha = 0.7f)
-                                            .notAccessible(),
+                                    modifier = modifier.notAccessible(),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    textAlign = TextAlign.Start,
                                 )
                             }
                         }
+
+                        HorizontalDivider()
 
                         val zipTitle = stringResource(id = R.string.main_settings_postal_code_title)
                         val zipValue = signature.postalCode
@@ -221,16 +233,19 @@ fun RolesDetailsView(
                                 Text(
                                     text = zipTitle,
                                     modifier = modifier.notAccessible(),
+                                    color = MaterialTheme.colorScheme.onSecondary,
+                                    textAlign = TextAlign.Start,
+                                    style = MaterialTheme.typography.labelMedium,
                                 )
                                 Text(
                                     text = zipValue,
-                                    modifier =
-                                        modifier
-                                            .graphicsLayer(alpha = 0.7f)
-                                            .notAccessible(),
+                                    modifier = modifier.notAccessible(),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    textAlign = TextAlign.Start,
                                 )
                             }
                         }
+                        HorizontalDivider()
                         InvisibleElement(modifier = modifier)
                     }
                 }

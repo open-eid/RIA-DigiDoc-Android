@@ -65,6 +65,8 @@ fun ContainerNameView(
 ) {
     val leftActionButtonContentDescriptionText = stringResource(leftActionButtonContentDescription)
     val rightActionButtonContentDescriptionText = stringResource(rightActionButtonContentDescription)
+
+    val containerTitleText = stringResource(R.string.container_title)
     Card(
         modifier =
             modifier
@@ -122,7 +124,7 @@ fun ContainerNameView(
                                 .wrapContentHeight(align = Alignment.CenterVertically)
                                 .focusable(false)
                                 .semantics {
-                                    this.contentDescription = contentDescription
+                                    this.contentDescription = "$containerTitleText $name"
                                 }
                                 .testTag("signedContainerName"),
                         text = name,

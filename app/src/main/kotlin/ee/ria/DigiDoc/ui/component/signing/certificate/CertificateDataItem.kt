@@ -3,6 +3,7 @@
 package ee.ria.DigiDoc.ui.component.signing.certificate
 
 import android.content.res.Configuration
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
@@ -12,34 +13,35 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.theme.Black
+import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 
 @Composable
 fun CertificateDataItem(
     modifier: Modifier,
+    @DrawableRes icon: Int,
     @StringRes detailKey: Int,
     detailValue: String,
     certificate: Any? = null,
+    isLink: Boolean = false,
     contentDescription: String? = null,
     formatForAccessibility: Boolean = false,
     onCertificateButtonClick: () -> Unit = {},
@@ -52,8 +54,10 @@ fun CertificateDataItem(
             ""
         }
     val buttonName = stringResource(id = R.string.button_name)
+    val linkName = stringResource(id = R.string.link)
+    val uriHandler = LocalUriHandler.current
 
-    val isClickable = certificate != null
+    val isWithCertificate = certificate != null
     val contentDescriptionText =
         if (contentDescription.isNullOrEmpty()) {
             if (formatForAccessibility) {
@@ -74,14 +78,18 @@ fun CertificateDataItem(
             modifier
                 .fillMaxWidth()
                 .semantics(mergeDescendants = true) {
-                    if (isClickable) {
+                    if (isLink) {
+                        this.contentDescription = "$contentDescriptionText, $linkName"
+                    } else if (isWithCertificate) {
                         this.contentDescription = "$contentDescriptionText, $buttonName"
                     } else {
                         this.contentDescription = contentDescriptionText
                     }
                 }
                 .let {
-                    if (isClickable) {
+                    if (isLink) {
+                        it.clickable(enabled = true, onClick = { uriHandler.openUri(detailValue) })
+                    } else if (isWithCertificate) {
                         it.clickable(enabled = true, onClick = onCertificateButtonClick)
                     } else {
                         it
@@ -90,61 +98,43 @@ fun CertificateDataItem(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        ConstraintLayout(
+        Column(
             modifier =
                 modifier
-                    .wrapContentHeight()
-                    .fillMaxWidth()
-                    .padding(screenViewLargePadding)
-                    .align(Alignment.CenterVertically),
+                    .weight(1f)
+                    .padding(vertical = SPadding),
         ) {
-            val (
-                dataItemColumn,
-                dataItemIcon,
-            ) = createRefs()
-            Column(
+            Text(
+                text = detailKeyText,
                 modifier =
                     modifier
-                        .constrainAs(dataItemColumn) {
-                            start.linkTo(parent.start)
-                            top.linkTo(parent.top)
-                            bottom.linkTo(parent.bottom)
-                        },
-            ) {
-                Text(
-                    text = detailKeyText,
-                    modifier =
-                        modifier
-                            .focusable(false)
-                            .testTag(testTag + "Title"),
-                )
-                Text(
-                    text = detailValue,
-                    modifier =
-                        modifier
-                            .graphicsLayer(alpha = 0.7f)
-                            .focusable(false)
-                            .testTag(testTag),
-                )
-            }
-            if (certificate != null) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_keyboard_arrow_right_24),
-                    contentDescription = null,
-                    tint = Black,
-                    modifier =
-                        modifier
-                            .padding(start = screenViewLargePadding)
-                            .size(iconSizeXXS)
-                            .focusable(false)
-                            .constrainAs(dataItemIcon) {
-                                end.linkTo(parent.end)
-                                top.linkTo(parent.top)
-                                bottom.linkTo(parent.bottom)
-                            }
-                            .testTag(testTag + "Button"),
-                )
-            }
+                        .focusable(false)
+                        .testTag(testTag + "Title"),
+                color = MaterialTheme.colorScheme.onSecondary,
+                textAlign = TextAlign.Start,
+                style = MaterialTheme.typography.labelMedium,
+            )
+            Text(
+                text = detailValue,
+                modifier =
+                    modifier
+                        .focusable(false)
+                        .testTag(testTag),
+                textAlign = TextAlign.Start,
+            )
+        }
+
+        if (icon != 0) {
+            Icon(
+                imageVector = ImageVector.vectorResource(icon),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onBackground,
+                modifier =
+                    modifier
+                        .size(iconSizeXXS)
+                        .focusable(false)
+                        .testTag(testTag + "Button"),
+            )
         }
     }
 }
@@ -152,10 +142,11 @@ fun CertificateDataItem(
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun NFCViewPreview() {
+fun CertificateDataItemPreview() {
     RIADigiDocTheme {
         CertificateDataItem(
             modifier = Modifier,
+            icon = R.drawable.ic_m3_expand_content_48dp_wght400,
             detailKey = R.string.signers_certificate_label,
             detailValue = "John Doe".repeat(8),
             certificate = "null",

@@ -30,10 +30,10 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewMediumPadding
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 
 @Composable
@@ -50,7 +50,7 @@ fun ExpandableButton(
     Box(
         modifier =
             modifier
-                .padding(vertical = screenViewMediumPadding)
+                .padding(top = XSPadding)
                 .animateContentSize()
                 .testTag("signersCertificateTechnicalInformationContainerView"),
     ) {
@@ -81,7 +81,7 @@ fun ExpandableButton(
                                 ImageVector.vectorResource(R.drawable.ic_baseline_keyboard_arrow_right_24)
                             },
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.secondary,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier =
                             modifier
                                 .size(iconSizeXXS)
@@ -94,7 +94,7 @@ fun ExpandableButton(
                         modifier
                             .testTag("signersCertificateTechnicalInformationButtonTitle"),
                     text = stringResource(id = title),
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.primary,
                 )
             }
 

@@ -163,6 +163,11 @@
     <string name="signature_update_confirm_signature_removal_button">Confirm signature removal</string>
     <string name="signature_update_signature_remove_confirmation_message">Remove signature from container?</string>
 
+    <string name="signature_details_role_and_address_title">Signer</string>
+    <string name="signature_details_signer_details_title">Signature</string>
+
+    <string name="link">Link</string>
+
     <string name="signature_update_signature_role_and_address_title">ROLE AND ADDRESS</string>
     <string name="signature_update_signature_role_and_address_title_accessibility">Role and address</string>
     <string name="signature_update_signature_role_and_address_info_title">Enter your role and address info</string>

@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.ui.component.signing.certificate
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -15,9 +16,11 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import java.security.cert.X509Certificate
 
 data class SignerDetailItem(
+    @DrawableRes val icon: Int = R.drawable.ic_m3_expand_content_48dp_wght400,
     @StringRes val label: Int = 0,
     val value: String? = null,
     val certificate: X509Certificate? = null,
+    val isLink: Boolean = false,
     val contentDescription: String = "",
     val formatForAccessibility: Boolean = false,
     val testTag: String = "",
@@ -34,6 +37,7 @@ data class SignerDetailItem(
     ): List<SignerDetailItem> =
         listOf(
             SignerDetailItem(
+                icon = 0,
                 label = R.string.signer_certificate_issuer_label,
                 value = signerIssuerName,
                 contentDescription =
@@ -62,6 +66,8 @@ data class SignerDetailItem(
                 testTag = "signersCertificate",
             ),
             SignerDetailItem(
+                icon = R.drawable.ic_m3_open_in_new_48dp_wght400,
+                isLink = true,
                 label = R.string.signature_method_label,
                 value = signature.signatureMethod,
                 contentDescription =
@@ -75,6 +81,7 @@ data class SignerDetailItem(
                 testTag = "signatureDetailMethod",
             ),
             SignerDetailItem(
+                icon = 0,
                 label = R.string.container_format_label,
                 value = sharedContainerViewModel.currentSignedContainer()?.containerMimetype() ?: "",
                 contentDescription =
@@ -88,6 +95,7 @@ data class SignerDetailItem(
                 testTag = "containerDetailFormat",
             ),
             SignerDetailItem(
+                icon = 0,
                 label = R.string.signature_format_label,
                 value = signature.profile,
                 contentDescription =
@@ -101,6 +109,7 @@ data class SignerDetailItem(
                 testTag = "signatureDetailFormat",
             ),
             SignerDetailItem(
+                icon = 0,
                 label = R.string.signed_file_count_label,
                 value =
                     sharedContainerViewModel.signedContainer.value
@@ -118,6 +127,7 @@ data class SignerDetailItem(
                 testTag = "containerDetailSignedFileCount",
             ),
             SignerDetailItem(
+                icon = 0,
                 label = R.string.signature_timestamp_label,
                 value = DateUtil.getFormattedDateTime(signature.timeStampTime, false),
                 contentDescription =
@@ -131,6 +141,7 @@ data class SignerDetailItem(
                 testTag = "signatureDetailTimestamp",
             ),
             SignerDetailItem(
+                icon = 0,
                 label = R.string.signature_timestamp_utc_label,
                 value = DateUtil.getFormattedDateTime(signature.timeStampTime, true),
                 contentDescription =
@@ -144,6 +155,7 @@ data class SignerDetailItem(
                 testTag = "signatureDetailTimestampUTC",
             ),
             SignerDetailItem(
+                icon = 0,
                 label = R.string.hash_value_of_signature_label,
                 value = signature.messageImprint.hexString(),
                 contentDescription =
@@ -157,6 +169,7 @@ data class SignerDetailItem(
                 testTag = "signatureDetailHashValue",
             ),
             SignerDetailItem(
+                icon = 0,
                 label = R.string.ts_certificate_issuer_label,
                 value = tsIssuerName,
                 contentDescription =
@@ -184,6 +197,7 @@ data class SignerDetailItem(
                 testTag = "signatureDetailTimestampCertificate",
             ),
             SignerDetailItem(
+                icon = 0,
                 label = R.string.ocsp_certificate_issuer_label,
                 value = ocspIssuerName,
                 contentDescription =
@@ -211,6 +225,7 @@ data class SignerDetailItem(
                 testTag = "signatureDetailOCSPCertificate",
             ),
             SignerDetailItem(
+                icon = 0,
                 label = R.string.ocsp_time_label,
                 value = DateUtil.getFormattedDateTime(signature.ocspProducedAt, false),
                 contentDescription =
@@ -224,6 +239,7 @@ data class SignerDetailItem(
                 testTag = "signatureDetailOCSPTime",
             ),
             SignerDetailItem(
+                icon = 0,
                 label = R.string.ocsp_time_utc_label,
                 value = DateUtil.getFormattedDateTime(signature.ocspProducedAt, true),
                 contentDescription =
@@ -237,6 +253,7 @@ data class SignerDetailItem(
                 testTag = "signatureDetailOCSPTimeUTC",
             ),
             SignerDetailItem(
+                icon = 0,
                 label = R.string.signers_mobile_time_label,
                 value = DateUtil.getFormattedDateTime(signature.claimedSigningTime, true),
                 contentDescription =
