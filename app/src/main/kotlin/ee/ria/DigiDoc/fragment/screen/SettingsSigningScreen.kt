@@ -23,6 +23,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -41,6 +42,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.network.siva.SivaSetting
+import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.SettingsItem
 import ee.ria.DigiDoc.ui.component.settings.SettingsProxyCategoryDialog
 import ee.ria.DigiDoc.ui.component.settings.SettingsSivaCategoryDialog
@@ -74,6 +76,9 @@ fun SettingsSigningScreen(
     val context = LocalContext.current
     val activity = (context as Activity)
     markAsSecure(context, activity.window)
+
+    val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
+
     val configuration by sharedSettingsViewModel.updatedConfiguration.asFlow().collectAsState(
         null,
     )
@@ -330,13 +335,20 @@ fun SettingsSigningScreen(
                 onLeftButtonClick = {
                     navController.navigateUp()
                 },
+                onRightSecondaryButtonClick = {
+                    isSettingsMenuBottomSheetVisible.value = true
+                },
             )
         },
-    ) { innerPadding ->
+    ) { paddingValues ->
+        SettingsMenuBottomSheet(
+            navController = navController,
+            isBottomSheetVisible = isSettingsMenuBottomSheetVisible,
+        )
         Column(
             modifier =
                 modifier
-                    .padding(innerPadding)
+                    .padding(paddingValues)
                     .verticalScroll(rememberScrollState())
                     .testTag("scrollView"),
         ) {

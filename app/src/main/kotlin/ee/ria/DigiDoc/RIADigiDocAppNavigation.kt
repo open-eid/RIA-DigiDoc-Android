@@ -39,7 +39,6 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
 @Composable
 fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
     val navController = rememberNavController()
-    val navBarNavController = rememberNavController()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
     val sharedSignatureViewModel: SharedSignatureViewModel = hiltViewModel()
     val sharedCertificateViewModel: SharedCertificateViewModel = hiltViewModel()

@@ -163,6 +163,11 @@
     <string name="signature_update_confirm_signature_removal_button">Подтвердите удаление подписи</string>
     <string name="signature_update_signature_remove_confirmation_message">Удалить подпись из контейнера?</string>
 
+    <string name="signature_details_role_and_address_title">Пользователя</string>
+    <string name="signature_details_signer_details_title">Подпись</string>
+
+    <string name="link">линк</string>
+
     <string name="signature_update_signature_role_and_address_title">РОЛЬ И АДРЕС</string>
     <string name="signature_update_signature_role_and_address_title_accessibility">Роль и адрес</string>
     <string name="signature_update_signature_role_and_address_info_title">Введите свою роль и адрес</string>

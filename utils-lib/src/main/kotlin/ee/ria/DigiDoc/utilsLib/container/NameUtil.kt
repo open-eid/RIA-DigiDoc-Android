@@ -11,15 +11,21 @@ object NameUtil {
         val formattedNameComponents =
             if (nameComponents.size == 3) {
                 val (lastname, firstname, code) = nameComponents
-                "${firstname.lowercase().replaceFirstChar { it.uppercaseChar() }} " +
-                    "${lastname.lowercase().replaceFirstChar { it.uppercaseChar() }}, $code".trim()
+                "${capitalizeName(firstname)} ${capitalizeName(lastname)}, $code".trim()
             } else {
-                nameComponents.joinToString(separator = ", ").trim()
+                nameComponents.joinToString(separator = ", ") { capitalizeName(it) }.trim()
             }
 
         // Remove slashes and double spaces
         return TextUtil
             .removeSlashes(formattedNameComponents)
             .replace("\\s+".toRegex(), " ")
+    }
+
+    private fun capitalizeName(name: String): String {
+        return name.lowercase()
+            .replace(Regex("([\\p{L}\\d])([\\p{L}\\d]*)")) { matchResult ->
+                matchResult.groupValues[1].uppercase() + matchResult.groupValues[2]
+            }
     }
 }
