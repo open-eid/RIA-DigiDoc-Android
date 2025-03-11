@@ -11,5 +11,6 @@ data class BottomSheetButton(
     val text: String,
     val isExtraActionButtonShown: Boolean = false,
     @DrawableRes val extraActionIcon: Int = R.drawable.ic_m3_arrow_right_48dp_wght400,
+    val contentDescription: String = "",
     val onClick: () -> Unit,
 )

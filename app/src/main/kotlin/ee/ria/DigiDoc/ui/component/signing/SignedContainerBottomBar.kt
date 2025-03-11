@@ -23,14 +23,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
@@ -41,7 +44,9 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.buttonCornerRadius
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignedContainerBottomBar(
     modifier: Modifier,
@@ -58,7 +63,11 @@ fun SignedContainerBottomBar(
                 .fillMaxWidth()
                 .padding(horizontal = MPadding)
                 .padding(top = XXSPadding, bottom = MPadding)
-                .navigationBarsPadding(),
+                .navigationBarsPadding()
+                .semantics {
+                    testTagsAsResourceId = true
+                }
+                .testTag("signedContainerContainer"),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.End,
     ) {
@@ -75,7 +84,9 @@ fun SignedContainerBottomBar(
                     .clip(buttonRoundedCornerShape)
                     .semantics {
                         contentDescription = shareButtonContentDescriptionText
-                    },
+                        testTagsAsResourceId = true
+                    }
+                    .testTag("signedContainerShareButton"),
             colors =
                 ButtonDefaults.elevatedButtonColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
@@ -92,7 +103,7 @@ fun SignedContainerBottomBar(
             )
             Spacer(modifier = modifier.width(XSPadding))
             Text(
-                modifier = modifier,
+                modifier = modifier.notAccessible(),
                 text = stringResource(shareButtonName),
             )
         }

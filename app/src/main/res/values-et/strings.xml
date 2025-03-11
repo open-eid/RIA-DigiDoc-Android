@@ -22,7 +22,7 @@
     <string name="crash_report_dialog_header">Kas saata vearaport?</string>
     <string name="crash_report_dialog_text">Rakenduses juhtus viga. Palun saada meile vearaport, et saaksime selle vea parandada.</string>
     <string name="crash_report_dialog_send_button">Saada</string>
-    <string name="crash_report_dialog_always_send_button">Saada Alati</string>
+    <string name="crash_report_dialog_always_send_button">Saada alati</string>
     <string name="crash_report_dialog_dont_send_button">Ära saada</string>
 
     <string name="clear_text">Tühjenda tekst</string>
@@ -127,7 +127,7 @@
     <!-- Recent Documents -->
     <string name="document">Dokument</string>
     <string name="recent_documents_search">Otsi ümbrikku…</string>
-    <string name="recent_documents_search_cancel">Katkesta ümbrikku otsing</string>
+    <string name="recent_documents_search_cancel">Katkesta ümbriku otsing</string>
     <string name="recent_documents_search_empty">Hiljutisi ümbrikke ei ole leitud</string>
     <string name="recent_documents_title">Hiljutised ümbrikud</string>
     <string name="recent_documents_empty_message">Ümbrikud puuduvad</string>
@@ -158,6 +158,9 @@
     <string name="signature_update_signature_chosen_method_mobile_id">Allkirjastamisviis mobiil-ID on valitud</string>
     <string name="signature_update_signature_chosen_method_smart_id">Smart-ID allkirjastamise vahend valitud</string>
     <string name="signature_update_signature_chosen_method_id_card">ID-kaart allkirjastamise vahend valitud</string>
+
+    <string name="signature_update_signature_selected_container_tab">Valitud %1$s, vahekaart %2$d / %3$d</string>
+    <string name="signature_update_signature_unselected_container_tab">%1$s, vahekaart %2$d / %3$d</string>
 
     <string name="signature_update_cancel_signature_removal_button">Katkesta allkirja eemaldamine</string>
     <string name="signature_update_confirm_signature_removal_button">Kinnita allkirja eemaldamine</string>

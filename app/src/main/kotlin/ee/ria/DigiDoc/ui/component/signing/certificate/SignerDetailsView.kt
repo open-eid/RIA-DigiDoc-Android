@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -48,17 +50,13 @@ import ee.ria.DigiDoc.ui.component.shared.TabView
 import ee.ria.DigiDoc.ui.component.signing.ColoredSignedStatusText
 import ee.ria.DigiDoc.ui.component.signing.StyledNameText
 import ee.ria.DigiDoc.ui.component.signing.TopBar
-import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.border
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
-import ee.ria.DigiDoc.ui.theme.Red50
-import ee.ria.DigiDoc.ui.theme.Red800
-import ee.ria.DigiDoc.ui.theme.Yellow50
-import ee.ria.DigiDoc.ui.theme.Yellow800
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil.getSignatureStatusText
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatName
@@ -103,8 +101,7 @@ fun SignerDetailsView(
             ValidatorInterface.Status.Unknown -> R.string.signature_error_details_reason_unknown
             else -> R.string.signature_error_details_invalid_reason
         }.let { stringResource(id = it) }
-    val tagBackgroundColor = if (isSignatureWithWarning) Yellow50 else Red50
-    val tagContentColor = if (isSignatureWithWarning) Yellow800 else Red800
+
     val signersIssuerName =
         signerDetailViewModel.getIssuerCommonName(
             signature?.signingCertificateDer?.x509Certificate(),
@@ -172,13 +169,18 @@ fun SignerDetailsView(
                 Column(
                     modifier =
                         modifier
+                            .verticalScroll(rememberScrollState())
                             .padding(SPadding)
+                            .semantics {
+                                testTagsAsResourceId = true
+                            }
                             .testTag("signersCertificateContainer"),
                 ) {
                     Row(
                         modifier =
                             modifier
                                 .fillMaxWidth()
+                                .focusable(true)
                                 .semantics(mergeDescendants = true) {
                                     testTagsAsResourceId = true
                                 }
@@ -194,7 +196,11 @@ fun SignerDetailsView(
                                 modifier
                                     .size(iconSizeXXS)
                                     .focusable(false)
-                                    .testTag("signatureUpdateListSignatureType"),
+                                    .semantics {
+                                        testTagsAsResourceId = true
+                                    }
+                                    .testTag("signatureUpdateListSignatureType")
+                                    .notAccessible(),
                         )
                         Spacer(modifier = modifier.width(SPadding))
 
@@ -219,7 +225,11 @@ fun SignerDetailsView(
                                 modifier =
                                     modifier
                                         .focusable(false)
-                                        .testTag("signatureDetailsSignatureName"),
+                                        .semantics {
+                                            testTagsAsResourceId = true
+                                        }
+                                        .testTag("signatureDetailsSignatureName")
+                                        .notAccessible(),
                                 nameText,
                             )
                             ColoredSignedStatusText(
@@ -228,7 +238,8 @@ fun SignerDetailsView(
                                 modifier =
                                     modifier
                                         .padding(vertical = border)
-                                        .focusable(false),
+                                        .focusable(false)
+                                        .notAccessible(),
                             )
                         }
                     }
@@ -264,7 +275,7 @@ fun SignerDetailsView(
                     }
 
                     TabView(
-                        modifier = modifier.padding(top = MPadding),
+                        modifier = modifier,
                         selectedTabIndex = selectedSignedContainerTabIndex.intValue,
                         onTabSelected = { index ->
                             selectedSignedContainerTabIndex.intValue = index
@@ -299,8 +310,8 @@ fun SignerDetailsView(
                             ),
                         ),
                     )
+                    InvisibleElement(modifier = modifier)
                 }
-                InvisibleElement(modifier = modifier)
             }
         }
     }

@@ -47,6 +47,7 @@ import ee.ria.DigiDoc.BuildConfig
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
+import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.DiagnosticsText
 import ee.ria.DigiDoc.ui.component.shared.HrefMessageDialog
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
@@ -54,6 +55,7 @@ import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
 import ee.ria.DigiDoc.ui.component.shared.SpannableBoldText
 import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.component.toast.ToastUtil.showMessage
+import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
@@ -478,28 +480,52 @@ fun DiagnosticsScreen(
                             modifier
                                 .wrapContentHeight()
                                 .wrapContentWidth()
-                                .padding(screenViewLargePadding)
-                                .verticalScroll(rememberScrollState()),
+                                .padding(SPadding),
                     ) {
-                        HrefMessageDialog(
-                            text1 = R.string.main_diagnostics_restart_message,
-                            text2 = R.string.main_diagnostics_restart_message_restart_now,
-                            linkText = R.string.main_diagnostics_restart_message_read_more,
-                            linkUrl = R.string.main_diagnostics_restart_message_href,
-                            cancelButtonClick = dismissRestartConfirmationDialog,
-                            okButtonClick = {
-                                enableOneTimeLogGeneration = true
-                                diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(true)
-                                closeRestartConfirmationDialog()
-                                AccessibilityUtil.sendAccessibilityEvent(
-                                    context,
-                                    TYPE_ANNOUNCEMENT,
-                                    settingValueChanged,
-                                )
-                                sharedSettingsViewModel.recreateActivity(true)
-                            },
-                        )
-                        InvisibleElement(modifier = modifier)
+                        Column(
+                            modifier =
+                                modifier
+                                    .padding(SPadding)
+                                    .semantics {
+                                        testTagsAsResourceId = true
+                                    }
+                                    .testTag("diagnosticsActivateLoggingContainer"),
+                        ) {
+                            HrefMessageDialog(
+                                text1 = R.string.main_diagnostics_restart_message,
+                                text2 = R.string.main_diagnostics_restart_message_restart_now,
+                                linkText = R.string.main_diagnostics_restart_message_read_more,
+                                linkUrl = R.string.main_diagnostics_restart_message_href,
+                            )
+
+                            CancelAndOkButtonRow(
+                                okButtonTestTag = "hrefMessageDialogOkButton",
+                                cancelButtonTestTag = "hrefMessageDialogCancelButton",
+                                cancelButtonClick = dismissRestartConfirmationDialog,
+                                okButtonClick = {
+                                    enableOneTimeLogGeneration = true
+                                    diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(
+                                        true,
+                                    )
+                                    closeRestartConfirmationDialog()
+                                    AccessibilityUtil.sendAccessibilityEvent(
+                                        context,
+                                        TYPE_ANNOUNCEMENT,
+                                        settingValueChanged,
+                                    )
+                                    sharedSettingsViewModel.recreateActivity(true)
+                                },
+                                cancelButtonTitle = R.string.cancel_button,
+                                okButtonTitle = R.string.ok_button,
+                                cancelButtonContentDescription =
+                                    stringResource(
+                                        id = R.string.cancel_button,
+                                    ).lowercase(),
+                                okButtonContentDescription = stringResource(id = R.string.ok_button).lowercase(),
+                                showCancelButton = true,
+                            )
+                            InvisibleElement(modifier = modifier)
+                        }
                     }
                 }
             }

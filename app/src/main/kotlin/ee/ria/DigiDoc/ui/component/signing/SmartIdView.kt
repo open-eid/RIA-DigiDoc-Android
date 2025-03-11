@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.ui.component.signing
 
 import android.app.Activity
 import android.content.res.Configuration
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -34,7 +35,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -70,6 +70,7 @@ import ee.ria.DigiDoc.ui.component.shared.SelectionSpinner
 import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.component.toast.ToastUtil
+import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
@@ -242,23 +243,42 @@ fun SmartIdView(
                         modifier
                             .wrapContentHeight()
                             .wrapContentWidth()
-                            .padding(screenViewLargePadding)
-                            .verticalScroll(rememberScrollState()),
+                            .verticalScroll(rememberScrollState())
+                            .padding(SPadding),
                 ) {
-                    HrefMessageDialog(
-                        modifier = modifier.align(Alignment.Center),
-                        text1 = dialogError,
-                        text1Arg = text1Arg,
-                        text2 = text2,
-                        linkText = linkText,
-                        linkUrl = linkUrl,
-                        cancelButtonClick = {},
-                        okButtonClick = {
-                            smartIdViewModel.resetDialogErrorState()
-                            dismissDialog()
-                        },
-                        showCancelButton = false,
-                    )
+                    Column(
+                        modifier =
+                            modifier
+                                .padding(SPadding)
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("smartIdErrorContainer"),
+                    ) {
+                        HrefMessageDialog(
+                            modifier = modifier,
+                            text1 = dialogError,
+                            text1Arg = text1Arg,
+                            text2 = text2,
+                            linkText = linkText,
+                            linkUrl = linkUrl,
+                        )
+
+                        CancelAndOkButtonRow(
+                            okButtonTestTag = "hrefMessageDialogOkButton",
+                            cancelButtonTestTag = "hrefMessageDialogCancelButton",
+                            cancelButtonClick = {},
+                            okButtonClick = {
+                                smartIdViewModel.resetDialogErrorState()
+                                dismissDialog()
+                            },
+                            cancelButtonTitle = R.string.cancel_button,
+                            okButtonTitle = R.string.ok_button,
+                            cancelButtonContentDescription = stringResource(id = R.string.cancel_button).lowercase(),
+                            okButtonContentDescription = stringResource(id = R.string.ok_button).lowercase(),
+                            showCancelButton = false,
+                        )
+                    }
                 }
             }
             InvisibleElement(modifier = modifier)
@@ -471,7 +491,7 @@ fun SmartIdViewPreview() {
     val signatureAddController = rememberNavController()
     RIADigiDocTheme {
         SmartIdView(
-            activity = LocalContext.current as Activity,
+            activity = LocalActivity.current as Activity,
             signatureAddController = signatureAddController,
             sharedContainerViewModel = sharedContainerViewModel,
         )

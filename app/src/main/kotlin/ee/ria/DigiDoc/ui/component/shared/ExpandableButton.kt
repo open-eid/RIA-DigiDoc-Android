@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
@@ -29,13 +30,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
-import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ExpandableButton(
     modifier: Modifier,
@@ -88,10 +90,13 @@ fun ExpandableButton(
                                 .notAccessible(),
                     )
                 }
-                Spacer(modifier = modifier.padding(horizontal = itemSpacingPadding))
+                Spacer(modifier = modifier.padding(horizontal = XSPadding))
                 Text(
                     modifier =
                         modifier
+                            .semantics {
+                                testTagsAsResourceId = true
+                            }
                             .testTag("signersCertificateTechnicalInformationButtonTitle"),
                     text = stringResource(id = title),
                     color = MaterialTheme.colorScheme.primary,
@@ -104,10 +109,13 @@ fun ExpandableButton(
                     modifier =
                         modifier
                             .padding(
-                                horizontal = itemSpacingPadding,
-                                vertical = screenViewExtraLargePadding,
+                                horizontal = XSPadding,
+                                vertical = MPadding,
                             )
                             .focusable()
+                            .semantics {
+                                testTagsAsResourceId = true
+                            }
                             .testTag("signersCertificateTechnicalInformationText"),
                 )
             }

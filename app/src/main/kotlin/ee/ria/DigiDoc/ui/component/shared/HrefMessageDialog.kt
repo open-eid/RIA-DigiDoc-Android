@@ -15,7 +15,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
@@ -27,18 +28,15 @@ fun HrefMessageDialog(
     @StringRes linkText: Int,
     @StringRes linkUrl: Int,
     showLinkOnOneLine: Boolean = false,
-    showCancelButton: Boolean = true,
-    cancelButtonClick: () -> Unit = {},
-    okButtonClick: () -> Unit = {},
 ) {
     Column(
-        modifier = modifier.padding(screenViewLargePadding),
+        modifier = modifier.padding(SPadding),
     ) {
         HrefDynamicText(
             modifier =
                 modifier
                     .fillMaxWidth()
-                    .padding(vertical = screenViewLargePadding),
+                    .padding(vertical = XSPadding),
             text1 = stringResource(text1, text1Arg?.let { stringResource(it) } ?: ""),
             text2 = text2?.let { stringResource(it) } ?: "",
             linkText = stringResource(linkText),
@@ -50,17 +48,6 @@ fun HrefMessageDialog(
                     fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                     textAlign = TextAlign.Start,
                 ),
-        )
-        CancelAndOkButtonRow(
-            okButtonTestTag = "hrefMessageDialogOkButton",
-            cancelButtonTestTag = "hrefMessageDialogCancelButton",
-            cancelButtonClick = cancelButtonClick,
-            okButtonClick = okButtonClick,
-            cancelButtonTitle = R.string.cancel_button,
-            okButtonTitle = R.string.ok_button,
-            cancelButtonContentDescription = stringResource(id = R.string.cancel_button).lowercase(),
-            okButtonContentDescription = stringResource(id = R.string.ok_button).lowercase(),
-            showCancelButton = showCancelButton,
         )
     }
 }

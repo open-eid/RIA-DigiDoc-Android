@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.ui.component.signing
 import android.app.Activity
 import android.content.res.Configuration
 import android.net.Uri
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
@@ -173,7 +174,7 @@ fun AddSignatureViewPreview() {
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
     RIADigiDocTheme {
         AddSignatureView(
-            activity = LocalContext.current as Activity,
+            activity = LocalActivity.current as Activity,
             signatureAddController = signatureAddController,
             sharedContainerViewModel = sharedContainerViewModel,
         )

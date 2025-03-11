@@ -3,9 +3,12 @@
 package ee.ria.DigiDoc.ui.component.shared.dialog
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
@@ -18,6 +21,14 @@ fun SivaConfirmationDialog(
     onResult: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit, showDialog) {
+        if (showDialog.value) {
+            focusRequester.requestFocus()
+        }
+    }
+
     if (showDialog.value) {
         ConfirmationDialog(
             modifier =
