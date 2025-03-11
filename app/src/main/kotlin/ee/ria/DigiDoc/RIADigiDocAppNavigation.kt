@@ -76,6 +76,7 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
         }
         composable(route = Route.Signing.route) {
             SigningFragment(
+                modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 sharedContainerViewModel = sharedContainerViewModel,
                 sharedSignatureViewModel = sharedSignatureViewModel,

@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.ui.component.signing
 
 import android.app.Activity
 import android.content.res.Configuration
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -66,6 +67,7 @@ import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
 import ee.ria.DigiDoc.ui.component.toast.ToastUtil
 import ee.ria.DigiDoc.ui.theme.Blue300
+import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
@@ -461,23 +463,42 @@ fun IdCardView(
                         modifier
                             .wrapContentHeight()
                             .wrapContentWidth()
-                            .padding(screenViewLargePadding)
-                            .verticalScroll(rememberScrollState()),
+                            .verticalScroll(rememberScrollState())
+                            .padding(SPadding),
                 ) {
-                    HrefMessageDialog(
-                        modifier = modifier.align(Alignment.Center),
-                        text1 = text1,
-                        text1Arg = text1Arg,
-                        text2 = text2,
-                        linkText = linkText,
-                        linkUrl = linkUrl,
-                        cancelButtonClick = {},
-                        okButtonClick = {
-                            idCardViewModel.resetDialogErrorState()
-                            dismissDialog()
-                        },
-                        showCancelButton = false,
-                    )
+                    Column(
+                        modifier =
+                            modifier
+                                .padding(SPadding)
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("idCardErrorContainer"),
+                    ) {
+                        HrefMessageDialog(
+                            modifier = modifier,
+                            text1 = text1,
+                            text1Arg = text1Arg,
+                            text2 = text2,
+                            linkText = linkText,
+                            linkUrl = linkUrl,
+                        )
+
+                        CancelAndOkButtonRow(
+                            okButtonTestTag = "hrefMessageDialogOkButton",
+                            cancelButtonTestTag = "hrefMessageDialogCancelButton",
+                            cancelButtonClick = {},
+                            okButtonClick = {
+                                idCardViewModel.resetDialogErrorState()
+                                dismissDialog()
+                            },
+                            cancelButtonTitle = R.string.cancel_button,
+                            okButtonTitle = R.string.ok_button,
+                            cancelButtonContentDescription = stringResource(id = R.string.cancel_button).lowercase(),
+                            okButtonContentDescription = stringResource(id = R.string.ok_button).lowercase(),
+                            showCancelButton = false,
+                        )
+                    }
                 }
             }
             InvisibleElement(modifier = modifier)
@@ -496,7 +517,7 @@ fun IdCardViewPreview() {
     RIADigiDocTheme {
         val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
         IdCardView(
-            activity = LocalContext.current as Activity,
+            activity = LocalActivity.current as Activity,
             signatureAddController = rememberNavController(),
             sharedContainerViewModel = sharedContainerViewModel,
         )

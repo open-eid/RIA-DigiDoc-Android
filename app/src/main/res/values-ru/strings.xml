@@ -159,6 +159,9 @@
     <string name="signature_update_signature_chosen_method_smart_id">Выбран метод подписи Smart-ID</string>
     <string name="signature_update_signature_chosen_method_id_card">Выбран метод подписи ID-карта</string>
 
+    <string name="signature_update_signature_selected_container_tab">Выбран %1$s, вкладка %2$d / %3$d</string>
+    <string name="signature_update_signature_unselected_container_tab">%1$s, вкладка %2$d / %3$d</string>
+
     <string name="signature_update_cancel_signature_removal_button">Отменить удаление подписи</string>
     <string name="signature_update_confirm_signature_removal_button">Подтвердите удаление подписи</string>
     <string name="signature_update_signature_remove_confirmation_message">Удалить подпись из контейнера?</string>

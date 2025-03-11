@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.ui.component.signing
 
 import android.app.Activity
 import android.content.res.Configuration
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -529,7 +530,7 @@ fun NFCViewPreview() {
     val signatureAddController = rememberNavController()
     RIADigiDocTheme {
         NFCView(
-            activity = LocalContext.current as Activity,
+            activity = LocalActivity.current as Activity,
             signatureAddController = signatureAddController,
             sharedContainerViewModel = sharedContainerViewModel,
         )

@@ -5,8 +5,6 @@ package ee.ria.DigiDoc.ui.component.signing.certificate
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -41,7 +39,6 @@ fun SignerDetails(
             modifier
                 .fillMaxSize()
                 .padding(vertical = XSPadding)
-                .verticalScroll(rememberScrollState())
                 .semantics {
                     testTagsAsResourceId = true
                 }
@@ -60,7 +57,7 @@ fun SignerDetails(
             )
             .forEach { navigationItem ->
                 if (!navigationItem.value.isNullOrEmpty()) {
-                    CertificateDataItem(
+                    SignatureDataItem(
                         modifier = modifier,
                         icon = navigationItem.icon,
                         isLink = navigationItem.isLink,

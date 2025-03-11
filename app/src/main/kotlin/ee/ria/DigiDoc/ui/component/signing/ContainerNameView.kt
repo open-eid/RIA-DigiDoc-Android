@@ -11,6 +11,8 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,14 +31,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,13 +53,17 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 
+@OptIn(ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun ContainerNameView(
     modifier: Modifier = Modifier,
     @DrawableRes icon: Int,
     name: String,
-    showActionButtons: Boolean,
+    showSignButton: Boolean,
+    showEncryptButton: Boolean,
     @StringRes leftActionButtonName: Int,
     @StringRes rightActionButtonName: Int,
     @StringRes leftActionButtonContentDescription: Int,
@@ -63,16 +72,25 @@ fun ContainerNameView(
     onRightActionButtonClick: () -> Unit = {},
     onMoreOptionsActionButtonClick: () -> Unit = {},
 ) {
+    val context = LocalContext.current
     val leftActionButtonContentDescriptionText = stringResource(leftActionButtonContentDescription)
     val rightActionButtonContentDescriptionText = stringResource(rightActionButtonContentDescription)
 
     val containerTitleText = stringResource(R.string.container_title)
+
+    val buttonName = stringResource(id = R.string.button_name)
+
     Card(
         modifier =
             modifier
                 .fillMaxWidth()
                 .padding(vertical = SPadding)
-                .clickable(enabled = true, onClick = onMoreOptionsActionButtonClick),
+                .clickable(enabled = !isTalkBackEnabled(context), onClick = onMoreOptionsActionButtonClick)
+                .semantics {
+                    this.contentDescription = "$containerTitleText $name"
+                    testTagsAsResourceId = true
+                }
+                .testTag("containerNameContainer"),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest),
         shape = buttonRoundedCornerShape,
     ) {
@@ -80,8 +98,8 @@ fun ContainerNameView(
             modifier =
                 modifier
                     .fillMaxWidth()
-                    .padding(horizontal = SPadding)
-                    .padding(top = SPadding, bottom = XSPadding),
+                    .padding(vertical = SPadding)
+                    .padding(start = SPadding, end = XSPadding),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -105,7 +123,12 @@ fun ContainerNameView(
                             modifier
                                 .padding(XSPadding)
                                 .size(iconSizeXXS)
-                                .wrapContentHeight(align = Alignment.CenterVertically),
+                                .wrapContentHeight(align = Alignment.CenterVertically)
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("containerNameIcon")
+                                .notAccessible(),
                     )
                 }
 
@@ -113,6 +136,7 @@ fun ContainerNameView(
 
                 Column(modifier = modifier.weight(1f)) {
                     Text(
+                        modifier = modifier.notAccessible(),
                         text = stringResource(R.string.signature_update_name_update_name),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -125,6 +149,7 @@ fun ContainerNameView(
                                 .focusable(false)
                                 .semantics {
                                     this.contentDescription = "$containerTitleText $name"
+                                    testTagsAsResourceId = true
                                 }
                                 .testTag("signedContainerName"),
                         text = name,
@@ -140,40 +165,58 @@ fun ContainerNameView(
 
                 IconButton(onClick = onMoreOptionsActionButtonClick) {
                     Icon(
+                        modifier =
+                            modifier
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("containerNameMoreOptionsIcon"),
                         imageVector = ImageVector.vectorResource(R.drawable.ic_more_vert),
-                        contentDescription = stringResource(R.string.more_options),
+                        contentDescription = "${stringResource(R.string.more_options)} $buttonName",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
 
-            if (showActionButtons) {
+            if (showSignButton || showEncryptButton) {
                 Spacer(modifier = modifier.height(SPadding))
 
-                Row(
+                FlowRow(
                     modifier = modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
+                    verticalArrangement = Arrangement.Center,
                 ) {
-                    TextButton(onClick = onLeftActionButtonClick) {
-                        Text(
-                            modifier =
-                                modifier
-                                    .semantics {
-                                        contentDescription = leftActionButtonContentDescriptionText
-                                    },
-                            text = stringResource(leftActionButtonName),
-                            color = MaterialTheme.colorScheme.primary,
-                        )
+                    if (showSignButton) {
+                        TextButton(onClick = onLeftActionButtonClick) {
+                            Text(
+                                modifier =
+                                    modifier
+                                        .semantics {
+                                            contentDescription =
+                                                "$leftActionButtonContentDescriptionText $buttonName"
+                                            testTagsAsResourceId = true
+                                        }
+                                        .testTag("containerNameLeftActionButton"),
+                                text = stringResource(leftActionButtonName),
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
                     }
-                    TextButton(onClick = onRightActionButtonClick) {
-                        Text(
-                            modifier =
-                                modifier
-                                    .semantics {
-                                        contentDescription = rightActionButtonContentDescriptionText
-                                    },
-                            text = stringResource(rightActionButtonName),
-                            color = MaterialTheme.colorScheme.primary,
-                        )
+                    if (showEncryptButton) {
+                        TextButton(onClick = onRightActionButtonClick) {
+                            Text(
+                                modifier =
+                                    modifier
+                                        .semantics {
+                                            contentDescription =
+                                                "$rightActionButtonContentDescriptionText $buttonName"
+                                            testTagsAsResourceId = true
+                                        }
+                                        .testTag("containerNameRightActionButton"),
+                                text = stringResource(rightActionButtonName),
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
                     }
                 }
             }
@@ -189,7 +232,8 @@ fun SignedContainerNameViewPreview() {
         ContainerNameView(
             icon = R.drawable.ic_m3_stylus_note_48dp_wght400,
             name = "Signed container.asice",
-            showActionButtons = true,
+            showSignButton = true,
+            showEncryptButton = true,
             leftActionButtonName = R.string.signature_update_signature_add,
             rightActionButtonName = R.string.crypto_button,
             leftActionButtonContentDescription = R.string.signature_update_signature_add,

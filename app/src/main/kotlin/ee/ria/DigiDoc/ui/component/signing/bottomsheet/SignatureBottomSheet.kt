@@ -15,6 +15,8 @@ import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.ui.component.shared.BottomSheet
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
+import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatName
 import ee.ria.DigiDoc.viewmodel.SigningViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
 import org.apache.commons.io.FilenameUtils
@@ -47,6 +49,9 @@ fun SignatureBottomSheet(
                     icon = R.drawable.ic_m3_database_48dp_wght400,
                     text = stringResource(R.string.signature_details_title),
                     isExtraActionButtonShown = true,
+                    contentDescription = "${stringResource(
+                        R.string.signature_details_title,
+                    )} ${formatNumbers(formatName(clickedSignature.value?.signedBy ?: ""))}",
                     onClick = {
                         clickedSignature.value?.let { signature ->
                             sharedSignatureViewModel.setSignature(signature)
@@ -66,6 +71,9 @@ fun SignatureBottomSheet(
                             !isNestedContainer && !isXadesContainer && !isCadesContainer,
                     icon = R.drawable.ic_m3_delete_48dp_wght400,
                     text = stringResource(R.string.signature_remove_button),
+                    contentDescription = "${stringResource(
+                        R.string.signature_remove_button,
+                    )} ${formatNumbers(formatName(clickedSignature.value?.signedBy ?: ""))}",
                     onClick = {
                         onSignatureRemove(clickedSignature.value)
                         openRemoveSignatureDialog.value = true

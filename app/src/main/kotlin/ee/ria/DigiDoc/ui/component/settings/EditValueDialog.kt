@@ -3,7 +3,9 @@
 package ee.ria.DigiDoc.ui.component.settings
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,10 +21,15 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -32,6 +39,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -42,9 +50,9 @@ import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -59,6 +67,15 @@ fun EditValueDialog(
     cancelButtonClick: () -> Unit = {},
     okButtonClick: () -> Unit = {},
 ) {
+    val context = LocalContext.current
+    val focusRequester = remember { FocusRequester() }
+
+    val buttonName = stringResource(id = R.string.button_name)
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
     Column(
         modifier =
             modifier
@@ -83,10 +100,14 @@ fun EditValueDialog(
             modifier =
                 modifier
                     .padding(
-                        vertical = screenViewLargePadding,
+                        vertical = SPadding,
                     )
                     .fillMaxWidth()
-                    .semantics { heading() },
+                    .semantics {
+                        heading()
+                        testTagsAsResourceId = true
+                    }
+                    .testTag("editValueTitle"),
             text = title,
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
@@ -94,42 +115,69 @@ fun EditValueDialog(
 
         Spacer(modifier = modifier.height(SPadding))
 
-        OutlinedTextField(
+        Row(
             modifier =
                 modifier
-                    .fillMaxWidth()
-                    .clearAndSetSemantics {
-                        testTagsAsResourceId = true
-                        testTag = "editValueDialogTextField"
-                        contentDescription =
-                            "$title ${formatNumbers(editValue.text)}"
-                    },
-            value = editValue,
-            onValueChange = onEditValueChange,
-            label = { Text(subtitle) },
-            maxLines = 1,
-            singleLine = true,
-            keyboardOptions =
-                KeyboardOptions.Default.copy(
-                    imeAction = ImeAction.Next,
-                    keyboardType = KeyboardType.Ascii,
-                ),
-            trailingIcon = {
-                if (editValue.text.isNotEmpty()) {
-                    IconButton(onClick = onClearValueClick) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                            contentDescription = stringResource(R.string.clear_text),
-                        )
+                    .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            OutlinedTextField(
+                modifier =
+                    modifier
+                        .focusRequester(focusRequester)
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .clearAndSetSemantics {
+                            testTagsAsResourceId = true
+                            testTag = "editValueDialogTextField"
+                            contentDescription = "$title ${formatNumbers(editValue.text)}"
+                        }
+                        .testTag("editValueTextField"),
+                value = editValue,
+                onValueChange = { newValue ->
+                    onEditValueChange(newValue.copy(selection = TextRange(newValue.text.length)))
+                },
+                label = { Text(subtitle) },
+                maxLines = 1,
+                singleLine = true,
+                keyboardOptions =
+                    KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Done,
+                        keyboardType = KeyboardType.Ascii,
+                    ),
+                trailingIcon = {
+                    if (!isTalkBackEnabled(context) && editValue.text.isNotEmpty()) {
+                        IconButton(onClick = onClearValueClick) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
+                                contentDescription = "${stringResource(R.string.clear_text)} $buttonName",
+                            )
+                        }
                     }
+                },
+                colors =
+                    OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
+                    ),
+            )
+
+            if (isTalkBackEnabled(context) && editValue.text.isNotEmpty()) {
+                IconButton(onClick = onClearValueClick) {
+                    Icon(
+                        modifier =
+                            modifier
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("editValueRemoveIconButton"),
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
+                        contentDescription = "${stringResource(R.string.clear_text)} $buttonName",
+                    )
                 }
-            },
-            colors =
-                OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-                ),
-        )
+            }
+        }
 
         Spacer(modifier = modifier.height(SPadding))
 

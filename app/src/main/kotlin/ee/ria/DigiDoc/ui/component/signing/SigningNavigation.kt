@@ -59,6 +59,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.TextFieldValue
@@ -91,7 +92,6 @@ import ee.ria.DigiDoc.ui.component.signing.bottomsheet.SignatureBottomSheet
 import ee.ria.DigiDoc.ui.component.signing.bottomsheet.SignedContainerBottomSheet
 import ee.ria.DigiDoc.ui.component.toast.ToastUtil.showMessage
 import ee.ria.DigiDoc.ui.theme.Dimensions.MAX_DIALOG_WIDTH
-import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
@@ -523,6 +523,7 @@ fun SigningNavigation(
                     signedContainer?.takeIf { it.isSigned() }
                         ?.let { R.string.signing_container_documents_title },
                 leftIcon = R.drawable.ic_m3_close_48dp_wght400,
+                leftIconContentDescription = R.string.signing_close_container_title,
                 onLeftButtonClick = {
                     if (!isNestedContainer) {
                         showContainerCloseConfirmationDialog.value = true
@@ -581,7 +582,8 @@ fun SigningNavigation(
                     .focusGroup()
                     .semantics {
                         testTagsAsResourceId = true
-                    },
+                    }
+                    .testTag("signingContainer"),
         ) {
             var actionSignature by remember { mutableStateOf<SignatureInterface?>(null) }
 
@@ -718,7 +720,14 @@ fun SigningNavigation(
                                     !isNestedContainer
                             if (!isSignedContainer) {
                                 Text(
-                                    modifier = modifier.padding(bottom = SPadding),
+                                    modifier =
+                                        modifier
+                                            .padding(bottom = SPadding)
+                                            .semantics {
+                                                heading()
+                                                testTagsAsResourceId = true
+                                            }
+                                            .testTag("signingTitle"),
                                     text = stringResource(R.string.signature_update_title),
                                     style = MaterialTheme.typography.headlineMedium,
                                     textAlign = TextAlign.Start,
@@ -727,7 +736,18 @@ fun SigningNavigation(
                             ContainerNameView(
                                 icon = R.drawable.ic_m3_stylus_note_48dp_wght400,
                                 name = signedContainerName,
-                                showActionButtons = isSignedContainer,
+                                showSignButton =
+                                    signingViewModel.isSignButtonShown(
+                                        signedContainer,
+                                        isNestedContainer,
+                                        isXadesContainer,
+                                        isCadesContainer,
+                                    ),
+                                showEncryptButton =
+                                    signingViewModel.isEncryptButtonShown(
+                                        signedContainer,
+                                        isNestedContainer,
+                                    ),
                                 leftActionButtonName = R.string.signature_update_signature_add,
                                 rightActionButtonName = R.string.crypto_button,
                                 leftActionButtonContentDescription = R.string.signature_update_signature_add,
@@ -772,7 +792,12 @@ fun SigningNavigation(
                                         modifier =
                                             modifier
                                                 .padding(horizontal = SPadding)
-                                                .padding(top = SPadding),
+                                                .padding(top = SPadding)
+                                                .semantics {
+                                                    heading()
+                                                    testTagsAsResourceId = true
+                                                }
+                                                .testTag("signingDocumentsTitle"),
                                         text = stringResource(R.string.signing_documents_title),
                                         style = MaterialTheme.typography.bodyMedium,
                                         textAlign = TextAlign.Start,
@@ -782,7 +807,12 @@ fun SigningNavigation(
                             } else {
                                 item {
                                     TabView(
-                                        modifier = modifier.padding(top = MPadding),
+                                        modifier =
+                                            modifier
+                                                .semantics {
+                                                    testTagsAsResourceId = true
+                                                }
+                                                .testTag("signingTabView"),
                                         selectedTabIndex = selectedSignedContainerTabIndex.intValue,
                                         onTabSelected = { index -> selectedSignedContainerTabIndex.intValue = index },
                                         listOf(
@@ -1070,7 +1100,10 @@ fun SigningNavigation(
                     },
                     onConfirmButton = {
                         showContainerCloseConfirmationDialog.value = false
-                        signedContainer?.getContainerFile()?.delete()
+                        val containerFile = signedContainer?.getContainerFile()
+                        if (containerFile?.exists() == true) {
+                            containerFile.delete()
+                        }
                         sharedContainerViewModel.resetSignedContainer()
                         handleBackButtonClick(navController, signingViewModel, sharedContainerViewModel)
                     },
