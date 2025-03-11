@@ -22,15 +22,21 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import ee.ria.DigiDoc.domain.model.bottomSheet.BottomSheetButton
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun BottomSheet(
     modifier: Modifier,
@@ -49,9 +55,18 @@ fun BottomSheet(
                     modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .padding(SPadding),
+                        .padding(SPadding)
+                        .semantics {
+                            testTagsAsResourceId = true
+                        }
+                        .testTag("bottomSheetContainer"),
             ) {
-                buttons.forEach { (showButton, icon, text, isExtraActionButtonShown, extraActionIcon, action) ->
+                buttons.forEach {
+                        (
+                            showButton, icon, text, isExtraActionButtonShown,
+                            extraActionIcon, contentDescription, action,
+                        ),
+                    ->
                     if (showButton) {
                         Row(
                             modifier =
@@ -73,10 +88,25 @@ fun BottomSheet(
                                     modifier
                                         .padding(XSPadding)
                                         .size(iconSizeXXS)
-                                        .wrapContentHeight(align = Alignment.CenterVertically),
+                                        .wrapContentHeight(align = Alignment.CenterVertically)
+                                        .semantics {
+                                            testTagsAsResourceId = true
+                                        }
+                                        .testTag("bottomSheetIcon")
+                                        .notAccessible(),
                             )
                             Spacer(modifier = modifier.width(XSPadding))
-                            Text(text, color = MaterialTheme.colorScheme.onSurface)
+                            Text(
+                                modifier =
+                                    modifier
+                                        .semantics {
+                                            this.contentDescription = contentDescription
+                                            testTagsAsResourceId = true
+                                        }
+                                        .testTag("bottomSheetText"),
+                                text = text,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
 
                             if (isExtraActionButtonShown) {
                                 Spacer(modifier = modifier.weight(1f))
@@ -87,7 +117,12 @@ fun BottomSheet(
                                         modifier
                                             .padding(XSPadding)
                                             .size(iconSizeXXS)
-                                            .wrapContentHeight(align = Alignment.CenterVertically),
+                                            .wrapContentHeight(align = Alignment.CenterVertically)
+                                            .semantics {
+                                                testTagsAsResourceId = true
+                                            }
+                                            .testTag("bottomSheetExtraIcon")
+                                            .notAccessible(),
                                 )
                             }
                         }

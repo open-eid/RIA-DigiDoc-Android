@@ -84,7 +84,7 @@ fun CertificateDetailsView(
         topBar = {
             TopBar(
                 modifier = modifier,
-                title = R.string.signature_details_title,
+                title = R.string.certificate_details_title,
                 onLeftButtonClick = {
                     handleBackButtonClick(navController, sharedCertificateViewModel)
                 },
@@ -259,7 +259,7 @@ fun CertificateDetailsView(
                                             } else {
                                                 ""
                                             }
-                                        CertificateDataItem(
+                                        SignatureDataItem(
                                             modifier = modifier,
                                             icon = 0,
                                             testTag = certificateDetail.testTag,

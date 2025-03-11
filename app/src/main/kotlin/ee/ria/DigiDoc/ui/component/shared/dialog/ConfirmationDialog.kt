@@ -3,21 +3,23 @@
 package ee.ria.DigiDoc.ui.component.shared.dialog
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
+import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.HrefMessageDialog
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun ConfirmationDialog(
     showDialog: Boolean,
@@ -29,18 +31,15 @@ fun ConfirmationDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val cancelButton = stringResource(R.string.cancel_button)
+    val confirmButton = stringResource(R.string.ok_button)
+    val buttonName = stringResource(id = R.string.button_name)
+
     if (showDialog) {
-        BasicAlertDialog(
+        AlertDialog(
             onDismissRequest = onDismiss,
-        ) {
-            Surface(
-                modifier =
-                    modifier
-                        .wrapContentHeight()
-                        .wrapContentWidth()
-                        .verticalScroll(rememberScrollState())
-                        .padding(vertical = screenViewLargePadding),
-            ) {
+            title = {},
+            text = {
                 HrefMessageDialog(
                     modifier = modifier,
                     text1 = text1,
@@ -48,11 +47,37 @@ fun ConfirmationDialog(
                     linkText = linkText,
                     linkUrl = linkUrl,
                     showLinkOnOneLine = true,
-                    cancelButtonClick = onDismiss,
-                    okButtonClick = onConfirm,
                 )
-                InvisibleElement(modifier = modifier)
-            }
-        }
+            },
+            dismissButton = {
+                TextButton(onDismiss) {
+                    Text(
+                        modifier =
+                            modifier
+                                .semantics {
+                                    this.contentDescription = "$cancelButton $buttonName"
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("confirmationDialogCancelButton"),
+                        text = cancelButton,
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = onConfirm) {
+                    Text(
+                        modifier =
+                            modifier
+                                .semantics {
+                                    this.contentDescription = "$confirmButton $buttonName"
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("confirmationDialogConfirmButton"),
+                        text = confirmButton,
+                    )
+                }
+            },
+        )
+        InvisibleElement(modifier = modifier)
     }
 }

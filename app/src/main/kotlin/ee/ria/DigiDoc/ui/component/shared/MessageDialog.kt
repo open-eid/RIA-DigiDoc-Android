@@ -16,9 +16,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
@@ -26,6 +32,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MessageDialog(
     modifier: Modifier = Modifier,
@@ -45,6 +52,8 @@ fun MessageDialog(
     val dismissIconResource = ImageVector.vectorResource(id = dismissIcon)
     val confirmIconResource = ImageVector.vectorResource(id = confirmIcon)
 
+    val buttonName = stringResource(id = R.string.button_name)
+
     AlertDialog(
         onDismissRequest = onDismissRequest,
         title = {
@@ -58,7 +67,13 @@ fun MessageDialog(
             ) {
                 Text(
                     text = title,
-                    modifier = modifier.weight(1f),
+                    modifier =
+                        modifier.weight(1f)
+                            .semantics {
+                                heading()
+                                testTagsAsResourceId = true
+                            }
+                            .testTag("messageDialogTitleText"),
                 )
 
                 IconButton(
@@ -66,16 +81,28 @@ fun MessageDialog(
                     modifier = modifier,
                 ) {
                     Icon(
-                        modifier = modifier.size(iconSizeXXS),
+                        modifier =
+                            modifier
+                                .size(iconSizeXXS)
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("messageDialogCancelIconButton"),
                         imageVector = ImageVector.vectorResource(id = R.drawable.ic_m3_close_48dp_wght400),
-                        contentDescription = null,
+                        contentDescription = "${stringResource(R.string.cancel_button)} $buttonName",
                     )
                 }
             }
         },
         text = {
             DynamicText(
-                modifier = modifier.fillMaxWidth(),
+                modifier =
+                    modifier
+                        .fillMaxWidth()
+                        .semantics {
+                            testTagsAsResourceId = true
+                        }
+                        .testTag("messageDialogMessageText"),
                 text = message,
             )
         },
@@ -86,9 +113,13 @@ fun MessageDialog(
                         modifier =
                             modifier
                                 .padding(XSPadding)
-                                .size(iconSizeXXS),
+                                .size(iconSizeXXS)
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("messageDialogDismissButton"),
                         imageVector = dismissIconResource,
-                        contentDescription = dismissButtonContentDescription,
+                        contentDescription = "$dismissButtonContentDescription $buttonName",
                     )
                 }
                 Text(dismissButtonText)
@@ -101,9 +132,13 @@ fun MessageDialog(
                         modifier =
                             modifier
                                 .padding(XSPadding)
-                                .size(iconSizeXXS),
+                                .size(iconSizeXXS)
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("messageDialogConfirmButton"),
                         imageVector = confirmIconResource,
-                        contentDescription = confirmButtonContentDescription,
+                        contentDescription = "$confirmButtonContentDescription $buttonName",
                     )
                 }
                 Text(confirmButtonText)

@@ -45,6 +45,8 @@ fun DataFileBottomSheet(
 ) {
     val currentNestedFile = rememberSaveable { mutableStateOf<File?>(null) }
 
+    val buttonName = stringResource(id = R.string.button_name)
+
     BottomSheet(
         modifier = modifier,
         showSheet = showSheet,
@@ -57,6 +59,9 @@ fun DataFileBottomSheet(
                 BottomSheetButton(
                     icon = R.drawable.ic_m3_expand_content_48dp_wght400,
                     text = stringResource(R.string.main_home_open_document_title),
+                    contentDescription = "${stringResource(
+                        R.string.main_home_open_document_title,
+                    )} ${clickedDataFile.value?.fileName ?: ""} $buttonName",
                 ) {
                     try {
                         val dataFile = clickedDataFile.value
@@ -92,6 +97,9 @@ fun DataFileBottomSheet(
                 BottomSheetButton(
                     icon = R.drawable.ic_m3_download_48dp_wght400,
                     text = stringResource(R.string.document_save_button),
+                    contentDescription = "${stringResource(
+                        R.string.document_save_button,
+                    )} ${clickedDataFile.value?.fileName ?: ""} $buttonName",
                 ) {
                     val dataFile = clickedDataFile.value
                     if (dataFile != null) {
@@ -108,6 +116,9 @@ fun DataFileBottomSheet(
                     showButton = signingViewModel.isContainerWithoutSignatures(signedContainer),
                     icon = R.drawable.ic_m3_delete_48dp_wght400,
                     text = stringResource(R.string.document_remove_button),
+                    contentDescription = "${stringResource(
+                        R.string.document_remove_button,
+                    )} ${clickedDataFile.value?.fileName ?: ""} $buttonName",
                 ) {
                     val dataFile = clickedDataFile.value
                     if (dataFile != null) {

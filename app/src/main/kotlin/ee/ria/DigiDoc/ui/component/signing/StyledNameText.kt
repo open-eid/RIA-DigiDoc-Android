@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.ui.component.signing
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -37,5 +38,6 @@ fun StyledNameText(
     Text(
         modifier = modifier,
         text = styledText,
+        style = MaterialTheme.typography.bodyLarge,
     )
 }

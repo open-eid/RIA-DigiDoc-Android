@@ -22,7 +22,7 @@
     <string name="crash_report_dialog_header">Send crash report?</string>
     <string name="crash_report_dialog_text">Application crashed. Please send us crash report, so we can fix the problem.</string>
     <string name="crash_report_dialog_send_button">Send</string>
-    <string name="crash_report_dialog_always_send_button">Always Send</string>
+    <string name="crash_report_dialog_always_send_button">Always send</string>
     <string name="crash_report_dialog_dont_send_button">Don\'t Send</string>
 
     <string name="clear_text">Clear text</string>
@@ -158,6 +158,9 @@
     <string name="signature_update_signature_chosen_method_mobile_id">Signing method Mobile-ID, selected</string>
     <string name="signature_update_signature_chosen_method_smart_id">Signing method Smart-ID, selected</string>
     <string name="signature_update_signature_chosen_method_id_card">Signing method ID-Card, selected</string>
+
+    <string name="signature_update_signature_selected_container_tab">Selected %1$s, tab %2$d / %3$d</string>
+    <string name="signature_update_signature_unselected_container_tab">%1$s, tab %2$d / %3$d</string>
 
     <string name="signature_update_cancel_signature_removal_button">Cancel signature removal</string>
     <string name="signature_update_confirm_signature_removal_button">Confirm signature removal</string>

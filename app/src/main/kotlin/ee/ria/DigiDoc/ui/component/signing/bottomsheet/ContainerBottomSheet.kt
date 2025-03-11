@@ -25,6 +25,8 @@ fun ContainerBottomSheet(
     saveFileLauncher: ActivityResultLauncher<Intent>,
     saveFile: (File?, String?, ActivityResultLauncher<Intent>) -> Unit,
 ) {
+    val buttonName = stringResource(id = R.string.button_name)
+
     BottomSheet(
         modifier = modifier,
         showSheet = showSheet.value,
@@ -37,12 +39,18 @@ fun ContainerBottomSheet(
                     showButton = isEditContainerButtonShown,
                     icon = R.drawable.ic_m3_edit_48dp_wght400,
                     text = stringResource(R.string.signing_container_name_update_button),
+                    contentDescription = "${stringResource(
+                        R.string.signing_container_name_update_button,
+                    )} ${signedContainer?.getName() ?: ""} $buttonName",
                 ) {
                     openEditContainerNameDialog.value = true
                 },
                 BottomSheetButton(
                     icon = R.drawable.ic_m3_download_48dp_wght400,
                     text = stringResource(R.string.container_save),
+                    contentDescription = "${stringResource(
+                        R.string.container_save,
+                    )} ${signedContainer?.getName() ?: ""} $buttonName",
                 ) {
                     saveFile(
                         signedContainer?.getContainerFile(),
@@ -54,6 +62,9 @@ fun ContainerBottomSheet(
                     showButton = isEncryptButtonShown,
                     icon = R.drawable.ic_m3_encrypted_48dp_wght400,
                     text = stringResource(R.string.crypto_button),
+                    contentDescription = "${stringResource(
+                        R.string.crypto_button,
+                    )} ${signedContainer?.getName() ?: ""} $buttonName",
                     isExtraActionButtonShown = true,
                 ) {
                     // TODO: Implement encrypt click

@@ -5,85 +5,158 @@ package ee.ria.DigiDoc.ui.component.shared
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
+import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewMediumPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DataFileItem(
     modifier: Modifier = Modifier,
     dataFiles: List<DataFileInterface>,
     onClick: (DataFileInterface) -> Unit,
 ) {
+    val context = LocalContext.current
     val fileDescription = stringResource(R.string.file)
+
+    val buttonName = stringResource(id = R.string.button_name)
+
     Column {
-        dataFiles.forEach { dataFile ->
-            ListItem(
-                headlineContent = {
-                    MiddleEllipsizeMultilineText(
-                        modifier =
-                            modifier
-                                .padding(zeroPadding)
-                                .wrapContentHeight(align = Alignment.CenterVertically)
-                                .focusable(false)
-                                .semantics {
-                                    this.contentDescription = "$fileDescription ${dataFile.fileName}"
-                                }
-                                .testTag("dataFileItemName"),
-                        text = dataFile.fileName,
-                        maxLines = 4,
-                        textColor = MaterialTheme.colorScheme.onBackground.toArgb(),
-                        textStyle = MaterialTheme.typography.bodyLarge,
-                    )
-                },
-                leadingContent = {
-                    Icon(
-                        modifier =
-                            modifier
-                                .padding(vertical = XSPadding)
-                                .size(iconSizeXXS)
-                                .wrapContentHeight(align = Alignment.CenterVertically),
-                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_m3_attach_file_48dp_wght400),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                },
-                trailingContent = {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_more_vert),
-                        contentDescription = stringResource(R.string.more_options),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                },
+        dataFiles.forEachIndexed { index, dataFile ->
+            Card(
                 modifier =
                     modifier
-                        .padding(vertical = screenViewMediumPadding)
-                        .clickable { onClick(dataFile) },
-            )
-            HorizontalDivider()
+                        .fillMaxWidth()
+                        .clickable(enabled = !isTalkBackEnabled(context)) { onClick(dataFile) }
+                        .semantics {
+                            this.contentDescription = "$fileDescription ${index + 1} ${dataFile.fileName} $buttonName"
+                            testTagsAsResourceId = true
+                        }
+                        .testTag("dataFileItemContainer"),
+                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                shape = buttonRoundedCornerShape,
+            ) {
+                Column(
+                    modifier =
+                        modifier
+                            .fillMaxWidth()
+                            .padding(vertical = SPadding)
+                            .padding(start = SPadding, end = XSPadding),
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = modifier.fillMaxWidth(),
+                    ) {
+                        Box(
+                            modifier =
+                                modifier
+                                    .wrapContentHeight(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                imageVector =
+                                    ImageVector.vectorResource(
+                                        id = R.drawable.ic_m3_attach_file_48dp_wght400,
+                                    ),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                modifier =
+                                    modifier
+                                        .padding(XSPadding)
+                                        .size(iconSizeXXS)
+                                        .wrapContentHeight(align = Alignment.CenterVertically)
+                                        .semantics {
+                                            testTagsAsResourceId = true
+                                        }
+                                        .testTag("dataFileItemIcon")
+                                        .notAccessible(),
+                            )
+                        }
+
+                        Spacer(modifier = modifier.width(SPadding))
+
+                        Column(modifier = modifier.weight(1f)) {
+                            MiddleEllipsizeMultilineText(
+                                modifier =
+                                    modifier
+                                        .padding(zeroPadding)
+                                        .wrapContentHeight(align = Alignment.CenterVertically)
+                                        .focusable(false)
+                                        .semantics {
+                                            this.contentDescription =
+                                                "$fileDescription ${index + 1} ${dataFile.fileName}"
+                                            testTagsAsResourceId = true
+                                        }
+                                        .testTag("dataFileItemName"),
+                                text = dataFile.fileName,
+                                maxLines = 4,
+                                textColor = MaterialTheme.colorScheme.onSurface.toArgb(),
+                                textStyle =
+                                    TextStyle(
+                                        fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                                        fontWeight = FontWeight.Bold,
+                                    ),
+                            )
+                        }
+
+                        IconButton(onClick = { onClick(dataFile) }) {
+                            Icon(
+                                modifier =
+                                    modifier
+                                        .semantics {
+                                            testTagsAsResourceId = true
+                                        }
+                                        .testTag("dataFileItemMoreOptionsIconButton"),
+                                imageVector = ImageVector.vectorResource(R.drawable.ic_more_vert),
+                                contentDescription = "$fileDescription ${index + 1} ${stringResource(
+                                    R.string.more_options,
+                                )} $buttonName",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+                HorizontalDivider()
+            }
         }
     }
 }

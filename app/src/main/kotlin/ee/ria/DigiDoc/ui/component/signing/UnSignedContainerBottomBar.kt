@@ -8,7 +8,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -23,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
@@ -30,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
@@ -37,6 +40,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
+@OptIn(ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun UnSignedContainerBottomBar(
     modifier: Modifier,
@@ -49,6 +53,8 @@ fun UnSignedContainerBottomBar(
     @DrawableRes rightButtonIcon: Int,
     onRightButtonClick: () -> Unit,
 ) {
+    val buttonName = stringResource(id = R.string.button_name)
+
     Box(
         modifier =
             modifier
@@ -56,22 +62,26 @@ fun UnSignedContainerBottomBar(
                 .wrapContentHeight()
                 .background(MaterialTheme.colorScheme.surfaceContainer)
                 .padding(start = XSPadding, end = MPadding)
-                .padding(vertical = XSPadding),
+                .padding(vertical = XSPadding)
+                .semantics {
+                    testTagsAsResourceId = true
+                }
+                .testTag("unsignedContainerContainer"),
         contentAlignment = Alignment.Center,
     ) {
-        Row(
+        FlowRow(
             modifier =
                 modifier
                     .fillMaxWidth()
                     .padding(vertical = XSPadding)
                     .navigationBarsPadding(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+            verticalArrangement = Arrangement.Center,
         ) {
             TextButton(onClick = onLeftButtonClick) {
                 Icon(
                     imageVector = ImageVector.vectorResource(leftButtonIcon),
-                    contentDescription = leftButtonContentDescription,
+                    contentDescription = "$leftButtonContentDescription $buttonName",
                     modifier =
                         modifier
                             .size(iconSizeXXS)
@@ -105,7 +115,7 @@ fun UnSignedContainerBottomBar(
                     modifier =
                         modifier
                             .semantics {
-                                contentDescription = rightButtonContentDescription
+                                contentDescription = "$rightButtonContentDescription $buttonName"
                             },
                 )
             }
