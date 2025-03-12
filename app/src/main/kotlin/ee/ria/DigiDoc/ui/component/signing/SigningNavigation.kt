@@ -66,10 +66,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
@@ -78,6 +76,7 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
+import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.EditValueDialog
 import ee.ria.DigiDoc.ui.component.shared.ContainerMessage
 import ee.ria.DigiDoc.ui.component.shared.DataFileItem
@@ -135,6 +134,8 @@ fun SigningNavigation(
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
     val shouldResetContainer by signingViewModel.shouldResetSignedContainer.asFlow().collectAsState(false)
     val context = LocalContext.current
+
+    val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
     var isViewInitialized by rememberSaveable { mutableStateOf(false) }
 
@@ -533,6 +534,9 @@ fun SigningNavigation(
                         )
                     }
                 },
+                onRightSecondaryButtonClick = {
+                    isSettingsMenuBottomSheetVisible.value = true
+                },
             )
         },
         bottomBar = {
@@ -563,12 +567,16 @@ fun SigningNavigation(
                 isUnsignedContainer = signedContainer?.isSigned() == false,
             )
         },
-    ) { innerPadding ->
+    ) { paddingValues ->
+        SettingsMenuBottomSheet(
+            navController = navController,
+            isBottomSheetVisible = isSettingsMenuBottomSheetVisible,
+        )
         Surface(
             modifier =
                 modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
+                    .padding(paddingValues)
                     .background(MaterialTheme.colorScheme.primary)
                     .focusGroup()
                     .semantics {

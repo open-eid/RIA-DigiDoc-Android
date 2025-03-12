@@ -28,6 +28,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -44,6 +45,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.BuildConfig
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
 import ee.ria.DigiDoc.ui.component.shared.DiagnosticsText
 import ee.ria.DigiDoc.ui.component.shared.HrefMessageDialog
@@ -78,6 +80,7 @@ fun DiagnosticsScreen(
     val activity = (context as Activity)
 
     markAsSecure(context, activity.window)
+    val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
     val currentConfiguration by
         diagnosticsViewModel.updatedConfiguration.asFlow().collectAsState(
             null,
@@ -139,13 +142,20 @@ fun DiagnosticsScreen(
                 onLeftButtonClick = {
                     navController.navigateUp()
                 },
+                onRightSecondaryButtonClick = {
+                    isSettingsMenuBottomSheetVisible.value = true
+                },
             )
         },
-    ) { innerPadding ->
+    ) { paddingValues ->
+        SettingsMenuBottomSheet(
+            navController = navController,
+            isBottomSheetVisible = isSettingsMenuBottomSheetVisible,
+        )
         Column(
             modifier =
                 modifier
-                    .padding(innerPadding)
+                    .padding(paddingValues)
                     .verticalScroll(rememberScrollState())
                     .fillMaxWidth()
                     .testTag("scrollView"),
