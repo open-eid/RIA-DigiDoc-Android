@@ -15,6 +15,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -33,6 +35,7 @@ import ee.ria.DigiDoc.BuildConfig
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.info.InfoComponent
 import ee.ria.DigiDoc.ui.component.info.InfoComponentItem
+import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.shared.DynamicText
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.signing.TopBar
@@ -50,6 +53,9 @@ fun InfoScreen(
     val context = LocalContext.current
     val activity = (context as Activity)
     markAsSecure(context, activity.window)
+
+    val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
+
     Scaffold(
         modifier =
             modifier
@@ -64,13 +70,20 @@ fun InfoScreen(
                 onLeftButtonClick = {
                     navController.navigateUp()
                 },
+                onRightSecondaryButtonClick = {
+                    isSettingsMenuBottomSheetVisible.value = true
+                },
             )
         },
-    ) { innerPadding ->
+    ) { paddingValues ->
+        SettingsMenuBottomSheet(
+            navController = navController,
+            isBottomSheetVisible = isSettingsMenuBottomSheetVisible,
+        )
         Column(
             modifier =
                 modifier
-                    .padding(innerPadding)
+                    .padding(paddingValues)
                     .verticalScroll(rememberScrollState())
                     .fillMaxWidth()
                     .testTag("scrollView"),

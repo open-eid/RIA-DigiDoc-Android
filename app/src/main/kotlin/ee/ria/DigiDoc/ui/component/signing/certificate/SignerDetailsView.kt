@@ -22,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -36,8 +37,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
+import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.shared.DynamicText
 import ee.ria.DigiDoc.ui.component.shared.ExpandableButton
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
@@ -68,7 +71,7 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignerDetailsView(
-    navController: NavController,
+    navController: NavHostController,
     modifier: Modifier = Modifier,
     sharedSignatureViewModel: SharedSignatureViewModel,
     sharedCertificateViewModel: SharedCertificateViewModel,
@@ -78,6 +81,9 @@ fun SignerDetailsView(
     val context = LocalContext.current
     val activity = (context as Activity)
     markAsSecure(context, activity.window)
+
+    val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
+
     val signature = sharedSignatureViewModel.signature.value
     val signatureStatus = signature?.validator?.status
     val diagnosticsInfo = signature?.validator?.diagnostics ?: ""
@@ -142,9 +148,16 @@ fun SignerDetailsView(
                     onLeftButtonClick = {
                         handleBackButtonClick(navController, sharedSignatureViewModel)
                     },
+                    onRightSecondaryButtonClick = {
+                        isSettingsMenuBottomSheetVisible.value = true
+                    },
                 )
             },
         ) { innerPadding ->
+            SettingsMenuBottomSheet(
+                navController = navController,
+                isBottomSheetVisible = isSettingsMenuBottomSheetVisible,
+            )
             Surface(
                 modifier =
                     modifier

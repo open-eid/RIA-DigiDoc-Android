@@ -21,6 +21,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -34,7 +36,9 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
@@ -54,7 +58,7 @@ import kotlin.text.Charsets.UTF_8
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CertificateDetailsView(
-    navController: NavController,
+    navController: NavHostController,
     modifier: Modifier = Modifier,
     sharedCertificateViewModel: SharedCertificateViewModel,
     certificateDetailViewModel: CertificateDetailViewModel = hiltViewModel(),
@@ -63,6 +67,8 @@ fun CertificateDetailsView(
     val activity = (context as Activity)
     markAsSecure(context, activity.window)
     val certificate = sharedCertificateViewModel.certificate.value
+
+    val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
     BackHandler {
         handleBackButtonClick(navController, sharedCertificateViewModel)
@@ -82,14 +88,21 @@ fun CertificateDetailsView(
                 onLeftButtonClick = {
                     handleBackButtonClick(navController, sharedCertificateViewModel)
                 },
+                onRightSecondaryButtonClick = {
+                    isSettingsMenuBottomSheetVisible.value = true
+                },
             )
         },
-    ) { innerPadding ->
+    ) { paddingValues ->
+        SettingsMenuBottomSheet(
+            navController = navController,
+            isBottomSheetVisible = isSettingsMenuBottomSheetVisible,
+        )
         Surface(
             modifier =
                 modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
+                    .padding(paddingValues)
                     .background(MaterialTheme.colorScheme.primary)
                     .focusGroup()
                     .semantics {

@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -27,6 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.signing.TopBar
@@ -50,6 +52,9 @@ fun SettingsRightsScreen(
     val activity = (context as Activity)
     markAsSecure(context, activity.window)
     val settingValueChanged = stringResource(id = R.string.setting_value_changed)
+
+    val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
+
     Scaffold(
         modifier =
             modifier
@@ -64,13 +69,20 @@ fun SettingsRightsScreen(
                 onLeftButtonClick = {
                     navController.navigateUp()
                 },
+                onRightSecondaryButtonClick = {
+                    isSettingsMenuBottomSheetVisible.value = true
+                },
             )
         },
-    ) { innerPadding ->
+    ) { paddingValues ->
+        SettingsMenuBottomSheet(
+            navController = navController,
+            isBottomSheetVisible = isSettingsMenuBottomSheetVisible,
+        )
         Column(
             modifier =
                 modifier
-                    .padding(innerPadding)
+                    .padding(paddingValues)
                     .verticalScroll(rememberScrollState())
                     .testTag("scrollView"),
         ) {
