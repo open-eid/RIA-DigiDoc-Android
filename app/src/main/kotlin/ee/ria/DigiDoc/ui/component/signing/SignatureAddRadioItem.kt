@@ -9,12 +9,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.domain.model.methods.SigningMethod
 
 data class SignatureAddRadioItem(
     @StringRes val label: Int = 0,
     val icon: ImageVector = Icons.Filled.Home,
-    val route: String = "",
+    val method: SigningMethod = SigningMethod.NFC,
     val contentDescription: String = "",
     val testTag: String = "",
 ) {
@@ -23,7 +23,7 @@ data class SignatureAddRadioItem(
         return listOf(
             SignatureAddRadioItem(
                 label = R.string.signature_update_signature_add_method_nfc,
-                route = Route.NFC.route,
+                method = SigningMethod.NFC,
                 contentDescription =
                     stringResource(
                         id = R.string.signature_update_signature_add_method_nfc,
@@ -32,7 +32,7 @@ data class SignatureAddRadioItem(
             ),
             SignatureAddRadioItem(
                 label = R.string.signature_update_signature_add_method_id_card,
-                route = Route.IdCard.route,
+                method = SigningMethod.ID_CARD,
                 contentDescription =
                     stringResource(
                         id = R.string.signature_update_signature_add_method_id_card,
@@ -41,7 +41,7 @@ data class SignatureAddRadioItem(
             ),
             SignatureAddRadioItem(
                 label = R.string.signature_update_signature_add_method_mobile_id,
-                route = Route.MobileId.route,
+                method = SigningMethod.MOBILE_ID,
                 contentDescription =
                     stringResource(
                         id = R.string.signature_update_signature_add_method_mobile_id,
@@ -50,7 +50,7 @@ data class SignatureAddRadioItem(
             ),
             SignatureAddRadioItem(
                 label = R.string.signature_update_signature_add_method_smart_id,
-                route = Route.SmartId.route,
+                method = SigningMethod.SMART_ID,
                 contentDescription =
                     stringResource(
                         id = R.string.signature_update_signature_add_method_smart_id,

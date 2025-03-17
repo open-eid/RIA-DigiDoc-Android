@@ -12,7 +12,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.DEFAULT_MIME_TYPE
 import ee.ria.DigiDoc.common.Constant.DIR_SIGNATURE_CONTAINERS
 import ee.ria.DigiDoc.common.Constant.SIGNATURE_CONTAINER_MIMETYPES
-import ee.ria.DigiDoc.ui.component.toast.ToastUtil
+import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import kotlinx.coroutines.CoroutineScope
@@ -62,7 +62,7 @@ class SignedContainersDocumentsProvider : DocumentsProvider() {
         }.getOrElse { e ->
             errorLog(LOG_TAG, e.localizedMessage ?: "Unable to open document: $documentId", e)
             CoroutineScope(Main).launch {
-                context?.let { ToastUtil.showMessage(it, R.string.container_load_error) }
+                context?.let { showMessage(it, R.string.container_load_error) }
             }
             MatrixCursor(projection ?: emptyArray())
         }
@@ -99,7 +99,7 @@ class SignedContainersDocumentsProvider : DocumentsProvider() {
         }.getOrElse { e ->
             errorLog(LOG_TAG, e.localizedMessage ?: "Unable to open document: $documentId", e)
             CoroutineScope(Main).launch {
-                context?.let { ToastUtil.showMessage(it, R.string.container_load_error) }
+                context?.let { showMessage(it, R.string.container_load_error) }
             }
             val (readPipe, writePipe) = ParcelFileDescriptor.createPipe()
             writePipe.close()

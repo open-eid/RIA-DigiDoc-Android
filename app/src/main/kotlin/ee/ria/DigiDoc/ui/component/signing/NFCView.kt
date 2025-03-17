@@ -22,6 +22,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -59,27 +60,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.NFCConstants.CAN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN2_MIN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN_MAX_LENGTH
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager.NfcStatus
-import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
-import ee.ria.DigiDoc.ui.component.toast.ToastUtil
-import ee.ria.DigiDoc.ui.theme.Blue500
+import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraExtraLargePadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
+import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.NFCViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
@@ -95,12 +92,14 @@ import java.nio.charset.StandardCharsets
 fun NFCView(
     activity: Activity,
     modifier: Modifier = Modifier,
-    signatureAddController: NavHostController,
     dismissDialog: () -> Unit = {},
-    cancelButtonClick: () -> Unit = {},
     nfcViewModel: NFCViewModel = hiltViewModel(),
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
     sharedContainerViewModel: SharedContainerViewModel,
+    isValidToSign: (Boolean) -> Unit,
+    fields: (String) -> Unit,
+    isSupported: (Boolean) -> Unit,
+    signAction: (() -> Unit) -> Unit = {},
 ) {
     val context = LocalContext.current
 
@@ -198,10 +197,7 @@ fun NFCView(
     }
 
     if (errorText.isNotEmpty()) {
-        ToastUtil.DigiDocToast(
-            modifier = modifier,
-            message = errorText,
-        )
+        showMessage(errorText)
         errorText = ""
     }
 
@@ -256,22 +252,20 @@ fun NFCView(
         if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
             RoleDataView(modifier, sharedSettingsViewModel)
         } else {
+            LaunchedEffect(Unit, isSupported) {
+                isSupported(nfcStatus != NfcStatus.NFC_NOT_SUPPORTED)
+            }
+
             if (nfcStatus !== NfcStatus.NFC_ACTIVE) {
                 nfcImage = R.drawable.ic_icon_nfc_not_found
 
-                SignatureAddRadioGroup(
-                    modifier = modifier,
-                    navController = signatureAddController,
-                    selectedRadioItem = sharedSettingsViewModel.dataStore.getSignatureAddMethod(),
-                    sharedSettingsViewModel = sharedSettingsViewModel,
-                )
                 Image(
                     painter = painterResource(id = nfcImage),
                     contentDescription = null,
                     modifier =
                         modifier
                             .fillMaxWidth()
-                            .padding(screenViewLargePadding)
+                            .padding(SPadding)
                             .notAccessible()
                             .testTag("signatureUpdateNFCIcon"),
                 )
@@ -287,7 +281,7 @@ fun NFCView(
                     modifier =
                         modifier
                             .fillMaxWidth()
-                            .padding(screenViewLargePadding)
+                            .padding(SPadding)
                             .semantics { heading() }
                             .testTag("signatureUpdateNFCNotFoundMessage"),
                     textAlign = TextAlign.Center,
@@ -295,31 +289,66 @@ fun NFCView(
             } else {
                 nfcImage = R.drawable.ic_icon_nfc
 
-                SignatureAddRadioGroup(
-                    modifier = modifier,
-                    navController = signatureAddController,
-                    selectedRadioItem = sharedSettingsViewModel.dataStore.getSignatureAddMethod(),
-                    sharedSettingsViewModel = sharedSettingsViewModel,
-                )
-                Text(
-                    text = stringResource(id = R.string.signature_update_nfc_message),
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier =
-                        modifier
-                            .padding(screenViewLargePadding)
-                            .semantics { heading() }
-                            .testTag("signatureUpdateNFCMessage"),
-                    textAlign = TextAlign.Center,
-                )
-                Text(
-                    text = canNumberLabel,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier =
-                        modifier
-                            .padding(vertical = screenViewLargePadding)
-                            .focusable(false)
-                            .testTag("signatureUpdateNFCCANLabel"),
-                )
+                val isValid =
+                    nfcViewModel.positiveButtonEnabled(
+                        canNumberText.text,
+                        pin2CodeText.text.toByteArray(StandardCharsets.UTF_8),
+                    )
+
+                LaunchedEffect(isValid) {
+                    isValidToSign(isValid)
+                }
+
+                LaunchedEffect(Unit, fields) {
+                    fields(canNumberText.text)
+                }
+
+                LaunchedEffect(Unit, isValid) {
+                    if (isValid) {
+                        signAction {
+                            if (getSettingsAskRoleAndAddress() && roleDataRequested != true) {
+                                nfcViewModel.setRoleDataRequested(true)
+                            } else {
+                                openSignatureUpdateContainerDialog.value = true
+                                var roleDataRequest: RoleData? = null
+                                if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
+                                    val roles = sharedSettingsViewModel.dataStore.getRoles()
+                                    val rolesList =
+                                        roles
+                                            .split(",")
+                                            .map { it.trim() }
+                                            .filter { it.isNotEmpty() }
+                                            .toList()
+                                    val city = sharedSettingsViewModel.dataStore.getRoleCity()
+                                    val state = sharedSettingsViewModel.dataStore.getRoleState()
+                                    val country = sharedSettingsViewModel.dataStore.getRoleCountry()
+                                    val zip = sharedSettingsViewModel.dataStore.getRoleZip()
+
+                                    roleDataRequest =
+                                        RoleData(
+                                            roles = rolesList,
+                                            city = city,
+                                            state = state,
+                                            country = country,
+                                            zip = zip,
+                                        )
+                                }
+                                CoroutineScope(IO).launch {
+                                    nfcViewModel.performNFCWorkRequest(
+                                        activity = activity,
+                                        context = context,
+                                        container = signedContainer,
+                                        pin2Code = pin2CodeText.text.toByteArray(StandardCharsets.UTF_8),
+                                        canNumber = canNumberText.text,
+                                        roleData = roleDataRequest,
+                                    )
+                                    nfcViewModel.resetRoleDataRequested()
+                                }
+                            }
+                        }
+                    }
+                }
+
                 val canNumberTextEdited = rememberSaveable { mutableStateOf(false) }
                 val canNumberErrorText =
                     if (canNumberTextEdited.value && canNumberText.text.isNotEmpty()) {
@@ -334,7 +363,7 @@ fun NFCView(
                     } else {
                         ""
                     }
-                TextField(
+                OutlinedTextField(
                     modifier =
                         modifier
                             .fillMaxWidth()
@@ -356,10 +385,8 @@ fun NFCView(
                         Text(
                             modifier = modifier.notAccessible(),
                             text = stringResource(id = R.string.nfc_sign_can_location),
-                            color = Blue500,
                         )
                     },
-                    maxLines = 1,
                     singleLine = true,
                     isError =
                         canNumberTextEdited.value &&
@@ -383,15 +410,7 @@ fun NFCView(
                         color = Red500,
                     )
                 }
-                Text(
-                    text = pin2CodeLabel,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier =
-                        modifier
-                            .padding(top = screenViewExtraLargePadding, bottom = screenViewLargePadding)
-                            .focusable(false)
-                            .testTag("signatureUpdateNFCPIN2Label"),
-                )
+
                 val pin2CodeTextEdited = rememberSaveable { mutableStateOf(false) }
                 val pin2CodeErrorText =
                     if (pin2CodeTextEdited.value && pin2CodeText.text.isNotEmpty()) {
@@ -417,7 +436,7 @@ fun NFCView(
                     modifier =
                         modifier
                             .fillMaxWidth()
-                            .padding(bottom = screenViewLargePadding)
+                            .padding(bottom = SPadding)
                             .clearAndSetSemantics {
                                 testTagsAsResourceId = true
                                 testTag = "signatureUpdateNFCPIN2"
@@ -434,12 +453,16 @@ fun NFCView(
                     isError =
                         pin2CodeTextEdited.value &&
                             nfcViewModel
-                                .shouldShowPIN2CodeError(pin2CodeText.text.toByteArray(StandardCharsets.UTF_8)),
+                                .shouldShowPIN2CodeError(
+                                    pin2CodeText.text.toByteArray(
+                                        StandardCharsets.UTF_8,
+                                    ),
+                                ),
                     textStyle = MaterialTheme.typography.titleLarge,
                     visualTransformation = PasswordVisualTransformation(),
                     keyboardOptions =
                         KeyboardOptions.Default.copy(
-                            imeAction = ImeAction.Next,
+                            imeAction = ImeAction.Done,
                             keyboardType = KeyboardType.NumberPassword,
                         ),
                 )
@@ -458,67 +481,6 @@ fun NFCView(
                 }
             }
         }
-        CancelAndOkButtonRow(
-            okButtonTestTag = "signatureUpdateNFCSignButton",
-            cancelButtonTestTag = "signatureUpdateNFCCancelSigningButton",
-            okButtonEnabled =
-                nfcViewModel.positiveButtonEnabled(
-                    canNumberText.text,
-                    pin2CodeText.text.toByteArray(StandardCharsets.UTF_8),
-                ),
-            cancelButtonTitle = R.string.cancel_button,
-            okButtonTitle = R.string.sign_button,
-            cancelButtonContentDescription = stringResource(id = R.string.cancel_button).lowercase(),
-            okButtonContentDescription = stringResource(id = R.string.sign_button).lowercase(),
-            cancelButtonClick =
-                {
-                    nfcViewModel.resetRoleDataRequested()
-                    saveFormParams()
-                    cancelButtonClick()
-                },
-            okButtonClick = {
-                if (getSettingsAskRoleAndAddress() && roleDataRequested != true) {
-                    nfcViewModel.setRoleDataRequested(true)
-                } else {
-                    openSignatureUpdateContainerDialog.value = true
-                    saveFormParams()
-                    var roleDataRequest: RoleData? = null
-                    if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
-                        val roles = sharedSettingsViewModel.dataStore.getRoles()
-                        val rolesList =
-                            roles
-                                .split(",")
-                                .map { it.trim() }
-                                .filter { it.isNotEmpty() }
-                                .toList()
-                        val city = sharedSettingsViewModel.dataStore.getRoleCity()
-                        val state = sharedSettingsViewModel.dataStore.getRoleState()
-                        val country = sharedSettingsViewModel.dataStore.getRoleCountry()
-                        val zip = sharedSettingsViewModel.dataStore.getRoleZip()
-
-                        roleDataRequest =
-                            RoleData(
-                                roles = rolesList,
-                                city = city,
-                                state = state,
-                                country = country,
-                                zip = zip,
-                            )
-                    }
-                    CoroutineScope(IO).launch {
-                        nfcViewModel.performNFCWorkRequest(
-                            activity = activity,
-                            context = context,
-                            container = signedContainer,
-                            pin2Code = pin2CodeText.text.toByteArray(StandardCharsets.UTF_8),
-                            canNumber = canNumberText.text,
-                            roleData = roleDataRequest,
-                        )
-                        nfcViewModel.resetRoleDataRequested()
-                    }
-                }
-            },
-        )
     }
 }
 
@@ -527,12 +489,13 @@ fun NFCView(
 @Composable
 fun NFCViewPreview() {
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
-    val signatureAddController = rememberNavController()
     RIADigiDocTheme {
         NFCView(
             activity = LocalActivity.current as Activity,
-            signatureAddController = signatureAddController,
             sharedContainerViewModel = sharedContainerViewModel,
+            isValidToSign = {},
+            isSupported = {},
+            fields = {},
         )
     }
 }

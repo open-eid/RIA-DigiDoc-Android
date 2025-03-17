@@ -25,9 +25,9 @@ import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
-import ee.ria.DigiDoc.ui.component.toast.ToastUtil
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.FileOpeningViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -221,10 +221,7 @@ fun FileOpeningNavigation(
     )
 
     if (errorText.first != 0) {
-        ToastUtil.DigiDocToast(
-            modifier = modifier,
-            message = context.getString(errorText.first, errorText.second),
-        )
+        showMessage(context.getString(errorText.first, errorText.second))
         errorText = Pair(0, null)
     }
 

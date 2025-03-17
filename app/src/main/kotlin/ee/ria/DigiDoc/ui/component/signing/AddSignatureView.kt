@@ -33,13 +33,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.viewmodel.FileOpeningViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
@@ -124,42 +122,6 @@ fun AddSignatureView(
                 navController = signatureAddController,
                 startDestination = sharedSettingsViewModel.dataStore.getSignatureAddMethod(),
             ) {
-                composable(route = Route.MobileId.route) {
-                    MobileIdView(
-                        activity = activity,
-                        dismissDialog = dismissDialog,
-                        cancelButtonClick = cancelButtonClick,
-                        signatureAddController = signatureAddController,
-                        sharedContainerViewModel = sharedContainerViewModel,
-                    )
-                }
-                composable(route = Route.SmartId.route) {
-                    SmartIdView(
-                        activity = activity,
-                        dismissDialog = dismissDialog,
-                        cancelButtonClick = cancelButtonClick,
-                        signatureAddController = signatureAddController,
-                        sharedContainerViewModel = sharedContainerViewModel,
-                    )
-                }
-                composable(route = Route.IdCard.route) {
-                    IdCardView(
-                        activity = activity,
-                        cancelButtonClick = cancelButtonClick,
-                        dismissDialog = dismissDialog,
-                        signatureAddController = signatureAddController,
-                        sharedContainerViewModel = sharedContainerViewModel,
-                    )
-                }
-                composable(route = Route.NFC.route) {
-                    NFCView(
-                        activity = activity,
-                        dismissDialog = dismissDialog,
-                        cancelButtonClick = cancelButtonClick,
-                        signatureAddController = signatureAddController,
-                        sharedContainerViewModel = sharedContainerViewModel,
-                    )
-                }
             }
         }
         InvisibleElement(modifier = modifier)

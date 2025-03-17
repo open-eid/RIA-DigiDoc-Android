@@ -8,9 +8,9 @@ import androidx.preference.PreferenceManager
 import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.common.preferences.EncryptedPreferences
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
+import ee.ria.DigiDoc.domain.model.methods.SigningMethod
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.network.proxy.ProxySetting
-import ee.ria.DigiDoc.utils.Route
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -68,16 +68,16 @@ class DataStoreTest {
     fun dataStore_getSignatureAddMethod_success() {
         val result = dataStore.getSignatureAddMethod()
 
-        assertEquals(Route.MobileId.route, result)
+        assertEquals(SigningMethod.NFC.methodName, result)
     }
 
     @Test
     fun dataStore_setSignatureAddMethod_success() {
-        dataStore.setSignatureAddMethod(Route.SmartId.route)
+        dataStore.setSignatureAddMethod(SigningMethod.MOBILE_ID.methodName)
 
         val result = dataStore.getSignatureAddMethod()
 
-        assertEquals(Route.SmartId.route, result)
+        assertEquals(SigningMethod.MOBILE_ID.methodName, result)
     }
 
     @Test

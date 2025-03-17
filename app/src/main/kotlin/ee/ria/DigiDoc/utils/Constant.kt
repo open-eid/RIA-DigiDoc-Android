@@ -18,10 +18,6 @@ object Constant {
         const val SIGNATURE_SCREEN = "signature_route"
         const val CRYPTO_SCREEN = "crypto_route"
         const val EID_SCREEN = "eid_route"
-        const val MOBILE_ID_SCREEN = "mobile_id_route"
-        const val SMART_ID_SCREEN = "smart_id_route"
-        const val ID_CARD_SCREEN = "id_card_route"
-        const val NFC_SCREEN = "nfc_route"
         const val FILE_CHOOSING_SCREEN = "file_choosing_route"
         const val SIGNING_SCREEN = "signing_route"
         const val ACCESSIBILITY_SCREEN = "accessibility_route"
@@ -35,6 +31,8 @@ object Constant {
         const val SETTINGS_RIGHTS_SCREEN = "settings_rights_route"
         const val SETTINGS_SIGNING_SCREEN = "settings_signing_route"
         const val ROOT_SCREEN = "root_screen_route"
+        const val SIGNATURE_INPUT_SCREEN = "signature_input_route"
+        const val SIGNATURE_METHOD_SCREEN = "signature_method_route"
     }
 
     object Defaults {

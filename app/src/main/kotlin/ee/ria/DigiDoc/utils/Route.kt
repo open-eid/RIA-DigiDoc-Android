@@ -9,22 +9,20 @@ import ee.ria.DigiDoc.utils.Constant.Routes.DIAGNOSTICS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.EID_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.FILE_CHOOSING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.HOME_SCREEN
-import ee.ria.DigiDoc.utils.Constant.Routes.ID_CARD_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.INFO_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.INIT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MENU_SCREEN
-import ee.ria.DigiDoc.utils.Constant.Routes.MOBILE_ID_SCREEN
-import ee.ria.DigiDoc.utils.Constant.Routes.NFC_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.RECENT_DOCUMENTS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ROLES_DETAIL_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ROOT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_RIGHTS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_SIGNING_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.SIGNATURE_INPUT_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.SIGNATURE_METHOD_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNATURE_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNER_DETAIL_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNING_SCREEN
-import ee.ria.DigiDoc.utils.Constant.Routes.SMART_ID_SCREEN
 
 sealed class Route(val route: String) {
     data object Init : Route(INIT_SCREEN)
@@ -38,14 +36,6 @@ sealed class Route(val route: String) {
     data object Crypto : Route(CRYPTO_SCREEN)
 
     data object EID : Route(EID_SCREEN)
-
-    data object MobileId : Route(MOBILE_ID_SCREEN)
-
-    data object SmartId : Route(SMART_ID_SCREEN)
-
-    data object IdCard : Route(ID_CARD_SCREEN)
-
-    data object NFC : Route(NFC_SCREEN)
 
     data object FileChoosing : Route(FILE_CHOOSING_SCREEN)
 
@@ -72,4 +62,8 @@ sealed class Route(val route: String) {
     data object SettingsSigning : Route(SETTINGS_SIGNING_SCREEN)
 
     data object RootScreen : Route(ROOT_SCREEN)
+
+    data object SignatureInputScreen : Route(SIGNATURE_INPUT_SCREEN)
+
+    data object SignatureMethodScreen : Route(SIGNATURE_METHOD_SCREEN)
 }

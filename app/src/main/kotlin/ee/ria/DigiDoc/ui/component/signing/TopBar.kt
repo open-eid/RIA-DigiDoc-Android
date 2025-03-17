@@ -21,6 +21,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -47,7 +48,8 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.utilsLib.text.TextUtil
 import ee.ria.DigiDoc.viewmodel.MenuViewModel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -95,6 +97,9 @@ fun TopBar(
         }
     }
 
+    val coroutineScope = rememberCoroutineScope()
+    var debounceJob by remember { mutableStateOf<Job?>(null) }
+
     TopAppBar(
         modifier =
             modifier
@@ -111,7 +116,15 @@ fun TopBar(
         navigationIcon = {
             IconButton(
                 modifier = modifier.testTag("toolBarLeftButton"),
-                onClick = onLeftButtonClick,
+                onClick = {
+                    // Add debounce to prevent rapid navigation clicks
+                    debounceJob?.cancel()
+                    debounceJob =
+                        coroutineScope.launch {
+                            delay(1)
+                            onLeftButtonClick()
+                        }
+                },
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = leftIcon),
@@ -140,7 +153,7 @@ fun TopBar(
                                 .focusProperties { canFocus = true }
                                 .onGloballyPositioned {
                                     if (!headingTextLoaded) {
-                                        CoroutineScope(Dispatchers.Main).launch {
+                                        CoroutineScope(Main).launch {
                                             headingFocusRequester.requestFocus()
                                             focusManager.clearFocus()
                                             delay(200)
@@ -158,7 +171,15 @@ fun TopBar(
         actions = {
             IconButton(
                 modifier = modifier.testTag("toolBarRightPrimaryButton"),
-                onClick = onRightPrimaryButtonClick,
+                onClick = {
+                    // Add debounce to prevent rapid navigation clicks
+                    debounceJob?.cancel()
+                    debounceJob =
+                        coroutineScope.launch {
+                            delay(1000)
+                            onRightPrimaryButtonClick()
+                        }
+                },
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = rightPrimaryIcon),
@@ -189,7 +210,15 @@ fun TopBar(
             }
             IconButton(
                 modifier = modifier.testTag("toolBarRightSecondaryButton"),
-                onClick = onRightSecondaryButtonClick,
+                onClick = {
+                    // Add debounce to prevent rapid navigation clicks
+                    debounceJob?.cancel()
+                    debounceJob =
+                        coroutineScope.launch {
+                            delay(1000)
+                            onRightSecondaryButtonClick()
+                        }
+                },
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = rightSecondaryIcon),

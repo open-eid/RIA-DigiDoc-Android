@@ -26,7 +26,12 @@ object DateUtil {
         outputDateFormat: SimpleDateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()),
         outputTimeFormat: SimpleDateFormat = SimpleDateFormat("HH:mm", Locale.getDefault()),
     ): FormattedDateTime {
+        inputFormat.timeZone = TimeZone.getTimeZone("UTC")
+
         val date: Date? = inputFormat.parse(signedDateString)
+
+        outputDateFormat.timeZone = TimeZone.getDefault()
+        outputTimeFormat.timeZone = TimeZone.getDefault()
 
         return if (date != null) {
             FormattedDateTime(

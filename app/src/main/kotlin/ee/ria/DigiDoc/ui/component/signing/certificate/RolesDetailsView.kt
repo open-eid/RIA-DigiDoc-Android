@@ -4,11 +4,8 @@ package ee.ria.DigiDoc.ui.component.signing.certificate
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
@@ -58,52 +55,36 @@ fun RolesDetailsView(
             val roleTitle = stringResource(id = R.string.main_settings_role_title)
             val roleValue = signature.signerRoles.joinToString(", ")
 
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                SignatureDataItem(
-                    modifier = modifier,
-                    icon = 0,
-                    isLink = false,
-                    testTag = "roleDetailsViewRole",
-                    detailKey = R.string.main_settings_role_title,
-                    detailValue = roleValue,
-                    certificate = null,
-                    contentDescription = "$roleTitle $roleValue",
-                    formatForAccessibility = false,
-                )
+            SignatureDataItem(
+                modifier = modifier,
+                icon = 0,
+                isLink = false,
+                testTag = "roleDetailsViewRole",
+                detailKey = R.string.main_settings_role_title,
+                detailValue = roleValue,
+                certificate = null,
+                contentDescription = "$roleTitle $roleValue",
+                formatForAccessibility = false,
+            )
 
-                HorizontalDivider()
-            }
+            HorizontalDivider()
 
             val cityTitle = stringResource(id = R.string.main_settings_city_title)
             val cityValue = signature.city
 
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                SignatureDataItem(
-                    modifier = modifier,
-                    icon = 0,
-                    isLink = false,
-                    testTag = "roleDetailsViewCity",
-                    detailKey = R.string.main_settings_city_title,
-                    detailValue = cityValue,
-                    certificate = null,
-                    contentDescription = "$cityTitle $cityValue",
-                    formatForAccessibility = false,
-                )
+            SignatureDataItem(
+                modifier = modifier,
+                icon = 0,
+                isLink = false,
+                testTag = "roleDetailsViewCity",
+                detailKey = R.string.main_settings_city_title,
+                detailValue = cityValue,
+                certificate = null,
+                contentDescription = "$cityTitle $cityValue",
+                formatForAccessibility = false,
+            )
 
-                HorizontalDivider()
-            }
+            HorizontalDivider()
 
             val stateTitle = stringResource(id = R.string.main_settings_county_title)
             val stateValue = signature.stateOrProvince

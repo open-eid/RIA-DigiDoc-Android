@@ -25,7 +25,9 @@ import ee.ria.DigiDoc.fragment.RootFragment
 import ee.ria.DigiDoc.fragment.SettingsFragment
 import ee.ria.DigiDoc.fragment.SettingsRightsFragment
 import ee.ria.DigiDoc.fragment.SettingsSigningFragment
+import ee.ria.DigiDoc.fragment.SignatureInputFragment
 import ee.ria.DigiDoc.fragment.SigningFragment
+import ee.ria.DigiDoc.fragment.screen.SignatureMethodFragment
 import ee.ria.DigiDoc.ui.component.signing.certificate.CertificateDetailsView
 import ee.ria.DigiDoc.ui.component.signing.certificate.RolesDetailsView
 import ee.ria.DigiDoc.ui.component.signing.certificate.SignerDetailsView
@@ -66,6 +68,21 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 externalFileUris = sharedContainerViewModel.externalFileUris.collectAsState().value,
+            )
+        }
+        composable(route = Route.SignatureInputScreen.route) {
+            SignatureInputFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedSettingsViewModel = sharedSettingsViewModel,
+                sharedContainerViewModel = sharedContainerViewModel,
+            )
+        }
+        composable(route = Route.SignatureMethodScreen.route) {
+            SignatureMethodFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedSettingsViewModel = sharedSettingsViewModel,
             )
         }
         composable(route = Route.Menu.route) {

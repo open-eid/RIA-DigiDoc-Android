@@ -5,8 +5,10 @@ package ee.ria.DigiDoc.ui.component.signing
 import android.app.Activity
 import android.content.res.Configuration
 import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
@@ -21,11 +24,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -37,51 +42,46 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.toSize
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.HrefMessageDialog
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
-import ee.ria.DigiDoc.ui.component.shared.SelectionSpinner
-import ee.ria.DigiDoc.ui.component.shared.TextCheckBox
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
-import ee.ria.DigiDoc.ui.component.toast.ToastUtil
+import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraExtraLargePadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Red500
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
+import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.SmartIdViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.filterNotNull
@@ -93,12 +93,13 @@ import kotlinx.coroutines.withContext
 fun SmartIdView(
     activity: Activity,
     modifier: Modifier = Modifier,
-    signatureAddController: NavHostController,
     dismissDialog: () -> Unit = {},
-    cancelButtonClick: () -> Unit = {},
     smartIdViewModel: SmartIdViewModel = hiltViewModel(),
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
     sharedContainerViewModel: SharedContainerViewModel,
+    isValidToSign: (Boolean) -> Unit,
+    fields: (Int, String) -> Unit,
+    signAction: (() -> Unit) -> Unit = {},
 ) {
     val context = LocalContext.current
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
@@ -106,14 +107,12 @@ fun SmartIdView(
     val roleDataRequested by smartIdViewModel.roleDataRequested.asFlow().collectAsState(null)
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
 
-    val smartIdCountryLabel = stringResource(id = R.string.signature_update_smart_id_country)
-    val smartIdPersonalCodeLabel = stringResource(id = R.string.signature_update_mobile_id_personal_code)
-
     val focusManager = LocalFocusManager.current
 
-    val countriesList = stringArrayResource(id = R.array.smart_id_country)
+    val countryOptions = stringArrayResource(id = R.array.smart_id_country)
+    var country by remember { mutableStateOf(countryOptions.first()) }
     var selectedCountry by rememberSaveable { mutableIntStateOf(sharedSettingsViewModel.dataStore.getCountry()) }
-    var personalCodeText by rememberSaveable(stateSaver = textFieldValueSaver) {
+    var personalCode by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
             TextFieldValue(
                 text = sharedSettingsViewModel.dataStore.getSidPersonalCode(),
@@ -121,16 +120,29 @@ fun SmartIdView(
             ),
         )
     }
+    val personalCodeErrorText =
+        if (personalCode.text.isNotEmpty()) {
+            if (!smartIdViewModel.isPersonalCodeCorrect(personalCode.text)) {
+                stringResource(id = R.string.signature_update_mobile_id_invalid_personal_code)
+            } else {
+                ""
+            }
+        } else {
+            ""
+        }
     val rememberMeCheckedState = rememberSaveable { mutableStateOf(true) }
+    var expanded by remember { mutableStateOf(false) }
+    var textFieldSize by remember { mutableStateOf(Size.Zero) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val focusRequester = remember { FocusRequester() }
 
-    val itemSelectedTitle = stringResource(id = R.string.item_selected)
     val displayMessage = stringResource(id = R.string.signature_update_mobile_id_display_message)
     var errorText by remember { mutableStateOf("") }
     val showErrorDialog = rememberSaveable { mutableStateOf(false) }
 
     val saveFormParams = {
         if (rememberMeCheckedState.value) {
-            sharedSettingsViewModel.dataStore.setSidPersonalCode(personalCodeText.text)
+            sharedSettingsViewModel.dataStore.setSidPersonalCode(personalCode.text)
             sharedSettingsViewModel.dataStore.setCountry(selectedCountry)
         } else {
             sharedSettingsViewModel.dataStore.setSidPersonalCode("")
@@ -190,10 +202,7 @@ fun SmartIdView(
     }
 
     if (errorText.isNotEmpty()) {
-        ToastUtil.DigiDocToast(
-            modifier = modifier,
-            message = errorText,
-        )
+        showMessage(errorText)
         errorText = ""
     }
 
@@ -207,7 +216,7 @@ fun SmartIdView(
                         .wrapContentHeight()
                         .wrapContentWidth()
                         .verticalScroll(rememberScrollState()),
-                shape = RoundedCornerShape(screenViewLargePadding),
+                shape = RoundedCornerShape(SPadding),
             ) {
                 SmartIdSignatureUpdateContainer(
                     smartIdViewModel = smartIdViewModel,
@@ -290,8 +299,6 @@ fun SmartIdView(
             modifier
                 .fillMaxHeight()
                 .imePadding()
-                .padding(horizontal = screenViewLargePadding)
-                .padding(bottom = screenViewExtraExtraLargePadding)
                 .pointerInput(Unit) {
                     detectTapGestures(onTap = {
                         focusManager.clearFocus()
@@ -305,181 +312,157 @@ fun SmartIdView(
         if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
             RoleDataView(modifier, sharedSettingsViewModel)
         } else {
-            SignatureAddRadioGroup(
-                modifier = modifier,
-                navController = signatureAddController,
-                selectedRadioItem = sharedSettingsViewModel.dataStore.getSignatureAddMethod(),
-                sharedSettingsViewModel = sharedSettingsViewModel,
-            )
-            Text(
-                text = stringResource(id = R.string.signature_update_smart_id_message),
-                style = MaterialTheme.typography.titleLarge,
-                modifier =
-                    modifier
-                        .padding(screenViewLargePadding)
-                        .semantics { heading() }
-                        .testTag("signatureUpdateSmartIdMessage"),
-                textAlign = TextAlign.Center,
-            )
-            Text(
-                text = smartIdCountryLabel,
-                style = MaterialTheme.typography.titleLarge,
-                modifier =
-                    modifier
-                        .padding(vertical = screenViewLargePadding)
-                        .focusable(false)
-                        .testTag("signatureUpdateSmartIdCountryLabel"),
-            )
-            SelectionSpinner(
-                list = countriesList,
-                preselected = selectedCountry,
-                onSelectionChanged = {
-                    selectedCountry = it
-                },
-                modifier =
-                    modifier
-                        .clearAndSetSemantics {
-                            testTagsAsResourceId = true
-                            testTag = "signatureUpdateSmartIdCountry"
-                            this.contentDescription =
-                                "$smartIdCountryLabel ${countriesList[selectedCountry]} $itemSelectedTitle"
-                        }
-                        .testTag("signatureUpdateSmartIdCountry"),
-            )
-            Text(
-                text = smartIdPersonalCodeLabel,
-                style = MaterialTheme.typography.titleLarge,
-                modifier =
-                    modifier
-                        .padding(
-                            top = screenViewExtraLargePadding,
-                            bottom = screenViewLargePadding,
-                        )
-                        .focusable(false)
-                        .testTag("signatureUpdateSmartIdPersonalCodeLabel"),
-            )
-            val personalCodeTextEdited = rememberSaveable { mutableStateOf(false) }
-            val personalCodeErrorText =
-                if (personalCodeTextEdited.value && personalCodeText.text.isNotEmpty()) {
-                    if (!smartIdViewModel.isPersonalCodeCorrect(personalCodeText.text)) {
-                        stringResource(id = R.string.signature_update_mobile_id_invalid_personal_code)
-                    } else {
-                        ""
-                    }
-                } else {
-                    ""
-                }
-            TextField(
-                modifier =
-                    modifier
-                        .fillMaxWidth()
-                        .padding(bottom = screenViewLargePadding)
-                        .clearAndSetSemantics {
-                            testTagsAsResourceId = true
-                            testTag = "signatureUpdateSmartIdPersonalCode"
-                            this.contentDescription =
-                                "$smartIdPersonalCodeLabel " +
-                                "${formatNumbers(personalCodeText.text)} "
-                        }
-                        .testTag("signatureUpdateSmartIdPersonalCode"),
-                value = personalCodeText,
-                shape = RectangleShape,
-                onValueChange = {
-                    personalCodeText = it
-                    personalCodeTextEdited.value = true
-                },
-                maxLines = 1,
-                singleLine = true,
-                isError = personalCodeTextEdited.value && !smartIdViewModel.isPersonalCodeValid(personalCodeText.text),
-                textStyle = MaterialTheme.typography.titleLarge,
-                keyboardOptions =
-                    KeyboardOptions(
-                        imeAction = ImeAction.Next,
-                        keyboardType = KeyboardType.Decimal,
-                    ),
-            )
-            if (personalCodeErrorText.isNotEmpty()) {
-                Text(
-                    modifier =
-                        Modifier.fillMaxWidth()
-                            .focusable(enabled = true)
-                            .semantics { contentDescription = personalCodeErrorText }
-                            .testTag("signatureUpdateSmartIdPersonalCodeErrorText"),
-                    text = personalCodeErrorText,
-                    color = Red500,
-                )
-            }
-            TextCheckBox(
-                modifier =
-                    modifier
-                        .testTag("signatureUpdateSmartIdRememberMe"),
-                checked = rememberMeCheckedState.value,
-                onCheckedChange = { rememberMeCheckedState.value = it },
-                title = stringResource(id = R.string.signature_update_remember_me),
-                contentDescription = stringResource(id = R.string.signature_update_remember_me).lowercase(),
-            )
-        }
-        CancelAndOkButtonRow(
-            okButtonTestTag = "signatureUpdateSmartIdSignButton",
-            cancelButtonTestTag = "signatureUpdateSmartIdCancelSigningButton",
-            okButtonEnabled =
-                smartIdViewModel.positiveButtonEnabled(
-                    selectedCountry,
-                    personalCodeText.text,
-                ),
-            cancelButtonTitle = R.string.cancel_button,
-            okButtonTitle = R.string.sign_button,
-            cancelButtonContentDescription = stringResource(id = R.string.cancel_button),
-            okButtonContentDescription = stringResource(id = R.string.sign_button),
-            cancelButtonClick = {
-                smartIdViewModel.resetRoleDataRequested()
-                saveFormParams()
-                cancelButtonClick()
-            },
-            okButtonClick = {
-                if (getSettingsAskRoleAndAddress() && roleDataRequested != true) {
-                    smartIdViewModel.setRoleDataRequested(true)
-                } else {
-                    openSignatureUpdateContainerDialog.value = true
-                    saveFormParams()
-                    var roleDataRequest: RoleData? = null
-                    if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
-                        val roles = sharedSettingsViewModel.dataStore.getRoles()
-                        val rolesList =
-                            roles
-                                .split(",")
-                                .map { it.trim() }
-                                .filter { it.isNotEmpty() }
-                                .toList()
-                        val city = sharedSettingsViewModel.dataStore.getRoleCity()
-                        val state = sharedSettingsViewModel.dataStore.getRoleState()
-                        val country = sharedSettingsViewModel.dataStore.getRoleCountry()
-                        val zip = sharedSettingsViewModel.dataStore.getRoleZip()
+            val isValid =
+                country.isNotEmpty() &&
+                    personalCode.text.isNotEmpty() && smartIdViewModel.isPersonalCodeCorrect(personalCode.text)
 
-                        roleDataRequest =
-                            RoleData(
-                                roles = rolesList,
-                                city = city,
-                                state = state,
-                                country = country,
-                                zip = zip,
-                            )
-                    }
-                    CoroutineScope(Dispatchers.IO).launch {
-                        smartIdViewModel.performSmartIdWorkRequest(
-                            activity = activity,
-                            context = context,
-                            displayMessage = displayMessage,
-                            container = signedContainer,
-                            personalCode = personalCodeText.text,
-                            country = selectedCountry,
-                            roleData = roleDataRequest,
-                        )
-                        smartIdViewModel.resetRoleDataRequested()
+            LaunchedEffect(isValid) {
+                isValidToSign(isValid)
+            }
+
+            LaunchedEffect(Unit, fields) {
+                fields(selectedCountry, personalCode.text)
+            }
+
+            LaunchedEffect(Unit, isValid) {
+                if (isValid) {
+                    signAction {
+                        if (getSettingsAskRoleAndAddress() && roleDataRequested != true) {
+                            smartIdViewModel.setRoleDataRequested(true)
+                        } else {
+                            openSignatureUpdateContainerDialog.value = true
+                            var roleDataRequest: RoleData? = null
+                            if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
+                                val roles = sharedSettingsViewModel.dataStore.getRoles()
+                                val rolesList =
+                                    roles
+                                        .split(",")
+                                        .map { it.trim() }
+                                        .filter { it.isNotEmpty() }
+                                        .toList()
+                                val city = sharedSettingsViewModel.dataStore.getRoleCity()
+                                val state = sharedSettingsViewModel.dataStore.getRoleState()
+                                val country = sharedSettingsViewModel.dataStore.getRoleCountry()
+                                val zip = sharedSettingsViewModel.dataStore.getRoleZip()
+
+                                roleDataRequest =
+                                    RoleData(
+                                        roles = rolesList,
+                                        city = city,
+                                        state = state,
+                                        country = country,
+                                        zip = zip,
+                                    )
+                            }
+                            CoroutineScope(IO).launch {
+                                smartIdViewModel.performSmartIdWorkRequest(
+                                    activity = activity,
+                                    context = context,
+                                    displayMessage = displayMessage,
+                                    container = signedContainer,
+                                    personalCode = personalCode.text,
+                                    country = selectedCountry,
+                                    roleData = roleDataRequest,
+                                )
+                                smartIdViewModel.resetRoleDataRequested()
+                            }
+                        }
                     }
                 }
-            },
-        )
+            }
+
+            Column(
+                modifier =
+                    modifier
+                        .semantics {
+                            testTagsAsResourceId = true
+                        }
+                        .testTag("smartIdViewContainer"),
+            ) {
+                Box(modifier = modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        label = {
+                            Text(stringResource(R.string.signature_update_smart_id_country))
+                        },
+                        value = country,
+                        onValueChange = {},
+                        readOnly = true,
+                        singleLine = true,
+                        modifier =
+                            modifier
+                                .fillMaxWidth()
+                                .focusRequester(focusRequester)
+                                .onGloballyPositioned { coordinates ->
+                                    textFieldSize = coordinates.size.toSize()
+                                },
+                        trailingIcon = {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.ic_baseline_keyboard_arrow_down_24),
+                                contentDescription = stringResource(R.string.signature_update_smart_id_country),
+                                modifier = modifier.clickable { expanded = !expanded },
+                            )
+                        },
+                    )
+
+                    if (!expanded) {
+                        Box(
+                            modifier =
+                                modifier
+                                    .matchParentSize()
+                                    .clickable(
+                                        onClick = {
+                                            expanded = true
+                                        },
+                                        interactionSource = interactionSource,
+                                        indication = null,
+                                    ),
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = modifier.width(with(LocalDensity.current) { textFieldSize.width.toDp() }),
+                    ) {
+                        countryOptions.forEach { selection ->
+                            DropdownMenuItem(
+                                text = { Text(selection) },
+                                onClick = {
+                                    country = selection
+                                    expanded = false
+                                },
+                            )
+                        }
+                    }
+                }
+
+                OutlinedTextField(
+                    label = {
+                        Text(stringResource(R.string.signature_update_mobile_id_personal_code))
+                    },
+                    value = personalCode,
+                    singleLine = true,
+                    onValueChange = { personalCode = it },
+                    modifier =
+                        modifier
+                            .fillMaxWidth()
+                            .padding(top = MPadding),
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    isError = !smartIdViewModel.isPersonalCodeValid(personalCode.text),
+                )
+                if (personalCode.text.isNotEmpty()) {
+                    Text(
+                        modifier =
+                            modifier.fillMaxWidth()
+                                .focusable(true)
+                                .semantics { contentDescription = personalCodeErrorText }
+                                .testTag("smartIdPersonalCodeErrorText"),
+                        text = personalCodeErrorText,
+                        color = Red500,
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -488,12 +471,12 @@ fun SmartIdView(
 @Composable
 fun SmartIdViewPreview() {
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
-    val signatureAddController = rememberNavController()
     RIADigiDocTheme {
         SmartIdView(
             activity = LocalActivity.current as Activity,
-            signatureAddController = signatureAddController,
             sharedContainerViewModel = sharedContainerViewModel,
+            isValidToSign = {},
+            fields = { _, _ -> },
         )
     }
 }
