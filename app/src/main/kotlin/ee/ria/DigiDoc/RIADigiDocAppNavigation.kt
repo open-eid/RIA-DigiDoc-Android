@@ -25,9 +25,10 @@ import ee.ria.DigiDoc.fragment.RootFragment
 import ee.ria.DigiDoc.fragment.SettingsFragment
 import ee.ria.DigiDoc.fragment.SettingsRightsFragment
 import ee.ria.DigiDoc.fragment.SettingsSigningFragment
+import ee.ria.DigiDoc.fragment.SignatureInputFragment
 import ee.ria.DigiDoc.fragment.SigningFragment
+import ee.ria.DigiDoc.fragment.screen.SignatureMethodFragment
 import ee.ria.DigiDoc.ui.component.signing.certificate.CertificateDetailsView
-import ee.ria.DigiDoc.ui.component.signing.certificate.RolesDetailsView
 import ee.ria.DigiDoc.ui.component.signing.certificate.SignerDetailsView
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
@@ -68,6 +69,21 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
                 externalFileUris = sharedContainerViewModel.externalFileUris.collectAsState().value,
             )
         }
+        composable(route = Route.SignatureInputScreen.route) {
+            SignatureInputFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedSettingsViewModel = sharedSettingsViewModel,
+                sharedContainerViewModel = sharedContainerViewModel,
+            )
+        }
+        composable(route = Route.SignatureMethodScreen.route) {
+            SignatureMethodFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedSettingsViewModel = sharedSettingsViewModel,
+            )
+        }
         composable(route = Route.Menu.route) {
             MenuFragment(
                 modifier = Modifier.safeDrawingPadding(),
@@ -79,13 +95,6 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 sharedContainerViewModel = sharedContainerViewModel,
-                sharedSignatureViewModel = sharedSignatureViewModel,
-            )
-        }
-        composable(route = Route.RolesDetail.route) {
-            RolesDetailsView(
-                modifier = Modifier.safeDrawingPadding(),
-                navController = navController,
                 sharedSignatureViewModel = sharedSignatureViewModel,
             )
         }

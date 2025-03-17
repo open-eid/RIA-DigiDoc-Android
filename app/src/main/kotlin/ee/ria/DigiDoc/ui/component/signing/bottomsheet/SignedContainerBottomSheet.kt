@@ -6,10 +6,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.domain.model.bottomSheet.BottomSheetButton
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.ui.component.shared.BottomSheet
+import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.viewmodel.SigningViewModel
 
 @Composable
@@ -21,7 +23,7 @@ fun SignedContainerBottomSheet(
     isXadesContainer: Boolean,
     isCadesContainer: Boolean,
     signingViewModel: SigningViewModel,
-    openSignatureDialog: MutableState<Boolean>,
+    navController: NavHostController,
     onEncryptClick: () -> Unit,
     onExtendSignatureClick: () -> Unit,
 ) {
@@ -45,7 +47,9 @@ fun SignedContainerBottomSheet(
                     text = stringResource(R.string.add_signature_button),
                     isExtraActionButtonShown = true,
                     onClick = {
-                        openSignatureDialog.value = true
+                        navController.navigate(
+                            Route.SignatureInputScreen.route,
+                        )
                     },
                 ),
                 BottomSheetButton(

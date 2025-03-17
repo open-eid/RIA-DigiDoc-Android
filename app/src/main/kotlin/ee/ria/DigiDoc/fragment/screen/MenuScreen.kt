@@ -12,12 +12,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -40,9 +42,11 @@ import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
+import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utilsLib.text.TextUtil
 import ee.ria.DigiDoc.viewmodel.MenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -58,6 +62,11 @@ fun MenuScreen(
 
     markAsSecure(context, activity.window)
 
+    val snackBarHostState = remember { SnackbarHostState() }
+    val snackBarScope = rememberCoroutineScope()
+
+    val messages by SnackBarManager.messages.collectAsState(emptyList())
+
     val locale = sharedSettingsViewModel.dataStore.getLocale() ?: Locale.getDefault()
     val isEstonianLanguageUsed = remember { mutableStateOf(false) }
     val isTtsInitialized by menuViewModel.isTtsInitialized.asFlow().collectAsState(false)
@@ -65,6 +74,15 @@ fun MenuScreen(
     LaunchedEffect(isTtsInitialized) {
         if (isTtsInitialized) {
             isEstonianLanguageUsed.value = menuViewModel.isEstonianLanguageUsed()
+        }
+    }
+
+    LaunchedEffect(messages) {
+        messages.forEach { message ->
+            snackBarScope.launch {
+                snackBarHostState.showSnackbar(message)
+            }
+            SnackBarManager.removeMessage(message)
         }
     }
 

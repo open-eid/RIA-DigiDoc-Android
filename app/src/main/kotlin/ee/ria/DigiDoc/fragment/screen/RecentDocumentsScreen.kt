@@ -27,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SearchBarDefaults.inputFieldColors
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,6 +35,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -66,7 +68,6 @@ import ee.ria.DigiDoc.ui.component.shared.PreventResize
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
 import ee.ria.DigiDoc.ui.component.signing.Document
 import ee.ria.DigiDoc.ui.component.signing.TopBar
-import ee.ria.DigiDoc.ui.component.toast.ToastUtil
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.dividerHeight
@@ -77,6 +78,8 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
+import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
+import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.extensions.isCades
 import ee.ria.DigiDoc.utilsLib.extensions.isXades
 import ee.ria.DigiDoc.viewmodel.RecentDocumentsViewModel
@@ -101,6 +104,11 @@ fun RecentDocumentsScreen(
     val context = LocalContext.current
     val activity = (context as Activity)
     markAsSecure(context, activity.window)
+
+    val snackBarHostState = remember { SnackbarHostState() }
+    val snackBarScope = rememberCoroutineScope()
+
+    val messages by SnackBarManager.messages.collectAsState(emptyList())
 
     val showLoading = remember { mutableStateOf(false) }
     val showSivaDialog = remember { mutableStateOf(false) }
@@ -181,11 +189,17 @@ fun RecentDocumentsScreen(
     LaunchedEffect(recentDocumentsViewModel.errorState) {
         recentDocumentsViewModel.errorState.asFlow().collect { error ->
             error?.let {
-                ToastUtil.showMessage(
-                    context,
-                    error,
-                )
+                showMessage(context, error)
             }
+        }
+    }
+
+    LaunchedEffect(messages) {
+        messages.forEach { message ->
+            snackBarScope.launch {
+                snackBarHostState.showSnackbar(message)
+            }
+            SnackBarManager.removeMessage(message)
         }
     }
 
