@@ -65,7 +65,6 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
@@ -90,8 +89,6 @@ import ee.ria.DigiDoc.ui.component.signing.bottomsheet.ContainerBottomSheet
 import ee.ria.DigiDoc.ui.component.signing.bottomsheet.DataFileBottomSheet
 import ee.ria.DigiDoc.ui.component.signing.bottomsheet.SignatureBottomSheet
 import ee.ria.DigiDoc.ui.component.signing.bottomsheet.SignedContainerBottomSheet
-import ee.ria.DigiDoc.ui.component.toast.ToastUtil.showMessage
-import ee.ria.DigiDoc.ui.theme.Dimensions.MAX_DIALOG_WIDTH
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
@@ -103,6 +100,7 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
+import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.removeExtensionFromContainerFilename
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
@@ -290,6 +288,8 @@ fun SigningNavigation(
     val snackBarHostState = remember { SnackbarHostState() }
     val snackBarScope = rememberCoroutineScope()
 
+    val messages by SnackBarManager.messages.collectAsState(emptyList())
+
     val saveFileLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -452,7 +452,7 @@ fun SigningNavigation(
             showDataFilesLoadingIndicator.value = true
             dataFiles = it.getDataFiles()
             if (!isViewInitialized) {
-                signingViewModel.showMessage(containerFilesLoaded)
+                showMessage(containerFilesLoaded)
                 isViewInitialized = true
             }
             showDataFilesLoadingIndicator.value = false
@@ -476,39 +476,21 @@ fun SigningNavigation(
         }
     }
 
-    LaunchedEffect(Unit) {
-        SnackBarManager.messages.collect { message ->
-            if (message.isNotEmpty()) {
-                snackBarScope.launch {
-                    snackBarHostState.showSnackbar(message)
-                }
+    LaunchedEffect(messages) {
+        messages.forEach { message ->
+            snackBarScope.launch {
+                snackBarHostState.showSnackbar(message)
             }
-        }
-    }
-
-    if (openSignatureDialog.value) {
-        BasicAlertDialog(
-            onDismissRequest = dismissDialog,
-            modifier = modifier.fillMaxWidth(MAX_DIALOG_WIDTH),
-            properties =
-                DialogProperties(
-                    usePlatformDefaultWidth = false,
-                    dismissOnClickOutside = false,
-                ),
-        ) {
-            AddSignatureView(
-                activity = activity,
-                signatureAddController = signatureAddController,
-                cancelButtonClick = cancelButtonClick,
-                dismissDialog = dismissDialog,
-                sharedContainerViewModel = sharedContainerViewModel,
-            )
+            SnackBarManager.removeMessage(message)
         }
     }
 
     Scaffold(
         snackbarHost = {
-            SnackbarHost(hostState = snackBarHostState)
+            SnackbarHost(
+                modifier = modifier.padding(vertical = SPadding),
+                hostState = snackBarHostState,
+            )
         },
         modifier =
             modifier
@@ -544,7 +526,9 @@ fun SigningNavigation(
             SigningBottomBar(
                 modifier = modifier,
                 onSignClick = {
-                    openSignatureDialog.value = true
+                    navController.navigate(
+                        Route.SignatureInputScreen.route,
+                    )
                 },
                 onShareClick = {
                     val containerFile = signedContainer?.getContainerFile()
@@ -753,7 +737,9 @@ fun SigningNavigation(
                                 leftActionButtonContentDescription = R.string.signature_update_signature_add,
                                 rightActionButtonContentDescription = R.string.crypto_button_accessibility,
                                 onLeftActionButtonClick = {
-                                    openSignatureDialog.value = true
+                                    navController.navigate(
+                                        Route.SignatureInputScreen.route,
+                                    )
                                 },
                                 onRightActionButtonClick = {
                                     // TODO: Implement encrypt click
@@ -1067,7 +1053,7 @@ fun SigningNavigation(
                 isXadesContainer = isXadesContainer,
                 isCadesContainer = isCadesContainer,
                 signingViewModel = signingViewModel,
-                openSignatureDialog = openSignatureDialog,
+                navController = navController,
                 onEncryptClick = {
                     // TODO: Implement encrypt click
                 },

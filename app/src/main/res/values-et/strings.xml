@@ -143,6 +143,8 @@
     <!-- Signature Add -->
     <string name="signature_update_title">Ümbriku allkirjastamine</string>
     <string name="signature_update_name_update_name">Ümbriku nimi</string>
+    <string name="signature_update_method_title">Vali allkirjastamise meetod</string>
+    <string name="signature_update_method_save_button">Salvesta valik</string>
 
     <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
@@ -175,10 +177,12 @@
     <string name="signature_update_signature_role_and_address_title_accessibility">Roll ja aadress</string>
     <string name="signature_update_signature_role_and_address_info_title">Sisesta oma roll ja aadress</string>
 
+    <string name="signature_update_remember_me">Pea mind meeles</string>
+    <string name="signature_update_remember_me_message">Järgmisel allkirjastamisel on valitud meetod ja andmeväljad täidetud</string>
+
     <string name="signature_update_mobile_id_message">Sisesta oma telefoninumber ja isikukood mobiil-IDga allkirjastamiseks</string>
     <string name="signature_update_mobile_id_phone_no">Riigikood ja telefoninumber</string>
     <string name="signature_update_mobile_id_personal_code">Isikukood</string>
-    <string name="signature_update_remember_me">Pea mind meeles</string>
     <string name="signature_update_mobile_id_info">Veendu kontrollkoodi õigsuses ja sisesta telefonil mobiil-ID PIN2-kood.</string>
     <string name="signature_update_mobile_id_display_message">Allkirjasta dokument</string>
 

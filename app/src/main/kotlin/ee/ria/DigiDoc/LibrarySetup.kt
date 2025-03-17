@@ -9,6 +9,7 @@ import ee.ria.DigiDoc.configuration.utils.TSLUtil
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.libdigidoclib.exceptions.AlreadyInitializedException
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
+import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -42,12 +43,7 @@ class LibrarySetup
                 if (ex !is UnknownHostException && ex !is SocketTimeoutException) {
                     errorLog(logTag, "Unable to initialize configuration: ", ex)
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            context,
-                            R.string.configuration_initialization_failed,
-                            Toast.LENGTH_LONG,
-                        )
-                            .show()
+                        showMessage(context, R.string.configuration_initialization_failed)
                     }
                 }
             }

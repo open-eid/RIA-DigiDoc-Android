@@ -7,12 +7,14 @@ import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,9 +27,10 @@ import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
-import ee.ria.DigiDoc.ui.component.toast.ToastUtil
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
+import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.FileOpeningViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -45,6 +48,12 @@ fun FileOpeningNavigation(
     sharedContainerViewModel: SharedContainerViewModel,
 ) {
     val context = LocalContext.current
+
+    val snackBarHostState = remember { SnackbarHostState() }
+    val snackBarScope = rememberCoroutineScope()
+
+    val messages by SnackBarManager.messages.collectAsState(emptyList())
+
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
     val externalFileUris by sharedContainerViewModel.externalFileUris.collectAsState()
     val showSivaDialog = remember { mutableStateOf(false) }
@@ -214,6 +223,15 @@ fun FileOpeningNavigation(
         }
     }
 
+    LaunchedEffect(messages) {
+        messages.forEach { message ->
+            snackBarScope.launch {
+                snackBarHostState.showSnackbar(message)
+            }
+            SnackBarManager.removeMessage(message)
+        }
+    }
+
     SivaConfirmationDialog(
         showDialog = showSivaDialog,
         modifier = modifier,
@@ -221,10 +239,7 @@ fun FileOpeningNavigation(
     )
 
     if (errorText.first != 0) {
-        ToastUtil.DigiDocToast(
-            modifier = modifier,
-            message = context.getString(errorText.first, errorText.second),
-        )
+        showMessage(context.getString(errorText.first, errorText.second))
         errorText = Pair(0, null)
     }
 

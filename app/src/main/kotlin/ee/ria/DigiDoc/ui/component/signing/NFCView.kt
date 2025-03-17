@@ -22,9 +22,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -59,27 +59,24 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.NFCConstants.CAN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN2_MIN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN_MAX_LENGTH
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager.NfcStatus
-import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
-import ee.ria.DigiDoc.ui.component.toast.ToastUtil
-import ee.ria.DigiDoc.ui.theme.Blue500
+import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraExtraLargePadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
+import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.NFCViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
@@ -95,12 +92,14 @@ import java.nio.charset.StandardCharsets
 fun NFCView(
     activity: Activity,
     modifier: Modifier = Modifier,
-    signatureAddController: NavHostController,
     dismissDialog: () -> Unit = {},
-    cancelButtonClick: () -> Unit = {},
+    rememberMe: Boolean,
     nfcViewModel: NFCViewModel = hiltViewModel(),
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
     sharedContainerViewModel: SharedContainerViewModel,
+    isValidToSign: (Boolean) -> Unit,
+    isSupported: (Boolean) -> Unit,
+    signAction: (() -> Unit) -> Unit = {},
 ) {
     val context = LocalContext.current
 
@@ -112,7 +111,10 @@ fun NFCView(
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
 
     val canNumberLabel = stringResource(id = R.string.signature_update_nfc_can)
+    val canNumberLocationText = stringResource(R.string.nfc_sign_can_location)
     val pin2CodeLabel = stringResource(id = R.string.signature_update_nfc_pin2)
+
+    var shouldRememberMe by rememberSaveable { mutableStateOf(rememberMe) }
 
     var canNumberText by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
@@ -137,7 +139,11 @@ fun NFCView(
         openSignatureUpdateContainerDialog.value = false
     }
     val saveFormParams = {
-        sharedSettingsViewModel.dataStore.setCanNumber(canNumberText.text)
+        if (shouldRememberMe) {
+            sharedSettingsViewModel.dataStore.setCanNumber(canNumberText.text)
+        } else {
+            sharedSettingsViewModel.dataStore.setCanNumber("")
+        }
     }
 
     LaunchedEffect(nfcViewModel.shouldResetPIN2) {
@@ -197,11 +203,12 @@ fun NFCView(
         }
     }
 
+    LaunchedEffect(Unit, rememberMe) {
+        shouldRememberMe = rememberMe
+    }
+
     if (errorText.isNotEmpty()) {
-        ToastUtil.DigiDocToast(
-            modifier = modifier,
-            message = errorText,
-        )
+        showMessage(errorText)
         errorText = ""
     }
 
@@ -256,22 +263,20 @@ fun NFCView(
         if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
             RoleDataView(modifier, sharedSettingsViewModel)
         } else {
+            LaunchedEffect(Unit, isSupported) {
+                isSupported(nfcStatus != NfcStatus.NFC_NOT_SUPPORTED)
+            }
+
             if (nfcStatus !== NfcStatus.NFC_ACTIVE) {
                 nfcImage = R.drawable.ic_icon_nfc_not_found
 
-                SignatureAddRadioGroup(
-                    modifier = modifier,
-                    navController = signatureAddController,
-                    selectedRadioItem = sharedSettingsViewModel.dataStore.getSignatureAddMethod(),
-                    sharedSettingsViewModel = sharedSettingsViewModel,
-                )
                 Image(
                     painter = painterResource(id = nfcImage),
                     contentDescription = null,
                     modifier =
                         modifier
                             .fillMaxWidth()
-                            .padding(screenViewLargePadding)
+                            .padding(SPadding)
                             .notAccessible()
                             .testTag("signatureUpdateNFCIcon"),
                 )
@@ -287,7 +292,7 @@ fun NFCView(
                     modifier =
                         modifier
                             .fillMaxWidth()
-                            .padding(screenViewLargePadding)
+                            .padding(SPadding)
                             .semantics { heading() }
                             .testTag("signatureUpdateNFCNotFoundMessage"),
                     textAlign = TextAlign.Center,
@@ -295,31 +300,63 @@ fun NFCView(
             } else {
                 nfcImage = R.drawable.ic_icon_nfc
 
-                SignatureAddRadioGroup(
-                    modifier = modifier,
-                    navController = signatureAddController,
-                    selectedRadioItem = sharedSettingsViewModel.dataStore.getSignatureAddMethod(),
-                    sharedSettingsViewModel = sharedSettingsViewModel,
-                )
-                Text(
-                    text = stringResource(id = R.string.signature_update_nfc_message),
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier =
-                        modifier
-                            .padding(screenViewLargePadding)
-                            .semantics { heading() }
-                            .testTag("signatureUpdateNFCMessage"),
-                    textAlign = TextAlign.Center,
-                )
-                Text(
-                    text = canNumberLabel,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier =
-                        modifier
-                            .padding(vertical = screenViewLargePadding)
-                            .focusable(false)
-                            .testTag("signatureUpdateNFCCANLabel"),
-                )
+                val isValid =
+                    nfcViewModel.positiveButtonEnabled(
+                        canNumberText.text,
+                        pin2CodeText.text.toByteArray(StandardCharsets.UTF_8),
+                    )
+
+                LaunchedEffect(isValid) {
+                    isValidToSign(isValid)
+                }
+
+                LaunchedEffect(Unit, isValid) {
+                    if (isValid) {
+                        signAction {
+                            if (getSettingsAskRoleAndAddress() && roleDataRequested != true) {
+                                nfcViewModel.setRoleDataRequested(true)
+                            } else {
+                                openSignatureUpdateContainerDialog.value = true
+                                saveFormParams()
+                                var roleDataRequest: RoleData? = null
+                                if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
+                                    val roles = sharedSettingsViewModel.dataStore.getRoles()
+                                    val rolesList =
+                                        roles
+                                            .split(",")
+                                            .map { it.trim() }
+                                            .filter { it.isNotEmpty() }
+                                            .toList()
+                                    val city = sharedSettingsViewModel.dataStore.getRoleCity()
+                                    val state = sharedSettingsViewModel.dataStore.getRoleState()
+                                    val country = sharedSettingsViewModel.dataStore.getRoleCountry()
+                                    val zip = sharedSettingsViewModel.dataStore.getRoleZip()
+
+                                    roleDataRequest =
+                                        RoleData(
+                                            roles = rolesList,
+                                            city = city,
+                                            state = state,
+                                            country = country,
+                                            zip = zip,
+                                        )
+                                }
+                                CoroutineScope(IO).launch {
+                                    nfcViewModel.performNFCWorkRequest(
+                                        activity = activity,
+                                        context = context,
+                                        container = signedContainer,
+                                        pin2Code = pin2CodeText.text.toByteArray(StandardCharsets.UTF_8),
+                                        canNumber = canNumberText.text,
+                                        roleData = roleDataRequest,
+                                    )
+                                    nfcViewModel.resetRoleDataRequested()
+                                }
+                            }
+                        }
+                    }
+                }
+
                 val canNumberTextEdited = rememberSaveable { mutableStateOf(false) }
                 val canNumberErrorText =
                     if (canNumberTextEdited.value && canNumberText.text.isNotEmpty()) {
@@ -334,191 +371,152 @@ fun NFCView(
                     } else {
                         ""
                     }
-                TextField(
+
+                Column(
                     modifier =
                         modifier
-                            .fillMaxWidth()
-                            .clearAndSetSemantics {
+                            .semantics {
                                 testTagsAsResourceId = true
-                                testTag = "signatureUpdateNFCCAN"
-                                contentDescription =
-                                    "$canNumberLabel " +
-                                    "${formatNumbers(canNumberText.text)} "
                             }
-                            .testTag("signatureUpdateNFCCAN"),
-                    value = canNumberText,
-                    shape = RectangleShape,
-                    onValueChange = {
-                        canNumberText = it
-                        canNumberTextEdited.value = true
-                    },
-                    label = {
-                        Text(
-                            modifier = modifier.notAccessible(),
-                            text = stringResource(id = R.string.nfc_sign_can_location),
-                            color = Blue500,
-                        )
-                    },
-                    maxLines = 1,
-                    singleLine = true,
-                    isError =
-                        canNumberTextEdited.value &&
-                            nfcViewModel.shouldShowCANNumberError(canNumberText.text),
-                    textStyle = MaterialTheme.typography.titleLarge,
-                    keyboardOptions =
-                        KeyboardOptions.Default.copy(
-                            imeAction = ImeAction.Next,
-                            keyboardType = KeyboardType.Decimal,
-                        ),
-                )
-                if (canNumberErrorText.isNotEmpty()) {
-                    Text(
+                            .testTag("mobileIdViewContainer"),
+                ) {
+                    OutlinedTextField(
                         modifier =
-                            Modifier
+                            modifier
                                 .fillMaxWidth()
-                                .focusable(enabled = true)
-                                .semantics { contentDescription = canNumberErrorText }
-                                .testTag("signatureUpdateNFCCANErrorText"),
-                        text = canNumberErrorText,
-                        color = Red500,
-                    )
-                }
-                Text(
-                    text = pin2CodeLabel,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier =
-                        modifier
-                            .padding(top = screenViewExtraLargePadding, bottom = screenViewLargePadding)
-                            .focusable(false)
-                            .testTag("signatureUpdateNFCPIN2Label"),
-                )
-                val pin2CodeTextEdited = rememberSaveable { mutableStateOf(false) }
-                val pin2CodeErrorText =
-                    if (pin2CodeTextEdited.value && pin2CodeText.text.isNotEmpty()) {
-                        if (nfcViewModel
-                                .shouldShowPIN2CodeError(
-                                    pin2CodeText.text.toByteArray(StandardCharsets.UTF_8),
-                                )
-                        ) {
-                            String.format(
-                                stringResource(id = R.string.id_card_sign_pin_invalid_length),
-                                stringResource(id = R.string.signature_id_card_pin2),
-                                PIN2_MIN_LENGTH.toString(),
-                                PIN_MAX_LENGTH.toString(),
+                                .clearAndSetSemantics {
+                                    testTagsAsResourceId = true
+                                    testTag = "signatureUpdateNFCCAN"
+                                    contentDescription =
+                                        "$canNumberLabel " +
+                                        "${formatNumbers(canNumberText.text)}. $canNumberLocationText"
+                                }
+                                .testTag("signatureUpdateNFCCAN"),
+                        value = canNumberText,
+                        shape = RectangleShape,
+                        onValueChange = {
+                            canNumberText = it
+                            canNumberTextEdited.value = true
+                        },
+                        label = {
+                            Text(
+                                modifier = modifier.notAccessible(),
+                                text = canNumberLabel,
                             )
+                        },
+                        singleLine = true,
+                        isError =
+                            canNumberTextEdited.value &&
+                                nfcViewModel.shouldShowCANNumberError(canNumberText.text),
+                        textStyle = MaterialTheme.typography.titleLarge,
+                        keyboardOptions =
+                            KeyboardOptions.Default.copy(
+                                imeAction = ImeAction.Next,
+                                keyboardType = KeyboardType.Decimal,
+                            ),
+                    )
+                    Text(
+                        text = canNumberLocationText,
+                        modifier =
+                            modifier
+                                .padding(vertical = XSPadding)
+                                .focusable(false)
+                                .testTag("signatureInputMethodTitle")
+                                .notAccessible(),
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        textAlign = TextAlign.Start,
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+                    if (canNumberErrorText.isNotEmpty()) {
+                        Text(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .focusable(enabled = true)
+                                    .semantics { contentDescription = canNumberErrorText }
+                                    .testTag("signatureUpdateNFCCANErrorText"),
+                            text = canNumberErrorText,
+                            color = Red500,
+                        )
+                    }
+
+                    val pin2CodeTextEdited = rememberSaveable { mutableStateOf(false) }
+                    val pin2CodeErrorText =
+                        if (pin2CodeTextEdited.value && pin2CodeText.text.isNotEmpty()) {
+                            if (nfcViewModel
+                                    .shouldShowPIN2CodeError(
+                                        pin2CodeText.text.toByteArray(StandardCharsets.UTF_8),
+                                    )
+                            ) {
+                                String.format(
+                                    stringResource(id = R.string.id_card_sign_pin_invalid_length),
+                                    stringResource(id = R.string.signature_id_card_pin2),
+                                    PIN2_MIN_LENGTH.toString(),
+                                    PIN_MAX_LENGTH.toString(),
+                                )
+                            } else {
+                                ""
+                            }
                         } else {
                             ""
                         }
-                    } else {
-                        ""
-                    }
 
-                TextField(
-                    modifier =
-                        modifier
-                            .fillMaxWidth()
-                            .padding(bottom = screenViewLargePadding)
-                            .clearAndSetSemantics {
-                                testTagsAsResourceId = true
-                                testTag = "signatureUpdateNFCPIN2"
-                                contentDescription = pin2CodeLabel
-                            },
-                    value = pin2CodeText,
-                    shape = RectangleShape,
-                    onValueChange = {
-                        pin2CodeText = it
-                        pin2CodeTextEdited.value = true
-                    },
-                    maxLines = 1,
-                    singleLine = true,
-                    isError =
-                        pin2CodeTextEdited.value &&
-                            nfcViewModel
-                                .shouldShowPIN2CodeError(pin2CodeText.text.toByteArray(StandardCharsets.UTF_8)),
-                    textStyle = MaterialTheme.typography.titleLarge,
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions =
-                        KeyboardOptions.Default.copy(
-                            imeAction = ImeAction.Next,
-                            keyboardType = KeyboardType.NumberPassword,
-                        ),
-                )
-
-                if (pin2CodeErrorText.isNotEmpty()) {
-                    Text(
+                    OutlinedTextField(
                         modifier =
-                            Modifier
+                            modifier
                                 .fillMaxWidth()
-                                .focusable(enabled = true)
-                                .semantics { contentDescription = pin2CodeErrorText }
-                                .testTag("signatureUpdateNFCPIN2ErrorText"),
-                        text = pin2CodeErrorText,
-                        color = Red500,
+                                .padding(top = XSPadding)
+                                .clearAndSetSemantics {
+                                    testTagsAsResourceId = true
+                                    testTag = "signatureUpdateNFCPIN2"
+                                    contentDescription = pin2CodeLabel
+                                },
+                        label = {
+                            Text(
+                                modifier = modifier.notAccessible(),
+                                text = pin2CodeLabel,
+                            )
+                        },
+                        value = pin2CodeText,
+                        shape = RectangleShape,
+                        onValueChange = {
+                            pin2CodeText = it
+                            pin2CodeTextEdited.value = true
+                        },
+                        maxLines = 1,
+                        singleLine = true,
+                        isError =
+                            pin2CodeTextEdited.value &&
+                                nfcViewModel
+                                    .shouldShowPIN2CodeError(
+                                        pin2CodeText.text.toByteArray(
+                                            StandardCharsets.UTF_8,
+                                        ),
+                                    ),
+                        textStyle = MaterialTheme.typography.titleLarge,
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions =
+                            KeyboardOptions.Default.copy(
+                                imeAction = ImeAction.Done,
+                                keyboardType = KeyboardType.NumberPassword,
+                            ),
                     )
+
+                    if (pin2CodeErrorText.isNotEmpty()) {
+                        Text(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .focusable(enabled = true)
+                                    .semantics { contentDescription = pin2CodeErrorText }
+                                    .testTag("signatureUpdateNFCPIN2ErrorText"),
+                            text = pin2CodeErrorText,
+                            color = Red500,
+                        )
+                    }
                 }
             }
         }
-        CancelAndOkButtonRow(
-            okButtonTestTag = "signatureUpdateNFCSignButton",
-            cancelButtonTestTag = "signatureUpdateNFCCancelSigningButton",
-            okButtonEnabled =
-                nfcViewModel.positiveButtonEnabled(
-                    canNumberText.text,
-                    pin2CodeText.text.toByteArray(StandardCharsets.UTF_8),
-                ),
-            cancelButtonTitle = R.string.cancel_button,
-            okButtonTitle = R.string.sign_button,
-            cancelButtonContentDescription = stringResource(id = R.string.cancel_button).lowercase(),
-            okButtonContentDescription = stringResource(id = R.string.sign_button).lowercase(),
-            cancelButtonClick =
-                {
-                    nfcViewModel.resetRoleDataRequested()
-                    saveFormParams()
-                    cancelButtonClick()
-                },
-            okButtonClick = {
-                if (getSettingsAskRoleAndAddress() && roleDataRequested != true) {
-                    nfcViewModel.setRoleDataRequested(true)
-                } else {
-                    openSignatureUpdateContainerDialog.value = true
-                    saveFormParams()
-                    var roleDataRequest: RoleData? = null
-                    if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
-                        val roles = sharedSettingsViewModel.dataStore.getRoles()
-                        val rolesList =
-                            roles
-                                .split(",")
-                                .map { it.trim() }
-                                .filter { it.isNotEmpty() }
-                                .toList()
-                        val city = sharedSettingsViewModel.dataStore.getRoleCity()
-                        val state = sharedSettingsViewModel.dataStore.getRoleState()
-                        val country = sharedSettingsViewModel.dataStore.getRoleCountry()
-                        val zip = sharedSettingsViewModel.dataStore.getRoleZip()
-
-                        roleDataRequest =
-                            RoleData(
-                                roles = rolesList,
-                                city = city,
-                                state = state,
-                                country = country,
-                                zip = zip,
-                            )
-                    }
-                    CoroutineScope(IO).launch {
-                        nfcViewModel.performNFCWorkRequest(
-                            activity = activity,
-                            context = context,
-                            container = signedContainer,
-                            pin2Code = pin2CodeText.text.toByteArray(StandardCharsets.UTF_8),
-                            canNumber = canNumberText.text,
-                            roleData = roleDataRequest,
-                        )
-                        nfcViewModel.resetRoleDataRequested()
-                    }
-                }
-            },
-        )
     }
 }
 
@@ -527,12 +525,13 @@ fun NFCView(
 @Composable
 fun NFCViewPreview() {
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
-    val signatureAddController = rememberNavController()
     RIADigiDocTheme {
         NFCView(
             activity = LocalActivity.current as Activity,
-            signatureAddController = signatureAddController,
             sharedContainerViewModel = sharedContainerViewModel,
+            rememberMe = true,
+            isValidToSign = {},
+            isSupported = {},
         )
     }
 }

@@ -10,11 +10,11 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.IS_CRASH_SENDING_ALWAYS_ENABLED
 import ee.ria.DigiDoc.common.Constant.KEY_LOCALE
 import ee.ria.DigiDoc.common.preferences.EncryptedPreferences
+import ee.ria.DigiDoc.domain.model.methods.SigningMethod
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.network.siva.SivaSetting
-import ee.ria.DigiDoc.ui.component.toast.ToastUtil
-import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.libdigidocpp.digidoc
@@ -35,17 +35,17 @@ class DataStore
             val signatureAddMethod =
                 preferences.getString(
                     resources.getString(R.string.main_settings_signature_add_method_key),
-                    Route.MobileId.route,
-                ) ?: Route.MobileId.route
+                    SigningMethod.NFC.methodName,
+                ) ?: SigningMethod.NFC.methodName
             val signatureAddMethods =
                 arrayOf(
-                    Route.MobileId.route,
-                    Route.SmartId.route,
-                    Route.IdCard.route,
-                    Route.NFC.route,
+                    SigningMethod.MOBILE_ID.methodName,
+                    SigningMethod.SMART_ID.methodName,
+                    SigningMethod.ID_CARD.methodName,
+                    SigningMethod.NFC.methodName,
                 )
             if (!listOf(*signatureAddMethods).contains(signatureAddMethod)) {
-                return Route.MobileId.route
+                return SigningMethod.NFC.methodName
             }
             return signatureAddMethod
         }
@@ -562,11 +562,11 @@ class DataStore
                 EncryptedPreferences.getEncryptedPreferences(context)
             } catch (e: GeneralSecurityException) {
                 errorLog(logTag, "Unable to get encrypted preferences", e)
-                ToastUtil.showMessage(context, R.string.error_general_client)
+                showMessage(context, R.string.error_general_client)
                 null
             } catch (e: IOException) {
                 errorLog(logTag, "Unable to get encrypted preferences", e)
-                ToastUtil.showMessage(context, R.string.error_general_client)
+                showMessage(context, R.string.error_general_client)
                 null
             }
         }
