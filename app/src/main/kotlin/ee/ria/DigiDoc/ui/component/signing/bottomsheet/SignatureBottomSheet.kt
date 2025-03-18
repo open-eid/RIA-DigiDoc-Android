@@ -63,7 +63,13 @@ fun SignatureBottomSheet(
                     showButton =
                         !NO_REMOVE_SIGNATURE_BUTTON_FILE_MIMETYPES.contains(
                             signedContainer?.getContainerFile()
-                                ?.let { container -> signingViewModel.getMimetype(container) },
+                                ?.let { containerFile ->
+                                    if (containerFile.exists()) {
+                                        signingViewModel.getMimetype(containerFile)
+                                    } else {
+                                        ""
+                                    }
+                                },
                         ) &&
                             !NO_REMOVE_SIGNATURE_BUTTON_FILE_EXTENSIONS.contains(
                                 FilenameUtils.getExtension(signedContainer?.getName()),
