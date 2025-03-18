@@ -1092,11 +1092,13 @@ fun SigningNavigation(
                         showContainerCloseConfirmationDialog.value = false
                     },
                     onDismissButton = {
+                        showContainerCloseConfirmationDialog.value = false
                         saveFile(
                             signedContainer?.getContainerFile(),
                             signedContainer?.containerMimetype(),
                             saveFileLauncher,
                         )
+                        handleBackButtonClick(navController, signingViewModel, sharedContainerViewModel)
                     },
                     onConfirmButton = {
                         showContainerCloseConfirmationDialog.value = false
