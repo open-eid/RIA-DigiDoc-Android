@@ -18,7 +18,6 @@ object Dimensions {
 
     val loadingBarSize = 64.dp
     val buttonCornerShapeSize = 4.dp
-    const val MAX_DIALOG_WIDTH = 0.98f
 
     // Paddings
     val zeroPadding = 0.dp
@@ -28,9 +27,6 @@ object Dimensions {
     val screenViewLargePadding = 16.dp
     val screenViewExtraLargePadding = 24.dp
     val screenViewExtraExtraLargePadding = 48.dp
-    val toastPadding = 100.dp
-    val toastRoundShapeCorner = 8.dp
-    val toastMinSize = 48.dp
 
     val itemSpacingPadding = 8.dp
 
@@ -39,8 +35,8 @@ object Dimensions {
     val border = 2.dp
 
     val buttonShadowElevation = 1.dp
-    val buttonCornerRadius = 12.dp
-    val dialogCornerRadius = 24.dp
+    val MSCornerRadius = 12.dp
+    val MCornerRadius = 24.dp
 
     val XXSPadding = 4.dp
     val XSPadding = 8.dp
@@ -49,5 +45,4 @@ object Dimensions {
     val MPadding = 24.dp
     val LPadding = 32.dp
     val XLPadding = 48.dp
-    val XXLPadding = 64.dp
 }

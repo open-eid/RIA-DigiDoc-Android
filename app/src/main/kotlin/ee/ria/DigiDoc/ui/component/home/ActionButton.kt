@@ -43,8 +43,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.MiddleEllipsizeMultilineText
+import ee.ria.DigiDoc.ui.theme.Dimensions.MSCornerRadius
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.buttonCornerRadius
 import ee.ria.DigiDoc.ui.theme.Dimensions.buttonShadowElevation
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
@@ -78,7 +78,7 @@ fun ActionButton(
                     .offset(y = buttonShadowElevation)
                     .background(
                         color = MaterialTheme.colorScheme.surfaceContainer,
-                        shape = RoundedCornerShape(buttonCornerRadius),
+                        shape = RoundedCornerShape(MSCornerRadius),
                     ),
         )
         Card(

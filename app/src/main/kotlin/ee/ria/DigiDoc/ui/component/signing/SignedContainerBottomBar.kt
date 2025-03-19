@@ -37,10 +37,10 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.MSCornerRadius
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XXSPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.buttonCornerRadius
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
@@ -76,8 +76,8 @@ fun SignedContainerBottomBar(
             modifier =
                 modifier
                     .shadow(
-                        elevation = buttonCornerRadius,
-                        shape = RoundedCornerShape(buttonCornerRadius),
+                        elevation = MSCornerRadius,
+                        shape = RoundedCornerShape(MSCornerRadius),
                         ambientColor = MaterialTheme.colorScheme.onSurface,
                         spotColor = MaterialTheme.colorScheme.onSurface,
                     )
