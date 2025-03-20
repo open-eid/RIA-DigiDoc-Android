@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">RIA DigiDoc</string>
     <string name="main_home_version">версия %1$s</string>
 
     <!-- Home Screen actions -->

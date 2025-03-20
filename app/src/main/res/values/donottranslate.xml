@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">RIA DigiDoc</string>
     <string name="digidoc_all_caps">DIGIDOC</string>
     <string name="digidoc">DigiDoc</string>
     <string name="ria">Rɪɪɢɪ Iɴꜰᴏꜱüꜱᴛᴇᴇᴍɪ Aᴍᴇᴛ</string>
