@@ -42,21 +42,23 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.domain.model.methods.SigningMethod
+import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.signing.SignatureAddRadioItem
-import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignatureMethodScreen(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     navController: NavHostController,
+    sharedMenuViewModel: SharedMenuViewModel,
     sharedSettingsViewModel: SharedSettingsViewModel,
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
@@ -87,6 +89,7 @@ fun SignatureMethodScreen(
         topBar = {
             TopBar(
                 modifier = modifier,
+                sharedMenuViewModel = sharedMenuViewModel,
                 title = null,
                 onLeftButtonClick = {
                     navController.navigateUp()
@@ -172,13 +175,11 @@ fun SignatureMethodScreen(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun SignatureMethodScreenPreview() {
-    val navController = rememberNavController()
-    val sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel()
     RIADigiDocTheme {
         SignatureMethodScreen(
-            modifier = Modifier,
-            navController = navController,
-            sharedSettingsViewModel = sharedSettingsViewModel,
+            navController = rememberNavController(),
+            sharedMenuViewModel = hiltViewModel(),
+            sharedSettingsViewModel = hiltViewModel(),
         )
     }
 }

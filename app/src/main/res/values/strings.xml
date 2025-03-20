@@ -293,6 +293,7 @@
     <string name="yes_button">YES</string>
     <string name="remove_button">Remove</string>
     <string name="cancel_button">Cancel</string>
+    <string name="open_button">Open</string>
     <string name="ok_button">OK</string>
 
     <!-- Crypto -->
@@ -409,8 +410,13 @@
 
     <!-- Main About -->
     <string name="main_about_title">Info</string>
+    <string name="main_about_1_logo_text">Eesti tuleviku heaks</string>
+    <string name="main_about_2_logo_text">Euroopa Liit Euroopa Regionaalarengu Fond</string>
     <string name="main_about_digidoc_and_el_logos">The project is supported by the European Regional Development Fund</string>
-    <string name="main_about_ria_digidoc_version_title">RIA DigiDoc version %1$s</string>
+    <string name="main_about_ria_digidoc_title">RIA DigiDoc</string>
+    <string name="main_about_version_title">version %1$s</string>
+    <string name="main_about_info_title">Estonian ID software is issued by the Estonian Information System Authority. If you have any questions, please contact:</string>
+    <string name="main_about_help_center">ID helpdesk</string>
     <string name="main_about_software_developed_by_title">Estonian ID-software is released by Information System Authority</string>
     <string name="main_about_contact_information_title">In case of questions please contact our support via <a href="http://www.id.ee">id.ee</a></string>
     <string name="main_about_licenses_title">Additional licenses and components</string>

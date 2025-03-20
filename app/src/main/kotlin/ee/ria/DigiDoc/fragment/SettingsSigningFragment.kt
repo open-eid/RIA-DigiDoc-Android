@@ -20,12 +20,14 @@ import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.fragment.screen.SettingsSigningScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SettingsSigningFragment(
     navController: NavHostController,
     modifier: Modifier = Modifier,
+    sharedMenuViewModel: SharedMenuViewModel,
     sharedCertificateViewModel: SharedCertificateViewModel,
 ) {
     Surface(
@@ -42,6 +44,7 @@ fun SettingsSigningFragment(
         SettingsSigningScreen(
             navController = navController,
             modifier = modifier,
+            sharedMenuViewModel = sharedMenuViewModel,
             sharedCertificateViewModel = sharedCertificateViewModel,
         )
     }
@@ -54,6 +57,7 @@ fun SettingsSigningFragmentPreview() {
     RIADigiDocTheme {
         SettingsSigningFragment(
             navController = rememberNavController(),
+            sharedMenuViewModel = hiltViewModel(),
             sharedCertificateViewModel = hiltViewModel(),
         )
     }

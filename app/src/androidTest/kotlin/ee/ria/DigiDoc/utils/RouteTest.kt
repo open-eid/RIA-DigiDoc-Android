@@ -7,7 +7,6 @@ import ee.ria.DigiDoc.utils.Constant.Routes.CRYPTO_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.EID_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.FILE_CHOOSING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.HOME_SCREEN
-import ee.ria.DigiDoc.utils.Constant.Routes.MENU_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ROOT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_RIGHTS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_SCREEN
@@ -24,7 +23,6 @@ class RouteTest {
     @Test
     fun testRoutes() {
         assertEquals(HOME_SCREEN, Route.Home.route)
-        assertEquals(MENU_SCREEN, Route.Menu.route)
         assertEquals(SIGNATURE_SCREEN, Route.Signature.route)
         assertEquals(CRYPTO_SCREEN, Route.Crypto.route)
         assertEquals(EID_SCREEN, Route.EID.route)

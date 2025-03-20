@@ -9,7 +9,6 @@ import android.content.res.Configuration
 import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -84,6 +83,7 @@ import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
 import ee.ria.DigiDoc.ui.component.shared.TabView
+import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
 import ee.ria.DigiDoc.ui.component.signing.bottomsheet.ContainerBottomSheet
 import ee.ria.DigiDoc.ui.component.signing.bottomsheet.DataFileBottomSheet
@@ -108,6 +108,7 @@ import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.viewmodel.SigningViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -121,14 +122,13 @@ import java.io.File
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun SigningNavigation(
-    activity: Activity,
     navController: NavHostController,
     modifier: Modifier = Modifier,
+    sharedMenuViewModel: SharedMenuViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
     sharedSignatureViewModel: SharedSignatureViewModel,
     signingViewModel: SigningViewModel = hiltViewModel(),
 ) {
-    val signatureAddController = rememberNavController()
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
     val shouldResetContainer by signingViewModel.shouldResetSignedContainer.asFlow().collectAsState(false)
     val context = LocalContext.current
@@ -279,9 +279,9 @@ fun SigningNavigation(
         clickedSignature.value = signature
     }
 
-    var actionDataFile by remember { mutableStateOf<DataFileInterface?>(null) }
+    val actionDataFile by remember { mutableStateOf<DataFileInterface?>(null) }
 
-    var isSaved by remember { mutableStateOf<Boolean>(false) }
+    var isSaved by remember { mutableStateOf(false) }
 
     val selectedSignedContainerTabIndex = rememberSaveable { mutableIntStateOf(0) }
 
@@ -501,6 +501,7 @@ fun SigningNavigation(
         topBar = {
             TopBar(
                 modifier = modifier,
+                sharedMenuViewModel = sharedMenuViewModel,
                 title =
                     signedContainer?.takeIf { it.isSigned() }
                         ?.let { R.string.signing_container_documents_title },
@@ -572,7 +573,7 @@ fun SigningNavigation(
             var actionSignature by remember { mutableStateOf<SignatureInterface?>(null) }
 
             val showSivaDialog = remember { mutableStateOf(false) }
-            var nestedFile = rememberSaveable { mutableStateOf<File?>(null) }
+            val nestedFile = rememberSaveable { mutableStateOf<File?>(null) }
 
             val openNestedContainer: (nestedContainer: File, isSivaConfirmed: Boolean) -> Unit =
                 { nestedContainer, isSivaConfirmed ->
@@ -804,20 +805,24 @@ fun SigningNavigation(
                                         listOf(
                                             Pair(
                                                 stringResource(R.string.signing_documents_title),
-                                                { DataFileItem(modifier, dataFiles, onDataFileClick) },
-                                            ),
+                                            ) {
+                                                DataFileItem(
+                                                    modifier,
+                                                    dataFiles,
+                                                    onDataFileClick,
+                                                )
+                                            },
                                             Pair(
                                                 stringResource(R.string.signing_container_signatures_title),
-                                                {
-                                                    SignatureComponent(
-                                                        modifier,
-                                                        signatures,
-                                                        showSignaturesLoadingIndicator.value,
-                                                        signaturesLoading,
-                                                        onSignatureItemClick,
-                                                    )
-                                                },
-                                            ),
+                                            ) {
+                                                SignatureComponent(
+                                                    modifier,
+                                                    signatures,
+                                                    showSignaturesLoadingIndicator.value,
+                                                    signaturesLoading,
+                                                    onSignatureItemClick,
+                                                )
+                                            },
                                         ),
                                     )
                                 }
@@ -1152,16 +1157,12 @@ private fun LazyListState.reachedBottom(): Boolean {
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun SigningNavigationPreview() {
-    val navController = rememberNavController()
-    val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
-    val sharedSignatureViewModel: SharedSignatureViewModel = hiltViewModel()
-
     RIADigiDocTheme {
         SigningNavigation(
-            activity = LocalActivity.current as Activity,
-            navController = navController,
-            sharedContainerViewModel = sharedContainerViewModel,
-            sharedSignatureViewModel = sharedSignatureViewModel,
+            navController = rememberNavController(),
+            sharedMenuViewModel = hiltViewModel(),
+            sharedContainerViewModel = hiltViewModel(),
+            sharedSignatureViewModel = hiltViewModel(),
         )
     }
 }

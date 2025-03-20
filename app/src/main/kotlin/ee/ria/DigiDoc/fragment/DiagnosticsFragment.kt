@@ -19,13 +19,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.fragment.screen.DiagnosticsScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DiagnosticsFragment(
-    navController: NavHostController,
     modifier: Modifier = Modifier,
+    navController: NavHostController,
+    sharedMenuViewModel: SharedMenuViewModel,
     sharedSettingsViewModel: SharedSettingsViewModel,
 ) {
     Surface(
@@ -40,8 +42,9 @@ fun DiagnosticsFragment(
         color = MaterialTheme.colorScheme.background,
     ) {
         DiagnosticsScreen(
-            navController = navController,
             modifier = modifier,
+            navController = navController,
+            sharedMenuViewModel = sharedMenuViewModel,
             sharedSettingsViewModel = sharedSettingsViewModel,
         )
     }
@@ -51,9 +54,11 @@ fun DiagnosticsFragment(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun DiagnosticsFragmentPreview() {
-    val navController = rememberNavController()
-    val sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel()
     RIADigiDocTheme {
-        DiagnosticsFragment(navController, sharedSettingsViewModel = sharedSettingsViewModel)
+        DiagnosticsFragment(
+            navController = rememberNavController(),
+            sharedMenuViewModel = hiltViewModel(),
+            sharedSettingsViewModel = hiltViewModel(),
+        )
     }
 }

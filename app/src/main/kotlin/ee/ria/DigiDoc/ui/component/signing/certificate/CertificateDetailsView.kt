@@ -46,7 +46,7 @@ import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
-import ee.ria.DigiDoc.ui.component.signing.TopBar
+import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
@@ -59,6 +59,7 @@ import ee.ria.DigiDoc.utilsLib.extensions.hexString
 import ee.ria.DigiDoc.utilsLib.text.TextUtil
 import ee.ria.DigiDoc.viewmodel.CertificateDetailViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import kotlinx.coroutines.launch
 import org.bouncycastle.asn1.x500.style.BCStyle
 import kotlin.text.Charsets.UTF_8
@@ -68,6 +69,7 @@ import kotlin.text.Charsets.UTF_8
 fun CertificateDetailsView(
     navController: NavHostController,
     modifier: Modifier = Modifier,
+    sharedMenuViewModel: SharedMenuViewModel,
     sharedCertificateViewModel: SharedCertificateViewModel,
     certificateDetailViewModel: CertificateDetailViewModel = hiltViewModel(),
 ) {
@@ -106,6 +108,7 @@ fun CertificateDetailsView(
         topBar = {
             TopBar(
                 modifier = modifier,
+                sharedMenuViewModel = sharedMenuViewModel,
                 title = R.string.certificate_details_title,
                 onLeftButtonClick = {
                     handleBackButtonClick(navController, sharedCertificateViewModel)

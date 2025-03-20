@@ -16,17 +16,20 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.fragment.screen.HomeScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun HomeFragment(
-    navController: NavHostController,
     modifier: Modifier = Modifier,
+    navController: NavHostController,
+    sharedMenuViewModel: SharedMenuViewModel,
     externalFileUris: List<Uri>,
 ) {
     LaunchedEffect(Unit) {
@@ -54,6 +57,7 @@ fun HomeFragment(
         HomeScreen(
             modifier = modifier,
             navController = navController,
+            sharedMenuViewModel = sharedMenuViewModel,
         )
     }
 }
@@ -62,10 +66,10 @@ fun HomeFragment(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun HomeFragmentPreview() {
-    val navController = rememberNavController()
     RIADigiDocTheme {
         HomeFragment(
-            navController = navController,
+            navController = rememberNavController(),
+            sharedMenuViewModel = hiltViewModel(),
             externalFileUris = listOf(),
         )
     }

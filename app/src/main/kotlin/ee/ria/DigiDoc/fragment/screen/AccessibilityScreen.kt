@@ -34,18 +34,20 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.shared.DynamicText
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
-import ee.ria.DigiDoc.ui.component.signing.TopBar
+import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -53,6 +55,7 @@ import kotlinx.coroutines.launch
 fun AccessibilityScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    sharedMenuViewModel: SharedMenuViewModel,
 ) {
     val context = LocalContext.current
     val activity = (context as Activity)
@@ -84,6 +87,7 @@ fun AccessibilityScreen(
         topBar = {
             TopBar(
                 modifier = modifier,
+                sharedMenuViewModel = sharedMenuViewModel,
                 title = R.string.main_accessibility_title,
                 onLeftButtonClick = {
                     navController.navigateUp()
@@ -311,10 +315,10 @@ fun AccessibilityScreen(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun AccessibilityScreenPreview() {
-    val navController = rememberNavController()
     RIADigiDocTheme {
         AccessibilityScreen(
-            navController = navController,
+            navController = rememberNavController(),
+            sharedMenuViewModel = hiltViewModel(),
         )
     }
 }

@@ -17,11 +17,11 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import ee.ria.DigiDoc.ui.theme.Dimensions.buttonCornerRadius
-import ee.ria.DigiDoc.ui.theme.Dimensions.dialogCornerRadius
+import ee.ria.DigiDoc.ui.theme.Dimensions.MCornerRadius
+import ee.ria.DigiDoc.ui.theme.Dimensions.MSCornerRadius
 
-val buttonRoundedCornerShape = RoundedCornerShape(buttonCornerRadius)
-val dialogRoundedCornerShape = RoundedCornerShape(dialogCornerRadius)
+val buttonRoundedCornerShape = RoundedCornerShape(MSCornerRadius)
+val buttonRoundCornerShape = RoundedCornerShape(MCornerRadius)
 
 private val DarkColorScheme =
     darkColorScheme(

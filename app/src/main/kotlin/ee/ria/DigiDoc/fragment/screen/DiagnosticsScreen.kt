@@ -56,7 +56,7 @@ import ee.ria.DigiDoc.ui.component.shared.HrefMessageDialog
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
 import ee.ria.DigiDoc.ui.component.shared.SpannableBoldText
-import ee.ria.DigiDoc.ui.component.signing.TopBar
+import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
@@ -66,6 +66,7 @@ import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
 import ee.ria.DigiDoc.viewmodel.DiagnosticsViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -79,6 +80,7 @@ import java.io.File
 fun DiagnosticsScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    sharedMenuViewModel: SharedMenuViewModel,
     sharedSettingsViewModel: SharedSettingsViewModel,
     diagnosticsViewModel: DiagnosticsViewModel = hiltViewModel(),
 ) {
@@ -159,6 +161,7 @@ fun DiagnosticsScreen(
         topBar = {
             TopBar(
                 modifier = modifier,
+                sharedMenuViewModel = sharedMenuViewModel,
                 title = R.string.main_diagnostics_title,
                 onLeftButtonClick = {
                     navController.navigateUp()
@@ -557,12 +560,11 @@ fun DiagnosticsScreen(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun DiagnosticsScreenPreview() {
-    val navController = rememberNavController()
-    val sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel()
     RIADigiDocTheme {
         DiagnosticsScreen(
-            navController = navController,
-            sharedSettingsViewModel = sharedSettingsViewModel,
+            navController = rememberNavController(),
+            sharedMenuViewModel = hiltViewModel(),
+            sharedSettingsViewModel = hiltViewModel(),
         )
     }
 }
