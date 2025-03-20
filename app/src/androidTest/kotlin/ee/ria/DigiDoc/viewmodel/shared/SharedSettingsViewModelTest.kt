@@ -233,7 +233,9 @@ class SharedSettingsViewModelTest {
     }
 
     @Test
-    fun sharedSettingsViewModel_updateSivaData_successWithValidCertFile() {
+    fun sharedSettingsViewModel_updateData_successWithValidCertFile() {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+
         val file =
             AssetFile.getResourceFileAsFile(
                 context,
@@ -248,8 +250,8 @@ class SharedSettingsViewModelTest {
 
         assertEquals(validUrl, viewModel.previousSivaUrl.value)
         assertNotNull(viewModel.sivaCertificate.value)
-        assertEquals("*.eesti.ee", viewModel.sivaIssuedTo.value)
-        assertEquals("01.10.2024 (Expired)", viewModel.sivaValidTo.value)
+        assertEquals("*.eesti.ee", viewModel.issuedTo.value)
+        assertEquals("30.09.2024 (Expired)", viewModel.validTo.value)
     }
 
     @Test(expected = Test.None::class)

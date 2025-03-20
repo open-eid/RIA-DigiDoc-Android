@@ -253,7 +253,9 @@ fun NFCView(
                     })
                 }
                 .onGloballyPositioned {
-                    nfcViewModel.checkNFCStatus(nfcViewModel.getNFCStatus(activity))
+                    CoroutineScope(Main).launch {
+                        nfcViewModel.checkNFCStatus(nfcViewModel.getNFCStatus(activity))
+                    }
                 }
                 .semantics {
                     testTagsAsResourceId = true
