@@ -15,12 +15,14 @@ import ee.ria.DigiDoc.ui.component.signing.SigningNavigation
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
 
 @Composable
 fun SigningScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    sharedMenuViewModel: SharedMenuViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
     sharedSignatureViewModel: SharedSignatureViewModel,
 ) {
@@ -28,9 +30,9 @@ fun SigningScreen(
     val activity = (context as Activity)
     markAsSecure(context, activity.window)
     SigningNavigation(
-        activity = activity,
         modifier = modifier,
         navController = navController,
+        sharedMenuViewModel = sharedMenuViewModel,
         sharedContainerViewModel = sharedContainerViewModel,
         sharedSignatureViewModel = sharedSignatureViewModel,
     )
@@ -40,14 +42,12 @@ fun SigningScreen(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun SigningScreenPreview() {
-    val navController = rememberNavController()
-    val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
-    val sharedSignatureViewModel: SharedSignatureViewModel = hiltViewModel()
     RIADigiDocTheme {
         SigningScreen(
-            navController = navController,
-            sharedContainerViewModel = sharedContainerViewModel,
-            sharedSignatureViewModel = sharedSignatureViewModel,
+            navController = rememberNavController(),
+            sharedMenuViewModel = hiltViewModel(),
+            sharedContainerViewModel = hiltViewModel(),
+            sharedSignatureViewModel = hiltViewModel(),
         )
     }
 }

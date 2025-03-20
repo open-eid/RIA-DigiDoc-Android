@@ -65,9 +65,9 @@ import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
 import ee.ria.DigiDoc.ui.component.shared.PreventResize
+import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
 import ee.ria.DigiDoc.ui.component.signing.Document
-import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.dividerHeight
@@ -84,6 +84,7 @@ import ee.ria.DigiDoc.utilsLib.extensions.isCades
 import ee.ria.DigiDoc.utilsLib.extensions.isXades
 import ee.ria.DigiDoc.viewmodel.RecentDocumentsViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -96,6 +97,7 @@ import java.io.File
 fun RecentDocumentsScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    sharedMenuViewModel: SharedMenuViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
     recentDocumentsViewModel: RecentDocumentsViewModel = hiltViewModel(),
 ) {
@@ -214,6 +216,7 @@ fun RecentDocumentsScreen(
             if (!expanded) {
                 TopBar(
                     modifier = modifier,
+                    sharedMenuViewModel = sharedMenuViewModel,
                     title = null,
                     onLeftButtonClick = {
                         navController.navigateUp()
@@ -542,11 +545,11 @@ private fun LazyListState.reachedBottom(): Boolean {
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun RecentDocumentsScreenPreview() {
-    val navController = rememberNavController()
     RIADigiDocTheme {
         RecentDocumentsScreen(
+            sharedMenuViewModel = hiltViewModel(),
             sharedContainerViewModel = hiltViewModel(),
-            navController = navController,
+            navController = rememberNavController(),
         )
     }
 }

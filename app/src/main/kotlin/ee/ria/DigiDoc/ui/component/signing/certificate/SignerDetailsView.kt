@@ -53,9 +53,9 @@ import ee.ria.DigiDoc.ui.component.shared.DynamicText
 import ee.ria.DigiDoc.ui.component.shared.ExpandableButton
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.TabView
+import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.signing.ColoredSignedStatusText
 import ee.ria.DigiDoc.ui.component.signing.StyledNameText
-import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.border
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
@@ -71,6 +71,7 @@ import ee.ria.DigiDoc.utilsLib.extensions.x509Certificate
 import ee.ria.DigiDoc.viewmodel.SignerDetailViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
 import kotlinx.coroutines.launch
 
@@ -79,6 +80,7 @@ import kotlinx.coroutines.launch
 fun SignerDetailsView(
     navController: NavHostController,
     modifier: Modifier = Modifier,
+    sharedMenuViewModel: SharedMenuViewModel,
     sharedSignatureViewModel: SharedSignatureViewModel,
     sharedCertificateViewModel: SharedCertificateViewModel,
     signerDetailViewModel: SignerDetailViewModel = hiltViewModel(),
@@ -163,6 +165,7 @@ fun SignerDetailsView(
             topBar = {
                 TopBar(
                     modifier = modifier,
+                    sharedMenuViewModel = sharedMenuViewModel,
                     title = R.string.signature_details_title,
                     onLeftButtonClick = {
                         handleBackButtonClick(navController, sharedSignatureViewModel)

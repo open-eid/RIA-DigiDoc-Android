@@ -50,6 +50,7 @@ fun InfoComponent(
 ) {
     val context = LocalContext.current
     val licenseUrlString = stringResource(id = licenseUrl)
+    val openButtonContentDescription = "${stringResource(R.string.open_button)} $licenseUrlString"
     Row(
         modifier =
             modifier
@@ -126,7 +127,7 @@ fun InfoComponent(
                         }
                         .testTag("mainAboutComponentLicenseUrlButton"),
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_m3_open_in_new_48dp_wght400),
-                contentDescription = "${stringResource(R.string.open_button)} $licenseUrl",
+                contentDescription = openButtonContentDescription,
             )
         }
     }

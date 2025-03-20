@@ -19,6 +19,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.fragment.screen.SettingsRightsScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -26,6 +27,7 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 fun SettingsRightsFragment(
     navController: NavHostController,
     modifier: Modifier = Modifier,
+    sharedMenuViewModel: SharedMenuViewModel,
     sharedSettingsViewModel: SharedSettingsViewModel,
 ) {
     Surface(
@@ -46,6 +48,7 @@ fun SettingsRightsFragment(
             setIsScreenshotAllowed = sharedSettingsViewModel.dataStore::setSettingsAllowScreenshots,
             getIsOpenAllFileTypesEnabled = sharedSettingsViewModel.dataStore::getSettingsOpenAllFileTypes,
             setIsOpenAllFileTypesEnabled = sharedSettingsViewModel.dataStore::setSettingsOpenAllFileTypes,
+            sharedMenuViewModel = sharedMenuViewModel,
             sharedSettingsViewModel = sharedSettingsViewModel,
         )
     }
@@ -55,9 +58,11 @@ fun SettingsRightsFragment(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun SettingsRightsFragmentPreview() {
-    val navController = rememberNavController()
-    val sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel()
     RIADigiDocTheme {
-        SettingsRightsFragment(navController, sharedSettingsViewModel = sharedSettingsViewModel)
+        SettingsRightsFragment(
+            navController = rememberNavController(),
+            sharedMenuViewModel = hiltViewModel(),
+            sharedSettingsViewModel = hiltViewModel(),
+        )
     }
 }

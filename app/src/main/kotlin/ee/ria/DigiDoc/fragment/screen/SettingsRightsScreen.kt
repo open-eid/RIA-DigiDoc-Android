@@ -35,11 +35,12 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
-import ee.ria.DigiDoc.ui.component.signing.TopBar
+import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.launch
 
@@ -48,6 +49,7 @@ import kotlinx.coroutines.launch
 fun SettingsRightsScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    sharedMenuViewModel: SharedMenuViewModel,
     sharedSettingsViewModel: SharedSettingsViewModel,
     getIsScreenshotAllowed: () -> Boolean = { false },
     setIsScreenshotAllowed: (Boolean) -> Unit = {},
@@ -86,6 +88,7 @@ fun SettingsRightsScreen(
         topBar = {
             TopBar(
                 modifier = modifier,
+                sharedMenuViewModel = sharedMenuViewModel,
                 title = R.string.main_settings_rights,
                 onLeftButtonClick = {
                     navController.navigateUp()
@@ -147,6 +150,7 @@ fun SettingsRightsScreenPreview() {
     RIADigiDocTheme {
         SettingsRightsScreen(
             navController = rememberNavController(),
+            sharedMenuViewModel = hiltViewModel(),
             sharedSettingsViewModel = hiltViewModel(),
         )
     }

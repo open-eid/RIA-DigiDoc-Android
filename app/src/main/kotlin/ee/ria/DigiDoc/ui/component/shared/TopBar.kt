@@ -1,6 +1,6 @@
 @file:Suppress("PackageName", "FunctionName")
 
-package ee.ria.DigiDoc.ui.component.signing
+package ee.ria.DigiDoc.ui.component.shared
 
 import android.content.Intent
 import android.net.Uri
@@ -40,13 +40,11 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.component.shared.PreventResize
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.utilsLib.text.TextUtil
-import ee.ria.DigiDoc.viewmodel.MenuViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
@@ -68,7 +66,7 @@ fun TopBar(
     onLeftButtonClick: () -> Unit = {},
     onRightPrimaryButtonClick: (() -> Unit)? = null,
     onRightSecondaryButtonClick: () -> Unit = {},
-    menuViewModel: MenuViewModel = hiltViewModel(),
+    sharedMenuViewModel: SharedMenuViewModel,
 ) {
     val context = LocalContext.current
     var onRightPrimaryButtonClick = onRightPrimaryButtonClick
@@ -89,11 +87,11 @@ fun TopBar(
     var headingTextLoaded by remember { mutableStateOf(false) }
 
     val isEstonianLanguageUsed = remember { mutableStateOf(false) }
-    val isTtsInitialized by menuViewModel.isTtsInitialized.asFlow().collectAsState(false)
+    val isTtsInitialized by sharedMenuViewModel.isTtsInitialized.asFlow().collectAsState(false)
 
     LaunchedEffect(isTtsInitialized) {
         if (isTtsInitialized) {
-            isEstonianLanguageUsed.value = menuViewModel.isEstonianLanguageUsed()
+            isEstonianLanguageUsed.value = sharedMenuViewModel.isEstonianLanguageUsed()
         }
     }
 

@@ -11,7 +11,6 @@ import ee.ria.DigiDoc.utils.Constant.Routes.FILE_CHOOSING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.HOME_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.INFO_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.INIT_SCREEN
-import ee.ria.DigiDoc.utils.Constant.Routes.MENU_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.RECENT_DOCUMENTS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ROOT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_RIGHTS_SCREEN
@@ -27,8 +26,6 @@ sealed class Route(val route: String) {
     data object Init : Route(INIT_SCREEN)
 
     data object Home : Route(HOME_SCREEN)
-
-    data object Menu : Route(MENU_SCREEN)
 
     data object Signature : Route(SIGNATURE_SCREEN)
 

@@ -20,12 +20,14 @@ import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.fragment.screen.RecentDocumentsScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun RecentDocumentsFragment(
     navController: NavHostController,
     modifier: Modifier = Modifier,
+    sharedMenuViewModel: SharedMenuViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
 ) {
     Surface(
@@ -40,9 +42,10 @@ fun RecentDocumentsFragment(
         color = MaterialTheme.colorScheme.background,
     ) {
         RecentDocumentsScreen(
-            navController = navController,
-            sharedContainerViewModel = sharedContainerViewModel,
             modifier = modifier,
+            navController = navController,
+            sharedMenuViewModel = sharedMenuViewModel,
+            sharedContainerViewModel = sharedContainerViewModel,
         )
     }
 }
@@ -51,10 +54,10 @@ fun RecentDocumentsFragment(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun RecentDocumentsFragmentPreview() {
-    val navController = rememberNavController()
     RIADigiDocTheme {
         RecentDocumentsFragment(
-            navController = navController,
+            navController = rememberNavController(),
+            sharedMenuViewModel = hiltViewModel(),
             sharedContainerViewModel = hiltViewModel(),
         )
     }

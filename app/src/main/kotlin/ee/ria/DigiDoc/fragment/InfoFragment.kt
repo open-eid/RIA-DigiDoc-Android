@@ -14,16 +14,19 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.fragment.screen.InfoScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun InfoFragment(
     navController: NavHostController,
     modifier: Modifier = Modifier,
+    sharedMenuViewModel: SharedMenuViewModel,
 ) {
     Surface(
         modifier =
@@ -39,6 +42,7 @@ fun InfoFragment(
         InfoScreen(
             navController = navController,
             modifier = modifier,
+            sharedMenuViewModel = sharedMenuViewModel,
         )
     }
 }
@@ -47,8 +51,10 @@ fun InfoFragment(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun InfoFragmentPreview() {
-    val navController = rememberNavController()
     RIADigiDocTheme {
-        InfoFragment(navController)
+        InfoFragment(
+            navController = rememberNavController(),
+            sharedMenuViewModel = hiltViewModel(),
+        )
     }
 }

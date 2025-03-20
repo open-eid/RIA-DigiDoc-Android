@@ -19,27 +19,28 @@ import ee.ria.DigiDoc.fragment.FileOpeningFragment
 import ee.ria.DigiDoc.fragment.HomeFragment
 import ee.ria.DigiDoc.fragment.InfoFragment
 import ee.ria.DigiDoc.fragment.InitFragment
-import ee.ria.DigiDoc.fragment.MenuFragment
 import ee.ria.DigiDoc.fragment.RecentDocumentsFragment
 import ee.ria.DigiDoc.fragment.RootFragment
 import ee.ria.DigiDoc.fragment.SettingsFragment
 import ee.ria.DigiDoc.fragment.SettingsRightsFragment
 import ee.ria.DigiDoc.fragment.SettingsSigningFragment
 import ee.ria.DigiDoc.fragment.SignatureInputFragment
+import ee.ria.DigiDoc.fragment.SignatureMethodFragment
 import ee.ria.DigiDoc.fragment.SigningFragment
-import ee.ria.DigiDoc.fragment.screen.SignatureMethodFragment
 import ee.ria.DigiDoc.ui.component.signing.certificate.CertificateDetailsView
 import ee.ria.DigiDoc.ui.component.signing.certificate.SignerDetailsView
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
 
 @Composable
 fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
     val navController = rememberNavController()
+    val sharedMenuViewModel: SharedMenuViewModel = hiltViewModel()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
     val sharedSignatureViewModel: SharedSignatureViewModel = hiltViewModel()
     val sharedCertificateViewModel: SharedCertificateViewModel = hiltViewModel()
@@ -66,6 +67,7 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
             HomeFragment(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
                 externalFileUris = sharedContainerViewModel.externalFileUris.collectAsState().value,
             )
         }
@@ -73,6 +75,7 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
             SignatureInputFragment(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
                 sharedSettingsViewModel = sharedSettingsViewModel,
                 sharedContainerViewModel = sharedContainerViewModel,
             )
@@ -81,19 +84,15 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
             SignatureMethodFragment(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
                 sharedSettingsViewModel = sharedSettingsViewModel,
-            )
-        }
-        composable(route = Route.Menu.route) {
-            MenuFragment(
-                modifier = Modifier.safeDrawingPadding(),
-                navController = navController,
             )
         }
         composable(route = Route.Signing.route) {
             SigningFragment(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
                 sharedContainerViewModel = sharedContainerViewModel,
                 sharedSignatureViewModel = sharedSignatureViewModel,
             )
@@ -102,6 +101,7 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
             SignerDetailsView(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
                 sharedSignatureViewModel = sharedSignatureViewModel,
                 sharedCertificateViewModel = sharedCertificateViewModel,
                 sharedContainerViewModel = sharedContainerViewModel,
@@ -111,6 +111,7 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
             CertificateDetailsView(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
                 sharedCertificateViewModel = sharedCertificateViewModel,
             )
         }
@@ -118,18 +119,21 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
             AccessibilityFragment(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
             )
         }
         composable(route = Route.Info.route) {
             InfoFragment(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
             )
         }
         composable(route = Route.Diagnostics.route) {
             DiagnosticsFragment(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
                 sharedSettingsViewModel = sharedSettingsViewModel,
             )
         }
@@ -137,6 +141,7 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
             RecentDocumentsFragment(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
                 sharedContainerViewModel = sharedContainerViewModel,
             )
         }
@@ -144,12 +149,14 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
             SettingsFragment(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
             )
         }
         composable(route = Route.SettingsRights.route) {
             SettingsRightsFragment(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
                 sharedSettingsViewModel = sharedSettingsViewModel,
             )
         }
@@ -157,6 +164,7 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
             SettingsSigningFragment(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
                 sharedCertificateViewModel = sharedCertificateViewModel,
             )
         }

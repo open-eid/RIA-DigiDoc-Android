@@ -51,7 +51,7 @@ import ee.ria.DigiDoc.ui.component.settings.SettingsSivaCategoryDialog
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
 import ee.ria.DigiDoc.ui.component.settings.SettingsTextField
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
-import ee.ria.DigiDoc.ui.component.signing.TopBar
+import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Constant.Defaults.DEFAULT_TSA_URL_VALUE
@@ -61,6 +61,7 @@ import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -73,6 +74,7 @@ import kotlinx.coroutines.withContext
 fun SettingsSigningScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    sharedMenuViewModel: SharedMenuViewModel,
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
     sharedCertificateViewModel: SharedCertificateViewModel,
 ) {
@@ -348,6 +350,7 @@ fun SettingsSigningScreen(
         topBar = {
             TopBar(
                 modifier = modifier,
+                sharedMenuViewModel = sharedMenuViewModel,
                 title = R.string.main_settings_signing,
                 onLeftButtonClick = {
                     navController.navigateUp()
@@ -454,6 +457,7 @@ fun SettingsSigningScreenPreview() {
     RIADigiDocTheme {
         SettingsSigningScreen(
             navController = rememberNavController(),
+            sharedMenuViewModel = hiltViewModel(),
             sharedCertificateViewModel = hiltViewModel(),
         )
     }

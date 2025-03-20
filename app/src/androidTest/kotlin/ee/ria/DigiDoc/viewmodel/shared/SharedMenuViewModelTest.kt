@@ -1,6 +1,6 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.viewmodel
+package ee.ria.DigiDoc.viewmodel.shared
 
 import android.speech.tts.TextToSpeech
 import android.speech.tts.Voice
@@ -19,7 +19,7 @@ import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.verify
 import java.util.Locale
 
-class MenuViewModelTest {
+class SharedMenuViewModelTest {
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
 
@@ -35,13 +35,13 @@ class MenuViewModelTest {
 
             `when`(mockTtsWrapper.initializeSuspend()).thenReturn(true)
 
-            val menuViewModel = MenuViewModel(mockTtsWrapper)
+            val sharedMenuViewModel = SharedMenuViewModel(mockTtsWrapper)
             val isMenuViewModelTtsInitalizedObserver: Observer<Boolean> = mock()
-            menuViewModel.isTtsInitialized.observeForever(isMenuViewModelTtsInitalizedObserver)
+            sharedMenuViewModel.isTtsInitialized.observeForever(isMenuViewModelTtsInitalizedObserver)
 
             verify(isMenuViewModelTtsInitalizedObserver).onChanged(true)
 
-            menuViewModel.isTtsInitialized.removeObserver(isMenuViewModelTtsInitalizedObserver)
+            sharedMenuViewModel.isTtsInitialized.removeObserver(isMenuViewModelTtsInitalizedObserver)
         }
 
     @Test
@@ -60,8 +60,8 @@ class MenuViewModelTest {
 
             Locale.setDefault(estonianLocale)
 
-            val menuViewModel = MenuViewModel(mockTtsWrapper)
-            val isEstonianLanguageUsed = menuViewModel.isEstonianLanguageUsed()
+            val sharedMenuViewModel = SharedMenuViewModel(mockTtsWrapper)
+            val isEstonianLanguageUsed = sharedMenuViewModel.isEstonianLanguageUsed()
 
             assertTrue(isEstonianLanguageUsed)
         }
@@ -82,8 +82,8 @@ class MenuViewModelTest {
 
             Locale.setDefault(englishLocale)
 
-            val menuViewModel = MenuViewModel(mockTtsWrapper)
-            val isEstonianLanguageUsed = menuViewModel.isEstonianLanguageUsed()
+            val sharedMenuViewModel = SharedMenuViewModel(mockTtsWrapper)
+            val isEstonianLanguageUsed = sharedMenuViewModel.isEstonianLanguageUsed()
 
             assertFalse(isEstonianLanguageUsed)
         }

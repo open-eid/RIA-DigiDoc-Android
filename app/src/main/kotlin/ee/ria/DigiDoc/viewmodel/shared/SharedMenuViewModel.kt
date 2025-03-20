@@ -1,6 +1,6 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.viewmodel
+package ee.ria.DigiDoc.viewmodel.shared
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -13,7 +13,7 @@ import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
-class MenuViewModel
+class SharedMenuViewModel
     @Inject
     constructor(
         private val textToSpeechWrapper: TextToSpeechWrapper,

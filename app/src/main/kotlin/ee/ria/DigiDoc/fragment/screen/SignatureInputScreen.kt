@@ -54,11 +54,11 @@ import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.domain.model.methods.SigningMethod
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
+import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.signing.IdCardView
 import ee.ria.DigiDoc.ui.component.signing.MobileIdView
 import ee.ria.DigiDoc.ui.component.signing.NFCView
 import ee.ria.DigiDoc.ui.component.signing.SmartIdView
-import ee.ria.DigiDoc.ui.component.signing.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
@@ -67,6 +67,7 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.launch
 
@@ -74,6 +75,7 @@ import kotlinx.coroutines.launch
 fun SignatureInputScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    sharedMenuViewModel: SharedMenuViewModel,
     sharedSettingsViewModel: SharedSettingsViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
 ) {
@@ -118,6 +120,7 @@ fun SignatureInputScreen(
         topBar = {
             TopBar(
                 modifier = modifier,
+                sharedMenuViewModel = sharedMenuViewModel,
                 title = null,
                 onLeftButtonClick = {
                     navController.navigateUp()
@@ -311,15 +314,12 @@ fun SignatureInputScreen(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun SignatureInputScreenPreview() {
-    val navController = rememberNavController()
-    val sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel()
-    val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
-
     RIADigiDocTheme {
         SignatureInputScreen(
-            navController = navController,
-            sharedSettingsViewModel = sharedSettingsViewModel,
-            sharedContainerViewModel = sharedContainerViewModel,
+            navController = rememberNavController(),
+            sharedMenuViewModel = hiltViewModel(),
+            sharedSettingsViewModel = hiltViewModel(),
+            sharedContainerViewModel = hiltViewModel(),
         )
     }
 }

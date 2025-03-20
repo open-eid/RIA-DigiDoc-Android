@@ -47,6 +47,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
@@ -62,7 +63,7 @@ import ee.ria.DigiDoc.ui.component.info.InfoComponent
 import ee.ria.DigiDoc.ui.component.info.InfoComponentItem
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
-import ee.ria.DigiDoc.ui.component.signing.TopBar
+import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.MCornerRadius
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
@@ -74,7 +75,7 @@ import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utilsLib.text.TextUtil
-import ee.ria.DigiDoc.viewmodel.MenuViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -82,7 +83,7 @@ import kotlinx.coroutines.launch
 fun InfoScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    menuViewModel: MenuViewModel = hiltViewModel(),
+    sharedMenuViewModel: SharedMenuViewModel,
 ) {
     val context = LocalContext.current
     val activity = (context as Activity)
@@ -96,11 +97,11 @@ fun InfoScreen(
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
     val isEstonianLanguageUsed = remember { mutableStateOf(false) }
-    val isTtsInitialized by menuViewModel.isTtsInitialized.asFlow().collectAsState(false)
+    val isTtsInitialized by sharedMenuViewModel.isTtsInitialized.asFlow().collectAsState(false)
 
     LaunchedEffect(isTtsInitialized) {
         if (isTtsInitialized) {
-            isEstonianLanguageUsed.value = menuViewModel.isEstonianLanguageUsed()
+            isEstonianLanguageUsed.value = sharedMenuViewModel.isEstonianLanguageUsed()
         }
     }
 
@@ -123,6 +124,7 @@ fun InfoScreen(
         topBar = {
             TopBar(
                 modifier = modifier,
+                sharedMenuViewModel = sharedMenuViewModel,
                 title = R.string.main_home_menu_about,
                 onLeftButtonClick = {
                     navController.navigateUp()
@@ -288,11 +290,14 @@ fun InfoScreen(
                 }
                 Text(
                     modifier =
-                        modifier.padding(
-                            start = SPadding,
-                            top = MPadding,
-                            end = SPadding,
-                        ),
+                        modifier
+                            .padding(
+                                start = SPadding,
+                                top = MPadding,
+                                end = SPadding,
+                                bottom = SPadding,
+                            )
+                            .semantics { heading() },
                     text =
                         String.format(
                             stringResource(id = R.string.main_about_licenses_title),
@@ -319,10 +324,10 @@ fun InfoScreen(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun InfoScreenPreview() {
-    val navController = rememberNavController()
     RIADigiDocTheme {
         InfoScreen(
-            navController = navController,
+            navController = rememberNavController(),
+            sharedMenuViewModel = hiltViewModel(),
         )
     }
 }

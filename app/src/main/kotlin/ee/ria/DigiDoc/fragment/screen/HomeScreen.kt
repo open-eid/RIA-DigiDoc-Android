@@ -57,7 +57,7 @@ import ee.ria.DigiDoc.ui.component.main.CrashDialog
 import ee.ria.DigiDoc.ui.component.menu.MainMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.menu.OpenMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
-import ee.ria.DigiDoc.ui.component.signing.TopBar
+import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeM
@@ -66,6 +66,7 @@ import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.viewmodel.HomeViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
@@ -75,6 +76,7 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    sharedMenuViewModel: SharedMenuViewModel,
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -162,6 +164,7 @@ fun HomeScreen(
                             isTraversalGroup = true
                             traversalIndex = 2f
                         },
+                sharedMenuViewModel = sharedMenuViewModel,
                 leftIcon = R.drawable.ic_m3_menu_48dp_wght400,
                 title = null,
                 onLeftButtonClick = {
@@ -347,10 +350,10 @@ fun HomeScreen(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun HomeScreenPreview() {
-    val navController = rememberNavController()
     RIADigiDocTheme {
         HomeScreen(
-            navController = navController,
+            navController = rememberNavController(),
+            sharedMenuViewModel = hiltViewModel(),
         )
     }
 }
