@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.ui.component.signing
 import android.app.Activity
 import android.content.res.Configuration
 import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -22,6 +23,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -35,6 +37,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -63,6 +66,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Red500
+import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
@@ -260,20 +264,23 @@ fun MobileIdView(
         }
         Box(modifier = modifier.fillMaxSize()) {
             BasicAlertDialog(
+                modifier =
+                    modifier
+                        .clip(buttonRoundCornerShape)
+                        .background(MaterialTheme.colorScheme.surface),
                 onDismissRequest = { dismissDialog() },
             ) {
                 Surface(
                     modifier =
                         modifier
+                            .padding(SPadding)
                             .wrapContentHeight()
                             .wrapContentWidth()
-                            .verticalScroll(rememberScrollState())
-                            .padding(SPadding),
+                            .verticalScroll(rememberScrollState()),
                 ) {
                     Column(
                         modifier =
                             modifier
-                                .padding(SPadding)
                                 .semantics {
                                     testTagsAsResourceId = true
                                 }

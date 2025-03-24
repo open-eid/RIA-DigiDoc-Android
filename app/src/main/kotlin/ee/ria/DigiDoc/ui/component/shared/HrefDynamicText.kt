@@ -13,7 +13,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -29,7 +28,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration.Companion.Underline
 import androidx.compose.ui.text.withStyle
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun HrefDynamicText(
     modifier: Modifier,

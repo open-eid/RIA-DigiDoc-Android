@@ -16,7 +16,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @Composable
@@ -33,10 +32,7 @@ fun HrefMessageDialog(
         modifier = modifier.padding(SPadding),
     ) {
         HrefDynamicText(
-            modifier =
-                modifier
-                    .fillMaxWidth()
-                    .padding(vertical = XSPadding),
+            modifier = modifier.fillMaxWidth(),
             text1 = stringResource(text1, text1Arg?.let { stringResource(it) } ?: ""),
             text2 = text2?.let { stringResource(it) } ?: "",
             linkText = stringResource(linkText),

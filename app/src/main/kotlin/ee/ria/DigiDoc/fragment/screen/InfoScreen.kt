@@ -135,6 +135,10 @@ fun InfoScreen(
             )
         },
     ) { paddingValues ->
+        SettingsMenuBottomSheet(
+            navController = navController,
+            isBottomSheetVisible = isSettingsMenuBottomSheetVisible,
+        )
         Surface(
             color = MaterialTheme.colorScheme.surface,
             contentColor = MaterialTheme.colorScheme.onSurface,
@@ -143,10 +147,6 @@ fun InfoScreen(
                     .fillMaxSize()
                     .padding(paddingValues),
         ) {
-            SettingsMenuBottomSheet(
-                navController = navController,
-                isBottomSheetVisible = isSettingsMenuBottomSheetVisible,
-            )
             Column(
                 modifier =
                     modifier

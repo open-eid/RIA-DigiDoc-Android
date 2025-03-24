@@ -12,16 +12,20 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CancelAndOkButtonRow(
     modifier: Modifier = Modifier,
@@ -49,10 +53,16 @@ fun CancelAndOkButtonRow(
                 enabled = cancelButtonEnabled,
                 modifier =
                     modifier
-                        .semantics { contentDescription = cancelButtonContentDescription }
+                        .semantics(mergeDescendants = true) {
+                            testTagsAsResourceId = true
+                            contentDescription = cancelButtonContentDescription
+                        }
                         .testTag(okButtonTestTag),
             ) {
-                Text(text = stringResource(cancelButtonTitle))
+                Text(
+                    modifier = modifier.notAccessible(),
+                    text = stringResource(cancelButtonTitle),
+                )
             }
         }
         Spacer(modifier = modifier.width(XSPadding))
@@ -61,10 +71,16 @@ fun CancelAndOkButtonRow(
             enabled = okButtonEnabled,
             modifier =
                 modifier
-                    .semantics { contentDescription = okButtonContentDescription }
+                    .semantics(mergeDescendants = true) {
+                        testTagsAsResourceId = true
+                        contentDescription = okButtonContentDescription
+                    }
                     .testTag(cancelButtonTestTag),
         ) {
-            Text(text = stringResource(okButtonTitle))
+            Text(
+                modifier = modifier.notAccessible(),
+                text = stringResource(okButtonTitle),
+            )
         }
     }
 }
