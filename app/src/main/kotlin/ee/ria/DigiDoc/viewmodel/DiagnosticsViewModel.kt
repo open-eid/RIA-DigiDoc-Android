@@ -109,7 +109,7 @@ class DiagnosticsViewModel
         }
 
         fun getConfigurationDate(date: Date?): String {
-            val dateFormatted = date?.let { DateUtil.dateTimeFormat.format(it) }
+            val dateFormatted = date?.let { DateUtil.dateTimeFormatWithDots.format(it) }
 
             return dateFormatted ?: ""
         }

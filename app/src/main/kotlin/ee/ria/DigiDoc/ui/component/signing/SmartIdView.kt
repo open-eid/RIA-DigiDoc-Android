@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.ui.component.signing
 import android.app.Activity
 import android.content.res.Configuration
 import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -28,6 +29,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -42,6 +44,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Size
@@ -76,6 +79,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Red500
+import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.SmartIdViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
@@ -110,8 +114,8 @@ fun SmartIdView(
     val focusManager = LocalFocusManager.current
 
     val countryOptions = stringArrayResource(id = R.array.smart_id_country)
-    var country by remember { mutableStateOf(countryOptions.first()) }
-    var selectedCountry by rememberSaveable { mutableIntStateOf(sharedSettingsViewModel.dataStore.getCountry()) }
+    var countryString by remember { mutableStateOf(countryOptions.first()) }
+    val selectedCountry by rememberSaveable { mutableIntStateOf(sharedSettingsViewModel.dataStore.getCountry()) }
     var shouldRememberMe by rememberSaveable { mutableStateOf(rememberMe) }
     var personalCode by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
@@ -245,20 +249,23 @@ fun SmartIdView(
         }
         Box(modifier = modifier.fillMaxSize()) {
             BasicAlertDialog(
+                modifier =
+                    modifier
+                        .clip(buttonRoundCornerShape)
+                        .background(MaterialTheme.colorScheme.surface),
                 onDismissRequest = { dismissDialog() },
             ) {
                 Surface(
                     modifier =
                         modifier
+                            .padding(SPadding)
                             .wrapContentHeight()
                             .wrapContentWidth()
-                            .verticalScroll(rememberScrollState())
-                            .padding(SPadding),
+                            .verticalScroll(rememberScrollState()),
                 ) {
                     Column(
                         modifier =
                             modifier
-                                .padding(SPadding)
                                 .semantics {
                                     testTagsAsResourceId = true
                                 }
@@ -313,7 +320,7 @@ fun SmartIdView(
             RoleDataView(modifier, sharedSettingsViewModel)
         } else {
             val isValid =
-                country.isNotEmpty() &&
+                countryString.isNotEmpty() &&
                     personalCode.text.isNotEmpty() && smartIdViewModel.isPersonalCodeCorrect(personalCode.text)
 
             LaunchedEffect(isValid) {
@@ -385,7 +392,7 @@ fun SmartIdView(
                         label = {
                             Text(stringResource(R.string.signature_update_smart_id_country))
                         },
-                        value = country,
+                        value = countryString,
                         onValueChange = {},
                         readOnly = true,
                         singleLine = true,
@@ -429,7 +436,7 @@ fun SmartIdView(
                             DropdownMenuItem(
                                 text = { Text(selection) },
                                 onClick = {
-                                    country = selection
+                                    countryString = selection
                                     expanded = false
                                 },
                             )

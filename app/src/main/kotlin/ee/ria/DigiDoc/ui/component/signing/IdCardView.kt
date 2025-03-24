@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.ui.component.signing
 import android.app.Activity
 import android.content.res.Configuration
 import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -38,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -71,6 +73,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewSmallPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Red500
+import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.IdCardViewModel
@@ -465,20 +468,23 @@ fun IdCardView(
         }
         Box(modifier = modifier.fillMaxSize()) {
             BasicAlertDialog(
+                modifier =
+                    modifier
+                        .clip(buttonRoundCornerShape)
+                        .background(MaterialTheme.colorScheme.surface),
                 onDismissRequest = { dismissDialog() },
             ) {
                 Surface(
                     modifier =
                         modifier
+                            .padding(SPadding)
                             .wrapContentHeight()
                             .wrapContentWidth()
-                            .verticalScroll(rememberScrollState())
-                            .padding(SPadding),
+                            .verticalScroll(rememberScrollState()),
                 ) {
                     Column(
                         modifier =
                             modifier
-                                .padding(SPadding)
                                 .semantics {
                                     testTagsAsResourceId = true
                                 }

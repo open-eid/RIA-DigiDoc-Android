@@ -16,6 +16,8 @@ data class FormattedDateTime(val date: String, val time: String)
 object DateUtil {
     val dateFormat: SimpleDateFormat
         get() = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+    val dateTimeFormatWithDots: SimpleDateFormat
+        get() = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault())
     val dateTimeFormat: SimpleDateFormat
         get() = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
 
