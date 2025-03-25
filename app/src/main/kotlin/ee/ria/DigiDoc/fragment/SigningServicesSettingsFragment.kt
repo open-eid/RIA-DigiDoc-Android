@@ -17,17 +17,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import ee.ria.DigiDoc.fragment.screen.SettingsSigningScreen
+import ee.ria.DigiDoc.fragment.screen.SigningServicesSettingsScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SettingsSigningFragment(
+fun SigningServicesSettingsFragment(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     sharedMenuViewModel: SharedMenuViewModel,
+    sharedSettingsViewModel: SharedSettingsViewModel,
     sharedCertificateViewModel: SharedCertificateViewModel,
 ) {
     Surface(
@@ -38,13 +40,14 @@ fun SettingsSigningFragment(
                 .semantics {
                     testTagsAsResourceId = true
                 }
-                .testTag("settingsSigningFragment"),
+                .testTag("signingServicesSettingsFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
-        SettingsSigningScreen(
+        SigningServicesSettingsScreen(
             navController = navController,
             modifier = modifier,
             sharedMenuViewModel = sharedMenuViewModel,
+            sharedSettingsViewModel = sharedSettingsViewModel,
             sharedCertificateViewModel = sharedCertificateViewModel,
         )
     }
@@ -53,11 +56,12 @@ fun SettingsSigningFragment(
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun SettingsSigningFragmentPreview() {
+fun SigningServicesSettingsFragmentPreview() {
     RIADigiDocTheme {
-        SettingsSigningFragment(
+        SigningServicesSettingsFragment(
             navController = rememberNavController(),
             sharedMenuViewModel = hiltViewModel(),
+            sharedSettingsViewModel = hiltViewModel(),
             sharedCertificateViewModel = hiltViewModel(),
         )
     }

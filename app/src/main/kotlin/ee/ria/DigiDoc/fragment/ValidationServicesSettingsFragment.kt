@@ -17,16 +17,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import ee.ria.DigiDoc.fragment.screen.SettingsScreen
+import ee.ria.DigiDoc.fragment.screen.ValidationServicesSettingsScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SettingsFragment(
+fun ValidationServicesSettingsFragment(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     sharedMenuViewModel: SharedMenuViewModel,
+    sharedSettingsViewModel: SharedSettingsViewModel,
+    sharedCertificateViewModel: SharedCertificateViewModel,
 ) {
     Surface(
         modifier =
@@ -36,13 +40,15 @@ fun SettingsFragment(
                 .semantics {
                     testTagsAsResourceId = true
                 }
-                .testTag("settingsFragment"),
+                .testTag("validationServicesSettingsFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
-        SettingsScreen(
+        ValidationServicesSettingsScreen(
             navController = navController,
             modifier = modifier,
+            sharedSettingsViewModel = sharedSettingsViewModel,
             sharedMenuViewModel = sharedMenuViewModel,
+            sharedCertificateViewModel = sharedCertificateViewModel,
         )
     }
 }
@@ -50,11 +56,13 @@ fun SettingsFragment(
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun SettingsFragmentPreview() {
+fun ValidationServicesSettingsFragmentPreview() {
     RIADigiDocTheme {
-        SettingsFragment(
+        ValidationServicesSettingsFragment(
             navController = rememberNavController(),
             sharedMenuViewModel = hiltViewModel(),
+            sharedSettingsViewModel = hiltViewModel(),
+            sharedCertificateViewModel = hiltViewModel(),
         )
     }
 }

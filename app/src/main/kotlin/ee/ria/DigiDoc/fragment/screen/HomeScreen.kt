@@ -191,12 +191,14 @@ fun HomeScreen(
         OpenMenuBottomSheet(
             isBottomSheetVisible = isOpenMenuBottomSheetVisible,
             firstButtonClick = {
+                isOpenMenuBottomSheetVisible.value = false
                 navController.navigate(
                     openMenuAddFileNavigateTo,
                     // TODO: Differentiate cases for open document/signature/encrypt
                 )
             },
             secondButtonClick = {
+                isOpenMenuBottomSheetVisible.value = false
                 navController.navigate(
                     Route.RecentDocuments.route,
                 )

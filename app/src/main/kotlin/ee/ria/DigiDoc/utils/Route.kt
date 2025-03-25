@@ -7,20 +7,24 @@ import ee.ria.DigiDoc.utils.Constant.Routes.CERTIFICATE_DETAIL_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.CRYPTO_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.DIAGNOSTICS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.EID_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.ENCRYPTION_SERVICES_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.FILE_CHOOSING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.HOME_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.INFO_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.INIT_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.PROXY_SERVICES_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.RECENT_DOCUMENTS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ROOT_SCREEN
-import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_RIGHTS_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_LANGUAGE_CHOOSER_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_SCREEN
-import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_SIGNING_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_THEME_CHOOSER_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNATURE_INPUT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNATURE_METHOD_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNATURE_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNER_DETAIL_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNING_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.SIGNING_SERVICES_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.VALIDATION_SERVICES_SCREEN
 
 sealed class Route(val route: String) {
     data object Init : Route(INIT_SCREEN)
@@ -51,13 +55,21 @@ sealed class Route(val route: String) {
 
     data object Settings : Route(SETTINGS_SCREEN)
 
-    data object SettingsRights : Route(SETTINGS_RIGHTS_SCREEN)
+    data object SettingsLanguageChooser : Route(SETTINGS_LANGUAGE_CHOOSER_SCREEN)
 
-    data object SettingsSigning : Route(SETTINGS_SIGNING_SCREEN)
+    data object SettingsThemeChooser : Route(SETTINGS_THEME_CHOOSER_SCREEN)
 
     data object RootScreen : Route(ROOT_SCREEN)
 
     data object SignatureInputScreen : Route(SIGNATURE_INPUT_SCREEN)
 
     data object SignatureMethodScreen : Route(SIGNATURE_METHOD_SCREEN)
+
+    data object SigningServicesScreen : Route(SIGNING_SERVICES_SCREEN)
+
+    data object ValidationServicesScreen : Route(VALIDATION_SERVICES_SCREEN)
+
+    data object EncryptionServicesScreen : Route(ENCRYPTION_SERVICES_SCREEN)
+
+    data object ProxyServicesScreen : Route(PROXY_SERVICES_SCREEN)
 }

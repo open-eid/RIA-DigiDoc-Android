@@ -109,7 +109,7 @@
 
     <string name="main_settings_menu_language">Keelevalik</string>
     <string name="main_settings_menu_appearance">Välimus</string>
-    <string name="main_settings_menu_signing">Allkirjastamise seaded</string>
+    <string name="main_settings_menu_signing">Täpsemad seaded</string>
 
     <!-- Signing -->
     <string name="signing_title_new_container">Allkirjastamine</string>
@@ -295,6 +295,8 @@
     <string name="cancel_button">Tühista</string>
     <string name="open_button">Ava</string>
     <string name="ok_button">OK</string>
+    <string name="choose_button">Vali</string>
+    <string name="close_button">Sulge</string>
 
     <!-- Crypto -->
     <string name="crypto_button">Krüpteeri</string>
@@ -315,6 +317,7 @@
     <string name="signature_method_selected">Allkirjastamise meetod valitud</string>
     <string name="menu_language">Keel</string>
     <string name="menu_language_selected">Keel valitud</string>
+    <string name="menu_theme_selected">Teema valitud</string>
     <string name="item_selected">valitud</string>
     <string name="signatures_loading">Allkirjade laadimine</string>
     <string name="signatures_loaded">Allkirjad laaditud</string>
@@ -376,16 +379,28 @@
 
     <string name="main_settings_menu_language_accessibility">Keelevalik</string>
     <string name="main_settings_menu_appearance_accessibility">Välimus</string>
-    <string name="main_settings_menu_signing_accessibility">Allkirjastamise seaded</string>
+    <string name="main_settings_menu_signing_accessibility">Täpsemad seaded</string>
+
+    <string name="choose_name_option">Vali nimi</string>
+    <string name="option">Valik</string>
+    <string name="option_selected">Valik %1$s valitud</string>
+
+    <string name="option_ria">RIA</string>
+    <string name="option_manual_key_transfer">Kasutage krüptimiseks käsitsi määratud võtmeedastusserverit</string>
 
     <string name="configuration_is_already_up_to_date">konfiguratsioon on juba ajakohane</string>
     <string name="configuration_updated">Konfiguratsioon uuendatud</string>
     <string name="language_changed">Keel muudetud</string>
+    <string name="theme_changed">Teema muudetud</string>
     <string name="setting_value_changed">Seade väärtus muudetud</string>
     <string name="setting_value_change_cancelled">Seade väärtuse muutmine katkestatud</string>
     <string name="close_menu">Sulge menüü</string>
     <string name="hide_password">Peida parooli</string>
     <string name="show_password">Näita parooli</string>
+
+    <string name="main_settings_theme_light">Hele</string>
+    <string name="main_settings_theme_dark">Tume</string>
+    <string name="main_settings_theme_system">Süsteemi vaikeseade</string>
 
     <!-- Main Accessibility -->
     <string name="main_accessibility_title">Juurdepääsetavus</string>
@@ -444,8 +459,7 @@
     <string name="main_diagnostics_restart_message_restart_now">Taaskäivita rakendus?</string>
 
     <!-- Main Settings -->
-    <string name="main_settings_title">Seaded</string>
-    <string name="main_settings_use_default_settings_button_title">TAASTA ALGSEADED</string>
+    <string name="main_settings_use_default_settings_button_title">Taasta algseaded</string>
     <string name="main_settings_use_default_settings_message">Algseaded taastatud</string>
     <string name="main_settings_rights">Õigused</string>
     <string name="main_settings_signing">Allkirjastamine</string>
@@ -468,6 +482,13 @@
     <string name="main_settings_tsa_url_title">Ligipääs ajatempliteenusele</string>
     <string name="main_settings_uuid_title">Ligipääs mobiil-ID ja Smart-ID teenusele</string>
     <string name="main_settings_tsa_url_use_default">Kasuta vaikeväärtust</string>
+    <string name="main_settings_general_title">Üldine</string>
+    <string name="main_settings_system_settings_title">Süsteemiseaded</string>
+    <string name="main_settings_signing_services_title">Allkirjastamisteenused</string>
+    <string name="main_settings_validation_services_title">Valideerimisteenused</string>
+    <string name="main_settings_crypto_services_title">Krüpteerimisseaded</string>
+    <string name="main_settings_timestamp_services_title">Ajatempliteenused</string>
+    <string name="main_settings_mobile_id_and_smart_id_title">Mobiil-ID ja Smart-ID</string>
     <string name="main_settings_ask_role_and_address_title">Küsi rolli ja aadressi igal allkirjastamisel</string>
     <string name="main_settings_role_title">Roll / resolutsioon</string>
     <string name="main_settings_city_title">Linn</string>
@@ -480,8 +501,9 @@
     <string name="main_settings_timestamp_cert_title">Ajatempliteenuse SSL sertifikaat</string>
     <string name="main_settings_timestamp_cert_issued_to_title">Kellele väljastatud: </string>
     <string name="main_settings_timestamp_cert_valid_to_title">Kehtib kuni: </string>
-    <string name="main_settings_timestamp_cert_add_certificate_button">LISA SERTIFIKAAT</string>
-    <string name="main_settings_timestamp_cert_show_certificate_button">NÄITA SERTIFIKAATI</string>
+    <string name="main_settings_timestamp_cert_add_certificate_button">Lisa sertifikaat</string>
+    <string name="main_settings_timestamp_cert_show_certificate_button">Näita sertifikaati</string>
+    <string name="main_settings_timestamp_cert_no_certificate_found">Sertifikaati ei ole lisatud</string>
     <string name="main_settings_siva_service_title">Ligipääs valideerimisteenusele SiVa</string>
     <string name="main_settings_siva_default_access_title">Kasutan vaikimisi määratud ligipääsu</string>
     <string name="main_settings_siva_default_manual_access_title">Kasutan käsitsi määratud ligipääsu</string>

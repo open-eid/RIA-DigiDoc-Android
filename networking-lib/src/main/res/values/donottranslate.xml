@@ -13,4 +13,7 @@
     <string name="main_settings_proxy_password_key">main_settings_proxy_password</string>
     <string name="digidoc_version_key">digidocVersion</string>
     <string name="main_settings_siva_setting_key">mainSettingsSivaSetting</string>
+    <string name="main_settings_tsa_setting_key">mainSettingsTsaSetting</string>
+    <string name="main_settings_uuid_setting_key">mainSettingsUUIDSetting</string>
+    <string name="main_settings_cdoc_setting_key">mainSettingsCDOCSetting</string>
 </resources>

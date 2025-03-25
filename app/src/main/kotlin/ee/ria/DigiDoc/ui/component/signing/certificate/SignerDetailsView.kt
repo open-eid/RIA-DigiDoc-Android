@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -56,8 +57,8 @@ import ee.ria.DigiDoc.ui.component.shared.TabView
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.signing.ColoredSignedStatusText
 import ee.ria.DigiDoc.ui.component.signing.StyledNameText
+import ee.ria.DigiDoc.ui.theme.Dimensions.SBorder
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.border
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
@@ -156,6 +157,12 @@ fun SignerDetailsView(
 
     if (signature != null) {
         Scaffold(
+            snackbarHost = {
+                SnackbarHost(
+                    modifier = modifier.padding(vertical = SPadding),
+                    hostState = snackBarHostState,
+                )
+            },
             modifier =
                 modifier
                     .semantics {
@@ -262,7 +269,7 @@ fun SignerDetailsView(
                                 status = signature.validator.status,
                                 modifier =
                                     modifier
-                                        .padding(vertical = border)
+                                        .padding(vertical = SBorder)
                                         .focusable(false)
                                         .notAccessible(),
                             )

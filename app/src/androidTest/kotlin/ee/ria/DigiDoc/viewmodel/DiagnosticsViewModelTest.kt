@@ -225,7 +225,7 @@ class DiagnosticsViewModelTest {
                 set(2023, Calendar.JANUARY, 1) // Year, Month, Day
             }
         val date = calendar.time
-        val expectedFormat = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
+        val expectedFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault())
         val expected = expectedFormat.format(date)
 
         val result = viewModel.getConfigurationDate(date)

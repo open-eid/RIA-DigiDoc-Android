@@ -46,6 +46,7 @@ import java.io.File
 import java.io.InputStream
 import java.nio.charset.Charset
 import java.nio.file.Files
+import java.util.TimeZone
 
 @RunWith(MockitoJUnitRunner::class)
 class SharedSettingsViewModelTest {
@@ -232,7 +233,7 @@ class SharedSettingsViewModelTest {
     }
 
     @Test
-    fun sharedSettingsViewModel_updateData_successWithValidCertFile() {
+    fun sharedSettingsViewModel_updateSivaData_successWithValidCertFile() {
         val file =
             AssetFile.getResourceFileAsFile(
                 context,
@@ -240,31 +241,64 @@ class SharedSettingsViewModelTest {
                 ee.ria.DigiDoc.common.R.raw.siva,
             )
         val uri = Uri.fromFile(file)
-        viewModel.handleFile(uri)
+        viewModel.handleSivaFile(uri)
 
         val validUrl = "https://valid-siva-url.com"
-        viewModel.updateData(validUrl, context)
+        viewModel.updateSivaData(validUrl, context)
 
         assertEquals(validUrl, viewModel.previousSivaUrl.value)
         assertNotNull(viewModel.sivaCertificate.value)
-        assertEquals("*.eesti.ee", viewModel.issuedTo.value)
-        assertEquals("01.10.2024 (Expired)", viewModel.validTo.value)
+        assertEquals("*.eesti.ee", viewModel.sivaIssuedTo.value)
+        assertEquals("01.10.2024 (Expired)", viewModel.sivaValidTo.value)
     }
 
     @Test(expected = Test.None::class)
-    fun sharedSettingsViewModel_updateData_withInvalidCertFile() {
+    fun sharedSettingsViewModel_updateSivaData_withInvalidCertFile() {
         val file = createTempFileWithStringContent("invalid_cert", "invalid_cert")
         val uri = Uri.fromFile(file)
-        viewModel.handleFile(uri)
+        viewModel.handleSivaFile(uri)
 
         val validUrl = "https://valid-siva-url.com"
-        viewModel.updateData(validUrl, context)
+        viewModel.updateSivaData(validUrl, context)
 
         assertEquals(validUrl, viewModel.previousSivaUrl.value)
     }
 
     @Test
-    fun sharedSettingsViewModel_handleFile_success() {
+    fun sharedSettingsViewModel_updateTsaData_successWithValidCertFile() {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+        val file =
+            AssetFile.getResourceFileAsFile(
+                context,
+                "siva.cer",
+                ee.ria.DigiDoc.common.R.raw.siva,
+            )
+        val uri = Uri.fromFile(file)
+        viewModel.handleTsaFile(uri)
+
+        val validUrl = "https://valid-tsa-url.com"
+        viewModel.updateTsaData(validUrl, context)
+
+        assertEquals(validUrl, viewModel.previousTsaUrl.value)
+        assertNotNull(viewModel.tsaCertificate.value)
+        assertEquals("*.eesti.ee", viewModel.tsaIssuedTo.value)
+        assertEquals("30.09.2024 (Expired)", viewModel.tsaValidTo.value)
+    }
+
+    @Test(expected = Test.None::class)
+    fun sharedSettingsViewModel_updateTsaData_withInvalidCertFile() {
+        val file = createTempFileWithStringContent("invalid_cert", "invalid_cert")
+        val uri = Uri.fromFile(file)
+        viewModel.handleTsaFile(uri)
+
+        val validUrl = "https://valid-tsa-url.com"
+        viewModel.updateTsaData(validUrl, context)
+
+        assertEquals(validUrl, viewModel.previousTsaUrl.value)
+    }
+
+    @Test
+    fun sharedSettingsViewModel_handleSivaFile_success() {
         val file =
             AssetFile.getResourceFileAsFile(
                 context,
@@ -273,15 +307,36 @@ class SharedSettingsViewModelTest {
             )
 
         val uri = Uri.fromFile(file)
-        viewModel.handleFile(uri)
+        viewModel.handleSivaFile(uri)
         assertEquals("sivaCert", dataStore.getSettingsSivaCertName())
     }
 
     @Test(expected = Test.None::class)
-    fun sharedSettingsViewModel_handleFile_handleError() {
+    fun sharedSettingsViewModel_handleFile_handleSivaError() {
         val uri: Uri = mock()
 
-        viewModel.handleFile(uri)
+        viewModel.handleSivaFile(uri)
+    }
+
+    @Test
+    fun sharedSettingsViewModel_handleTsaFile_success() {
+        val file =
+            AssetFile.getResourceFileAsFile(
+                context,
+                "siva.cer",
+                ee.ria.DigiDoc.common.R.raw.siva,
+            )
+
+        val uri = Uri.fromFile(file)
+        viewModel.handleTsaFile(uri)
+        assertEquals("tsaCert", dataStore.getTSACertName())
+    }
+
+    @Test(expected = Test.None::class)
+    fun sharedSettingsViewModel_handleFile_handleTsaError() {
+        val uri: Uri = mock()
+
+        viewModel.handleTsaFile(uri)
     }
 
     @Test(expected = Test.None::class)

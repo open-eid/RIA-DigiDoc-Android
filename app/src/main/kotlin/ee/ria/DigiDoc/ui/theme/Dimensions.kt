@@ -32,7 +32,8 @@ object Dimensions {
 
     // Strokes
     val noBorderStroke = 0.dp
-    val border = 2.dp
+    val XSBorder = 0.5.dp
+    val SBorder = 2.dp
 
     val buttonShadowElevation = 1.dp
     val MSCornerRadius = 12.dp

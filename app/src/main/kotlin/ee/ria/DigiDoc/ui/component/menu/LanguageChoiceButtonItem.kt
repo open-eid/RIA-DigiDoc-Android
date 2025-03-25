@@ -28,7 +28,7 @@ data class LanguageChoiceButtonItem(
                     stringResource(
                         id = R.string.init_lang_locale_et,
                     ).lowercase(),
-                testTag = "initScreenLocaleEt",
+                testTag = "languageScreenLocaleEt",
             ),
             LanguageChoiceButtonItem(
                 label = R.string.init_lang_locale_ru,
@@ -37,7 +37,7 @@ data class LanguageChoiceButtonItem(
                     stringResource(
                         id = R.string.init_lang_locale_ru,
                     ).lowercase(),
-                testTag = "initScreenLocaleRu",
+                testTag = "languageScreenLocaleRu",
             ),
             LanguageChoiceButtonItem(
                 label = R.string.init_lang_locale_en,
@@ -46,7 +46,7 @@ data class LanguageChoiceButtonItem(
                     stringResource(
                         id = R.string.init_lang_locale_en,
                     ).lowercase(),
-                testTag = "initScreenLocaleEn",
+                testTag = "languageScreenLocaleEn",
             ),
         )
     }

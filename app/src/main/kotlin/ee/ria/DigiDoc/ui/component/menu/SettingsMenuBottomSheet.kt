@@ -24,7 +24,6 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.utils.Route
 
-@Suppress("NAME_SHADOWING")
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsMenuBottomSheet(
@@ -39,20 +38,36 @@ fun SettingsMenuBottomSheet(
     @StringRes thirdButtonStringResContentDescription: Int = R.string.main_settings_menu_signing_accessibility,
     @DrawableRes firstButtonIcon: Int = R.drawable.ic_m3_chat_bubble_48dp_wght400,
     @DrawableRes secondButtonIcon: Int = R.drawable.ic_m3_invert_colors_48dp_wght400,
-    @DrawableRes thirdButtonIcon: Int = R.drawable.ic_m3_stylus_note_48dp_wght400,
+    @DrawableRes thirdButtonIcon: Int = R.drawable.ic_m3_tune_48dp_wght400,
     firstButtonClick: (() -> Unit)? = null,
     secondButtonClick: (() -> Unit)? = null,
     thirdButtonClick: (() -> Unit)? = null,
+    isFirstButtonVisible: Boolean = true,
+    isSecondButtonVisible: Boolean = true,
+    isThirdButtonVisible: Boolean = true,
     testTag: String = "menuSettingsBottomSheet",
     firstButtonTestTag: String = "menuSettingsLanguageButton",
     secondButtonTestTag: String = "menuSettingsAppearanceButton",
     thirdButtonTestTag: String = "menuSettingsSigningButton",
 ) {
     if (isBottomSheetVisible.value) {
-        val firstButtonClick = firstButtonClick ?: {}
-        val secondButtonClick = secondButtonClick ?: {}
+        val firstButtonClick =
+            firstButtonClick ?: {
+                isBottomSheetVisible.value = false
+                navController.navigate(
+                    Route.SettingsLanguageChooser.route,
+                )
+            }
+        val secondButtonClick =
+            secondButtonClick ?: {
+                isBottomSheetVisible.value = false
+                navController.navigate(
+                    Route.SettingsThemeChooser.route,
+                )
+            }
         val thirdButtonClick =
             thirdButtonClick ?: {
+                isBottomSheetVisible.value = false
                 navController.navigate(
                     Route.Settings.route,
                 )
@@ -88,6 +103,9 @@ fun SettingsMenuBottomSheet(
                     firstButtonClick = firstButtonClick,
                     secondButtonClick = secondButtonClick,
                     thirdButtonClick = thirdButtonClick,
+                    isFirstButtonVisible = isFirstButtonVisible,
+                    isSecondButtonVisible = isSecondButtonVisible,
+                    isThirdButtonVisible = isThirdButtonVisible,
                     firstButtonTestTag = firstButtonTestTag,
                     secondButtonTestTag = secondButtonTestTag,
                     thirdButtonTestTag = thirdButtonTestTag,

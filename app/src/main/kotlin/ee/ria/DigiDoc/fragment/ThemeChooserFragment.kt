@@ -17,18 +17,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import ee.ria.DigiDoc.fragment.screen.SettingsRightsScreen
+import ee.ria.DigiDoc.fragment.screen.ThemeChooserScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SettingsRightsFragment(
-    navController: NavHostController,
+fun ThemeChooserFragment(
     modifier: Modifier = Modifier,
-    sharedMenuViewModel: SharedMenuViewModel,
+    navController: NavHostController,
     sharedSettingsViewModel: SharedSettingsViewModel,
+    sharedMenuViewModel: SharedMenuViewModel,
 ) {
     Surface(
         modifier =
@@ -38,18 +38,14 @@ fun SettingsRightsFragment(
                 .semantics {
                     testTagsAsResourceId = true
                 }
-                .testTag("settingsRightsFragment"),
+                .testTag("themeChooserFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
-        SettingsRightsScreen(
-            navController = navController,
+        ThemeChooserScreen(
             modifier = modifier,
-            getIsScreenshotAllowed = sharedSettingsViewModel.dataStore::getSettingsAllowScreenshots,
-            setIsScreenshotAllowed = sharedSettingsViewModel.dataStore::setSettingsAllowScreenshots,
-            getIsOpenAllFileTypesEnabled = sharedSettingsViewModel.dataStore::getSettingsOpenAllFileTypes,
-            setIsOpenAllFileTypesEnabled = sharedSettingsViewModel.dataStore::setSettingsOpenAllFileTypes,
-            sharedMenuViewModel = sharedMenuViewModel,
+            navController = navController,
             sharedSettingsViewModel = sharedSettingsViewModel,
+            sharedMenuViewModel = sharedMenuViewModel,
         )
     }
 }
@@ -57,12 +53,15 @@ fun SettingsRightsFragment(
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun SettingsRightsFragmentPreview() {
+fun ThemeChooserFragmentPreview() {
     RIADigiDocTheme {
-        SettingsRightsFragment(
-            navController = rememberNavController(),
-            sharedMenuViewModel = hiltViewModel(),
-            sharedSettingsViewModel = hiltViewModel(),
+        val navController = rememberNavController()
+        val sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel()
+        val sharedMenuViewModel: SharedMenuViewModel = hiltViewModel()
+        ThemeChooserFragment(
+            navController = navController,
+            sharedSettingsViewModel = sharedSettingsViewModel,
+            sharedMenuViewModel = sharedMenuViewModel,
         )
     }
 }

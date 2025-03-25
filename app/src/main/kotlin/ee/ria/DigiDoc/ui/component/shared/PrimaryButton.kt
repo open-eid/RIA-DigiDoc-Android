@@ -28,7 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.theme.Dimensions.border
+import ee.ria.DigiDoc.ui.theme.Dimensions.SBorder
 import ee.ria.DigiDoc.ui.theme.Dimensions.buttonCornerShapeSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.noBorderStroke
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
@@ -76,12 +76,12 @@ fun PrimaryButton(
         border =
             if (isSubButton) {
                 BorderStroke(
-                    width = border,
+                    width = SBorder,
                     color = contentColor,
                 )
             } else if (!enabled) {
                 BorderStroke(
-                    width = border,
+                    width = SBorder,
                     color = MaterialTheme.colorScheme.tertiary,
                 )
             } else {

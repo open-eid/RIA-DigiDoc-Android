@@ -40,9 +40,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.SBorder
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.border
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
@@ -196,7 +196,7 @@ fun SignatureComponent(
                                     status = signature.validator.status,
                                     modifier =
                                         modifier
-                                            .padding(vertical = border)
+                                            .padding(vertical = SBorder)
                                             .focusable(false)
                                             .notAccessible(),
                                 )

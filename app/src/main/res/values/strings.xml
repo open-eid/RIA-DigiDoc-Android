@@ -109,7 +109,7 @@
 
     <string name="main_settings_menu_language">Language selection</string>
     <string name="main_settings_menu_appearance">Appearance</string>
-    <string name="main_settings_menu_signing">Signing settings</string>
+    <string name="main_settings_menu_signing">Advanced settings</string>
 
     <!-- Signing -->
     <string name="signing_title_new_container">Signing</string>
@@ -295,6 +295,8 @@
     <string name="cancel_button">Cancel</string>
     <string name="open_button">Open</string>
     <string name="ok_button">OK</string>
+    <string name="choose_button">Choose</string>
+    <string name="close_button">Close</string>
 
     <!-- Crypto -->
     <string name="crypto_button">Encrypt</string>
@@ -315,6 +317,7 @@
     <string name="signature_method_selected">Signing method selected</string>
     <string name="menu_language">Language</string>
     <string name="menu_language_selected">Language selected</string>
+    <string name="menu_theme_selected">Theme selected</string>
     <string name="item_selected">selected</string>
     <string name="signatures_loading">Signatures loading</string>
     <string name="signatures_loaded">Signatures loaded</string>
@@ -376,16 +379,28 @@
 
     <string name="main_settings_menu_language_accessibility">Language selection</string>
     <string name="main_settings_menu_appearance_accessibility">Appearance</string>
-    <string name="main_settings_menu_signing_accessibility">Signing settings</string>
+    <string name="main_settings_menu_signing_accessibility">Advanced settings</string>
+
+    <string name="choose_name_option">Choose name</string>
+    <string name="option">Option</string>
+    <string name="option_selected">Option %1$s selected</string>
+
+    <string name="option_ria">RIA</string>
+    <string name="option_manual_key_transfer">Use a manually specified key transfer server for encryption</string>
 
     <string name="configuration_is_already_up_to_date">configuration is already up-to-date</string>
     <string name="configuration_updated">Configuration updated</string>
     <string name="language_changed">Language changed</string>
+    <string name="theme_changed">Theme changed</string>
     <string name="setting_value_changed">Setting value changed</string>
     <string name="setting_value_change_cancelled">Setting value change cancelled</string>
     <string name="close_menu">Close menu</string>
     <string name="hide_password">Hide password</string>
     <string name="show_password">Show password</string>
+
+    <string name="main_settings_theme_light">Light</string>
+    <string name="main_settings_theme_dark">Dark</string>
+    <string name="main_settings_theme_system">System default</string>
 
     <!-- Main Accessibility -->
     <string name="main_accessibility_title">Accessibility</string>
@@ -445,8 +460,7 @@
 
 
     <!-- Main Settings -->
-    <string name="main_settings_title">Settings</string>
-    <string name="main_settings_use_default_settings_button_title">USE DEFAULT SETTINGS</string>
+    <string name="main_settings_use_default_settings_button_title">Use default settings</string>
     <string name="main_settings_use_default_settings_message">Default settings restored</string>
     <string name="main_settings_rights">Permissions</string>
     <string name="main_settings_signing">Signing</string>
@@ -469,6 +483,13 @@
     <string name="main_settings_tsa_url_title">Access to Time-Stamping service</string>
     <string name="main_settings_uuid_title">Access to mobile-ID and Smart-ID service</string>
     <string name="main_settings_tsa_url_use_default">Use default</string>
+    <string name="main_settings_general_title">General</string>
+    <string name="main_settings_system_settings_title">System settings</string>
+    <string name="main_settings_signing_services_title">Signing services</string>
+    <string name="main_settings_validation_services_title">Validation services</string>
+    <string name="main_settings_crypto_services_title">Encryption settings</string>
+    <string name="main_settings_timestamp_services_title">Time-Stamping services</string>
+    <string name="main_settings_mobile_id_and_smart_id_title">Mobile-ID ja Smart-ID</string>
     <string name="main_settings_ask_role_and_address_title">Ask role and address info on signing</string>
     <string name="main_settings_role_title">Role / resolution</string>
     <string name="main_settings_city_title">City</string>
@@ -481,8 +502,9 @@
     <string name="main_settings_timestamp_cert_title">Time-Stamping service SSL certificate</string>
     <string name="main_settings_timestamp_cert_issued_to_title">Issued to: </string>
     <string name="main_settings_timestamp_cert_valid_to_title">Valid to: </string>
-    <string name="main_settings_timestamp_cert_add_certificate_button">ADD CERTIFICATE</string>
-    <string name="main_settings_timestamp_cert_show_certificate_button">SHOW CERTIFICATE</string>
+    <string name="main_settings_timestamp_cert_add_certificate_button">Add certificate</string>
+    <string name="main_settings_timestamp_cert_show_certificate_button">Show certificate</string>
+    <string name="main_settings_timestamp_cert_no_certificate_found">Certificate not added</string>
     <string name="main_settings_siva_service_title">Access to Digital Signature Validation Service SiVa</string>
     <string name="main_settings_siva_default_access_title">Use default access</string>
     <string name="main_settings_siva_default_manual_access_title">Use manually configured access</string>
