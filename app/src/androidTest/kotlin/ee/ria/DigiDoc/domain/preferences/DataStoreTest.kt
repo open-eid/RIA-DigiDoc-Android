@@ -9,8 +9,14 @@ import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.common.preferences.EncryptedPreferences
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.domain.model.methods.SigningMethod
+import ee.ria.DigiDoc.domain.model.settings.CDOCSetting
+import ee.ria.DigiDoc.domain.model.settings.TSASetting
+import ee.ria.DigiDoc.domain.model.settings.UUIDSetting
+import ee.ria.DigiDoc.domain.model.theme.ThemeSetting
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.network.proxy.ProxySetting
+import ee.ria.DigiDoc.network.siva.SivaSetting
+import ee.ria.DigiDoc.utils.Constant.Defaults.DEFAULT_UUID_VALUE
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -228,7 +234,7 @@ class DataStoreTest {
     fun dataStore_getSettingsUUID_success() {
         val result = dataStore.getSettingsUUID()
 
-        assertEquals("", result)
+        assertEquals(DEFAULT_UUID_VALUE, result)
     }
 
     @Test
@@ -302,6 +308,86 @@ class DataStoreTest {
         val result = dataStore.getSettingsAllowScreenshots()
 
         assertEquals(true, result)
+    }
+
+    @Test
+    fun dataStore_setSivaSetting_success() {
+        dataStore.setSivaSetting(SivaSetting.MANUAL)
+
+        val result = dataStore.getSivaSetting()
+
+        assertEquals(SivaSetting.MANUAL, result)
+    }
+
+    @Test
+    fun dataStore_getSivaSetting_success() {
+        val result = dataStore.getSivaSetting()
+
+        assertEquals(SivaSetting.DEFAULT, result)
+    }
+
+    @Test
+    fun dataStore_setTsaSetting_success() {
+        dataStore.setTsaSetting(TSASetting.MANUAL)
+
+        val result = dataStore.getTsaSetting()
+
+        assertEquals(TSASetting.MANUAL, result)
+    }
+
+    @Test
+    fun dataStore_getTsaSetting_success() {
+        val result = dataStore.getTsaSetting()
+
+        assertEquals(TSASetting.DEFAULT, result)
+    }
+
+    @Test
+    fun dataStore_setUuidSetting_success() {
+        dataStore.setUuidSetting(UUIDSetting.MANUAL)
+
+        val result = dataStore.getUuidSetting()
+
+        assertEquals(UUIDSetting.MANUAL, result)
+    }
+
+    @Test
+    fun dataStore_getUuidSetting_success() {
+        val result = dataStore.getUuidSetting()
+
+        assertEquals(UUIDSetting.DEFAULT, result)
+    }
+
+    @Test
+    fun dataStore_setCdocSetting_success() {
+        dataStore.setCdocSetting(CDOCSetting.CDOC2)
+
+        val result = dataStore.getCdocSetting()
+
+        assertEquals(CDOCSetting.CDOC2, result)
+    }
+
+    @Test
+    fun dataStore_getCdocSetting_success() {
+        val result = dataStore.getCdocSetting()
+
+        assertEquals(CDOCSetting.CDOC1, result)
+    }
+
+    @Test
+    fun dataStore_setThemeSetting_success() {
+        dataStore.setThemeSetting(ThemeSetting.DARK)
+
+        val result = dataStore.getThemeSetting()
+
+        assertEquals(ThemeSetting.DARK, result)
+    }
+
+    @Test
+    fun dataStore_getThemeSetting_success() {
+        val result = dataStore.getThemeSetting()
+
+        assertEquals(ThemeSetting.SYSTEM, result)
     }
 
     @Test

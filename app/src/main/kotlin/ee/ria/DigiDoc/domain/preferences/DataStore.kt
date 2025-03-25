@@ -5,15 +5,22 @@ package ee.ria.DigiDoc.domain.preferences
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
+import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.IS_CRASH_SENDING_ALWAYS_ENABLED
 import ee.ria.DigiDoc.common.Constant.KEY_LOCALE
+import ee.ria.DigiDoc.common.Constant.Theme.THEME_SETTING
 import ee.ria.DigiDoc.common.preferences.EncryptedPreferences
 import ee.ria.DigiDoc.domain.model.methods.SigningMethod
+import ee.ria.DigiDoc.domain.model.settings.CDOCSetting
+import ee.ria.DigiDoc.domain.model.settings.TSASetting
+import ee.ria.DigiDoc.domain.model.settings.UUIDSetting
+import ee.ria.DigiDoc.domain.model.theme.ThemeSetting
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.network.siva.SivaSetting
+import ee.ria.DigiDoc.utils.Constant.Defaults.DEFAULT_UUID_VALUE
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
@@ -145,7 +152,7 @@ class DataStore
         }
 
         fun getSettingsUUID(): String {
-            return preferences.getString(resources.getString(R.string.main_settings_uuid_key), "") ?: ""
+            return preferences.getString(resources.getString(R.string.main_settings_uuid_key), DEFAULT_UUID_VALUE) ?: DEFAULT_UUID_VALUE
         }
 
         fun setSettingsUUID(uuid: String) {
@@ -257,6 +264,75 @@ class DataStore
             } catch (iae: java.lang.IllegalArgumentException) {
                 debugLog(logTag, "Unable to get SiVa setting value", iae)
                 return SivaSetting.DEFAULT
+            }
+        }
+
+        fun setTsaSetting(tsaSetting: TSASetting) {
+            val editor = preferences.edit()
+            editor.putString(
+                resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_tsa_setting_key),
+                tsaSetting.name,
+            )
+            editor.apply()
+        }
+
+        fun getTsaSetting(): TSASetting {
+            val tsaSetting =
+                preferences.getString(
+                    resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_tsa_setting_key),
+                    TSASetting.DEFAULT.name,
+                )
+            try {
+                return tsaSetting?.let { TSASetting.valueOf(it) } ?: TSASetting.DEFAULT
+            } catch (iae: IllegalArgumentException) {
+                debugLog(logTag, "Unable to get TSA setting value", iae)
+                return TSASetting.DEFAULT
+            }
+        }
+
+        fun setUuidSetting(uuidSetting: UUIDSetting) {
+            val editor = preferences.edit()
+            editor.putString(
+                resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_uuid_setting_key),
+                uuidSetting.name,
+            )
+            editor.apply()
+        }
+
+        fun getUuidSetting(): UUIDSetting {
+            val uuidSetting =
+                preferences.getString(
+                    resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_uuid_setting_key),
+                    UUIDSetting.DEFAULT.name,
+                )
+            try {
+                return uuidSetting?.let { UUIDSetting.valueOf(it) } ?: UUIDSetting.DEFAULT
+            } catch (iae: IllegalArgumentException) {
+                debugLog(logTag, "Unable to get UUID setting value", iae)
+                return UUIDSetting.DEFAULT
+            }
+        }
+
+        fun setCdocSetting(cdocSetting: CDOCSetting) {
+            val editor = preferences.edit()
+            editor.putString(
+                resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_cdoc_setting_key),
+                cdocSetting.name,
+            )
+            editor.apply()
+        }
+
+        fun getCdocSetting(): CDOCSetting {
+            val cdocSetting =
+                preferences.getString(
+                    resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_cdoc_setting_key),
+                    CDOCSetting.CDOC1.name,
+                )
+            try {
+                return cdocSetting?.let { CDOCSetting.valueOf(it) } ?: CDOCSetting.CDOC1
+            } catch (iae: IllegalArgumentException) {
+                debugLog(logTag, "Unable to get CDOC setting value", iae)
+                return CDOCSetting.CDOC1
             }
         }
 
@@ -555,6 +631,16 @@ class DataStore
 
         fun setIsCrashSendingAlwaysEnabled(isEnabled: Boolean) {
             preferences.edit().putBoolean(IS_CRASH_SENDING_ALWAYS_ENABLED, isEnabled).apply()
+        }
+
+        fun getThemeSetting(): ThemeSetting {
+            return ThemeSetting.fromMode(
+                preferences.getString(THEME_SETTING, ThemeSetting.SYSTEM.mode) ?: ThemeSetting.SYSTEM.mode,
+            )
+        }
+
+        fun setThemeSetting(themeSetting: ThemeSetting) {
+            preferences.edit { putString(THEME_SETTING, themeSetting.mode) }
         }
 
         private fun getEncryptedPreferences(context: Context): SharedPreferences? {

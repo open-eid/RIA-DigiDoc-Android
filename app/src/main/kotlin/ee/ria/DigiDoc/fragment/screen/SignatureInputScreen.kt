@@ -27,7 +27,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -53,6 +52,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.domain.model.methods.SigningMethod
+import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.signing.IdCardView
@@ -97,6 +97,7 @@ fun SignatureInputScreen(
 
     val messages by SnackBarManager.messages.collectAsState(emptyList())
 
+    val rememberMeText = stringResource(R.string.signature_update_remember_me)
     var nfcSupported by remember { mutableStateOf(false) }
 
     var isIdCardSigning by remember { mutableStateOf(false) }
@@ -270,16 +271,16 @@ fun SignatureInputScreen(
 
             if (!isIdCardSigning && (chosenMethod != SigningMethod.NFC || nfcSupported)) {
                 if (chosenMethod != SigningMethod.ID_CARD) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = modifier.fillMaxWidth(),
-                    ) {
-                        Text(
-                            text = stringResource(R.string.signature_update_remember_me),
-                            modifier = modifier.weight(1f),
-                        )
-                        Switch(checked = rememberMe, onCheckedChange = { rememberMe = it })
-                    }
+                    SettingsSwitchItem(
+                        modifier = modifier,
+                        checked = rememberMe,
+                        onCheckedChange = {
+                            rememberMe = it
+                        },
+                        title = rememberMeText,
+                        contentDescription = rememberMeText,
+                        testTag = "signatureInputRememberMeSwitch",
+                    )
 
                     if (rememberMe) {
                         Text(

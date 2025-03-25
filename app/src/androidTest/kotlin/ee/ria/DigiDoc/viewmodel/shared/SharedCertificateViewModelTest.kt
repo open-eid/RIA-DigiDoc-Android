@@ -23,7 +23,7 @@ class SharedCertificateViewModelTest {
     }
 
     @Test
-    fun sharedCertificateViewModel_setCertificate_success() {
+    fun sharedCertificateViewModel_setSivaCertificate_success() {
         val certificate = mock(X509Certificate::class.java)
         viewModel.setCertificate(certificate)
 
@@ -31,7 +31,7 @@ class SharedCertificateViewModelTest {
     }
 
     @Test
-    fun sharedCertificateViewModel_resetCertificate_success() {
+    fun sharedCertificateViewModel_resetSivaCertificate_success() {
         val certificate = mock(X509Certificate::class.java)
         viewModel.setCertificate(certificate)
         viewModel.resetCertificate()

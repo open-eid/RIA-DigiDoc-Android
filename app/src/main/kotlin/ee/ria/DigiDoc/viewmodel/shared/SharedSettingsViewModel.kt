@@ -66,17 +66,29 @@ class SharedSettingsViewModel
         private val _updatedConfiguration = MutableLiveData<ConfigurationProvider?>()
         val updatedConfiguration: LiveData<ConfigurationProvider?> = _updatedConfiguration
 
-        private val _issuedTo = MutableLiveData<String?>()
-        val issuedTo: LiveData<String?> = _issuedTo
+        private val _sivaIssuedTo = MutableLiveData<String?>()
+        val sivaIssuedTo: LiveData<String?> = _sivaIssuedTo
 
-        private val _validTo = MutableLiveData<String?>()
-        val validTo: LiveData<String?> = _validTo
+        private val _sivaValidTo = MutableLiveData<String?>()
+        val sivaValidTo: LiveData<String?> = _sivaValidTo
+
+        private val _tsaIssuedTo = MutableLiveData<String?>()
+        val tsaIssuedTo: LiveData<String?> = _tsaIssuedTo
+
+        private val _tsaValidTo = MutableLiveData<String?>()
+        val tsaValidTo: LiveData<String?> = _tsaValidTo
 
         private val _previousSivaUrl = MutableLiveData<String?>()
         val previousSivaUrl: LiveData<String?> = _previousSivaUrl
 
+        private val _previousTsaUrl = MutableLiveData<String?>()
+        val previousTsaUrl: LiveData<String?> = _previousTsaUrl
+
         private val _sivaCertificate = MutableLiveData<X509Certificate?>()
         val sivaCertificate: LiveData<X509Certificate?> = _sivaCertificate
+
+        private val _tsaCertificate = MutableLiveData<X509Certificate?>()
+        val tsaCertificate: LiveData<X509Certificate?> = _tsaCertificate
 
         private val _errorState = MutableLiveData<Int?>(null)
         val errorState: LiveData<Int?> = _errorState
@@ -162,6 +174,16 @@ class SharedSettingsViewModel
             dataStore.setSettingsSivaCertName(null)
         }
 
+        private fun removeTsaCert() {
+            val tsaCertName = dataStore.getTSACertName()
+            val tsaFile = FileUtil.getCertFile(context, tsaCertName, DIR_TSA_CERT)
+
+            if (tsaFile != null) {
+                FileUtil.removeFile(tsaFile.path)
+            }
+            dataStore.setTSACertName(null)
+        }
+
         fun saveProxySettings(
             clearSettings: Boolean,
             manualProxySettings: ManualProxy,
@@ -216,7 +238,7 @@ class SharedSettingsViewModel
             return "-"
         }
 
-        fun updateData(
+        fun updateSivaData(
             sivaServiceUrl: String,
             context: Context,
         ) {
@@ -232,13 +254,13 @@ class SharedSettingsViewModel
                     _sivaCertificate.postValue(sivaCert)
                     val certificateHolder: X509CertificateHolder = JcaX509CertificateHolder(sivaCert)
                     val issuer: String = getSubject(certificateHolder)
-                    _issuedTo.postValue(issuer)
+                    _sivaIssuedTo.postValue(issuer)
                     val notAfter: Date = certificateHolder.notAfter
                     if (notAfter.before(Date())) {
                         val expiredText = context.getString(R.string.main_settings_siva_certificate_expired)
-                        _validTo.postValue("${getFormattedDateTime(notAfter)} ($expiredText)")
+                        _sivaValidTo.postValue("${getFormattedDateTime(notAfter)} ($expiredText)")
                     } else {
-                        _validTo.postValue(getFormattedDateTime(notAfter))
+                        _sivaValidTo.postValue(getFormattedDateTime(notAfter))
                     }
                 } catch (e: CertificateException) {
                     errorLog(logTag, "Unable to get SiVa certificate", e)
@@ -250,7 +272,41 @@ class SharedSettingsViewModel
             }
         }
 
-        fun handleFile(uri: Uri) {
+        fun updateTsaData(
+            tsaServiceUrl: String,
+            context: Context,
+        ) {
+            _previousTsaUrl.postValue(tsaServiceUrl)
+
+            val tsaCertName: String = dataStore.getTSACertName()
+            val tsaFile = FileUtil.getCertFile(context, tsaCertName, DIR_TSA_CERT)
+
+            if (tsaFile != null) {
+                val fileContents: String = FileUtil.readFileContent(tsaFile.path)
+                try {
+                    val tsaCert = CertificateUtil.x509Certificate(fileContents)
+                    _tsaCertificate.postValue(tsaCert)
+                    val certificateHolder: X509CertificateHolder = JcaX509CertificateHolder(tsaCert)
+                    val issuer: String = getSubject(certificateHolder)
+                    _tsaIssuedTo.postValue(issuer)
+                    val notAfter: Date = certificateHolder.notAfter
+                    if (notAfter.before(Date())) {
+                        val expiredText = context.getString(R.string.main_settings_siva_certificate_expired)
+                        _tsaValidTo.postValue("${getFormattedDateTime(notAfter)} ($expiredText)")
+                    } else {
+                        _tsaValidTo.postValue(getFormattedDateTime(notAfter))
+                    }
+                } catch (e: CertificateException) {
+                    errorLog(logTag, "Unable to get TSA certificate", e)
+
+                    // Remove invalid files
+                    removeTsaCert()
+                    resetCertificateInfo()
+                }
+            }
+        }
+
+        fun handleSivaFile(uri: Uri) {
             try {
                 val initialStream: InputStream? = contentResolver.openInputStream(uri)
                 val documentFile = DocumentFile.fromSingleUri(context, uri)
@@ -279,9 +335,40 @@ class SharedSettingsViewModel
             }
         }
 
+        fun handleTsaFile(uri: Uri) {
+            try {
+                val initialStream: InputStream? = contentResolver.openInputStream(uri)
+                val documentFile = DocumentFile.fromSingleUri(context, uri)
+                if (documentFile != null) {
+                    val tsaCertFolder = File(context.filesDir, DIR_TSA_CERT)
+                    if (!tsaCertFolder.exists()) {
+                        val isFolderCreated = tsaCertFolder.mkdirs()
+                        debugLog(
+                            logTag,
+                            String.format("TSA cert folder created: %s", isFolderCreated),
+                        )
+                    }
+
+                    var fileName = documentFile.name
+                    if (fileName.isNullOrEmpty()) {
+                        fileName = "tsaCert"
+                    }
+                    val tsaFile = File(tsaCertFolder, fileName)
+
+                    FileUtils.copyInputStreamToFile(initialStream, tsaFile)
+
+                    dataStore.setTSACertName(tsaFile.name)
+                }
+            } catch (e: Exception) {
+                errorLog(logTag, "Unable to read TSA certificate file data", e)
+            }
+        }
+
         private fun resetCertificateInfo() {
-            _issuedTo.postValue(null)
-            _validTo.postValue(null)
+            _sivaIssuedTo.postValue(null)
+            _sivaValidTo.postValue(null)
+            _tsaIssuedTo.postValue(null)
+            _tsaValidTo.postValue(null)
         }
 
         fun checkConnection(manualProxySettings: ManualProxy) {

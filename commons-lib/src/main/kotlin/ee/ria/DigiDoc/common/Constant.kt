@@ -155,4 +155,8 @@ object Constant {
         setOf(ADOC_MIMETYPE, DDOC_MIMETYPE, ASICS_MIMETYPE)
 
     val SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES: Set<String> = setOf(DDOC_MIMETYPE, ASICS_MIMETYPE)
+
+    object Theme {
+        const val THEME_SETTING = "THEME_SETTING"
+    }
 }

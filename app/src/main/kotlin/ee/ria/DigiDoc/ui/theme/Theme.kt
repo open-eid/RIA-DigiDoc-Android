@@ -92,19 +92,20 @@ private val LightColorScheme =
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RIADigiDocTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean? = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
+    val useDarkTheme = darkTheme ?: isSystemInDarkTheme()
     val colorScheme =
         when {
             dynamicColor -> {
                 val context = LocalContext.current
-                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+                if (useDarkTheme == true) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
             }
 
-            darkTheme -> DarkColorScheme
+            useDarkTheme == true -> DarkColorScheme
             else -> LightColorScheme
         }
     val view = LocalView.current
@@ -116,7 +117,7 @@ fun RIADigiDocTheme(
                 view.setBackgroundColor(color)
                 windowInsets
             }
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            darkTheme?.let { WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !it }
         }
     }
 

@@ -4,29 +4,31 @@ package ee.ria.DigiDoc.ui.component.settings
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXS
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SettingsSwitchItem(
     modifier: Modifier = Modifier,
@@ -36,48 +38,34 @@ fun SettingsSwitchItem(
     contentDescription: String,
     testTag: String = "",
 ) {
-    ConstraintLayout(
+    Row(
         modifier =
             modifier
-                .padding(vertical = screenViewLargePadding)
                 .wrapContentHeight()
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(vertical = MSPadding),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        val (
-            settingsRightsItemText,
-            settingsRightsItemCheck,
-        ) = createRefs()
         Text(
             text = title,
             modifier =
                 modifier
-                    .notAccessible()
-                    .wrapContentSize()
-                    .padding(start = screenViewLargePadding, end = iconSizeXS)
-                    .padding(end = screenViewLargePadding)
-                    .padding(end = screenViewLargePadding)
-                    .constrainAs(settingsRightsItemText) {
-                        start.linkTo(parent.start)
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                    },
-            style = MaterialTheme.typography.bodyLarge,
+                    .weight(1f)
+                    .notAccessible(),
             textAlign = TextAlign.Start,
+            style = MaterialTheme.typography.bodyLarge,
         )
         Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
             modifier =
                 modifier
-                    .semantics { this.contentDescription = contentDescription }
-                    .padding(end = screenViewLargePadding)
-                    .size(iconSizeXS)
-                    .constrainAs(settingsRightsItemCheck) {
-                        end.linkTo(parent.end)
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
+                    .padding(end = XSPadding)
+                    .semantics {
+                        testTagsAsResourceId = true
+                        this.contentDescription = contentDescription
                     }
                     .testTag(testTag),
+            checked = checked,
+            onCheckedChange = onCheckedChange,
         )
     }
 }

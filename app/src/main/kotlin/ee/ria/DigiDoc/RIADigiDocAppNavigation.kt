@@ -14,19 +14,23 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.fragment.AccessibilityFragment
+import ee.ria.DigiDoc.fragment.AdvancedSettingsFragment
 import ee.ria.DigiDoc.fragment.DiagnosticsFragment
+import ee.ria.DigiDoc.fragment.EncryptionServicesSettingsFragment
 import ee.ria.DigiDoc.fragment.FileOpeningFragment
 import ee.ria.DigiDoc.fragment.HomeFragment
 import ee.ria.DigiDoc.fragment.InfoFragment
 import ee.ria.DigiDoc.fragment.InitFragment
+import ee.ria.DigiDoc.fragment.LanguageChooserFragment
+import ee.ria.DigiDoc.fragment.ProxyServicesSettingsFragment
 import ee.ria.DigiDoc.fragment.RecentDocumentsFragment
 import ee.ria.DigiDoc.fragment.RootFragment
-import ee.ria.DigiDoc.fragment.SettingsFragment
-import ee.ria.DigiDoc.fragment.SettingsRightsFragment
-import ee.ria.DigiDoc.fragment.SettingsSigningFragment
 import ee.ria.DigiDoc.fragment.SignatureInputFragment
 import ee.ria.DigiDoc.fragment.SignatureMethodFragment
 import ee.ria.DigiDoc.fragment.SigningFragment
+import ee.ria.DigiDoc.fragment.SigningServicesSettingsFragment
+import ee.ria.DigiDoc.fragment.ThemeChooserFragment
+import ee.ria.DigiDoc.fragment.ValidationServicesSettingsFragment
 import ee.ria.DigiDoc.ui.component.signing.certificate.CertificateDetailsView
 import ee.ria.DigiDoc.ui.component.signing.certificate.SignerDetailsView
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
@@ -146,26 +150,61 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
             )
         }
         composable(route = Route.Settings.route) {
-            SettingsFragment(
+            AdvancedSettingsFragment(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 sharedMenuViewModel = sharedMenuViewModel,
             )
         }
-        composable(route = Route.SettingsRights.route) {
-            SettingsRightsFragment(
+        composable(route = Route.SigningServicesScreen.route) {
+            SigningServicesSettingsFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
+                sharedSettingsViewModel = sharedSettingsViewModel,
+                sharedCertificateViewModel = sharedCertificateViewModel,
+            )
+        }
+        composable(route = Route.ValidationServicesScreen.route) {
+            ValidationServicesSettingsFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
+                sharedSettingsViewModel = sharedSettingsViewModel,
+                sharedCertificateViewModel = sharedCertificateViewModel,
+            )
+        }
+        composable(route = Route.EncryptionServicesScreen.route) {
+            EncryptionServicesSettingsFragment(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 sharedMenuViewModel = sharedMenuViewModel,
                 sharedSettingsViewModel = sharedSettingsViewModel,
             )
         }
-        composable(route = Route.SettingsSigning.route) {
-            SettingsSigningFragment(
+        composable(route = Route.ProxyServicesScreen.route) {
+            ProxyServicesSettingsFragment(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 sharedMenuViewModel = sharedMenuViewModel,
+                sharedSettingsViewModel = sharedSettingsViewModel,
                 sharedCertificateViewModel = sharedCertificateViewModel,
+            )
+        }
+        composable(route = Route.SettingsLanguageChooser.route) {
+            LanguageChooserFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedSettingsViewModel = sharedSettingsViewModel,
+                sharedMenuViewModel = sharedMenuViewModel,
+            )
+        }
+        composable(route = Route.SettingsThemeChooser.route) {
+            ThemeChooserFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedSettingsViewModel = sharedSettingsViewModel,
+                sharedMenuViewModel = sharedMenuViewModel,
             )
         }
         composable(route = Route.FileChoosing.route) {

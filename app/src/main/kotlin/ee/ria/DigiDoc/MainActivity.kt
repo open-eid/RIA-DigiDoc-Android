@@ -16,6 +16,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import ee.ria.DigiDoc.common.model.AppState
+import ee.ria.DigiDoc.domain.model.theme.ThemeSetting
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.fragment.RootFragment
 import ee.ria.DigiDoc.manager.ActivityManager
@@ -63,9 +64,16 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
 
         enableEdgeToEdge()
 
+        val useDarkMode =
+            if (isSystemModeEnabled(dataStore) == true) {
+                null
+            } else {
+                isDarkModeEnabled(dataStore)
+            }
+
         if (rootChecker.isRooted()) {
             setContent {
-                RIADigiDocTheme {
+                RIADigiDocTheme(darkTheme = useDarkMode) {
                     RootFragment()
                 }
             }
@@ -117,7 +125,7 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
             librarySetup.setupLibraries(applicationContext, isLoggingEnabled)
         }
         setContent {
-            RIADigiDocTheme {
+            RIADigiDocTheme(darkTheme = useDarkMode) {
                 RIADigiDocAppScreen(externalFileUris)
             }
         }
@@ -139,5 +147,13 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
     override fun onStop(owner: LifecycleOwner) {
         super<DefaultLifecycleObserver>.onStop(owner)
         AppState.isAppInForeground = false
+    }
+
+    private fun isSystemModeEnabled(dataStore: DataStore): Boolean {
+        return dataStore.getThemeSetting() == ThemeSetting.SYSTEM
+    }
+
+    private fun isDarkModeEnabled(dataStore: DataStore): Boolean {
+        return dataStore.getThemeSetting() == ThemeSetting.DARK
     }
 }

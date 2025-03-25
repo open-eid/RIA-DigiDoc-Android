@@ -25,32 +25,41 @@ fun ThreeButtonMenu(
     firstButtonClick: () -> Unit = {},
     secondButtonClick: () -> Unit = {},
     thirdButtonClick: () -> Unit = {},
+    isFirstButtonVisible: Boolean = true,
+    isSecondButtonVisible: Boolean = true,
+    isThirdButtonVisible: Boolean = true,
     firstButtonTestTag: String,
     secondButtonTestTag: String,
     thirdButtonTestTag: String,
 ) {
-    MenuButton(
-        modifier = modifier,
-        buttonStringRes = firstButtonStringRes,
-        buttonIcon = firstButtonIcon,
-        buttonStringResContentDescription = firstButtonStringResContentDescription,
-        buttonClick = firstButtonClick,
-        testTag = firstButtonTestTag,
-    )
-    MenuButton(
-        modifier = modifier,
-        buttonStringRes = secondButtonStringRes,
-        buttonIcon = secondButtonIcon,
-        buttonStringResContentDescription = secondButtonStringResContentDescription,
-        buttonClick = secondButtonClick,
-        testTag = secondButtonTestTag,
-    )
-    MenuButton(
-        modifier = modifier,
-        buttonStringRes = thirdButtonStringRes,
-        buttonIcon = thirdButtonIcon,
-        buttonStringResContentDescription = thirdButtonStringResContentDescription,
-        buttonClick = thirdButtonClick,
-        testTag = thirdButtonTestTag,
-    )
+    if (isFirstButtonVisible) {
+        MenuButton(
+            modifier = modifier,
+            buttonStringRes = firstButtonStringRes,
+            buttonIcon = firstButtonIcon,
+            buttonStringResContentDescription = firstButtonStringResContentDescription,
+            buttonClick = firstButtonClick,
+            testTag = firstButtonTestTag,
+        )
+    }
+    if (isSecondButtonVisible) {
+        MenuButton(
+            modifier = modifier,
+            buttonStringRes = secondButtonStringRes,
+            buttonIcon = secondButtonIcon,
+            buttonStringResContentDescription = secondButtonStringResContentDescription,
+            buttonClick = secondButtonClick,
+            testTag = secondButtonTestTag,
+        )
+    }
+    if (isThirdButtonVisible) {
+        MenuButton(
+            modifier = modifier,
+            buttonStringRes = thirdButtonStringRes,
+            buttonIcon = thirdButtonIcon,
+            buttonStringResContentDescription = thirdButtonStringResContentDescription,
+            buttonClick = thirdButtonClick,
+            testTag = thirdButtonTestTag,
+        )
+    }
 }

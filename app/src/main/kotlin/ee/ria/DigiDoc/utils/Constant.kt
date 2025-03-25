@@ -26,11 +26,15 @@ object Constant {
         const val CERTIFICATE_DETAIL_SCREEN = "certificate_detail_route"
         const val RECENT_DOCUMENTS_SCREEN = "recent_documents_route"
         const val SETTINGS_SCREEN = "settings_route"
-        const val SETTINGS_RIGHTS_SCREEN = "settings_rights_route"
-        const val SETTINGS_SIGNING_SCREEN = "settings_signing_route"
+        const val SETTINGS_LANGUAGE_CHOOSER_SCREEN = "settings_language_chooser_route"
+        const val SETTINGS_THEME_CHOOSER_SCREEN = "settings_theme_chooser_route"
         const val ROOT_SCREEN = "root_screen_route"
         const val SIGNATURE_INPUT_SCREEN = "signature_input_route"
         const val SIGNATURE_METHOD_SCREEN = "signature_method_route"
+        const val SIGNING_SERVICES_SCREEN = "signing_services_route"
+        const val VALIDATION_SERVICES_SCREEN = "validation_services_route"
+        const val ENCRYPTION_SERVICES_SCREEN = "encryption_services_route"
+        const val PROXY_SERVICES_SCREEN = "proxy_services_route"
     }
 
     object Defaults {

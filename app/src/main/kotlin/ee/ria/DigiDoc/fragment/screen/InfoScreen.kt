@@ -24,6 +24,7 @@ import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -115,6 +116,12 @@ fun InfoScreen(
     }
 
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                modifier = modifier.padding(vertical = SPadding),
+                hostState = snackBarHostState,
+            )
+        },
         modifier =
             modifier
                 .semantics {

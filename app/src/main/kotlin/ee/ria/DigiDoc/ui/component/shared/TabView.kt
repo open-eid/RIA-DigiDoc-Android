@@ -5,7 +5,6 @@ package ee.ria.DigiDoc.ui.component.shared
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -22,7 +21,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 
 @Composable
 fun TabView(
@@ -34,7 +32,6 @@ fun TabView(
     Column(
         modifier =
             modifier
-                .padding(top = MPadding)
                 .fillMaxSize(),
     ) {
         TabRow(
