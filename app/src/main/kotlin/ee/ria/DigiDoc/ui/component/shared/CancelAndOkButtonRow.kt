@@ -23,7 +23,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.utils.extensions.notAccessible
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -53,14 +52,15 @@ fun CancelAndOkButtonRow(
                 enabled = cancelButtonEnabled,
                 modifier =
                     modifier
-                        .semantics(mergeDescendants = true) {
+                        .semantics {
                             testTagsAsResourceId = true
-                            contentDescription = cancelButtonContentDescription
                         }
                         .testTag(okButtonTestTag),
             ) {
                 Text(
-                    modifier = modifier.notAccessible(),
+                    modifier =
+                        modifier
+                            .semantics { contentDescription = cancelButtonContentDescription },
                     text = stringResource(cancelButtonTitle),
                 )
             }
@@ -71,14 +71,13 @@ fun CancelAndOkButtonRow(
             enabled = okButtonEnabled,
             modifier =
                 modifier
-                    .semantics(mergeDescendants = true) {
+                    .semantics {
                         testTagsAsResourceId = true
-                        contentDescription = okButtonContentDescription
                     }
                     .testTag(cancelButtonTestTag),
         ) {
             Text(
-                modifier = modifier.notAccessible(),
+                modifier = modifier.semantics { contentDescription = okButtonContentDescription },
                 text = stringResource(okButtonTitle),
             )
         }

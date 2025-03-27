@@ -23,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -36,6 +37,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -44,6 +47,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextRange
@@ -56,11 +60,14 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.domain.model.settings.TSASetting
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
+import ee.ria.DigiDoc.ui.theme.Dimensions.LPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSBorder
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -78,6 +85,7 @@ fun TimestampServicesComponent(
     navController: NavHostController,
 ) {
     val context = LocalContext.current
+    val focusRequester = remember { FocusRequester() }
 
     val configuration = sharedSettingsViewModel.updatedConfiguration.value
 
@@ -124,13 +132,15 @@ fun TimestampServicesComponent(
             },
         )
 
-    var urlText by remember { mutableStateOf(defaultTsaServiceUrl) }
-
     val issuedToTitleText = stringResource(R.string.main_settings_timestamp_cert_issued_to_title)
     val validToTitleText = stringResource(R.string.main_settings_timestamp_cert_valid_to_title)
     val showCertificateButtonText = stringResource(R.string.main_settings_timestamp_cert_show_certificate_button)
     val addCertificateButtonText = stringResource(R.string.main_settings_timestamp_cert_add_certificate_button)
     val noCertificateFoundText = stringResource(R.string.main_settings_timestamp_cert_no_certificate_found)
+
+    val accessToTimeStampingServicesTitleText = stringResource(R.string.main_settings_tsa_url_title)
+    val useDefaultAccessText = stringResource(R.string.main_settings_siva_default_access_title)
+    val useManualAccessText = stringResource(R.string.main_settings_siva_default_manual_access_title)
 
     val clearButtonText = stringResource(R.string.clear_text)
     val buttonName = stringResource(id = R.string.button_name)
@@ -143,9 +153,14 @@ fun TimestampServicesComponent(
                 .padding(top = SPadding),
     ) {
         Text(
-            text = stringResource(R.string.main_settings_tsa_url_title),
+            text = accessToTimeStampingServicesTitleText,
             style = MaterialTheme.typography.titleLarge,
-            modifier = modifier.padding(bottom = SPadding),
+            modifier =
+                modifier
+                    .padding(bottom = SPadding)
+                    .semantics {
+                        heading()
+                    },
         )
 
         Card(
@@ -173,10 +188,18 @@ fun TimestampServicesComponent(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = stringResource(R.string.main_settings_siva_default_access_title),
-                    modifier = modifier.weight(1f),
+                    text = useDefaultAccessText,
+                    modifier =
+                        modifier
+                            .weight(1f)
+                            .notAccessible(),
                 )
                 RadioButton(
+                    modifier =
+                        modifier
+                            .semantics {
+                                contentDescription = useDefaultAccessText
+                            },
                     selected = settingsTsaServiceChoice.value == TSASetting.DEFAULT.name,
                     onClick = {
                         settingsTsaServiceChoice.value = TSASetting.DEFAULT.name
@@ -190,11 +213,7 @@ fun TimestampServicesComponent(
             modifier =
                 modifier
                     .fillMaxWidth()
-                    .padding(top = XSPadding, bottom = SPadding)
-                    .clickable {
-                        settingsTsaServiceChoice.value = TSASetting.MANUAL.name
-                        setTsaSetting(TSASetting.MANUAL)
-                    },
+                    .padding(top = XSPadding, bottom = SPadding),
             shape = buttonRoundedCornerShape,
             border =
                 BorderStroke(
@@ -204,17 +223,35 @@ fun TimestampServicesComponent(
             colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         ) {
             Column(
-                modifier = modifier.padding(SPadding),
+                modifier =
+                    modifier
+                        .padding(SPadding)
+                        .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Row(
+                    modifier =
+                        modifier
+                            .clickable {
+                                settingsTsaServiceChoice.value = TSASetting.MANUAL.name
+                                setTsaSetting(TSASetting.MANUAL)
+                            },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = stringResource(R.string.main_settings_siva_default_manual_access_title),
+                        text = useManualAccessText,
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = modifier.weight(1f),
+                        modifier =
+                            modifier
+                                .weight(1f)
+                                .notAccessible(),
                     )
                     RadioButton(
+                        modifier =
+                            modifier
+                                .semantics {
+                                    contentDescription = useManualAccessText
+                                },
                         selected = settingsTsaServiceChoice.value == TSASetting.MANUAL.name,
                         onClick = {
                             settingsTsaServiceChoice.value = TSASetting.MANUAL.name
@@ -224,55 +261,104 @@ fun TimestampServicesComponent(
                 }
 
                 if (settingsTsaServiceChoice.value == TSASetting.MANUAL.name) {
-                    Spacer(modifier = modifier.height(XSPadding))
+                    Spacer(modifier = modifier.height(LPadding))
 
-                    OutlinedTextField(
-                        enabled = settingsTsaServiceChoice.value == TSASetting.MANUAL.name,
-                        value = settingsTsaServiceUrl,
-                        singleLine = true,
-                        onValueChange = {
-                            settingsTsaServiceUrl = it
-                            setSettingsTsaUrl(it.text)
-                        },
-                        shape = RectangleShape,
-                        label = { Text(stringResource(R.string.main_settings_tsa_url_title)) },
-                        modifier = modifier.fillMaxWidth(),
-                        trailingIcon = {
-                            IconButton(onClick = { urlText = "" }) {
+                    Row(
+                        modifier =
+                            modifier
+                                .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        OutlinedTextField(
+                            enabled = settingsTsaServiceChoice.value == TSASetting.MANUAL.name,
+                            value = settingsTsaServiceUrl,
+                            singleLine = true,
+                            onValueChange = {
+                                settingsTsaServiceUrl = it.copy(selection = TextRange(it.text.length))
+                                setSettingsTsaUrl(it.text)
+                            },
+                            shape = RectangleShape,
+                            label = { Text(accessToTimeStampingServicesTitleText) },
+                            modifier =
+                                modifier
+                                    .focusRequester(focusRequester)
+                                    .weight(1f)
+                                    .fillMaxWidth()
+                                    .semantics {
+                                        testTagsAsResourceId = true
+                                    }
+                                    .testTag("timestampServicesComponentTextField"),
+                            trailingIcon = {
+                                if (!isTalkBackEnabled(context) && settingsTsaServiceUrl.text.isNotEmpty()) {
+                                    IconButton(onClick = {
+                                        settingsTsaServiceUrl = TextFieldValue("")
+                                    }) {
+                                        Icon(
+                                            imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
+                                            contentDescription = "$clearButtonText $buttonName",
+                                        )
+                                    }
+                                }
+                            },
+                            colors =
+                                OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.primary,
+                                ),
+                            keyboardOptions =
+                                KeyboardOptions.Default.copy(
+                                    imeAction = ImeAction.Done,
+                                    keyboardType = KeyboardType.Uri,
+                                ),
+                        )
+
+                        if (isTalkBackEnabled(context) && settingsTsaServiceUrl.text.isNotEmpty()) {
+                            IconButton(onClick = { settingsTsaServiceUrl = TextFieldValue("") }) {
                                 Icon(
+                                    modifier =
+                                        modifier
+                                            .semantics {
+                                                testTagsAsResourceId = true
+                                            }
+                                            .testTag("timestampServicesRemoveIconButton"),
                                     imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                     contentDescription = "$clearButtonText $buttonName",
                                 )
                             }
-                        },
-                        keyboardOptions =
-                            KeyboardOptions.Default.copy(
-                                imeAction = ImeAction.Done,
-                                keyboardType = KeyboardType.Uri,
-                            ),
-                    )
+                        }
+                    }
 
-                    Spacer(modifier = modifier.height(SPadding))
+                    Spacer(modifier = modifier.padding(SPadding))
 
                     Text(
+                        modifier =
+                            modifier
+                                .fillMaxWidth()
+                                .semantics {
+                                    heading()
+                                },
                         text = stringResource(R.string.main_settings_timestamp_cert_title),
                         style = MaterialTheme.typography.bodyLarge,
                     )
 
                     if (tsaCertificate != null) {
                         Text(
+                            modifier = modifier.fillMaxWidth(),
                             text = "$issuedToTitleText $issuedTo",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
 
                         Text(
+                            modifier = modifier.fillMaxWidth(),
                             text = "$validToTitleText $validTo",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     } else {
                         Text(
+                            modifier = modifier.fillMaxWidth(),
                             text = noCertificateFoundText,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,

@@ -40,6 +40,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -102,7 +103,10 @@ fun OptionChooserDialog(
                 ) {
                     Text(
                         text = choiceText,
-                        modifier = modifier.weight(1f),
+                        modifier =
+                            modifier
+                                .weight(1f)
+                                .notAccessible(),
                     )
                     RadioButton(
                         modifier =
@@ -116,10 +120,7 @@ fun OptionChooserDialog(
                                                 choiceText.lowercase(),
                                             )
                                         } else {
-                                            String.format(
-                                                optionText,
-                                                choiceText.lowercase(),
-                                            )
+                                            "$optionText ${choiceText.lowercase()}"
                                         }
                                 }
                                 .testTag("optionChooser$index"),

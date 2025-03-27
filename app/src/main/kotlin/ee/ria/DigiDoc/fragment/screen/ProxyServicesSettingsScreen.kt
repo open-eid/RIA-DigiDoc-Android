@@ -13,15 +13,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -40,6 +42,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -74,6 +78,8 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.XSBorder
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
@@ -93,6 +99,7 @@ fun ProxyServicesSettingsScreen(
     navController: NavHostController,
 ) {
     val context = LocalContext.current
+    val focusRequester = remember { FocusRequester() }
 
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
@@ -166,6 +173,9 @@ fun ProxyServicesSettingsScreen(
             ""
         }
 
+    val noProxyText = stringResource(R.string.main_settings_proxy_no_proxy)
+    val systemProxyText = stringResource(R.string.main_settings_proxy_use_system)
+    val manualProxyText = stringResource(R.string.main_settings_proxy_manual)
     val proxyCheckConnectionText = stringResource(R.string.main_settings_proxy_check_connection)
     val clearButtonText = stringResource(R.string.clear_text)
     val buttonName = stringResource(id = R.string.button_name)
@@ -226,7 +236,8 @@ fun ProxyServicesSettingsScreen(
                 modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(SPadding),
+                    .padding(SPadding)
+                    .verticalScroll(rememberScrollState()),
         ) {
             Card(
                 modifier =
@@ -253,10 +264,18 @@ fun ProxyServicesSettingsScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = stringResource(R.string.main_settings_proxy_no_proxy),
-                        modifier = modifier.weight(1f),
+                        text = noProxyText,
+                        modifier =
+                            modifier
+                                .weight(1f)
+                                .notAccessible(),
                     )
                     RadioButton(
+                        modifier =
+                            modifier
+                                .semantics {
+                                    contentDescription = noProxyText
+                                },
                         selected = settingsProxyChoice.value == ProxySetting.NO_PROXY.name,
                         onClick = {
                             settingsProxyChoice.value = ProxySetting.NO_PROXY.name
@@ -291,10 +310,18 @@ fun ProxyServicesSettingsScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = stringResource(R.string.main_settings_proxy_use_system),
-                        modifier = modifier.weight(1f),
+                        text = systemProxyText,
+                        modifier =
+                            modifier
+                                .weight(1f)
+                                .notAccessible(),
                     )
                     RadioButton(
+                        modifier =
+                            modifier
+                                .semantics {
+                                    contentDescription = systemProxyText
+                                },
                         selected = settingsProxyChoice.value == ProxySetting.SYSTEM_PROXY.name,
                         onClick = {
                             settingsProxyChoice.value = ProxySetting.SYSTEM_PROXY.name
@@ -308,11 +335,7 @@ fun ProxyServicesSettingsScreen(
                 modifier =
                     modifier
                         .fillMaxWidth()
-                        .padding(top = XSPadding, bottom = SPadding)
-                        .clickable {
-                            settingsProxyChoice.value = ProxySetting.SYSTEM_PROXY.name
-                            setProxySetting(ProxySetting.SYSTEM_PROXY)
-                        },
+                        .padding(top = XSPadding, bottom = SPadding),
                 shape = buttonRoundedCornerShape,
                 border =
                     BorderStroke(
@@ -333,11 +356,19 @@ fun ProxyServicesSettingsScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = stringResource(R.string.main_settings_proxy_manual),
+                        text = manualProxyText,
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = modifier.weight(1f),
+                        modifier =
+                            modifier
+                                .weight(1f)
+                                .notAccessible(),
                     )
                     RadioButton(
+                        modifier =
+                            modifier
+                                .semantics {
+                                    contentDescription = manualProxyText
+                                },
                         selected = settingsProxyChoice.value == ProxySetting.MANUAL_PROXY.name,
                         onClick = {
                             settingsProxyChoice.value = ProxySetting.MANUAL_PROXY.name
@@ -351,69 +382,147 @@ fun ProxyServicesSettingsScreen(
                         modifier =
                             modifier
                                 .padding(horizontal = SPadding)
-                                .padding(bottom = LPadding)
-                                .imePadding(),
+                                .padding(bottom = LPadding),
                     ) {
-                        OutlinedTextField(
-                            enabled = settingsProxyChoice.value == ProxySetting.MANUAL_PROXY.name,
-                            value = proxyHost,
-                            singleLine = true,
-                            onValueChange = {
-                                proxyHost = it
-                                setProxyHost(it.text)
-                            },
-                            shape = RectangleShape,
-                            label = { Text(stringResource(R.string.main_settings_proxy_host)) },
-                            modifier = modifier.fillMaxWidth(),
-                            trailingIcon = {
+                        Row(
+                            modifier =
+                                modifier
+                                    .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Start,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            OutlinedTextField(
+                                enabled = settingsProxyChoice.value == ProxySetting.MANUAL_PROXY.name,
+                                value = proxyHost,
+                                singleLine = true,
+                                onValueChange = {
+                                    proxyHost = it.copy(selection = TextRange(it.text.length))
+                                    setProxyHost(it.text)
+                                },
+                                shape = RectangleShape,
+                                label = { Text(stringResource(R.string.main_settings_proxy_host)) },
+                                modifier =
+                                    modifier
+                                        .focusRequester(focusRequester)
+                                        .weight(1f)
+                                        .fillMaxWidth()
+                                        .semantics {
+                                            testTagsAsResourceId = true
+                                        }
+                                        .testTag("proxyServicesHostTextField"),
+                                trailingIcon = {
+                                    if (!isTalkBackEnabled(context) && proxyHost.text.isNotEmpty()) {
+                                        IconButton(onClick = {
+                                            proxyHost = TextFieldValue("")
+                                        }) {
+                                            Icon(
+                                                imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
+                                                contentDescription = "$clearButtonText $buttonName",
+                                            )
+                                        }
+                                    }
+                                },
+                                colors =
+                                    OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
+                                    ),
+                                keyboardOptions =
+                                    KeyboardOptions.Default.copy(
+                                        imeAction = ImeAction.Next,
+                                        keyboardType = KeyboardType.Uri,
+                                    ),
+                            )
+
+                            if (isTalkBackEnabled(context) && proxyHost.text.isNotEmpty()) {
                                 IconButton(onClick = { proxyHost = TextFieldValue("") }) {
                                     Icon(
+                                        modifier =
+                                            modifier
+                                                .semantics {
+                                                    testTagsAsResourceId = true
+                                                }
+                                                .testTag("proxyServicesHostRemoveIconButton"),
                                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                         contentDescription = "$clearButtonText $buttonName",
                                     )
                                 }
-                            },
-                            keyboardOptions =
-                                KeyboardOptions.Default.copy(
-                                    imeAction = ImeAction.Next,
-                                    keyboardType = KeyboardType.Uri,
-                                ),
-                        )
+                            }
+                        }
 
                         Spacer(modifier = modifier.height(XSPadding))
 
-                        OutlinedTextField(
-                            enabled = settingsProxyChoice.value == ProxySetting.MANUAL_PROXY.name,
-                            value = proxyPort,
-                            singleLine = true,
-                            onValueChange = {
-                                proxyPort = it
-                                setProxyPort(it.text.toInt())
-                            },
-                            shape = RectangleShape,
-                            label = { Text(stringResource(R.string.main_settings_proxy_port)) },
-                            modifier = modifier.fillMaxWidth(),
-                            trailingIcon = {
-                                IconButton(onClick = { proxyPort = TextFieldValue("80") }) {
+                        Row(
+                            modifier =
+                                modifier
+                                    .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Start,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            OutlinedTextField(
+                                enabled = settingsProxyChoice.value == ProxySetting.MANUAL_PROXY.name,
+                                value = proxyPort,
+                                singleLine = true,
+                                onValueChange = {
+                                    proxyPort = it.copy(selection = TextRange(it.text.length))
+                                    setProxyPort(it.text.toInt())
+                                },
+                                shape = RectangleShape,
+                                label = { Text(stringResource(R.string.main_settings_proxy_port)) },
+                                modifier =
+                                    modifier
+                                        .weight(1f)
+                                        .fillMaxWidth()
+                                        .semantics {
+                                            testTagsAsResourceId = true
+                                        }
+                                        .testTag("proxyServicesPortTextField"),
+                                trailingIcon = {
+                                    if (!isTalkBackEnabled(context) && proxyPort.text.isNotEmpty()) {
+                                        IconButton(onClick = {
+                                            proxyPort = TextFieldValue("")
+                                        }) {
+                                            Icon(
+                                                imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
+                                                contentDescription = "$clearButtonText $buttonName",
+                                            )
+                                        }
+                                    }
+                                },
+                                colors =
+                                    OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
+                                    ),
+                                keyboardOptions =
+                                    KeyboardOptions.Default.copy(
+                                        imeAction = ImeAction.Next,
+                                        keyboardType = KeyboardType.Number,
+                                    ),
+                            )
+
+                            if (isTalkBackEnabled(context) && proxyPort.text.isNotEmpty()) {
+                                IconButton(onClick = { proxyPort = TextFieldValue("") }) {
                                     Icon(
+                                        modifier =
+                                            modifier
+                                                .semantics {
+                                                    testTagsAsResourceId = true
+                                                }
+                                                .testTag("proxyServicesPortRemoveIconButton"),
                                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                         contentDescription = "$clearButtonText $buttonName",
                                     )
                                 }
-                            },
-                            keyboardOptions =
-                                KeyboardOptions.Default.copy(
-                                    imeAction = ImeAction.Next,
-                                    keyboardType = KeyboardType.Number,
-                                ),
-                        )
+                            }
+                        }
                         if (proxyPortErrorText.isNotEmpty()) {
                             Text(
                                 modifier =
                                     modifier.fillMaxWidth()
                                         .focusable(enabled = true)
                                         .semantics { contentDescription = proxyPortErrorText }
-                                        .testTag("mainSettingsProxyServicesPortErrorText"),
+                                        .testTag("proxyServicesPortErrorText"),
                                 text = proxyPortErrorText,
                                 color = Red500,
                             )
@@ -421,81 +530,153 @@ fun ProxyServicesSettingsScreen(
 
                         Spacer(modifier = modifier.height(XSPadding))
 
-                        OutlinedTextField(
-                            enabled = settingsProxyChoice.value == ProxySetting.MANUAL_PROXY.name,
-                            value = proxyUsername,
-                            singleLine = true,
-                            onValueChange = {
-                                proxyUsername = it
-                                setProxyUsername(it.text)
-                            },
-                            shape = RectangleShape,
-                            label = { Text(stringResource(R.string.main_settings_proxy_username)) },
-                            modifier = modifier.fillMaxWidth(),
-                            trailingIcon = {
+                        Row(
+                            modifier =
+                                modifier
+                                    .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Start,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            OutlinedTextField(
+                                enabled = settingsProxyChoice.value == ProxySetting.MANUAL_PROXY.name,
+                                value = proxyUsername,
+                                singleLine = true,
+                                onValueChange = {
+                                    proxyUsername = it.copy(selection = TextRange(it.text.length))
+                                    setProxyUsername(it.text)
+                                },
+                                shape = RectangleShape,
+                                label = { Text(stringResource(R.string.main_settings_proxy_username)) },
+                                modifier =
+                                    modifier
+                                        .weight(1f)
+                                        .fillMaxWidth()
+                                        .semantics {
+                                            testTagsAsResourceId = true
+                                        }
+                                        .testTag("proxyServicesUsernameTextField"),
+                                trailingIcon = {
+                                    if (!isTalkBackEnabled(context) && proxyUsername.text.isNotEmpty()) {
+                                        IconButton(onClick = {
+                                            proxyUsername = TextFieldValue("")
+                                        }) {
+                                            Icon(
+                                                imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
+                                                contentDescription = "$clearButtonText $buttonName",
+                                            )
+                                        }
+                                    }
+                                },
+                                colors =
+                                    OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
+                                    ),
+                                keyboardOptions =
+                                    KeyboardOptions.Default.copy(
+                                        imeAction = ImeAction.Next,
+                                        keyboardType = KeyboardType.Text,
+                                    ),
+                            )
+
+                            if (isTalkBackEnabled(context) && proxyUsername.text.isNotEmpty()) {
                                 IconButton(onClick = { proxyUsername = TextFieldValue("") }) {
                                     Icon(
+                                        modifier =
+                                            modifier
+                                                .semantics {
+                                                    testTagsAsResourceId = true
+                                                }
+                                                .testTag("proxyServicesUsernameRemoveIconButton"),
                                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                         contentDescription = "$clearButtonText $buttonName",
                                     )
                                 }
-                            },
-                            keyboardOptions =
-                                KeyboardOptions.Default.copy(
-                                    imeAction = ImeAction.Next,
-                                    keyboardType = KeyboardType.Text,
-                                ),
-                        )
+                            }
+                        }
 
                         Spacer(modifier = modifier.height(XSPadding))
 
-                        OutlinedTextField(
-                            enabled = settingsProxyChoice.value == ProxySetting.MANUAL_PROXY.name,
-                            value = proxyPassword,
-                            singleLine = true,
-                            onValueChange = {
-                                proxyPassword = it
-                                setProxyPassword(it.text)
-                            },
-                            shape = RectangleShape,
-                            label = { Text(stringResource(R.string.main_settings_proxy_password)) },
+                        Row(
                             modifier =
                                 modifier
                                     .fillMaxWidth(),
-                            trailingIcon = {
-                                val image =
-                                    if (passwordVisible) {
-                                        ImageVector.vectorResource(id = R.drawable.ic_visibility)
-                                    } else {
-                                        ImageVector.vectorResource(id = R.drawable.ic_visibility_off)
+                            horizontalArrangement = Arrangement.Start,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            OutlinedTextField(
+                                enabled = settingsProxyChoice.value == ProxySetting.MANUAL_PROXY.name,
+                                value = proxyPassword,
+                                singleLine = true,
+                                onValueChange = {
+                                    proxyPassword = it.copy(selection = TextRange(it.text.length))
+                                    setProxyPassword(it.text)
+                                },
+                                shape = RectangleShape,
+                                label = { Text(stringResource(R.string.main_settings_proxy_password)) },
+                                modifier =
+                                    modifier
+                                        .weight(1f)
+                                        .fillMaxWidth()
+                                        .semantics {
+                                            testTagsAsResourceId = true
+                                        }
+                                        .testTag("proxyServicesPasswordTextField"),
+                                trailingIcon = {
+                                    val image =
+                                        if (passwordVisible) {
+                                            ImageVector.vectorResource(id = R.drawable.ic_visibility)
+                                        } else {
+                                            ImageVector.vectorResource(id = R.drawable.ic_visibility_off)
+                                        }
+                                    val description =
+                                        if (passwordVisible) {
+                                            stringResource(
+                                                id = R.string.hide_password,
+                                            )
+                                        } else {
+                                            stringResource(id = R.string.show_password)
+                                        }
+                                    IconButton(
+                                        modifier =
+                                            modifier
+                                                .semantics { traversalIndex = 9f }
+                                                .testTag("mainSettingsProxyPasswordVisibleButton"),
+                                        onClick = { passwordVisible = !passwordVisible },
+                                    ) {
+                                        Icon(imageVector = image, description)
                                     }
-                                val description =
-                                    if (passwordVisible) {
-                                        stringResource(
-                                            id = R.string.hide_password,
-                                        )
-                                    } else {
-                                        stringResource(id = R.string.show_password)
-                                    }
-                                IconButton(
-                                    modifier =
-                                        modifier
-                                            .semantics { traversalIndex = 9f }
-                                            .testTag("mainSettingsProxyPasswordVisibleButton"),
-                                    onClick = { passwordVisible = !passwordVisible },
-                                ) {
-                                    Icon(imageVector = image, description)
+                                },
+                                textStyle = MaterialTheme.typography.titleSmall,
+                                visualTransformation =
+                                    if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                                colors =
+                                    OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
+                                    ),
+                                keyboardOptions =
+                                    KeyboardOptions.Default.copy(
+                                        imeAction = ImeAction.Done,
+                                        keyboardType = KeyboardType.Password,
+                                    ),
+                            )
+
+                            if (isTalkBackEnabled(context) && proxyPassword.text.isNotEmpty()) {
+                                IconButton(onClick = { proxyPassword = TextFieldValue("") }) {
+                                    Icon(
+                                        modifier =
+                                            modifier
+                                                .semantics {
+                                                    testTagsAsResourceId = true
+                                                }
+                                                .testTag("proxyServicesPasswordRemoveIconButton"),
+                                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
+                                        contentDescription = "$clearButtonText $buttonName",
+                                    )
                                 }
-                            },
-                            textStyle = MaterialTheme.typography.titleSmall,
-                            visualTransformation =
-                                if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                            keyboardOptions =
-                                KeyboardOptions.Default.copy(
-                                    imeAction = ImeAction.Done,
-                                    keyboardType = KeyboardType.Password,
-                                ),
-                        )
+                            }
+                        }
                     }
                 }
             }

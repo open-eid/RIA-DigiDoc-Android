@@ -2,8 +2,6 @@
 
 package ee.ria.DigiDoc.domain.model.theme
 
-import ee.ria.DigiDoc.domain.model.theme.ThemeSetting.entries
-
 enum class ThemeSetting(val mode: String) {
     LIGHT("light"),
     DARK("dark"),
