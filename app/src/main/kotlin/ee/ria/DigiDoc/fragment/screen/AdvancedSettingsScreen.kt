@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.fragment.screen
 import android.app.Activity
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,6 +40,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
@@ -57,6 +59,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
@@ -88,6 +91,7 @@ fun AdvancedSettingsScreen(
 
     var checkedAskRoleAndAddress by remember { mutableStateOf(getIsRoleAskingEnabled()) }
 
+    val askRoleAndAddressTitleText = stringResource(R.string.main_settings_ask_role_and_address_title)
     val defaultSettingsButtonText = stringResource(R.string.main_settings_use_default_settings_button_title)
     val buttonName = stringResource(id = R.string.button_name)
 
@@ -146,6 +150,11 @@ fun AdvancedSettingsScreen(
                     .testTag("scrollView"),
         ) {
             Text(
+                modifier =
+                    modifier
+                        .semantics {
+                            heading()
+                        },
                 text = stringResource(R.string.main_settings_general_title),
                 style = MaterialTheme.typography.titleLarge,
             )
@@ -161,11 +170,20 @@ fun AdvancedSettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = stringResource(R.string.main_settings_ask_role_and_address_title),
-                    modifier = modifier.weight(1f),
+                    text = askRoleAndAddressTitleText,
+                    modifier =
+                        modifier
+                            .weight(1f)
+                            .notAccessible(),
                     style = MaterialTheme.typography.bodyLarge,
                 )
                 Checkbox(
+                    modifier =
+                        modifier
+                            .focusable(true)
+                            .semantics {
+                                contentDescription = askRoleAndAddressTitleText
+                            },
                     checked = checkedAskRoleAndAddress,
                     onCheckedChange = {
                         checkedAskRoleAndAddress = it
@@ -176,6 +194,11 @@ fun AdvancedSettingsScreen(
             HorizontalDivider(modifier = modifier.padding(vertical = MPadding))
 
             Text(
+                modifier =
+                    modifier
+                        .semantics {
+                            heading()
+                        },
                 text = stringResource(R.string.main_settings_system_settings_title),
                 style = MaterialTheme.typography.titleLarge,
             )
