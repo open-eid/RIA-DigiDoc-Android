@@ -47,6 +47,7 @@ firebaseCrashlytics = "3.0.3"
 googleServices = "4.4.2"
 firebaseCrashlyticsKtx = "19.4.1"
 kotlinxCoroutinesRx3 = "1.10.1"
+cdoc4j = "1.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -83,6 +84,7 @@ commons-io = { group = "commons-io", name = "commons-io", version.ref = "commons
 commons-text = { group = "org.apache.commons", name = "commons-text", version.ref = "commons-text" }
 commons-codec = { module = "commons-codec:commons-codec", version.ref = "commonsCodec" }
 bouncy-castle = { group = "org.bouncycastle", name = "bcpkix-jdk18on", version.ref = "bouncy-castle" }
+cdoc4j = { group = "org.open-eid.cdoc4j", name = "cdoc4j", version.ref = "cdoc4j" }
 okhttp3 = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 okhttp3-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }

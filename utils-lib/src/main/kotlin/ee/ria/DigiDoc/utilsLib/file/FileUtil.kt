@@ -448,6 +448,10 @@ object FileUtil {
         }
     }
 
+    fun getNameWithoutExtension(fileName: String): String? {
+        return FilenameUtils.getBaseName(fileName)
+    }
+
     fun getNameFromFileName(fileName: String): String? {
         return FilenameUtils.getName(fileName)
     }

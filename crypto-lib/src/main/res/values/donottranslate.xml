@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="crypto_settings_use_cdoc2_encryption">kUseCDoc2Encryption</string>
+    <string name="crypto_settings_use_cdoc2_online_encryption">kUseCDoc2OnlineEncryption</string>
+    <string name="crypto_settings_use_cdoc2_selected_service">kUseCDoc2SelectedService</string>
+    <string name="crypto_settings_use_cdoc2_uuid">kUseCDoc2UUID</string>
+    <string name="crypto_settings_use_cdoc2_post_url">kUseCDoc2PostURL</string>
+    <string name="crypto_settings_use_cdoc2_fetch_url">kUseCDoc2FetchURL</string>
+</resources>
