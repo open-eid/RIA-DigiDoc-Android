@@ -58,9 +58,12 @@ class DataStore
         }
 
         fun setSignatureAddMethod(method: String) {
-            val editor = preferences.edit()
-            editor.putString(resources.getString(R.string.main_settings_signature_add_method_key), method)
-            editor.apply()
+            preferences.edit {
+                putString(
+                    resources.getString(R.string.main_settings_signature_add_method_key),
+                    method,
+                )
+            }
         }
 
         fun getCanNumber(): String {
@@ -82,9 +85,9 @@ class DataStore
         fun setCanNumber(can: String) {
             val encryptedPreferences: SharedPreferences? = getEncryptedPreferences(context)
             if (encryptedPreferences != null) {
-                val editor: SharedPreferences.Editor = encryptedPreferences.edit()
-                editor.putString(resources.getString(R.string.main_settings_can_key), can)
-                editor.apply()
+                encryptedPreferences.edit {
+                    putString(resources.getString(R.string.main_settings_can_key), can)
+                }
                 return
             }
             errorLog(logTag, "Unable to save CAN")
@@ -98,9 +101,9 @@ class DataStore
         }
 
         fun setPhoneNo(phoneNo: String) {
-            val editor = preferences.edit()
-            editor.putString(resources.getString(R.string.main_settings_phone_no_key), phoneNo)
-            editor.apply()
+            preferences.edit {
+                putString(resources.getString(R.string.main_settings_phone_no_key), phoneNo)
+            }
         }
 
         fun getPersonalCode(): String {
@@ -111,12 +114,12 @@ class DataStore
         }
 
         fun setPersonalCode(personalCode: String) {
-            val editor = preferences.edit()
-            editor.putString(
-                resources.getString(R.string.main_settings_personal_code_key),
-                personalCode,
-            )
-            editor.apply()
+            preferences.edit {
+                putString(
+                    resources.getString(R.string.main_settings_personal_code_key),
+                    personalCode,
+                )
+            }
         }
 
         fun getSidPersonalCode(): String {
@@ -127,12 +130,12 @@ class DataStore
         }
 
         fun setSidPersonalCode(personalCode: String) {
-            val editor = preferences.edit()
-            editor.putString(
-                resources.getString(R.string.main_settings_sid_personal_code_key),
-                personalCode,
-            )
-            editor.apply()
+            preferences.edit {
+                putString(
+                    resources.getString(R.string.main_settings_sid_personal_code_key),
+                    personalCode,
+                )
+            }
         }
 
         fun getCountry(): Int {
@@ -143,22 +146,24 @@ class DataStore
         }
 
         fun setCountry(country: Int) {
-            val editor = preferences.edit()
-            editor.putInt(
-                resources.getString(R.string.main_settings_smartid_country_key),
-                country,
-            )
-            editor.apply()
+            preferences.edit {
+                putInt(
+                    resources.getString(R.string.main_settings_smartid_country_key),
+                    country,
+                )
+            }
         }
 
         fun getSettingsUUID(): String {
-            return preferences.getString(resources.getString(R.string.main_settings_uuid_key), DEFAULT_UUID_VALUE) ?: DEFAULT_UUID_VALUE
+            return preferences.getString(
+                resources.getString(R.string.main_settings_uuid_key), DEFAULT_UUID_VALUE,
+            ) ?: DEFAULT_UUID_VALUE
         }
 
         fun setSettingsUUID(uuid: String) {
-            val editor = preferences.edit()
-            editor.putString(resources.getString(R.string.main_settings_uuid_key), uuid)
-            editor.apply()
+            preferences.edit {
+                putString(resources.getString(R.string.main_settings_uuid_key), uuid)
+            }
         }
 
         fun getSettingsTSAUrl(): String {
@@ -170,9 +175,12 @@ class DataStore
         }
 
         fun setSettingsTSAUrl(tsaUrl: String) {
-            val editor = preferences.edit()
-            editor.putString(resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_tsa_url_key), tsaUrl)
-            editor.apply()
+            preferences.edit {
+                putString(
+                    resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_tsa_url_key),
+                    tsaUrl,
+                )
+            }
         }
 
         fun getIsLogFileGenerationEnabled(): Boolean {
@@ -183,12 +191,12 @@ class DataStore
         }
 
         fun setIsLogFileGenerationEnabled(isEnabled: Boolean) {
-            val editor = preferences.edit()
-            editor.putBoolean(
-                resources.getString(ee.ria.DigiDoc.network.R.string.main_diagnostics_logging_key),
-                isEnabled,
-            )
-            editor.apply()
+            preferences.edit {
+                putBoolean(
+                    resources.getString(ee.ria.DigiDoc.network.R.string.main_diagnostics_logging_key),
+                    isEnabled,
+                )
+            }
         }
 
         fun getIsLogFileGenerationRunning(): Boolean {
@@ -199,12 +207,12 @@ class DataStore
         }
 
         fun setIsLogFileGenerationRunning(isRunning: Boolean) {
-            val editor = preferences.edit()
-            editor.putBoolean(
-                resources.getString(ee.ria.DigiDoc.network.R.string.main_diagnostics_logging_running_key),
-                isRunning,
-            )
-            editor.apply()
+            preferences.edit {
+                putBoolean(
+                    resources.getString(ee.ria.DigiDoc.network.R.string.main_diagnostics_logging_running_key),
+                    isRunning,
+                )
+            }
         }
 
         fun getSettingsSivaUrl(): String {
@@ -218,14 +226,14 @@ class DataStore
         }
 
         fun setSettingsSivaUrl(sivaUrl: String) {
-            val editor = preferences.edit()
-            editor.putString(
-                resources.getString(
-                    ee.ria.DigiDoc.network.R.string.main_settings_siva_url_key,
-                ),
-                sivaUrl,
-            )
-            editor.apply()
+            preferences.edit {
+                putString(
+                    resources.getString(
+                        ee.ria.DigiDoc.network.R.string.main_settings_siva_url_key,
+                    ),
+                    sivaUrl,
+                )
+            }
         }
 
         fun getSettingsSivaCertName(): String {
@@ -239,18 +247,21 @@ class DataStore
         }
 
         fun setSettingsSivaCertName(cert: String?) {
-            val editor = preferences.edit()
-            editor.putString(resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_siva_cert_key), cert)
-            editor.apply()
+            preferences.edit {
+                putString(
+                    resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_siva_cert_key),
+                    cert,
+                )
+            }
         }
 
         fun setSivaSetting(sivaSetting: SivaSetting) {
-            val editor = preferences.edit()
-            editor.putString(
-                resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_siva_setting_key),
-                sivaSetting.name,
-            )
-            editor.apply()
+            preferences.edit {
+                putString(
+                    resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_siva_setting_key),
+                    sivaSetting.name,
+                )
+            }
         }
 
         fun getSivaSetting(): SivaSetting {
@@ -268,12 +279,12 @@ class DataStore
         }
 
         fun setTsaSetting(tsaSetting: TSASetting) {
-            val editor = preferences.edit()
-            editor.putString(
-                resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_tsa_setting_key),
-                tsaSetting.name,
-            )
-            editor.apply()
+            preferences.edit {
+                putString(
+                    resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_tsa_setting_key),
+                    tsaSetting.name,
+                )
+            }
         }
 
         fun getTsaSetting(): TSASetting {
@@ -291,12 +302,12 @@ class DataStore
         }
 
         fun setUuidSetting(uuidSetting: UUIDSetting) {
-            val editor = preferences.edit()
-            editor.putString(
-                resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_uuid_setting_key),
-                uuidSetting.name,
-            )
-            editor.apply()
+            preferences.edit {
+                putString(
+                    resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_uuid_setting_key),
+                    uuidSetting.name,
+                )
+            }
         }
 
         fun getUuidSetting(): UUIDSetting {
@@ -314,12 +325,12 @@ class DataStore
         }
 
         fun setCdocSetting(cdocSetting: CDOCSetting) {
-            val editor = preferences.edit()
-            editor.putString(
-                resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_cdoc_setting_key),
-                cdocSetting.name,
-            )
-            editor.apply()
+            preferences.edit {
+                putString(
+                    resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_cdoc_setting_key),
+                    cdocSetting.name,
+                )
+            }
         }
 
         fun getCdocSetting(): CDOCSetting {
@@ -344,12 +355,12 @@ class DataStore
         }
 
         fun setSettingsAskRoleAndAddress(isRoleAskingEnabled: Boolean) {
-            val editor = preferences.edit()
-            editor.putBoolean(
-                resources.getString(R.string.main_settings_ask_role_and_address_key),
-                isRoleAskingEnabled,
-            )
-            editor.apply()
+            preferences.edit {
+                putBoolean(
+                    resources.getString(R.string.main_settings_ask_role_and_address_key),
+                    isRoleAskingEnabled,
+                )
+            }
         }
 
         fun getRoles(): String {
@@ -360,12 +371,12 @@ class DataStore
         }
 
         fun setRoles(roles: String?) {
-            val editor = preferences.edit()
-            editor.putString(
-                resources.getString(R.string.main_settings_role_key),
-                roles,
-            )
-            editor.apply()
+            preferences.edit {
+                putString(
+                    resources.getString(R.string.main_settings_role_key),
+                    roles,
+                )
+            }
         }
 
         fun getRoleCity(): String {
@@ -376,12 +387,12 @@ class DataStore
         }
 
         fun setRoleCity(city: String?) {
-            val editor = preferences.edit()
-            editor.putString(
-                resources.getString(R.string.main_settings_city_key),
-                city,
-            )
-            editor.apply()
+            preferences.edit {
+                putString(
+                    resources.getString(R.string.main_settings_city_key),
+                    city,
+                )
+            }
         }
 
         fun getRoleState(): String {
@@ -392,12 +403,12 @@ class DataStore
         }
 
         fun setRoleState(state: String?) {
-            val editor = preferences.edit()
-            editor.putString(
-                resources.getString(R.string.main_settings_county_key),
-                state,
-            )
-            editor.apply()
+            preferences.edit {
+                putString(
+                    resources.getString(R.string.main_settings_county_key),
+                    state,
+                )
+            }
         }
 
         fun getRoleCountry(): String {
@@ -408,12 +419,12 @@ class DataStore
         }
 
         fun setRoleCountry(country: String?) {
-            val editor = preferences.edit()
-            editor.putString(
-                resources.getString(R.string.main_settings_country_key),
-                country,
-            )
-            editor.apply()
+            preferences.edit {
+                putString(
+                    resources.getString(R.string.main_settings_country_key),
+                    country,
+                )
+            }
         }
 
         fun getRoleZip(): String {
@@ -424,18 +435,21 @@ class DataStore
         }
 
         fun setRoleZip(zip: String?) {
-            val editor = preferences.edit()
-            editor.putString(
-                resources.getString(R.string.main_settings_postal_code_key),
-                zip,
-            )
-            editor.apply()
+            preferences.edit {
+                putString(
+                    resources.getString(R.string.main_settings_postal_code_key),
+                    zip,
+                )
+            }
         }
 
         fun setTSACertName(cert: String?) {
-            val editor = preferences.edit()
-            editor.putString(resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_tsa_cert_key), cert)
-            editor.apply()
+            preferences.edit {
+                putString(
+                    resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_tsa_cert_key),
+                    cert,
+                )
+            }
         }
 
         fun getTSACertName(): String {
@@ -447,9 +461,9 @@ class DataStore
         }
 
         fun setIsTsaCertificateViewVisible(isVisible: Boolean) {
-            val editor = preferences.edit()
-            editor.putBoolean(resources.getString(R.string.main_settings_tsa_cert_view), isVisible)
-            editor.apply()
+            preferences.edit {
+                putBoolean(resources.getString(R.string.main_settings_tsa_cert_view), isVisible)
+            }
         }
 
         fun getIsTsaCertificateViewVisible(): Boolean {
@@ -467,12 +481,12 @@ class DataStore
         }
 
         fun setSettingsOpenAllFileTypes(isEnabled: Boolean) {
-            val editor = preferences.edit()
-            editor.putBoolean(
-                resources.getString(R.string.main_settings_open_all_filetypes_key),
-                isEnabled,
-            )
-            editor.apply()
+            preferences.edit {
+                putBoolean(
+                    resources.getString(R.string.main_settings_open_all_filetypes_key),
+                    isEnabled,
+                )
+            }
         }
 
         fun getSettingsAllowScreenshots(): Boolean {
@@ -483,21 +497,21 @@ class DataStore
         }
 
         fun setSettingsAllowScreenshots(isEnabled: Boolean) {
-            val editor = preferences.edit()
-            editor.putBoolean(
-                resources.getString(R.string.main_settings_allow_screenshots_key),
-                isEnabled,
-            )
-            editor.apply()
+            preferences.edit {
+                putBoolean(
+                    resources.getString(R.string.main_settings_allow_screenshots_key),
+                    isEnabled,
+                )
+            }
         }
 
         fun setProxySetting(proxySetting: ProxySetting) {
-            val editor = preferences.edit()
-            editor.putString(
-                resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_setting_key),
-                proxySetting.name,
-            )
-            editor.apply()
+            preferences.edit {
+                putString(
+                    resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_setting_key),
+                    proxySetting.name,
+                )
+            }
         }
 
         fun getProxySetting(): ProxySetting {
@@ -519,9 +533,12 @@ class DataStore
         }
 
         fun setProxyHost(host: String) {
-            val editor = preferences.edit()
-            editor.putString(resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_host_key), host)
-            editor.apply()
+            preferences.edit {
+                putString(
+                    resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_host_key),
+                    host,
+                )
+            }
         }
 
         fun getProxyHost(): String {
@@ -533,9 +550,12 @@ class DataStore
         }
 
         fun setProxyPort(port: Int) {
-            val editor = preferences.edit()
-            editor.putInt(resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_port_key), port)
-            editor.apply()
+            preferences.edit {
+                putInt(
+                    resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_port_key),
+                    port,
+                )
+            }
         }
 
         fun getProxyPort(): Int {
@@ -556,12 +576,12 @@ class DataStore
         }
 
         fun setProxyUsername(username: String) {
-            val editor = preferences.edit()
-            editor.putString(
-                resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_username_key),
-                username,
-            )
-            editor.apply()
+            preferences.edit {
+                putString(
+                    resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_username_key),
+                    username,
+                )
+            }
         }
 
         fun getProxyUsername(): String {
@@ -572,14 +592,11 @@ class DataStore
         }
 
         fun setProxyPassword(password: String) {
-            val encryptedPreferences: SharedPreferences? = getEncryptedPreferences(context)
-            if (encryptedPreferences != null) {
-                val editor = encryptedPreferences.edit()
-                editor.putString(
+            getEncryptedPreferences(context)?.edit {
+                putString(
                     resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_password_key),
                     password,
                 )
-                editor.apply()
             }
             errorLog(logTag, "Unable to set proxy password")
         }
@@ -606,9 +623,9 @@ class DataStore
 
         fun setLocale(locale: Locale?) {
             if (locale == null) {
-                preferences.edit().remove(KEY_LOCALE).apply()
+                preferences.edit { remove(KEY_LOCALE) }
             } else {
-                preferences.edit().putString(KEY_LOCALE, locale.language).apply()
+                preferences.edit { putString(KEY_LOCALE, locale.language) }
             }
         }
 
@@ -630,7 +647,7 @@ class DataStore
         }
 
         fun setIsCrashSendingAlwaysEnabled(isEnabled: Boolean) {
-            preferences.edit().putBoolean(IS_CRASH_SENDING_ALWAYS_ENABLED, isEnabled).apply()
+            preferences.edit { putBoolean(IS_CRASH_SENDING_ALWAYS_ENABLED, isEnabled) }
         }
 
         fun getThemeSetting(): ThemeSetting {
