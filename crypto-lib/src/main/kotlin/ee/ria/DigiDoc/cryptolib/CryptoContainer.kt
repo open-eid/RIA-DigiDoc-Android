@@ -3,6 +3,9 @@
 package ee.ria.DigiDoc.cryptolib
 
 import android.content.Context
+import ee.ria.DigiDoc.common.Constant.CDOC1_EXTENSION
+import ee.ria.DigiDoc.common.Constant.CDOC2_EXTENSION
+import ee.ria.DigiDoc.common.Constant.CONTAINER_MIME_TYPE
 import ee.ria.DigiDoc.cryptolib.exception.CryptoException
 import ee.ria.DigiDoc.cryptolib.exception.DataFilesEmptyException
 import ee.ria.DigiDoc.cryptolib.exception.RecipientsEmptyException
@@ -44,11 +47,6 @@ class CryptoContainer
         private val decrypted: Boolean,
     ) {
         companion object {
-            private const val CDOC1_EXTENSION: String = "cdoc"
-            private const val CDOC2_EXTENSION: String = "cdoc2"
-
-            private const val MIME_TYPE: String = "application/octet-stream"
-
             @Throws(CryptoException::class)
             private suspend fun open(
                 context: Context,
@@ -110,11 +108,10 @@ class CryptoContainer
             private suspend fun decrypt(
                 context: Context,
                 file: File,
-                pin1: String,
                 smartToken: AbstractSmartToken,
                 cdoc2Settings: CDOC2Settings,
             ): CryptoContainer {
-                val token = SmartCardTokenWrapper(pin1, smartToken)
+                val token = SmartCardTokenWrapper(smartToken)
                 val conf = CryptoLibConf(cdoc2Settings)
                 val network = CryptoLibNetworkBackend()
                 network.token = token
@@ -268,7 +265,7 @@ class CryptoContainer
             }
 
             fun getMimeType(): String {
-                return MIME_TYPE
+                return CONTAINER_MIME_TYPE
             }
 
             private class CryptoLibConf(private val cdoc2Settings: CDOC2Settings) : Configuration() {

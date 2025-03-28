@@ -76,5 +76,6 @@ dependencies {
 
     api(files("libs/libcdoc.jar"))
 
+    implementation(project(":commons-lib"))
     implementation(project(":utils-lib"))
 }

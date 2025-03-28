@@ -11,26 +11,16 @@ interface AbstractSmartToken {
     fun getCertificate(): ByteArray
 
     @Throws(Exception::class)
-    fun derive(
-        publicKey: ByteArray,
-        pin1: String,
-    ): ByteArray
+    fun derive(publicKey: ByteArray): ByteArray
 
     @Throws(Exception::class)
-    fun decrypt(
-        data: ByteArray,
-        pin1: String,
-    ): ByteArray
+    fun decrypt(data: ByteArray): ByteArray
 
     @Throws(Exception::class)
-    fun authenticate(
-        digest: ByteArray,
-        pin1: String,
-    ): ByteArray
+    fun authenticate(digest: ByteArray): ByteArray
 }
 
 class SmartCardTokenWrapper(
-    private val password: String,
     private val smartToken: AbstractSmartToken,
 ) {
     private var lastError: Throwable? = null
@@ -55,7 +45,7 @@ class SmartCardTokenWrapper(
     ): Int {
         var data = byteArrayOf()
         try {
-            data = smartToken.derive(publicKey, password)
+            data = smartToken.derive(publicKey)
             dst.data = data
         } catch (e: Exception) {
             lastError = e
@@ -76,7 +66,7 @@ class SmartCardTokenWrapper(
     ): Int {
         var decryptedData = byteArrayOf()
         try {
-            decryptedData = smartToken.decrypt(data, password)
+            decryptedData = smartToken.decrypt(data)
             dst.data = decryptedData
         } catch (e: Exception) {
             lastError = e
@@ -97,7 +87,7 @@ class SmartCardTokenWrapper(
     ): Int {
         var data = byteArrayOf()
         try {
-            data = smartToken.authenticate(digest, password)
+            data = smartToken.authenticate(digest)
             dst.data = data
         } catch (e: Exception) {
             lastError = e
