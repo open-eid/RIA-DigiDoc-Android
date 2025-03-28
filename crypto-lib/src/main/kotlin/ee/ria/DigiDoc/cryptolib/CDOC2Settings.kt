@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.cryptolib
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
+import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import javax.inject.Inject
 
@@ -24,9 +25,12 @@ class CDOC2Settings
         }
 
         fun setUseEncryption(useEncryption: Boolean) {
-            val editor = preferences.edit()
-            editor.putBoolean(resources.getString(R.string.crypto_settings_use_cdoc2_encryption), useEncryption)
-            editor.apply()
+            preferences.edit {
+                putBoolean(
+                    resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
+                    useEncryption,
+                )
+            }
         }
 
         fun getUseOnlineEncryption(): Boolean {
@@ -37,12 +41,12 @@ class CDOC2Settings
         }
 
         fun setUseOnlineEncryption(useOnlineEncryption: Boolean) {
-            val editor = preferences.edit()
-            editor.putBoolean(
-                resources.getString(R.string.crypto_settings_use_cdoc2_online_encryption),
-                useOnlineEncryption,
-            )
-            editor.apply()
+            preferences.edit {
+                putBoolean(
+                    resources.getString(R.string.crypto_settings_use_cdoc2_online_encryption),
+                    useOnlineEncryption,
+                )
+            }
         }
 
         fun getCDOC2SelectedService(): String {
@@ -53,9 +57,12 @@ class CDOC2Settings
         }
 
         fun setCDOC2SelectedService(selectedService: String) {
-            val editor = preferences.edit()
-            editor.putString(resources.getString(R.string.crypto_settings_use_cdoc2_selected_service), selectedService)
-            editor.apply()
+            preferences.edit {
+                putString(
+                    resources.getString(R.string.crypto_settings_use_cdoc2_selected_service),
+                    selectedService,
+                )
+            }
         }
 
         fun getCDOC2UUID(): String {
@@ -66,9 +73,9 @@ class CDOC2Settings
         }
 
         fun setCDOC2UUID(uuid: String) {
-            val editor = preferences.edit()
-            editor.putString(resources.getString(R.string.crypto_settings_use_cdoc2_uuid), uuid)
-            editor.apply()
+            preferences.edit {
+                putString(resources.getString(R.string.crypto_settings_use_cdoc2_uuid), uuid)
+            }
         }
 
         fun getCDOC2PostURL(): String {
@@ -79,9 +86,9 @@ class CDOC2Settings
         }
 
         fun setCDOC2PostURL(postUrl: String) {
-            val editor = preferences.edit()
-            editor.putString(resources.getString(R.string.crypto_settings_use_cdoc2_post_url), postUrl)
-            editor.apply()
+            preferences.edit {
+                putString(resources.getString(R.string.crypto_settings_use_cdoc2_post_url), postUrl)
+            }
         }
 
         fun getCDOC2FetchURL(): String {
@@ -92,8 +99,11 @@ class CDOC2Settings
         }
 
         fun setCDOC2FetchURL(fetchUrl: String) {
-            val editor = preferences.edit()
-            editor.putString(resources.getString(R.string.crypto_settings_use_cdoc2_post_url), fetchUrl)
-            editor.apply()
+            preferences.edit {
+                putString(
+                    resources.getString(R.string.crypto_settings_use_cdoc2_post_url),
+                    fetchUrl,
+                )
+            }
         }
     }

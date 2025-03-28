@@ -3,6 +3,7 @@
 package ee.ria.DigiDoc.utils.secure
 
 import android.view.Window
+import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.R
@@ -16,12 +17,12 @@ class SecureUtilTest {
         val resources = context.resources
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
 
-        val editor = preferences.edit()
-        editor.putBoolean(
-            resources.getString(R.string.main_settings_allow_screenshots_key),
-            false,
-        )
-        editor.apply()
+        preferences.edit {
+            putBoolean(
+                resources.getString(R.string.main_settings_allow_screenshots_key),
+                true,
+            )
+        }
 
         val window: Window = mock()
 
@@ -34,12 +35,12 @@ class SecureUtilTest {
         val resources = context.resources
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
 
-        val editor = preferences.edit()
-        editor.putBoolean(
-            resources.getString(R.string.main_settings_allow_screenshots_key),
-            true,
-        )
-        editor.apply()
+        preferences.edit {
+            putBoolean(
+                resources.getString(R.string.main_settings_allow_screenshots_key),
+                false,
+            )
+        }
 
         val window: Window = mock()
 

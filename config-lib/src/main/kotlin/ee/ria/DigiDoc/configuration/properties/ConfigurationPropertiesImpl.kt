@@ -3,6 +3,7 @@
 package ee.ria.DigiDoc.configuration.properties
 
 import android.content.Context
+import androidx.core.content.edit
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.utils.Constant.CONFIGURATION_LAST_UPDATE_CHECK_DATE_PROPERTY_NAME
 import ee.ria.DigiDoc.configuration.utils.Constant.CONFIGURATION_PREFERENCES
@@ -51,9 +52,9 @@ class ConfigurationPropertiesImpl
                 val updateDatePropertyName = CONFIGURATION_UPDATE_DATE_PROPERTY_NAME
                 val sharedPreferences =
                     context.getSharedPreferences(CONFIGURATION_PREFERENCES, Context.MODE_PRIVATE)
-                sharedPreferences.edit()
-                    .putString(updateDatePropertyName, DateUtil.dateTimeFormat.format(date))
-                    .apply()
+                sharedPreferences.edit {
+                    putString(updateDatePropertyName, DateUtil.dateTimeFormat.format(date))
+                }
             }
         }
 
@@ -76,12 +77,12 @@ class ConfigurationPropertiesImpl
                     CONFIGURATION_LAST_UPDATE_CHECK_DATE_PROPERTY_NAME
                 val sharedPreferences =
                     context.getSharedPreferences(CONFIGURATION_PREFERENCES, Context.MODE_PRIVATE)
-                sharedPreferences.edit()
-                    .putString(
+                sharedPreferences.edit {
+                    putString(
                         lastUpdateDateCheckDatePropertyName,
                         DateUtil.dateTimeFormat.format(date),
                     )
-                    .apply()
+                }
             }
         }
 
@@ -105,9 +106,9 @@ class ConfigurationPropertiesImpl
                     CONFIGURATION_VERSION_SERIAL_PROPERTY_NAME
                 val sharedPreferences =
                     context.getSharedPreferences(CONFIGURATION_PREFERENCES, Context.MODE_PRIVATE)
-                sharedPreferences.edit()
-                    .putInt(configurationVersionSerialPropertyName, serial)
-                    .apply()
+                sharedPreferences.edit {
+                    putInt(configurationVersionSerialPropertyName, serial)
+                }
             }
         }
 
