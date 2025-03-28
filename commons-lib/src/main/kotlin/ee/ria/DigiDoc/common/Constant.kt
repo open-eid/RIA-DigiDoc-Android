@@ -107,6 +107,10 @@ object Constant {
     const val DIR_SIGNATURE_CONTAINERS = "signed_containers"
     const val DIR_EXTERNALLY_OPENED_FILES = "external_files"
     const val DEFAULT_CONTAINER_EXTENSION = "asice"
+
+    const val CDOC1_EXTENSION: String = "cdoc"
+    const val CDOC2_EXTENSION: String = "cdoc2"
+
     const val CONTAINER_MIME_TYPE = "application/octet-stream"
     const val DEFAULT_MIME_TYPE = "text/plain"
     private val ASICS_CONTAINER_EXTENSIONS: Set<String> = setOf("asics", "scs")
