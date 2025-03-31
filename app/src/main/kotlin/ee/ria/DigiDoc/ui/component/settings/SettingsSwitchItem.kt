@@ -58,7 +58,7 @@ fun SettingsSwitchItem(
         Switch(
             modifier =
                 modifier
-                    .padding(end = XSPadding)
+                    .padding(horizontal = XSPadding)
                     .semantics {
                         testTagsAsResourceId = true
                         this.contentDescription = contentDescription

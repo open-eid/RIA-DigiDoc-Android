@@ -149,7 +149,9 @@
     <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
     <string name="signature_update_signature_add_method_id_card">ID-карта через USB</string>
+    <string name="signature_update_signature_add_method_id_card_accessibility">ID-карта через U S B</string>
     <string name="signature_update_signature_add_method_nfc">ID-карта через NFC</string>
+    <string name="signature_update_signature_add_method_nfc_accessibility">ID-карта через N F C</string>
     <string name="signature_update_signature_add_success">Подпись добавлена</string>
     <string name="signature_update_signature_add">Добавить подпись</string>
 
@@ -260,9 +262,8 @@
     <string name="signature_update_nfc_detected">Создание бесконтактного соединения с ID-картой</string>
 
     <string name="signature_update_smart_id_message">Введите свой личный код для подписи с Smart-ID</string>
+    <string name="choose_country_option">Выберите страну</string>
     <string name="signature_update_smart_id_country">Страна</string>
-    <string name="signature_update_smart_id_info">Убедитесь в правильности контрольного кодa и введите PIN2-код для Smart-ID</string>
-    <string name="signature_update_smart_id_select_device">Для проставления подписи подтвердите устройство в приложении Smart-ID.</string>
     <string name="signature_update_smart_id_status_document_unusable">Не удалось выполнить операцию Smart-ID. Пожалуйста, проверьте приложение Smart-ID или свяжитесь со службой поддержки Smart-ID.</string>
     <string name="signature_update_smart_id_status_wrong_vc">Ошибка: выбран неправильный контрольный код</string>
     <string name="signature_update_smart_id_error_message_not_qualified">Для проставления подписи в мобильном приложении RIA DigiDoc, ваш Smart-ID должен соответствовать уровню "высокий".</string>
@@ -311,6 +312,7 @@
     <string name="document_removal_cancelled">Удаление документа отменено</string>
     <string name="signature_removed">Подпись удалена</string>
     <string name="signature_removal_cancelled">Удаление подписи отменено</string>
+    <string name="signing_cancel">Отменить подписание</string>
     <string name="signing_cancelled">Подписание прервано</string>
     <string name="button_name">Кнопка</string>
     <string name="signature_method">Метод подписи</string>
@@ -321,6 +323,7 @@
     <string name="item_selected">выбран</string>
     <string name="signatures_loading">Подписи загружаются</string>
     <string name="signatures_loaded">Подписи загружены</string>
+    <string name="control_code_loading">Загрузка кода управления</string>
     <string name="container_files_loading">Файлы контейнера загружаются</string>
     <string name="container_files_loaded">Файлы контейнера загружены</string>
 

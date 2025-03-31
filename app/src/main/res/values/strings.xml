@@ -149,7 +149,9 @@
     <string name="signature_update_signature_add_method_mobile_id">Mobile-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
     <string name="signature_update_signature_add_method_id_card">ID-card via USB</string>
+    <string name="signature_update_signature_add_method_id_card_accessibility">ID-card via U S B</string>
     <string name="signature_update_signature_add_method_nfc">ID-card via NFC</string>
+    <string name="signature_update_signature_add_method_nfc_accessibility">ID-card via N F C</string>
     <string name="signature_update_signature_add_success">Signature added</string>
     <string name="signature_update_signature_add">Add signature</string>
 
@@ -187,9 +189,8 @@
     <string name="signature_update_mobile_id_display_message">Sign document</string>
 
     <string name="signature_update_smart_id_message">Enter your personal code to sign with Smart-ID</string>
+    <string name="choose_country_option">Choose country</string>
     <string name="signature_update_smart_id_country">Country</string>
-    <string name="signature_update_smart_id_info">Make sure control code matches with one in phone screen and enter Smart-ID PIN2 code</string>
-    <string name="signature_update_smart_id_select_device">Confirm device for signing in Smart-ID application.</string>
     <string name="signature_update_smart_id_status_document_unusable">Your Smart-ID transaction has failed. Please check your Smart-ID application or contact Smart-ID customer support.</string>
     <string name="signature_update_smart_id_status_wrong_vc">Error: an incorrect control code was chosen</string>
     <string name="signature_update_smart_id_error_message_not_qualified">Your Smart-ID certificate level must be qualified to sign documents in RIA DigiDoc mobile application.</string>
@@ -311,6 +312,7 @@
     <string name="document_removal_cancelled">Document removal cancelled</string>
     <string name="signature_removed">Signature removed</string>
     <string name="signature_removal_cancelled">Signature removal cancelled</string>
+    <string name="signing_cancel">Cancel signing</string>
     <string name="signing_cancelled">Signing cancelled</string>
     <string name="button_name">Button</string>
     <string name="signature_method">Signing method</string>
@@ -321,6 +323,7 @@
     <string name="item_selected">selected</string>
     <string name="signatures_loading">Signatures loading</string>
     <string name="signatures_loaded">Signatures loaded</string>
+    <string name="control_code_loading">Control code loading</string>
     <string name="container_files_loading">Container files loading</string>
     <string name="container_files_loaded">Container files loaded</string>
 

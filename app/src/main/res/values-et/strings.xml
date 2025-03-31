@@ -149,7 +149,9 @@
     <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
     <string name="signature_update_signature_add_method_id_card">ID-kaart läbi USB</string>
+    <string name="signature_update_signature_add_method_id_card_accessibility">ID-kaart läbi U S B</string>
     <string name="signature_update_signature_add_method_nfc">ID-kaart läbi NFC</string>
+    <string name="signature_update_signature_add_method_nfc_accessibility">ID-kaart läbi N F C</string>
     <string name="signature_update_signature_add_success">Allkiri lisatud</string>
     <string name="signature_update_signature_add">Lisa allkiri</string>
 
@@ -187,9 +189,8 @@
     <string name="signature_update_mobile_id_display_message">Allkirjasta dokument</string>
 
     <string name="signature_update_smart_id_message">Sisesta oma isikukood Smart-IDga allkirjastamiseks</string>
+    <string name="choose_country_option">Vali riik</string>
     <string name="signature_update_smart_id_country">Riik</string>
-    <string name="signature_update_smart_id_info">Veendu kontrollkoodi õigsuses ja sisesta nutiseadmes Smart-ID PIN2-kood</string>
-    <string name="signature_update_smart_id_select_device">Allkirjastamiseks kinnita seade Smart-ID rakenduses.</string>
     <string name="signature_update_smart_id_status_document_unusable">Sinu Smart-ID toiming ebaõnnestus. Palun kontrolli Smart-ID rakendust või võta ühendust Smart-ID klienditoega.</string>
     <string name="signature_update_smart_id_status_wrong_vc">Viga: valiti vale kontrollkood</string>
     <string name="signature_update_smart_id_error_message_not_qualified">RIA DigiDoc mobiilirakenduses allkirjastamiseks peab sinu Smart-ID vastama tasemele kõrge.</string>
@@ -311,6 +312,7 @@
     <string name="document_removal_cancelled">Dokumendi eemaldamine katkestatud</string>
     <string name="signature_removed">Allkiri eemaldatud</string>
     <string name="signature_removal_cancelled">Allkirja eemaldamine katkestatud</string>
+    <string name="signing_cancel">Katkesta allkirjastamine</string>
     <string name="signing_cancelled">Allkirjastamine katkestatud</string>
     <string name="button_name">Nupp</string>
     <string name="signature_method">Allkirjastamise meetod</string>
@@ -321,6 +323,7 @@
     <string name="item_selected">valitud</string>
     <string name="signatures_loading">Allkirjade laadimine</string>
     <string name="signatures_loaded">Allkirjad laaditud</string>
+    <string name="control_code_loading">Kontrollkoodi laadimine</string>
     <string name="container_files_loading">Konteineri failide laadimine</string>
     <string name="container_files_loaded">Konteineri failid laaditud</string>
 

@@ -272,6 +272,7 @@ fun DiagnosticsScreen(
                 SettingsSwitchItem(
                     modifier =
                         modifier
+                            .padding(XSPadding)
                             .semantics {
                                 testTagsAsResourceId = true
                             }
