@@ -45,6 +45,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -52,6 +55,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.domain.model.methods.SigningMethod
+import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.TopBar
@@ -65,6 +69,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
@@ -80,7 +85,9 @@ fun SignatureInputScreen(
     sharedContainerViewModel: SharedContainerViewModel,
 ) {
     val context = LocalActivity.current as Activity
+    val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
     var rememberMe by rememberSaveable { mutableStateOf(true) }
+    var isSigning by rememberSaveable { mutableStateOf(false) }
     val chosenMethod by remember {
         mutableStateOf(
             SigningMethod.entries.find {
@@ -91,16 +98,17 @@ fun SignatureInputScreen(
     val chosenMethodName by remember { mutableIntStateOf(chosenMethod.label) }
     var isValidToSign by remember { mutableStateOf(false) }
     var signAction by remember { mutableStateOf<() -> Unit>({}) }
+    var cancelAction by remember { mutableStateOf<() -> Unit>({}) }
 
     val snackBarHostState = remember { SnackbarHostState() }
     val snackBarScope = rememberCoroutineScope()
 
     val messages by SnackBarManager.messages.collectAsState(emptyList())
 
+    val chosenMethodNameText = stringResource(chosenMethodName)
+    val signatureMethodText = stringResource(R.string.signature_method)
     val rememberMeText = stringResource(R.string.signature_update_remember_me)
     var nfcSupported by remember { mutableStateOf(false) }
-
-    var isIdCardSigning by remember { mutableStateOf(false) }
 
     LaunchedEffect(messages) {
         messages.forEach { message ->
@@ -123,12 +131,31 @@ fun SignatureInputScreen(
                 modifier = modifier,
                 sharedMenuViewModel = sharedMenuViewModel,
                 title = null,
+                leftIconContentDescription =
+                    if (isSigning) {
+                        R.string.signing_cancel
+                    } else {
+                        R.string.back
+                    },
                 onLeftButtonClick = {
-                    navController.navigateUp()
+                    if (isSigning) {
+                        cancelAction()
+                        isSigning = false
+                    } else {
+                        navController.navigateUp()
+                    }
+                },
+                onRightSecondaryButtonClick = {
+                    isSettingsMenuBottomSheetVisible.value = true
                 },
             )
         },
     ) { paddingValues ->
+        SettingsMenuBottomSheet(
+            navController = navController,
+            isBottomSheetVisible = isSettingsMenuBottomSheetVisible,
+        )
+
         Column(
             modifier =
                 modifier
@@ -139,54 +166,72 @@ fun SignatureInputScreen(
             verticalArrangement = Arrangement.spacedBy(MSPadding),
         ) {
             Text(
+                modifier =
+                    modifier
+                        .semantics {
+                            heading()
+                        },
                 text = stringResource(R.string.signature_update_title),
                 color = MaterialTheme.colorScheme.onBackground,
                 style = MaterialTheme.typography.headlineMedium,
             )
 
-            if (!isIdCardSigning) {
-                Text(
-                    text = stringResource(R.string.signature_method),
-                    modifier =
-                        modifier
-                            .focusable(false)
-                            .testTag("signatureInputMethodTitle"),
-                    color = MaterialTheme.colorScheme.onSecondary,
-                    textAlign = TextAlign.Start,
-                    style = MaterialTheme.typography.labelLarge,
-                )
-
-                Row(
+            if (!isSigning) {
+                Column(
                     modifier =
                         modifier
                             .fillMaxWidth()
-                            .background(Color.Transparent)
-                            .clickable {
-                                navController.navigate(
-                                    Route.SignatureMethodScreen.route,
-                                )
-                            }
-                            .padding(vertical = XSPadding)
-                            .padding(bottom = XSPadding),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically,
+                            .padding(vertical = XSPadding),
+                    horizontalAlignment = Alignment.Start,
                 ) {
                     Text(
-                        text = stringResource(chosenMethodName),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        textAlign = TextAlign.Start,
-                    )
-
-                    Spacer(modifier = modifier.weight(1f))
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.ic_m3_arrow_right_48dp_wght400),
-                        contentDescription = null,
+                        text = signatureMethodText,
                         modifier =
                             modifier
-                                .padding(MSPadding)
-                                .size(iconSizeXXS)
-                                .wrapContentHeight(align = Alignment.CenterVertically),
+                                .focusable(false)
+                                .notAccessible()
+                                .testTag("signatureInputMethodTitle"),
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        textAlign = TextAlign.Start,
+                        style = MaterialTheme.typography.labelLarge,
                     )
+
+                    Row(
+                        modifier =
+                            modifier
+                                .fillMaxWidth()
+                                .background(Color.Transparent)
+                                .clickable {
+                                    navController.navigate(
+                                        Route.SignatureMethodScreen.route,
+                                    )
+                                },
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            modifier =
+                                modifier
+                                    .semantics {
+                                        contentDescription = "$signatureMethodText $chosenMethodNameText"
+                                    },
+                            text = chosenMethodNameText,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            textAlign = TextAlign.Start,
+                        )
+
+                        Spacer(modifier = modifier.weight(1f))
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_m3_arrow_right_48dp_wght400),
+                            contentDescription = null,
+                            modifier =
+                                modifier
+                                    .padding(MSPadding)
+                                    .size(iconSizeXXS)
+                                    .wrapContentHeight(align = Alignment.CenterVertically)
+                                    .notAccessible(),
+                        )
+                    }
                 }
             }
 
@@ -208,13 +253,20 @@ fun SignatureInputScreen(
                             signAction = action
                         },
                     )
+
                 SigningMethod.SMART_ID ->
                     SmartIdView(
                         modifier = modifier,
                         activity = context,
-                        dismissDialog = {
+                        onError = {
+                            isSigning = false
+                            cancelAction()
+                        },
+                        onSuccess = {
+                            isSigning = false
                             navController.navigateUp()
                         },
+                        isSigning = isSigning,
                         rememberMe = rememberMe,
                         sharedSettingsViewModel = sharedSettingsViewModel,
                         sharedContainerViewModel = sharedContainerViewModel,
@@ -224,7 +276,11 @@ fun SignatureInputScreen(
                         signAction = { action ->
                             signAction = action
                         },
+                        cancelAction = { action ->
+                            cancelAction = action
+                        },
                     )
+
                 SigningMethod.ID_CARD ->
                     IdCardView(
                         modifier = modifier,
@@ -233,7 +289,7 @@ fun SignatureInputScreen(
                             navController.navigateUp()
                         },
                         cancelButtonClick = {
-                            isIdCardSigning = false
+                            isSigning = false
                         },
                         sharedSettingsViewModel = sharedSettingsViewModel,
                         sharedContainerViewModel = sharedContainerViewModel,
@@ -242,11 +298,12 @@ fun SignatureInputScreen(
                         },
                         signAction = { action ->
                             signAction = {
-                                isIdCardSigning = true
+                                isSigning = true
                                 action()
                             }
                         },
                     )
+
                 SigningMethod.NFC ->
                     NFCView(
                         modifier = modifier,
@@ -269,7 +326,7 @@ fun SignatureInputScreen(
                     )
             }
 
-            if (!isIdCardSigning && (chosenMethod != SigningMethod.NFC || nfcSupported)) {
+            if (!isSigning && (chosenMethod != SigningMethod.NFC || nfcSupported)) {
                 if (chosenMethod != SigningMethod.ID_CARD) {
                     SettingsSwitchItem(
                         modifier = modifier,
@@ -292,7 +349,10 @@ fun SignatureInputScreen(
                 }
 
                 Button(
-                    onClick = signAction,
+                    onClick = {
+                        isSigning = true
+                        signAction()
+                    },
                     enabled = isValidToSign,
                     modifier =
                         modifier

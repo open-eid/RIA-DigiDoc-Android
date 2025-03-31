@@ -26,7 +26,7 @@ data class SignatureAddRadioItem(
                 method = SigningMethod.NFC,
                 contentDescription =
                     stringResource(
-                        id = R.string.signature_update_signature_add_method_nfc,
+                        id = R.string.signature_update_signature_add_method_nfc_accessibility,
                     ).lowercase(),
                 testTag = "signatureUpdateSignatureAddMethodNFC",
             ),
@@ -35,7 +35,7 @@ data class SignatureAddRadioItem(
                 method = SigningMethod.ID_CARD,
                 contentDescription =
                     stringResource(
-                        id = R.string.signature_update_signature_add_method_id_card,
+                        id = R.string.signature_update_signature_add_method_id_card_accessibility,
                     ).lowercase(),
                 testTag = "signatureUpdateSignatureAddMethodIdCard",
             ),

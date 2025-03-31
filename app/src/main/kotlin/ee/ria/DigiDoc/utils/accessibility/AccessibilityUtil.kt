@@ -41,5 +41,16 @@ class AccessibilityUtil {
                 }
             }
         }
+
+        // Workaround for TalkBack to announce characters one-by-one (eg. personal code)
+        // This adds zero-width space between each number / character
+        fun addInvisibleElement(text: String): String {
+            val noInvisibleElement = removeInvisibleElement(text)
+            return noInvisibleElement.chunked(1).joinToString("\u200B")
+        }
+
+        fun removeInvisibleElement(text: String): String {
+            return text.replace("\u200B", "")
+        }
     }
 }

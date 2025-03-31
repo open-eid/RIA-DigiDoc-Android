@@ -193,8 +193,8 @@ fun EncryptionServicesSettingsScreen(
 
     val nameChoices =
         listOf(
-            R.string.option_ria,
-            R.string.option_manual_key_transfer,
+            stringResource(R.string.option_ria),
+            stringResource(R.string.option_manual_key_transfer),
         )
 
     LaunchedEffect(messages) {
@@ -437,7 +437,7 @@ fun EncryptionServicesSettingsScreen(
                                                 modifier = modifier,
                                                 title = R.string.choose_name_option,
                                                 choices = nameChoices,
-                                                selectedChoice = nameChoices.indexOf(settingsCdocNameChoice.intValue),
+                                                selectedChoice = settingsCdocNameChoice.intValue,
                                                 cancelButtonClick = {
                                                     openOptionChooserDialog = false
                                                 },
