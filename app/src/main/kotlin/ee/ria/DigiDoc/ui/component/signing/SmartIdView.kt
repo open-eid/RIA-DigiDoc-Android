@@ -122,8 +122,7 @@ fun SmartIdView(
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
     val dialogError by smartIdViewModel.dialogError.asFlow().collectAsState(0)
     val roleDataRequested by smartIdViewModel.roleDataRequested.asFlow().collectAsState(null)
-    val getSettingsAskRoleAndAddress =
-        sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
+    val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
 
     val focusManager = LocalFocusManager.current
 

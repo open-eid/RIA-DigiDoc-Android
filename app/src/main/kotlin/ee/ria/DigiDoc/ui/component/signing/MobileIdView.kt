@@ -4,27 +4,33 @@ package ee.ria.DigiDoc.ui.component.signing
 
 import android.app.Activity
 import android.content.res.Configuration
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,16 +41,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
@@ -62,12 +73,15 @@ import ee.ria.DigiDoc.ui.component.shared.HrefMessageDialog
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
+import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.addInvisibleElement
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.removeInvisibleElement
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.MobileIdViewModel
@@ -86,27 +100,28 @@ import kotlinx.coroutines.withContext
 fun MobileIdView(
     activity: Activity,
     modifier: Modifier = Modifier,
-    dismissDialog: () -> Unit = {},
+    isSigning: Boolean,
+    onError: () -> Unit = {},
+    onSuccess: () -> Unit = {},
     rememberMe: Boolean,
     mobileIdViewModel: MobileIdViewModel = hiltViewModel(),
-    sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
+    sharedSettingsViewModel: SharedSettingsViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
     isValidToSign: (Boolean) -> Unit,
     signAction: (() -> Unit) -> Unit = {},
+    cancelAction: (() -> Unit) -> Unit = {},
 ) {
     val context = LocalContext.current
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
+    val dialogError by mobileIdViewModel.dialogError.asFlow().collectAsState(0)
     val roleDataRequested by mobileIdViewModel.roleDataRequested.asFlow().collectAsState(null)
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
-    val dialogError by mobileIdViewModel.dialogError.asFlow().collectAsState(0)
-    val countryCodeAndPhoneNumberLabel = stringResource(id = R.string.signature_update_mobile_id_phone_no)
-    val personalCodeLabel = stringResource(id = R.string.signature_update_mobile_id_personal_code)
 
     var shouldRememberMe by rememberSaveable { mutableStateOf(rememberMe) }
 
     val focusManager = LocalFocusManager.current
 
-    var countryCodeAndPhoneText by rememberSaveable(stateSaver = textFieldValueSaver) {
+    var countryCodeAndPhone by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
             TextFieldValue(
                 text = sharedSettingsViewModel.dataStore.getPhoneNo(),
@@ -114,7 +129,7 @@ fun MobileIdView(
             ),
         )
     }
-    var personalCodeText by rememberSaveable(stateSaver = textFieldValueSaver) {
+    var personalCode by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
             TextFieldValue(
                 text = sharedSettingsViewModel.dataStore.getPersonalCode(),
@@ -122,33 +137,31 @@ fun MobileIdView(
             ),
         )
     }
+
+    val countryCodeAndPhoneNumberLabel = stringResource(id = R.string.signature_update_mobile_id_phone_no)
+    val personalCodeLabel = stringResource(id = R.string.signature_update_mobile_id_personal_code)
     var errorText by remember { mutableStateOf("") }
     val showErrorDialog = rememberSaveable { mutableStateOf(false) }
     val displayMessage = stringResource(id = R.string.signature_update_mobile_id_display_message)
 
     val saveFormParams = {
         if (shouldRememberMe) {
-            sharedSettingsViewModel.dataStore.setPhoneNo(countryCodeAndPhoneText.text)
-            sharedSettingsViewModel.dataStore.setPersonalCode(personalCodeText.text)
+            sharedSettingsViewModel.dataStore.setPhoneNo(countryCodeAndPhone.text)
+            sharedSettingsViewModel.dataStore.setPersonalCode(personalCode.text)
         } else {
             sharedSettingsViewModel.dataStore.setPhoneNo("372")
             sharedSettingsViewModel.dataStore.setPersonalCode("")
         }
     }
 
-    val openSignatureUpdateContainerDialog = rememberSaveable { mutableStateOf(false) }
-    val dismissSignatureUpdateContainerDialog = {
-        openSignatureUpdateContainerDialog.value = false
-    }
-
-    val countryCodeAndPhoneTextEdited = rememberSaveable { mutableStateOf(false) }
+    val countryCodeAndPhoneEdited = rememberSaveable { mutableStateOf(false) }
     val countryCodeAndPhoneErrorText =
-        if (countryCodeAndPhoneTextEdited.value && countryCodeAndPhoneText.text.isNotEmpty()) {
-            if (mobileIdViewModel.isCountryCodeMissing(countryCodeAndPhoneText.text)) {
+        if (countryCodeAndPhoneEdited.value && countryCodeAndPhone.text.isNotEmpty()) {
+            if (mobileIdViewModel.isCountryCodeMissing(countryCodeAndPhone.text)) {
                 stringResource(id = R.string.signature_update_mobile_id_status_no_country_code)
-            } else if (!mobileIdViewModel.isCountryCodeCorrect(countryCodeAndPhoneText.text)) {
+            } else if (!mobileIdViewModel.isCountryCodeCorrect(countryCodeAndPhone.text)) {
                 stringResource(id = R.string.signature_update_mobile_id_invalid_country_code)
-            } else if (!mobileIdViewModel.isPhoneNumberCorrect(countryCodeAndPhoneText.text)) {
+            } else if (!mobileIdViewModel.isPhoneNumberCorrect(countryCodeAndPhone.text)) {
                 stringResource(id = R.string.signature_update_mobile_id_invalid_phone_number)
             } else {
                 ""
@@ -157,10 +170,10 @@ fun MobileIdView(
             ""
         }
 
-    val personalCodeTextEdited = rememberSaveable { mutableStateOf(false) }
+    val personalCodeEdited = rememberSaveable { mutableStateOf(false) }
     val personalCodeErrorText =
-        if (personalCodeTextEdited.value && personalCodeText.text.isNotEmpty()) {
-            if (!mobileIdViewModel.isPersonalCodeCorrect(personalCodeText.text)) {
+        if (personalCodeEdited.value && personalCode.text.isNotEmpty()) {
+            if (!mobileIdViewModel.isPersonalCodeCorrect(personalCode.text)) {
                 stringResource(id = R.string.signature_update_mobile_id_invalid_personal_code)
             } else {
                 ""
@@ -168,6 +181,19 @@ fun MobileIdView(
         } else {
             ""
         }
+
+    val phoneNumberFocusRequester = remember { FocusRequester() }
+    val personalCodeFocusRequester = remember { FocusRequester() }
+
+    val clearButtonText = stringResource(R.string.clear_text)
+    val buttonName = stringResource(id = R.string.button_name)
+
+    val phoneNumberWithInvisibleSpaces = TextFieldValue(addInvisibleElement(countryCodeAndPhone.text))
+    val personalCodeWithInvisibleSpaces = TextFieldValue(addInvisibleElement(personalCode.text))
+
+    BackHandler {
+        onError()
+    }
 
     LaunchedEffect(mobileIdViewModel.status) {
         mobileIdViewModel.status.asFlow().collect { status ->
@@ -198,7 +224,7 @@ fun MobileIdView(
                 sharedContainerViewModel.setSignedContainer(it)
                 mobileIdViewModel.resetSignedContainer()
                 mobileIdViewModel.resetRoleDataRequested()
-                dismissDialog()
+                onSuccess()
             }
         }
     }
@@ -215,38 +241,9 @@ fun MobileIdView(
             }
     }
 
-    LaunchedEffect(Unit, rememberMe) {
-        shouldRememberMe = rememberMe
-    }
-
     if (errorText.isNotEmpty()) {
         showMessage(errorText)
         errorText = ""
-    }
-
-    if (openSignatureUpdateContainerDialog.value) {
-        BasicAlertDialog(
-            onDismissRequest = dismissSignatureUpdateContainerDialog,
-        ) {
-            Surface(
-                modifier =
-                    modifier
-                        .wrapContentHeight()
-                        .wrapContentWidth()
-                        .verticalScroll(rememberScrollState()),
-                shape = RoundedCornerShape(SPadding),
-            ) {
-                MobileIdSignatureUpdateContainer(
-                    modifier = modifier,
-                    mobileIdViewModel = mobileIdViewModel,
-                    onCancelButtonClick = {
-                        dismissSignatureUpdateContainerDialog()
-                        mobileIdViewModel.cancelMobileIdWorkRequest(signedContainer)
-                    },
-                )
-                InvisibleElement(modifier = modifier)
-            }
-        }
     }
 
     if (showErrorDialog.value) {
@@ -268,7 +265,10 @@ fun MobileIdView(
                     modifier
                         .clip(buttonRoundCornerShape)
                         .background(MaterialTheme.colorScheme.surface),
-                onDismissRequest = { dismissDialog() },
+                onDismissRequest = {
+                    showErrorDialog.value = false
+                    mobileIdViewModel.resetDialogErrorState()
+                },
             ) {
                 Surface(
                     modifier =
@@ -300,8 +300,8 @@ fun MobileIdView(
                             cancelButtonTestTag = "hrefMessageDialogCancelButton",
                             cancelButtonClick = {},
                             okButtonClick = {
+                                showErrorDialog.value = false
                                 mobileIdViewModel.resetDialogErrorState()
-                                dismissDialog()
                             },
                             cancelButtonTitle = R.string.cancel_button,
                             okButtonTitle = R.string.ok_button,
@@ -333,14 +333,23 @@ fun MobileIdView(
     ) {
         if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
             RoleDataView(modifier, sharedSettingsViewModel)
+        } else if (isSigning) {
+            MobileIdSignatureUpdateContainer(
+                mobileIdViewModel = mobileIdViewModel,
+                onError = onError,
+            )
         } else {
             val isValid =
-                countryCodeAndPhoneText.text.isNotEmpty() &&
-                    personalCodeText.text.isNotEmpty() &&
-                    mobileIdViewModel.isPersonalCodeCorrect(personalCodeText.text)
+                countryCodeAndPhone.text.isNotEmpty() &&
+                    personalCode.text.isNotEmpty() &&
+                    mobileIdViewModel.isPersonalCodeCorrect(personalCode.text)
 
             LaunchedEffect(isValid) {
                 isValidToSign(isValid)
+            }
+
+            LaunchedEffect(Unit, rememberMe) {
+                shouldRememberMe = rememberMe
             }
 
             LaunchedEffect(Unit, isValid) {
@@ -349,7 +358,6 @@ fun MobileIdView(
                         if (getSettingsAskRoleAndAddress() && roleDataRequested != true) {
                             mobileIdViewModel.setRoleDataRequested(true)
                         } else {
-                            openSignatureUpdateContainerDialog.value = true
                             saveFormParams()
                             var roleDataRequest: RoleData? = null
                             if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
@@ -380,13 +388,16 @@ fun MobileIdView(
                                     context = context,
                                     displayMessage = displayMessage,
                                     container = signedContainer,
-                                    personalCode = personalCodeText.text,
-                                    phoneNumber = countryCodeAndPhoneText.text,
+                                    personalCode = personalCode.text,
+                                    phoneNumber = countryCodeAndPhone.text,
                                     roleData = roleDataRequest,
                                 )
                                 mobileIdViewModel.resetRoleDataRequested()
                             }
                         }
+                    }
+                    cancelAction {
+                        mobileIdViewModel.cancelMobileIdWorkRequest(signedContainer)
                     }
                 }
             }
@@ -399,49 +410,110 @@ fun MobileIdView(
                         }
                         .testTag("mobileIdViewContainer"),
             ) {
-                OutlinedTextField(
-                    label = {
-                        Text(
-                            modifier = modifier.notAccessible(),
-                            text = stringResource(id = R.string.signature_update_mobile_id_phone_no),
-                        )
-                    },
-                    placeholder = {
-                        Text(
-                            modifier = modifier.notAccessible(),
-                            text =
-                                stringResource(
-                                    id = R.string.mobile_id_country_code_and_phone_number_placeholder,
-                                ),
-                        )
-                    },
-                    value = countryCodeAndPhoneText,
-                    singleLine = true,
-                    onValueChange = {
-                        countryCodeAndPhoneText = it
-                        countryCodeAndPhoneTextEdited.value = true
-                    },
+                Row(
                     modifier =
                         modifier
                             .fillMaxWidth()
-                            .padding(top = SPadding, bottom = XSPadding)
-                            .clearAndSetSemantics {
-                                testTagsAsResourceId = true
-                                contentDescription =
-                                    "$countryCodeAndPhoneNumberLabel " +
-                                    "${formatNumbers(countryCodeAndPhoneText.text)} "
+                            .padding(top = MPadding),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    OutlinedTextField(
+                        label = {
+                            Text(
+                                modifier = modifier.notAccessible(),
+                                text = countryCodeAndPhoneNumberLabel,
+                            )
+                        },
+                        placeholder = {
+                            Text(
+                                modifier = modifier.notAccessible(),
+                                text =
+                                    stringResource(
+                                        id = R.string.mobile_id_country_code_and_phone_number_placeholder,
+                                    ),
+                            )
+                        },
+                        value =
+                            if (!isTalkBackEnabled(context)) {
+                                countryCodeAndPhone
+                            } else {
+                                phoneNumberWithInvisibleSpaces.copy(
+                                    selection = TextRange(phoneNumberWithInvisibleSpaces.text.length),
+                                )
+                            },
+                        singleLine = true,
+                        onValueChange = {
+                            countryCodeAndPhoneEdited.value = true
+
+                            if (!isTalkBackEnabled(context)) {
+                                countryCodeAndPhone = it.copy(selection = TextRange(it.text.length))
+                            } else {
+                                val noInvisibleElement =
+                                    TextFieldValue(removeInvisibleElement(it.text))
+                                countryCodeAndPhone =
+                                    noInvisibleElement.copy(selection = TextRange(noInvisibleElement.text.length))
                             }
-                            .testTag("signatureUpdateMobileIdPhoneNo"),
-                    shape = RectangleShape,
-                    isError =
-                        countryCodeAndPhoneTextEdited.value &&
-                            !mobileIdViewModel.isPhoneNumberValid(countryCodeAndPhoneText.text),
-                    keyboardOptions =
-                        KeyboardOptions.Default.copy(
-                            imeAction = ImeAction.Next,
-                            keyboardType = KeyboardType.Decimal,
-                        ),
-                )
+                        },
+                        modifier =
+                            modifier
+                                .focusRequester(phoneNumberFocusRequester)
+                                .focusProperties {
+                                    next = personalCodeFocusRequester
+                                }
+                                .weight(1f)
+                                .semantics(mergeDescendants = true) {
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("signatureUpdateMobileIdPhoneNo"),
+                        shape = RectangleShape,
+                        trailingIcon = {
+                            if (!isTalkBackEnabled(context) && countryCodeAndPhone.text.isNotEmpty()) {
+                                IconButton(onClick = {
+                                    countryCodeAndPhone = TextFieldValue("")
+                                }) {
+                                    Icon(
+                                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
+                                        contentDescription = "$clearButtonText $buttonName",
+                                    )
+                                }
+                            }
+                        },
+                        isError =
+                            countryCodeAndPhoneEdited.value &&
+                                !mobileIdViewModel.isPhoneNumberValid(countryCodeAndPhone.text),
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.primary,
+                            ),
+                        keyboardOptions =
+                            KeyboardOptions.Default.copy(
+                                imeAction = ImeAction.Next,
+                                keyboardType = KeyboardType.Decimal,
+                            ),
+                    )
+                    if (isTalkBackEnabled(context) && personalCode.text.isNotEmpty()) {
+                        IconButton(
+                            modifier =
+                                modifier
+                                    .align(Alignment.CenterVertically),
+                            onClick = { personalCode = TextFieldValue("") },
+                        ) {
+                            Icon(
+                                modifier =
+                                    modifier
+                                        .size(iconSizeXXS)
+                                        .semantics {
+                                            testTagsAsResourceId = true
+                                        }
+                                        .testTag("smartIdPersonalCodeRemoveIconButton"),
+                                imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
+                                contentDescription = "$clearButtonText $buttonName",
+                            )
+                        }
+                    }
+                }
                 if (countryCodeAndPhoneErrorText.isNotEmpty()) {
                     Text(
                         modifier =
@@ -454,38 +526,99 @@ fun MobileIdView(
                     )
                 }
 
-                OutlinedTextField(
-                    label = {
-                        Text(stringResource(R.string.signature_update_mobile_id_personal_code))
-                    },
-                    value = personalCodeText,
-                    singleLine = true,
-                    onValueChange = {
-                        personalCodeText = it
-                        personalCodeTextEdited.value = true
-                    },
+                Row(
                     modifier =
                         modifier
                             .fillMaxWidth()
-                            .padding(top = XSPadding, bottom = SPadding)
-                            .clearAndSetSemantics {
-                                testTagsAsResourceId = true
-                                contentDescription =
-                                    "$personalCodeLabel ${formatNumbers(personalCodeText.text)}"
+                            .padding(top = MPadding),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    OutlinedTextField(
+                        label = {
+                            Text(personalCodeLabel)
+                        },
+                        value =
+                            if (!isTalkBackEnabled(context)) {
+                                personalCode
+                            } else {
+                                personalCodeWithInvisibleSpaces.copy(
+                                    selection = TextRange(personalCodeWithInvisibleSpaces.text.length),
+                                )
+                            },
+                        singleLine = true,
+                        onValueChange = {
+                            personalCodeEdited.value = true
+
+                            if (!isTalkBackEnabled(context)) {
+                                personalCode = it.copy(selection = TextRange(it.text.length))
+                            } else {
+                                val noInvisibleElement = TextFieldValue(removeInvisibleElement(it.text))
+                                personalCode =
+                                    noInvisibleElement.copy(selection = TextRange(noInvisibleElement.text.length))
                             }
-                            .testTag("signatureUpdateMobileIdPersonalCode"),
-                    keyboardOptions =
-                        KeyboardOptions.Default.copy(
-                            imeAction = ImeAction.Done,
-                            keyboardType = KeyboardType.Decimal,
-                        ),
-                    shape = RectangleShape,
-                    isError =
-                        personalCodeTextEdited.value &&
-                            !mobileIdViewModel.isPersonalCodeValid(
-                                personalCodeText.text,
+                        },
+                        modifier =
+                            modifier
+                                .focusRequester(personalCodeFocusRequester)
+                                .focusProperties {
+                                    previous = phoneNumberFocusRequester
+                                }
+                                .weight(1f)
+                                .semantics(mergeDescendants = true) {
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("signatureUpdateMobileIdPersonalCode"),
+                        trailingIcon = {
+                            if (!isTalkBackEnabled(context) && personalCode.text.isNotEmpty()) {
+                                IconButton(onClick = {
+                                    personalCode = TextFieldValue("")
+                                }) {
+                                    Icon(
+                                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
+                                        contentDescription = "$clearButtonText $buttonName",
+                                    )
+                                }
+                            }
+                        },
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.primary,
                             ),
-                )
+                        keyboardOptions =
+                            KeyboardOptions.Default.copy(
+                                imeAction = ImeAction.Done,
+                                keyboardType = KeyboardType.Number,
+                            ),
+                        shape = RectangleShape,
+                        isError =
+                            personalCodeEdited.value &&
+                                !mobileIdViewModel.isPersonalCodeValid(
+                                    personalCode.text,
+                                ),
+                    )
+                    if (isTalkBackEnabled(context) && personalCode.text.isNotEmpty()) {
+                        IconButton(
+                            modifier =
+                                modifier
+                                    .align(Alignment.CenterVertically),
+                            onClick = { personalCode = TextFieldValue("") },
+                        ) {
+                            Icon(
+                                modifier =
+                                    modifier
+                                        .size(iconSizeXXS)
+                                        .semantics {
+                                            testTagsAsResourceId = true
+                                        }
+                                        .testTag("smartIdPersonalCodeRemoveIconButton"),
+                                imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
+                                contentDescription = "$clearButtonText $buttonName",
+                            )
+                        }
+                    }
+                }
                 if (personalCodeErrorText.isNotEmpty()) {
                     Text(
                         modifier =
@@ -506,14 +639,16 @@ fun MobileIdView(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun MobileIdViewPreview() {
+    val sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
     RIADigiDocTheme {
         MobileIdView(
             activity = LocalActivity.current as Activity,
+            sharedSettingsViewModel = sharedSettingsViewModel,
             sharedContainerViewModel = sharedContainerViewModel,
+            isSigning = false,
             rememberMe = true,
             isValidToSign = {},
-            signAction = {},
         )
     }
 }
