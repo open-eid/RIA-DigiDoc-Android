@@ -240,9 +240,15 @@ fun SignatureInputScreen(
                     MobileIdView(
                         modifier = modifier,
                         activity = context,
-                        dismissDialog = {
+                        onError = {
+                            isSigning = false
+                            cancelAction()
+                        },
+                        onSuccess = {
+                            isSigning = false
                             navController.navigateUp()
                         },
+                        isSigning = isSigning,
                         rememberMe = rememberMe,
                         sharedSettingsViewModel = sharedSettingsViewModel,
                         sharedContainerViewModel = sharedContainerViewModel,
@@ -251,6 +257,9 @@ fun SignatureInputScreen(
                         },
                         signAction = { action ->
                             signAction = action
+                        },
+                        cancelAction = { action ->
+                            cancelAction = action
                         },
                     )
 
