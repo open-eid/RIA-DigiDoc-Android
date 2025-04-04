@@ -4,13 +4,16 @@ package ee.ria.DigiDoc.ui.component.signing
 
 import android.content.res.Configuration
 import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
-import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,10 +25,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
@@ -34,26 +40,32 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.component.shared.PrimaryButton
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.LPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXL
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.NFCViewModel
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun NFCSignatureUpdateContainer(
     modifier: Modifier = Modifier,
-    @DrawableRes nfcImage: Int = R.drawable.ic_icon_nfc,
     nfcViewModel: NFCViewModel,
-    onCancelButtonClick: () -> Unit = {},
+    onError: () -> Unit = {},
 ) {
     val context = LocalContext.current
+    val focusRequester = remember { FocusRequester() }
 
     val nfcDialogDefaultText = stringResource(id = R.string.signature_update_nfc_hold)
     var nfcDialogText by remember { mutableStateOf(nfcDialogDefaultText) }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 
     LaunchedEffect(nfcViewModel.message) {
         nfcViewModel.message.asFlow().collect { message ->
@@ -66,13 +78,14 @@ fun NFCSignatureUpdateContainer(
     LaunchedEffect(nfcViewModel.errorState) {
         nfcViewModel.errorState.asFlow().collect { error ->
             error?.let {
-                onCancelButtonClick()
+                onError()
             }
         }
     }
 
-    LaunchedEffect(nfcDialogText) {
+    LaunchedEffect(Unit, nfcDialogText) {
         if (nfcDialogText.isNotEmpty()) {
+            delay(500)
             AccessibilityUtil.sendAccessibilityEvent(
                 context,
                 TYPE_ANNOUNCEMENT,
@@ -84,47 +97,55 @@ fun NFCSignatureUpdateContainer(
     Column(
         modifier =
             modifier
-                .padding(screenViewLargePadding)
+                .fillMaxSize()
+                .padding(SPadding)
+                .padding(vertical = LPadding)
                 .semantics {
                     testTagsAsResourceId = true
                 }
-                .testTag("signatureUpdateMobileIdContainer"),
+                .testTag("signatureUpdateNFCContainer"),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Image(
-            painter = painterResource(id = nfcImage),
-            contentDescription = null,
+        Row(
             modifier =
                 modifier
                     .fillMaxWidth()
-                    .padding(screenViewLargePadding)
-                    .notAccessible()
-                    .testTag("nfcDialogIcon"),
-        )
+                    .padding(vertical = MPadding)
+                    .notAccessible(),
+            horizontalArrangement = Arrangement.spacedBy(MPadding),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                modifier =
+                    modifier
+                        .size(iconSizeXXL)
+                        .notAccessible(),
+                imageVector = ImageVector.vectorResource(R.drawable.ic_m3_phonelink_ring_48dp_wght400),
+                contentDescription = null,
+            )
+            Icon(
+                modifier =
+                    modifier
+                        .size(iconSizeXXL)
+                        .notAccessible(),
+                imageVector = ImageVector.vectorResource(R.drawable.ic_m3_id_card_48dp_wght400),
+                contentDescription = null,
+            )
+        }
         Text(
             text = nfcDialogText,
             textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontWeight = FontWeight.Normal,
             modifier =
                 modifier
                     .wrapContentSize()
-                    .padding(screenViewLargePadding)
+                    .focusRequester(focusRequester)
+                    .focusable()
+                    .padding(SPadding)
                     .testTag("nfcDialogText"),
-        )
-
-        PrimaryButton(
-            modifier =
-                modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(horizontal = screenViewLargePadding)
-                    .testTag("signatureUpdateNFCCancelButton"),
-            title = R.string.cancel_button,
-            containerColor = MaterialTheme.colorScheme.background,
-            contentColor = Red500,
-            onClickItem = onCancelButtonClick,
-            isSubButton = true,
         )
     }
 }
