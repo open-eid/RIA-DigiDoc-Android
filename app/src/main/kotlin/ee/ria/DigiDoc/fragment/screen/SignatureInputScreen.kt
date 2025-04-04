@@ -317,20 +317,29 @@ fun SignatureInputScreen(
                     NFCView(
                         modifier = modifier,
                         activity = context,
-                        dismissDialog = {
+                        onError = {
+                            isSigning = false
+                            cancelAction()
+                        },
+                        onSuccess = {
+                            isSigning = false
                             navController.navigateUp()
                         },
+                        isSigning = isSigning,
                         rememberMe = rememberMe,
                         sharedSettingsViewModel = sharedSettingsViewModel,
                         sharedContainerViewModel = sharedContainerViewModel,
-                        isValidToSign = { isValid ->
-                            isValidToSign = isValid
-                        },
                         isSupported = { supported ->
                             nfcSupported = supported
                         },
+                        isValidToSign = { isValid ->
+                            isValidToSign = isValid
+                        },
                         signAction = { action ->
                             signAction = action
+                        },
+                        cancelAction = { action ->
+                            cancelAction = action
                         },
                     )
             }

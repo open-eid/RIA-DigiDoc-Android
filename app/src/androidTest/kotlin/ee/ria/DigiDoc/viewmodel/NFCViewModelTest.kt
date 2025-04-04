@@ -447,4 +447,28 @@ class NFCViewModelTest {
 
             assertEquals(1, signedContainer.getSignatures(Main).size)
         }
+
+    @Test
+    fun nfcViewModel_handleBackButton_success() =
+        runTest {
+            val errorStateObserver: Observer<Boolean> = mock()
+            viewModel.shouldResetPIN2.observeForever(errorStateObserver)
+
+            viewModel.resetDialogErrorState()
+            verify(errorStateObserver, atLeastOnce()).onChanged(false)
+
+            viewModel.shouldResetPIN2.removeObserver(errorStateObserver)
+        }
+
+    @Test
+    fun nfcViewModel_resetDialogErrorState_success() =
+        runTest {
+            val errorStateObserver: Observer<Int> = mock()
+            viewModel.dialogError.observeForever(errorStateObserver)
+
+            viewModel.resetDialogErrorState()
+            verify(errorStateObserver, atLeastOnce()).onChanged(0)
+
+            viewModel.dialogError.removeObserver(errorStateObserver)
+        }
 }

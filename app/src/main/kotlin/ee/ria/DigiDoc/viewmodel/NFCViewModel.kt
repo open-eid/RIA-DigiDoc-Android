@@ -8,6 +8,7 @@ import android.content.pm.ActivityInfo
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.common.collect.ImmutableMap
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.NFCConstants.CAN_LENGTH
@@ -20,6 +21,7 @@ import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
+import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
 import ee.ria.DigiDoc.smartcardreader.ApduResponseException
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderException
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager
@@ -56,9 +58,23 @@ class NFCViewModel
         private val _signStatus = MutableLiveData<Boolean?>(null)
         val signStatus: LiveData<Boolean?> = _signStatus
         private val _shouldResetPIN2 = MutableLiveData(false)
-        val shouldResetPIN2: LiveData<Boolean?> = _shouldResetPIN2
+        val shouldResetPIN2: LiveData<Boolean> = _shouldResetPIN2
         private val _roleDataRequested = MutableLiveData(false)
         val roleDataRequested: LiveData<Boolean?> = _roleDataRequested
+        private val _dialogError = MutableLiveData(0)
+        val dialogError: LiveData<Int> = _dialogError
+
+        private val dialogMessages: ImmutableMap<SessionStatusResponseProcessStatus, Int> =
+            ImmutableMap.builder<SessionStatusResponseProcessStatus, Int>()
+                .put(
+                    SessionStatusResponseProcessStatus.TOO_MANY_REQUESTS,
+                    R.string.too_many_requests_message,
+                )
+                .put(
+                    SessionStatusResponseProcessStatus.OCSP_INVALID_TIME_SLOT,
+                    R.string.invalid_time_slot_message,
+                )
+                .build()
 
         fun resetErrorState() {
             _errorState.postValue(null)
@@ -193,6 +209,7 @@ class NFCViewModel
                                 containerWrapper.finalizeSignature(container, signatureArray)
 
                                 CoroutineScope(Main).launch {
+                                    _shouldResetPIN2.postValue(true)
                                     _signStatus.postValue(true)
                                     _signedContainer.postValue(container)
                                 }
@@ -242,6 +259,7 @@ class NFCViewModel
                                 errorLog(logTag, "Exception: " + ex.message, ex)
                             } catch (ex: Exception) {
                                 _signStatus.postValue(false)
+                                _shouldResetPIN2.postValue(true)
 
                                 val message = ex.message ?: ""
 
@@ -255,6 +273,16 @@ class NFCViewModel
                                     message.contains(
                                         "Failed to create proxy connection with host",
                                     ) -> showProxyError(context, ex)
+                                    message.contains("Too Many Requests") ->
+                                        setErrorState(
+                                            context,
+                                            SessionStatusResponseProcessStatus.TOO_MANY_REQUESTS,
+                                        )
+                                    message.contains("OCSP response not in valid time slot") ->
+                                        setErrorState(
+                                            context,
+                                            SessionStatusResponseProcessStatus.OCSP_INVALID_TIME_SLOT,
+                                        )
                                     else -> showTechnicalError(context, ex)
                                 }
 
@@ -273,6 +301,36 @@ class NFCViewModel
                     _errorState.postValue(context.getString(R.string.error_general_client))
                     errorLog(logTag, "Unable to get container value. Container is 'null'")
                 }
+            }
+        }
+
+        fun handleBackButton() {
+            _shouldResetPIN2.postValue(true)
+            resetValues()
+        }
+
+        fun resetDialogErrorState() {
+            _dialogError.postValue(0)
+        }
+
+        private fun setErrorState(
+            context: Context,
+            status: SessionStatusResponseProcessStatus,
+        ) {
+            val res = dialogMessages[status]
+
+            if (res == R.string.too_many_requests_message ||
+                res == R.string.invalid_time_slot_message
+            ) {
+                _dialogError.postValue(res)
+            } else {
+                _errorState.postValue(
+                    res?.let {
+                        context.getString(
+                            it,
+                        )
+                    },
+                )
             }
         }
 
