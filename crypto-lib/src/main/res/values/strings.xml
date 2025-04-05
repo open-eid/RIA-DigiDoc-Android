@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="crypto_container_cert_type_unknown_type">Unknown</string>
+    <string name="crypto_container_cert_type_id_card_type">ID-card</string>
+    <string name="crypto_container_cert_type_digi_id_type">Digi-ID</string>
+    <string name="crypto_container_cert_type_e_resident_type">E-Resident</string>
+    <string name="crypto_container_cert_type_mobile_id_type">Mobile-ID</string>
+    <string name="crypto_container_cert_type_smart_id_type">Smart-ID</string>
+    <string name="crypto_container_cert_type_e_seal_type">E-Seal</string>
+</resources>

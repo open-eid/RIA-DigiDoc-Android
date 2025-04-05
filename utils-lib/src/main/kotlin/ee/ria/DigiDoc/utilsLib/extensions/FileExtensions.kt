@@ -125,3 +125,7 @@ fun File.md5Hash(): String {
         return ""
     }
 }
+
+fun File.saveAs(destinationPath: String) {
+    this.copyTo(File(destinationPath), overwrite = true)
+}

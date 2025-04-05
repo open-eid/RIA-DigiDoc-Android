@@ -69,7 +69,7 @@ import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatName
 import ee.ria.DigiDoc.utilsLib.extensions.x509Certificate
-import ee.ria.DigiDoc.viewmodel.SignerDetailViewModel
+import ee.ria.DigiDoc.viewmodel.CertificateDetailViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
@@ -84,8 +84,8 @@ fun SignerDetailsView(
     sharedMenuViewModel: SharedMenuViewModel,
     sharedSignatureViewModel: SharedSignatureViewModel,
     sharedCertificateViewModel: SharedCertificateViewModel,
-    signerDetailViewModel: SignerDetailViewModel = hiltViewModel(),
     sharedContainerViewModel: SharedContainerViewModel,
+    certificateDetailViewModel: CertificateDetailViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val activity = (context as Activity)
@@ -119,24 +119,24 @@ fun SignerDetailsView(
         }.let { stringResource(id = it) }
 
     val signersIssuerName =
-        signerDetailViewModel.getIssuerCommonName(
+        certificateDetailViewModel.getIssuerCommonName(
             signature?.signingCertificateDer?.x509Certificate(),
         )
     val tsIssuerName =
-        signerDetailViewModel.getIssuerCommonName(
+        certificateDetailViewModel.getIssuerCommonName(
             signature?.timeStampCertificateDer?.x509Certificate(),
         )
     val ocspIssuerName =
-        signerDetailViewModel.getIssuerCommonName(
+        certificateDetailViewModel.getIssuerCommonName(
             signature?.ocspCertificateDer?.x509Certificate(),
         )
 
     val tsSubjectName =
-        signerDetailViewModel.getSubjectCommonName(
+        certificateDetailViewModel.getSubjectCommonName(
             signature?.timeStampCertificateDer?.x509Certificate(),
         )
     val ocspSubjectName =
-        signerDetailViewModel.getSubjectCommonName(
+        certificateDetailViewModel.getSubjectCommonName(
             signature?.ocspCertificateDer?.x509Certificate(),
         )
 
@@ -315,31 +315,29 @@ fun SignerDetailsView(
                         listOf(
                             Pair(
                                 stringResource(R.string.signature_details_role_and_address_title),
-                                {
-                                    RolesDetailsView(
-                                        navController = navController,
-                                        modifier = modifier,
-                                        sharedSignatureViewModel = sharedSignatureViewModel,
-                                    )
-                                },
-                            ),
+                            ) {
+                                RolesDetailsView(
+                                    navController = navController,
+                                    modifier = modifier,
+                                    sharedSignatureViewModel = sharedSignatureViewModel,
+                                )
+                            },
                             Pair(
                                 stringResource(R.string.signature_details_signer_details_title),
-                                {
-                                    SignerDetails(
-                                        modifier = modifier,
-                                        signature = signature,
-                                        signersIssuerName = signersIssuerName,
-                                        tsIssuerName = tsIssuerName,
-                                        ocspIssuerName = ocspIssuerName,
-                                        tsSubjectName = tsSubjectName,
-                                        ocspSubjectName = ocspSubjectName,
-                                        sharedContainerViewModel = sharedContainerViewModel,
-                                        sharedCertificateViewModel = sharedCertificateViewModel,
-                                        navController = navController,
-                                    )
-                                },
-                            ),
+                            ) {
+                                SignerDetails(
+                                    modifier = modifier,
+                                    signature = signature,
+                                    signersIssuerName = signersIssuerName,
+                                    tsIssuerName = tsIssuerName,
+                                    ocspIssuerName = ocspIssuerName,
+                                    tsSubjectName = tsSubjectName,
+                                    ocspSubjectName = ocspSubjectName,
+                                    sharedContainerViewModel = sharedContainerViewModel,
+                                    sharedCertificateViewModel = sharedCertificateViewModel,
+                                    navController = navController,
+                                )
+                            },
                         ),
                     )
                     InvisibleElement(modifier = modifier)

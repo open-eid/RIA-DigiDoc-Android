@@ -61,9 +61,9 @@ fun ContainerBottomSheet(
                 BottomSheetButton(
                     showButton = isEncryptButtonShown,
                     icon = R.drawable.ic_m3_encrypted_48dp_wght400,
-                    text = stringResource(R.string.crypto_button),
+                    text = stringResource(R.string.encrypt_button),
                     contentDescription = "${stringResource(
-                        R.string.crypto_button,
+                        R.string.encrypt_button,
                     )} ${signedContainer?.getName() ?: ""} $buttonName",
                     isExtraActionButtonShown = true,
                 ) {

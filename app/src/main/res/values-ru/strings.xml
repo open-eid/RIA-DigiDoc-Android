@@ -46,6 +46,7 @@
     <string name="document_cancel_removal_button">Отменить удаление файла</string>
     <string name="document_confirm_removal_button">Подтвердите удаление файла</string>
     <string name="signature_remove_button">Удалить подпись</string>
+    <string name="recipient_remove_button">Удалить получателя</string>
     <string name="container_open_file_error">Не удалось загрузить выбранные файлы</string>
     <string name="container_load_error">Ошибка при открывании контейнера</string>
     <string name="empty_file_message">В контейнер добавлен пустой файл. Для подписания удалите из контейнера пустой файл.</string>
@@ -132,12 +133,40 @@
     <string name="recent_documents_empty_message">Недавние документы отсутствуют</string>
     <string name="recent_documents_remove_button">Удалить файл</string>
     <string name="recent_documents_remove_confirmation_message">Удалить документ?</string>
+    <string name="recent_documents_cancel_container_removal_button">Отменить удаление документа</string>
+    <string name="recent_documents_confirm_container_removal_button">Подтвердить удаление документа</string>
 
     <!-- SiVa -->
     <string name="siva_send_message_dialog">Данный тип подписанного документа передается в службу валидации SiVa для проверки действительности цифровых подписей. Подробнее о передаваемых при проверке действительности электронной подписи данных, можете прочитать на сайте</string>
     <string name="siva_read_here">здесь</string>
     <string name="siva_continue_question">Вы желаете продолжить?</string>
     <string name="siva_info_url">https://www.id.ee/ru/artikkel/usloviya-zashhity-dannyh-programmnogo-obespecheniya-id-karty-departamenta-gosudarstvennoj-infosistemy</string>
+
+    <!-- Encrypt -->
+    <string name="crypto_create_success">Контейнер успешно зашифрован!</string>
+    <string name="crypto_create_encrypt">Зашифровать</string>
+    <string name="crypto_files_encrypted">Чтобы просмотреть файлы, выберите «Расшифровать», чтобы идентифицировать получателя и расшифровать содержимое конверта.</string>
+    <string name="crypto_empty_file_message">В контейнер добавлен пустой файл. Для шифрования удалите из контейнера пустой файл.</string>
+    <string name="crypto_close_container_title">Закрыть контейнер</string>
+    <string name="crypto_close_container_message">Вы собираетесь закрыть контейнер. Выберите, что делать с контейнером: </string>
+    <string name="crypto_cancel_recipient_removal_button">Отменить удаление получателя</string>
+    <string name="crypto_confirm_recipient_removal_button">Подтвердите удаление получателя</string>
+    <string name="crypto_recipient_remove_button">Удалить получателя</string>
+    <string name="crypto_recipient_remove_confirmation_message">Удалить получателя из контейнера?</string>
+    <string name="crypto_new_title">Шифрование контейнера</string>
+    <string name="crypto_view_title">Содержание контейнера</string>
+    <string name="crypto_container_recipients_title">Получатели контейнера</string>
+    <string name="crypto_recipient_title">Получатель</string>
+    <string name="crypto_decryption_valid_to">Шифрование до %1$s</string>
+    <string name="crypto_cert_valid_to">Действителен до %1$s</string>
+    <string name="crypto_documents_title">Файлы контейнера</string>
+    <string name="crypto_containter_update_name">Название контейнера</string>
+    <string name="crypto_recipients_description">Для шифрования необходимо указать хотя бы одного получателя - лицо (персональный идентификационный номер) или организация (регистрационный номер), уполномоченный расшифровывать данные. Добавьте свой личный идентификационный номер, если хотите позже расшифровать конверт.</string>
+    <string name="crypto_recipients_search">Найти получателя…</string>
+    <string name="crypto_recipients_search_cancel">Отменить поиск получателя</string>
+    <string name="crypto_recipients_search_empty">Получатели не найдены</string>
+    <string name="crypto_recipients_empty_message">Получатели отсутствуют</string>
+    <string name="crypto_recipients_recipient_add_success">Получатель добавлен</string>
 
     <!-- Signature Add -->
     <string name="signature_update_title">Подписание контейнера</string>
@@ -166,7 +195,7 @@
     <string name="signature_update_signature_unselected_container_tab">%1$s, вкладка %2$d / %3$d</string>
 
     <string name="signature_update_cancel_signature_removal_button">Отменить удаление подписи</string>
-    <string name="signature_update_confirm_signature_removal_button">Подтвердите удаление подписи</string>
+    <string name="signature_update_confirm_signature_removal_button">Подтвердить удаление подписи</string>
     <string name="signature_update_signature_remove_confirmation_message">Удалить подпись из контейнера?</string>
 
     <string name="signature_details_role_and_address_title">Пользователя</string>
@@ -286,6 +315,7 @@
     <string name="id_card_sign_pin2_locked">PIN2 заблокирован. Зайдите в Мой eID, чтобы разблокировать его.</string>
 
     <string name="sign_button">Подписать</string>
+    <string name="next_button">Далее</string>
     <string name="add_signature_button">Добавить новый подпись</string>
     <string name="extend_signature_button">Расширить подпись</string>
     <string name="share_button">Поделиться контейнера</string>
@@ -299,8 +329,10 @@
     <string name="close_button">Закрыть</string>
 
     <!-- Crypto -->
-    <string name="crypto_button">Зашифровать</string>
-    <string name="crypto_button_accessibility">Зашифровать документ</string>
+    <string name="encrypt_button">Зашифровать</string>
+    <string name="encrypt_button_accessibility">Зашифровать документ</string>
+    <string name="decrypt_button">Расшифровать</string>
+    <string name="decrypt_button_accessibility">Расшифровать документ</string>
 
     <!-- Accessibility -->
     <string name="file_added">Файл добавлен</string>
@@ -313,6 +345,11 @@
     <string name="signature_removal_cancelled">Удаление подписи отменено</string>
     <string name="signing_cancel">Отменить подписание</string>
     <string name="signing_cancelled">Подписание прервано</string>
+    <string name="encryption_cancelled">Шифрование прервано</string>
+    <string name="file_removed">Файл удален</string>
+    <string name="file_removal_cancelled">Удаление файла отменено</string>
+    <string name="recipient_removed">Получатель удален</string>
+    <string name="recipient_removal_cancelled">Удаление получателя отменено</string>
     <string name="button_name">Кнопка</string>
     <string name="signature_method">Метод подписи</string>
     <string name="signature_method_selected">Выбран метод подписи</string>
@@ -323,6 +360,8 @@
     <string name="signatures_loading">Подписи загружаются</string>
     <string name="signatures_loaded">Подписи загружены</string>
     <string name="control_code_loading">Загрузка кода управления</string>
+    <string name="recipients_loading">Получатели загружаются</string>
+    <string name="recipients_loaded">Получатели загружены</string>
     <string name="container_files_loading">Файлы контейнера загружаются</string>
     <string name="container_files_loaded">Файлы контейнера загружены</string>
 
@@ -330,6 +369,12 @@
     <string name="main_home_navigation_signature_accessibility">Подпись</string>
     <string name="main_home_navigation_crypto_accessibility">Крипто</string>
     <string name="main_home_navigation_eid_accessibility">Мой e I D</string>
+
+    <!-- Recipient Details -->
+    <string name="recipient_details_title">Детали получателя</string>
+    <string name="recipient_details_name_label">Получатель:</string>
+    <string name="recipient_details_certificate_issuer_label">Организация, выдавшая сертификат получателя:</string>
+    <string name="recipient_details_certificate_valid_to_label">Срок действия:</string>
 
     <!-- Signature Details -->
     <string name="signature_error_details_title">Предупреждения</string>

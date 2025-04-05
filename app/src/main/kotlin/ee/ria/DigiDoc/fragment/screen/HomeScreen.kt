@@ -309,7 +309,6 @@ fun HomeScreen(
                             onClickItem = {
                                 openMenuAddFileNavigateTo = Route.FileChoosing.route
                                 isOpenMenuBottomSheetVisible.value = true
-                                // TODO: Customize additionally so that it navigates to Signing  screen
                             },
                             testTag = "homeSignatureButton",
                         )
@@ -322,9 +321,8 @@ fun HomeScreen(
                                 stringResource(id = R.string.main_home_crypto_title) + " " +
                                     stringResource(id = R.string.main_home_crypto_description),
                             onClickItem = {
-                                openMenuAddFileNavigateTo = Route.FileChoosing.route
+                                openMenuAddFileNavigateTo = Route.CryptoFileChoosing.route
                                 isOpenMenuBottomSheetVisible.value = true
-                                // TODO: Customize additionally so that it navigates to Crypto  screen
                             },
                             testTag = "homeCryptoButton",
                         )

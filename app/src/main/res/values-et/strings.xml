@@ -46,6 +46,7 @@
     <string name="document_cancel_removal_button">Katkesta faili eemaldamine</string>
     <string name="document_confirm_removal_button">Kinnita faili eemaldamine</string>
     <string name="signature_remove_button">Eemalda allkiri</string>
+    <string name="recipient_remove_button">Eemalda adressaat</string>
     <string name="container_open_file_error">Failide laadimine ebaõnnestus</string>
     <string name="container_load_error">Ümbriku laadimine ebaõnnestus</string>
     <string name="empty_file_message">Ümbrikule on lisatud tühi fail. Allkirjastamiseks eemalda ümbrikust tühi fail.</string>
@@ -132,12 +133,40 @@
     <string name="recent_documents_empty_message">Ümbrikud puuduvad</string>
     <string name="recent_documents_remove_button">Eemalda ümbrik</string>
     <string name="recent_documents_remove_confirmation_message">Soovid eemaldada ümbriku?</string>
+    <string name="recent_documents_cancel_container_removal_button">Katkesta ümbriku eemaldamine</string>
+    <string name="recent_documents_confirm_container_removal_button">Kinnita ümbriku eemaldamine</string>
 
     <!-- SiVa -->
     <string name="siva_send_message_dialog">Seda tüüpi allkirjastatud dokument edastatakse digitaalallkirjade kehtivuse kontrollimiseks valideerimisteenusele SiVa. Digitaalallkirjade kehtivuse kontrollimisel edastatud andmete kohta loe lähemalt veebilehelt</string>
     <string name="siva_read_here">siit</string>
     <string name="siva_continue_question">Kas soovid jätkata?</string>
     <string name="siva_info_url">https://www.id.ee/artikkel/riigi-infosusteemi-ameti-id-tarkvara-andmekaitsetingimused</string>
+
+    <!-- Encrypt -->
+    <string name="crypto_create_success">Ümbrik edukalt krüpteeritud!</string>
+    <string name="crypto_create_encrypt">Krüpteeri</string>
+    <string name="crypto_files_encrypted">Failide nägemiseks vali «Dekrüpteeri», et tuvastada isik ja dekrüpteerida ümbriku sisu.</string>
+    <string name="crypto_empty_file_message">Ümbrikule on lisatud tühi fail. Krüpteerimiseks eemalda ümbrikust tühi fail.</string>
+    <string name="crypto_close_container_title">Sulge ümbrik</string>
+    <string name="crypto_close_container_message">Oled sulgemas ümbrikut. Palun vali, mida ümbrikuga edasi teha: </string>
+    <string name="crypto_cancel_recipient_removal_button">Katkesta adressaadi eemaldamine</string>
+    <string name="crypto_confirm_recipient_removal_button">Kinnita adressaadi eemaldamine</string>
+    <string name="crypto_recipient_remove_button">Eemaldada adressaat</string>
+    <string name="crypto_recipient_remove_confirmation_message">Soovid eemaldada adressaati?</string>
+    <string name="crypto_new_title">Ümbriku krüpteerimine</string>
+    <string name="crypto_view_title">Ümbriku sisu</string>
+    <string name="crypto_container_recipients_title">Ümbriku adressaadid</string>
+    <string name="crypto_recipient_title">Adressaat</string>
+    <string name="crypto_decryption_valid_to">Dekrüpteerimine võimalik kuni %1$s</string>
+    <string name="crypto_cert_valid_to">Kehtiv kuni %1$s</string>
+    <string name="crypto_documents_title">Ümbriku failid</string>
+    <string name="crypto_containter_update_name">Ümbriku nimi</string>
+    <string name="crypto_recipients_description">Krüpteerimiseks peab olema lisatud vähemalt üks adressaat – isik (isikukood) või asutus (registrinumber), kellel on volitus andmete dekrüpteerimiseks. Lisage oma isikukood, kui soovite ümbrikut hiljem dekrüpteerida.</string>
+    <string name="crypto_recipients_search">Leia adressaat…</string>
+    <string name="crypto_recipients_search_cancel">Katkesta adressaadi otsing</string>
+    <string name="crypto_recipients_search_empty">Adressaati ei ole leitud</string>
+    <string name="crypto_recipients_empty_message">Adressaadid puuduvad</string>
+    <string name="crypto_recipients_recipient_add_success">Adressaat lisatud</string>
 
     <!-- Signature Add -->
     <string name="signature_update_title">Ümbriku allkirjastamine</string>
@@ -286,6 +315,7 @@
     <string name="signature_update_nfc_detected">ID-kaardiga kontaktivaba ühenduse loomine</string>
 
     <string name="sign_button">Allkirjasta</string>
+    <string name="next_button">Edasi</string>
     <string name="add_signature_button">Lisa uus allkiri</string>
     <string name="extend_signature_button">Pikenda allkirja</string>
     <string name="share_button">Jaga</string>
@@ -299,8 +329,10 @@
     <string name="close_button">Sulge</string>
 
     <!-- Crypto -->
-    <string name="crypto_button">Krüpteeri</string>
-    <string name="crypto_button_accessibility">Krüpteeri dokument</string>
+    <string name="encrypt_button">Krüpteeri</string>
+    <string name="encrypt_button_accessibility">Krüpteeri dokument</string>
+    <string name="decrypt_button">Dekrüpteeri</string>
+    <string name="decrypt_button_accessibility">Dekrüpteeri dokument</string>
 
     <!-- Accessibility -->
     <string name="file_added">Fail lisatud</string>
@@ -311,8 +343,13 @@
     <string name="document_removal_cancelled">Dokumendi eemaldamine katkestatud</string>
     <string name="signature_removed">Allkiri eemaldatud</string>
     <string name="signature_removal_cancelled">Allkirja eemaldamine katkestatud</string>
+    <string name="file_removed">Fail eemaldatud</string>
+    <string name="file_removal_cancelled">Faili eemaldamine katkestatud</string>
+    <string name="recipient_removed">Adressaat eemaldatud</string>
+    <string name="recipient_removal_cancelled">Adressaadi eemaldamine katkestatud</string>
     <string name="signing_cancel">Katkesta allkirjastamine</string>
     <string name="signing_cancelled">Allkirjastamine katkestatud</string>
+    <string name="encryption_cancelled">Krüpteerimine katkestatud</string>
     <string name="button_name">Nupp</string>
     <string name="signature_method">Allkirjastamise meetod</string>
     <string name="signature_method_selected">Allkirjastamise meetod valitud</string>
@@ -322,6 +359,8 @@
     <string name="item_selected">valitud</string>
     <string name="signatures_loading">Allkirjade laadimine</string>
     <string name="signatures_loaded">Allkirjad laaditud</string>
+    <string name="recipients_loading">Adressaatide laadimine</string>
+    <string name="recipients_loaded">Adressaadid laaditud</string>
     <string name="control_code_loading">Kontrollkoodi laadimine</string>
     <string name="container_files_loading">Konteineri failide laadimine</string>
     <string name="container_files_loaded">Konteineri failid laaditud</string>
@@ -330,6 +369,12 @@
     <string name="main_home_navigation_signature_accessibility">Allkiri</string>
     <string name="main_home_navigation_crypto_accessibility">Krüpto</string>
     <string name="main_home_navigation_eid_accessibility">Minu e I D</string>
+
+    <!-- Recipient Details -->
+    <string name="recipient_details_title">Adressaadi andmed</string>
+    <string name="recipient_details_name_label">Adressaat:</string>
+    <string name="recipient_details_certificate_issuer_label">Adressaadi sertifikaadi väljaandja:</string>
+    <string name="recipient_details_certificate_valid_to_label">Aegumiskuupäev:</string>
 
     <!-- Signature Details -->
     <string name="signature_error_details_title">Hoiatused</string>

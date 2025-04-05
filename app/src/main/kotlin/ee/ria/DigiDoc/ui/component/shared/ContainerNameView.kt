@@ -1,6 +1,6 @@
 @file:Suppress("PackageName", "FunctionName")
 
-package ee.ria.DigiDoc.ui.component.signing
+package ee.ria.DigiDoc.ui.component.shared
 
 import android.content.res.Configuration
 import androidx.annotation.DrawableRes
@@ -46,7 +46,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.component.shared.MiddleEllipsizeMultilineText
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
@@ -235,9 +234,9 @@ fun SignedContainerNameViewPreview() {
             showSignButton = true,
             showEncryptButton = true,
             leftActionButtonName = R.string.signature_update_signature_add,
-            rightActionButtonName = R.string.crypto_button,
+            rightActionButtonName = R.string.encrypt_button,
             leftActionButtonContentDescription = R.string.signature_update_signature_add,
-            rightActionButtonContentDescription = R.string.crypto_button_accessibility,
+            rightActionButtonContentDescription = R.string.encrypt_button_accessibility,
             onLeftActionButtonClick = {},
             onRightActionButtonClick = {},
             onMoreOptionsActionButtonClick = {},

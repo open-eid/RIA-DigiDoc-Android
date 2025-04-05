@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -62,13 +61,13 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
 import ee.ria.DigiDoc.common.Constant.SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
+import ee.ria.DigiDoc.ui.component.shared.Document
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
 import ee.ria.DigiDoc.ui.component.shared.PreventResize
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
-import ee.ria.DigiDoc.ui.component.signing.Document
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.dividerHeight
@@ -78,6 +77,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utils.extensions.reachedBottom
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
@@ -156,12 +156,12 @@ fun RecentDocumentsScreen(
     val documentRemoved = stringResource(id = R.string.document_removed)
     val documentRemovalCancelled = stringResource(id = R.string.document_removal_cancelled)
 
-    val removeSignatureDialogMessage =
+    val removeDocumentDialogMessage =
         stringResource(id = R.string.recent_documents_remove_confirmation_message)
-    val removeSignatureCancelButtonContentDescription =
-        stringResource(id = R.string.signature_update_cancel_signature_removal_button)
-    val removeSignatureOkButtonContentDescription =
-        stringResource(id = R.string.signature_update_confirm_signature_removal_button)
+    val removeDocumentCancelButtonContentDescription =
+        stringResource(id = R.string.recent_documents_cancel_container_removal_button)
+    val removeDocumentOkButtonContentDescription =
+        stringResource(id = R.string.recent_documents_confirm_container_removal_button)
     val closeDocumentDialog = {
         openRemoveDocumentDialog.value = false
     }
@@ -510,13 +510,13 @@ fun RecentDocumentsScreen(
         if (openRemoveDocumentDialog.value) {
             MessageDialog(
                 modifier = modifier,
-                title = stringResource(R.string.signature_remove_button),
-                message = removeSignatureDialogMessage,
+                title = stringResource(R.string.document_remove_button),
+                message = removeDocumentDialogMessage,
                 showIcons = false,
                 dismissButtonText = stringResource(R.string.cancel_button),
                 confirmButtonText = stringResource(R.string.remove_title),
-                dismissButtonContentDescription = removeSignatureCancelButtonContentDescription,
-                confirmButtonContentDescription = removeSignatureOkButtonContentDescription,
+                dismissButtonContentDescription = removeDocumentCancelButtonContentDescription,
+                confirmButtonContentDescription = removeDocumentOkButtonContentDescription,
                 onDismissRequest = dismissRemoveDocumentDialog,
                 onDismissButton = dismissRemoveDocumentDialog,
                 onConfirmButton = {
@@ -539,13 +539,6 @@ fun RecentDocumentsScreen(
             LoadingScreen(modifier = modifier)
         }
     }
-}
-
-private fun LazyListState.reachedBottom(): Boolean {
-    val lastVisibleItem = this.layoutInfo.visibleItemsInfo.lastOrNull()
-    return lastVisibleItem != null && lastVisibleItem.index != 0 &&
-        this.layoutInfo.totalItemsCount > 5 &&
-        lastVisibleItem.index == this.layoutInfo.totalItemsCount - 1
 }
 
 @Preview(showBackground = true)

@@ -161,7 +161,7 @@ class NFCViewModel
 
         suspend fun checkNFCStatus(nfcStatus: NfcStatus) {
             withContext(Main) {
-            _nfcStatus.postValue(nfcStatus)
+                _nfcStatus.postValue(nfcStatus)
                 when (nfcStatus) {
                     NfcStatus.NFC_NOT_SUPPORTED -> _message.postValue(R.string.signature_update_nfc_adapter_missing)
                     NfcStatus.NFC_NOT_ACTIVE -> _message.postValue(R.string.signature_update_nfc_turned_off)

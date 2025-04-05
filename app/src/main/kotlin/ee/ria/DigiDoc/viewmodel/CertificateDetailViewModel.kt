@@ -11,6 +11,7 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import org.apache.commons.text.WordUtils
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.asn1.x500.X500Name
+import org.bouncycastle.asn1.x500.style.BCStyle
 import org.bouncycastle.asn1.x500.style.IETFUtils
 import org.bouncycastle.asn1.x509.Extension
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder
@@ -31,6 +32,38 @@ class CertificateDetailViewModel
     @Inject
     constructor() : ViewModel() {
         private val logTag = "CertificateDetailViewModel"
+
+        fun getIssuerCommonName(x509Certificate: X509Certificate?): String {
+            if (x509Certificate == null) {
+                errorLog(logTag, "Unable to get issuer common name: certificate is null or it doesn't exist")
+                return ""
+            }
+
+            return try {
+                val x500name = JcaX509CertificateHolder(x509Certificate).issuer
+                val cn = x500name.getRDNs(BCStyle.CN).first()
+                IETFUtils.valueToString(cn?.first?.value) ?: ""
+            } catch (e: CertificateEncodingException) {
+                errorLog(logTag, "Unable to get certificate issuer", e)
+                ""
+            }
+        }
+
+        fun getSubjectCommonName(x509Certificate: X509Certificate?): String {
+            if (x509Certificate == null) {
+                errorLog(logTag, "Unable to get subject common name: certificate is null or it doesn't exist")
+                return ""
+            }
+
+            return try {
+                val x500name = JcaX509CertificateHolder(x509Certificate).subject
+                val cn = x500name.getRDNs(BCStyle.CN).first()
+                IETFUtils.valueToString(cn.first.value)
+            } catch (e: CertificateEncodingException) {
+                errorLog(logTag, "Unable to get certificate subject", e)
+                ""
+            }
+        }
 
         fun certificateToJcaX509(certificate: X509Certificate?): JcaX509CertificateHolder? {
             if (certificate == null) {

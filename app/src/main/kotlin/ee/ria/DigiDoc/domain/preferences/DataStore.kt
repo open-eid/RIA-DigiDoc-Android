@@ -324,27 +324,35 @@ class DataStore
             }
         }
 
-        fun setCdocSetting(cdocSetting: CDOCSetting) {
+        fun getUseEncryption(): Boolean {
+            return preferences.getBoolean(
+                resources.getString(ee.ria.DigiDoc.cryptolib.R.string.crypto_settings_use_cdoc2_encryption),
+                false,
+            )
+        }
+
+        fun setUseEncryption(useEncryption: Boolean) {
             preferences.edit {
-                putString(
-                    resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_cdoc_setting_key),
-                    cdocSetting.name,
+                putBoolean(
+                    resources.getString(ee.ria.DigiDoc.cryptolib.R.string.crypto_settings_use_cdoc2_encryption),
+                    useEncryption,
                 )
             }
         }
 
-        fun getCdocSetting(): CDOCSetting {
-            val cdocSetting =
-                preferences.getString(
-                    resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_cdoc_setting_key),
-                    CDOCSetting.CDOC1.name,
-                )
-            try {
-                return cdocSetting?.let { CDOCSetting.valueOf(it) } ?: CDOCSetting.CDOC1
-            } catch (iae: IllegalArgumentException) {
-                debugLog(logTag, "Unable to get CDOC setting value", iae)
-                return CDOCSetting.CDOC1
+        fun setCdocSetting(cdocSetting: CDOCSetting) {
+            if (cdocSetting == CDOCSetting.CDOC2) {
+                setUseEncryption(true)
+            } else {
+                setUseEncryption(false)
             }
+        }
+
+        fun getCdocSetting(): CDOCSetting {
+            if (getUseEncryption()) {
+                return CDOCSetting.CDOC2
+            }
+            return CDOCSetting.CDOC1
         }
 
         fun getSettingsAskRoleAndAddress(): Boolean {

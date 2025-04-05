@@ -14,6 +14,8 @@ import androidx.lifecycle.ViewModel
 import com.google.common.io.ByteStreams
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import ee.ria.DigiDoc.cryptolib.Addressee
+import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
@@ -41,6 +43,9 @@ class SharedContainerViewModel
 
         private val _nestedContainers = mutableStateListOf<SignedContainer?>()
         val nestedContainers: List<SignedContainer?> get() = _nestedContainers
+
+        private val _cryptoContainer = MutableLiveData<CryptoContainer?>()
+        val cryptoContainer: LiveData<CryptoContainer?> = _cryptoContainer
 
         private val _signedMidStatus = MutableLiveData<MobileCreateSignatureProcessStatus?>(null)
         val signedMidStatus: LiveData<MobileCreateSignatureProcessStatus?> = _signedMidStatus
@@ -78,6 +83,10 @@ class SharedContainerViewModel
             addNestedContainer(signedContainer)
         }
 
+        fun setCryptoContainer(cryptoContainer: CryptoContainer?) {
+            _cryptoContainer.postValue(cryptoContainer)
+        }
+
         fun setExternalFileUris(uris: List<Uri>) {
             _externalFileUris.value = uris
         }
@@ -92,6 +101,10 @@ class SharedContainerViewModel
 
         fun addNestedSignedContainer(signedContainer: SignedContainer?) {
             _nestedContainers.add(signedContainer)
+        }
+
+        fun resetCryptoContainer() {
+            _cryptoContainer.postValue(null)
         }
 
         fun removeLastContainer() {
@@ -113,6 +126,44 @@ class SharedContainerViewModel
 
         fun isNestedContainer(signedContainer: SignedContainer?): Boolean =
             nestedContainers.size > 1 && signedContainer == currentSignedContainer()
+
+        @Throws(Exception::class)
+        fun getCryptoContainerDataFile(
+            cryptoContainer: CryptoContainer?,
+            dataFile: File,
+        ): File? {
+            return cryptoContainer?.getDataFile(
+                dataFile,
+                cryptoContainer.file?.let {
+                    ContainerUtil.getContainerDataFilesDir(
+                        context,
+                        it,
+                    )
+                },
+            )
+        }
+
+        @Throws(Exception::class)
+        suspend fun removeCryptoContainerDataFile(
+            cryptoContainer: CryptoContainer?,
+            dataFile: File?,
+        ) {
+            dataFile?.let { cryptoContainer?.removeDataFile(it) }
+            _cryptoContainer.postValue(null)
+            delay(100L)
+            _cryptoContainer.postValue(cryptoContainer)
+        }
+
+        @Throws(Exception::class)
+        suspend fun removeRecipient(
+            cryptoContainer: CryptoContainer?,
+            recipient: Addressee?,
+        ) {
+            recipient?.let { cryptoContainer?.removeRecipient(it) }
+            _cryptoContainer.postValue(null)
+            delay(100L)
+            _cryptoContainer.postValue(cryptoContainer)
+        }
 
         @Throws(Exception::class)
         fun getContainerDataFile(

@@ -6,6 +6,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import androidx.activity.result.ActivityResultLauncher
+import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
@@ -42,11 +43,32 @@ interface FileOpeningRepository {
     ): SignedContainer
 
     @Throws(
+        EmptyFileException::class,
+        NoSuchElementException::class,
+        NoInternetConnectionException::class,
+        Exception::class,
+    )
+    suspend fun openOrCreateCryptoContainer(
+        context: Context,
+        contentResolver: ContentResolver,
+        uris: List<Uri>,
+    ): CryptoContainer
+
+    @Throws(
         Exception::class,
     )
     suspend fun addFilesToContainer(
         context: Context,
         signedContainer: SignedContainer,
+        documents: List<File>,
+    )
+
+    @Throws(
+        Exception::class,
+    )
+    suspend fun addFilesToContainer(
+        context: Context,
+        cryptoContainer: CryptoContainer,
         documents: List<File>,
     )
 
@@ -59,11 +81,21 @@ interface FileOpeningRepository {
         container: SignedContainer?,
     ): List<File>
 
+    fun getValidFiles(
+        files: List<File>,
+        container: CryptoContainer?,
+    ): List<File>
+
     fun getFilesWithValidSize(files: List<File>): List<File>
 
     fun isFileAlreadyInContainer(
         file: File,
         container: SignedContainer,
+    ): Boolean
+
+    fun isFileAlreadyInContainer(
+        file: File,
+        container: CryptoContainer,
     ): Boolean
 
     fun isSivaConfirmationNeeded(
