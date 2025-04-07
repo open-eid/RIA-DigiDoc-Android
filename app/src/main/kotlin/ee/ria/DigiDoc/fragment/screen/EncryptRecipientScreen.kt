@@ -239,7 +239,7 @@ fun EncryptRecipientScreen(
                 modifier
                     .padding(paddingValues)
                     .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.Start,
         ) {
             if (recipientAddedSuccess.value) {
                 ContainerMessage(
@@ -398,8 +398,8 @@ fun EncryptRecipientScreen(
                                 heading()
                                 testTagsAsResourceId = true
                             }
-                            .testTag("encryptRecipientsListTitle"),
-                    text = stringResource(R.string.crypto_container_recipients_title),
+                            .testTag("encryptRecipientsDescription"),
+                    text = stringResource(R.string.crypto_recipients_description),
                     textAlign = TextAlign.Start,
                 )
                 Text(
@@ -412,7 +412,7 @@ fun EncryptRecipientScreen(
                                 testTagsAsResourceId = true
                             }
                             .testTag("encryptRecipientsListTitle"),
-                    text = stringResource(R.string.crypto_container_recipients_title),
+                    text = stringResource(R.string.crypto_container_added_recipients_title),
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Start,
                 )

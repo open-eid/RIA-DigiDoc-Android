@@ -18,6 +18,7 @@ import ee.ria.DigiDoc.fragment.AdvancedSettingsFragment
 import ee.ria.DigiDoc.fragment.CryptoFileOpeningFragment
 import ee.ria.DigiDoc.fragment.DiagnosticsFragment
 import ee.ria.DigiDoc.fragment.EncryptFragment
+import ee.ria.DigiDoc.fragment.EncryptRecipientFragment
 import ee.ria.DigiDoc.fragment.EncryptionServicesSettingsFragment
 import ee.ria.DigiDoc.fragment.FileOpeningFragment
 import ee.ria.DigiDoc.fragment.HomeFragment
@@ -131,6 +132,15 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
                 sharedMenuViewModel = sharedMenuViewModel,
                 sharedRecipientViewModel = sharedRecipientViewModel,
                 sharedCertificateViewModel = sharedCertificateViewModel,
+            )
+        }
+        composable(route = Route.EncryptRecipientScreen.route) {
+            EncryptRecipientFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
+                sharedContainerViewModel = sharedContainerViewModel,
+                sharedRecipientViewModel = sharedRecipientViewModel,
             )
         }
         composable(route = Route.Encrypt.route) {

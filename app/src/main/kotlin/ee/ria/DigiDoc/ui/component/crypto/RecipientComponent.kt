@@ -138,9 +138,9 @@ fun RecipientComponent(
                             ) {
                                 val iconRes =
                                     if (recipient.surname.isNullOrEmpty() && recipient.givenName.isNullOrEmpty()) {
-                                        R.drawable.ic_m3_encrypted_48dp_wght400
-                                    } else {
                                         R.drawable.ic_m3_domain_48dp_wght400
+                                    } else {
+                                        R.drawable.ic_m3_encrypted_48dp_wght400
                                     }
                                 Icon(
                                     imageVector = ImageVector.vectorResource(iconRes),
@@ -193,14 +193,16 @@ fun RecipientComponent(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     style = MaterialTheme.typography.bodyMedium,
                                 )
-                                ColoredRecipientStatusText(
-                                    text = decryptionValidToText,
-                                    modifier =
-                                        modifier
-                                            .padding(vertical = SBorder)
-                                            .focusable(false)
-                                            .notAccessible(),
-                                )
+                                if (decryptionValidToText.isNotEmpty()) {
+                                    ColoredRecipientStatusText(
+                                        text = decryptionValidToText,
+                                        modifier =
+                                            modifier
+                                                .padding(vertical = SBorder)
+                                                .focusable(false)
+                                                .notAccessible(),
+                                    )
+                                }
                             }
 
                             IconButton(onClick = { onClick(recipient) }) {

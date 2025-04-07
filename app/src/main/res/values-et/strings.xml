@@ -156,6 +156,7 @@
     <string name="crypto_new_title">Ümbriku krüpteerimine</string>
     <string name="crypto_view_title">Ümbriku sisu</string>
     <string name="crypto_container_recipients_title">Ümbriku adressaadid</string>
+    <string name="crypto_container_added_recipients_title">Lisatud adressaadid</string>
     <string name="crypto_recipient_title">Adressaat</string>
     <string name="crypto_decryption_valid_to">Dekrüpteerimine võimalik kuni %1$s</string>
     <string name="crypto_cert_valid_to">Kehtiv kuni %1$s</string>

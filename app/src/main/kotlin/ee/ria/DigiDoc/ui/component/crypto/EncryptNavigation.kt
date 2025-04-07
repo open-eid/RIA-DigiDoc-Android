@@ -502,7 +502,9 @@ fun EncryptNavigation(
                     )
                 }
 
-                if (encryptViewModel.isEmptyFileInContainer(cryptoContainer)) {
+                if (encryptViewModel.isEmptyFileInContainer(cryptoContainer) &&
+                    !encryptViewModel.isEncryptedContainer(cryptoContainer)
+                ) {
                     ContainerMessage(
                         modifier = modifier,
                         text = emptyFileInContainerText,
@@ -592,25 +594,7 @@ fun EncryptNavigation(
                                 }
                             }
                         } else {
-                            if (encryptViewModel.isEncryptedContainer(cryptoContainer)) {
-                                item {
-                                    Text(
-                                        modifier =
-                                            modifier
-                                                .padding(horizontal = SPadding)
-                                                .padding(top = SPadding)
-                                                .semantics {
-                                                    heading()
-                                                    testTagsAsResourceId = true
-                                                }
-                                                .testTag("encryptDocumentsTitle"),
-                                        text = stringResource(R.string.crypto_documents_title),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        textAlign = TextAlign.Start,
-                                    )
-                                    CryptoDataFilesLocked(modifier = modifier)
-                                }
-                            } else if (encryptViewModel.isContainerWithoutRecipients(cryptoContainer)) {
+                            if (encryptViewModel.isContainerWithoutRecipients(cryptoContainer)) {
                                 item {
                                     Text(
                                         modifier =
@@ -638,16 +622,22 @@ fun EncryptNavigation(
                                                 }
                                                 .testTag("encryptionTabView"),
                                         selectedTabIndex = selectedCryptoContainerTabIndex.intValue,
-                                        onTabSelected = { index -> selectedCryptoContainerTabIndex.intValue = index },
+                                        onTabSelected = { index ->
+                                            selectedCryptoContainerTabIndex.intValue = index
+                                        },
                                         listOf(
                                             Pair(
                                                 stringResource(R.string.crypto_documents_title),
                                             ) {
-                                                CryptoDataFileItem(
-                                                    modifier,
-                                                    dataFiles,
-                                                    onDataFileClick,
-                                                )
+                                                if (encryptViewModel.isEncryptedContainer(cryptoContainer)) {
+                                                    CryptoDataFilesLocked(modifier = modifier)
+                                                } else {
+                                                    CryptoDataFileItem(
+                                                        modifier,
+                                                        dataFiles,
+                                                        onDataFileClick,
+                                                    )
+                                                }
                                             },
                                             Pair(
                                                 stringResource(R.string.crypto_container_recipients_title),

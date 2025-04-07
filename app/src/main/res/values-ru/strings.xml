@@ -156,6 +156,7 @@
     <string name="crypto_new_title">Шифрование контейнера</string>
     <string name="crypto_view_title">Содержание контейнера</string>
     <string name="crypto_container_recipients_title">Получатели контейнера</string>
+    <string name="crypto_container_added_recipients_title">Добавленные получатели</string>
     <string name="crypto_recipient_title">Получатель</string>
     <string name="crypto_decryption_valid_to">Шифрование до %1$s</string>
     <string name="crypto_cert_valid_to">Действителен до %1$s</string>

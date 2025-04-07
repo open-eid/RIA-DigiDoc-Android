@@ -17,10 +17,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import ee.ria.DigiDoc.fragment.screen.RecentDocumentsScreen
+import ee.ria.DigiDoc.fragment.screen.EncryptRecipientScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedRecipientViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -29,6 +30,7 @@ fun EncryptRecipientFragment(
     modifier: Modifier = Modifier,
     sharedMenuViewModel: SharedMenuViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
+    sharedRecipientViewModel: SharedRecipientViewModel,
 ) {
     Surface(
         modifier =
@@ -38,14 +40,15 @@ fun EncryptRecipientFragment(
                 .semantics {
                     testTagsAsResourceId = true
                 }
-                .testTag("recentDocumentsFragment"),
+                .testTag("encryptRecipientFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
-        RecentDocumentsScreen(
+        EncryptRecipientScreen(
             modifier = modifier,
             navController = navController,
             sharedMenuViewModel = sharedMenuViewModel,
             sharedContainerViewModel = sharedContainerViewModel,
+            sharedRecipientViewModel = sharedRecipientViewModel,
         )
     }
 }
@@ -59,6 +62,7 @@ fun EncryptRecipientFragmentPreview() {
             navController = rememberNavController(),
             sharedMenuViewModel = hiltViewModel(),
             sharedContainerViewModel = hiltViewModel(),
+            sharedRecipientViewModel = hiltViewModel(),
         )
     }
 }

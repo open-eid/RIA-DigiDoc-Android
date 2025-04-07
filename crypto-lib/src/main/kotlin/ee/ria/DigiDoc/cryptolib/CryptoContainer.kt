@@ -11,11 +11,8 @@ import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
 import ee.ria.DigiDoc.cryptolib.exception.ContainerDataFilesEmptyException
 import ee.ria.DigiDoc.cryptolib.exception.CryptoException
 import ee.ria.DigiDoc.cryptolib.exception.DataFilesEmptyException
-import ee.ria.DigiDoc.cryptolib.exception.RecipientsEmptyException
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
-import ee.ria.DigiDoc.utilsLib.extensions.isContainer
-import ee.ria.DigiDoc.utilsLib.extensions.isPDF
-import ee.ria.DigiDoc.utilsLib.extensions.isSignedPDF
+import ee.ria.DigiDoc.utilsLib.extensions.isCryptoContainer
 import ee.ria.DigiDoc.utilsLib.extensions.saveAs
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.getNameWithoutExtension
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
@@ -42,7 +39,6 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-import java.util.Locale
 import javax.inject.Inject
 
 private const val LOG_TAG = "CryptoContainer"
@@ -167,7 +163,7 @@ class CryptoContainer
                 context: Context,
                 file: File,
             ): CryptoContainer {
-                if (file.extension === CDOC1_EXTENSION) {
+                if (file.extension == CDOC1_EXTENSION) {
                     return openCDOC1(context, file)
                 }
 
@@ -358,11 +354,14 @@ class CryptoContainer
                     throw DataFilesEmptyException("Cannot create an empty crypto container")
                 }
 
-                if (recipients.isNullOrEmpty()) {
-                    throw RecipientsEmptyException("Cannot create crypto container without recipients")
-                }
-
-                return CryptoContainer(context, file, ArrayList(dataFiles), ArrayList(recipients), decrypted, encrypted)
+                return CryptoContainer(
+                    context,
+                    file,
+                    ArrayList(dataFiles),
+                    recipients?.let { ArrayList(it) },
+                    decrypted,
+                    encrypted,
+                )
             }
 
             @Throws(Exception::class)
@@ -374,7 +373,7 @@ class CryptoContainer
             ): CryptoContainer {
                 val isFirstDataFileContainer =
                     dataFiles?.firstOrNull()?.run {
-                        isContainer(context) || (isPDF(context) && isSignedPDF(context))
+                        isCryptoContainer()
                     } ?: false
 
                 var containerFileWithExtension = file
@@ -394,6 +393,8 @@ class CryptoContainer
                         File(
                             FilenameUtils.removeExtension(file.path) + ".$defaultExtension",
                         )
+
+                    file.copyTo(containerFileWithExtension, true)
                 }
 
                 return if (dataFiles != null && dataFiles.size == 1 && isFirstDataFileContainer) {
@@ -411,11 +412,6 @@ class CryptoContainer
             fun createCDOC2ContainerFileName(file: String): String {
                 val fileName: String? = getNameWithoutExtension(file)
                 return "$fileName.$CDOC2_EXTENSION"
-            }
-
-            fun isCryptoContainer(file: File): Boolean {
-                val extension: String = file.extension.lowercase(Locale.getDefault())
-                return CDOC1_EXTENSION == extension || CDOC2_EXTENSION == extension
             }
 
             fun getMimeType(): String {

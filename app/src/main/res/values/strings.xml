@@ -156,6 +156,7 @@
     <string name="crypto_new_title">Container encryption</string>
     <string name="crypto_view_title">Container content</string>
     <string name="crypto_container_recipients_title">Container recipients</string>
+    <string name="crypto_container_added_recipients_title">Added recipients</string>
     <string name="crypto_recipient_title">Recipient</string>
     <string name="crypto_decryption_valid_to">Decryption until %1$s</string>
     <string name="crypto_cert_valid_to">Valid to %1$s</string>
