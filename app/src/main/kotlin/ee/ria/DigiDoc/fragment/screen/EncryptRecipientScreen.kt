@@ -402,25 +402,25 @@ fun EncryptRecipientScreen(
                     text = stringResource(R.string.crypto_recipients_description),
                     textAlign = TextAlign.Start,
                 )
-                Text(
-                    modifier =
-                        modifier
-                            .padding(horizontal = SPadding)
-                            .padding(top = SPadding)
-                            .semantics {
-                                heading()
-                                testTagsAsResourceId = true
-                            }
-                            .testTag("encryptRecipientsListTitle"),
-                    text = stringResource(R.string.crypto_container_added_recipients_title),
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Start,
-                )
-                LazyColumn(
-                    state = listState,
-                    modifier = modifier.testTag("lazyColumnScrollView"),
-                ) {
-                    if (containerRecipientList.value.isNotEmpty()) {
+                if (containerRecipientList.value.isNotEmpty()) {
+                    Text(
+                        modifier =
+                            modifier
+                                .padding(horizontal = SPadding)
+                                .padding(top = SPadding)
+                                .semantics {
+                                    heading()
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("encryptRecipientsListTitle"),
+                        text = stringResource(R.string.crypto_container_added_recipients_title),
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Start,
+                    )
+                    LazyColumn(
+                        state = listState,
+                        modifier = modifier.testTag("lazyColumnScrollView"),
+                    ) {
                         item {
                             HorizontalDivider(
                                 modifier =
@@ -434,7 +434,8 @@ fun EncryptRecipientScreen(
                             Recipient(
                                 recipient = recipient,
                                 onClick = {
-                                    // TODO: Handle recipient click and floating more options menu
+                                    clickedRecipient.value = recipient
+                                    showRecipientBottomSheet.value = true
                                 },
                             )
                             HorizontalDivider(
@@ -445,31 +446,14 @@ fun EncryptRecipientScreen(
                                         .height(dividerHeight),
                             )
                         }
-                    } else {
-                        item {
-                            Box(
-                                modifier =
-                                    modifier
-                                        .padding(SPadding),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Text(
-                                    modifier =
-                                        modifier
-                                            .testTag("recentDocumentsListEmpty"),
-                                    text = stringResource(id = R.string.recent_documents_empty_message),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                )
-                            }
-                        }
-                    }
 
-                    item {
-                        Spacer(
-                            modifier = modifier.height(invisibleElementHeight),
-                        )
-                        if (listState.reachedBottom()) {
-                            InvisibleElement(modifier = modifier)
+                        item {
+                            Spacer(
+                                modifier = modifier.height(invisibleElementHeight),
+                            )
+                            if (listState.reachedBottom()) {
+                                InvisibleElement(modifier = modifier)
+                            }
                         }
                     }
                 }

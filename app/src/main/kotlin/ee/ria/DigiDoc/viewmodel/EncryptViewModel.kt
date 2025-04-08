@@ -9,7 +9,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.common.Constant.UNSIGNABLE_CONTAINER_MIMETYPES
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
@@ -49,16 +48,10 @@ class EncryptViewModel
         }
 
         fun isSignButtonShown(cryptoContainer: CryptoContainer?): Boolean =
-            cryptoContainer != null &&
-                (
-                    !UNSIGNABLE_CONTAINER_MIMETYPES.contains(
-                        cryptoContainer.file?.let { getMimetype(it) },
-                    )
-                ) &&
-                (!isEmptyFileInContainer(cryptoContainer))
+            isEncryptedContainer(cryptoContainer) // TODO: Additional logic to show / hide sign
 
         fun isDecryptButtonShown(cryptoContainer: CryptoContainer?): Boolean =
-            (isEncryptedContainer(cryptoContainer) || !isDecryptedContainer(cryptoContainer))
+            isEncryptedContainer(cryptoContainer) // TODO: Additional logic to show / hide decrypt
 
         fun getViewIntent(
             context: Context,

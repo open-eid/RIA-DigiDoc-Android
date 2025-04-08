@@ -853,7 +853,7 @@ fun EncryptNavigation(
                 showSheet = showContainerBottomSheet,
                 isEditContainerButtonShown = cryptoContainer?.hasRecipients() == false,
                 openEditContainerNameDialog = openEditContainerNameDialog,
-                isEncryptButtonShown = cryptoContainer?.hasRecipients() == false,
+                isSignButtonShown = cryptoContainer?.encrypted == true,
                 cryptoContainer = cryptoContainer,
                 saveFileLauncher = saveFileLauncher,
                 saveFile = ::saveFile,

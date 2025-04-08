@@ -166,7 +166,6 @@
     <string name="crypto_recipients_search">Найти получателя…</string>
     <string name="crypto_recipients_search_cancel">Отменить поиск получателя</string>
     <string name="crypto_recipients_search_empty">Получатели не найдены</string>
-    <string name="crypto_recipients_empty_message">Получатели отсутствуют</string>
     <string name="crypto_recipients_recipient_add_success">Получатель добавлен</string>
 
     <!-- Signature Add -->

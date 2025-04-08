@@ -20,7 +20,7 @@ fun EncryptContainerBottomSheet(
     showSheet: MutableState<Boolean>,
     isEditContainerButtonShown: Boolean = true,
     openEditContainerNameDialog: MutableState<Boolean>,
-    isEncryptButtonShown: Boolean = true,
+    isSignButtonShown: Boolean = true,
     cryptoContainer: CryptoContainer?,
     saveFileLauncher: ActivityResultLauncher<Intent>,
     saveFile: (File?, String?, ActivityResultLauncher<Intent>) -> Unit,
@@ -59,15 +59,15 @@ fun EncryptContainerBottomSheet(
                     )
                 },
                 BottomSheetButton(
-                    showButton = isEncryptButtonShown,
-                    icon = R.drawable.ic_m3_encrypted_48dp_wght400,
-                    text = stringResource(R.string.encrypt_button),
+                    showButton = isSignButtonShown,
+                    icon = R.drawable.ic_m3_stylus_note_48dp_wght400,
+                    text = stringResource(R.string.sign_button),
                     contentDescription = "${stringResource(
-                        R.string.encrypt_button,
+                        R.string.sign_button,
                     )} ${cryptoContainer?.getName() ?: ""} $buttonName",
                     isExtraActionButtonShown = true,
                 ) {
-                    // TODO: Implement encrypt click
+                    // TODO: Implement sign click
                 },
             ),
     )

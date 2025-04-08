@@ -166,7 +166,6 @@
     <string name="crypto_recipients_search">Leia adressaat…</string>
     <string name="crypto_recipients_search_cancel">Katkesta adressaadi otsing</string>
     <string name="crypto_recipients_search_empty">Adressaati ei ole leitud</string>
-    <string name="crypto_recipients_empty_message">Adressaadid puuduvad</string>
     <string name="crypto_recipients_recipient_add_success">Adressaat lisatud</string>
 
     <!-- Signature Add -->

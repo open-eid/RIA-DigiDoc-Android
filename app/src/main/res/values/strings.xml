@@ -166,7 +166,6 @@
     <string name="crypto_recipients_search">Search recipients…</string>
     <string name="crypto_recipients_search_cancel">Cancel search recipients</string>
     <string name="crypto_recipients_search_empty">No recipients found</string>
-    <string name="crypto_recipients_empty_message">No recipients</string>
     <string name="crypto_recipients_recipient_add_success">Recipient added</string>
 
     <!-- Signature Add -->
