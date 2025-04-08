@@ -15,7 +15,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.fragment.AccessibilityFragment
 import ee.ria.DigiDoc.fragment.AdvancedSettingsFragment
+import ee.ria.DigiDoc.fragment.CryptoFileOpeningFragment
 import ee.ria.DigiDoc.fragment.DiagnosticsFragment
+import ee.ria.DigiDoc.fragment.EncryptFragment
+import ee.ria.DigiDoc.fragment.EncryptRecipientFragment
 import ee.ria.DigiDoc.fragment.EncryptionServicesSettingsFragment
 import ee.ria.DigiDoc.fragment.FileOpeningFragment
 import ee.ria.DigiDoc.fragment.HomeFragment
@@ -31,6 +34,7 @@ import ee.ria.DigiDoc.fragment.SigningFragment
 import ee.ria.DigiDoc.fragment.SigningServicesSettingsFragment
 import ee.ria.DigiDoc.fragment.ThemeChooserFragment
 import ee.ria.DigiDoc.fragment.ValidationServicesSettingsFragment
+import ee.ria.DigiDoc.ui.component.crypto.recipient.RecipientDetailsView
 import ee.ria.DigiDoc.ui.component.signing.certificate.CertificateDetailsView
 import ee.ria.DigiDoc.ui.component.signing.certificate.SignerDetailsView
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
@@ -38,6 +42,7 @@ import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedRecipientViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
 
@@ -46,6 +51,7 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
     val navController = rememberNavController()
     val sharedMenuViewModel: SharedMenuViewModel = hiltViewModel()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
+    val sharedRecipientViewModel: SharedRecipientViewModel = hiltViewModel()
     val sharedSignatureViewModel: SharedSignatureViewModel = hiltViewModel()
     val sharedCertificateViewModel: SharedCertificateViewModel = hiltViewModel()
     val sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel()
@@ -117,6 +123,33 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
                 navController = navController,
                 sharedMenuViewModel = sharedMenuViewModel,
                 sharedCertificateViewModel = sharedCertificateViewModel,
+            )
+        }
+        composable(route = Route.RecipientDetail.route) {
+            RecipientDetailsView(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
+                sharedRecipientViewModel = sharedRecipientViewModel,
+                sharedCertificateViewModel = sharedCertificateViewModel,
+            )
+        }
+        composable(route = Route.EncryptRecipientScreen.route) {
+            EncryptRecipientFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
+                sharedContainerViewModel = sharedContainerViewModel,
+                sharedRecipientViewModel = sharedRecipientViewModel,
+            )
+        }
+        composable(route = Route.Encrypt.route) {
+            EncryptFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
+                sharedContainerViewModel = sharedContainerViewModel,
+                sharedRecipientViewModel = sharedRecipientViewModel,
             )
         }
         composable(route = Route.Accessibility.route) {
@@ -209,6 +242,13 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
         }
         composable(route = Route.FileChoosing.route) {
             FileOpeningFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedContainerViewModel = sharedContainerViewModel,
+            )
+        }
+        composable(route = Route.CryptoFileChoosing.route) {
+            CryptoFileOpeningFragment(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 sharedContainerViewModel = sharedContainerViewModel,

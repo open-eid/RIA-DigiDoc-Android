@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -78,6 +77,7 @@ import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatu
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.EditValueDialog
 import ee.ria.DigiDoc.ui.component.shared.ContainerMessage
+import ee.ria.DigiDoc.ui.component.shared.ContainerNameView
 import ee.ria.DigiDoc.ui.component.shared.DataFileItem
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
@@ -85,6 +85,7 @@ import ee.ria.DigiDoc.ui.component.shared.MessageDialog
 import ee.ria.DigiDoc.ui.component.shared.TabView
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
+import ee.ria.DigiDoc.ui.component.signing.bottombar.SigningBottomBar
 import ee.ria.DigiDoc.ui.component.signing.bottomsheet.ContainerBottomSheet
 import ee.ria.DigiDoc.ui.component.signing.bottomsheet.DataFileBottomSheet
 import ee.ria.DigiDoc.ui.component.signing.bottomsheet.SignatureBottomSheet
@@ -99,6 +100,7 @@ import ee.ria.DigiDoc.ui.theme.Green500
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utils.extensions.reachedBottom
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
@@ -734,9 +736,9 @@ fun SigningNavigation(
                                         isNestedContainer,
                                     ),
                                 leftActionButtonName = R.string.signature_update_signature_add,
-                                rightActionButtonName = R.string.crypto_button,
+                                rightActionButtonName = R.string.encrypt_button,
                                 leftActionButtonContentDescription = R.string.signature_update_signature_add,
-                                rightActionButtonContentDescription = R.string.crypto_button_accessibility,
+                                rightActionButtonContentDescription = R.string.encrypt_button_accessibility,
                                 onLeftActionButtonClick = {
                                     navController.navigate(
                                         Route.SignatureInputScreen.route,
@@ -1144,13 +1146,6 @@ private fun saveFile(
     } catch (e: ActivityNotFoundException) {
         // No activity to handle this kind of files
     }
-}
-
-private fun LazyListState.reachedBottom(): Boolean {
-    val lastVisibleItem = this.layoutInfo.visibleItemsInfo.lastOrNull()
-    return lastVisibleItem != null && lastVisibleItem.index != 0 &&
-        this.layoutInfo.totalItemsCount > 5 &&
-        lastVisibleItem.index == this.layoutInfo.totalItemsCount - 1
 }
 
 @Preview(showBackground = true)

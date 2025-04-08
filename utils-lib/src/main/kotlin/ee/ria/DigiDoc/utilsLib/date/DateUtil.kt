@@ -22,7 +22,7 @@ object DateUtil {
         get() = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
 
     @Throws(ParseException::class)
-    fun signedDateTime(
+    fun formattedDateTime(
         signedDateString: String,
         inputFormat: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()),
         outputDateFormat: SimpleDateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()),

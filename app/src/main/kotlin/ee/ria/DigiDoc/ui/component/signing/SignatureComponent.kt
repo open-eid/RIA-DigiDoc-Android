@@ -97,8 +97,8 @@ fun SignatureComponent(
                 val signedTime =
                     stringResource(
                         R.string.signing_container_signature_created_at,
-                        DateUtil.signedDateTime(signature.trustedSigningTime).date,
-                        DateUtil.signedDateTime(signature.trustedSigningTime).time,
+                        DateUtil.formattedDateTime(signature.trustedSigningTime).date,
+                        DateUtil.formattedDateTime(signature.trustedSigningTime).time,
                     )
                 val roles = signature.signerRoles.joinToString(" / ")
                 val roleAndAddress =

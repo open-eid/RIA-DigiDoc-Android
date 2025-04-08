@@ -46,6 +46,7 @@
     <string name="document_cancel_removal_button">Cancel file removal</string>
     <string name="document_confirm_removal_button">Confirm file removal</string>
     <string name="signature_remove_button">Remove signature</string>
+    <string name="recipient_remove_button">Remove recipient</string>
     <string name="container_open_file_error">Could not load selected files</string>
     <string name="container_load_error">Error opening container</string>
     <string name="empty_file_message">An empty file is attached to the envelope. Remove the empty file from the container to sign.</string>
@@ -132,12 +133,40 @@
     <string name="recent_documents_empty_message">No recent containers</string>
     <string name="recent_documents_remove_button">Remove container</string>
     <string name="recent_documents_remove_confirmation_message">Remove container?</string>
+    <string name="recent_documents_cancel_container_removal_button">Cancel container removal</string>
+    <string name="recent_documents_confirm_container_removal_button">Confirm container removal</string>
 
     <!-- SiVa -->
     <string name="siva_send_message_dialog">This type of signed document will be transmitted to the Digital Signature Validation Service SiVa to verify the validity of the digital signature. Read more information about transmitted data to Digital Signature Validation Service on the website</string>
     <string name="siva_read_here">here</string>
     <string name="siva_continue_question">Do you want to continue?</string>
     <string name="siva_info_url">https://www.id.ee/en/article/data-protection-conditions-for-the-id-software-of-the-national-information-system-authority</string>
+
+    <!-- Encrypt -->
+    <string name="crypto_create_success">Container successfully encrypted!</string>
+    <string name="crypto_create_encrypt">Encrypt</string>
+    <string name="crypto_files_encrypted">To see the files, select «Decrypt» to identify the recipient and decrypt the envelope contents.</string>
+    <string name="crypto_empty_file_message">An empty file is attached to the envelope. Remove the empty file from the container to encrypt.</string>
+    <string name="crypto_close_container_title">Close container</string>
+    <string name="crypto_close_container_message">You are about to close the container. Please choose what to do with the container: </string>
+    <string name="crypto_cancel_recipient_removal_button">Cancel recipient removal</string>
+    <string name="crypto_confirm_recipient_removal_button">Confirm recipient removal</string>
+    <string name="crypto_recipient_remove_button">Remove recipient</string>
+    <string name="crypto_recipient_remove_confirmation_message">Remove recipient from container?</string>
+    <string name="crypto_new_title">Container encryption</string>
+    <string name="crypto_view_title">Container content</string>
+    <string name="crypto_container_recipients_title">Container recipients</string>
+    <string name="crypto_container_added_recipients_title">Added recipients</string>
+    <string name="crypto_recipient_title">Recipient</string>
+    <string name="crypto_decryption_valid_to">Decryption until %1$s</string>
+    <string name="crypto_cert_valid_to">Valid to %1$s</string>
+    <string name="crypto_documents_title">Container files</string>
+    <string name="crypto_containter_update_name">Container name</string>
+    <string name="crypto_recipients_description">For encryption, at least one recipient must be included - the person (personal identification number) or authority (registration number) authorised to decrypt the data. Add your own personal identification number if you want to decrypt the envelope later.</string>
+    <string name="crypto_recipients_search">Search recipients…</string>
+    <string name="crypto_recipients_search_cancel">Cancel search recipients</string>
+    <string name="crypto_recipients_search_empty">No recipients found</string>
+    <string name="crypto_recipients_recipient_add_success">Recipient added</string>
 
     <!-- Signature Add -->
     <string name="signature_update_title">Container signing</string>
@@ -286,6 +315,7 @@
     <string name="signature_update_nfc_detected">Authenticating with ID-card</string>
 
     <string name="sign_button">Sign</string>
+    <string name="next_button">Next</string>
     <string name="add_signature_button">Add new signature</string>
     <string name="extend_signature_button">Extend signature</string>
     <string name="share_button">Share</string>
@@ -299,8 +329,10 @@
     <string name="close_button">Close</string>
 
     <!-- Crypto -->
-    <string name="crypto_button">Encrypt</string>
-    <string name="crypto_button_accessibility">Encrypt document</string>
+    <string name="encrypt_button">Encrypt</string>
+    <string name="encrypt_button_accessibility">Encrypt document</string>
+    <string name="decrypt_button">Decrypt</string>
+    <string name="decrypt_button_accessibility">Decrypt document</string>
 
     <!-- Accessibility -->
     <string name="file_added">File added</string>
@@ -312,7 +344,12 @@
     <string name="signature_removed">Signature removed</string>
     <string name="signature_removal_cancelled">Signature removal cancelled</string>
     <string name="signing_cancel">Cancel signing</string>
+    <string name="file_removed">Document removed</string>
+    <string name="file_removal_cancelled">Document removal cancelled</string>
+    <string name="recipient_removed">Recipient removed</string>
+    <string name="recipient_removal_cancelled">Recipient removal cancelled</string>
     <string name="signing_cancelled">Signing cancelled</string>
+    <string name="encryption_cancelled">Encryption cancelled</string>
     <string name="button_name">Button</string>
     <string name="signature_method">Signing method</string>
     <string name="signature_method_selected">Signing method selected</string>
@@ -322,6 +359,8 @@
     <string name="item_selected">selected</string>
     <string name="signatures_loading">Signatures loading</string>
     <string name="signatures_loaded">Signatures loaded</string>
+    <string name="recipients_loading">Recipients loading</string>
+    <string name="recipients_loaded">Recipients loaded</string>
     <string name="control_code_loading">Control code loading</string>
     <string name="container_files_loading">Container files loading</string>
     <string name="container_files_loaded">Container files loaded</string>
@@ -330,6 +369,12 @@
     <string name="main_home_navigation_signature_accessibility">Signature</string>
     <string name="main_home_navigation_crypto_accessibility">Crypto</string>
     <string name="main_home_navigation_eid_accessibility">My e I D</string>
+
+    <!-- Recipient Details -->
+    <string name="recipient_details_title">Recipient details</string>
+    <string name="recipient_details_name_label">Recipient:</string>
+    <string name="recipient_details_certificate_issuer_label">Recipient\'s Certificate issuer:</string>
+    <string name="recipient_details_certificate_valid_to_label">Expiry date:</string>
 
     <!-- Signature Details -->
     <string name="signature_error_details_title">Warnings</string>

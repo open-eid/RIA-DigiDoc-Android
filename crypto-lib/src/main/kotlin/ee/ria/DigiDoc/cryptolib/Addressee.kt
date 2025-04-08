@@ -2,9 +2,13 @@
 
 package ee.ria.DigiDoc.cryptolib
 
-import ee.ria.DigiDoc.utilsLib.extensions.x509Certificate
 import ee.ria.cdoc.Recipient.parseLabel
 import org.bouncycastle.asn1.ASN1InputStream
+import org.bouncycastle.asn1.ASN1OctetString
+import org.bouncycastle.asn1.ASN1Sequence
+import org.bouncycastle.asn1.x500.X500Name
+import org.bouncycastle.asn1.x500.style.BCStyle
+import org.bouncycastle.asn1.x500.style.IETFUtils
 import org.bouncycastle.asn1.x509.Extension
 import org.bouncycastle.asn1.x509.PolicyInformation
 import java.security.cert.CertificateFactory
@@ -117,57 +121,58 @@ class Addressee(
                     CertificateFactory.getInstance("X.509")
                         .generateCertificate(cert.inputStream()) as X509Certificate
                 val principal = certificate.subjectX500Principal
-                val name = principal.name
-                parseCommonName(name)
+
+                // Use Bouncy Castle for proper DN parsing
+                val x500Name = X500Name.getInstance(principal.encoded)
+                val cnAttributes = x500Name.getRDNs(BCStyle.CN)
+
+                if (cnAttributes.isNotEmpty()) {
+                    // Get all CN values and join them with commas (like the Swift version)
+                    cnAttributes.flatMap { rdn ->
+                        rdn.typesAndValues.map { IETFUtils.valueToString(it.value) }
+                    }.joinToString(",")
+                } else {
+                    ""
+                }
             } catch (e: Exception) {
                 ""
             }
         }
 
-        private fun parseCommonName(name: String): String {
-            val attributes = name.split(",").map { it.trim() }
-            for (attr in attributes) {
-                if (attr.startsWith("CN=")) {
-                    return attr.substringAfter("CN=")
-                }
-            }
-            return ""
-        }
-
         private fun extractCertTypeFromCertificate(cert: ByteArray): CertType {
             return try {
-                val certificate = cert.x509Certificate()
+                val certificate =
+                    CertificateFactory.getInstance("X.509")
+                        .generateCertificate(cert.inputStream()) as X509Certificate
 
-                val extensionValue = certificate?.getExtensionValue(Extension.certificatePolicies.id)
+                val extensionValue = certificate.getExtensionValue(Extension.certificatePolicies.id)
                 extensionValue?.let { ev ->
-                    ASN1InputStream(ev.inputStream()).use { ais ->
-                        val sequence =
-                            ais.readObject()?.let {
-                                PolicyInformation.getInstance(it)
-                            } ?: return CertType.UnknownType
+                    val octetString = ASN1OctetString.getInstance(ev)
+                    ASN1InputStream(octetString.octets).use { ais ->
+                        val seq = ASN1Sequence.getInstance(ais.readObject())
 
-                        val oid = sequence.policyIdentifier.id
-                        when {
-                            oid.startsWith(OID.ID_CARD_POLICY_PREFIX) ||
-                                oid.startsWith(OID.ALTERNATE_ID_CARD_POLICY) ->
-                                return CertType.IDCardType
+                        for (element in seq) {
+                            val policyInfo = PolicyInformation.getInstance(element)
+                            val oid = policyInfo.policyIdentifier.id
 
-                            oid.startsWith(OID.DIGI_ID_POLICY_PREFIX) ||
-                                oid.startsWith(OID.ALTERNATE_DIGI_ID_POLICY1) ||
-                                oid.startsWith(OID.ALTERNATE_DIGI_ID_POLICY2) ->
-                                return CertType.DigiIDType
+                            when {
+                                oid.startsWith(OID.ID_CARD_POLICY_PREFIX) ||
+                                    oid.startsWith(OID.ALTERNATE_ID_CARD_POLICY) ->
+                                    return CertType.IDCardType
 
-                            oid.startsWith(OID.MOBILE_ID_POLICY_PREFIX) ||
-                                oid.startsWith(OID.ALTERNATE_MOBILE_ID_POLICY) ->
-                                return CertType.MobileIDType
+                                oid.startsWith(OID.DIGI_ID_POLICY_PREFIX) ||
+                                    oid.startsWith(OID.ALTERNATE_DIGI_ID_POLICY1) ||
+                                    oid.startsWith(OID.ALTERNATE_DIGI_ID_POLICY2) ->
+                                    return CertType.DigiIDType
 
-                            oid.startsWith(OID.ESEAL_POLICY_PREFIX1) ||
-                                oid.startsWith(OID.ESEAL_POLICY_PREFIX2) ||
-                                oid.startsWith(OID.ESEAL_POLICY_PREFIX3) ->
-                                return CertType.ESealType
+                                oid.startsWith(OID.MOBILE_ID_POLICY_PREFIX) ||
+                                    oid.startsWith(OID.ALTERNATE_MOBILE_ID_POLICY) ->
+                                    return CertType.MobileIDType
 
-                            else -> {
-                                return CertType.UnknownType
+                                oid.startsWith(OID.ESEAL_POLICY_PREFIX1) ||
+                                    oid.startsWith(OID.ESEAL_POLICY_PREFIX2) ||
+                                    oid.startsWith(OID.ESEAL_POLICY_PREFIX3) ->
+                                    return CertType.ESealType
                             }
                         }
                     }

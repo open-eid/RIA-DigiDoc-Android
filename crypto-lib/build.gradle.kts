@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.bouncy.castle)
     implementation(libs.cdoc4j)
     implementation(libs.preferencex)
+    implementation(libs.stax.api)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.mockito.android)

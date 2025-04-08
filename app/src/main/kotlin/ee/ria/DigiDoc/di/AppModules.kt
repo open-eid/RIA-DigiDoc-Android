@@ -16,6 +16,7 @@ import ee.ria.DigiDoc.common.BuildVersionProvider
 import ee.ria.DigiDoc.common.BuildVersionProviderImpl
 import ee.ria.DigiDoc.common.certificate.CertificateService
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
+import ee.ria.DigiDoc.cryptolib.CDOC2Settings
 import ee.ria.DigiDoc.domain.model.tts.TextToSpeechWrapper
 import ee.ria.DigiDoc.domain.model.tts.TextToSpeechWrapperImpl
 import ee.ria.DigiDoc.domain.preferences.DataStore
@@ -61,16 +62,26 @@ class AppModules {
         )
 
     @Provides
+    fun provideCDOC2Settings(
+        @ApplicationContext context: Context,
+    ): CDOC2Settings =
+        CDOC2Settings(
+            context = context,
+        )
+
+    @Provides
     fun provideFileOpeningService(): FileOpeningService = FileOpeningServiceImpl()
 
     @Provides
     fun provideFileOpeningRepository(
         fileOpeningService: FileOpeningService,
         sivaService: SivaService,
+        cdoc2Settings: CDOC2Settings,
     ): FileOpeningRepository =
         FileOpeningRepositoryImpl(
             fileOpeningService = fileOpeningService,
             sivaService = sivaService,
+            cdoc2Settings = cdoc2Settings,
         )
 
     @Provides

@@ -1,6 +1,6 @@
 @file:Suppress("PackageName", "FunctionName")
 
-package ee.ria.DigiDoc.ui.component.signing
+package ee.ria.DigiDoc.ui.component.signing.bottombar
 
 import android.content.res.Configuration
 import androidx.annotation.DrawableRes
@@ -48,7 +48,7 @@ import ee.ria.DigiDoc.utils.extensions.notAccessible
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SignedContainerBottomBar(
+fun ShareButtonBottomBar(
     modifier: Modifier,
     @DrawableRes shareButtonIcon: Int,
     @StringRes shareButtonName: Int,
@@ -115,7 +115,7 @@ fun SignedContainerBottomBar(
 @Composable
 fun SignedContainerBottomBarPreview() {
     RIADigiDocTheme {
-        SignedContainerBottomBar(
+        ShareButtonBottomBar(
             modifier = Modifier,
             shareButtonIcon = R.drawable.ic_m3_ios_share_48dp_wght400,
             shareButtonName = R.string.share_button,

@@ -1,6 +1,6 @@
 @file:Suppress("PackageName", "FunctionName")
 
-package ee.ria.DigiDoc.ui.component.signing
+package ee.ria.DigiDoc.ui.component.crypto.bottombar
 
 import android.content.res.Configuration
 import androidx.annotation.DrawableRes
@@ -42,7 +42,7 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class)
 @Composable
-fun UnSignedContainerBottomBar(
+fun NoRecipientContainerBottomBar(
     modifier: Modifier,
     leftButtonText: String,
     @DrawableRes leftButtonIcon: Int,
@@ -66,7 +66,7 @@ fun UnSignedContainerBottomBar(
                 .semantics {
                     testTagsAsResourceId = true
                 }
-                .testTag("unsignedContainerContainer"),
+                .testTag("noRecipientCryptoContainerBottomBar"),
         contentAlignment = Alignment.Center,
     ) {
         FlowRow(
@@ -86,7 +86,7 @@ fun UnSignedContainerBottomBar(
                         modifier
                             .size(iconSizeXXS)
                             .focusable(false)
-                            .testTag("unsignedContainerLeftButton"),
+                            .testTag("noRecipientCryptoContainerLeftButton"),
                 )
                 Spacer(modifier = modifier.width(XSPadding))
                 Text(
@@ -107,7 +107,7 @@ fun UnSignedContainerBottomBar(
                         modifier
                             .size(iconSizeXXS)
                             .focusable(false)
-                            .testTag("unsignedContainerRightButton"),
+                            .testTag("noRecipientCryptoContainerRightButton"),
                 )
                 Spacer(modifier = modifier.width(XSPadding))
                 Text(
@@ -126,17 +126,17 @@ fun UnSignedContainerBottomBar(
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun UnSignedContainerBottomBarPreview() {
+fun NoRecipientContainerBottomBarPreview() {
     RIADigiDocTheme {
-        UnSignedContainerBottomBar(
+        NoRecipientContainerBottomBar(
             modifier = Modifier,
             leftButtonText = stringResource(R.string.documents_add_button),
             leftButtonContentDescription = stringResource(R.string.documents_add_button),
             leftButtonIcon = R.drawable.ic_m3_add_48dp_wght400,
             onLeftButtonClick = {},
-            rightButtonText = stringResource(R.string.sign_button),
-            rightButtonContentDescription = stringResource(R.string.sign_button),
-            rightButtonIcon = R.drawable.ic_icon_signature,
+            rightButtonText = stringResource(R.string.next_button),
+            rightButtonContentDescription = stringResource(R.string.next_button),
+            rightButtonIcon = R.drawable.ic_m3_arrow_forward_48dp_wght400,
             onRightButtonClick = {},
         )
     }

@@ -5,9 +5,7 @@ package ee.ria.DigiDoc.utilsLib.container
 import ee.ria.DigiDoc.utilsLib.text.TextUtil
 
 object NameUtil {
-    fun formatName(name: String): String {
-        val nameComponents = name.split(",").map { it.trim() }
-
+    fun formatName(nameComponents: List<String>): String {
         val formattedNameComponents =
             if (nameComponents.size == 3) {
                 val (lastname, firstname, code) = nameComponents
@@ -20,6 +18,25 @@ object NameUtil {
         return TextUtil
             .removeSlashes(formattedNameComponents)
             .replace("\\s+".toRegex(), " ")
+    }
+
+    fun formatName(name: String): String {
+        val nameComponents = name.split(",").map { it.trim() }
+
+        return formatName(nameComponents)
+    }
+
+    fun formatName(
+        surname: String?,
+        givenName: String?,
+        identifier: String?,
+    ): String {
+        val nameComponents = mutableListOf<String>()
+        surname?.let { nameComponents.add(it) }
+        givenName?.let { nameComponents.add(it) }
+        identifier?.let { nameComponents.add(it) }
+
+        return formatName(nameComponents)
     }
 
     private fun capitalizeName(name: String): String {

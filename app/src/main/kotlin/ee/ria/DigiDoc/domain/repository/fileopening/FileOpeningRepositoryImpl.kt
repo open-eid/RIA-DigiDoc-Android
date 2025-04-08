@@ -6,6 +6,8 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import androidx.activity.result.ActivityResultLauncher
+import ee.ria.DigiDoc.cryptolib.CDOC2Settings
+import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.domain.service.fileopening.FileOpeningService
 import ee.ria.DigiDoc.domain.service.siva.SivaService
 import ee.ria.DigiDoc.exceptions.EmptyFileException
@@ -24,6 +26,7 @@ class FileOpeningRepositoryImpl
     constructor(
         private val fileOpeningService: FileOpeningService,
         private val sivaService: SivaService,
+        private val cdoc2Settings: CDOC2Settings,
     ) : FileOpeningRepository {
         override suspend fun isFileSizeValid(file: File): Boolean {
             return fileOpeningService.isFileSizeValid(file)
@@ -58,6 +61,20 @@ class FileOpeningRepositoryImpl
                     cacheFiles(
                         context,
                         getContainerFiles(signedContainer, documents),
+                    ),
+                )
+
+        @Throws(Exception::class)
+        override suspend fun addFilesToContainer(
+            context: Context,
+            cryptoContainer: CryptoContainer,
+            documents: List<File>,
+        ): Unit =
+            cryptoContainer
+                .addDataFiles(
+                    cacheFiles(
+                        context,
+                        getContainerFiles(cryptoContainer, documents),
                     ),
                 )
 
@@ -98,6 +115,40 @@ class FileOpeningRepositoryImpl
             )
         }
 
+        @Throws(
+            EmptyFileException::class,
+            NoSuchElementException::class,
+            NoInternetConnectionException::class,
+            SecurityException::class,
+            Exception::class,
+        )
+        override suspend fun openOrCreateCryptoContainer(
+            context: Context,
+            contentResolver: ContentResolver,
+            uris: List<Uri>,
+        ): CryptoContainer {
+            val files = mutableListOf<File>()
+
+            uris.forEachIndexed { _, uri ->
+                val file = uriToFile(context, contentResolver, uri)
+                if (isFileSizeValid(file)) {
+                    files.add(file)
+                } else if (uris.size == 1) {
+                    throw EmptyFileException(context)
+                }
+            }
+
+            checkForValidFiles(files)
+
+            val containerPath = ContainerUtil.addCryptoContainer(context, files.first())
+            return CryptoContainer.openOrCreate(
+                context,
+                containerPath,
+                files,
+                cdoc2Settings,
+            )
+        }
+
         override suspend fun checkForValidFiles(files: List<File>) {
             if (files.isEmpty()) {
                 throw NoSuchElementException()
@@ -117,6 +168,15 @@ class FileOpeningRepositoryImpl
             }
         }
 
+        override fun getValidFiles(
+            files: List<File>,
+            container: CryptoContainer?,
+        ): List<File> {
+            return ContainerUtil.getFilesWithValidSize(files).filter { file ->
+                container == null || !isFileAlreadyInContainer(file, container)
+            }
+        }
+
         override fun getFilesWithValidSize(files: List<File>): List<File> {
             return ContainerUtil.getFilesWithValidSize(files)
         }
@@ -126,6 +186,14 @@ class FileOpeningRepositoryImpl
             container: SignedContainer,
         ): Boolean {
             return container.rawContainer()?.dataFiles()?.any { it.fileName() == file.name }
+                ?: false
+        }
+
+        override fun isFileAlreadyInContainer(
+            file: File,
+            container: CryptoContainer,
+        ): Boolean {
+            return container.dataFiles?.any { it?.name == file.name }
                 ?: false
         }
 
@@ -156,6 +224,27 @@ class FileOpeningRepositoryImpl
         }
 
         @Throws(Exception::class)
+        private fun getContainerFiles(
+            cryptoContainer: CryptoContainer,
+            documents: List<File>,
+        ): List<File> {
+            val fileList: ArrayList<File> = ArrayList()
+            val fileNamesInContainer: List<String> = getFileNamesInContainer(cryptoContainer)
+            val fileNamesToAdd: List<String> = getFileNamesToAddToContainer(documents)
+            for (i in fileNamesToAdd.indices) {
+                if (!fileNamesInContainer.contains(fileNamesToAdd[i])) {
+                    fileList.add(documents[i])
+                }
+            }
+
+            if (fileList.isEmpty()) {
+                return documents
+            }
+
+            return fileList
+        }
+
+        @Throws(Exception::class)
         private fun getFileNamesInContainer(signedContainer: SignedContainer): List<String> {
             val containerFileNames: MutableList<String> = java.util.ArrayList()
             val dataFiles =
@@ -164,6 +253,21 @@ class FileOpeningRepositoryImpl
             if (dataFiles != null) {
                 for (i in dataFiles.indices) {
                     containerFileNames.add(dataFiles[i].fileName())
+                }
+            }
+
+            return containerFileNames
+        }
+
+        @Throws(Exception::class)
+        private fun getFileNamesInContainer(cryptoContainer: CryptoContainer): List<String> {
+            val containerFileNames: MutableList<String> = java.util.ArrayList()
+            val dataFiles =
+                cryptoContainer.dataFiles
+
+            if (dataFiles != null) {
+                for (i in dataFiles.indices) {
+                    dataFiles[i]?.name?.let { containerFileNames.add(it) }
                 }
             }
 

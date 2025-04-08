@@ -7,6 +7,8 @@ import android.util.Log
 import android.webkit.MimeTypeMap
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
 import com.tom_roush.pdfbox.pdmodel.PDDocument
+import ee.ria.DigiDoc.common.Constant.CDOC1_EXTENSION
+import ee.ria.DigiDoc.common.Constant.CDOC2_EXTENSION
 import ee.ria.DigiDoc.common.Constant.DDOC_EXTENSION
 import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DEFAULT_MIME_TYPE
@@ -23,6 +25,7 @@ import org.apache.commons.codec.digest.DigestUtils
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
+import java.util.Locale
 import java.util.zip.ZipException
 import java.util.zip.ZipFile
 
@@ -90,6 +93,11 @@ fun File.mimeType(context: Context): String {
     return DEFAULT_MIME_TYPE
 }
 
+fun File.isCryptoContainer(): Boolean {
+    val extension: String = this.extension.lowercase(Locale.getDefault())
+    return CDOC1_EXTENSION == extension || CDOC2_EXTENSION == extension
+}
+
 fun File.isContainer(context: Context): Boolean {
     val mimetype = mimeType(context)
 
@@ -124,4 +132,8 @@ fun File.md5Hash(): String {
         Log.e(FILE_EXTENSIONS_LOG_TAG, "Unable to get MD5 of file: ${this.name}", e)
         return ""
     }
+}
+
+fun File.saveAs(destinationPath: String) {
+    this.copyTo(File(destinationPath), overwrite = true)
 }

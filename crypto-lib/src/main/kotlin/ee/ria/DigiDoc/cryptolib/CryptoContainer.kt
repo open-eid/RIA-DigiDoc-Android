@@ -3,13 +3,19 @@
 package ee.ria.DigiDoc.cryptolib
 
 import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.common.Constant.CDOC1_EXTENSION
 import ee.ria.DigiDoc.common.Constant.CDOC2_EXTENSION
 import ee.ria.DigiDoc.common.Constant.CONTAINER_MIME_TYPE
+import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
+import ee.ria.DigiDoc.cryptolib.exception.ContainerDataFilesEmptyException
 import ee.ria.DigiDoc.cryptolib.exception.CryptoException
 import ee.ria.DigiDoc.cryptolib.exception.DataFilesEmptyException
-import ee.ria.DigiDoc.cryptolib.exception.RecipientsEmptyException
+import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
+import ee.ria.DigiDoc.utilsLib.extensions.isCryptoContainer
+import ee.ria.DigiDoc.utilsLib.extensions.saveAs
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.getNameWithoutExtension
+import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.cdoc.CDoc
@@ -25,6 +31,7 @@ import ee.ria.cdoc.NetworkBackend
 import ee.ria.cdoc.Recipient
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
+import org.apache.commons.io.FilenameUtils
 import org.openeid.cdoc4j.CDOCParser
 import java.io.File
 import java.io.FileInputStream
@@ -32,7 +39,6 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-import java.util.Locale
 import javax.inject.Inject
 
 private const val LOG_TAG = "CryptoContainer"
@@ -40,19 +46,124 @@ private const val LOG_TAG = "CryptoContainer"
 class CryptoContainer
     @Inject
     constructor(
-        private val context: Context,
-        private val file: File,
-        private val dataFiles: List<File?>?,
-        private val recipients: List<Addressee?>?,
-        private val decrypted: Boolean,
+        val context: Context,
+        var file: File?,
+        val dataFiles: ArrayList<File?>?,
+        val recipients: ArrayList<Addressee?>?,
+        val decrypted: Boolean,
+        val encrypted: Boolean,
     ) {
+        fun containerMimetype(): String = CONTAINER_MIME_TYPE
+
+        fun getName(): String = file?.name ?: DEFAULT_FILENAME
+
+        suspend fun setName(filename: String) {
+            val name = sanitizeString(filename, "")
+            val containerName = name?.let { ContainerUtil.addExtensionToContainerFilename(it) }
+            val newFile = containerName?.let { File(file?.parent, it) }
+
+            if (newFile != null) {
+                withContext(IO) {
+                    file?.renameTo(newFile)
+                    file = newFile
+
+                    file?.let {
+                        // TODO: ensure renamed file is saved
+                    }
+                }
+            }
+        }
+
+        fun addDataFiles(filesToAdd: List<File>) {
+            dataFiles?.addAll(filesToAdd)
+        }
+
+        fun addRecipients(recipientsToAdd: List<Addressee>) {
+            recipients?.addAll(recipientsToAdd)
+        }
+
+        fun getDataFiles(): List<File> =
+            try {
+                dataFiles
+                    ?.filterNotNull()
+                    ?.map { dataFile -> dataFile } ?: emptyList()
+            } catch (e: Exception) {
+                errorLog(LOG_TAG, "Unable to get container recipients", e)
+                emptyList()
+            }
+
+        fun getRecipients(): List<Addressee> =
+            try {
+                recipients
+                    ?.filterNotNull()
+                    ?.map { recipient -> recipient } ?: emptyList()
+            } catch (e: Exception) {
+                errorLog(LOG_TAG, "Unable to get container recipients", e)
+                emptyList()
+            }
+
+        fun hasRecipients(): Boolean = recipients?.isNotEmpty() ?: false
+
+        @Throws(Exception::class)
+        fun getDataFile(
+            dataFile: File,
+            directory: File?,
+        ): File? {
+            val file = sanitizeString(dataFile.name, "")?.let { File(directory, it) }
+            val dataFiles = dataFiles
+            if (dataFiles != null) {
+                for (i in dataFiles.indices) {
+                    val containerDataFile = dataFiles[i]
+                    if (containerDataFile != null) {
+                        if (dataFile.name == containerDataFile.name) {
+                            if (file != null) {
+                                containerDataFile.saveAs(file.absolutePath)
+                            }
+                            return file
+                        }
+                    }
+                }
+            }
+            throw IllegalArgumentException("Could not find file ${dataFile.name} in container ${file?.name}")
+        }
+
+        @Throws(Exception::class)
+        suspend fun removeDataFile(dataFile: File) {
+            if ((dataFiles?.size ?: 0) == 1) {
+                throw ContainerDataFilesEmptyException()
+            }
+
+            val files = getDataFiles()
+            withContext(IO) {
+                for (i in files.indices) {
+                    if (dataFile.name == files[i].name) {
+                        dataFiles?.removeAt(i)
+                        break
+                    }
+                }
+            }
+        }
+
+        @Throws(Exception::class)
+        fun removeRecipient(recipient: Addressee) {
+            val signatures = getRecipients()
+            if (signatures.isNotEmpty()) {
+                for (i in signatures.indices) {
+                    if (recipient.identifier == signatures[i].identifier) {
+                        recipients?.removeAt(i)
+                        break
+                    }
+                }
+            }
+        }
+
         companion object {
             @Throws(CryptoException::class)
             private suspend fun open(
                 context: Context,
                 file: File,
             ): CryptoContainer {
-                if (file.extension === CDOC1_EXTENSION) {
+                if (file.extension == CDOC1_EXTENSION) {
                     return openCDOC1(context, file)
                 }
 
@@ -72,7 +183,7 @@ class CryptoContainer
                     }
                 }
 
-                return create(context, file, null, addressees, false)
+                return create(context, file, null, addressees, false, true)
             }
 
             @Throws(CryptoException::class)
@@ -101,7 +212,7 @@ class CryptoContainer
                     }
                 }
 
-                return create(context, file, dataFiles, recipients, false)
+                return create(context, file, dataFiles, recipients, false, true)
             }
 
             @Throws(CryptoException::class)
@@ -158,7 +269,7 @@ class CryptoContainer
                     throw CryptoException("Failed to finish decryption")
                 }
                 val cryptoContainer = open(context, file)
-                return create(context, file, dataFiles, cryptoContainer.recipients, true)
+                return create(context, file, dataFiles, cryptoContainer.recipients, true, false)
             }
 
             @Throws(CryptoException::class)
@@ -237,16 +348,60 @@ class CryptoContainer
                 dataFiles: List<File?>?,
                 recipients: List<Addressee?>?,
                 decrypted: Boolean,
+                encrypted: Boolean,
             ): CryptoContainer {
                 if (dataFiles.isNullOrEmpty()) {
                     throw DataFilesEmptyException("Cannot create an empty crypto container")
                 }
 
-                if (recipients.isNullOrEmpty()) {
-                    throw RecipientsEmptyException("Cannot create crypto container without recipients")
+                return CryptoContainer(
+                    context,
+                    file,
+                    ArrayList(dataFiles),
+                    recipients?.let { ArrayList(it) },
+                    decrypted,
+                    encrypted,
+                )
+            }
+
+            @Throws(Exception::class)
+            suspend fun openOrCreate(
+                @ApplicationContext context: Context,
+                file: File,
+                dataFiles: List<File?>?,
+                cdoc2Settings: CDOC2Settings,
+            ): CryptoContainer {
+                val isFirstDataFileContainer =
+                    dataFiles?.firstOrNull()?.run {
+                        isCryptoContainer()
+                    } ?: false
+
+                var containerFileWithExtension = file
+
+                if ((!isFirstDataFileContainer || (dataFiles?.size ?: 0) > 1) &&
+                    !file.path.endsWith(".$CDOC1_EXTENSION") &&
+                    !file.path.endsWith(".$CDOC2_EXTENSION")
+                ) {
+                    val defaultExtension =
+                        if (cdoc2Settings.getUseEncryption()) {
+                            CDOC2_EXTENSION
+                        } else {
+                            CDOC1_EXTENSION
+                        }
+
+                    containerFileWithExtension =
+                        File(
+                            FilenameUtils.removeExtension(file.path) + ".$defaultExtension",
+                        )
+
+                    file.copyTo(containerFileWithExtension, true)
                 }
 
-                return CryptoContainer(context, file, dataFiles, recipients, decrypted)
+                return if (dataFiles != null && dataFiles.size == 1 && isFirstDataFileContainer) {
+                    open(context, containerFileWithExtension)
+                } else {
+                    create(context, containerFileWithExtension, dataFiles, null, false, false)
+                }
             }
 
             fun createCDOC1ContainerFileName(file: String): String {
@@ -257,11 +412,6 @@ class CryptoContainer
             fun createCDOC2ContainerFileName(file: String): String {
                 val fileName: String? = getNameWithoutExtension(file)
                 return "$fileName.$CDOC2_EXTENSION"
-            }
-
-            fun isCryptoContainer(file: File): Boolean {
-                val extension: String = file.extension.lowercase(Locale.getDefault())
-                return CDOC1_EXTENSION == extension || CDOC2_EXTENSION == extension
             }
 
             fun getMimeType(): String {

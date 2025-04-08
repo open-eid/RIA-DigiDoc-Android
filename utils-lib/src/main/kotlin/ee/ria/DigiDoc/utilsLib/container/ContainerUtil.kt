@@ -15,6 +15,7 @@ import ee.ria.DigiDoc.common.Constant.CONTAINER_EXTENSIONS
 import ee.ria.DigiDoc.common.Constant.DATA_FILE_DIR
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
 import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
+import ee.ria.DigiDoc.common.Constant.DIR_CRYPTO_CONTAINERS
 import ee.ria.DigiDoc.common.Constant.DIR_SIGNATURE_CONTAINERS
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.getFileInDirectory
@@ -53,6 +54,20 @@ object ContainerUtil {
     }
 
     @Throws(IOException::class)
+    suspend fun addCryptoContainer(
+        context: Context,
+        file: File,
+    ): File {
+        val containerFile = generateCryptoContainerFile(context, file.name)
+        file.inputStream().use { inputStream ->
+            containerFile.outputStream().use { outputStream ->
+                inputStream.copyTo(outputStream)
+            }
+        }
+        return containerFile
+    }
+
+    @Throws(IOException::class)
     suspend fun generateSignatureContainerFile(
         context: Context,
         name: String?,
@@ -67,6 +82,25 @@ object ContainerUtil {
                 ),
             )
         val fileInDirectory: File = getFileInDirectory(file, signatureContainersDir(context))
+        fileInDirectory.parentFile?.mkdirs()
+        return file
+    }
+
+    @Throws(IOException::class)
+    suspend fun generateCryptoContainerFile(
+        context: Context,
+        name: String?,
+    ): File {
+        val file: File =
+            increaseCounterIfExists(
+                File(
+                    cryptoContainersDir(context),
+                    FilenameUtils.getName(
+                        FileUtil.sanitizeString(name, ""),
+                    ),
+                ),
+            )
+        val fileInDirectory: File = getFileInDirectory(file, cryptoContainersDir(context))
         fileInDirectory.parentFile?.mkdirs()
         return file
     }
@@ -196,6 +230,15 @@ object ContainerUtil {
 
     fun signatureContainersDir(context: Context): File {
         val dir = File(context.filesDir, DIR_SIGNATURE_CONTAINERS)
+        val isDirsCreated = dir.mkdirs()
+        if (isDirsCreated) {
+            debugLog(LOG_TAG, "Directories created or already exist for ${dir.path}")
+        }
+        return dir
+    }
+
+    fun cryptoContainersDir(context: Context): File {
+        val dir = File(context.filesDir, DIR_CRYPTO_CONTAINERS)
         val isDirsCreated = dir.mkdirs()
         if (isDirsCreated) {
             debugLog(LOG_TAG, "Directories created or already exist for ${dir.path}")
