@@ -4,12 +4,15 @@ package ee.ria.DigiDoc.ui.component.signing
 
 import android.app.Activity
 import android.content.res.Configuration
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,16 +21,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -40,20 +44,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.semantics.traversalIndex
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -65,23 +74,29 @@ import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.HrefMessageDialog
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
-import ee.ria.DigiDoc.ui.theme.Blue300
+import ee.ria.DigiDoc.ui.theme.Dimensions.LPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.XLPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXL
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewSmallPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.addInvisibleElement
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.removeInvisibleElement
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
+import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatName
 import ee.ria.DigiDoc.viewmodel.IdCardViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -91,13 +106,16 @@ import kotlinx.coroutines.withContext
 fun IdCardView(
     activity: Activity,
     modifier: Modifier = Modifier,
-    cancelButtonClick: () -> Unit = {},
-    dismissDialog: () -> Unit = {},
+    isSigning: Boolean,
+    isStarted: (Boolean) -> Unit,
+    onError: () -> Unit = {},
+    onSuccess: () -> Unit = {},
     sharedContainerViewModel: SharedContainerViewModel,
-    sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
+    sharedSettingsViewModel: SharedSettingsViewModel,
     idCardViewModel: IdCardViewModel = hiltViewModel(),
     isValidToSign: (Boolean) -> Unit,
     signAction: (() -> Unit) -> Unit = {},
+    cancelAction: (() -> Unit) -> Unit = {},
 ) {
     val context = LocalContext.current
 
@@ -113,24 +131,49 @@ fun IdCardView(
     val idCardStatusReaderDetectedMessage = stringResource(id = R.string.id_card_status_reader_detected_message)
     val idCardStatusCardDetectedMessage = stringResource(id = R.string.id_card_status_card_detected_message)
     val idCardStatusSigningMessage = stringResource(id = R.string.id_card_progress_message_signing)
+    val idCardStatusReadyToSignMessage = stringResource(R.string.id_card_sign_message)
 
-    val startSigning = remember { mutableStateOf(false) }
-    val isSigning = remember { mutableStateOf(false) }
     val showErrorDialog = rememberSaveable { mutableStateOf(false) }
+    var isDataLoadingStarted by rememberSaveable { mutableStateOf(false) }
+    var showLoadingIndicator by rememberSaveable { mutableStateOf(false) }
 
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
 
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }
     val pin2Text = stringResource(R.string.id_card_sign_pin2)
-    var pin2Value by remember { mutableStateOf(TextFieldValue("")) }
-    var isSigningEnabled by remember { mutableStateOf(false) }
+    var pin2Code by remember { mutableStateOf(TextFieldValue("")) }
+
     var roleDataRequest: RoleData? by remember { mutableStateOf(null) }
     val roleDataRequested by idCardViewModel.roleDataRequested.asFlow().collectAsState(null)
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
     var errorText by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
+    val statusMessageFocusRequester = remember { FocusRequester() }
+    val readyToSignFocusRequester = remember { FocusRequester() }
+
+    var isValid by rememberSaveable { mutableStateOf(false) }
+    var pin2WithInvisibleSpaces = TextFieldValue(addInvisibleElement(pin2Code.text))
+
+    val clearButtonText = stringResource(R.string.clear_text)
+    val buttonName = stringResource(id = R.string.button_name)
+
+    BackHandler {
+        if (isSigning) {
+            isDataLoadingStarted = false
+            showLoadingIndicator = false
+            onError()
+        } else {
+            onSuccess()
+        }
+    }
 
     LaunchedEffect(Unit) {
-        pin2Value = TextFieldValue("")
+        pin2Code = TextFieldValue("")
+        pin2WithInvisibleSpaces =
+            TextFieldValue(
+                text = "",
+                selection = TextRange.Zero,
+            )
         idCardViewModel.resetPINErrorState()
         idCardViewModel.resetPersonalUserData()
     }
@@ -139,14 +182,20 @@ fun IdCardView(
         idCardStatus?.let { status ->
             when (status) {
                 SmartCardReaderStatus.IDLE -> {
+                    showLoadingIndicator = false
+                    isDataLoadingStarted = false
                     idCardStatusMessage.value = idCardStatusInitialMessage
                 }
 
                 SmartCardReaderStatus.READER_DETECTED -> {
+                    showLoadingIndicator = false
+                    isDataLoadingStarted = false
                     idCardStatusMessage.value = idCardStatusReaderDetectedMessage
                 }
 
                 SmartCardReaderStatus.CARD_DETECTED -> {
+                    showLoadingIndicator = true
+                    isDataLoadingStarted = true
                     withContext(IO) {
                         idCardViewModel.loadPersonalData(context)
                     }
@@ -156,7 +205,12 @@ fun IdCardView(
 
             if (idCardStatus != SmartCardReaderStatus.CARD_DETECTED) {
                 idCardViewModel.resetPersonalUserData()
-                pin2Value = TextFieldValue("")
+                pin2Code = TextFieldValue("")
+                pin2WithInvisibleSpaces =
+                    TextFieldValue(
+                        text = "",
+                        selection = TextRange.Zero,
+                    )
             }
         } ?: run {
             idCardStatusMessage.value = idCardStatusInitialMessage
@@ -169,7 +223,12 @@ fun IdCardView(
             .collect { signStatus ->
                 sharedContainerViewModel.setSignedIDCardStatus(signStatus)
                 idCardViewModel.resetSignStatus()
-                pin2Value = TextFieldValue("")
+                pin2Code = TextFieldValue("")
+                pin2WithInvisibleSpaces =
+                    TextFieldValue(
+                        text = "",
+                        selection = TextRange.Zero,
+                    )
             }
     }
 
@@ -187,7 +246,12 @@ fun IdCardView(
                         errorText = errorState
                     }
 
-                    pin2Value = TextFieldValue("")
+                    pin2Code = TextFieldValue("")
+                    pin2WithInvisibleSpaces =
+                        TextFieldValue(
+                            text = "",
+                            selection = TextRange.Zero,
+                        )
                 }
             }
     }
@@ -199,8 +263,13 @@ fun IdCardView(
                 withContext(Main) {
                     idCardViewModel.resetErrorState()
                     idCardViewModel.resetDialogErrorState()
-                    isSigning.value = false
-                    pin2Value = TextFieldValue("")
+                    pin2Code = TextFieldValue("")
+                    pin2WithInvisibleSpaces =
+                        TextFieldValue(
+                            text = "",
+                            selection = TextRange.Zero,
+                        )
+                    onError()
                 }
             }
     }
@@ -212,8 +281,12 @@ fun IdCardView(
                 withContext(Main) {
                     idCardViewModel.resetErrorState()
                     idCardViewModel.resetPINErrorState()
-                    isSigning.value = false
-                    pin2Value = TextFieldValue("")
+                    pin2Code = TextFieldValue("")
+                    pin2WithInvisibleSpaces =
+                        TextFieldValue(
+                            text = "",
+                            selection = TextRange.Zero,
+                        )
                     showErrorDialog.value = true
                 }
             }
@@ -226,228 +299,26 @@ fun IdCardView(
                 sharedContainerViewModel.setSignedContainer(signedContainer)
                 idCardViewModel.resetSignedContainer()
                 idCardViewModel.resetRoleDataRequested()
-                dismissDialog()
+                onSuccess()
             }
     }
+
+    LaunchedEffect(Unit, personalData, isValid, isSigning, idCardStatusMessage) {
+        if (personalData == null || (isValid && isSigning)) {
+            statusMessageFocusRequester.requestFocus()
+        }
+    }
+
+    LaunchedEffect(Unit, personalData, isSigning) {
+        if (personalData != null && !isSigning) {
+            delay(500)
+            readyToSignFocusRequester.requestFocus()
+        }
+    }
+
     if (errorText.isNotEmpty()) {
         showMessage(errorText)
         errorText = ""
-        dismissDialog()
-    }
-
-    Column(
-        modifier =
-            modifier
-                .fillMaxHeight()
-                .imePadding()
-                .padding(horizontal = SPadding)
-                .padding(bottom = XLPadding)
-                .pointerInput(Unit) {
-                    detectTapGestures(onTap = {
-                        focusManager.clearFocus()
-                    })
-                }
-                .semantics {
-                    testTagsAsResourceId = true
-                }
-                .testTag("idCardView"),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
-            RoleDataView(modifier, sharedSettingsViewModel)
-        } else {
-            val isValid = true
-
-            LaunchedEffect(isValid) {
-                isValidToSign(isValid)
-            }
-
-            LaunchedEffect(Unit, isValid) {
-                if (isValid) {
-                    signAction {
-                        startSigning.value = true
-                    }
-                }
-            }
-
-            if (startSigning.value) {
-                if (isSigning.value) {
-                    idCardStatusMessage.value = idCardStatusSigningMessage
-                    isSigningEnabled = false
-                }
-
-                if (personalData == null || isSigning.value) {
-                    Text(
-                        text = idCardStatusMessage.value,
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier =
-                            modifier
-                                .padding(vertical = screenViewLargePadding)
-                                .testTag("idCardStatusMessage"),
-                        textAlign = TextAlign.Center,
-                    )
-
-                    CircularProgressIndicator(
-                        modifier =
-                            modifier
-                                .size(loadingBarSize)
-                                .testTag("activityIndicator"),
-                        color = MaterialTheme.colorScheme.secondary,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                    )
-                }
-
-                if (personalData != null && !isSigning.value) {
-                    Column(
-                        modifier =
-                            modifier
-                                .padding(vertical = screenViewSmallPadding)
-                                .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text(
-                            modifier =
-                                modifier
-                                    .padding(
-                                        horizontal = screenViewLargePadding,
-                                    )
-                                    .testTag("idCardSignMessage"),
-                            text = stringResource(R.string.id_card_sign_message),
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-
-                        Text(
-                            modifier =
-                                modifier
-                                    .padding(
-                                        horizontal = screenViewLargePadding,
-                                    )
-                                    .testTag("idCardSignData")
-                                    .padding(vertical = screenViewLargePadding),
-                            text =
-                                stringResource(
-                                    R.string.id_card_sign_data,
-                                    personalData?.givenNames() ?: "",
-                                    personalData?.surname() ?: "",
-                                    personalData?.personalCode() ?: "",
-                                ),
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-
-                        TextField(
-                            modifier =
-                                modifier
-                                    .fillMaxWidth()
-                                    .clearAndSetSemantics {
-                                        testTagsAsResourceId = true
-                                        testTag = "idCardPin2"
-                                        contentDescription = pin2Text
-                                    }
-                                    .testTag("idCardPin2"),
-                            shape = RectangleShape,
-                            label = {
-                                Text(
-                                    modifier = modifier.notAccessible(),
-                                    text = stringResource(id = R.string.id_card_sign_pin2),
-                                    color = if (!pinError.isNullOrEmpty()) Red500 else Blue300,
-                                )
-                            },
-                            value = pin2Value,
-                            onValueChange = {
-                                pin2Value = it
-                                val pin2ValueLength = pin2Value.text.length
-                                isSigningEnabled = pin2ValueLength in 5..12
-                            },
-                            maxLines = 1,
-                            singleLine = true,
-                            textStyle = MaterialTheme.typography.titleSmall,
-                            isError = !pinError.isNullOrEmpty(),
-                            visualTransformation = PasswordVisualTransformation(),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                        )
-
-                        if (!pinError.isNullOrEmpty()) {
-                            Text(
-                                modifier =
-                                    modifier
-                                        .padding(vertical = screenViewLargePadding)
-                                        .fillMaxWidth()
-                                        .focusable(enabled = true)
-                                        .semantics { contentDescription = pinError ?: "" }
-                                        .testTag("idCardPin2Error"),
-                                text = pinError ?: "",
-                                textAlign = TextAlign.Start,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.error,
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        if (startSigning.value) {
-            CancelAndOkButtonRow(
-                okButtonTestTag = "idCardViewSignButton",
-                cancelButtonTestTag = "idCardViewCancelButton",
-                cancelButtonClick = {
-                    cancelButtonClick()
-                    startSigning.value = false
-                    CoroutineScope(IO).launch {
-                        signedContainer?.let { idCardViewModel.removePendingSignature(it) }
-                    }
-                },
-                okButtonClick = {
-                    if (getSettingsAskRoleAndAddress() && roleDataRequested != true) {
-                        idCardViewModel.setRoleDataRequested(true)
-                    } else {
-                        if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
-                            val roles = sharedSettingsViewModel.dataStore.getRoles()
-                            val rolesList =
-                                roles
-                                    .split(",")
-                                    .map { it.trim() }
-                                    .filter { it.isNotEmpty() }
-                                    .toList()
-                            val city = sharedSettingsViewModel.dataStore.getRoleCity()
-                            val state = sharedSettingsViewModel.dataStore.getRoleState()
-                            val country = sharedSettingsViewModel.dataStore.getRoleCountry()
-                            val zip = sharedSettingsViewModel.dataStore.getRoleZip()
-
-                            roleDataRequest =
-                                RoleData(
-                                    roles = rolesList,
-                                    city = city,
-                                    state = state,
-                                    country = country,
-                                    zip = zip,
-                                )
-                        }
-
-                        isSigning.value = true
-
-                        CoroutineScope(IO).launch {
-                            idCardViewModel.sign(
-                                activity,
-                                context,
-                                signedContainer!!,
-                                pin2Value.text.toByteArray(),
-                                roleDataRequest,
-                            )
-                            pin2Value = TextFieldValue("")
-                            idCardViewModel.resetRoleDataRequested()
-                        }
-                    }
-                },
-                cancelButtonTitle = R.string.cancel_button,
-                okButtonTitle = R.string.sign_button,
-                okButtonEnabled = isSigningEnabled,
-                cancelButtonContentDescription = stringResource(id = R.string.cancel_button).lowercase(),
-                okButtonContentDescription = stringResource(id = R.string.sign_button).lowercase(),
-            )
-        }
     }
 
     if (showErrorDialog.value) {
@@ -472,15 +343,17 @@ fun IdCardView(
                     modifier
                         .clip(buttonRoundCornerShape)
                         .background(MaterialTheme.colorScheme.surface),
-                onDismissRequest = { dismissDialog() },
+                onDismissRequest = {
+                    showErrorDialog.value = false
+                    idCardViewModel.resetDialogErrorState()
+                },
             ) {
                 Surface(
                     modifier =
                         modifier
                             .padding(SPadding)
                             .wrapContentHeight()
-                            .wrapContentWidth()
-                            .verticalScroll(rememberScrollState()),
+                            .wrapContentWidth(),
                 ) {
                     Column(
                         modifier =
@@ -504,8 +377,8 @@ fun IdCardView(
                             cancelButtonTestTag = "hrefMessageDialogCancelButton",
                             cancelButtonClick = {},
                             okButtonClick = {
+                                showErrorDialog.value = false
                                 idCardViewModel.resetDialogErrorState()
-                                dismissDialog()
                             },
                             cancelButtonTitle = R.string.cancel_button,
                             okButtonTitle = R.string.ok_button,
@@ -520,6 +393,324 @@ fun IdCardView(
         }
     }
 
+    Column(
+        modifier =
+            modifier
+                .fillMaxHeight()
+                .imePadding()
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        focusManager.clearFocus()
+                    })
+                }
+                .semantics {
+                    testTagsAsResourceId = true
+                }
+                .testTag("signatureUpdateIdCard"),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
+            RoleDataView(modifier, sharedSettingsViewModel)
+        } else {
+            isValid = pin2Code.text.length in 5..12
+
+            LaunchedEffect(isValid) {
+                isValidToSign(isValid)
+            }
+
+            LaunchedEffect(Unit, isValid) {
+                if (isValid) {
+                    signAction {
+                        if (getSettingsAskRoleAndAddress() && roleDataRequested != true) {
+                            idCardViewModel.setRoleDataRequested(true)
+                        } else {
+                            if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
+                                val roles = sharedSettingsViewModel.dataStore.getRoles()
+                                val rolesList =
+                                    roles
+                                        .split(",")
+                                        .map { it.trim() }
+                                        .filter { it.isNotEmpty() }
+                                        .toList()
+                                val city = sharedSettingsViewModel.dataStore.getRoleCity()
+                                val state = sharedSettingsViewModel.dataStore.getRoleState()
+                                val country = sharedSettingsViewModel.dataStore.getRoleCountry()
+                                val zip = sharedSettingsViewModel.dataStore.getRoleZip()
+
+                                roleDataRequest =
+                                    RoleData(
+                                        roles = rolesList,
+                                        city = city,
+                                        state = state,
+                                        country = country,
+                                        zip = zip,
+                                    )
+                            }
+
+                            CoroutineScope(IO).launch {
+                                idCardViewModel.sign(
+                                    activity,
+                                    context,
+                                    signedContainer!!,
+                                    pin2Code.text.toByteArray(),
+                                    roleDataRequest,
+                                )
+                                pin2Code = TextFieldValue("")
+                                pin2WithInvisibleSpaces =
+                                    TextFieldValue(
+                                        text = "",
+                                        selection = TextRange.Zero,
+                                    )
+                                idCardViewModel.resetRoleDataRequested()
+                            }
+                        }
+                    }
+                    cancelAction {
+                        CoroutineScope(IO).launch {
+                            signedContainer?.let { idCardViewModel.removePendingSignature(it) }
+                        }
+                    }
+                }
+            }
+
+            LaunchedEffect(isDataLoadingStarted) {
+                if (isDataLoadingStarted) {
+                    isStarted(true)
+                }
+            }
+
+            if (personalData != null && isSigning) {
+                idCardStatusMessage.value = idCardStatusSigningMessage
+            }
+
+            if (personalData == null || (isValid && isSigning)) {
+                if (!showLoadingIndicator) {
+                    Icon(
+                        modifier =
+                            modifier
+                                .fillMaxWidth()
+                                .size(iconSizeXXL)
+                                .notAccessible(),
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_m3_smart_card_reader_48dp_wght400),
+                        contentDescription = null,
+                    )
+                } else {
+                    CircularProgressIndicator(
+                        modifier =
+                            modifier
+                                .padding(vertical = LPadding)
+                                .size(loadingBarSize)
+                                .testTag("activityIndicator")
+                                .notAccessible(),
+                        color = MaterialTheme.colorScheme.secondary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    )
+                }
+
+                Text(
+                    text = idCardStatusMessage.value,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier =
+                        modifier
+                            .focusRequester(statusMessageFocusRequester)
+                            .focusable()
+                            .padding(vertical = SPadding)
+                            .testTag("idCardStatusMessage"),
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+
+            if (personalData != null && !isSigning) {
+                Column(
+                    modifier =
+                        modifier
+                            .fillMaxWidth()
+                            .padding(top = SPadding)
+                            .semantics {
+                                testTagsAsResourceId = true
+                            }
+                            .testTag("signatureUpdateIdCardContainer"),
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.spacedBy(SPadding),
+                ) {
+                    Text(
+                        modifier =
+                            modifier
+                                .focusRequester(readyToSignFocusRequester)
+                                .focusable()
+                                .testTag("idCardReadyToSignMessage"),
+                        text = idCardStatusReadyToSignMessage,
+                        textAlign = TextAlign.Start,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+
+                    val nameText =
+                        formatName(
+                            "${personalData?.surname()},${personalData?.givenNames()},${personalData?.personalCode()}",
+                        )
+
+                    StyledNameText(
+                        modifier =
+                            modifier
+                                .focusable(false)
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                    contentDescription = formatNumbers(nameText)
+                                }
+                                .testTag("idCardSignerNameText"),
+                        nameText,
+                    )
+
+                    Column(
+                        modifier =
+                            modifier
+                                .fillMaxWidth()
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("signatureUpdateIdCardContainer"),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(LPadding),
+                    ) {
+                        Row(
+                            modifier =
+                                modifier
+                                    .fillMaxWidth()
+                                    .padding(top = MSPadding),
+                            horizontalArrangement = Arrangement.Start,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            OutlinedTextField(
+                                label = {
+                                    Text(
+                                        modifier = modifier.notAccessible(),
+                                        text = pin2Text,
+                                        color =
+                                            if (!pinError.isNullOrEmpty()) {
+                                                Red500
+                                            } else {
+                                                MaterialTheme.colorScheme.onSurface
+                                            },
+                                    )
+                                },
+                                value =
+                                    when {
+                                        !isTalkBackEnabled(context) -> pin2Code
+                                        passwordVisible ->
+                                            pin2WithInvisibleSpaces.copy(
+                                                selection = TextRange(pin2WithInvisibleSpaces.text.length),
+                                            )
+
+                                        else -> pin2Code
+                                    },
+                                singleLine = true,
+                                onValueChange = {
+                                    if (!isTalkBackEnabled(context)) {
+                                        pin2Code =
+                                            it.copy(selection = TextRange(it.text.length))
+                                    } else {
+                                        val noInvisibleElement =
+                                            TextFieldValue(removeInvisibleElement(it.text))
+                                        pin2Code =
+                                            noInvisibleElement.copy(
+                                                selection =
+                                                    TextRange(
+                                                        noInvisibleElement.text.length,
+                                                    ),
+                                            )
+                                    }
+                                },
+                                modifier =
+                                    modifier
+                                        .weight(1f)
+                                        .semantics(mergeDescendants = true) {
+                                            testTagsAsResourceId = true
+                                            contentDescription = pin2Text
+                                        }
+                                        .testTag("idCardPin2TextField"),
+                                trailingIcon = {
+                                    val image =
+                                        if (passwordVisible) {
+                                            ImageVector.vectorResource(id = R.drawable.ic_visibility)
+                                        } else {
+                                            ImageVector.vectorResource(id = R.drawable.ic_visibility_off)
+                                        }
+                                    val description =
+                                        if (passwordVisible) {
+                                            stringResource(
+                                                id = R.string.hide_password,
+                                            )
+                                        } else {
+                                            stringResource(id = R.string.show_password)
+                                        }
+                                    IconButton(
+                                        modifier =
+                                            modifier
+                                                .semantics { traversalIndex = 9f }
+                                                .testTag("idCardPin2PasswordVisibleButton"),
+                                        onClick = { passwordVisible = !passwordVisible },
+                                    ) {
+                                        Icon(imageVector = image, description)
+                                    }
+                                },
+                                colors =
+                                    OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
+                                    ),
+                                isError = !pinError.isNullOrEmpty(),
+                                visualTransformation =
+                                    if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                                keyboardOptions =
+                                    KeyboardOptions.Default.copy(
+                                        imeAction = ImeAction.Done,
+                                        keyboardType = KeyboardType.NumberPassword,
+                                    ),
+                            )
+                            if (isTalkBackEnabled(context) && pin2Code.text.isNotEmpty()) {
+                                IconButton(
+                                    modifier =
+                                        modifier
+                                            .align(Alignment.CenterVertically),
+                                    onClick = { pin2Code = TextFieldValue("") },
+                                ) {
+                                    Icon(
+                                        modifier =
+                                            modifier
+                                                .size(iconSizeXXS)
+                                                .semantics {
+                                                    testTagsAsResourceId = true
+                                                }
+                                                .testTag("idCardPin2CodeRemoveIconButton"),
+                                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
+                                        contentDescription = "$clearButtonText $buttonName",
+                                    )
+                                }
+                            }
+                        }
+
+                        if (!pinError.isNullOrEmpty()) {
+                            Text(
+                                modifier =
+                                    modifier
+                                        .fillMaxWidth()
+                                        .focusable(true)
+                                        .semantics { contentDescription = pinError ?: "" }
+                                        .testTag("idCardPin2Error"),
+                                text = pinError ?: "",
+                                textAlign = TextAlign.Start,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.error,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     InvisibleElement(modifier = modifier)
 
     if (!loading) return
@@ -531,9 +722,13 @@ fun IdCardView(
 fun IdCardViewPreview() {
     RIADigiDocTheme {
         val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
+        val sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel()
         IdCardView(
             activity = LocalActivity.current as Activity,
+            sharedSettingsViewModel = sharedSettingsViewModel,
             sharedContainerViewModel = sharedContainerViewModel,
+            isStarted = {},
+            isSigning = true,
             isValidToSign = {},
         )
     }
