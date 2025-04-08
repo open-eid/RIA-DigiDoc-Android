@@ -87,6 +87,7 @@ fun SignatureInputScreen(
     val context = LocalActivity.current as Activity
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
     var rememberMe by rememberSaveable { mutableStateOf(true) }
+    var isIdCardProcessStarted by rememberSaveable { mutableStateOf(false) }
     var isSigning by rememberSaveable { mutableStateOf(false) }
     val chosenMethod by remember {
         mutableStateOf(
@@ -176,7 +177,7 @@ fun SignatureInputScreen(
                 style = MaterialTheme.typography.headlineMedium,
             )
 
-            if (!isSigning) {
+            if (!isSigning && !isIdCardProcessStarted) {
                 Column(
                     modifier =
                         modifier
@@ -294,12 +295,21 @@ fun SignatureInputScreen(
                     IdCardView(
                         modifier = modifier,
                         activity = context,
-                        dismissDialog = {
+                        onError = {
+                            isSigning = false
+                            isIdCardProcessStarted = false
+                            cancelAction()
+                        },
+                        onSuccess = {
+                            isSigning = false
                             navController.navigateUp()
                         },
-                        cancelButtonClick = {
-                            isSigning = false
+                        isStarted = { started ->
+                            if (started) {
+                                isIdCardProcessStarted = true
+                            }
                         },
+                        isSigning = isSigning,
                         sharedSettingsViewModel = sharedSettingsViewModel,
                         sharedContainerViewModel = sharedContainerViewModel,
                         isValidToSign = { isValid ->
@@ -310,6 +320,10 @@ fun SignatureInputScreen(
                                 isSigning = true
                                 action()
                             }
+                        },
+                        cancelAction = { action ->
+                            isSigning = false
+                            cancelAction = action
                         },
                     )
 
