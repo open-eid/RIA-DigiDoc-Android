@@ -11,7 +11,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.certificate.CertificateService
 import ee.ria.DigiDoc.common.model.EIDType
-import ee.ria.DigiDoc.common.model.IdCardCertificate
+import ee.ria.DigiDoc.common.model.ExtendedCertificate
 import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.domain.model.IdCardData
@@ -189,7 +189,7 @@ class IdCardViewModelTest {
             `when`(certificateService.extractFriendlyName(anyOrNull())).thenReturn(testName)
             `when`(certificateService.isEllipticCurve(anyOrNull())).thenReturn(true)
 
-            val certificate = IdCardCertificate.create(testData, certificateService)
+            val certificate = ExtendedCertificate.create(testData, certificateService)
 
             val idCardData =
                 IdCardData(
@@ -259,7 +259,7 @@ class IdCardViewModelTest {
             `when`(certificateService.extractFriendlyName(anyOrNull())).thenReturn(testName)
             `when`(certificateService.isEllipticCurve(anyOrNull())).thenReturn(true)
 
-            val certificate = IdCardCertificate.create(testData, certificateService)
+            val certificate = ExtendedCertificate.create(testData, certificateService)
 
             val idCardData =
                 IdCardData(
@@ -317,7 +317,7 @@ class IdCardViewModelTest {
             `when`(certificateService.extractFriendlyName(anyOrNull())).thenReturn(testName)
             `when`(certificateService.isEllipticCurve(anyOrNull())).thenReturn(true)
 
-            val certificate = IdCardCertificate.create(testData, certificateService)
+            val certificate = ExtendedCertificate.create(testData, certificateService)
 
             val idCardData =
                 IdCardData(
@@ -377,7 +377,7 @@ class IdCardViewModelTest {
             `when`(certificateService.extractFriendlyName(anyOrNull())).thenReturn(testName)
             `when`(certificateService.isEllipticCurve(anyOrNull())).thenReturn(true)
 
-            val certificate = IdCardCertificate.create(testData, certificateService)
+            val certificate = ExtendedCertificate.create(testData, certificateService)
 
             val idCardData =
                 IdCardData(
@@ -437,7 +437,7 @@ class IdCardViewModelTest {
             `when`(certificateService.extractFriendlyName(anyOrNull())).thenReturn(testName)
             `when`(certificateService.isEllipticCurve(anyOrNull())).thenReturn(true)
 
-            val certificate = IdCardCertificate.create(testData, certificateService)
+            val certificate = ExtendedCertificate.create(testData, certificateService)
 
             val idCardData =
                 IdCardData(

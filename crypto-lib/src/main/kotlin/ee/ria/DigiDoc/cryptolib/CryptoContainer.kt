@@ -102,7 +102,7 @@ class CryptoContainer
                 emptyList()
             }
 
-        fun hasRecipients(): Boolean = recipients?.isNotEmpty() ?: false
+        fun hasRecipients(): Boolean = recipients?.isNotEmpty() == true
 
         @Throws(Exception::class)
         fun getDataFile(
@@ -183,7 +183,7 @@ class CryptoContainer
                     }
                 }
 
-                return create(context, file, null, addressees, false, true)
+                return create(context, file, listOf(), addressees, false, true)
             }
 
             @Throws(CryptoException::class)
@@ -374,11 +374,11 @@ class CryptoContainer
                 val isFirstDataFileContainer =
                     dataFiles?.firstOrNull()?.run {
                         isCryptoContainer()
-                    } ?: false
+                    } == true
 
                 var containerFileWithExtension = file
 
-                if ((!isFirstDataFileContainer || (dataFiles?.size ?: 0) > 1) &&
+                if ((!isFirstDataFileContainer) &&
                     !file.path.endsWith(".$CDOC1_EXTENSION") &&
                     !file.path.endsWith(".$CDOC2_EXTENSION")
                 ) {
@@ -400,7 +400,7 @@ class CryptoContainer
                 return if (dataFiles != null && dataFiles.size == 1 && isFirstDataFileContainer) {
                     open(context, containerFileWithExtension)
                 } else {
-                    create(context, containerFileWithExtension, dataFiles, null, false, false)
+                    create(context, containerFileWithExtension, dataFiles, listOf(), false, false)
                 }
             }
 

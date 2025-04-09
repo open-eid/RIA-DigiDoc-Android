@@ -18,7 +18,7 @@ import org.mockito.kotlin.anyOrNull
 import java.io.IOException
 
 @RunWith(MockitoJUnitRunner::class)
-class IdCardCertificateTest {
+class ExtendedCertificateTest {
     @Mock
     private lateinit var certificateService: CertificateService
 
@@ -42,7 +42,7 @@ class IdCardCertificateTest {
         `when`(certificateService.extractFriendlyName(anyOrNull())).thenReturn(testName)
         `when`(certificateService.isEllipticCurve(anyOrNull())).thenReturn(true)
 
-        val certificate = IdCardCertificate.create(testData, certificateService)
+        val certificate = ExtendedCertificate.create(testData, certificateService)
 
         assertEquals(EIDType.ID_CARD, certificate.type)
         assertEquals(testData, certificate.data)
@@ -56,6 +56,6 @@ class IdCardCertificateTest {
         `when`(certificateService.parseCertificate(anyOrNull()))
             .thenThrow(IOException())
 
-        IdCardCertificate.create(testData, certificateService)
+        ExtendedCertificate.create(testData, certificateService)
     }
 }
