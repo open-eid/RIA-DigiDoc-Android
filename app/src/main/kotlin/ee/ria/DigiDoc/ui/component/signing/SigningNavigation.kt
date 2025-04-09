@@ -17,6 +17,7 @@ import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -69,6 +70,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
+import ee.ria.DigiDoc.domain.model.notifications.ContainerNotificationType
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
@@ -76,7 +78,6 @@ import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatu
 import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.EditValueDialog
-import ee.ria.DigiDoc.ui.component.shared.ContainerMessage
 import ee.ria.DigiDoc.ui.component.shared.ContainerNameView
 import ee.ria.DigiDoc.ui.component.shared.DataFileItem
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
@@ -90,13 +91,11 @@ import ee.ria.DigiDoc.ui.component.signing.bottomsheet.ContainerBottomSheet
 import ee.ria.DigiDoc.ui.component.signing.bottomsheet.DataFileBottomSheet
 import ee.ria.DigiDoc.ui.component.signing.bottomsheet.SignatureBottomSheet
 import ee.ria.DigiDoc.ui.component.signing.bottomsheet.SignedContainerBottomSheet
+import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
-import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
-import ee.ria.DigiDoc.ui.theme.Green500
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
@@ -145,11 +144,6 @@ fun SigningNavigation(
     val signatureAddedSuccess = remember { mutableStateOf(false) }
     val signatureAddedSuccessText = stringResource(id = R.string.signature_update_signature_add_success)
 
-    val xadesText = stringResource(id = R.string.xades_file_message)
-    val cadesText = stringResource(id = R.string.cades_file_message)
-
-    val emptyFileInContainerText = stringResource(id = R.string.empty_file_message)
-
     val isNestedContainer = sharedContainerViewModel.isNestedContainer(signedContainer)
     val isXadesContainer = signedContainer?.isXades() == true
     val isCadesContainer = signedContainer?.isCades() == true
@@ -159,6 +153,9 @@ fun SigningNavigation(
     var invalidSignaturesCount by remember { mutableIntStateOf(0) }
 
     var isSignaturesCountLoaded by remember { mutableStateOf(false) }
+
+    var isSivaConfirmed by remember { mutableStateOf(true) }
+    var isTimestampedContainer by remember { mutableStateOf(false) }
 
     val containerHasText = stringResource(id = R.string.container_has)
     val validSignaturesText =
@@ -292,6 +289,8 @@ fun SigningNavigation(
 
     val messages by SnackBarManager.messages.collectAsState(emptyList())
 
+    val containerNotifications by sharedContainerViewModel.containerNotifications.collectAsState()
+
     val saveFileLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -323,6 +322,7 @@ fun SigningNavigation(
         onDispose {
             if (shouldResetContainer == true) {
                 sharedContainerViewModel.resetSignedContainer()
+                sharedContainerViewModel.resetContainerNotifications()
             }
         }
     }
@@ -412,6 +412,24 @@ fun SigningNavigation(
                     signatureCounts?.get(ValidatorInterface.Status.Unknown) ?: 0
                 invalidSignaturesCount =
                     signatureCounts?.get(ValidatorInterface.Status.Invalid) ?: 0
+
+                sharedContainerViewModel.setContainerNotifications(
+                    listOfNotNull(
+                        ContainerNotificationType.XadesFile.takeIf { isXadesContainer },
+                        ContainerNotificationType.CadesFile.takeIf { isCadesContainer },
+                        ContainerNotificationType.UnknownSignatures(
+                            unknownSignaturesCount,
+                        ).takeIf { unknownSignaturesCount > 0 },
+                        ContainerNotificationType.InvalidSignatures(
+                            invalidSignaturesCount,
+                        ).takeIf { invalidSignaturesCount > 0 },
+                        ContainerNotificationType.EmptyFileInContainer.takeIf {
+                            signingViewModel.isEmptyFileInContainer(
+                                signedContainer,
+                            )
+                        },
+                    ),
+                )
             }
             val newTime = System.currentTimeMillis()
             if (newTime >= (pastTime + 2 * 1000)) {
@@ -475,13 +493,29 @@ fun SigningNavigation(
                     sharedContainerViewModel,
                 )
             }
+            isSaved = false
+        }
+    }
+
+    LaunchedEffect(signedContainer, isSivaConfirmed) {
+        signedContainer?.let { container ->
+            CoroutineScope(IO).launch {
+                isTimestampedContainer =
+                    signingViewModel.isTimestampedContainer(
+                        container,
+                        isSivaConfirmed,
+                    )
+            }
         }
     }
 
     LaunchedEffect(messages) {
         messages.forEach { message ->
             snackBarScope.launch {
-                snackBarHostState.showSnackbar(message)
+                snackBarHostState.showSnackbar(
+                    message = message,
+                    withDismissAction = true,
+                )
             }
             SnackBarManager.removeMessage(message)
         }
@@ -522,6 +556,13 @@ fun SigningNavigation(
                 },
                 onRightSecondaryButtonClick = {
                     isSettingsMenuBottomSheetVisible.value = true
+                },
+                showExtraButton = containerNotifications.isNotEmpty(),
+                extraButtonItemCount = containerNotifications.size,
+                onExtraButtonClick = {
+                    navController.navigate(
+                        Route.ContainerNotificationsScreen.route,
+                    )
                 },
             )
         },
@@ -608,6 +649,7 @@ fun SigningNavigation(
 
             val handleSivaConfirmation: () -> Unit = {
                 showSivaDialog.value = false
+                isSivaConfirmed = true
                 nestedFile.value?.let { file ->
                     openNestedContainer(file, true)
                 }
@@ -615,6 +657,7 @@ fun SigningNavigation(
 
             val handleSivaCancel: () -> Unit = {
                 showSivaDialog.value = false
+                isSivaConfirmed = false
                 nestedFile.value?.let { file ->
                     if (DDOC_MIMETYPE != file.mimeType(context)) {
                         openNestedContainer(file, false)
@@ -643,52 +686,7 @@ fun SigningNavigation(
                 horizontalAlignment = Alignment.Start,
             ) {
                 if (signatureAddedSuccess.value) {
-                    ContainerMessage(
-                        modifier = modifier,
-                        text = signatureAddedSuccessText,
-                        testTag = "signatureAddedSuccess",
-                        color = Green500,
-                    )
-                }
-
-                if (isXadesContainer) {
-                    ContainerMessage(
-                        modifier = modifier,
-                        text = xadesText,
-                        testTag = "signatureUpdateListStatusXadesFile",
-                    )
-                }
-
-                if (isCadesContainer) {
-                    ContainerMessage(
-                        modifier = modifier,
-                        text = cadesText,
-                        testTag = "signatureUpdateListStatusCadesFile",
-                    )
-                }
-
-                if (unknownSignaturesCount > 0) {
-                    ContainerMessage(
-                        modifier = modifier,
-                        text = unknownSignaturesText,
-                        testTag = "signatureUpdateListStatusUnknown",
-                    )
-                }
-
-                if (invalidSignaturesCount > 0) {
-                    ContainerMessage(
-                        modifier = modifier,
-                        text = invalidSignaturesText,
-                        testTag = "signatureUpdateListStatusInvalid",
-                    )
-                }
-
-                if (signingViewModel.isEmptyFileInContainer(signedContainer)) {
-                    ContainerMessage(
-                        modifier = modifier,
-                        text = emptyFileInContainerText,
-                        testTag = "signatureUpdateListStatusEmptyFile",
-                    )
+                    showMessage(signatureAddedSuccessText)
                 }
 
                 LazyColumn(
@@ -760,7 +758,7 @@ fun SigningNavigation(
                                     modifier =
                                         modifier
                                             .fillMaxSize()
-                                            .padding(vertical = screenViewExtraLargePadding),
+                                            .padding(vertical = MPadding),
                                     contentAlignment = Alignment.Center,
                                 ) {
                                     CircularProgressIndicator(
@@ -817,13 +815,38 @@ fun SigningNavigation(
                                             Pair(
                                                 stringResource(R.string.signing_container_signatures_title),
                                             ) {
-                                                SignatureComponent(
-                                                    modifier,
-                                                    signatures,
-                                                    showSignaturesLoadingIndicator.value,
-                                                    signaturesLoading,
-                                                    onSignatureItemClick,
-                                                )
+                                                Column {
+                                                    if (signingViewModel.isContainerWithTimestamps(
+                                                            signedContainer,
+                                                        )
+                                                    ) {
+                                                        signedContainer?.let { container ->
+                                                            container.getTimestamps()
+                                                                ?.let { timestamps ->
+                                                                    Row {
+                                                                        SignatureComponent(
+                                                                            modifier,
+                                                                            true,
+                                                                            timestamps,
+                                                                            showSignaturesLoadingIndicator.value,
+                                                                            signaturesLoading,
+                                                                            onSignatureItemClick,
+                                                                        )
+                                                                    }
+                                                                }
+                                                        }
+                                                    }
+                                                    Row {
+                                                        SignatureComponent(
+                                                            modifier,
+                                                            isTimestampedContainer,
+                                                            signatures,
+                                                            showSignaturesLoadingIndicator.value,
+                                                            signaturesLoading,
+                                                            onSignatureItemClick,
+                                                        )
+                                                    }
+                                                }
                                             },
                                         ),
                                     )
@@ -831,7 +854,6 @@ fun SigningNavigation(
                             }
                         }
                     }
-                    // TODO: Add timestamp after design update
                     item {
                         Spacer(
                             modifier = modifier.height(invisibleElementHeight),
@@ -857,7 +879,7 @@ fun SigningNavigation(
                                 .wrapContentHeight()
                                 .wrapContentWidth()
                                 .verticalScroll(rememberScrollState())
-                                .padding(itemSpacingPadding)
+                                .padding(XSPadding)
                                 .testTag("editContainerNameDialog"),
                     ) {
                         EditValueDialog(
@@ -905,7 +927,7 @@ fun SigningNavigation(
                             modifier
                                 .wrapContentHeight()
                                 .wrapContentWidth()
-                                .padding(screenViewLargePadding)
+                                .padding(SPadding)
                                 .verticalScroll(rememberScrollState())
                                 .testTag("documentRemovalDialog"),
                     ) {
@@ -924,6 +946,7 @@ fun SigningNavigation(
                                 if ((signedContainer?.rawContainer()?.dataFiles()?.size ?: 0) == 1) {
                                     signedContainer?.getContainerFile()?.delete()
                                     sharedContainerViewModel.resetSignedContainer()
+                                    sharedContainerViewModel.resetContainerNotifications()
                                     handleBackButtonClick(navController, signingViewModel, sharedContainerViewModel)
                                 } else {
                                     CoroutineScope(IO).launch {
@@ -962,7 +985,7 @@ fun SigningNavigation(
                                 .wrapContentHeight()
                                 .wrapContentWidth()
                                 .verticalScroll(rememberScrollState())
-                                .padding(vertical = screenViewLargePadding)
+                                .padding(vertical = SPadding)
                                 .testTag("signatureRemovalDialog"),
                     ) {
                         MessageDialog(
@@ -1085,13 +1108,11 @@ fun SigningNavigation(
                         showContainerCloseConfirmationDialog.value = false
                     },
                     onDismissButton = {
-                        showContainerCloseConfirmationDialog.value = false
                         saveFile(
                             signedContainer?.getContainerFile(),
                             signedContainer?.containerMimetype(),
                             saveFileLauncher,
                         )
-                        handleBackButtonClick(navController, signingViewModel, sharedContainerViewModel)
                     },
                     onConfirmButton = {
                         showContainerCloseConfirmationDialog.value = false
@@ -1100,6 +1121,7 @@ fun SigningNavigation(
                             containerFile.delete()
                         }
                         sharedContainerViewModel.resetSignedContainer()
+                        sharedContainerViewModel.resetContainerNotifications()
                         handleBackButtonClick(navController, signingViewModel, sharedContainerViewModel)
                     },
                 )

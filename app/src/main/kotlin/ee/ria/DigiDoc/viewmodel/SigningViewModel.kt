@@ -151,12 +151,18 @@ class SigningViewModel
             signedContainer: SignedContainer,
             isSivaConfirmed: Boolean,
         ): SignedContainer {
-            if (sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed) &&
-                !signedContainer.isXades()
-            ) {
+            if (isTimestampedContainer(signedContainer, isSivaConfirmed)) {
                 return sivaRepository.getTimestampedContainer(context, signedContainer)
             }
 
             return signedContainer
+        }
+
+        suspend fun isTimestampedContainer(
+            signedContainer: SignedContainer,
+            isSivaConfirmed: Boolean,
+        ): Boolean {
+            return sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed) &&
+                !signedContainer.isXades()
         }
     }

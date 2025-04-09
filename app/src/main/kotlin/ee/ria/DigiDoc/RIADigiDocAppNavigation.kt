@@ -37,6 +37,7 @@ import ee.ria.DigiDoc.fragment.ValidationServicesSettingsFragment
 import ee.ria.DigiDoc.ui.component.crypto.recipient.RecipientDetailsView
 import ee.ria.DigiDoc.ui.component.signing.certificate.CertificateDetailsView
 import ee.ria.DigiDoc.ui.component.signing.certificate.SignerDetailsView
+import ee.ria.DigiDoc.ui.component.signing.notifications.ContainerNotificationsFragment
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
@@ -257,6 +258,14 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
         composable(route = Route.RootScreen.route) {
             RootFragment(
                 modifier = Modifier.safeDrawingPadding(),
+            )
+        }
+        composable(route = Route.ContainerNotificationsScreen.route) {
+            ContainerNotificationsFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedContainerViewModel = sharedContainerViewModel,
+                sharedMenuViewModel = sharedMenuViewModel,
             )
         }
     }

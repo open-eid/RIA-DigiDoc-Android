@@ -24,6 +24,7 @@
     <string name="crash_report_dialog_always_send_button">Всегда отправлять</string>
     <string name="crash_report_dialog_dont_send_button">Не отправлять</string>
 
+    <string name="notifications">Уведомления</string>
     <string name="clear_text">Очистить текст</string>
 
     <!-- Container -->
@@ -123,6 +124,7 @@
     <string name="signing_container_signature_created_at">Подписано %1$s в %2$s</string>
     <string name="signing_close_container_title">Закрыть контейнер</string>
     <string name="signing_close_container_message">Вы собираетесь закрыть контейнер. Выберите, что делать с контейнером: </string>
+    <string name="container_notificaitons">Уведомления о контейнерах</string>
 
     <!-- Recent Documents -->
     <string name="document">Документ</string>

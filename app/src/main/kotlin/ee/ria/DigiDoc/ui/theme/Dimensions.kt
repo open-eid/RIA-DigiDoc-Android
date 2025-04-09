@@ -23,12 +23,7 @@ object Dimensions {
     val zeroPadding = 0.dp
 
     val screenViewSmallPadding = 8.dp
-    val screenViewMediumPadding = 8.dp
     val screenViewLargePadding = 16.dp
-    val screenViewExtraLargePadding = 24.dp
-    val screenViewExtraExtraLargePadding = 48.dp
-
-    val itemSpacingPadding = 8.dp
 
     // Strokes
     val noBorderStroke = 0.dp

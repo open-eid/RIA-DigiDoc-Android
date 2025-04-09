@@ -45,7 +45,8 @@ class SivaServiceImpl
             isSivaConfirmed: Boolean,
         ): Boolean =
             isSivaConfirmed && signedContainer.getDataFiles().size == 1 &&
-                signedContainer.containerMimetype().equals(ASICS_MIMETYPE)
+                signedContainer.containerMimetype().equals(ASICS_MIMETYPE) &&
+                signedContainer.getSignatures().first().profile == "TimeStampToken"
 
         override suspend fun getTimestampedContainer(
             context: Context,

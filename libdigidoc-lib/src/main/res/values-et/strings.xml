@@ -2,8 +2,11 @@
 <resources>
     <string name="libdigidocpp_custom_siva_cert_error">Viga SiVa sertifikaadi lisamisel!</string>
     <string name="signing_container_signature_status_valid">Allkiri on kehtiv</string>
+    <string name="signing_container_timestamp_status_valid">Ajatempel on kehtiv</string>
     <string name="signing_container_signature_status_warning">(Hoiatused)</string>
     <string name="signing_container_signature_status_non_qscd">(Piirangud)</string>
     <string name="signing_container_signature_status_invalid">Allkiri ei ole kehtiv</string>
     <string name="signing_container_signature_status_unknown">Allkiri on teadmata</string>
+    <string name="signing_container_timestamp_status_invalid">Ajatempel ei ole kehtiv</string>
+    <string name="signing_container_timestamp_status_unknown">Ajatempel on teadmata</string>
 </resources>

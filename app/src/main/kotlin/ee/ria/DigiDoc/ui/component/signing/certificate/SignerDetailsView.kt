@@ -59,9 +59,8 @@ import ee.ria.DigiDoc.ui.component.signing.ColoredSignedStatusText
 import ee.ria.DigiDoc.ui.component.signing.StyledNameText
 import ee.ria.DigiDoc.ui.theme.Dimensions.SBorder
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
-import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil.getSignatureStatusText
@@ -287,8 +286,8 @@ fun SignerDetailsView(
                                 modifier =
                                     modifier
                                         .padding(
-                                            horizontal = itemSpacingPadding,
-                                            vertical = screenViewLargePadding,
+                                            horizontal = XSPadding,
+                                            vertical = SPadding,
                                         )
                                         .testTag("signersCertificateErrorDetails"),
                                 text = warningText,

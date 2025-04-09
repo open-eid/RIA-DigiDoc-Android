@@ -8,6 +8,8 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +31,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -43,6 +46,7 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.lifecycle.asFlow
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
+import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utilsLib.text.TextUtil
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -63,9 +67,14 @@ fun TopBar(
     @StringRes rightPrimaryIconContentDescription: Int = R.string.main_home_menu_help_accessibility,
     @DrawableRes rightSecondaryIcon: Int = R.drawable.ic_m3_settings_48dp_wght400,
     @StringRes rightSecondaryIconContentDescription: Int = R.string.main_home_menu_settings_accessibility,
+    @DrawableRes extraButtonIcon: Int = R.drawable.ic_m3_notifications_48dp_wght400,
+    @StringRes extraButtonIconContentDescription: Int = R.string.notifications,
     onLeftButtonClick: () -> Unit = {},
     onRightPrimaryButtonClick: (() -> Unit)? = null,
     onRightSecondaryButtonClick: () -> Unit = {},
+    onExtraButtonClick: () -> Unit = {},
+    showExtraButton: Boolean = false,
+    extraButtonItemCount: Int = 0,
     sharedMenuViewModel: SharedMenuViewModel,
 ) {
     val context = LocalContext.current
@@ -167,6 +176,44 @@ fun TopBar(
             }
         },
         actions = {
+            if (showExtraButton) {
+                IconButton(
+                    modifier = modifier.testTag("toolBarExtraButton"),
+                    onClick = {
+                        // Add debounce to prevent rapid navigation clicks
+                        debounceJob?.cancel()
+                        debounceJob =
+                            coroutineScope.launch {
+                                delay(1000)
+                                onExtraButtonClick()
+                            }
+                    },
+                ) {
+                    BadgedBox(
+                        badge = {
+                            if (extraButtonItemCount > 0) {
+                                Badge(
+                                    containerColor = Red500,
+                                    contentColor = Color.White,
+                                ) {
+                                    Text("$extraButtonItemCount")
+                                }
+                            }
+                        },
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = extraButtonIcon),
+                            contentDescription = stringResource(extraButtonIconContentDescription),
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier =
+                                modifier
+                                    .size(iconSizeXXS)
+                                    .focusable(false)
+                                    .testTag("extraNavigationButton"),
+                        )
+                    }
+                }
+            }
             IconButton(
                 modifier = modifier.testTag("toolBarRightPrimaryButton"),
                 onClick = {
