@@ -74,7 +74,6 @@ import ee.ria.DigiDoc.ui.component.crypto.bottomsheet.EncryptContainerBottomShee
 import ee.ria.DigiDoc.ui.component.crypto.bottomsheet.RecipientBottomSheet
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.EditValueDialog
-import ee.ria.DigiDoc.ui.component.shared.ContainerMessage
 import ee.ria.DigiDoc.ui.component.shared.ContainerNameView
 import ee.ria.DigiDoc.ui.component.shared.CryptoDataFileItem
 import ee.ria.DigiDoc.ui.component.shared.CryptoDataFilesLocked
@@ -84,12 +83,11 @@ import ee.ria.DigiDoc.ui.component.shared.MessageDialog
 import ee.ria.DigiDoc.ui.component.shared.TabView
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.XLPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
-import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
-import ee.ria.DigiDoc.ui.theme.Green500
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
@@ -494,22 +492,13 @@ fun EncryptNavigation(
                 horizontalAlignment = Alignment.Start,
             ) {
                 if (encryptionAddedSuccess.value) {
-                    ContainerMessage(
-                        modifier = modifier,
-                        text = encryptionAddedSuccessText,
-                        testTag = "encryptionAddedSuccess",
-                        color = Green500,
-                    )
+                    showMessage(encryptionAddedSuccessText)
                 }
 
                 if (encryptViewModel.isEmptyFileInContainer(cryptoContainer) &&
                     !encryptViewModel.isEncryptedContainer(cryptoContainer)
                 ) {
-                    ContainerMessage(
-                        modifier = modifier,
-                        text = emptyFileInContainerText,
-                        testTag = "encryptionUpdateListStatusEmptyFile",
-                    )
+                    showMessage(emptyFileInContainerText)
                 }
 
                 LazyColumn(
@@ -579,7 +568,7 @@ fun EncryptNavigation(
                                     modifier =
                                         modifier
                                             .fillMaxSize()
-                                            .padding(vertical = screenViewExtraLargePadding),
+                                            .padding(vertical = XLPadding),
                                     contentAlignment = Alignment.Center,
                                 ) {
                                     CircularProgressIndicator(
@@ -681,7 +670,7 @@ fun EncryptNavigation(
                                 .wrapContentHeight()
                                 .wrapContentWidth()
                                 .verticalScroll(rememberScrollState())
-                                .padding(itemSpacingPadding)
+                                .padding(XSPadding)
                                 .testTag("editContainerNameDialog"),
                     ) {
                         EditValueDialog(

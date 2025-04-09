@@ -82,8 +82,8 @@ import ee.ria.DigiDoc.ui.component.shared.dialog.OptionChooserDialog
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
-import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
@@ -470,7 +470,7 @@ fun SmartIdView(
                                         .wrapContentHeight()
                                         .wrapContentWidth()
                                         .verticalScroll(rememberScrollState())
-                                        .padding(itemSpacingPadding)
+                                        .padding(XSPadding)
                                         .testTag("smartIdCountryDialog"),
                             ) {
                                 OptionChooserDialog(

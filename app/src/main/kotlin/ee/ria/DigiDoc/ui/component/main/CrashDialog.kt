@@ -31,8 +31,8 @@ import ee.ria.DigiDoc.ui.component.shared.DynamicText
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.VerticalButtonColumn
 import ee.ria.DigiDoc.ui.component.shared.VerticalButtonConfig
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewSmallPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Red500
 
@@ -58,11 +58,11 @@ fun CrashDialog(
                 modifier
                     .wrapContentHeight()
                     .wrapContentWidth()
-                    .padding(screenViewLargePadding)
+                    .padding(SPadding)
                     .verticalScroll(rememberScrollState()),
         ) {
             Column(
-                modifier = modifier.padding(screenViewLargePadding),
+                modifier = modifier.padding(SPadding),
             ) {
                 Box(
                     modifier = modifier.fillMaxWidth(),
@@ -70,16 +70,14 @@ fun CrashDialog(
                     Text(
                         modifier =
                             modifier
-                                .padding(
-                                    start = screenViewLargePadding,
-                                    top = screenViewSmallPadding,
-                                    end = screenViewLargePadding,
-                                )
+                                .padding(vertical = SPadding)
+                                .padding(top = XSPadding)
                                 .align(Alignment.Center)
                                 .testTag("crashReportDialogHeader"),
                         text = stringResource(R.string.crash_report_dialog_header),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
 
@@ -87,10 +85,9 @@ fun CrashDialog(
                     modifier =
                         modifier
                             .fillMaxWidth()
-                            .padding(vertical = screenViewLargePadding)
+                            .padding(vertical = SPadding)
                             .testTag("crashReportDialogText"),
                     text = stringResource(R.string.crash_report_dialog_text),
-                    textStyle = MaterialTheme.typography.bodyLarge,
                 )
                 VerticalButtonColumn(
                     modifier = modifier.testTag("crashReportDialogText"),

@@ -15,8 +15,13 @@ import ee.ria.DigiDoc.utilsLib.container.NameUtil
 fun StyledNameText(
     modifier: Modifier = Modifier,
     name: String,
+    allCaps: Boolean = false,
 ) {
-    val formattedName = NameUtil.formatName(name)
+    var formattedName = NameUtil.formatName(name)
+
+    if (allCaps) {
+        formattedName = formattedName.uppercase()
+    }
 
     val nameParts = formattedName.split(", ").map { it.trim() }
 

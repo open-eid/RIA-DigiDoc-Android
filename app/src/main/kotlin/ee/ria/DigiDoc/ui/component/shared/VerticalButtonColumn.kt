@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Normal
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
@@ -38,8 +38,8 @@ fun VerticalButtonColumn(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(vertical = screenViewLargePadding),
-        verticalArrangement = Arrangement.spacedBy(screenViewLargePadding),
+                .padding(vertical = SPadding),
+        verticalArrangement = Arrangement.spacedBy(SPadding),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         buttonConfigs.forEach { config ->

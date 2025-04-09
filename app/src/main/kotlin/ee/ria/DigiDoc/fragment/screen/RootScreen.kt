@@ -32,7 +32,6 @@ import androidx.compose.ui.text.style.TextAlign
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import kotlinx.coroutines.launch
@@ -78,7 +77,7 @@ fun RootScreen(modifier: Modifier = Modifier) {
             Box(
                 modifier =
                     modifier
-                        .padding(screenViewLargePadding)
+                        .padding(SPadding)
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
                         .testTag("scrollView"),
@@ -89,9 +88,10 @@ fun RootScreen(modifier: Modifier = Modifier) {
                     style = MaterialTheme.typography.bodyLarge,
                     modifier =
                         modifier
-                            .padding(vertical = screenViewLargePadding)
+                            .padding(vertical = SPadding)
                             .testTag("rootDevice"),
                     textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 InvisibleElement(modifier = modifier)
             }

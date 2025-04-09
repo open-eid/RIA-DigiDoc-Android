@@ -23,4 +23,21 @@ object SignatureStatusUtil {
             else -> context.getString(R.string.signing_container_signature_status_unknown)
         }
     }
+
+    fun getTimestampStatusText(
+        context: Context,
+        status: ValidatorInterface.Status,
+    ): String {
+        return when (status) {
+            ValidatorInterface.Status.Valid -> context.getString(R.string.signing_container_timestamp_status_valid)
+            ValidatorInterface.Status.Warning ->
+                "${context.getString(R.string.signing_container_timestamp_status_valid)} " +
+                    context.getString(R.string.signing_container_signature_status_warning)
+            ValidatorInterface.Status.NonQSCD ->
+                "${context.getString(R.string.signing_container_timestamp_status_valid)} " +
+                    context.getString(R.string.signing_container_signature_status_non_qscd)
+            ValidatorInterface.Status.Invalid -> context.getString(R.string.signing_container_timestamp_status_invalid)
+            else -> context.getString(R.string.signing_container_timestamp_status_unknown)
+        }
+    }
 }

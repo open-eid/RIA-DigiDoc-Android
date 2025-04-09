@@ -24,6 +24,7 @@
     <string name="crash_report_dialog_always_send_button">Always send</string>
     <string name="crash_report_dialog_dont_send_button">Don\'t Send</string>
 
+    <string name="notifications">Notifications</string>
     <string name="clear_text">Clear text</string>
 
     <!-- Container -->
@@ -123,6 +124,7 @@
     <string name="signing_container_signature_created_at">Signed %1$s at %2$s</string>
     <string name="signing_close_container_title">Close container</string>
     <string name="signing_close_container_message">You are about to close the container. Please choose what to do with the container: </string>
+    <string name="container_notificaitons">Container notifications</string>
 
     <!-- Recent Documents -->
     <string name="document">Document</string>

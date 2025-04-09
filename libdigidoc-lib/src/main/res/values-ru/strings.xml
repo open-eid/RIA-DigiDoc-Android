@@ -2,8 +2,11 @@
 <resources>
     <string name="libdigidocpp_custom_siva_cert_error">Ошибка при добавлении сертификата SiVa!</string>
     <string name="signing_container_signature_status_valid">Подпись действительна</string>
+    <string name="signing_container_timestamp_status_valid">Временной штамп действителен</string>
     <string name="signing_container_signature_status_warning">(Предупреждения)</string>
     <string name="signing_container_signature_status_non_qscd">(Ограничения)</string>
     <string name="signing_container_signature_status_invalid">Подпись недействительна</string>
     <string name="signing_container_signature_status_unknown">Подпись неизвестная</string>
+    <string name="signing_container_timestamp_status_invalid">Временной штамп недействителен</string>
+    <string name="signing_container_timestamp_status_unknown">Временной штамп неизвестный</string>
 </resources>

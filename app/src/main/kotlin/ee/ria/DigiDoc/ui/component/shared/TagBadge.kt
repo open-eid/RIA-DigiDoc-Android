@@ -15,8 +15,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Green_2_50
 import ee.ria.DigiDoc.ui.theme.Green_2_700
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
@@ -31,7 +31,7 @@ fun TagBadge(
     Box(
         modifier =
             modifier
-                .background(color = backgroundColor, shape = RoundedCornerShape(screenViewLargePadding))
+                .background(color = backgroundColor, shape = RoundedCornerShape(SPadding))
                 .padding(horizontal = XSPadding),
     ) {
         Text(

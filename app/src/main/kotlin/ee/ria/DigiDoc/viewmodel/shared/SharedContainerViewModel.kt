@@ -16,6 +16,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.cryptolib.Addressee
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
+import ee.ria.DigiDoc.domain.model.notifications.ContainerNotificationType
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
@@ -61,6 +62,9 @@ class SharedContainerViewModel
 
         private val _externalFileUris = MutableStateFlow<List<Uri>>(listOf())
         val externalFileUris: StateFlow<List<Uri>> = _externalFileUris
+
+        private val _containerNotifications = MutableStateFlow<List<ContainerNotificationType>>(listOf())
+        val containerNotifications: StateFlow<List<ContainerNotificationType>> = _containerNotifications
 
         fun setSignedSidStatus(signedStatus: SessionStatusResponseProcessStatus?) {
             _signedSidStatus.postValue(signedStatus)
@@ -217,6 +221,14 @@ class SharedContainerViewModel
             _signedContainer.postValue(null)
             delay(100L)
             _signedContainer.postValue(signedContainer)
+        }
+
+        fun setContainerNotifications(notifications: List<ContainerNotificationType>) {
+            _containerNotifications.value = notifications
+        }
+
+        fun resetContainerNotifications() {
+            _containerNotifications.value = listOf()
         }
 
         private fun addNestedContainer(signedContainer: SignedContainer?) {

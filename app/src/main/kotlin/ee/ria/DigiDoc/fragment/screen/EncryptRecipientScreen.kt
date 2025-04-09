@@ -62,7 +62,6 @@ import ee.ria.DigiDoc.cryptolib.Addressee
 import ee.ria.DigiDoc.ui.component.crypto.bottombar.EncryptBottomBar
 import ee.ria.DigiDoc.ui.component.crypto.bottomsheet.RecipientBottomSheet
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
-import ee.ria.DigiDoc.ui.component.shared.ContainerMessage
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
@@ -75,7 +74,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.dividerHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
-import ee.ria.DigiDoc.ui.theme.Green500
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
@@ -245,12 +243,7 @@ fun EncryptRecipientScreen(
             horizontalAlignment = Alignment.Start,
         ) {
             if (recipientAddedSuccess.value) {
-                ContainerMessage(
-                    modifier = modifier,
-                    text = recipientAddedSuccessText,
-                    testTag = "recipientAddedSuccess",
-                    color = Green500,
-                )
+                showMessage(recipientAddedSuccessText)
             }
             if (!expanded) {
                 Text(

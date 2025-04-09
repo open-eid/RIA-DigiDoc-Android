@@ -24,9 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
-import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewExtraLargePadding
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import kotlinx.coroutines.launch
 
@@ -70,7 +70,7 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
                 modifier =
                     modifier
                         .fillMaxSize()
-                        .padding(vertical = screenViewExtraLargePadding)
+                        .padding(vertical = MPadding)
                         .testTag("activityOverlay"),
                 contentAlignment = Alignment.Center,
             ) {

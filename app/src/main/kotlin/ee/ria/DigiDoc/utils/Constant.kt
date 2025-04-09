@@ -40,6 +40,7 @@ object Constant {
         const val VALIDATION_SERVICES_SCREEN = "validation_services_route"
         const val ENCRYPTION_SERVICES_SCREEN = "encryption_services_route"
         const val PROXY_SERVICES_SCREEN = "proxy_services_route"
+        const val CONTAINER_NOTIFICATIONS_SCREEN = "container_notifications_route"
     }
 
     object Defaults {

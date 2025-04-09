@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.utils
 
 import ee.ria.DigiDoc.utils.Constant.Routes.ACCESSIBILITY_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.CERTIFICATE_DETAIL_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.CONTAINER_NOTIFICATIONS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.CRYPTO_FILE_CHOOSING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.CRYPTO_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.DECRYPT_SCREEN
@@ -87,4 +88,6 @@ sealed class Route(val route: String) {
     data object EncryptionServicesScreen : Route(ENCRYPTION_SERVICES_SCREEN)
 
     data object ProxyServicesScreen : Route(PROXY_SERVICES_SCREEN)
+
+    data object ContainerNotificationsScreen : Route(CONTAINER_NOTIFICATIONS_SCREEN)
 }

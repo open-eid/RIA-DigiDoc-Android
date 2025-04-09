@@ -86,7 +86,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSBorder
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.itemSpacingPadding
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
@@ -430,7 +429,7 @@ fun EncryptionServicesSettingsScreen(
                                                     .wrapContentHeight()
                                                     .wrapContentWidth()
                                                     .verticalScroll(rememberScrollState())
-                                                    .padding(itemSpacingPadding)
+                                                    .padding(XSPadding)
                                                     .testTag("encryptionServicesNameDialog"),
                                         ) {
                                             OptionChooserDialog(
