@@ -23,6 +23,7 @@ import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepositoryImp
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
+import ee.ria.DigiDoc.cryptolib.CDOC2Settings
 import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepositoryImpl
 import ee.ria.DigiDoc.domain.service.fileopening.FileOpeningService
@@ -50,6 +51,7 @@ class FileOpeningRepositoryImplTest {
     private lateinit var fileOpeningService: FileOpeningService
     private lateinit var fileOpeningRepository: FileOpeningRepository
     private lateinit var sivaService: SivaService
+    private lateinit var cdoc2Settings: CDOC2Settings
     private lateinit var contentResolver: ContentResolver
     private lateinit var signedPdfDocument: File
 
@@ -86,9 +88,11 @@ class FileOpeningRepositoryImplTest {
         runBlocking {
             fileOpeningService = mock(FileOpeningService::class.java)
             sivaService = mock(SivaService::class.java)
-            fileOpeningRepository = FileOpeningRepositoryImpl(fileOpeningService, sivaService)
             context = InstrumentationRegistry.getInstrumentation().targetContext
             contentResolver = mock(ContentResolver::class.java)
+            cdoc2Settings = CDOC2Settings(context)
+            fileOpeningRepository = FileOpeningRepositoryImpl(fileOpeningService, sivaService, cdoc2Settings)
+
             signedPdfDocument =
                 AssetFile.getResourceFileAsFile(
                     context, "example_signed_pdf.pdf",

@@ -24,6 +24,8 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import kotlinx.coroutines.runBlocking
+import org.bouncycastle.asn1.x509.ExtendedKeyUsage
+import org.bouncycastle.asn1.x509.KeyUsage
 import org.bouncycastle.cert.X509CertificateHolder
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -102,6 +104,8 @@ class IdCardServiceImplTest {
         val testData = byteArrayOf(1, 2, 3)
 
         val mockPersonalData = mock(PersonalData::class.java)
+        val keyUsage = mock(KeyUsage::class.java)
+        val extendedKeyUsage = mock(ExtendedKeyUsage::class.java)
 
         `when`(token.personalData()).thenReturn(mockPersonalData)
 
@@ -109,6 +113,8 @@ class IdCardServiceImplTest {
             .thenReturn(mock(X509CertificateHolder::class.java))
         `when`(certificateService.extractEIDType(any()))
             .thenReturn(EIDType.ID_CARD)
+        `when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
+        `when`(certificateService.extractExtendedKeyUsage(any())).thenReturn(extendedKeyUsage)
 
         `when`(token.calculateSignature(anyOrNull(), anyOrNull(), anyBoolean())).thenReturn(testData)
 
@@ -135,6 +141,8 @@ class IdCardServiceImplTest {
         val testData = byteArrayOf(1, 2, 3)
 
         val mockPersonalData = mock(PersonalData::class.java)
+        val keyUsage = mock(KeyUsage::class.java)
+        val extendedKeyUsage = mock(ExtendedKeyUsage::class.java)
 
         `when`(token.personalData()).thenReturn(mockPersonalData)
 
@@ -142,6 +150,8 @@ class IdCardServiceImplTest {
             .thenReturn(mock(X509CertificateHolder::class.java))
         `when`(certificateService.extractEIDType(any()))
             .thenReturn(EIDType.ID_CARD)
+        `when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
+        `when`(certificateService.extractExtendedKeyUsage(any())).thenReturn(extendedKeyUsage)
 
         `when`(token.calculateSignature(anyOrNull(), anyOrNull(), anyBoolean())).thenReturn(testData)
 
