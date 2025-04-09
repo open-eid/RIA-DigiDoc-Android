@@ -1,14 +1,15 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.libdigidoclib.exceptions
+package ee.ria.DigiDoc.common.exception
 
 import android.content.Context
+import ee.ria.DigiDoc.common.R
 
 class NoInternetConnectionException(
     private val context: Context,
 ) : Exception() {
     override fun getLocalizedMessage(): String =
         context.getString(
-            ee.ria.DigiDoc.common.R.string.no_internet_connection,
+            R.string.no_internet_connection,
         )
 }

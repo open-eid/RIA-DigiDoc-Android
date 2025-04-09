@@ -117,7 +117,7 @@ fun EncryptRecipientScreen(
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
     val recipientAddedSuccess = remember { mutableStateOf(false) }
-    val recipientAddedSuccessText = stringResource(id = R.string.signature_update_signature_add_success)
+    val recipientAddedSuccessText = stringResource(id = R.string.crypto_recipients_recipient_add_success)
 
     val containerRecipientList =
         remember {
@@ -162,6 +162,9 @@ fun EncryptRecipientScreen(
             if (isRecipientAdded) {
                 withContext(Main) {
                     recipientAddedSuccess.value = true
+                    containerRecipientList.value =
+                        encryptRecipientViewModel
+                            .getContainerRecipientList(sharedContainerViewModel)
                     AccessibilityUtil.sendAccessibilityEvent(
                         context,
                         TYPE_ANNOUNCEMENT,
@@ -283,7 +286,7 @@ fun EncryptRecipientScreen(
                                 .wrapContentHeight(),
                         query = searchText,
                         onQueryChange = encryptRecipientViewModel::onSearchTextChange,
-                        onSearch = encryptRecipientViewModel::onSearchTextChange,
+                        onSearch = encryptRecipientViewModel::onQueryTextChange,
                         expanded = expanded,
                         enabled = true,
                         placeholder = {
@@ -389,38 +392,42 @@ fun EncryptRecipientScreen(
                 }
             }
             if (!expanded) {
-                Text(
-                    modifier =
-                        modifier
-                            .padding(horizontal = SPadding)
-                            .padding(top = SPadding)
-                            .semantics {
-                                heading()
-                                testTagsAsResourceId = true
-                            }
-                            .testTag("encryptRecipientsDescription"),
-                    text = stringResource(R.string.crypto_recipients_description),
-                    textAlign = TextAlign.Start,
-                )
-                if (containerRecipientList.value.isNotEmpty()) {
-                    Text(
-                        modifier =
-                            modifier
-                                .padding(horizontal = SPadding)
-                                .padding(top = SPadding)
-                                .semantics {
-                                    heading()
-                                    testTagsAsResourceId = true
-                                }
-                                .testTag("encryptRecipientsListTitle"),
-                        text = stringResource(R.string.crypto_container_added_recipients_title),
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Start,
-                    )
-                    LazyColumn(
-                        state = listState,
-                        modifier = modifier.testTag("lazyColumnScrollView"),
-                    ) {
+                LazyColumn(
+                    state = listState,
+                    modifier = modifier.testTag("lazyColumnScrollView"),
+                ) {
+                    item {
+                        Text(
+                            modifier =
+                                modifier
+                                    .padding(horizontal = SPadding)
+                                    .padding(top = SPadding)
+                                    .semantics {
+                                        heading()
+                                        testTagsAsResourceId = true
+                                    }
+                                    .testTag("encryptRecipientsDescription"),
+                            text = stringResource(R.string.crypto_recipients_description),
+                            textAlign = TextAlign.Start,
+                        )
+                    }
+                    if (containerRecipientList.value.isNotEmpty()) {
+                        item {
+                            Text(
+                                modifier =
+                                    modifier
+                                        .padding(horizontal = SPadding)
+                                        .padding(top = SPadding)
+                                        .semantics {
+                                            heading()
+                                            testTagsAsResourceId = true
+                                        }
+                                        .testTag("encryptRecipientsListTitle"),
+                                text = stringResource(R.string.crypto_container_added_recipients_title),
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = TextAlign.Start,
+                            )
+                        }
                         item {
                             HorizontalDivider(
                                 modifier =

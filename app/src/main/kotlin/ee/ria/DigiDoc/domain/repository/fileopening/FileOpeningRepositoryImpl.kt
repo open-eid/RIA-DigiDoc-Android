@@ -6,13 +6,13 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import androidx.activity.result.ActivityResultLauncher
+import ee.ria.DigiDoc.common.exception.NoInternetConnectionException
 import ee.ria.DigiDoc.cryptolib.CDOC2Settings
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.domain.service.fileopening.FileOpeningService
 import ee.ria.DigiDoc.domain.service.siva.SivaService
 import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
-import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import java.io.File
 import java.io.FileNotFoundException

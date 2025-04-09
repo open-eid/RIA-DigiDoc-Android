@@ -12,9 +12,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
+import ee.ria.DigiDoc.common.exception.NoInternetConnectionException
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
-import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import ee.ria.DigiDoc.utilsLib.extensions.isCades
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog

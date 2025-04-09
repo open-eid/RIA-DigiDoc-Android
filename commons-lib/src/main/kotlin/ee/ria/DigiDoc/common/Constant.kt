@@ -109,8 +109,12 @@ object Constant {
     const val DIR_EXTERNALLY_OPENED_FILES = "external_files"
     const val DEFAULT_CONTAINER_EXTENSION = "asice"
 
-    const val CDOC1_EXTENSION: String = "cdoc"
-    const val CDOC2_EXTENSION: String = "cdoc2"
+    const val CDOC1_EXTENSION = "cdoc"
+    const val CDOC2_EXTENSION = "cdoc2"
+
+    const val LDAP_PORT = 636
+    const val CERT_BINARY_ATTR = "userCertificate;binary"
+    const val BASE_DN = "c=EE"
 
     const val CONTAINER_MIME_TYPE = "application/octet-stream"
     const val DEFAULT_MIME_TYPE = "text/plain"

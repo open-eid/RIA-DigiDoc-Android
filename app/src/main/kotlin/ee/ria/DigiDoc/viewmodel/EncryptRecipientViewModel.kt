@@ -2,12 +2,17 @@
 
 package ee.ria.DigiDoc.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.exception.NoInternetConnectionException
 import ee.ria.DigiDoc.cryptolib.Addressee
+import ee.ria.DigiDoc.cryptolib.repository.RecipientRepository
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,10 +27,16 @@ import javax.inject.Inject
 class EncryptRecipientViewModel
     @Inject
     constructor(
+        @ApplicationContext private val context: Context,
         private val mimeTypeResolver: MimeTypeResolver,
+        private val recipientRepository: RecipientRepository,
     ) : ViewModel() {
         private val _errorState = MutableLiveData<Int?>(null)
         val errorState: LiveData<Int?> = _errorState
+
+        private val _queryText = MutableStateFlow("")
+        val queryText = _queryText.asStateFlow()
+
         private val _searchText = MutableStateFlow("")
         val searchText = _searchText.asStateFlow()
 
@@ -40,12 +51,18 @@ class EncryptRecipientViewModel
         }
 
         private fun filterRecipients() =
-            searchText
+            queryText
                 .combine(_recipientList) { text, recipients ->
-                    recipients.filter { recipient ->
-                        recipient.identifier.uppercase().contains(text.trim().uppercase()) ||
-                            recipient.surname?.uppercase()?.contains(text.trim().uppercase()) == true ||
-                            recipient.givenName?.uppercase()?.contains(text.trim().uppercase()) == true
+                    if (!text.isEmpty()) {
+                        var filteredRecipients = listOf<Addressee>()
+                        try {
+                            filteredRecipients = recipientRepository.find(context, text)
+                        } catch (_: NoInternetConnectionException) {
+                            _errorState.postValue(R.string.no_internet_connection)
+                        }
+                        filteredRecipients
+                    } else {
+                        listOf()
                     }
                 }.stateIn(
                     scope = viewModelScope,
@@ -69,6 +86,7 @@ class EncryptRecipientViewModel
         ) {
             val cryptoContainer = sharedContainerViewModel.cryptoContainer.value
             cryptoContainer?.addRecipients(listOf(recipient))
+            sharedContainerViewModel.setCryptoContainer(cryptoContainer)
             handleIsRecipientAdded(true)
         }
 
@@ -76,6 +94,9 @@ class EncryptRecipientViewModel
 
         fun onSearchTextChange(text: String) {
             _searchText.value = text
-            _recipientList.value = getRecipientList()
+        }
+
+        fun onQueryTextChange(text: String) {
+            _queryText.value = text
         }
     }

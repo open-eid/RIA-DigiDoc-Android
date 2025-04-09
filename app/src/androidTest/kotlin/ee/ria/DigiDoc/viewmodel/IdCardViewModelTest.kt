@@ -11,7 +11,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.certificate.CertificateService
 import ee.ria.DigiDoc.common.model.EIDType
-import ee.ria.DigiDoc.common.model.IdCardCertificate
+import ee.ria.DigiDoc.common.model.ExtendedCertificate
 import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.domain.model.IdCardData
@@ -29,6 +29,8 @@ import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import org.bouncycastle.asn1.x509.ExtendedKeyUsage
+import org.bouncycastle.asn1.x509.KeyUsage
 import org.bouncycastle.cert.X509CertificateHolder
 import org.bouncycastle.util.encoders.Hex
 import org.junit.Assert.assertEquals
@@ -172,8 +174,10 @@ class IdCardViewModelTest {
             `when`(smartCardReaderManager.status()).thenReturn(Observable.just(SmartCardReaderStatus.CARD_DETECTED))
 
             val mockPersonalData = mock(PersonalData::class.java)
-
+            val keyUsage = mock(KeyUsage::class.java)
+            val extendedKeyUsage = mock(ExtendedKeyUsage::class.java)
             val mockSmartCardReader = mock(SmartCardReader::class.java)
+
             `when`(mockSmartCardReader.atr()).thenReturn(Hex.decode("3bdb960080b1fe451f830012233f536549440f9000f1"))
             `when`(smartCardReaderManager.connectedReader()).thenReturn(mockSmartCardReader)
 
@@ -188,8 +192,10 @@ class IdCardViewModelTest {
                 .thenReturn(EIDType.ID_CARD)
             `when`(certificateService.extractFriendlyName(anyOrNull())).thenReturn(testName)
             `when`(certificateService.isEllipticCurve(anyOrNull())).thenReturn(true)
+            `when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
+            `when`(certificateService.extractExtendedKeyUsage(any())).thenReturn(extendedKeyUsage)
 
-            val certificate = IdCardCertificate.create(testData, certificateService)
+            val certificate = ExtendedCertificate.create(testData, certificateService)
 
             val idCardData =
                 IdCardData(
@@ -235,8 +241,10 @@ class IdCardViewModelTest {
             `when`(smartCardReaderManager.status()).thenReturn(Observable.just(SmartCardReaderStatus.CARD_DETECTED))
 
             val mockPersonalData = mock(PersonalData::class.java)
-
+            val keyUsage = mock(KeyUsage::class.java)
+            val extendedKeyUsage = mock(ExtendedKeyUsage::class.java)
             val mockSmartCardReader = mock(SmartCardReader::class.java)
+
             `when`(mockSmartCardReader.atr()).thenReturn(Hex.decode("3bdb960080b1fe451f830012233f536549440f9000f1"))
             `when`(smartCardReaderManager.connectedReader()).thenReturn(mockSmartCardReader)
 
@@ -258,8 +266,10 @@ class IdCardViewModelTest {
                 .thenReturn(EIDType.ID_CARD)
             `when`(certificateService.extractFriendlyName(anyOrNull())).thenReturn(testName)
             `when`(certificateService.isEllipticCurve(anyOrNull())).thenReturn(true)
+            `when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
+            `when`(certificateService.extractExtendedKeyUsage(any())).thenReturn(extendedKeyUsage)
 
-            val certificate = IdCardCertificate.create(testData, certificateService)
+            val certificate = ExtendedCertificate.create(testData, certificateService)
 
             val idCardData =
                 IdCardData(
@@ -297,8 +307,10 @@ class IdCardViewModelTest {
             val signedContainer = SignedContainer.openOrCreate(context, container, listOf(container), true)
 
             val mockPersonalData = mock(PersonalData::class.java)
-
+            val keyUsage = mock(KeyUsage::class.java)
+            val extendedKeyUsage = mock(ExtendedKeyUsage::class.java)
             val mockSmartCardReader = mock(SmartCardReader::class.java)
+
             `when`(mockSmartCardReader.atr()).thenReturn(Hex.decode("3bdb960080b1fe451f830012233f536549440f9000f1"))
             `when`(smartCardReaderManager.connectedReader()).thenReturn(mockSmartCardReader)
 
@@ -316,8 +328,10 @@ class IdCardViewModelTest {
                 .thenReturn(EIDType.ID_CARD)
             `when`(certificateService.extractFriendlyName(anyOrNull())).thenReturn(testName)
             `when`(certificateService.isEllipticCurve(anyOrNull())).thenReturn(true)
+            `when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
+            `when`(certificateService.extractExtendedKeyUsage(any())).thenReturn(extendedKeyUsage)
 
-            val certificate = IdCardCertificate.create(testData, certificateService)
+            val certificate = ExtendedCertificate.create(testData, certificateService)
 
             val idCardData =
                 IdCardData(
@@ -357,8 +371,10 @@ class IdCardViewModelTest {
             val signedContainer = SignedContainer.openOrCreate(context, container, listOf(container), true)
 
             val mockPersonalData = mock(PersonalData::class.java)
-
+            val keyUsage = mock(KeyUsage::class.java)
+            val extendedKeyUsage = mock(ExtendedKeyUsage::class.java)
             val mockSmartCardReader = mock(SmartCardReader::class.java)
+
             `when`(mockSmartCardReader.atr()).thenReturn(Hex.decode("3bdb960080b1fe451f830012233f536549440f9000f1"))
             `when`(smartCardReaderManager.connectedReader()).thenReturn(mockSmartCardReader)
 
@@ -376,8 +392,10 @@ class IdCardViewModelTest {
                 .thenReturn(EIDType.ID_CARD)
             `when`(certificateService.extractFriendlyName(anyOrNull())).thenReturn(testName)
             `when`(certificateService.isEllipticCurve(anyOrNull())).thenReturn(true)
+            `when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
+            `when`(certificateService.extractExtendedKeyUsage(any())).thenReturn(extendedKeyUsage)
 
-            val certificate = IdCardCertificate.create(testData, certificateService)
+            val certificate = ExtendedCertificate.create(testData, certificateService)
 
             val idCardData =
                 IdCardData(
@@ -417,8 +435,10 @@ class IdCardViewModelTest {
             val signedContainer = SignedContainer.openOrCreate(context, container, listOf(container), true)
 
             val mockPersonalData = mock(PersonalData::class.java)
-
+            val keyUsage = mock(KeyUsage::class.java)
+            val extendedKeyUsage = mock(ExtendedKeyUsage::class.java)
             val mockSmartCardReader = mock(SmartCardReader::class.java)
+
             `when`(mockSmartCardReader.atr()).thenReturn(Hex.decode("3bdb960080b1fe451f830012233f536549440f9000f1"))
             `when`(smartCardReaderManager.connectedReader()).thenReturn(mockSmartCardReader)
 
@@ -436,8 +456,10 @@ class IdCardViewModelTest {
                 .thenReturn(EIDType.ID_CARD)
             `when`(certificateService.extractFriendlyName(anyOrNull())).thenReturn(testName)
             `when`(certificateService.isEllipticCurve(anyOrNull())).thenReturn(true)
+            `when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
+            `when`(certificateService.extractExtendedKeyUsage(any())).thenReturn(extendedKeyUsage)
 
-            val certificate = IdCardCertificate.create(testData, certificateService)
+            val certificate = ExtendedCertificate.create(testData, certificateService)
 
             val idCardData =
                 IdCardData(

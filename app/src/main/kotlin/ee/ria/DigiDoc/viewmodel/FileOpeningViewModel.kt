@@ -16,12 +16,12 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.CONTAINER_MIME_TYPE
 import ee.ria.DigiDoc.common.R.string.documents_add_error_exists
 import ee.ria.DigiDoc.common.R.string.empty_file_error
+import ee.ria.DigiDoc.common.exception.NoInternetConnectionException
 import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.exceptions.FileAlreadyExistsException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
-import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver

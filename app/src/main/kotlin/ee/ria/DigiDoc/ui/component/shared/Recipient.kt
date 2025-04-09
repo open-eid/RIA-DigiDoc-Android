@@ -81,9 +81,9 @@ fun Recipient(
 
     val iconRes =
         if (recipient.surname.isNullOrEmpty() && recipient.givenName.isNullOrEmpty()) {
-            R.drawable.ic_m3_encrypted_48dp_wght400
-        } else {
             R.drawable.ic_m3_domain_48dp_wght400
+        } else {
+            R.drawable.ic_m3_encrypted_48dp_wght400
         }
     Card(
         modifier =

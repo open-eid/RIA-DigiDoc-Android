@@ -51,6 +51,7 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
+            excludes += "META-INF/INDEX.LIST"
         }
     }
 }
@@ -64,6 +65,8 @@ dependencies {
     kapt(libs.google.dagger.hilt.android.compile)
     implementation(libs.androidx.hilt)
     implementation(libs.bouncy.castle)
+    api(libs.guava)
+    implementation(libs.unboundid.ldapsdk)
     implementation(libs.cdoc4j)
     implementation(libs.preferencex)
     implementation(libs.stax.api)
@@ -77,6 +80,7 @@ dependencies {
 
     api(files("libs/libcdoc.jar"))
 
+    implementation(project(":config-lib"))
     implementation(project(":commons-lib"))
     implementation(project(":utils-lib"))
 }

@@ -4,7 +4,7 @@ package ee.ria.DigiDoc.domain.service
 
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.SIGNATURE_PROFILE_TS
 import ee.ria.DigiDoc.common.certificate.CertificateService
-import ee.ria.DigiDoc.common.model.IdCardCertificate
+import ee.ria.DigiDoc.common.model.ExtendedCertificate
 import ee.ria.DigiDoc.domain.model.IdCardData
 import ee.ria.DigiDoc.idcard.CertificateType
 import ee.ria.DigiDoc.idcard.CodeType
@@ -49,8 +49,8 @@ class IdCardServiceImpl
                 val pin2RetryCounter = token.codeRetryCounter(CodeType.PIN2)
                 val pukRetryCounter = token.codeRetryCounter(CodeType.PUK)
 
-                val authCertificate = IdCardCertificate.create(authenticationCertificateData, certificateService)
-                val signCertificate = IdCardCertificate.create(signingCertificateData, certificateService)
+                val authCertificate = ExtendedCertificate.create(authenticationCertificateData, certificateService)
+                val signCertificate = ExtendedCertificate.create(signingCertificateData, certificateService)
 
                 IdCardData(
                     type = authCertificate.type,

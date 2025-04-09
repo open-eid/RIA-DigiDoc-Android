@@ -6,10 +6,10 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import androidx.activity.result.ActivityResultLauncher
+import ee.ria.DigiDoc.common.exception.NoInternetConnectionException
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
-import ee.ria.DigiDoc.libdigidoclib.exceptions.NoInternetConnectionException
 import java.io.File
 import java.io.FileNotFoundException
 

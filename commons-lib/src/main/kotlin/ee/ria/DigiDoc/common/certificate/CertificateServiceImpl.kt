@@ -6,6 +6,9 @@ import ee.ria.DigiDoc.common.model.EIDType
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.asn1.x500.style.BCStyle
 import org.bouncycastle.asn1.x509.CertificatePolicies
+import org.bouncycastle.asn1.x509.ExtendedKeyUsage
+import org.bouncycastle.asn1.x509.KeyPurposeId
+import org.bouncycastle.asn1.x509.KeyUsage
 import org.bouncycastle.asn1.x9.X9ObjectIdentifiers
 import org.bouncycastle.cert.X509CertificateHolder
 import javax.inject.Inject
@@ -23,6 +26,21 @@ class CertificateServiceImpl
             val extensions = certificate.extensions
             val certificatePolicies = CertificatePolicies.fromExtensions(extensions)
             return EIDType.parse(certificatePolicies)
+        }
+
+        override fun extractKeyUsage(certificate: X509CertificateHolder): KeyUsage {
+            val extensions = certificate.extensions
+            return KeyUsage.fromExtensions(extensions)
+        }
+
+        override fun extractExtendedKeyUsage(certificate: X509CertificateHolder): ExtendedKeyUsage {
+            val extensions = certificate.extensions
+            var extendedKeyUsage = ExtendedKeyUsage.fromExtensions(extensions)
+            if (extendedKeyUsage == null) {
+                extendedKeyUsage = ExtendedKeyUsage(arrayOf<KeyPurposeId?>())
+            }
+
+            return extendedKeyUsage
         }
 
         override fun extractFriendlyName(certificate: X509CertificateHolder): String {
