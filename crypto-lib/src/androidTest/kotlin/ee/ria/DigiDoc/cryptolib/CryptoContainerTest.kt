@@ -63,7 +63,6 @@ class CryptoContainerTest {
     private lateinit var dataFile2: File
     private lateinit var dataFile3: File
 
-
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)

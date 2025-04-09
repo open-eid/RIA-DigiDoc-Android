@@ -12,7 +12,10 @@ import org.bouncycastle.asn1.x500.X500Name
 import org.bouncycastle.asn1.x500.style.BCStyle
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier
 import org.bouncycastle.asn1.x509.CertificatePolicies
+import org.bouncycastle.asn1.x509.ExtendedKeyUsage
 import org.bouncycastle.asn1.x509.Extensions
+import org.bouncycastle.asn1.x509.KeyPurposeId
+import org.bouncycastle.asn1.x509.KeyUsage
 import org.bouncycastle.asn1.x509.PolicyInformation
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.asn1.x9.X9ObjectIdentifiers
@@ -70,6 +73,50 @@ class CertificateServiceImplTest {
         val invalidCertificateData: ByteArray = byteArrayOf(0x00, 0x01, 0x02, 0x03)
 
         certificateService.parseCertificate(invalidCertificateData)
+    }
+
+    @Test
+    fun certificateService_extractKeyUsage_success() {
+        val certificateHolder = mock(X509CertificateHolder::class.java)
+        val extensions = mock(Extensions::class.java)
+        val keyUsage = mock(KeyUsage::class.java)
+
+        `when`(certificateHolder.extensions).thenReturn(extensions)
+
+        `when`(KeyUsage.fromExtensions(extensions)).thenReturn(keyUsage)
+
+        val result = certificateService.extractKeyUsage(certificateHolder)
+
+        assertEquals(keyUsage, result)
+    }
+
+    @Test
+    fun certificateService_extractExtendedKeyUsage_success() {
+        val certificateHolder = mock(X509CertificateHolder::class.java)
+        val extensions = mock(Extensions::class.java)
+        val extendedKeyUsage = mock(ExtendedKeyUsage::class.java)
+
+        `when`(certificateHolder.extensions).thenReturn(extensions)
+
+        `when`(ExtendedKeyUsage.fromExtensions(extensions)).thenReturn(extendedKeyUsage)
+
+        val result = certificateService.extractExtendedKeyUsage(certificateHolder)
+
+        assertEquals(extendedKeyUsage, result)
+    }
+
+    @Test
+    fun certificateService_extractExtendedKeyUsage_returnNullSuccess() {
+        val certificateHolder = mock(X509CertificateHolder::class.java)
+        val extensions = mock(Extensions::class.java)
+
+        `when`(certificateHolder.extensions).thenReturn(extensions)
+
+        `when`(ExtendedKeyUsage.fromExtensions(extensions)).thenReturn(null)
+
+        val result = certificateService.extractExtendedKeyUsage(certificateHolder)
+
+        assertEquals(ExtendedKeyUsage(arrayOf<KeyPurposeId?>()), result)
     }
 
     @Test

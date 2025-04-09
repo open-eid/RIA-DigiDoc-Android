@@ -4,7 +4,6 @@ package ee.ria.DigiDoc.common.model
 
 import ee.ria.DigiDoc.common.certificate.CertificateService
 import org.bouncycastle.asn1.x509.ExtendedKeyUsage
-import org.bouncycastle.asn1.x509.KeyPurposeId
 import org.bouncycastle.asn1.x509.KeyUsage
 import java.io.IOException
 
@@ -25,13 +24,8 @@ data class ExtendedCertificate(
             val type = certificateService.extractEIDType(certificate)
             val ellipticCurve = certificateService.isEllipticCurve(certificate)
 
-            val extensions = certificate.extensions
-            val keyUsage = KeyUsage.fromExtensions(extensions)
-
-            var extendedKeyUsage = ExtendedKeyUsage.fromExtensions(extensions)
-            if (extendedKeyUsage == null) {
-                extendedKeyUsage = ExtendedKeyUsage(arrayOf<KeyPurposeId?>())
-            }
+            val keyUsage = certificateService.extractKeyUsage(certificate)
+            val extendedKeyUsage = certificateService.extractExtendedKeyUsage(certificate)
 
             return ExtendedCertificate(
                 type,
