@@ -86,9 +86,11 @@ fun SignatureInputScreen(
 ) {
     val context = LocalActivity.current as Activity
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
+    val getIsAskRoleAndAddressRequested = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
     var rememberMe by rememberSaveable { mutableStateOf(true) }
     var isIdCardProcessStarted by rememberSaveable { mutableStateOf(false) }
     var isSigning by rememberSaveable { mutableStateOf(false) }
+    var isAddingRoleAndAddress by rememberSaveable { mutableStateOf(false) }
     val chosenMethod by remember {
         mutableStateOf(
             SigningMethod.entries.find {
@@ -133,22 +135,26 @@ fun SignatureInputScreen(
                 sharedMenuViewModel = sharedMenuViewModel,
                 title = null,
                 leftIconContentDescription =
-                    if (isSigning) {
+                    if (isSigning || isAddingRoleAndAddress) {
                         R.string.signing_cancel
                     } else {
                         R.string.back
                     },
                 onLeftButtonClick = {
-                    if (isSigning) {
+                    if (isSigning || isAddingRoleAndAddress) {
                         cancelAction()
                         isSigning = false
+                        isAddingRoleAndAddress = false
                     } else {
+                        isAddingRoleAndAddress = false
                         navController.navigateUp()
                     }
                 },
                 onRightSecondaryButtonClick = {
                     isSettingsMenuBottomSheetVisible.value = true
                 },
+                // Hide TopBar icons when signing
+                showRightSideIcons = !isSigning && !isAddingRoleAndAddress,
             )
         },
     ) { paddingValues ->
@@ -177,7 +183,7 @@ fun SignatureInputScreen(
                 style = MaterialTheme.typography.headlineMedium,
             )
 
-            if (!isSigning && !isIdCardProcessStarted) {
+            if (!isSigning && !isIdCardProcessStarted && !isAddingRoleAndAddress) {
                 Column(
                     modifier =
                         modifier
@@ -243,13 +249,16 @@ fun SignatureInputScreen(
                         activity = context,
                         onError = {
                             isSigning = false
+                            isAddingRoleAndAddress = false
                             cancelAction()
                         },
                         onSuccess = {
                             isSigning = false
+                            isAddingRoleAndAddress = false
                             navController.navigateUp()
                         },
                         isSigning = isSigning,
+                        isAddingRoleAndAddress = isAddingRoleAndAddress,
                         rememberMe = rememberMe,
                         sharedSettingsViewModel = sharedSettingsViewModel,
                         sharedContainerViewModel = sharedContainerViewModel,
@@ -260,6 +269,7 @@ fun SignatureInputScreen(
                             signAction = action
                         },
                         cancelAction = { action ->
+                            isAddingRoleAndAddress = false
                             cancelAction = action
                         },
                     )
@@ -270,13 +280,16 @@ fun SignatureInputScreen(
                         activity = context,
                         onError = {
                             isSigning = false
+                            isAddingRoleAndAddress = false
                             cancelAction()
                         },
                         onSuccess = {
                             isSigning = false
+                            isAddingRoleAndAddress = false
                             navController.navigateUp()
                         },
                         isSigning = isSigning,
+                        isAddingRoleAndAddress = isAddingRoleAndAddress,
                         rememberMe = rememberMe,
                         sharedSettingsViewModel = sharedSettingsViewModel,
                         sharedContainerViewModel = sharedContainerViewModel,
@@ -287,6 +300,7 @@ fun SignatureInputScreen(
                             signAction = action
                         },
                         cancelAction = { action ->
+                            isAddingRoleAndAddress = false
                             cancelAction = action
                         },
                     )
@@ -298,10 +312,12 @@ fun SignatureInputScreen(
                         onError = {
                             isSigning = false
                             isIdCardProcessStarted = false
+                            isAddingRoleAndAddress = false
                             cancelAction()
                         },
                         onSuccess = {
                             isSigning = false
+                            isAddingRoleAndAddress = false
                             navController.navigateUp()
                         },
                         isStarted = { started ->
@@ -310,6 +326,7 @@ fun SignatureInputScreen(
                             }
                         },
                         isSigning = isSigning,
+                        isAddingRoleAndAddress = isAddingRoleAndAddress,
                         sharedSettingsViewModel = sharedSettingsViewModel,
                         sharedContainerViewModel = sharedContainerViewModel,
                         isValidToSign = { isValid ->
@@ -323,6 +340,7 @@ fun SignatureInputScreen(
                         },
                         cancelAction = { action ->
                             isSigning = false
+                            isAddingRoleAndAddress = false
                             cancelAction = action
                         },
                     )
@@ -333,13 +351,16 @@ fun SignatureInputScreen(
                         activity = context,
                         onError = {
                             isSigning = false
+                            isAddingRoleAndAddress = false
                             cancelAction()
                         },
                         onSuccess = {
                             isSigning = false
+                            isAddingRoleAndAddress = false
                             navController.navigateUp()
                         },
                         isSigning = isSigning,
+                        isAddingRoleAndAddress = isAddingRoleAndAddress,
                         rememberMe = rememberMe,
                         sharedSettingsViewModel = sharedSettingsViewModel,
                         sharedContainerViewModel = sharedContainerViewModel,
@@ -353,13 +374,14 @@ fun SignatureInputScreen(
                             signAction = action
                         },
                         cancelAction = { action ->
+                            isAddingRoleAndAddress = false
                             cancelAction = action
                         },
                     )
             }
 
             if (!isSigning && (chosenMethod != SigningMethod.NFC || nfcSupported)) {
-                if (chosenMethod != SigningMethod.ID_CARD) {
+                if (chosenMethod != SigningMethod.ID_CARD && !isAddingRoleAndAddress) {
                     SettingsSwitchItem(
                         modifier = modifier,
                         checked = rememberMe,
@@ -382,8 +404,14 @@ fun SignatureInputScreen(
 
                 Button(
                     onClick = {
-                        isSigning = true
-                        signAction()
+                        if (getIsAskRoleAndAddressRequested() && !isAddingRoleAndAddress) {
+                            isSigning = false
+                            isAddingRoleAndAddress = true
+                        } else {
+                            isSigning = true
+                            isAddingRoleAndAddress = false
+                            signAction()
+                        }
                     },
                     enabled = isValidToSign,
                     modifier =

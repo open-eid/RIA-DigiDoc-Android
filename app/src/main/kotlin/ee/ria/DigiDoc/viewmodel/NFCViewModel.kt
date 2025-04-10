@@ -59,8 +59,6 @@ class NFCViewModel
         val signStatus: LiveData<Boolean?> = _signStatus
         private val _shouldResetPIN2 = MutableLiveData(false)
         val shouldResetPIN2: LiveData<Boolean> = _shouldResetPIN2
-        private val _roleDataRequested = MutableLiveData(false)
-        val roleDataRequested: LiveData<Boolean?> = _roleDataRequested
         private val _dialogError = MutableLiveData(0)
         val dialogError: LiveData<Int> = _dialogError
 
@@ -90,14 +88,6 @@ class NFCViewModel
 
         fun resetShouldResetPIN2() {
             _shouldResetPIN2.postValue(null)
-        }
-
-        fun resetRoleDataRequested() {
-            _roleDataRequested.postValue(null)
-        }
-
-        fun setRoleDataRequested(roleDataRequested: Boolean) {
-            _roleDataRequested.postValue(roleDataRequested)
         }
 
         fun shouldShowCANNumberError(canNumber: String?): Boolean {

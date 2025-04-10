@@ -59,9 +59,6 @@ class IdCardViewModel
         private val _dialogError = MutableLiveData<String?>(null)
         val dialogError: LiveData<String?> = _dialogError
 
-        private val _roleDataRequested = MutableLiveData<Boolean?>(null)
-        val roleDataRequested: LiveData<Boolean?> = _roleDataRequested
-
         init {
             CoroutineScope(Main).launch {
                 smartCardReaderManager.status().asFlow().distinctUntilChanged().collect { status ->
@@ -101,7 +98,6 @@ class IdCardViewModel
             roleData: RoleData?,
         ) {
             activity.requestedOrientation = activity.resources.configuration.orientation
-            resetRoleDataRequested()
 
             try {
                 val token: Token =
@@ -121,7 +117,6 @@ class IdCardViewModel
             } catch (e: Exception) {
                 handleSigningError(context, e, signedContainer)
             } finally {
-                resetRoleDataRequested()
                 activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             }
         }
@@ -249,14 +244,6 @@ class IdCardViewModel
             errorLog(logTag, "Unable to sign with ID-card: ${e.message}", e)
         }
 
-        fun resetRoleDataRequested() {
-            _roleDataRequested.postValue(null)
-        }
-
-        fun setRoleDataRequested(roleDataRequested: Boolean) {
-            _roleDataRequested.postValue(roleDataRequested)
-        }
-
         fun resetSignStatus() {
             _signStatus.postValue(null)
         }
@@ -291,7 +278,6 @@ class IdCardViewModel
             resetPersonalUserData()
             resetErrorState()
             resetPINErrorState()
-            resetRoleDataRequested()
             resetSignStatus()
             resetSignedContainer()
         }

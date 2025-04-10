@@ -337,6 +337,7 @@ fun SigningNavigation(
                 if (status == MobileCreateSignatureProcessStatus.OK) {
                     signatures = signedContainer?.getSignatures() ?: emptyList()
                     withContext(Main) {
+                        selectedSignedContainerTabIndex.intValue = 1
                         signatureAddedSuccess.value = true
                         AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signatureAddedSuccessText)
                         delay(3000)
@@ -722,12 +723,13 @@ fun SigningNavigation(
                                 icon = R.drawable.ic_m3_stylus_note_48dp_wght400,
                                 name = signedContainerName,
                                 showSignButton =
-                                    signingViewModel.isSignButtonShown(
-                                        signedContainer,
-                                        isNestedContainer,
-                                        isXadesContainer,
-                                        isCadesContainer,
-                                    ),
+                                    signedContainer?.isSigned() == true &&
+                                        signingViewModel.isSignButtonShown(
+                                            signedContainer,
+                                            isNestedContainer,
+                                            isXadesContainer,
+                                            isCadesContainer,
+                                        ),
                                 showEncryptButton =
                                     signingViewModel.isEncryptButtonShown(
                                         signedContainer,

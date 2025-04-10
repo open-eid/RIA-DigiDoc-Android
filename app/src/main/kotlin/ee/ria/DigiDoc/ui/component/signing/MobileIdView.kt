@@ -75,6 +75,7 @@ import ee.ria.DigiDoc.ui.component.shared.RoleDataView
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Red500
@@ -103,6 +104,7 @@ fun MobileIdView(
     isSigning: Boolean,
     onError: () -> Unit = {},
     onSuccess: () -> Unit = {},
+    isAddingRoleAndAddress: Boolean,
     rememberMe: Boolean,
     mobileIdViewModel: MobileIdViewModel = hiltViewModel(),
     sharedSettingsViewModel: SharedSettingsViewModel,
@@ -114,7 +116,6 @@ fun MobileIdView(
     val context = LocalContext.current
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
     val dialogError by mobileIdViewModel.dialogError.asFlow().collectAsState(0)
-    val roleDataRequested by mobileIdViewModel.roleDataRequested.asFlow().collectAsState(null)
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
 
     var shouldRememberMe by rememberSaveable { mutableStateOf(rememberMe) }
@@ -223,7 +224,6 @@ fun MobileIdView(
             signedContainer?.let {
                 sharedContainerViewModel.setSignedContainer(it)
                 mobileIdViewModel.resetSignedContainer()
-                mobileIdViewModel.resetRoleDataRequested()
                 onSuccess()
             }
         }
@@ -331,8 +331,8 @@ fun MobileIdView(
                 }
                 .testTag("signatureUpdateMobileId"),
     ) {
-        if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
-            RoleDataView(modifier, sharedSettingsViewModel)
+        if (isAddingRoleAndAddress) {
+            RoleDataView(modifier, sharedSettingsViewModel, onError)
         } else if (isSigning) {
             MobileIdSignatureUpdateContainer(
                 mobileIdViewModel = mobileIdViewModel,
@@ -355,45 +355,40 @@ fun MobileIdView(
             LaunchedEffect(Unit, isValid) {
                 if (isValid) {
                     signAction {
-                        if (getSettingsAskRoleAndAddress() && roleDataRequested != true) {
-                            mobileIdViewModel.setRoleDataRequested(true)
-                        } else {
-                            saveFormParams()
-                            var roleDataRequest: RoleData? = null
-                            if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
-                                val roles = sharedSettingsViewModel.dataStore.getRoles()
-                                val rolesList =
-                                    roles
-                                        .split(",")
-                                        .map { it.trim() }
-                                        .filter { it.isNotEmpty() }
-                                        .toList()
-                                val city = sharedSettingsViewModel.dataStore.getRoleCity()
-                                val state = sharedSettingsViewModel.dataStore.getRoleState()
-                                val country = sharedSettingsViewModel.dataStore.getRoleCountry()
-                                val zip = sharedSettingsViewModel.dataStore.getRoleZip()
+                        saveFormParams()
+                        var roleDataRequest: RoleData? = null
+                        if (getSettingsAskRoleAndAddress()) {
+                            val roles = sharedSettingsViewModel.dataStore.getRoles()
+                            val rolesList =
+                                roles
+                                    .split(",")
+                                    .map { it.trim() }
+                                    .filter { it.isNotEmpty() }
+                                    .toList()
+                            val city = sharedSettingsViewModel.dataStore.getRoleCity()
+                            val state = sharedSettingsViewModel.dataStore.getRoleState()
+                            val country = sharedSettingsViewModel.dataStore.getRoleCountry()
+                            val zip = sharedSettingsViewModel.dataStore.getRoleZip()
 
-                                roleDataRequest =
-                                    RoleData(
-                                        roles = rolesList,
-                                        city = city,
-                                        state = state,
-                                        country = country,
-                                        zip = zip,
-                                    )
-                            }
-                            CoroutineScope(IO).launch {
-                                mobileIdViewModel.performMobileIdWorkRequest(
-                                    activity = activity,
-                                    context = context,
-                                    displayMessage = displayMessage,
-                                    container = signedContainer,
-                                    personalCode = personalCode.text,
-                                    phoneNumber = countryCodeAndPhone.text,
-                                    roleData = roleDataRequest,
+                            roleDataRequest =
+                                RoleData(
+                                    roles = rolesList,
+                                    city = city,
+                                    state = state,
+                                    country = country,
+                                    zip = zip,
                                 )
-                                mobileIdViewModel.resetRoleDataRequested()
-                            }
+                        }
+                        CoroutineScope(IO).launch {
+                            mobileIdViewModel.performMobileIdWorkRequest(
+                                activity = activity,
+                                context = context,
+                                displayMessage = displayMessage,
+                                container = signedContainer,
+                                personalCode = personalCode.text,
+                                phoneNumber = countryCodeAndPhone.text,
+                                roleData = roleDataRequest,
+                            )
                         }
                     }
                     cancelAction {
@@ -414,7 +409,7 @@ fun MobileIdView(
                     modifier =
                         modifier
                             .fillMaxWidth()
-                            .padding(top = MPadding),
+                            .padding(top = XSPadding),
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -647,6 +642,7 @@ fun MobileIdViewPreview() {
             sharedSettingsViewModel = sharedSettingsViewModel,
             sharedContainerViewModel = sharedContainerViewModel,
             isSigning = false,
+            isAddingRoleAndAddress = false,
             rememberMe = true,
             isValidToSign = {},
         )

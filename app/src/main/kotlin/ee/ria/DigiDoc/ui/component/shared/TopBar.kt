@@ -69,6 +69,7 @@ fun TopBar(
     @StringRes rightSecondaryIconContentDescription: Int = R.string.main_home_menu_settings_accessibility,
     @DrawableRes extraButtonIcon: Int = R.drawable.ic_m3_notifications_48dp_wght400,
     @StringRes extraButtonIconContentDescription: Int = R.string.notifications,
+    showRightSideIcons: Boolean = true,
     onLeftButtonClick: () -> Unit = {},
     onRightPrimaryButtonClick: (() -> Unit)? = null,
     onRightSecondaryButtonClick: () -> Unit = {},
@@ -176,105 +177,107 @@ fun TopBar(
             }
         },
         actions = {
-            if (showExtraButton) {
+            if (showRightSideIcons) {
+                if (showExtraButton) {
+                    IconButton(
+                        modifier = modifier.testTag("toolBarExtraButton"),
+                        onClick = {
+                            // Add debounce to prevent rapid navigation clicks
+                            debounceJob?.cancel()
+                            debounceJob =
+                                coroutineScope.launch {
+                                    delay(1000)
+                                    onExtraButtonClick()
+                                }
+                        },
+                    ) {
+                        BadgedBox(
+                            badge = {
+                                if (extraButtonItemCount > 0) {
+                                    Badge(
+                                        containerColor = Red500,
+                                        contentColor = Color.White,
+                                    ) {
+                                        Text("$extraButtonItemCount")
+                                    }
+                                }
+                            },
+                        ) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(id = extraButtonIcon),
+                                contentDescription = stringResource(extraButtonIconContentDescription),
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                modifier =
+                                    modifier
+                                        .size(iconSizeXXS)
+                                        .focusable(false)
+                                        .testTag("extraNavigationButton"),
+                            )
+                        }
+                    }
+                }
                 IconButton(
-                    modifier = modifier.testTag("toolBarExtraButton"),
+                    modifier = modifier.testTag("toolBarRightPrimaryButton"),
                     onClick = {
                         // Add debounce to prevent rapid navigation clicks
                         debounceJob?.cancel()
                         debounceJob =
                             coroutineScope.launch {
                                 delay(1000)
-                                onExtraButtonClick()
+                                onRightPrimaryButtonClick()
                             }
                     },
                 ) {
-                    BadgedBox(
-                        badge = {
-                            if (extraButtonItemCount > 0) {
-                                Badge(
-                                    containerColor = Red500,
-                                    contentColor = Color.White,
-                                ) {
-                                    Text("$extraButtonItemCount")
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = rightPrimaryIcon),
+                        contentDescription =
+                            if (rightPrimaryIconContentDescription == R.string.main_home_menu_help_accessibility) {
+                                if (isEstonianLanguageUsed.value) {
+                                    stringResource(id = R.string.main_home_menu_help) +
+                                        " link " +
+                                        "w w w punkt i d punkt e e"
+                                } else {
+                                    stringResource(id = R.string.main_home_menu_help) + " " +
+                                        TextUtil.splitTextAndJoin(
+                                            stringResource(id = R.string.main_home_menu_help_url_short),
+                                            "",
+                                            " ",
+                                        )
                                 }
-                            }
-                        },
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(id = extraButtonIcon),
-                            contentDescription = stringResource(extraButtonIconContentDescription),
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier =
-                                modifier
-                                    .size(iconSizeXXS)
-                                    .focusable(false)
-                                    .testTag("extraNavigationButton"),
-                        )
-                    }
-                }
-            }
-            IconButton(
-                modifier = modifier.testTag("toolBarRightPrimaryButton"),
-                onClick = {
-                    // Add debounce to prevent rapid navigation clicks
-                    debounceJob?.cancel()
-                    debounceJob =
-                        coroutineScope.launch {
-                            delay(1000)
-                            onRightPrimaryButtonClick()
-                        }
-                },
-            ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(id = rightPrimaryIcon),
-                    contentDescription =
-                        if (rightPrimaryIconContentDescription == R.string.main_home_menu_help_accessibility) {
-                            if (isEstonianLanguageUsed.value) {
-                                stringResource(id = R.string.main_home_menu_help) +
-                                    " link " +
-                                    "w w w punkt i d punkt e e"
                             } else {
-                                stringResource(id = R.string.main_home_menu_help) + " " +
-                                    TextUtil.splitTextAndJoin(
-                                        stringResource(id = R.string.main_home_menu_help_url_short),
-                                        "",
-                                        " ",
-                                    )
+                                stringResource(id = rightPrimaryIconContentDescription)
+                            },
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier =
+                            modifier
+                                .size(iconSizeXXS)
+                                .focusable(false)
+                                .testTag("rightPrimaryNavigationButton"),
+                    )
+                }
+                IconButton(
+                    modifier = modifier.testTag("toolBarRightSecondaryButton"),
+                    onClick = {
+                        // Add debounce to prevent rapid navigation clicks
+                        debounceJob?.cancel()
+                        debounceJob =
+                            coroutineScope.launch {
+                                delay(1000)
+                                onRightSecondaryButtonClick()
                             }
-                        } else {
-                            stringResource(id = rightPrimaryIconContentDescription)
-                        },
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier =
-                        modifier
-                            .size(iconSizeXXS)
-                            .focusable(false)
-                            .testTag("rightPrimaryNavigationButton"),
-                )
-            }
-            IconButton(
-                modifier = modifier.testTag("toolBarRightSecondaryButton"),
-                onClick = {
-                    // Add debounce to prevent rapid navigation clicks
-                    debounceJob?.cancel()
-                    debounceJob =
-                        coroutineScope.launch {
-                            delay(1000)
-                            onRightSecondaryButtonClick()
-                        }
-                },
-            ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(id = rightSecondaryIcon),
-                    contentDescription = stringResource(id = rightSecondaryIconContentDescription),
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier =
-                        modifier
-                            .size(iconSizeXXS)
-                            .focusable(false)
-                            .testTag("rightSecondaryNavigationButton"),
-                )
+                    },
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = rightSecondaryIcon),
+                        contentDescription = stringResource(id = rightSecondaryIconContentDescription),
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier =
+                            modifier
+                                .size(iconSizeXXS)
+                                .focusable(false)
+                                .testTag("rightSecondaryNavigationButton"),
+                    )
+                }
             }
         },
     )

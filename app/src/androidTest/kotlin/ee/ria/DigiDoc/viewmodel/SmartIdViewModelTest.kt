@@ -80,9 +80,6 @@ class SmartIdViewModelTest {
     lateinit var statusObserver: Observer<SessionStatusResponseProcessStatus?>
 
     @Mock
-    lateinit var roleDataRequestedObserver: Observer<Boolean?>
-
-    @Mock
     lateinit var challengeObserver: Observer<String?>
 
     @Mock
@@ -167,7 +164,6 @@ class SmartIdViewModelTest {
         viewModel.dialogError.observeForever(dialogErrorObserver)
         viewModel.status.observeForever(statusObserver)
         viewModel.signedContainer.observeForever(signedContainerObserver)
-        viewModel.roleDataRequested.observeForever(roleDataRequestedObserver)
         viewModel.challenge.observeForever(challengeObserver)
         viewModel.selectDevice.observeForever(selectDeviceObserver)
 
@@ -563,20 +559,6 @@ class SmartIdViewModelTest {
             verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.USER_CANCELLED)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
             verify(selectDeviceObserver, atLeastOnce()).onChanged(true)
-        }
-
-    @Test
-    fun mobileIdViewModel_resetRoleDataRequested_success() =
-        runTest {
-            viewModel.resetRoleDataRequested()
-            verify(roleDataRequestedObserver, atLeastOnce()).onChanged(null)
-        }
-
-    @Test
-    fun mobileIdViewModel_setRoleDataRequested_success() =
-        runTest {
-            viewModel.setRoleDataRequested(true)
-            verify(roleDataRequestedObserver, atLeastOnce()).onChanged(true)
         }
 
     @Test

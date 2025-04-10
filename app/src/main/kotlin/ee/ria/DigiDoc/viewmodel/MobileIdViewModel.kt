@@ -57,9 +57,6 @@ class MobileIdViewModel
         private val _status = MutableLiveData<MobileCreateSignatureProcessStatus?>(null)
         val status: LiveData<MobileCreateSignatureProcessStatus?> = _status
 
-        private val _roleDataRequested = MutableLiveData(false)
-        val roleDataRequested: LiveData<Boolean?> = _roleDataRequested
-
         private val _dialogError = MutableLiveData(0)
         val dialogError: LiveData<Int> = _dialogError
 
@@ -163,14 +160,6 @@ class MobileIdViewModel
 
         fun resetSignedContainer() {
             _signedContainer.postValue(null)
-        }
-
-        fun resetRoleDataRequested() {
-            _roleDataRequested.postValue(null)
-        }
-
-        fun setRoleDataRequested(roleDataRequested: Boolean) {
-            _roleDataRequested.postValue(roleDataRequested)
         }
 
         fun cancelMobileIdWorkRequest(signedContainer: SignedContainer?) {

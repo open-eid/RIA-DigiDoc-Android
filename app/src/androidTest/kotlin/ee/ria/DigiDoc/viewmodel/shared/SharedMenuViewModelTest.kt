@@ -7,6 +7,7 @@ import android.speech.tts.Voice
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import ee.ria.DigiDoc.domain.model.tts.TextToSpeechWrapper
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -38,6 +39,8 @@ class SharedMenuViewModelTest {
             val sharedMenuViewModel = SharedMenuViewModel(mockTtsWrapper)
             val isMenuViewModelTtsInitalizedObserver: Observer<Boolean> = mock()
             sharedMenuViewModel.isTtsInitialized.observeForever(isMenuViewModelTtsInitalizedObserver)
+
+            delay(2000)
 
             verify(isMenuViewModelTtsInitalizedObserver).onChanged(true)
 
