@@ -12,6 +12,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.exception.NoInternetConnectionException
 import ee.ria.DigiDoc.cryptolib.Addressee
+import ee.ria.DigiDoc.cryptolib.CDOC2Settings
+import ee.ria.DigiDoc.cryptolib.CryptoContainer
+import ee.ria.DigiDoc.cryptolib.exception.DataFilesEmptyException
+import ee.ria.DigiDoc.cryptolib.exception.RecipientsEmptyException
 import ee.ria.DigiDoc.cryptolib.repository.RecipientRepository
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
@@ -30,6 +34,7 @@ class EncryptRecipientViewModel
         @ApplicationContext private val context: Context,
         private val mimeTypeResolver: MimeTypeResolver,
         private val recipientRepository: RecipientRepository,
+        private val cdoc2Settings: CDOC2Settings,
     ) : ViewModel() {
         private val _errorState = MutableLiveData<Int?>(null)
         val errorState: LiveData<Int?> = _errorState
@@ -46,8 +51,15 @@ class EncryptRecipientViewModel
         private val _isRecipientAdded = MutableLiveData(false)
         val isRecipientAdded: LiveData<Boolean> = _isRecipientAdded
 
+        private val _isContainerEncrypted = MutableLiveData(false)
+        val isContainerEncrypted: LiveData<Boolean> = _isContainerEncrypted
+
         fun handleIsRecipientAdded(isRecipientAdded: Boolean) {
             _isRecipientAdded.postValue(isRecipientAdded)
+        }
+
+        fun handleIsContainerEncrypted(isContainerEncrypted: Boolean) {
+            _isContainerEncrypted.postValue(isContainerEncrypted)
         }
 
         private fun filterRecipients() =
@@ -72,7 +84,7 @@ class EncryptRecipientViewModel
                 )
 
         fun getRecipientList(): List<Addressee> {
-            return listOf() // TODO: Implement recipient list retrieval and search
+            return listOf<Addressee>()
         }
 
         fun getContainerRecipientList(sharedContainerViewModel: SharedContainerViewModel): List<Addressee> {
@@ -88,6 +100,32 @@ class EncryptRecipientViewModel
             cryptoContainer?.addRecipients(listOf(recipient))
             sharedContainerViewModel.setCryptoContainer(cryptoContainer)
             handleIsRecipientAdded(true)
+        }
+
+        suspend fun encryptContainer(sharedContainerViewModel: SharedContainerViewModel) {
+            var cryptoContainer = sharedContainerViewModel.cryptoContainer.value
+            if (cryptoContainer != null) {
+                try {
+                    cryptoContainer =
+                        CryptoContainer.encrypt(
+                            context = context,
+                            file = cryptoContainer.file,
+                            dataFiles = cryptoContainer.dataFiles,
+                            recipients = cryptoContainer.recipients,
+                            cdoc2Settings = cdoc2Settings,
+                        )
+                    sharedContainerViewModel.setCryptoContainer(cryptoContainer)
+                    handleIsContainerEncrypted(true)
+                } catch (_: DataFilesEmptyException) {
+                    _errorState.postValue(R.string.crypto_encrypt_data_files_empty_error)
+                } catch (_: RecipientsEmptyException) {
+                    _errorState.postValue(R.string.crypto_encrypt_recipients_empty_error)
+                } catch (_: Exception) {
+                    _errorState.postValue(R.string.crypto_encrypt_error)
+                }
+            } else {
+                _errorState.postValue(R.string.crypto_encrypt_error)
+            }
         }
 
         fun getMimetype(file: File): String? = mimeTypeResolver.mimeType(file)

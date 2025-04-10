@@ -309,7 +309,7 @@ fun SigningNavigation(
                             isSaved = true
                         } ?: showMessage(context, R.string.file_saved_error)
                     }
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     showMessage(context, R.string.file_saved_error)
                 }
             }
@@ -930,9 +930,9 @@ fun SigningNavigation(
                                         try {
                                             sharedContainerViewModel.removeContainerDataFile(
                                                 signedContainer,
-                                                actionDataFile,
+                                                clickedDataFile.value,
                                             )
-                                        } catch (e: Exception) {
+                                        } catch (_: Exception) {
                                             withContext(Main) {
                                                 showMessage(context, R.string.error_general_client)
                                             }
@@ -1004,7 +1004,6 @@ fun SigningNavigation(
                 nestedFile = nestedFile,
                 onDataFileBottomSheetDismiss = {
                     showDataFileBottomSheet.value = false
-                    clickedDataFile.value = null
                 },
                 clickedDataFile = clickedDataFile,
                 signedContainer = signedContainer,
@@ -1143,7 +1142,7 @@ private fun saveFile(
                 null,
             )
         saveFileLauncher.launch(saveIntent)
-    } catch (e: ActivityNotFoundException) {
+    } catch (_: ActivityNotFoundException) {
         // No activity to handle this kind of files
     }
 }

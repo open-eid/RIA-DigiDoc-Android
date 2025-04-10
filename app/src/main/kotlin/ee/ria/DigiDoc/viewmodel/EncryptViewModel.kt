@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.Constant.CDOC1_EXTENSION
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
@@ -45,6 +46,21 @@ class EncryptViewModel
 
         fun isContainerWithoutRecipients(cryptoContainer: CryptoContainer?): Boolean {
             return cryptoContainer?.hasRecipients() == false
+        }
+
+        fun isCDOC1Container(cryptoContainer: CryptoContainer?): Boolean {
+            return cryptoContainer?.file?.extension == CDOC1_EXTENSION
+        }
+
+        fun isDataFilesInContainer(cryptoContainer: CryptoContainer?): Boolean {
+            return cryptoContainer?.dataFiles?.isEmpty() == false
+        }
+
+        fun shouldShowDataFiles(cryptoContainer: CryptoContainer?): Boolean {
+            return (
+                (isEncryptedContainer(cryptoContainer) && isCDOC1Container(cryptoContainer)) ||
+                    !isEncryptedContainer(cryptoContainer)
+            ) && isDataFilesInContainer(cryptoContainer)
         }
 
         fun isSignButtonShown(cryptoContainer: CryptoContainer?): Boolean =

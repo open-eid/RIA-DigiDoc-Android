@@ -281,7 +281,7 @@ fun EncryptNavigation(
                             isSaved = true
                         } ?: showMessage(context, R.string.file_saved_error)
                     }
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     showMessage(context, R.string.file_saved_error)
                 }
             }
@@ -407,7 +407,7 @@ fun EncryptNavigation(
                 },
                 onAddMoreFiles = {
                     navController.navigate(
-                        Route.FileChoosing.route,
+                        Route.CryptoFileChoosing.route,
                     )
                 },
                 isNoRecipientContainer = cryptoContainer?.hasRecipients() == false,
@@ -610,7 +610,12 @@ fun EncryptNavigation(
                                         style = MaterialTheme.typography.bodyMedium,
                                         textAlign = TextAlign.Start,
                                     )
-                                    CryptoDataFileItem(modifier, dataFiles, onDataFileClick)
+                                    CryptoDataFileItem(
+                                        modifier = modifier,
+                                        dataFiles = dataFiles,
+                                        isMoreOptionsButtonShown = true,
+                                        onClick = onDataFileClick,
+                                    )
                                 }
                             } else {
                                 item {
@@ -629,14 +634,20 @@ fun EncryptNavigation(
                                             Pair(
                                                 stringResource(R.string.crypto_documents_title),
                                             ) {
-                                                if (encryptViewModel.isEncryptedContainer(cryptoContainer)) {
-                                                    CryptoDataFilesLocked(modifier = modifier)
-                                                } else {
+                                                if (encryptViewModel
+                                                        .shouldShowDataFiles(cryptoContainer)
+                                                ) {
                                                     CryptoDataFileItem(
-                                                        modifier,
-                                                        dataFiles,
-                                                        onDataFileClick,
+                                                        modifier = modifier,
+                                                        dataFiles = dataFiles,
+                                                        isMoreOptionsButtonShown =
+                                                            encryptViewModel.isDecryptedContainer(
+                                                                cryptoContainer,
+                                                            ),
+                                                        onClick = onDataFileClick,
                                                     )
+                                                } else {
+                                                    CryptoDataFilesLocked(modifier = modifier)
                                                 }
                                             },
                                             Pair(
@@ -758,9 +769,9 @@ fun EncryptNavigation(
                                         try {
                                             sharedContainerViewModel.removeCryptoContainerDataFile(
                                                 cryptoContainer,
-                                                actionFile,
+                                                clickedFile.value,
                                             )
-                                        } catch (e: Exception) {
+                                        } catch (_: Exception) {
                                             withContext(Main) {
                                                 showMessage(context, R.string.error_general_client)
                                             }
@@ -826,7 +837,6 @@ fun EncryptNavigation(
                 nestedFile = nestedFile,
                 onDataFileBottomSheetDismiss = {
                     showDataFileBottomSheet.value = false
-                    clickedFile.value = null
                 },
                 clickedDataFile = clickedFile,
                 cryptoContainer = cryptoContainer,
@@ -938,7 +948,7 @@ private fun saveFile(
                 null,
             )
         saveFileLauncher.launch(saveIntent)
-    } catch (e: ActivityNotFoundException) {
+    } catch (_: ActivityNotFoundException) {
         // No activity to handle this kind of files
     }
 }

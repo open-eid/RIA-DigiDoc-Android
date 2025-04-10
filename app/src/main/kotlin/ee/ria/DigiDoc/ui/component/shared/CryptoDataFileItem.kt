@@ -53,6 +53,7 @@ import java.io.File
 fun CryptoDataFileItem(
     modifier: Modifier = Modifier,
     dataFiles: List<File>,
+    isMoreOptionsButtonShown: Boolean = true,
     onClick: (File) -> Unit,
 ) {
     val context = LocalContext.current
@@ -66,7 +67,9 @@ fun CryptoDataFileItem(
                 modifier =
                     modifier
                         .fillMaxWidth()
-                        .clickable(enabled = !isTalkBackEnabled(context)) { onClick(dataFile) }
+                        .clickable(
+                            enabled = isMoreOptionsButtonShown && !isTalkBackEnabled(context),
+                        ) { onClick(dataFile) }
                         .semantics {
                             this.contentDescription = "$fileDescription ${index + 1} ${dataFile.name} $buttonName"
                             testTagsAsResourceId = true
@@ -137,21 +140,24 @@ fun CryptoDataFileItem(
                                     ),
                             )
                         }
-
-                        IconButton(onClick = { onClick(dataFile) }) {
-                            Icon(
-                                modifier =
-                                    modifier
-                                        .semantics {
-                                            testTagsAsResourceId = true
-                                        }
-                                        .testTag("dataFileItemMoreOptionsIconButton"),
-                                imageVector = ImageVector.vectorResource(R.drawable.ic_more_vert),
-                                contentDescription = "$fileDescription ${index + 1} ${stringResource(
-                                    R.string.more_options,
-                                )} $buttonName",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
+                        if (isMoreOptionsButtonShown) {
+                            IconButton(onClick = { onClick(dataFile) }) {
+                                Icon(
+                                    modifier =
+                                        modifier
+                                            .semantics {
+                                                testTagsAsResourceId = true
+                                            }
+                                            .testTag("dataFileItemMoreOptionsIconButton"),
+                                    imageVector = ImageVector.vectorResource(R.drawable.ic_more_vert),
+                                    contentDescription = "$fileDescription ${index + 1} ${
+                                        stringResource(
+                                            R.string.more_options,
+                                        )
+                                    } $buttonName",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
                         }
                     }
                 }

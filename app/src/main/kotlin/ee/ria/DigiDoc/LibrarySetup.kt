@@ -32,6 +32,8 @@ class LibrarySetup
             context: Context,
             isLoggingEnabled: Boolean,
         ) {
+            System.loadLibrary("cdoc_java")
+
             try {
                 TSLUtil.setupTSLFiles(context)
                 configurationLoader.initConfiguration(

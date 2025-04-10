@@ -159,7 +159,7 @@
     <string name="crypto_container_added_recipients_title">Added recipients</string>
     <string name="crypto_recipient_title">Recipient</string>
     <string name="crypto_decryption_valid_to">Decryption until %1$s</string>
-    <string name="crypto_cert_valid_to">Valid to %1$s</string>
+    <string name="crypto_cert_valid_to">(Valid to %1$s)</string>
     <string name="crypto_documents_title">Container files</string>
     <string name="crypto_containter_update_name">Container name</string>
     <string name="crypto_recipients_description">For encryption, at least one recipient must be included - the person (personal identification number) or authority (registration number) authorised to decrypt the data. Add your own personal identification number if you want to decrypt the envelope later.</string>
@@ -167,6 +167,9 @@
     <string name="crypto_recipients_search_cancel">Cancel search recipients</string>
     <string name="crypto_recipients_search_empty">No recipients found</string>
     <string name="crypto_recipients_recipient_add_success">Recipient added</string>
+    <string name="crypto_encrypt_error">Something went wrong with encryption</string>
+    <string name="crypto_encrypt_data_files_empty_error">Cannot create an empty crypto container</string>
+    <string name="crypto_encrypt_recipients_empty_error">Cannot create crypto container without recipients</string>
 
     <!-- Signature Add -->
     <string name="signature_update_title">Container signing</string>

@@ -77,6 +77,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.Green500
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
@@ -118,6 +119,9 @@ fun EncryptRecipientScreen(
 
     val recipientAddedSuccess = remember { mutableStateOf(false) }
     val recipientAddedSuccessText = stringResource(id = R.string.crypto_recipients_recipient_add_success)
+
+    val containerEncryptedSuccess = remember { mutableStateOf(false) }
+    val containerEncryptedSuccessText = stringResource(id = R.string.crypto_create_success)
 
     val containerRecipientList =
         remember {
@@ -178,6 +182,28 @@ fun EncryptRecipientScreen(
         }
     }
 
+    LaunchedEffect(encryptRecipientViewModel.isContainerEncrypted) {
+        encryptRecipientViewModel.isContainerEncrypted.asFlow().collect { isContainerEncrypted ->
+            if (isContainerEncrypted) {
+                withContext(Main) {
+                    containerEncryptedSuccess.value = true
+                    AccessibilityUtil.sendAccessibilityEvent(
+                        context,
+                        TYPE_ANNOUNCEMENT,
+                        containerEncryptedSuccessText,
+                    )
+                    delay(4000)
+                    containerEncryptedSuccess.value = false
+                    encryptRecipientViewModel.handleIsContainerEncrypted(false)
+
+                    navController.navigate(
+                        Route.Encrypt.route,
+                    )
+                }
+            }
+        }
+    }
+
     LaunchedEffect(encryptRecipientViewModel.errorState) {
         encryptRecipientViewModel.errorState.asFlow().collect { error ->
             error?.let {
@@ -227,7 +253,11 @@ fun EncryptRecipientScreen(
             EncryptBottomBar(
                 modifier = modifier,
                 onEncryptClick = {
-                    // TODO: Implement encrypt action
+                    CoroutineScope(IO).launch {
+                        showLoading.value = true
+                        encryptRecipientViewModel.encryptContainer(sharedContainerViewModel)
+                        showLoading.value = false
+                    }
                 },
             )
         },
@@ -249,6 +279,14 @@ fun EncryptRecipientScreen(
                     modifier = modifier,
                     text = recipientAddedSuccessText,
                     testTag = "recipientAddedSuccess",
+                    color = Green500,
+                )
+            }
+            if (containerEncryptedSuccess.value) {
+                ContainerMessage(
+                    modifier = modifier,
+                    text = containerEncryptedSuccessText,
+                    testTag = "containerEncryptedSuccess",
                     color = Green500,
                 )
             }
@@ -347,6 +385,7 @@ fun EncryptRecipientScreen(
                         items(recipientList) { recipient ->
                             Recipient(
                                 recipient = recipient,
+                                isMoreOptionsButtonShown = false,
                                 onClick = {
                                     encryptRecipientViewModel.addRecipientToContainer(
                                         recipient,
@@ -482,10 +521,12 @@ fun EncryptRecipientScreen(
                 onConfirmButton = {
                     CoroutineScope(IO).launch {
                         sharedContainerViewModel.removeRecipient(cryptoContainer, actionRecipient)
+                        delay(1000L)
+                        containerRecipientList.value =
+                            encryptRecipientViewModel
+                                .getContainerRecipientList(sharedContainerViewModel)
                     }
-                    containerRecipientList.value =
-                        encryptRecipientViewModel
-                            .getContainerRecipientList(sharedContainerViewModel)
+
                     dismissSearch()
                     closeRecipientDialog()
                     AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, recipientRemoved)
@@ -503,7 +544,7 @@ fun EncryptRecipientScreen(
             clickedRecipient = clickedRecipient,
             sharedRecipientViewModel = sharedRecipientViewModel,
             navController = navController,
-            isRecipientRemoveShown = false,
+            isRecipientRemoveShown = true,
             openRemoveRecipientDialog = openRemoveRecipientDialog,
             onRecipientRemove = { actionRecipient = it },
         )
