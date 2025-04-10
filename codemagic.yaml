@@ -18,6 +18,7 @@ workflows:
     max_build_duration: 120
     instance_type: linux_x2
     environment:
+      ubuntu: 24.04
       java: 17
       groups:
         - "google_services"
@@ -126,7 +127,7 @@ workflows:
       - name: Launch emulator for instrumented tests
         script: |
           cd $ANDROID_HOME/tools
-          emulator -avd emulator-34 &
+          emulator -avd emulator-35 &
           adb wait-for-device
       - name: Run instrumented tests
         script: |
@@ -171,9 +172,12 @@ workflows:
           APP_VERSION="$APP_VERSION_NAME.$LATEST_BUILD_NUMBER"
           echo "APP_VERSION=$APP_VERSION" >> $CM_ENV
           echo "Using app version: $APP_VERSION"
+          
+          echo "Updating version to $LATEST_BUILD_NUMBER"
+          sed -i "s/versionCode = \".*\"/versionCode = \"$LATEST_BUILD_NUMBER\"/" gradle/libs.versions.toml
 
           # Build app
-          ./gradlew clean --no-daemon -PappVersionName=$APP_VERSION -PappVersionCode=$LATEST_BUILD_NUMBER assemble --info --quiet
+          ./gradlew clean --no-daemon assemble --info --quiet
       - name: Align APK
         script: |
           OUTPUT_DIR="app/build/outputs/apk/release"
@@ -243,7 +247,7 @@ workflows:
       - name: Launch emulator for tests
         script: |
           cd $ANDROID_HOME/tools
-          emulator -avd emulator-34 &
+          emulator -avd emulator-35 &
           adb wait-for-device
           - name: Instrumented tests
             script: |
@@ -280,9 +284,12 @@ workflows:
           APP_VERSION="$APP_VERSION_NAME.$LATEST_BUILD_NUMBER"
           echo "APP_VERSION=$APP_VERSION" >> $CM_ENV
           echo "Using app version: $APP_VERSION"
+          
+          echo "Updating version to $LATEST_BUILD_NUMBER"
+          sed -i "s/versionCode = \".*\"/versionCode = \"$LATEST_BUILD_NUMBER\"/" gradle/libs.versions.toml
 
           # Build app
-          ./gradlew clean --no-daemon -PappVersionName=$APP_VERSION -PappVersionCode=$LATEST_BUILD_NUMBER assembleRelease --quiet
+          ./gradlew clean --no-daemon assembleRelease --quiet
       - name: Align APK
         script: |
           OUTPUT_DIR="app/build/outputs/apk/release"
