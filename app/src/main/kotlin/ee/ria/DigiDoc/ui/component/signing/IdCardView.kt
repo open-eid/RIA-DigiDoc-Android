@@ -21,7 +21,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -110,6 +112,7 @@ fun IdCardView(
     isStarted: (Boolean) -> Unit,
     onError: () -> Unit = {},
     onSuccess: () -> Unit = {},
+    isAddingRoleAndAddress: Boolean,
     sharedContainerViewModel: SharedContainerViewModel,
     sharedSettingsViewModel: SharedSettingsViewModel,
     idCardViewModel: IdCardViewModel = hiltViewModel(),
@@ -144,7 +147,6 @@ fun IdCardView(
     var pin2Code by remember { mutableStateOf(TextFieldValue("")) }
 
     var roleDataRequest: RoleData? by remember { mutableStateOf(null) }
-    val roleDataRequested by idCardViewModel.roleDataRequested.asFlow().collectAsState(null)
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
     var errorText by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
@@ -238,7 +240,6 @@ fun IdCardView(
             .collect { errorState ->
                 withContext(IO) {
                     idCardViewModel.resetPersonalUserData()
-                    idCardViewModel.resetRoleDataRequested()
                     idCardViewModel.resetErrorState()
                 }
                 withContext(Main) {
@@ -298,7 +299,6 @@ fun IdCardView(
             .collect { signedContainer ->
                 sharedContainerViewModel.setSignedContainer(signedContainer)
                 idCardViewModel.resetSignedContainer()
-                idCardViewModel.resetRoleDataRequested()
                 onSuccess()
             }
     }
@@ -353,7 +353,8 @@ fun IdCardView(
                         modifier
                             .padding(SPadding)
                             .wrapContentHeight()
-                            .wrapContentWidth(),
+                            .wrapContentWidth()
+                            .verticalScroll(rememberScrollState()),
                 ) {
                     Column(
                         modifier =
@@ -409,8 +410,8 @@ fun IdCardView(
                 .testTag("signatureUpdateIdCard"),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
-            RoleDataView(modifier, sharedSettingsViewModel)
+        if (isAddingRoleAndAddress) {
+            RoleDataView(modifier, sharedSettingsViewModel, onError)
         } else {
             isValid = pin2Code.text.length in 5..12
 
@@ -421,54 +422,49 @@ fun IdCardView(
             LaunchedEffect(Unit, isValid) {
                 if (isValid) {
                     signAction {
-                        if (getSettingsAskRoleAndAddress() && roleDataRequested != true) {
-                            idCardViewModel.setRoleDataRequested(true)
-                        } else {
-                            if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
-                                val roles = sharedSettingsViewModel.dataStore.getRoles()
-                                val rolesList =
-                                    roles
-                                        .split(",")
-                                        .map { it.trim() }
-                                        .filter { it.isNotEmpty() }
-                                        .toList()
-                                val city = sharedSettingsViewModel.dataStore.getRoleCity()
-                                val state = sharedSettingsViewModel.dataStore.getRoleState()
-                                val country = sharedSettingsViewModel.dataStore.getRoleCountry()
-                                val zip = sharedSettingsViewModel.dataStore.getRoleZip()
+                        if (getSettingsAskRoleAndAddress()) {
+                            val roles = sharedSettingsViewModel.dataStore.getRoles()
+                            val rolesList =
+                                roles
+                                    .split(",")
+                                    .map { it.trim() }
+                                    .filter { it.isNotEmpty() }
+                                    .toList()
+                            val city = sharedSettingsViewModel.dataStore.getRoleCity()
+                            val state = sharedSettingsViewModel.dataStore.getRoleState()
+                            val country = sharedSettingsViewModel.dataStore.getRoleCountry()
+                            val zip = sharedSettingsViewModel.dataStore.getRoleZip()
 
-                                roleDataRequest =
-                                    RoleData(
-                                        roles = rolesList,
-                                        city = city,
-                                        state = state,
-                                        country = country,
-                                        zip = zip,
-                                    )
-                            }
-
-                            CoroutineScope(IO).launch {
-                                idCardViewModel.sign(
-                                    activity,
-                                    context,
-                                    signedContainer!!,
-                                    pin2Code.text.toByteArray(),
-                                    roleDataRequest,
+                            roleDataRequest =
+                                RoleData(
+                                    roles = rolesList,
+                                    city = city,
+                                    state = state,
+                                    country = country,
+                                    zip = zip,
                                 )
-                                pin2Code = TextFieldValue("")
-                                pin2WithInvisibleSpaces =
-                                    TextFieldValue(
-                                        text = "",
-                                        selection = TextRange.Zero,
-                                    )
-                                idCardViewModel.resetRoleDataRequested()
-                            }
+                        }
+
+                        CoroutineScope(IO).launch {
+                            idCardViewModel.sign(
+                                activity,
+                                context,
+                                signedContainer!!,
+                                pin2Code.text.toByteArray(),
+                                roleDataRequest,
+                            )
+                            pin2Code = TextFieldValue("")
+                            pin2WithInvisibleSpaces =
+                                TextFieldValue(
+                                    text = "",
+                                    selection = TextRange.Zero,
+                                )
                         }
                     }
-                    cancelAction {
-                        CoroutineScope(IO).launch {
-                            signedContainer?.let { idCardViewModel.removePendingSignature(it) }
-                        }
+                }
+                cancelAction {
+                    CoroutineScope(IO).launch {
+                        signedContainer?.let { idCardViewModel.removePendingSignature(it) }
                     }
                 }
             }
@@ -727,6 +723,7 @@ fun IdCardViewPreview() {
             activity = LocalActivity.current as Activity,
             sharedSettingsViewModel = sharedSettingsViewModel,
             sharedContainerViewModel = sharedContainerViewModel,
+            isAddingRoleAndAddress = false,
             isStarted = {},
             isSigning = true,
             isValidToSign = {},

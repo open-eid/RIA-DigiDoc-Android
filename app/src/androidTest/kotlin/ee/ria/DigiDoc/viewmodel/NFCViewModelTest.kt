@@ -102,36 +102,6 @@ class NFCViewModelTest {
     }
 
     @Test
-    fun nfcViewModel_setRoleDataRequested_successWithTrue() {
-        runTest {
-            viewModel.setRoleDataRequested(true)
-
-            val roleDataRequested = viewModel.roleDataRequested.value
-
-            if (roleDataRequested != null) {
-                assertTrue(roleDataRequested)
-            } else {
-                fail("roleDataRequested is null")
-            }
-        }
-    }
-
-    @Test
-    fun nfcViewModel_setRoleDataRequested_successWithFalse() {
-        runTest {
-            viewModel.setRoleDataRequested(false)
-
-            val roleDataRequested = viewModel.roleDataRequested.value
-
-            if (roleDataRequested != null) {
-                assertFalse(roleDataRequested)
-            } else {
-                fail("roleDataRequested is null")
-            }
-        }
-    }
-
-    @Test
     fun nfcViewModel_removePendingSignature_success() =
         runTest {
             val container =
@@ -156,20 +126,6 @@ class NFCViewModelTest {
 
             viewModel.resetShouldResetPIN2()
             verify(shouldResetPIN2Observer, atLeastOnce()).onChanged(null)
-
-            viewModel.roleDataRequested.removeObserver(shouldResetPIN2Observer)
-        }
-
-    @Test
-    fun nfcViewModel_resetRoleDataRequested_success() =
-        runTest {
-            val roleDataRequestedObserver: Observer<Boolean?> = mock()
-            viewModel.roleDataRequested.observeForever(roleDataRequestedObserver)
-
-            viewModel.resetRoleDataRequested()
-            verify(roleDataRequestedObserver, atLeastOnce()).onChanged(null)
-
-            viewModel.roleDataRequested.removeObserver(roleDataRequestedObserver)
         }
 
     @Test

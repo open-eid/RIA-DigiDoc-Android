@@ -105,7 +105,7 @@ fun SignatureComponent(
                     )
                 val roles = signature.signerRoles.joinToString(" / ")
                 val roleAndAddress =
-                    stringResource(R.string.signature_update_signature_role_and_address_title_accessibility)
+                    stringResource(R.string.signature_update_signature_role_and_address_title)
 
                 Card(
                     modifier =

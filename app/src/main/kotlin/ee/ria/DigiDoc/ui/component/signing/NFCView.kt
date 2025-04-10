@@ -22,7 +22,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -113,6 +115,7 @@ fun NFCView(
     isSigning: Boolean,
     onError: () -> Unit = {},
     onSuccess: () -> Unit = {},
+    isAddingRoleAndAddress: Boolean,
     rememberMe: Boolean,
     nfcViewModel: NFCViewModel = hiltViewModel(),
     sharedSettingsViewModel: SharedSettingsViewModel,
@@ -128,7 +131,6 @@ fun NFCView(
     var nfcStatus by remember { mutableStateOf(nfcViewModel.getNFCStatus(activity)) }
     var nfcImage by remember { mutableIntStateOf(R.drawable.ic_icon_nfc) }
 
-    val roleDataRequested by nfcViewModel.roleDataRequested.asFlow().collectAsState(null)
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
 
     val dialogError by nfcViewModel.dialogError.asFlow().collectAsState(0)
@@ -236,7 +238,6 @@ fun NFCView(
             signedContainer?.let {
                 sharedContainerViewModel.setSignedContainer(it)
                 nfcViewModel.resetSignedContainer()
-                nfcViewModel.resetRoleDataRequested()
                 onSuccess()
             }
         }
@@ -293,7 +294,8 @@ fun NFCView(
                         modifier
                             .padding(SPadding)
                             .wrapContentHeight()
-                            .wrapContentWidth(),
+                            .wrapContentWidth()
+                            .verticalScroll(rememberScrollState()),
                 ) {
                     Column(
                         modifier =
@@ -348,7 +350,7 @@ fun NFCView(
                 }
                 .testTag("signatureUpdateNFC"),
     ) {
-        if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
+        if (isAddingRoleAndAddress) {
             RoleDataView(modifier, sharedSettingsViewModel)
         } else if (isSigning) {
             NFCSignatureUpdateContainer(
@@ -410,44 +412,39 @@ fun NFCView(
                 LaunchedEffect(Unit, isValid) {
                     if (isValid) {
                         signAction {
-                            if (getSettingsAskRoleAndAddress() && roleDataRequested != true) {
-                                nfcViewModel.setRoleDataRequested(true)
-                            } else {
-                                saveFormParams()
-                                var roleDataRequest: RoleData? = null
-                                if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
-                                    val roles = sharedSettingsViewModel.dataStore.getRoles()
-                                    val rolesList =
-                                        roles
-                                            .split(",")
-                                            .map { it.trim() }
-                                            .filter { it.isNotEmpty() }
-                                            .toList()
-                                    val city = sharedSettingsViewModel.dataStore.getRoleCity()
-                                    val state = sharedSettingsViewModel.dataStore.getRoleState()
-                                    val country = sharedSettingsViewModel.dataStore.getRoleCountry()
-                                    val zip = sharedSettingsViewModel.dataStore.getRoleZip()
+                            saveFormParams()
+                            var roleDataRequest: RoleData? = null
+                            if (getSettingsAskRoleAndAddress()) {
+                                val roles = sharedSettingsViewModel.dataStore.getRoles()
+                                val rolesList =
+                                    roles
+                                        .split(",")
+                                        .map { it.trim() }
+                                        .filter { it.isNotEmpty() }
+                                        .toList()
+                                val city = sharedSettingsViewModel.dataStore.getRoleCity()
+                                val state = sharedSettingsViewModel.dataStore.getRoleState()
+                                val country = sharedSettingsViewModel.dataStore.getRoleCountry()
+                                val zip = sharedSettingsViewModel.dataStore.getRoleZip()
 
-                                    roleDataRequest =
-                                        RoleData(
-                                            roles = rolesList,
-                                            city = city,
-                                            state = state,
-                                            country = country,
-                                            zip = zip,
-                                        )
-                                }
-                                CoroutineScope(IO).launch {
-                                    nfcViewModel.performNFCWorkRequest(
-                                        activity = activity,
-                                        context = context,
-                                        container = signedContainer,
-                                        pin2Code = pin2Code.text.toByteArray(StandardCharsets.UTF_8),
-                                        canNumber = canNumber.text,
-                                        roleData = roleDataRequest,
+                                roleDataRequest =
+                                    RoleData(
+                                        roles = rolesList,
+                                        city = city,
+                                        state = state,
+                                        country = country,
+                                        zip = zip,
                                     )
-                                    nfcViewModel.resetRoleDataRequested()
-                                }
+                            }
+                            CoroutineScope(IO).launch {
+                                nfcViewModel.performNFCWorkRequest(
+                                    activity = activity,
+                                    context = context,
+                                    container = signedContainer,
+                                    pin2Code = pin2Code.text.toByteArray(StandardCharsets.UTF_8),
+                                    canNumber = canNumber.text,
+                                    roleData = roleDataRequest,
+                                )
                             }
                         }
                         cancelAction {
@@ -751,6 +748,7 @@ fun NFCViewPreview() {
             sharedSettingsViewModel = sharedSettingsViewModel,
             sharedContainerViewModel = sharedContainerViewModel,
             isSigning = false,
+            isAddingRoleAndAddress = false,
             rememberMe = true,
             isSupported = {},
             isValidToSign = {},

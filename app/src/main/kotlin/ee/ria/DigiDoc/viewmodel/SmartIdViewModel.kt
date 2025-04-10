@@ -65,9 +65,6 @@ class SmartIdViewModel
         private val _selectDevice = MutableLiveData(false)
         val selectDevice: LiveData<Boolean?> = _selectDevice
 
-        private val _roleDataRequested = MutableLiveData(false)
-        val roleDataRequested: LiveData<Boolean?> = _roleDataRequested
-
         private val _dialogError = MutableLiveData(0)
         val dialogError: LiveData<Int> = _dialogError
 
@@ -196,14 +193,6 @@ class SmartIdViewModel
 
         fun resetSignedContainer() {
             _signedContainer.postValue(null)
-        }
-
-        fun resetRoleDataRequested() {
-            _roleDataRequested.postValue(null)
-        }
-
-        fun setRoleDataRequested(roleDataRequested: Boolean) {
-            _roleDataRequested.postValue(roleDataRequested)
         }
 
         fun cancelSmartIdWorkRequest(signedContainer: SignedContainer?) {

@@ -139,36 +139,6 @@ class IdCardViewModelTest {
     }
 
     @Test
-    fun idCardViewModel_setRoleDataRequested_successWithTrue() {
-        runTest {
-            viewModel.setRoleDataRequested(true)
-
-            val roleDataRequested = viewModel.roleDataRequested.value
-
-            if (roleDataRequested != null) {
-                assertTrue(roleDataRequested)
-            } else {
-                fail("roleDataRequested is null")
-            }
-        }
-    }
-
-    @Test
-    fun idCardViewModel_setRoleDataRequested_successWithFalse() {
-        runTest {
-            viewModel.setRoleDataRequested(false)
-
-            val roleDataRequested = viewModel.roleDataRequested.value
-
-            if (roleDataRequested != null) {
-                assertFalse(roleDataRequested)
-            } else {
-                fail("roleDataRequested is null")
-            }
-        }
-    }
-
-    @Test
     fun idCardViewModel_loadPersonalData_success() =
         runTest {
             `when`(smartCardReaderManager.status()).thenReturn(Observable.just(SmartCardReaderStatus.CARD_DETECTED))
@@ -227,7 +197,6 @@ class IdCardViewModelTest {
             assertNull(viewModel.userData.value)
             assertNull(viewModel.errorState.value)
             assertNull(viewModel.pinErrorState.value)
-            assertNull(viewModel.roleDataRequested.value)
             assertNull(viewModel.signStatus.value)
             assertNull(viewModel.signedContainer.value)
         }
@@ -295,7 +264,6 @@ class IdCardViewModelTest {
             }
 
             assertNotNull(viewModel.signedContainer.value)
-            assertNull(viewModel.roleDataRequested.value)
         }
 
     @Test
@@ -359,7 +327,6 @@ class IdCardViewModelTest {
             }
             assertNull(viewModel.signedContainer.value)
             assertEquals(context.getString(R.string.id_card_sign_pin2_invalid, 2), viewModel.pinErrorState.value)
-            assertNull(viewModel.roleDataRequested.value)
         }
 
     @Test
@@ -423,7 +390,6 @@ class IdCardViewModelTest {
             }
             assertNull(viewModel.signedContainer.value)
             assertEquals(context.getString(R.string.id_card_sign_pin2_invalid_final), viewModel.pinErrorState.value)
-            assertNull(viewModel.roleDataRequested.value)
         }
 
     @Test
@@ -487,7 +453,6 @@ class IdCardViewModelTest {
             }
             assertNull(viewModel.signedContainer.value)
             assertEquals(context.getString(R.string.id_card_sign_pin2_locked), viewModel.pinErrorState.value)
-            assertNull(viewModel.roleDataRequested.value)
         }
 
     @Test
@@ -519,7 +484,6 @@ class IdCardViewModelTest {
             assertNull(viewModel.signStatus.value)
             assertNull(viewModel.signedContainer.value)
             assertEquals(context.getString(R.string.id_card_sign_pin2_wrong), viewModel.pinErrorState.value)
-            assertNull(viewModel.roleDataRequested.value)
         }
 
     @Test
@@ -552,7 +516,6 @@ class IdCardViewModelTest {
 
             assertNotNull(viewModel.dialogError.value)
             assertEquals(exception.message, viewModel.dialogError.value)
-            assertNull(viewModel.roleDataRequested.value)
         }
 
     @Test
@@ -585,7 +548,6 @@ class IdCardViewModelTest {
 
             assertNotNull(viewModel.dialogError.value)
             assertEquals(exception.message, viewModel.dialogError.value)
-            assertNull(viewModel.roleDataRequested.value)
         }
 
     @Test
@@ -621,7 +583,6 @@ class IdCardViewModelTest {
                 context.getString(R.string.signature_update_signature_error_message_certificate_revoked),
                 viewModel.errorState.value,
             )
-            assertNull(viewModel.roleDataRequested.value)
         }
 
     @Test
@@ -654,7 +615,6 @@ class IdCardViewModelTest {
 
             assertNotNull(viewModel.errorState.value)
             assertEquals(context.getString(R.string.no_internet_connection), viewModel.errorState.value)
-            assertNull(viewModel.roleDataRequested.value)
         }
 
     @Test
@@ -687,7 +647,6 @@ class IdCardViewModelTest {
 
             assertNotNull(viewModel.errorState.value)
             assertEquals(context.getString(R.string.no_internet_connection), viewModel.errorState.value)
-            assertNull(viewModel.roleDataRequested.value)
         }
 
     @Test
@@ -720,7 +679,6 @@ class IdCardViewModelTest {
 
             assertNotNull(viewModel.errorState.value)
             assertEquals(context.getString(R.string.main_settings_proxy_invalid_settings), viewModel.errorState.value)
-            assertNull(viewModel.roleDataRequested.value)
         }
 
     @Test
@@ -753,7 +711,6 @@ class IdCardViewModelTest {
 
             assertNotNull(viewModel.errorState.value)
             assertEquals(context.getString(R.string.error_general_client), viewModel.errorState.value)
-            assertNull(viewModel.roleDataRequested.value)
         }
 
     @Test
@@ -771,18 +728,6 @@ class IdCardViewModelTest {
             viewModel.removePendingSignature(signedContainer)
 
             assertEquals(1, signedContainer.getSignatures(Main).size)
-        }
-
-    @Test
-    fun idCardViewModel_resetRoleDataRequested_success() =
-        runTest {
-            val roleDataRequestedObserver: Observer<Boolean?> = mock()
-            viewModel.roleDataRequested.observeForever(roleDataRequestedObserver)
-
-            viewModel.resetRoleDataRequested()
-            verify(roleDataRequestedObserver, atLeastOnce()).onChanged(null)
-
-            viewModel.roleDataRequested.removeObserver(roleDataRequestedObserver)
         }
 
     @Test

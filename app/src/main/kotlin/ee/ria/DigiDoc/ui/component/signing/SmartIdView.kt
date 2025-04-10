@@ -110,6 +110,7 @@ fun SmartIdView(
     isSigning: Boolean,
     onError: () -> Unit = {},
     onSuccess: () -> Unit = {},
+    isAddingRoleAndAddress: Boolean,
     rememberMe: Boolean,
     smartIdViewModel: SmartIdViewModel = hiltViewModel(),
     sharedSettingsViewModel: SharedSettingsViewModel,
@@ -121,7 +122,6 @@ fun SmartIdView(
     val context = LocalContext.current
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
     val dialogError by smartIdViewModel.dialogError.asFlow().collectAsState(0)
-    val roleDataRequested by smartIdViewModel.roleDataRequested.asFlow().collectAsState(null)
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
 
     val focusManager = LocalFocusManager.current
@@ -207,7 +207,6 @@ fun SmartIdView(
             signedContainer?.let {
                 sharedContainerViewModel.setSignedContainer(it)
                 smartIdViewModel.resetSignedContainer()
-                smartIdViewModel.resetRoleDataRequested()
                 onSuccess()
             }
         }
@@ -260,7 +259,8 @@ fun SmartIdView(
                         modifier
                             .padding(SPadding)
                             .wrapContentHeight()
-                            .wrapContentWidth(),
+                            .wrapContentWidth()
+                            .verticalScroll(rememberScrollState()),
                 ) {
                     Column(
                         modifier =
@@ -315,8 +315,8 @@ fun SmartIdView(
                 }
                 .testTag("signatureUpdateSmartId"),
     ) {
-        if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
-            RoleDataView(modifier, sharedSettingsViewModel)
+        if (isAddingRoleAndAddress) {
+            RoleDataView(modifier, sharedSettingsViewModel, onError)
         } else if (isSigning) {
             SmartIdSignatureUpdateContainer(
                 smartIdViewModel = smartIdViewModel,
@@ -341,45 +341,40 @@ fun SmartIdView(
             LaunchedEffect(Unit, isValid) {
                 if (isValid) {
                     signAction {
-                        if (getSettingsAskRoleAndAddress() && roleDataRequested != true) {
-                            smartIdViewModel.setRoleDataRequested(true)
-                        } else {
-                            saveFormParams()
-                            var roleDataRequest: RoleData? = null
-                            if (getSettingsAskRoleAndAddress() && roleDataRequested == true) {
-                                val roles = sharedSettingsViewModel.dataStore.getRoles()
-                                val rolesList =
-                                    roles
-                                        .split(",")
-                                        .map { it.trim() }
-                                        .filter { it.isNotEmpty() }
-                                        .toList()
-                                val city = sharedSettingsViewModel.dataStore.getRoleCity()
-                                val state = sharedSettingsViewModel.dataStore.getRoleState()
-                                val country = sharedSettingsViewModel.dataStore.getRoleCountry()
-                                val zip = sharedSettingsViewModel.dataStore.getRoleZip()
+                        saveFormParams()
+                        var roleDataRequest: RoleData? = null
+                        if (getSettingsAskRoleAndAddress()) {
+                            val roles = sharedSettingsViewModel.dataStore.getRoles()
+                            val rolesList =
+                                roles
+                                    .split(",")
+                                    .map { it.trim() }
+                                    .filter { it.isNotEmpty() }
+                                    .toList()
+                            val city = sharedSettingsViewModel.dataStore.getRoleCity()
+                            val state = sharedSettingsViewModel.dataStore.getRoleState()
+                            val country = sharedSettingsViewModel.dataStore.getRoleCountry()
+                            val zip = sharedSettingsViewModel.dataStore.getRoleZip()
 
-                                roleDataRequest =
-                                    RoleData(
-                                        roles = rolesList,
-                                        city = city,
-                                        state = state,
-                                        country = country,
-                                        zip = zip,
-                                    )
-                            }
-                            CoroutineScope(IO).launch {
-                                smartIdViewModel.performSmartIdWorkRequest(
-                                    activity = activity,
-                                    context = context,
-                                    displayMessage = displayMessage,
-                                    container = signedContainer,
-                                    personalCode = personalCode.text,
-                                    country = selectedCountry,
-                                    roleData = roleDataRequest,
+                            roleDataRequest =
+                                RoleData(
+                                    roles = rolesList,
+                                    city = city,
+                                    state = state,
+                                    country = country,
+                                    zip = zip,
                                 )
-                                smartIdViewModel.resetRoleDataRequested()
-                            }
+                        }
+                        CoroutineScope(IO).launch {
+                            smartIdViewModel.performSmartIdWorkRequest(
+                                activity = activity,
+                                context = context,
+                                displayMessage = displayMessage,
+                                container = signedContainer,
+                                personalCode = personalCode.text,
+                                country = selectedCountry,
+                                roleData = roleDataRequest,
+                            )
                         }
                     }
                     cancelAction {
@@ -609,6 +604,7 @@ fun SmartIdViewPreview() {
             sharedSettingsViewModel = sharedSettingsViewModel,
             sharedContainerViewModel = sharedContainerViewModel,
             isSigning = false,
+            isAddingRoleAndAddress = false,
             rememberMe = true,
             isValidToSign = {},
         )

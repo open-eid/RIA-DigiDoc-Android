@@ -81,9 +81,6 @@ class MobileIdViewModelTest {
     lateinit var statusObserver: Observer<MobileCreateSignatureProcessStatus?>
 
     @Mock
-    lateinit var roleDataRequestedObserver: Observer<Boolean?>
-
-    @Mock
     lateinit var challengeObserver: Observer<String?>
 
     private lateinit var scenario: ActivityScenario<ComponentActivity>
@@ -164,7 +161,6 @@ class MobileIdViewModelTest {
         viewModel.dialogError.observeForever(dialogErrorObserver)
         viewModel.errorState.observeForever(errorStateObserver)
         viewModel.status.observeForever(statusObserver)
-        viewModel.roleDataRequested.observeForever(roleDataRequestedObserver)
         viewModel.signedContainer.observeForever(signedContainerObserver)
         viewModel.challenge.observeForever(challengeObserver)
 
@@ -634,20 +630,6 @@ class MobileIdViewModelTest {
         runTest {
             viewModel.resetSignedContainer()
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
-        }
-
-    @Test
-    fun mobileIdViewModel_resetRoleDataRequested_success() =
-        runTest {
-            viewModel.resetRoleDataRequested()
-            verify(roleDataRequestedObserver, atLeastOnce()).onChanged(null)
-        }
-
-    @Test
-    fun mobileIdViewModel_setRoleDataRequested_success() =
-        runTest {
-            viewModel.setRoleDataRequested(true)
-            verify(roleDataRequestedObserver, atLeastOnce()).onChanged(true)
         }
 
     @Test
