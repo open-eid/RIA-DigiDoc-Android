@@ -190,8 +190,8 @@ fun EncryptRecipientScreen(
                         TYPE_ANNOUNCEMENT,
                         containerEncryptedSuccessText,
                     )
-                    delay(4000)
-                    containerEncryptedSuccess.value = false
+                    delay(2000)
+
                     encryptRecipientViewModel.handleIsContainerEncrypted(false)
 
                     navController.navigate(Route.Encrypt.route) {
@@ -200,6 +200,8 @@ fun EncryptRecipientScreen(
                         }
                         launchSingleTop = true
                     }
+
+                    containerEncryptedSuccess.value = false
                 }
             }
         }
@@ -253,6 +255,10 @@ fun EncryptRecipientScreen(
         bottomBar = {
             EncryptBottomBar(
                 modifier = modifier,
+                isEncryptButtonEnabled = (
+                    showLoading.value == false &&
+                        containerEncryptedSuccess.value == false
+                ),
                 onEncryptClick = {
                     if (showLoading.value == false && containerEncryptedSuccess.value == false) {
                         showLoading.value = true
@@ -283,7 +289,6 @@ fun EncryptRecipientScreen(
             }
             if (containerEncryptedSuccess.value == true) {
                 showMessage(containerEncryptedSuccessText)
-                containerEncryptedSuccess.value = false
             }
             if (!expanded) {
                 Text(
@@ -557,7 +562,7 @@ fun EncryptRecipientScreen(
             )
         }
 
-        if (showLoading.value) {
+        if (showLoading.value == true) {
             LoadingScreen(modifier = modifier)
         }
 

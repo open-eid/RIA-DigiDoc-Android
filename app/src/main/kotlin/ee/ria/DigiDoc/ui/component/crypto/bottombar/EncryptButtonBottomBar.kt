@@ -44,6 +44,7 @@ fun EncryptButtonBottomBar(
     @DrawableRes encryptButtonIcon: Int,
     @StringRes encryptButtonName: Int,
     @StringRes encryptButtonContentDescription: Int,
+    isEncryptButtonEnabled: Boolean = false,
     onEncryptButtonClick: () -> Unit,
 ) {
     val shareButtonContentDescriptionText = stringResource(encryptButtonContentDescription)
@@ -63,6 +64,7 @@ fun EncryptButtonBottomBar(
         horizontalArrangement = Arrangement.End,
     ) {
         ElevatedButton(
+            enabled = isEncryptButtonEnabled,
             onClick = onEncryptButtonClick,
             modifier =
                 modifier
