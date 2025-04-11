@@ -161,7 +161,7 @@
     <string name="crypto_container_added_recipients_title">Добавленные получатели</string>
     <string name="crypto_recipient_title">Получатель</string>
     <string name="crypto_decryption_valid_to">Шифрование до %1$s</string>
-    <string name="crypto_cert_valid_to">Действителен до %1$s</string>
+    <string name="crypto_cert_valid_to">(Действителен до %1$s)</string>
     <string name="crypto_documents_title">Файлы контейнера</string>
     <string name="crypto_containter_update_name">Название контейнера</string>
     <string name="crypto_recipients_description">Для шифрования необходимо указать хотя бы одного получателя - лицо (персональный идентификационный номер) или организация (регистрационный номер), уполномоченный расшифровывать данные. Добавьте свой личный идентификационный номер, если хотите позже расшифровать конверт.</string>
@@ -169,6 +169,10 @@
     <string name="crypto_recipients_search_cancel">Отменить поиск получателя</string>
     <string name="crypto_recipients_search_empty">Получатели не найдены</string>
     <string name="crypto_recipients_recipient_add_success">Получатель добавлен</string>
+    <string name="crypto_encrypt_error">Что-то пошло не так с шифрованием</string>
+    <string name="crypto_encrypt_data_files_empty_error">Невозможно создать пустой контейнер</string>
+    <string name="crypto_encrypt_recipients_empty_error">Невозможно создать контейнер без получателей</string>
+    <string name="crypto_recipients_error_exists">Получатель уже добавлен в контейнер</string>
 
     <!-- Signature Add -->
     <string name="signature_update_title">Подписание контейнера</string>

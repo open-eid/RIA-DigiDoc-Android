@@ -156,7 +156,7 @@ fun Recipient(
                         nameText,
                     )
                     Text(
-                        text = "$certTypeText ($certValidTo)",
+                        text = "$certTypeText $certValidTo",
                         modifier =
                             modifier
                                 .focusable(false)
