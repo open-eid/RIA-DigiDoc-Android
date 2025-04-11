@@ -118,6 +118,7 @@ fun EncryptRecipientScreen(
     val recipientAddedSuccess = remember { mutableStateOf(false) }
     val recipientAddedSuccessText = stringResource(id = R.string.crypto_recipients_recipient_add_success)
 
+    val encryptionButtonEnabled = remember { mutableStateOf(true) }
     val containerEncryptedSuccess = remember { mutableStateOf(false) }
     val containerEncryptedSuccessText = stringResource(id = R.string.crypto_create_success)
 
@@ -193,15 +194,15 @@ fun EncryptRecipientScreen(
                     delay(2000)
 
                     encryptRecipientViewModel.handleIsContainerEncrypted(false)
-
+                    containerEncryptedSuccess.value = false
                     navController.navigate(Route.Encrypt.route) {
                         popUpTo(Route.Home.route) {
                             inclusive = false
                         }
                         launchSingleTop = true
                     }
-
-                    containerEncryptedSuccess.value = false
+                    delay(500)
+                    encryptionButtonEnabled.value = true
                 }
             }
         }
@@ -255,12 +256,10 @@ fun EncryptRecipientScreen(
         bottomBar = {
             EncryptBottomBar(
                 modifier = modifier,
-                isEncryptButtonEnabled = (
-                    showLoading.value == false &&
-                        containerEncryptedSuccess.value == false
-                ),
+                isEncryptButtonEnabled = encryptionButtonEnabled.value,
                 onEncryptClick = {
-                    if (showLoading.value == false && containerEncryptedSuccess.value == false) {
+                    if (encryptionButtonEnabled.value) {
+                        encryptionButtonEnabled.value = false
                         showLoading.value = true
                         CoroutineScope(Main).launch {
                             encryptRecipientViewModel.encryptContainer(sharedContainerViewModel)
@@ -289,6 +288,7 @@ fun EncryptRecipientScreen(
             }
             if (containerEncryptedSuccess.value == true) {
                 showMessage(containerEncryptedSuccessText)
+                containerEncryptedSuccess.value = false
             }
             if (!expanded) {
                 Text(
