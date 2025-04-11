@@ -18,6 +18,7 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 @Composable
 fun EncryptBottomBar(
     modifier: Modifier,
+    isEncryptButtonEnabled: Boolean = false,
     onEncryptClick: () -> Unit = {},
 ) {
     Column(
@@ -30,10 +31,11 @@ fun EncryptBottomBar(
     ) {
         EncryptButtonBottomBar(
             modifier = modifier,
-            shareButtonIcon = R.drawable.ic_m3_encrypted_48dp_wght400,
-            shareButtonName = R.string.encrypt_button,
-            shareButtonContentDescription = R.string.encrypt_button_accessibility,
-            onShareButtonClick = onEncryptClick,
+            encryptButtonIcon = R.drawable.ic_m3_encrypted_48dp_wght400,
+            encryptButtonName = R.string.encrypt_button,
+            encryptButtonContentDescription = R.string.encrypt_button_accessibility,
+            isEncryptButtonEnabled = isEncryptButtonEnabled,
+            onEncryptButtonClick = onEncryptClick,
         )
     }
 }

@@ -2,8 +2,10 @@
 
 package ee.ria.DigiDoc.viewmodel
 
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
+import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,6 +14,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.UNSIGNABLE_CONTAINER_EXTENSIONS
 import ee.ria.DigiDoc.common.Constant.UNSIGNABLE_CONTAINER_MIMETYPES
+import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
@@ -30,11 +33,9 @@ class SigningViewModel
     constructor(
         private val sivaRepository: SivaRepository,
         private val mimeTypeResolver: MimeTypeResolver,
+        private val fileOpeningRepository: FileOpeningRepository,
+        private val contentResolver: ContentResolver,
     ) : ViewModel() {
-        companion object {
-            private const val LOG_TAG = "SigningViewModel"
-        }
-
         private val _shouldResetSignedContainer = MutableLiveData(false)
         val shouldResetSignedContainer: LiveData<Boolean?> = _shouldResetSignedContainer
 
@@ -56,7 +57,7 @@ class SigningViewModel
         }
 
         fun isEmptyFileInContainer(signedContainer: SignedContainer?): Boolean {
-            return signedContainer?.rawContainer()?.dataFiles()?.any { it.fileSize() == 0L } ?: false
+            return signedContainer?.rawContainer()?.dataFiles()?.any { it.fileSize() == 0L } == true
         }
 
         fun isContainerWithTimestamps(signedContainer: SignedContainer?): Boolean =
@@ -110,25 +111,47 @@ class SigningViewModel
         }
 
         @Throws(Exception::class)
+        suspend fun openCryptoContainer(
+            context: Context,
+            cryptoFile: File?,
+            sharedContainerViewModel: SharedContainerViewModel,
+        ) {
+            if (cryptoFile != null) {
+                val uri = cryptoFile.toUri()
+                val cryptoContainer =
+                    fileOpeningRepository.openOrCreateCryptoContainer(
+                        context,
+                        contentResolver,
+                        listOf(uri),
+                    )
+
+                sharedContainerViewModel.setCryptoContainer(cryptoContainer)
+            }
+        }
+
+        @Throws(Exception::class)
         suspend fun openNestedContainer(
             context: Context,
-            nestedFile: File,
+            nestedFile: File?,
             sharedContainerViewModel: SharedContainerViewModel,
             isSivaConfirmed: Boolean,
         ) {
-            val nestedContainer =
-                SignedContainer.openOrCreate(
-                    context,
-                    nestedFile,
-                    listOf(nestedFile),
-                    isSivaConfirmed,
-                )
+            if (nestedFile != null) {
+                val nestedContainer =
+                    SignedContainer.openOrCreate(
+                        context,
+                        nestedFile,
+                        listOf(nestedFile),
+                        isSivaConfirmed,
+                    )
 
-            if (ASICS_MIMETYPE == nestedFile.mimeType(context)) {
-                val timestampedNestedContainer = getTimestampedContainer(context, nestedContainer, isSivaConfirmed)
-                sharedContainerViewModel.setSignedContainer(timestampedNestedContainer)
-            } else {
-                sharedContainerViewModel.setSignedContainer(nestedContainer)
+                if (ASICS_MIMETYPE == nestedFile.mimeType(context)) {
+                    val timestampedNestedContainer =
+                        getTimestampedContainer(context, nestedContainer, isSivaConfirmed)
+                    sharedContainerViewModel.setSignedContainer(timestampedNestedContainer)
+                } else {
+                    sharedContainerViewModel.setSignedContainer(nestedContainer)
+                }
             }
         }
 

@@ -41,12 +41,13 @@ import ee.ria.DigiDoc.utils.extensions.notAccessible
 @Composable
 fun EncryptButtonBottomBar(
     modifier: Modifier,
-    @DrawableRes shareButtonIcon: Int,
-    @StringRes shareButtonName: Int,
-    @StringRes shareButtonContentDescription: Int,
-    onShareButtonClick: () -> Unit,
+    @DrawableRes encryptButtonIcon: Int,
+    @StringRes encryptButtonName: Int,
+    @StringRes encryptButtonContentDescription: Int,
+    isEncryptButtonEnabled: Boolean = false,
+    onEncryptButtonClick: () -> Unit,
 ) {
-    val shareButtonContentDescriptionText = stringResource(shareButtonContentDescription)
+    val shareButtonContentDescriptionText = stringResource(encryptButtonContentDescription)
     Row(
         modifier =
             modifier
@@ -63,7 +64,8 @@ fun EncryptButtonBottomBar(
         horizontalArrangement = Arrangement.End,
     ) {
         ElevatedButton(
-            onClick = onShareButtonClick,
+            enabled = isEncryptButtonEnabled,
+            onClick = onEncryptButtonClick,
             modifier =
                 modifier
                     .shadow(
@@ -87,7 +89,7 @@ fun EncryptButtonBottomBar(
             contentPadding = PaddingValues(Dimensions.SPadding),
         ) {
             Icon(
-                imageVector = ImageVector.vectorResource(shareButtonIcon),
+                imageVector = ImageVector.vectorResource(encryptButtonIcon),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurface,
                 modifier = modifier.size(Dimensions.iconSizeXXS),
@@ -95,7 +97,7 @@ fun EncryptButtonBottomBar(
             Spacer(modifier = modifier.width(Dimensions.XSPadding))
             Text(
                 modifier = modifier.notAccessible(),
-                text = stringResource(shareButtonName),
+                text = stringResource(encryptButtonName),
             )
         }
     }

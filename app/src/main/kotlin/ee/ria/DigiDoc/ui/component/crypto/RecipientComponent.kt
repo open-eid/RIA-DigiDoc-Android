@@ -182,7 +182,7 @@ fun RecipientComponent(
                                     nameText,
                                 )
                                 Text(
-                                    text = "$certTypeText ($certValidTo)",
+                                    text = "$certTypeText $certValidTo",
                                     modifier =
                                         modifier
                                             .focusable(false)

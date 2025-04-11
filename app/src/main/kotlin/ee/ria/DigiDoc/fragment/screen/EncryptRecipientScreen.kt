@@ -75,6 +75,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
 import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
@@ -116,6 +117,10 @@ fun EncryptRecipientScreen(
 
     val recipientAddedSuccess = remember { mutableStateOf(false) }
     val recipientAddedSuccessText = stringResource(id = R.string.crypto_recipients_recipient_add_success)
+
+    val encryptionButtonEnabled = remember { mutableStateOf(true) }
+    val containerEncryptedSuccess = remember { mutableStateOf(false) }
+    val containerEncryptedSuccessText = stringResource(id = R.string.crypto_create_success)
 
     val containerRecipientList =
         remember {
@@ -176,6 +181,33 @@ fun EncryptRecipientScreen(
         }
     }
 
+    LaunchedEffect(encryptRecipientViewModel.isContainerEncrypted) {
+        encryptRecipientViewModel.isContainerEncrypted.asFlow().collect { isContainerEncrypted ->
+            if (isContainerEncrypted) {
+                withContext(Main) {
+                    containerEncryptedSuccess.value = true
+                    AccessibilityUtil.sendAccessibilityEvent(
+                        context,
+                        TYPE_ANNOUNCEMENT,
+                        containerEncryptedSuccessText,
+                    )
+                    delay(2000)
+
+                    encryptRecipientViewModel.handleIsContainerEncrypted(false)
+                    containerEncryptedSuccess.value = false
+                    navController.navigate(Route.Encrypt.route) {
+                        popUpTo(Route.Home.route) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
+                    delay(500)
+                    encryptionButtonEnabled.value = true
+                }
+            }
+        }
+    }
+
     LaunchedEffect(encryptRecipientViewModel.errorState) {
         encryptRecipientViewModel.errorState.asFlow().collect { error ->
             error?.let {
@@ -224,8 +256,16 @@ fun EncryptRecipientScreen(
         bottomBar = {
             EncryptBottomBar(
                 modifier = modifier,
+                isEncryptButtonEnabled = encryptionButtonEnabled.value,
                 onEncryptClick = {
-                    // TODO: Implement encrypt action
+                    if (encryptionButtonEnabled.value) {
+                        encryptionButtonEnabled.value = false
+                        showLoading.value = true
+                        CoroutineScope(Main).launch {
+                            encryptRecipientViewModel.encryptContainer(sharedContainerViewModel)
+                            showLoading.value = false
+                        }
+                    }
                 },
             )
         },
@@ -242,8 +282,13 @@ fun EncryptRecipientScreen(
                     .fillMaxWidth(),
             horizontalAlignment = Alignment.Start,
         ) {
-            if (recipientAddedSuccess.value) {
+            if (recipientAddedSuccess.value == true) {
                 showMessage(recipientAddedSuccessText)
+                recipientAddedSuccess.value = false
+            }
+            if (containerEncryptedSuccess.value == true) {
+                showMessage(containerEncryptedSuccessText)
+                containerEncryptedSuccess.value = false
             }
             if (!expanded) {
                 Text(
@@ -340,6 +385,7 @@ fun EncryptRecipientScreen(
                         items(recipientList) { recipient ->
                             Recipient(
                                 recipient = recipient,
+                                isMoreOptionsButtonShown = false,
                                 onClick = {
                                     encryptRecipientViewModel.addRecipientToContainer(
                                         recipient,
@@ -371,6 +417,43 @@ fun EncryptRecipientScreen(
                                     style = MaterialTheme.typography.bodyLarge,
                                 )
                             }
+                        }
+                    }
+                    if (containerRecipientList.value.isNotEmpty()) {
+                        item {
+                            Text(
+                                modifier =
+                                    modifier
+                                        .padding(horizontal = SPadding)
+                                        .padding(top = SPadding)
+                                        .semantics {
+                                            heading()
+                                            testTagsAsResourceId = true
+                                        }
+                                        .testTag("encryptRecentlyAddedRecipientsListTitle"),
+                                text = stringResource(R.string.crypto_container_latest_recipients_title),
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = TextAlign.Start,
+                            )
+                        }
+                        items(containerRecipientList.value) { recipient ->
+                            Recipient(
+                                recipient = recipient,
+                                isMoreOptionsButtonShown = false,
+                                onClick = {
+                                    encryptRecipientViewModel.addRecipientToContainer(
+                                        recipient,
+                                        sharedContainerViewModel,
+                                    )
+                                },
+                            )
+                            HorizontalDivider(
+                                modifier =
+                                    modifier
+                                        .fillMaxWidth()
+                                        .padding(SPadding)
+                                        .height(dividerHeight),
+                            )
                         }
                     }
 
@@ -421,15 +504,6 @@ fun EncryptRecipientScreen(
                                 textAlign = TextAlign.Start,
                             )
                         }
-                        item {
-                            HorizontalDivider(
-                                modifier =
-                                    modifier
-                                        .fillMaxWidth()
-                                        .padding(SPadding)
-                                        .height(dividerHeight),
-                            )
-                        }
                         items(containerRecipientList.value) { recipient ->
                             Recipient(
                                 recipient = recipient,
@@ -475,10 +549,12 @@ fun EncryptRecipientScreen(
                 onConfirmButton = {
                     CoroutineScope(IO).launch {
                         sharedContainerViewModel.removeRecipient(cryptoContainer, actionRecipient)
+                        delay(1000L)
+                        containerRecipientList.value =
+                            encryptRecipientViewModel
+                                .getContainerRecipientList(sharedContainerViewModel)
                     }
-                    containerRecipientList.value =
-                        encryptRecipientViewModel
-                            .getContainerRecipientList(sharedContainerViewModel)
+
                     dismissSearch()
                     closeRecipientDialog()
                     AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, recipientRemoved)
@@ -486,7 +562,7 @@ fun EncryptRecipientScreen(
             )
         }
 
-        if (showLoading.value) {
+        if (showLoading.value == true) {
             LoadingScreen(modifier = modifier)
         }
 
@@ -496,7 +572,7 @@ fun EncryptRecipientScreen(
             clickedRecipient = clickedRecipient,
             sharedRecipientViewModel = sharedRecipientViewModel,
             navController = navController,
-            isRecipientRemoveShown = false,
+            isRecipientRemoveShown = true,
             openRemoveRecipientDialog = openRemoveRecipientDialog,
             onRecipientRemove = { actionRecipient = it },
         )
