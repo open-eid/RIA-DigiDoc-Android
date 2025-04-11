@@ -22,6 +22,7 @@ fun EncryptContainerBottomSheet(
     openEditContainerNameDialog: MutableState<Boolean>,
     isSignButtonShown: Boolean = true,
     cryptoContainer: CryptoContainer?,
+    onSignClick: () -> Unit,
     saveFileLauncher: ActivityResultLauncher<Intent>,
     saveFile: (File?, String?, ActivityResultLauncher<Intent>) -> Unit,
 ) {
@@ -66,9 +67,8 @@ fun EncryptContainerBottomSheet(
                         R.string.sign_button,
                     )} ${cryptoContainer?.getName() ?: ""} $buttonName",
                     isExtraActionButtonShown = true,
-                ) {
-                    // TODO: Implement sign click
-                },
+                    onClick = onSignClick,
+                ),
             ),
     )
 }

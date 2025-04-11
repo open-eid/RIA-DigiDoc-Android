@@ -2,8 +2,10 @@
 
 package ee.ria.DigiDoc.viewmodel
 
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
+import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,10 +13,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.CDOC1_EXTENSION
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
+import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
+import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import java.io.File
 import javax.inject.Inject
 
@@ -24,6 +28,8 @@ class EncryptViewModel
     constructor(
         private val sivaRepository: SivaRepository,
         private val mimeTypeResolver: MimeTypeResolver,
+        private val contentResolver: ContentResolver,
+        private val fileOpeningRepository: FileOpeningRepository,
     ) : ViewModel() {
         private val _shouldResetCryptoContainer = MutableLiveData(false)
         val shouldResetCryptoContainer: LiveData<Boolean?> = _shouldResetCryptoContainer
@@ -41,7 +47,7 @@ class EncryptViewModel
         }
 
         fun isEmptyFileInContainer(cryptoContainer: CryptoContainer?): Boolean {
-            return cryptoContainer?.dataFiles?.any { (it?.length() ?: 0L) == 0L } ?: false
+            return cryptoContainer?.dataFiles?.any { (it?.length() ?: 0L) == 0L } == true
         }
 
         fun isContainerWithoutRecipients(cryptoContainer: CryptoContainer?): Boolean {
@@ -95,5 +101,25 @@ class EncryptViewModel
             }
 
             return signedContainer
+        }
+
+        @Throws(Exception::class)
+        suspend fun openSignedContainer(
+            context: Context,
+            signedFile: File?,
+            sharedContainerViewModel: SharedContainerViewModel,
+        ) {
+            if (signedFile != null) {
+                val uri = signedFile.toUri()
+                val signedContainer =
+                    fileOpeningRepository.openOrCreateContainer(
+                        context,
+                        contentResolver,
+                        listOf(uri),
+                        true,
+                    )
+
+                sharedContainerViewModel.setSignedContainer(signedContainer)
+            }
         }
     }

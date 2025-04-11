@@ -22,6 +22,7 @@ fun ContainerBottomSheet(
     openEditContainerNameDialog: MutableState<Boolean>,
     isEncryptButtonShown: Boolean = true,
     signedContainer: SignedContainer?,
+    onEncryptClick: () -> Unit,
     saveFileLauncher: ActivityResultLauncher<Intent>,
     saveFile: (File?, String?, ActivityResultLauncher<Intent>) -> Unit,
 ) {
@@ -66,9 +67,8 @@ fun ContainerBottomSheet(
                         R.string.encrypt_button,
                     )} ${signedContainer?.getName() ?: ""} $buttonName",
                     isExtraActionButtonShown = true,
-                ) {
-                    // TODO: Implement encrypt click
-                },
+                    onClick = onEncryptClick,
+                ),
             ),
     )
 }

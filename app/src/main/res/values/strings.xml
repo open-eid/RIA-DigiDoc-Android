@@ -158,11 +158,13 @@
     <string name="crypto_new_title">Container encryption</string>
     <string name="crypto_view_title">Container content</string>
     <string name="crypto_container_recipients_title">Container recipients</string>
+    <string name="crypto_container_latest_recipients_title">Recently added</string>
     <string name="crypto_container_added_recipients_title">Added recipients</string>
     <string name="crypto_recipient_title">Recipient</string>
     <string name="crypto_decryption_valid_to">Decryption until %1$s</string>
     <string name="crypto_cert_valid_to">(Valid to %1$s)</string>
     <string name="crypto_documents_title">Container files</string>
+    <string name="crypto_encrypted_documents_title">Encrypted files</string>
     <string name="crypto_containter_update_name">Container name</string>
     <string name="crypto_recipients_description">For encryption, at least one recipient must be included - the person (personal identification number) or authority (registration number) authorised to decrypt the data. Add your own personal identification number if you want to decrypt the envelope later.</string>
     <string name="crypto_recipients_search">Search recipients…</string>

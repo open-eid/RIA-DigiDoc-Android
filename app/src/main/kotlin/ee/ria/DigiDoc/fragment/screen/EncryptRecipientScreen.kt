@@ -254,10 +254,12 @@ fun EncryptRecipientScreen(
             EncryptBottomBar(
                 modifier = modifier,
                 onEncryptClick = {
-                    CoroutineScope(IO).launch {
+                    if (showLoading.value == false && containerEncryptedSuccess.value == false) {
                         showLoading.value = true
-                        encryptRecipientViewModel.encryptContainer(sharedContainerViewModel)
-                        showLoading.value = false
+                        CoroutineScope(Main).launch {
+                            encryptRecipientViewModel.encryptContainer(sharedContainerViewModel)
+                            showLoading.value = false
+                        }
                     }
                 },
             )
@@ -277,9 +279,11 @@ fun EncryptRecipientScreen(
         ) {
             if (recipientAddedSuccess.value == true) {
                 showMessage(recipientAddedSuccessText)
+                recipientAddedSuccess.value = false
             }
             if (containerEncryptedSuccess.value == true) {
                 showMessage(containerEncryptedSuccessText)
+                containerEncryptedSuccess.value = false
             }
             if (!expanded) {
                 Text(
@@ -410,6 +414,43 @@ fun EncryptRecipientScreen(
                             }
                         }
                     }
+                    if (containerRecipientList.value.isNotEmpty()) {
+                        item {
+                            Text(
+                                modifier =
+                                    modifier
+                                        .padding(horizontal = SPadding)
+                                        .padding(top = SPadding)
+                                        .semantics {
+                                            heading()
+                                            testTagsAsResourceId = true
+                                        }
+                                        .testTag("encryptRecentlyAddedRecipientsListTitle"),
+                                text = stringResource(R.string.crypto_container_latest_recipients_title),
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = TextAlign.Start,
+                            )
+                        }
+                        items(containerRecipientList.value) { recipient ->
+                            Recipient(
+                                recipient = recipient,
+                                isMoreOptionsButtonShown = false,
+                                onClick = {
+                                    encryptRecipientViewModel.addRecipientToContainer(
+                                        recipient,
+                                        sharedContainerViewModel,
+                                    )
+                                },
+                            )
+                            HorizontalDivider(
+                                modifier =
+                                    modifier
+                                        .fillMaxWidth()
+                                        .padding(SPadding)
+                                        .height(dividerHeight),
+                            )
+                        }
+                    }
 
                     item {
                         Spacer(
@@ -456,15 +497,6 @@ fun EncryptRecipientScreen(
                                 text = stringResource(R.string.crypto_container_added_recipients_title),
                                 style = MaterialTheme.typography.bodyMedium,
                                 textAlign = TextAlign.Start,
-                            )
-                        }
-                        item {
-                            HorizontalDivider(
-                                modifier =
-                                    modifier
-                                        .fillMaxWidth()
-                                        .padding(SPadding)
-                                        .height(dividerHeight),
                             )
                         }
                         items(containerRecipientList.value) { recipient ->

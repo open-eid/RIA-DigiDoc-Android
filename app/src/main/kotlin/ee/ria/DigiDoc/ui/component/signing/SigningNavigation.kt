@@ -278,6 +278,28 @@ fun SigningNavigation(
         clickedSignature.value = signature
     }
 
+    val onEncryptActionClick: () -> Unit = {
+        showLoadingScreen.value = true
+        CoroutineScope(IO).launch {
+            signingViewModel.openCryptoContainer(
+                context,
+                signedContainer?.getContainerFile(),
+                sharedContainerViewModel,
+            )
+
+            delay(2000)
+            withContext(Main) {
+                navController.navigate(Route.Encrypt.route) {
+                    popUpTo(Route.Home.route) {
+                        inclusive = false
+                    }
+                    launchSingleTop = true
+                }
+                showLoadingScreen.value = false
+            }
+        }
+    }
+
     val actionDataFile by remember { mutableStateOf<DataFileInterface?>(null) }
 
     var isSaved by remember { mutableStateOf(false) }
@@ -322,6 +344,7 @@ fun SigningNavigation(
         onDispose {
             if (shouldResetContainer == true) {
                 sharedContainerViewModel.resetSignedContainer()
+                sharedContainerViewModel.resetCryptoContainer()
                 sharedContainerViewModel.resetContainerNotifications()
             }
         }
@@ -673,10 +696,6 @@ fun SigningNavigation(
                 }
             }
 
-            if (showLoadingScreen.value) {
-                LoadingScreen(modifier = modifier)
-            }
-
             Column(
                 modifier =
                     modifier
@@ -687,6 +706,7 @@ fun SigningNavigation(
             ) {
                 if (signatureAddedSuccess.value == true) {
                     showMessage(signatureAddedSuccessText)
+                    signatureAddedSuccess.value = false
                 }
 
                 LazyColumn(
@@ -742,9 +762,7 @@ fun SigningNavigation(
                                         Route.SignatureInputScreen.route,
                                     )
                                 },
-                                onRightActionButtonClick = {
-                                    // TODO: Implement encrypt click
-                                },
+                                onRightActionButtonClick = onEncryptActionClick,
                                 onMoreOptionsActionButtonClick = {
                                     showContainerBottomSheet.value = true
                                 },
@@ -1055,6 +1073,7 @@ fun SigningNavigation(
                 openEditContainerNameDialog = openEditContainerNameDialog,
                 isEncryptButtonShown = signedContainer?.isSigned() == false,
                 signedContainer = signedContainer,
+                onEncryptClick = onEncryptActionClick,
                 saveFileLauncher = saveFileLauncher,
                 saveFile = ::saveFile,
             )
@@ -1083,13 +1102,15 @@ fun SigningNavigation(
                 isCadesContainer = isCadesContainer,
                 signingViewModel = signingViewModel,
                 navController = navController,
-                onEncryptClick = {
-                    // TODO: Implement encrypt click
-                },
+                onEncryptClick = onEncryptActionClick,
                 onExtendSignatureClick = {
                     // TODO: Implement extend signature click
                 },
             )
+
+            if (showLoadingScreen.value) {
+                LoadingScreen(modifier = modifier)
+            }
 
             if (showContainerCloseConfirmationDialog.value) {
                 MessageDialog(

@@ -158,11 +158,13 @@
     <string name="crypto_new_title">Ümbriku krüpteerimine</string>
     <string name="crypto_view_title">Ümbriku sisu</string>
     <string name="crypto_container_recipients_title">Ümbriku adressaadid</string>
+    <string name="crypto_container_latest_recipients_title">Viimati lisatud</string>
     <string name="crypto_container_added_recipients_title">Lisatud adressaadid</string>
     <string name="crypto_recipient_title">Adressaat</string>
     <string name="crypto_decryption_valid_to">Dekrüpteerimine võimalik kuni %1$s</string>
     <string name="crypto_cert_valid_to">(Kehtiv kuni %1$s)</string>
     <string name="crypto_documents_title">Ümbriku failid</string>
+    <string name="crypto_encrypted_documents_title">Krüpteeritud failid</string>
     <string name="crypto_containter_update_name">Ümbriku nimi</string>
     <string name="crypto_recipients_description">Krüpteerimiseks peab olema lisatud vähemalt üks adressaat – isik (isikukood) või asutus (registrinumber), kellel on volitus andmete dekrüpteerimiseks. Lisage oma isikukood, kui soovite ümbrikut hiljem dekrüpteerida.</string>
     <string name="crypto_recipients_search">Leia adressaat…</string>

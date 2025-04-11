@@ -30,10 +30,10 @@ fun EncryptBottomBar(
     ) {
         EncryptButtonBottomBar(
             modifier = modifier,
-            shareButtonIcon = R.drawable.ic_m3_encrypted_48dp_wght400,
-            shareButtonName = R.string.encrypt_button,
-            shareButtonContentDescription = R.string.encrypt_button_accessibility,
-            onShareButtonClick = onEncryptClick,
+            encryptButtonIcon = R.drawable.ic_m3_encrypted_48dp_wght400,
+            encryptButtonName = R.string.encrypt_button,
+            encryptButtonContentDescription = R.string.encrypt_button_accessibility,
+            onEncryptButtonClick = onEncryptClick,
         )
     }
 }
