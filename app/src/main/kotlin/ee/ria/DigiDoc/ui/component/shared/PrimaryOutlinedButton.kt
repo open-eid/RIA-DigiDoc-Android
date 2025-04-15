@@ -43,6 +43,7 @@ import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
 fun PrimaryOutlinedButton(
     modifier: Modifier = Modifier,
     @StringRes title: Int,
+    titleExtra: String = "",
     @DrawableRes iconRes: Int = 0,
     contentDescription: String? = null,
     isFocusable: Boolean = true,
@@ -52,7 +53,12 @@ fun PrimaryOutlinedButton(
     fontSize: TextUnit = TextUnit.Unspecified,
     onClickItem: () -> Unit = {},
 ) {
-    val titleText = stringResource(id = title)
+    val titleText =
+        if (titleExtra.isEmpty()) {
+            stringResource(id = title)
+        } else {
+            stringResource(title, titleExtra)
+        }
     OutlinedButton(
         modifier =
             modifier

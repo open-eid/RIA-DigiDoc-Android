@@ -125,7 +125,7 @@ fun LanguageChooserScreen(
     }
 }
 
-fun setLanguageSetting(
+private fun setLanguageSetting(
     sharedSettingsViewModel: SharedSettingsViewModel,
     chosenLocale: String,
 ) {

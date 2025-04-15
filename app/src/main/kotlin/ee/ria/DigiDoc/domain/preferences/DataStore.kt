@@ -10,9 +10,11 @@ import androidx.preference.PreferenceManager
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.IS_CRASH_SENDING_ALWAYS_ENABLED
 import ee.ria.DigiDoc.common.Constant.KEY_LOCALE
+import ee.ria.DigiDoc.common.Constant.MyEID.IDENTIFICATION_METHOD_SETTING
 import ee.ria.DigiDoc.common.Constant.Theme.THEME_SETTING
 import ee.ria.DigiDoc.common.preferences.EncryptedPreferences
 import ee.ria.DigiDoc.domain.model.methods.SigningMethod
+import ee.ria.DigiDoc.domain.model.myeid.MyEidIdentificationMethodSetting
 import ee.ria.DigiDoc.domain.model.settings.CDOCSetting
 import ee.ria.DigiDoc.domain.model.settings.TSASetting
 import ee.ria.DigiDoc.domain.model.settings.UUIDSetting
@@ -743,6 +745,17 @@ class DataStore
 
         fun setThemeSetting(themeSetting: ThemeSetting) {
             preferences.edit { putString(THEME_SETTING, themeSetting.mode) }
+        }
+
+        fun getIdentificationMethodSetting(): MyEidIdentificationMethodSetting {
+            return MyEidIdentificationMethodSetting.fromMethod(
+                preferences.getString(IDENTIFICATION_METHOD_SETTING, MyEidIdentificationMethodSetting.NFC.methodName)
+                    ?: MyEidIdentificationMethodSetting.NFC.methodName,
+            )
+        }
+
+        fun setIdentificationMethodSetting(myEidIdentificationMethodSetting: MyEidIdentificationMethodSetting) {
+            preferences.edit { putString(IDENTIFICATION_METHOD_SETTING, myEidIdentificationMethodSetting.methodName) }
         }
 
         private fun getEncryptedPreferences(context: Context): SharedPreferences? {

@@ -109,6 +109,7 @@ fun IdCardView(
     activity: Activity,
     modifier: Modifier = Modifier,
     isSigning: Boolean,
+    isAuthenticating: Boolean,
     isStarted: (Boolean) -> Unit,
     onError: () -> Unit = {},
     onSuccess: () -> Unit = {},
@@ -117,7 +118,9 @@ fun IdCardView(
     sharedSettingsViewModel: SharedSettingsViewModel,
     idCardViewModel: IdCardViewModel = hiltViewModel(),
     isValidToSign: (Boolean) -> Unit,
+    isValidToAuthenticate: (Boolean) -> Unit,
     signAction: (() -> Unit) -> Unit = {},
+    authAction: (() -> Unit) -> Unit = {},
     cancelAction: (() -> Unit) -> Unit = {},
 ) {
     val context = LocalContext.current
@@ -727,6 +730,8 @@ fun IdCardViewPreview() {
             isStarted = {},
             isSigning = true,
             isValidToSign = {},
+            isAuthenticating = false,
+            isValidToAuthenticate = {},
         )
     }
 }

@@ -12,6 +12,7 @@
     <string name="main_home_my_eid_description">Näe ja muuda oma eID andmeid</string>
 
     <string name="back">Tagasi</string>
+    <string name="action_continue">Jätka</string>
 
     <string name="rooted_device">Seda rakendust ei saa kasutada turvamata (ingl rooted) seadmes.</string>
 
@@ -565,6 +566,49 @@
     <string name="main_settings_siva_certificate_expired">Aegunud</string>
     <string name="main_settings_proxy_invalid_settings">Teenuse serveriga ühendus ebaõnnestus. Palun kontrolli võrgu sätteid või proovi hiljem uuesti.</string>
     <string name="main_settings_siva_certificate_title">Valideerimisteenuse SiVa SSL sertifikaat</string>
+
+    <!-- My eID -->
+    <string name="myeid_identification_method_title">Vali isiku tuvastamise meetod</string>
+    <string name="myeid_identification_method_changed">Identifitseerimismeetod muudetud</string>
+    <string name="myeid_identification_method_selected">Identifitseerimismeetod valitud</string>
+    <string name="myeid_identification_title">Identifitseerimine</string>
+    <string name="myeid_identification_method">Identifitseerimismeetod</string>
+    <string name="myeid_identify_button">Identifitseeri</string>
+    <string name="myeid_my_data">Minu andmed</string>
+    <string name="myeid_pins_and_certificates">PIN-koodid ja sertifikaadid</string>
+    <string name="myeid_firstname">Eesnimi</string>
+    <string name="myeid_lastname">Perekonnanimi</string>
+    <string name="myeid_citizenship">Kodakondsus</string>
+    <string name="myeid_document_number">Dokumendi number</string>
+    <string name="myeid_valid_to">Kehtiv kuni</string>
+    <string name="myeid_status_valid">Kehtib</string>
+    <string name="myeid_status_expired">Aegunud</string>
+    <string name="myeid_status_unknown">Teadmata</string>
+    <string name="myeid_authentication_certificate_title">Isikutuvastamise sertifikaat</string>
+    <string name="myeid_signing_certificate_title">Allkirjastamise sertifikaat</string>
+    <string name="myeid_certificate_valid_to">Sertifikaat kehtib kuni %1$s</string>
+    <string name="myeid_forgot_pin">Unustasid %1$s-koodi?</string>
+    <string name="myeid_change_pin">Muuda %1$s</string>
+    <string name="myeid_puk_info">PUK-koodi leiad enda koodiümbrikust</string>
+    <string name="myeid_change_pin_info_title">%1$s muutmise juhend</string>
+    <string name="myeid_pin1_guideline_1">Uus PIN1 peab olema erinev eelmisest.</string>
+    <string name="myeid_pin1_guideline_2">PIN1-koodi kasutatakse isikutuvastamiseks.</string>
+    <string name="myeid_pin1_guideline_3">Kui sisestad PIN1-koodi kolm korda valesti, siis isikutuvastamise sertifikaat blokeeritakse ning ID-kaarti pole võimalik isikutuvastamiseks kasutada enne blokeeringu tühistamist PUK-koodi abil.</string>
+    <string name="myeid_pin2_guideline_1">Uus PIN2 peab olema erinev eelmisest.</string>
+    <string name="myeid_pin2_guideline_2">PIN2-koodi kasutatakse digitaalallkirja andmiseks.</string>
+    <string name="myeid_pin2_guideline_3">Kui sisestad PIN2-koodi kolm korda valesti, siis allkirjastamise sertifikaat blokeeritakse ning ID-kaarti pole võimalik allkirjastamiseks kasutada enne blokeeringu tühistamist PUK-koodi abil.</string>
+    <string name="myeid_puk_guideline_1">PUK-koodi abil saab tühistada sertifikaadi blokeeringu, kui PIN1- või PIN2-koodi on 3 korda järjest valesti sisestatud.</string>
+    <string name="myeid_puk_guideline_2">Kui peale vahetamist PUK-kood ununeb ja sertifikaat jääb blokeerituks kolme vale PIN1 või PIN2 sisestamise järel, siis ainus võimalus ID-kaart jälle tööle saada on pöörduda klienditeeninduspunkti poole.</string>
+    <string name="myeid_pin_change_title">%1$s-koodi vahetus</string>
+    <string name="myeid_pin_unblock_title">%1$s lahti blokeerimine</string>
+    <string name="myeid_current_pin_code_title">Sisesta praegune %1$s-kood</string>
+    <string name="myeid_new_pin_code_title">Sisesta uus %1$s-kood</string>
+    <string name="myeid_repeat_new_pin_code_title">Korda uut %1$s-koodi</string>
+    <string name="myeid_save_new_pin">Salvesta uus %1$s-kood</string>
+    <string name="myeid_new_pin_different_requirement">Uus %1$s peab olema erinev eelmisest.</string>
+    <string name="myeid_pin_changed_success">%1$s muudetud</string>
+    <string name="myeid_pin_unblock_button">Tühista %1$s blokeering</string>
+    <string name="myeid_pin_unblocked_success">%1$s blokeering tühistatud</string>
 
     <!-- Voice Control -->
     <string name="signing_container_name_update_button_voice">Muuda</string>

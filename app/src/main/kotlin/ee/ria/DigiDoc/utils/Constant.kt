@@ -41,6 +41,10 @@ object Constant {
         const val ENCRYPTION_SERVICES_SCREEN = "encryption_services_route"
         const val PROXY_SERVICES_SCREEN = "proxy_services_route"
         const val CONTAINER_NOTIFICATIONS_SCREEN = "container_notifications_route"
+        const val MYEID_IDENTIFICATION_SCREEN = "myeid_identification_route"
+        const val MYEID_IDENTIFICATION_METHOD_SCREEN = "myeid_identification_method_route"
+        const val MYEID_SCREEN = "myeid_screen_route"
+        const val MYEID_PIN_SCREEN = "myeid_pin_screen_route"
     }
 
     object Defaults {

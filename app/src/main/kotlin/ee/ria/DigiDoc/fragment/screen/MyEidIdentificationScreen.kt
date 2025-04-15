@@ -54,15 +54,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.domain.model.methods.SigningMethod
+import ee.ria.DigiDoc.domain.model.myeid.MyEidIdentificationMethodSetting
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.signing.IdCardView
-import ee.ria.DigiDoc.ui.component.signing.MobileIdView
 import ee.ria.DigiDoc.ui.component.signing.NFCView
-import ee.ria.DigiDoc.ui.component.signing.SmartIdView
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
@@ -77,7 +75,7 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun SignatureInputScreen(
+fun MyEidIdentificationScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     sharedMenuViewModel: SharedMenuViewModel,
@@ -86,21 +84,19 @@ fun SignatureInputScreen(
 ) {
     val context = LocalActivity.current as Activity
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
-    val getIsAskRoleAndAddressRequested = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
     var rememberMe by rememberSaveable { mutableStateOf(true) }
     var isIdCardProcessStarted by rememberSaveable { mutableStateOf(false) }
-    var isSigning by rememberSaveable { mutableStateOf(false) }
-    var isAddingRoleAndAddress by rememberSaveable { mutableStateOf(false) }
+    var isAuthenticating by rememberSaveable { mutableStateOf(false) }
     val chosenMethod by remember {
         mutableStateOf(
-            SigningMethod.entries.find {
-                it.methodName == sharedSettingsViewModel.dataStore.getSignatureAddMethod()
-            } ?: SigningMethod.NFC,
+            MyEidIdentificationMethodSetting.entries.find {
+                it.methodName == sharedSettingsViewModel.dataStore.getIdentificationMethodSetting().methodName
+            } ?: MyEidIdentificationMethodSetting.NFC,
         )
     }
     val chosenMethodName by remember { mutableIntStateOf(chosenMethod.label) }
-    var isValidToSign by remember { mutableStateOf(false) }
-    var signAction by remember { mutableStateOf<() -> Unit>({}) }
+    var isValidToAuthenticate by remember { mutableStateOf(false) }
+    var authAction by remember { mutableStateOf<() -> Unit>({}) }
     var cancelAction by remember { mutableStateOf<() -> Unit>({}) }
 
     val snackBarHostState = remember { SnackbarHostState() }
@@ -109,7 +105,7 @@ fun SignatureInputScreen(
     val messages by SnackBarManager.messages.collectAsState(emptyList())
 
     val chosenMethodNameText = stringResource(chosenMethodName)
-    val signatureMethodText = stringResource(R.string.signature_method)
+    val identificationMethodText = stringResource(R.string.myeid_identification_method)
     val rememberMeText = stringResource(R.string.signature_update_remember_me)
     var nfcSupported by remember { mutableStateOf(false) }
 
@@ -135,26 +131,22 @@ fun SignatureInputScreen(
                 sharedMenuViewModel = sharedMenuViewModel,
                 title = null,
                 leftIconContentDescription =
-                    if (isSigning || isAddingRoleAndAddress) {
+                    if (isAuthenticating) {
                         R.string.signing_cancel
                     } else {
                         R.string.back
                     },
                 onLeftButtonClick = {
-                    if (isSigning || isAddingRoleAndAddress) {
+                    if (isAuthenticating) {
                         cancelAction()
-                        isSigning = false
-                        isAddingRoleAndAddress = false
+                        isAuthenticating = false
                     } else {
-                        isAddingRoleAndAddress = false
                         navController.navigateUp()
                     }
                 },
                 onRightSecondaryButtonClick = {
                     isSettingsMenuBottomSheetVisible.value = true
                 },
-                // Hide TopBar icons when signing
-                showRightSideIcons = !isSigning && !isAddingRoleAndAddress,
             )
         },
     ) { paddingValues ->
@@ -178,12 +170,12 @@ fun SignatureInputScreen(
                         .semantics {
                             heading()
                         },
-                text = stringResource(R.string.signature_update_title),
+                text = stringResource(R.string.myeid_identification_title),
                 color = MaterialTheme.colorScheme.onBackground,
                 style = MaterialTheme.typography.headlineMedium,
             )
 
-            if (!isSigning && !isIdCardProcessStarted && !isAddingRoleAndAddress) {
+            if (!isAuthenticating && !isIdCardProcessStarted) {
                 Column(
                     modifier =
                         modifier
@@ -192,12 +184,12 @@ fun SignatureInputScreen(
                     horizontalAlignment = Alignment.Start,
                 ) {
                     Text(
-                        text = signatureMethodText,
+                        text = identificationMethodText,
                         modifier =
                             modifier
                                 .focusable(false)
                                 .notAccessible()
-                                .testTag("signatureInputMethodTitle"),
+                                .testTag("identificationMethodTitle"),
                         color = MaterialTheme.colorScheme.onSecondary,
                         textAlign = TextAlign.Start,
                         style = MaterialTheme.typography.labelLarge,
@@ -210,7 +202,7 @@ fun SignatureInputScreen(
                                 .background(Color.Transparent)
                                 .clickable {
                                     navController.navigate(
-                                        Route.SignatureMethodScreen.route,
+                                        Route.MyEidIdentificationMethodScreen.route,
                                     )
                                 },
                         horizontalArrangement = Arrangement.Start,
@@ -220,7 +212,7 @@ fun SignatureInputScreen(
                             modifier =
                                 modifier
                                     .semantics {
-                                        contentDescription = "$signatureMethodText $chosenMethodNameText"
+                                        contentDescription = "$identificationMethodText $chosenMethodNameText"
                                     },
                             text = chosenMethodNameText,
                             color = MaterialTheme.colorScheme.onSurface,
@@ -243,81 +235,17 @@ fun SignatureInputScreen(
             }
 
             when (chosenMethod) {
-                SigningMethod.MOBILE_ID ->
-                    MobileIdView(
-                        modifier = modifier,
-                        activity = context,
-                        onError = {
-                            isSigning = false
-                            isAddingRoleAndAddress = false
-                            cancelAction()
-                        },
-                        onSuccess = {
-                            isSigning = false
-                            isAddingRoleAndAddress = false
-                            navController.navigateUp()
-                        },
-                        isSigning = isSigning,
-                        isAddingRoleAndAddress = isAddingRoleAndAddress,
-                        rememberMe = rememberMe,
-                        sharedSettingsViewModel = sharedSettingsViewModel,
-                        sharedContainerViewModel = sharedContainerViewModel,
-                        isValidToSign = { isValid ->
-                            isValidToSign = isValid
-                        },
-                        signAction = { action ->
-                            signAction = action
-                        },
-                        cancelAction = { action ->
-                            isAddingRoleAndAddress = false
-                            cancelAction = action
-                        },
-                    )
-
-                SigningMethod.SMART_ID ->
-                    SmartIdView(
-                        modifier = modifier,
-                        activity = context,
-                        onError = {
-                            isSigning = false
-                            isAddingRoleAndAddress = false
-                            cancelAction()
-                        },
-                        onSuccess = {
-                            isSigning = false
-                            isAddingRoleAndAddress = false
-                            navController.navigateUp()
-                        },
-                        isSigning = isSigning,
-                        isAddingRoleAndAddress = isAddingRoleAndAddress,
-                        rememberMe = rememberMe,
-                        sharedSettingsViewModel = sharedSettingsViewModel,
-                        sharedContainerViewModel = sharedContainerViewModel,
-                        isValidToSign = { isValid ->
-                            isValidToSign = isValid
-                        },
-                        signAction = { action ->
-                            signAction = action
-                        },
-                        cancelAction = { action ->
-                            isAddingRoleAndAddress = false
-                            cancelAction = action
-                        },
-                    )
-
-                SigningMethod.ID_CARD ->
+                MyEidIdentificationMethodSetting.ID_CARD ->
                     IdCardView(
                         modifier = modifier,
                         activity = context,
                         onError = {
-                            isSigning = false
+                            isAuthenticating = false
                             isIdCardProcessStarted = false
-                            isAddingRoleAndAddress = false
                             cancelAction()
                         },
                         onSuccess = {
-                            isSigning = false
-                            isAddingRoleAndAddress = false
+                            isAuthenticating = false
                             navController.navigateUp()
                         },
                         isStarted = { started ->
@@ -325,44 +253,40 @@ fun SignatureInputScreen(
                                 isIdCardProcessStarted = true
                             }
                         },
-                        isSigning = isSigning,
-                        isAddingRoleAndAddress = isAddingRoleAndAddress,
-                        isAuthenticating = false,
+                        isSigning = false,
+                        isAuthenticating = isAuthenticating,
                         sharedSettingsViewModel = sharedSettingsViewModel,
                         sharedContainerViewModel = sharedContainerViewModel,
                         isValidToSign = { isValid ->
-                            isValidToSign = isValid
+                            isValidToAuthenticate = isValid
                         },
                         signAction = { action ->
-                            signAction = {
-                                isSigning = true
+                            authAction = {
+                                isAuthenticating = true
                                 action()
                             }
                         },
                         cancelAction = { action ->
-                            isSigning = false
-                            isAddingRoleAndAddress = false
+                            isAuthenticating = false
                             cancelAction = action
                         },
                         isValidToAuthenticate = {},
+                        isAddingRoleAndAddress = false,
                     )
 
-                SigningMethod.NFC ->
+                MyEidIdentificationMethodSetting.NFC ->
                     NFCView(
                         modifier = modifier,
                         activity = context,
                         onError = {
-                            isSigning = false
-                            isAddingRoleAndAddress = false
+                            isAuthenticating = false
                             cancelAction()
                         },
                         onSuccess = {
-                            isSigning = false
-                            isAddingRoleAndAddress = false
+                            isAuthenticating = false
                             navController.navigateUp()
                         },
-                        isSigning = isSigning,
-                        isAddingRoleAndAddress = isAddingRoleAndAddress,
+                        isSigning = false,
                         rememberMe = rememberMe,
                         sharedSettingsViewModel = sharedSettingsViewModel,
                         sharedContainerViewModel = sharedContainerViewModel,
@@ -370,20 +294,20 @@ fun SignatureInputScreen(
                             nfcSupported = supported
                         },
                         isValidToSign = { isValid ->
-                            isValidToSign = isValid
+                            isValidToAuthenticate = isValid
                         },
                         signAction = { action ->
-                            signAction = action
+                            authAction = action
                         },
                         cancelAction = { action ->
-                            isAddingRoleAndAddress = false
                             cancelAction = action
                         },
+                        isAddingRoleAndAddress = false,
                     )
             }
 
-            if (!isSigning && (chosenMethod != SigningMethod.NFC || nfcSupported)) {
-                if (chosenMethod != SigningMethod.ID_CARD && !isAddingRoleAndAddress) {
+            if (!isAuthenticating && (chosenMethod != MyEidIdentificationMethodSetting.NFC || nfcSupported)) {
+                if (chosenMethod != MyEidIdentificationMethodSetting.ID_CARD) {
                     SettingsSwitchItem(
                         modifier = modifier,
                         checked = rememberMe,
@@ -392,7 +316,7 @@ fun SignatureInputScreen(
                         },
                         title = rememberMeText,
                         contentDescription = rememberMeText,
-                        testTag = "signatureInputRememberMeSwitch",
+                        testTag = "myEidRememberMeSwitch",
                     )
 
                     if (rememberMe) {
@@ -406,23 +330,24 @@ fun SignatureInputScreen(
 
                 Button(
                     onClick = {
-                        if (getIsAskRoleAndAddressRequested() && !isAddingRoleAndAddress) {
-                            isSigning = false
-                            isAddingRoleAndAddress = true
-                        } else {
-                            isSigning = true
-                            isAddingRoleAndAddress = false
-                            signAction()
-                        }
+                        // TODO: Change when implementing logic
+
+                        /*isAuthenticating = true
+                        authAction()*/
+
+                        navController.navigate(
+                            Route.MyEidScreen.route,
+                        )
                     },
-                    enabled = isValidToSign,
+                    // isValidToAuthenticate
+                    enabled = true,
                     modifier =
                         modifier
                             .fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 ) {
                     Text(
-                        text = stringResource(R.string.sign_button),
+                        text = stringResource(R.string.myeid_identify_button),
                         color = MaterialTheme.colorScheme.surface,
                     )
                 }
@@ -436,9 +361,9 @@ fun SignatureInputScreen(
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun SignatureInputScreenPreview() {
+fun MyEidIdentificationScreenPreview() {
     RIADigiDocTheme {
-        SignatureInputScreen(
+        MyEidIdentificationScreen(
             navController = rememberNavController(),
             sharedMenuViewModel = hiltViewModel(),
             sharedSettingsViewModel = hiltViewModel(),

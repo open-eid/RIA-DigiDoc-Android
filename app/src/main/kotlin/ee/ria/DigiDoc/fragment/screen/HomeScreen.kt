@@ -335,7 +335,9 @@ fun HomeScreen(
                                 stringResource(id = R.string.main_home_my_eid_title) + " " +
                                     stringResource(id = R.string.main_home_my_eid_description),
                             onClickItem = {
-                                // TODO: Implement navigation to My eID screen
+                                navController.navigate(
+                                    Route.MyEidIdentificationScreen.route,
+                                )
                             },
                             testTag = "homeMyEIDButton",
                         )
