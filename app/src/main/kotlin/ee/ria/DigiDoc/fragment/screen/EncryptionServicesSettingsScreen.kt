@@ -88,6 +88,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSBorder
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
+import ee.ria.DigiDoc.utils.Constant.Defaults.DEFAULT_UUID_VALUE
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
@@ -140,7 +141,7 @@ fun EncryptionServicesSettingsScreen(
     val setCDOC2PostURL = sharedSettingsViewModel.dataStore::setCDOC2PostURL
 
     val cdoc2UseKeyServerDefault = configuration?.cdoc2UseKeyServer ?: false
-    val cdoc2DefaultKeyServer = configuration?.cdoc2DefaultKeyServer ?: "00000000-0000-0000-0000-000000000000"
+    val cdoc2DefaultKeyServer = configuration?.cdoc2DefaultKeyServer ?: DEFAULT_UUID_VALUE
     val useKeyTransfer = rememberSaveable { mutableStateOf(getUseOnlineEncryption(cdoc2UseKeyServerDefault)) }
     val useDefaultKeyTransferServer = rememberSaveable { mutableStateOf(true) }
 
@@ -166,7 +167,6 @@ fun EncryptionServicesSettingsScreen(
 
     val manualKeyTransferText = stringResource(R.string.option_manual_key_transfer)
 
-    val optionManualKeyTransfer = stringResource(R.string.option_manual_key_transfer)
     val nameChoices = arrayListOf<String>()
 
     var index = 0
@@ -180,7 +180,7 @@ fun EncryptionServicesSettingsScreen(
 
         index++
     }
-    nameChoices.add(optionManualKeyTransfer)
+    nameChoices.add(manualKeyTransferText)
     val customDefaultCDOC2UUID = "00000000-0000-0000-0000-000000000002"
     val customDefaultCDOC2FetchUrl = "https://cdoc2-keyserver-get"
     val customDefaultCDOC2PostUrl = "https://cdoc2-keyserver-post"
@@ -194,7 +194,7 @@ fun EncryptionServicesSettingsScreen(
         mutableStateOf(
             TextFieldValue(
                 text =
-                    if (nameChoices[settingsCdocNameChoiceInt.intValue] == optionManualKeyTransfer) {
+                    if (nameChoices[settingsCdocNameChoiceInt.intValue] == manualKeyTransferText) {
                         getCDOC2UUID(customDefaultCDOC2UUID)
                     } else {
                         settingsCDOC2UUID.value
@@ -208,7 +208,7 @@ fun EncryptionServicesSettingsScreen(
         mutableStateOf(
             TextFieldValue(
                 text =
-                    if (nameChoices[settingsCdocNameChoiceInt.intValue] == optionManualKeyTransfer) {
+                    if (nameChoices[settingsCdocNameChoiceInt.intValue] == manualKeyTransferText) {
                         getCDOC2FetchURL(customDefaultCDOC2FetchUrl)
                     } else {
                         settingsCDOC2FetchURL.value
@@ -222,7 +222,7 @@ fun EncryptionServicesSettingsScreen(
         mutableStateOf(
             TextFieldValue(
                 text =
-                    if (nameChoices[settingsCdocNameChoiceInt.intValue] == optionManualKeyTransfer) {
+                    if (nameChoices[settingsCdocNameChoiceInt.intValue] == manualKeyTransferText) {
                         getCDOC2PostURL(customDefaultCDOC2PostUrl)
                     } else {
                         settingsCDOC2PostURL.value
@@ -255,7 +255,7 @@ fun EncryptionServicesSettingsScreen(
         uuidText =
             TextFieldValue(
                 text =
-                    if (nameChoices[settingsCdocNameChoiceInt.intValue] == optionManualKeyTransfer) {
+                    if (nameChoices[settingsCdocNameChoiceInt.intValue] == manualKeyTransferText) {
                         getCDOC2UUID(customDefaultCDOC2UUID)
                     } else {
                         settingsCDOC2UUID.value
@@ -265,7 +265,7 @@ fun EncryptionServicesSettingsScreen(
         fetchUrlText =
             TextFieldValue(
                 text =
-                    if (nameChoices[settingsCdocNameChoiceInt.intValue] == optionManualKeyTransfer) {
+                    if (nameChoices[settingsCdocNameChoiceInt.intValue] == manualKeyTransferText) {
                         getCDOC2FetchURL(customDefaultCDOC2FetchUrl)
                     } else {
                         settingsCDOC2FetchURL.value
@@ -275,7 +275,7 @@ fun EncryptionServicesSettingsScreen(
         postUrlText =
             TextFieldValue(
                 text =
-                    if (nameChoices[settingsCdocNameChoiceInt.intValue] == optionManualKeyTransfer) {
+                    if (nameChoices[settingsCdocNameChoiceInt.intValue] == manualKeyTransferText) {
                         getCDOC2PostURL(customDefaultCDOC2PostUrl)
                     } else {
                         settingsCDOC2PostURL.value
