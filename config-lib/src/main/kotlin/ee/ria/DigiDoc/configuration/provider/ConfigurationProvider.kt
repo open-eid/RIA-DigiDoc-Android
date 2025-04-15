@@ -8,6 +8,9 @@ import java.util.Date
 data class ConfigurationProvider(
     @SerializedName("META-INF") val metaInf: MetaInf,
     @SerializedName("SIVA-URL") val sivaUrl: String,
+    @SerializedName("CDOC2-CONF") val cdoc2Conf: Map<String, CDOC2Conf>,
+    @SerializedName("CDOC2-USE-KEYSERVER") val cdoc2UseKeyServer: Boolean,
+    @SerializedName("CDOC2-DEFAULT-KEYSERVER") val cdoc2DefaultKeyServer: String,
     @SerializedName("TSL-URL") val tslUrl: String,
     @SerializedName("TSL-CERTS") val tslCerts: List<String>,
     @SerializedName("TSA-URL") val tsaUrl: String,
@@ -27,5 +30,11 @@ data class ConfigurationProvider(
         @SerializedName("DATE") val date: String,
         @SerializedName("SERIAL") val serial: Int,
         @SerializedName("VER") val version: Int,
+    )
+
+    data class CDOC2Conf(
+        @SerializedName("NAME") val name: String,
+        @SerializedName("POST") val post: String,
+        @SerializedName("FETCH") val fetch: String,
     )
 }
