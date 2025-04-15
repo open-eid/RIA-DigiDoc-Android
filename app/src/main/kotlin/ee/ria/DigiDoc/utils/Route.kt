@@ -17,6 +17,10 @@ import ee.ria.DigiDoc.utils.Constant.Routes.FILE_CHOOSING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.HOME_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.INFO_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.INIT_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_IDENTIFICATION_METHOD_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_IDENTIFICATION_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_PIN_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.PROXY_SERVICES_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.RECENT_DOCUMENTS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.RECIPIENT_DETAIL_SCREEN
@@ -90,4 +94,12 @@ sealed class Route(val route: String) {
     data object ProxyServicesScreen : Route(PROXY_SERVICES_SCREEN)
 
     data object ContainerNotificationsScreen : Route(CONTAINER_NOTIFICATIONS_SCREEN)
+
+    data object MyEidIdentificationScreen : Route(MYEID_IDENTIFICATION_SCREEN)
+
+    data object MyEidIdentificationMethodScreen : Route(MYEID_IDENTIFICATION_METHOD_SCREEN)
+
+    data object MyEidScreen : Route(MYEID_SCREEN)
+
+    data object MyEidPinScreen : Route(MYEID_PIN_SCREEN)
 }

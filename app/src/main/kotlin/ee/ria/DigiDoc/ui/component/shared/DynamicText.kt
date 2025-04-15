@@ -24,6 +24,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration.Companion.Underline
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
+import ee.ria.DigiDoc.ui.theme.Dimensions.LINE_HEIGHT
 
 @Composable
 fun DynamicText(
@@ -34,6 +37,7 @@ fun DynamicText(
             color = MaterialTheme.colorScheme.onBackground,
             fontSize = MaterialTheme.typography.bodyLarge.fontSize,
             textAlign = TextAlign.Start,
+            lineHeight = TextUnit(LINE_HEIGHT, TextUnitType.Sp),
         ),
 ) {
     val uriHandler = LocalUriHandler.current

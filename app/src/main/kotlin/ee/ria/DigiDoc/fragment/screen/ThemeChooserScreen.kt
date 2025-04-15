@@ -51,7 +51,6 @@ fun ThemeChooserScreen(
     sharedMenuViewModel: SharedMenuViewModel,
 ) {
     val context = LocalContext.current
-    val appearanceText = stringResource(id = R.string.main_settings_menu_appearance)
     val themeChanged = stringResource(id = R.string.theme_changed)
     val themeSelected = stringResource(id = R.string.menu_theme_selected)
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
@@ -112,9 +111,9 @@ fun ThemeChooserScreen(
                     RadioButtonItem(
                         modifier = modifier,
                         title = themeItem.label,
-                        changedLabel = R.string.language_changed,
+                        changedLabel = R.string.theme_changed,
                         contentDescription =
-                            if (themeItem.setting.mode == currentTheme?.mode) {
+                            if (themeItem.setting.mode == currentTheme.mode) {
                                 "${themeItem.contentDescription} $themeSelected"
                             } else {
                                 "$themeItem ${themeItem.contentDescription}"
@@ -131,7 +130,7 @@ fun ThemeChooserScreen(
     }
 }
 
-fun setThemeSetting(
+private fun setThemeSetting(
     sharedSettingsViewModel: SharedSettingsViewModel,
     themeSetting: ThemeSetting,
 ) {

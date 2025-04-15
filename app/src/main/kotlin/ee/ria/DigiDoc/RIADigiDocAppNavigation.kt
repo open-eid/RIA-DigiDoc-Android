@@ -25,6 +25,10 @@ import ee.ria.DigiDoc.fragment.HomeFragment
 import ee.ria.DigiDoc.fragment.InfoFragment
 import ee.ria.DigiDoc.fragment.InitFragment
 import ee.ria.DigiDoc.fragment.LanguageChooserFragment
+import ee.ria.DigiDoc.fragment.MyEidFragment
+import ee.ria.DigiDoc.fragment.MyEidIdentificationFragment
+import ee.ria.DigiDoc.fragment.MyEidIdentificationMethodChooserFragment
+import ee.ria.DigiDoc.fragment.MyEidPinFragment
 import ee.ria.DigiDoc.fragment.ProxyServicesSettingsFragment
 import ee.ria.DigiDoc.fragment.RecentDocumentsFragment
 import ee.ria.DigiDoc.fragment.RootFragment
@@ -43,6 +47,7 @@ import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedPinViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedRecipientViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
@@ -56,6 +61,7 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
     val sharedSignatureViewModel: SharedSignatureViewModel = hiltViewModel()
     val sharedCertificateViewModel: SharedCertificateViewModel = hiltViewModel()
     val sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel()
+    val sharedPinViewModel: SharedPinViewModel = hiltViewModel()
 
     sharedContainerViewModel.setExternalFileUris(externalFileUris)
 
@@ -260,12 +266,45 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
                 modifier = Modifier.safeDrawingPadding(),
             )
         }
+        composable(route = Route.MyEidIdentificationScreen.route) {
+            MyEidIdentificationFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedSettingsViewModel = sharedSettingsViewModel,
+                sharedMenuViewModel = sharedMenuViewModel,
+                sharedContainerViewModel = sharedContainerViewModel,
+            )
+        }
+        composable(route = Route.MyEidIdentificationMethodScreen.route) {
+            MyEidIdentificationMethodChooserFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedSettingsViewModel = sharedSettingsViewModel,
+                sharedMenuViewModel = sharedMenuViewModel,
+            )
+        }
         composable(route = Route.ContainerNotificationsScreen.route) {
             ContainerNotificationsFragment(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 sharedContainerViewModel = sharedContainerViewModel,
                 sharedMenuViewModel = sharedMenuViewModel,
+            )
+        }
+        composable(route = Route.MyEidScreen.route) {
+            MyEidFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
+                sharedPinViewModel = sharedPinViewModel,
+            )
+        }
+        composable(route = Route.MyEidPinScreen.route) {
+            MyEidPinFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
+                sharedPinViewModel = sharedPinViewModel,
             )
         }
     }

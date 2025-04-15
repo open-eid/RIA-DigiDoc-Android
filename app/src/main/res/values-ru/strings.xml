@@ -12,6 +12,7 @@
     <string name="main_home_my_eid_description">Просмотр и изменение данных eID</string>
 
     <string name="back">Назад</string>
+    <string name="action_continue">Продолжать</string>
 
     <string name="rooted_device">Данное приложение не может быть использовано на взломанном (root) устройстве.</string>
 
@@ -565,6 +566,49 @@
     <string name="main_settings_siva_certificate_expired">Недействителен</string>
     <string name="main_settings_proxy_invalid_settings">Не удалось связаться с сервером услуги. Пожалуйста, проверьте настройки сети или повторите попытку позже.</string>
     <string name="main_settings_siva_certificate_title">Сертификат услуги валидации SiVa SSL</string>
+
+    <!-- My eID -->
+    <string name="myeid_identification_method_title">Выберите способ идентификации</string>
+    <string name="myeid_identification_method_changed">Метод идентификации изменен</string>
+    <string name="myeid_identification_method_selected">Выбранный метод идентификации</string>
+    <string name="myeid_identification_title">Идентификация</string>
+    <string name="myeid_identification_method">Метод идентификации</string>
+    <string name="myeid_identify_button">Идентифицировать</string>
+    <string name="myeid_my_data">Мои данные</string>
+    <string name="myeid_pins_and_certificates">ПИН-коды и сертификаты</string>
+    <string name="myeid_firstname">Имя</string>
+    <string name="myeid_lastname">Фамилия</string>
+    <string name="myeid_citizenship">Гражданство</string>
+    <string name="myeid_document_number">Номер документа</string>
+    <string name="myeid_valid_to">Годен до</string>
+    <string name="myeid_status_valid">Действителен</string>
+    <string name="myeid_status_expired">Недействителен</string>
+    <string name="myeid_status_unknown">Неизвестно</string>
+    <string name="myeid_authentication_certificate_title">Идентификационный сертификат</string>
+    <string name="myeid_signing_certificate_title">Сертификат цифровой подписи</string>
+    <string name="myeid_certificate_valid_to">Сертификат годен до %1$s</string>
+    <string name="myeid_forgot_pin">Забыли %1$s?</string>
+    <string name="myeid_change_pin">Поменять %1$s</string>
+    <string name="myeid_puk_info">PUK-код в Вашем конверте кодов</string>
+    <string name="myeid_change_pin_info_title">Руководство по изменению %1$s</string>
+    <string name="myeid_pin1_guideline_1">Новый PIN1 должен отличаться от предыдущего PIN1.</string>
+    <string name="myeid_pin1_guideline_2">PIN1-код используется для идентификации.</string>
+    <string name="myeid_pin1_guideline_3">Если PIN1 введен неверно 3 раза, сертификат индентификации будет заблокирован и станет невозможным использовать ID-карту для проверки идентификации до тех пор, пока PIN1 будет не разблокирован с помощью PUK-кода.</string>
+    <string name="myeid_pin2_guideline_1">Новый PIN2 должен отличаться от предыдущего PIN2.</string>
+    <string name="myeid_pin2_guideline_2">PIN2-код используется для дигитальной подписи документа.</string>
+    <string name="myeid_pin2_guideline_3">Если PIN2 введён 3 раза неверно, тогда блокируется сертификат цифровой подписи и использовать ID-карту для цифровой подписи невозможно, пока блокировка не снята PUK-кодом.</string>
+    <string name="myeid_puk_guideline_1">PUK-код используется для разблокирования сертификатов, когда PIN1 или PIN2 были неверно введены 3 раза.</string>
+    <string name="myeid_puk_guideline_2">Если Вы забудете PUK-код или сертификаты остануться заблокированными, необходимо посетить центр обслуживания для получения новых кодов.</string>
+    <string name="myeid_pin_change_title">Изменить %1$s</string>
+    <string name="myeid_pin_unblock_title">Разблокировать %1$s</string>
+    <string name="myeid_current_pin_code_title">Введите текущий код %1$s</string>
+    <string name="myeid_new_pin_code_title">Введите новый код %1$s</string>
+    <string name="myeid_repeat_new_pin_code_title">Повторите новый код %1$s</string>
+    <string name="myeid_save_new_pin">Сохранить новый %1$s-код</string>
+    <string name="myeid_new_pin_different_requirement">Новый %1$s должен отличаться от предыдущего %1$s.</string>
+    <string name="myeid_pin_changed_success">%1$s изменен</string>
+    <string name="myeid_pin_unblock_button">Разблокировать %1$s</string>
+    <string name="myeid_pin_unblocked_success">%1$s разблокирован</string>
 
     <!-- Voice Control -->
     <string name="signing_container_name_update_button_voice">Изменить</string>

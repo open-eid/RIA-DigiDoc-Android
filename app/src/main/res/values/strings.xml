@@ -12,6 +12,7 @@
     <string name="main_home_my_eid_description">View and modify your eID data</string>
 
     <string name="back">Back</string>
+    <string name="action_continue">Continue</string>
 
     <string name="rooted_device">This app cannot be used in rooted device.</string>
 
@@ -512,7 +513,6 @@
     <string name="main_diagnostics_restart_message_read_more">Read more here</string>
     <string name="main_diagnostics_restart_message_restart_now">Restart now?</string>
 
-
     <!-- Main Settings -->
     <string name="main_settings_use_default_settings_button_title">Use default settings</string>
     <string name="main_settings_use_default_settings_message">Default settings restored</string>
@@ -566,6 +566,49 @@
     <string name="main_settings_siva_certificate_expired">Expired</string>
     <string name="main_settings_proxy_invalid_settings">Failed to connect with service server. Please check your network settings or try again later.</string>
     <string name="main_settings_siva_certificate_title">Digital Signature Validation Service SiVa SSL certificate</string>
+
+    <!-- My eID -->
+    <string name="myeid_identification_method_title">Choose a method of identification</string>
+    <string name="myeid_identification_method_changed">Identification method changed</string>
+    <string name="myeid_identification_method_selected">Identification method selected</string>
+    <string name="myeid_identification_title">Identification</string>
+    <string name="myeid_identification_method">Identification method</string>
+    <string name="myeid_identify_button">Identify</string>
+    <string name="myeid_my_data">My data</string>
+    <string name="myeid_pins_and_certificates">PIN\'s and certificates</string>
+    <string name="myeid_firstname">Firstname</string>
+    <string name="myeid_lastname">Lastname</string>
+    <string name="myeid_citizenship">Citizenship</string>
+    <string name="myeid_document_number">Document number</string>
+    <string name="myeid_valid_to">Valid to</string>
+    <string name="myeid_status_valid">Valid</string>
+    <string name="myeid_status_expired">Expired</string>
+    <string name="myeid_status_unknown">Unknown</string>
+    <string name="myeid_authentication_certificate_title">Authentication certificate</string>
+    <string name="myeid_signing_certificate_title">Signing certificate</string>
+    <string name="myeid_certificate_valid_to">Certificate is valid until %1$s</string>
+    <string name="myeid_forgot_pin">Forgot %1$s?</string>
+    <string name="myeid_change_pin">Change %1$s</string>
+    <string name="myeid_puk_info">PUK code is in your code envelope</string>
+    <string name="myeid_change_pin_info_title">%1$s change guidelines</string>
+    <string name="myeid_pin1_guideline_1">New PIN1 must be different from current PIN1.</string>
+    <string name="myeid_pin1_guideline_2">PIN1 code is used for authentication.</string>
+    <string name="myeid_pin1_guideline_3">If PIN1 is inserted incorrectly 3 times, the identification certificate will be blocked and it will be impossible to use ID-card to verify identification, until it is unblocked via the PUK code.</string>
+    <string name="myeid_pin2_guideline_1">New PIN2 must be different from current PIN2.</string>
+    <string name="myeid_pin2_guideline_2">PIN2 code is used to digitally sign documents.</string>
+    <string name="myeid_pin2_guideline_3">If PIN2 is inserted incorrectly 3 times, the signing certificate will be blocked and it will be impossible to use ID-card for digital signatures, until it is unblocked via the PUK code.</string>
+    <string name="myeid_puk_guideline_1">PUK code is used for unblocking the certificates when PIN1 or PIN2 has been entered 3 times incorrectly.</string>
+    <string name="myeid_puk_guideline_2">If you forget the PUK code or the certificates remain blocked, you have to visit the service center to obtain new codes.</string>
+    <string name="myeid_pin_change_title">Change %1$s</string>
+    <string name="myeid_pin_unblock_title">Unblock %1$s</string>
+    <string name="myeid_current_pin_code_title">Enter current %1$s code</string>
+    <string name="myeid_new_pin_code_title">Enter new %1$s code</string>
+    <string name="myeid_repeat_new_pin_code_title">Repeat new %1$s code</string>
+    <string name="myeid_save_new_pin">Save new %1$s code</string>
+    <string name="myeid_new_pin_different_requirement">New %1$s must be different from current %1$s.</string>
+    <string name="myeid_pin_changed_success">%1$s changed</string>
+    <string name="myeid_pin_unblock_button">Unblock %1$s</string>
+    <string name="myeid_pin_unblocked_success">%1$s unblocked</string>
 
     <!-- Voice Control -->
     <string name="signing_container_name_update_button_voice">Edit</string>

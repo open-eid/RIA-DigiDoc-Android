@@ -41,4 +41,7 @@ object Dimensions {
     val MPadding = 24.dp
     val LPadding = 32.dp
     val XLPadding = 48.dp
+
+    // Line height
+    const val LINE_HEIGHT = 20f
 }

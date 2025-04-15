@@ -168,4 +168,12 @@ object Constant {
     object Theme {
         const val THEME_SETTING = "THEME_SETTING"
     }
+
+    object MyEID {
+        const val IDENTIFICATION_METHOD_SETTING = "IDENTIFICATION_METHOD_SETTING"
+        const val PIN1_MINIMUM_LENGTH = 4
+        const val PIN2_MINIMUM_LENGTH = 5
+        const val PUK_MINIMUM_LENGTH = 8
+        const val PIN_MAXIMUM_LENGTH = 12
+    }
 }
