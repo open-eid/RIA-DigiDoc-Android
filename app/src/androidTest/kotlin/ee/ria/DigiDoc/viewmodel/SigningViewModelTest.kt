@@ -11,6 +11,7 @@ import com.google.gson.Gson
 import ee.ria.DigiDoc.common.Constant.ASICE_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DEFAULT_MIME_TYPE
+import ee.ria.DigiDoc.common.R
 import ee.ria.DigiDoc.common.testfiles.asset.AssetFile.Companion.getResourceFileAsFile
 import ee.ria.DigiDoc.common.testfiles.file.TestFileUtil.Companion.createZipWithTextFile
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
@@ -22,6 +23,7 @@ import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepositoryImp
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
+import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
@@ -71,6 +73,9 @@ class SigningViewModelTest {
     lateinit var contentResolver: ContentResolver
 
     @Mock
+    lateinit var fileOpeningRepository: FileOpeningRepository
+
+    @Mock
     lateinit var mimeTypeCache: MimeTypeCache
 
     lateinit var mimeTypeResolver: MimeTypeResolver
@@ -110,7 +115,10 @@ class SigningViewModelTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         mimeTypeResolver = MimeTypeResolverImpl(mimeTypeCache)
-        viewModel = SigningViewModel(sivaRepository, mimeTypeResolver)
+        viewModel =
+            SigningViewModel(
+                sivaRepository, mimeTypeResolver, fileOpeningRepository, contentResolver,
+            )
         viewModel.shouldResetSignedContainer.observeForever(shouldResetSignedContainerObserver)
         sharedContainerViewModel =
             SharedContainerViewModel(
@@ -228,7 +236,7 @@ class SigningViewModelTest {
                 getResourceFileAsFile(
                     context,
                     "example_no_signatures.asice",
-                    ee.ria.DigiDoc.common.R.raw.example_no_signatures,
+                    R.raw.example_no_signatures,
                 )
 
             val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
@@ -257,7 +265,7 @@ class SigningViewModelTest {
                 getResourceFileAsFile(
                     context,
                     "example_no_signatures.asice",
-                    ee.ria.DigiDoc.common.R.raw.example_no_signatures,
+                    R.raw.example_no_signatures,
                 )
 
             val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
@@ -286,7 +294,7 @@ class SigningViewModelTest {
                 getResourceFileAsFile(
                     context,
                     "example_no_signatures.asice",
-                    ee.ria.DigiDoc.common.R.raw.example_no_signatures,
+                    R.raw.example_no_signatures,
                 )
 
             val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
@@ -323,7 +331,7 @@ class SigningViewModelTest {
                 getResourceFileAsFile(
                     context,
                     "example_no_signatures.asice",
-                    ee.ria.DigiDoc.common.R.raw.example_no_signatures,
+                    R.raw.example_no_signatures,
                 )
 
             val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
@@ -336,7 +344,7 @@ class SigningViewModelTest {
     @Test
     fun signingViewModel_isExistingContainerNoSignatures_returnFalse() =
         runTest {
-            val file = getResourceFileAsFile(context, "example.asice", ee.ria.DigiDoc.common.R.raw.example)
+            val file = getResourceFileAsFile(context, "example.asice", R.raw.example)
 
             val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
@@ -360,7 +368,7 @@ class SigningViewModelTest {
                 getResourceFileAsFile(
                     context,
                     "example_no_signatures.asice",
-                    ee.ria.DigiDoc.common.R.raw.example_no_signatures,
+                    R.raw.example_no_signatures,
                 )
 
             val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
@@ -373,7 +381,7 @@ class SigningViewModelTest {
     @Test
     fun signingViewModel_isContainerWithoutSignatures_returnFalse() =
         runTest {
-            val file = getResourceFileAsFile(context, "example.asice", ee.ria.DigiDoc.common.R.raw.example)
+            val file = getResourceFileAsFile(context, "example.asice", R.raw.example)
 
             val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
@@ -397,7 +405,7 @@ class SigningViewModelTest {
                 getResourceFileAsFile(
                     context,
                     "example_nested_container.asice",
-                    ee.ria.DigiDoc.common.R.raw.example_nested_container,
+                    R.raw.example_nested_container,
                 )
 
             val signedContainer = SignedContainer.openOrCreate(context, file, listOf(file), isSivaConfirmed)
@@ -473,7 +481,7 @@ class SigningViewModelTest {
                 getResourceFileAsFile(
                     context,
                     "example_no_signatures.asice",
-                    ee.ria.DigiDoc.common.R.raw.example_no_signatures,
+                    R.raw.example_no_signatures,
                 )
 
             val viewIntent = viewModel.getViewIntent(context, file)
