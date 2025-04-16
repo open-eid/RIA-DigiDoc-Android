@@ -301,7 +301,7 @@ class CryptoContainer
                 val cdocWriter = CDocWriter.createWriter(version, file?.path, conf, null, network)
                 withContext(IO) {
                     if (version == 2 && cdoc2Settings.getUseOnlineEncryption()) {
-                        val serverId = cdoc2Settings.getCDOC2SelectedService()
+                        val serverId = cdoc2Settings.getCDOC2UUID()
                         recipients.forEach { addressee ->
                             val recipient = Recipient.makeEIDServer(addressee?.data, serverId)
                             if (cdocWriter.addRecipient(recipient) != 0L) {
