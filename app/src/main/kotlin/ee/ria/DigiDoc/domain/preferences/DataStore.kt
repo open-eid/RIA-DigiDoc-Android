@@ -8,11 +8,13 @@ import android.content.res.Resources
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.Constant.Crypto.DECRYPT_METHOD_SETTING
 import ee.ria.DigiDoc.common.Constant.IS_CRASH_SENDING_ALWAYS_ENABLED
 import ee.ria.DigiDoc.common.Constant.KEY_LOCALE
 import ee.ria.DigiDoc.common.Constant.MyEID.IDENTIFICATION_METHOD_SETTING
 import ee.ria.DigiDoc.common.Constant.Theme.THEME_SETTING
 import ee.ria.DigiDoc.common.preferences.EncryptedPreferences
+import ee.ria.DigiDoc.domain.model.crypto.DecryptMethodSetting
 import ee.ria.DigiDoc.domain.model.methods.SigningMethod
 import ee.ria.DigiDoc.domain.model.myeid.MyEidIdentificationMethodSetting
 import ee.ria.DigiDoc.domain.model.settings.CDOCSetting
@@ -745,6 +747,17 @@ class DataStore
 
         fun setThemeSetting(themeSetting: ThemeSetting) {
             preferences.edit { putString(THEME_SETTING, themeSetting.mode) }
+        }
+
+        fun getDecryptMethodSetting(): DecryptMethodSetting {
+            return DecryptMethodSetting.fromMethod(
+                preferences.getString(DECRYPT_METHOD_SETTING, DecryptMethodSetting.NFC.methodName)
+                    ?: DecryptMethodSetting.NFC.methodName,
+            )
+        }
+
+        fun setDecryptMethodSetting(decryptMethodSetting: DecryptMethodSetting) {
+            preferences.edit { putString(DECRYPT_METHOD_SETTING, decryptMethodSetting.methodName) }
         }
 
         fun getIdentificationMethodSetting(): MyEidIdentificationMethodSetting {

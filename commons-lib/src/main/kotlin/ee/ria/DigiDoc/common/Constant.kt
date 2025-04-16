@@ -176,4 +176,8 @@ object Constant {
         const val PUK_MINIMUM_LENGTH = 8
         const val PIN_MAXIMUM_LENGTH = 12
     }
+
+    object Crypto {
+        const val DECRYPT_METHOD_SETTING = "DECRYPT_METHOD_SETTING"
+    }
 }

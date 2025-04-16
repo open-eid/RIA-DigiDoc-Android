@@ -12,6 +12,7 @@ import ee.ria.DigiDoc.cryptolib.exception.ContainerDataFilesEmptyException
 import ee.ria.DigiDoc.cryptolib.exception.CryptoException
 import ee.ria.DigiDoc.cryptolib.exception.DataFilesEmptyException
 import ee.ria.DigiDoc.cryptolib.exception.RecipientsEmptyException
+import ee.ria.DigiDoc.idcard.Token
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import ee.ria.DigiDoc.utilsLib.extensions.isCryptoContainer
 import ee.ria.DigiDoc.utilsLib.extensions.saveAs
@@ -66,10 +67,6 @@ class CryptoContainer
                 withContext(IO) {
                     file?.renameTo(newFile)
                     file = newFile
-
-                    file?.let {
-                        // TODO: ensure renamed file is saved
-                    }
                 }
             }
         }
@@ -219,10 +216,11 @@ class CryptoContainer
             suspend fun decrypt(
                 context: Context,
                 file: File,
-                smartToken: AbstractSmartToken,
+                pin: ByteArray,
+                smartToken: Token,
                 cdoc2Settings: CDOC2Settings,
             ): CryptoContainer {
-                val token = SmartCardTokenWrapper(smartToken)
+                val token = SmartCardTokenWrapper(pin, smartToken)
                 val conf = CryptoLibConf(cdoc2Settings)
                 val network = CryptoLibNetworkBackend()
                 network.token = token
@@ -234,7 +232,7 @@ class CryptoContainer
                     }
                 }
                 val dataFiles = ArrayList<File>()
-                val cdocReader = CDocReader.createReader(file.path, conf, null, network)
+                val cdocReader = CDocReader.createReader(file.path, conf, token, network)
                 val idx = cdocReader.getLockForCert(network.cert)
 
                 if (idx < 0) {

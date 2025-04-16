@@ -16,6 +16,8 @@ import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.fragment.AccessibilityFragment
 import ee.ria.DigiDoc.fragment.AdvancedSettingsFragment
 import ee.ria.DigiDoc.fragment.CryptoFileOpeningFragment
+import ee.ria.DigiDoc.fragment.DecryptFragment
+import ee.ria.DigiDoc.fragment.DecryptMethodChooserFragment
 import ee.ria.DigiDoc.fragment.DiagnosticsFragment
 import ee.ria.DigiDoc.fragment.EncryptFragment
 import ee.ria.DigiDoc.fragment.EncryptRecipientFragment
@@ -157,6 +159,23 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
                 sharedMenuViewModel = sharedMenuViewModel,
                 sharedContainerViewModel = sharedContainerViewModel,
                 sharedRecipientViewModel = sharedRecipientViewModel,
+            )
+        }
+        composable(route = Route.DecryptScreen.route) {
+            DecryptFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedSettingsViewModel = sharedSettingsViewModel,
+                sharedMenuViewModel = sharedMenuViewModel,
+                sharedContainerViewModel = sharedContainerViewModel,
+            )
+        }
+        composable(route = Route.DecryptMethodScreen.route) {
+            DecryptMethodChooserFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedSettingsViewModel = sharedSettingsViewModel,
+                sharedMenuViewModel = sharedMenuViewModel,
             )
         }
         composable(route = Route.Accessibility.route) {

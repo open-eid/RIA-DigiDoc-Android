@@ -177,6 +177,12 @@
     <string name="crypto_encrypt_recipients_empty_error">Ei saa luua krüptokonteinerit ilma adressaatideta</string>
     <string name="crypto_recipients_error_exists">Adressaat on konteineris juba olemas</string>
 
+    <string name="crypto_decrypt_method_title">Vali dekrüpteerimise meetod</string>
+    <string name="crypto_decrypt_method_changed">Dekrüpteerimise meetod muudetud</string>
+    <string name="crypto_decrypt_method_selected">Dekrüpteerimise meetod valitud</string>
+    <string name="crypto_decrypt_title">Ümbriku dekrüpteerimine</string>
+    <string name="crypto_decrypt_method">Dekrüpteerimise meetod</string>
+
     <!-- Signature Add -->
     <string name="signature_update_title">Ümbriku allkirjastamine</string>
     <string name="signature_update_name_update_name">Ümbriku nimi</string>
@@ -216,7 +222,7 @@
     <string name="signature_update_signature_role_and_address_info_title">Sisesta oma roll ja aadress</string>
 
     <string name="signature_update_remember_me">Pea mind meeles</string>
-    <string name="signature_update_remember_me_message">Järgmisel allkirjastamisel on valitud meetod ja andmeväljad täidetud</string>
+    <string name="signature_update_remember_me_message">Järgmisel kasutamisel on valitud meetod ja andmeväljad täidetud</string>
 
     <string name="signature_update_mobile_id_message">Sisesta oma telefoninumber ja isikukood mobiil-IDga allkirjastamiseks</string>
     <string name="signature_update_mobile_id_phone_no">Riigikood ja telefoninumber</string>

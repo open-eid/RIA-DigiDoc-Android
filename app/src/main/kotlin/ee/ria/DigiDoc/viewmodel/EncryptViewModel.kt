@@ -69,11 +69,11 @@ class EncryptViewModel
             ) && isDataFilesInContainer(cryptoContainer)
         }
 
-        fun isSignButtonShown(cryptoContainer: CryptoContainer?): Boolean =
-            isEncryptedContainer(cryptoContainer) // TODO: Additional logic to show / hide sign
+        fun isSignButtonShown(cryptoContainer: CryptoContainer?): Boolean = isEncryptedContainer(cryptoContainer)
 
-        fun isDecryptButtonShown(cryptoContainer: CryptoContainer?): Boolean =
-            isEncryptedContainer(cryptoContainer) // TODO: Additional logic to show / hide decrypt
+        fun isDecryptButtonShown(cryptoContainer: CryptoContainer?): Boolean = isEncryptedContainer(cryptoContainer)
+
+        fun isEncryptButtonShown(cryptoContainer: CryptoContainer?): Boolean = isDecryptedContainer(cryptoContainer)
 
         fun getViewIntent(
             context: Context,
