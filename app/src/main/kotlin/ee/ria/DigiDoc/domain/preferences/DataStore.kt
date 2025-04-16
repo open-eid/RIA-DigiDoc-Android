@@ -340,6 +340,83 @@ class DataStore
             }
         }
 
+        fun getUseOnlineEncryption(defaultValue: Boolean): Boolean {
+            return preferences.getBoolean(
+                resources.getString(ee.ria.DigiDoc.cryptolib.R.string.crypto_settings_use_cdoc2_online_encryption),
+                defaultValue,
+            )
+        }
+
+        fun setUseOnlineEncryption(useOnlineEncryption: Boolean) {
+            preferences.edit {
+                putBoolean(
+                    resources.getString(ee.ria.DigiDoc.cryptolib.R.string.crypto_settings_use_cdoc2_online_encryption),
+                    useOnlineEncryption,
+                )
+            }
+        }
+
+        fun getCDOC2SelectedService(defaultValue: String): String {
+            return preferences.getString(
+                resources.getString(ee.ria.DigiDoc.cryptolib.R.string.crypto_settings_use_cdoc2_selected_service),
+                defaultValue,
+            ) ?: defaultValue
+        }
+
+        fun setCDOC2SelectedService(selectedService: String) {
+            preferences.edit {
+                putString(
+                    resources.getString(ee.ria.DigiDoc.cryptolib.R.string.crypto_settings_use_cdoc2_selected_service),
+                    selectedService,
+                )
+            }
+        }
+
+        fun getCDOC2UUID(defaultValue: String): String {
+            return preferences.getString(
+                resources.getString(ee.ria.DigiDoc.cryptolib.R.string.crypto_settings_use_cdoc2_uuid),
+                defaultValue,
+            ) ?: defaultValue
+        }
+
+        fun setCDOC2UUID(uuid: String) {
+            preferences.edit {
+                putString(resources.getString(ee.ria.DigiDoc.cryptolib.R.string.crypto_settings_use_cdoc2_uuid), uuid)
+            }
+        }
+
+        fun getCDOC2PostURL(defaultValue: String): String {
+            return preferences.getString(
+                resources.getString(ee.ria.DigiDoc.cryptolib.R.string.crypto_settings_use_cdoc2_post_url),
+                defaultValue,
+            ) ?: defaultValue
+        }
+
+        fun setCDOC2PostURL(postUrl: String) {
+            preferences.edit {
+                putString(
+                    resources.getString(ee.ria.DigiDoc.cryptolib.R.string.crypto_settings_use_cdoc2_post_url),
+                    postUrl,
+                )
+            }
+        }
+
+        fun getCDOC2FetchURL(defaultValue: String): String {
+            return preferences.getString(
+                resources.getString(ee.ria.DigiDoc.cryptolib.R.string.crypto_settings_use_cdoc2_fetch_url),
+                defaultValue,
+            ) ?: defaultValue
+        }
+
+        fun setCDOC2FetchURL(fetchUrl: String) {
+            preferences.edit {
+                putString(
+                    resources.getString(ee.ria.DigiDoc.cryptolib.R.string.crypto_settings_use_cdoc2_fetch_url),
+                    fetchUrl,
+                )
+            }
+        }
+
         fun setCdocSetting(cdocSetting: CDOCSetting) {
             if (cdocSetting == CDOCSetting.CDOC2) {
                 setUseEncryption(true)

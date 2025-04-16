@@ -74,6 +74,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.toSize
 import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider.CDOC2Conf
 import ee.ria.DigiDoc.domain.model.settings.CDOCSetting
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
@@ -87,6 +88,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSBorder
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
+import ee.ria.DigiDoc.utils.Constant.Defaults.DEFAULT_UUID_VALUE
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
@@ -123,18 +125,80 @@ fun EncryptionServicesSettingsScreen(
     val getCdocSetting = sharedSettingsViewModel.dataStore::getCdocSetting
     val setCdocSetting = sharedSettingsViewModel.dataStore::setCdocSetting
 
-    val useKeyTransfer = rememberSaveable { mutableStateOf(false) }
+    val getUseOnlineEncryption = sharedSettingsViewModel.dataStore::getUseOnlineEncryption
+    val setUseOnlineEncryption = sharedSettingsViewModel.dataStore::setUseOnlineEncryption
+
+    val getCDOC2SelectedService = sharedSettingsViewModel.dataStore::getCDOC2SelectedService
+    val setCDOC2SelectedService = sharedSettingsViewModel.dataStore::setCDOC2SelectedService
+
+    val getCDOC2UUID = sharedSettingsViewModel.dataStore::getCDOC2UUID
+    val setCDOC2UUID = sharedSettingsViewModel.dataStore::setCDOC2UUID
+
+    val getCDOC2FetchURL = sharedSettingsViewModel.dataStore::getCDOC2FetchURL
+    val setCDOC2FetchURL = sharedSettingsViewModel.dataStore::setCDOC2FetchURL
+
+    val getCDOC2PostURL = sharedSettingsViewModel.dataStore::getCDOC2PostURL
+    val setCDOC2PostURL = sharedSettingsViewModel.dataStore::setCDOC2PostURL
+
+    val cdoc2UseKeyServerDefault = configuration?.cdoc2UseKeyServer ?: false
+    val cdoc2DefaultKeyServer = configuration?.cdoc2DefaultKeyServer ?: DEFAULT_UUID_VALUE
+    val useKeyTransfer = rememberSaveable { mutableStateOf(getUseOnlineEncryption(cdoc2UseKeyServerDefault)) }
     val useDefaultKeyTransferServer = rememberSaveable { mutableStateOf(true) }
 
     var settingsCdocServiceChoice = remember { mutableStateOf(getCdocSetting().name) }
-    var settingsCdocNameChoice = remember { mutableIntStateOf(R.string.option_ria) }
+
+    val cdoc2Conf = configuration?.cdoc2Conf ?: emptyMap()
+
+    val settingsCDOC2SelectedService =
+        rememberSaveable { mutableStateOf(getCDOC2SelectedService(cdoc2DefaultKeyServer)) }
+
+    val selectedCdoc2Conf =
+        cdoc2Conf[settingsCDOC2SelectedService.value] ?: CDOC2Conf(
+            name = stringResource(R.string.option_ria),
+            post = "https://cdoc2.id.ee:8443",
+            fetch = "https://cdoc2.id.ee:8444",
+        )
+
+    val settingsCDOC2UUID = rememberSaveable { mutableStateOf(getCDOC2UUID(settingsCDOC2SelectedService.value)) }
+    val settingsCDOC2FetchURL = rememberSaveable { mutableStateOf(getCDOC2FetchURL(selectedCdoc2Conf.fetch)) }
+    val settingsCDOC2PostURL = rememberSaveable { mutableStateOf(getCDOC2PostURL(selectedCdoc2Conf.post)) }
+
+    var settingsCdocNameChoice = rememberSaveable { mutableStateOf(selectedCdoc2Conf.name) }
 
     val manualKeyTransferText = stringResource(R.string.option_manual_key_transfer)
+
+    val nameChoices = arrayListOf<String>()
+
+    var index = 0
+    var settingsCdocNameChoiceInt = rememberSaveable { mutableIntStateOf(0) }
+
+    for ((_, value) in cdoc2Conf) {
+        nameChoices.add(value.name)
+        if (value.name == settingsCdocNameChoice.value) {
+            settingsCdocNameChoiceInt.intValue = index
+        }
+
+        index++
+    }
+    nameChoices.add(manualKeyTransferText)
+    val customDefaultCDOC2UUID = "00000000-0000-0000-0000-000000000002"
+    val customDefaultCDOC2FetchUrl = "https://cdoc2-keyserver-get"
+    val customDefaultCDOC2PostUrl = "https://cdoc2-keyserver-post"
+
+    if (getCDOC2UUID(customDefaultCDOC2UUID) != cdoc2DefaultKeyServer) {
+        settingsCdocNameChoiceInt.intValue = index
+        useDefaultKeyTransferServer.value = false
+    }
 
     var uuidText by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
             TextFieldValue(
-                text = "",
+                text =
+                    if (nameChoices[settingsCdocNameChoiceInt.intValue] == manualKeyTransferText) {
+                        getCDOC2UUID(customDefaultCDOC2UUID)
+                    } else {
+                        settingsCDOC2UUID.value
+                    },
                 selection = TextRange.Zero,
             ),
         )
@@ -143,7 +207,12 @@ fun EncryptionServicesSettingsScreen(
     var fetchUrlText by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
             TextFieldValue(
-                text = "",
+                text =
+                    if (nameChoices[settingsCdocNameChoiceInt.intValue] == manualKeyTransferText) {
+                        getCDOC2FetchURL(customDefaultCDOC2FetchUrl)
+                    } else {
+                        settingsCDOC2FetchURL.value
+                    },
                 selection = TextRange.Zero,
             ),
         )
@@ -152,10 +221,67 @@ fun EncryptionServicesSettingsScreen(
     var postUrlText by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
             TextFieldValue(
-                text = "",
+                text =
+                    if (nameChoices[settingsCdocNameChoiceInt.intValue] == manualKeyTransferText) {
+                        getCDOC2PostURL(customDefaultCDOC2PostUrl)
+                    } else {
+                        settingsCDOC2PostURL.value
+                    },
                 selection = TextRange.Zero,
             ),
         )
+    }
+
+    val saveParameters = {
+        var valueCDOC2UUID = customDefaultCDOC2UUID
+        var valueCDOC2FetchUrl = customDefaultCDOC2FetchUrl
+        var valueCDOC2PostUrl = customDefaultCDOC2PostUrl
+
+        for ((key, value) in cdoc2Conf) {
+            if (value.name == nameChoices[settingsCdocNameChoiceInt.intValue]) {
+                settingsCdocNameChoice.value = value.name
+                settingsCDOC2SelectedService.value = key
+                valueCDOC2UUID = key
+                valueCDOC2FetchUrl = value.fetch
+                valueCDOC2PostUrl = value.post
+            }
+        }
+
+        setCDOC2SelectedService(settingsCDOC2SelectedService.value)
+        setCDOC2UUID(valueCDOC2UUID)
+        setCDOC2FetchURL(valueCDOC2FetchUrl)
+        setCDOC2PostURL(valueCDOC2PostUrl)
+
+        uuidText =
+            TextFieldValue(
+                text =
+                    if (nameChoices[settingsCdocNameChoiceInt.intValue] == manualKeyTransferText) {
+                        getCDOC2UUID(customDefaultCDOC2UUID)
+                    } else {
+                        settingsCDOC2UUID.value
+                    },
+                selection = TextRange.Zero,
+            )
+        fetchUrlText =
+            TextFieldValue(
+                text =
+                    if (nameChoices[settingsCdocNameChoiceInt.intValue] == manualKeyTransferText) {
+                        getCDOC2FetchURL(customDefaultCDOC2FetchUrl)
+                    } else {
+                        settingsCDOC2FetchURL.value
+                    },
+                selection = TextRange.Zero,
+            )
+        postUrlText =
+            TextFieldValue(
+                text =
+                    if (nameChoices[settingsCdocNameChoiceInt.intValue] == manualKeyTransferText) {
+                        getCDOC2PostURL(customDefaultCDOC2PostUrl)
+                    } else {
+                        settingsCDOC2PostURL.value
+                    },
+                selection = TextRange.Zero,
+            )
     }
 
     val filePicker =
@@ -181,7 +307,6 @@ fun EncryptionServicesSettingsScreen(
     val addCertificateButtonText = stringResource(R.string.main_settings_timestamp_cert_add_certificate_button)
     val noCertificateFoundText = stringResource(R.string.main_settings_timestamp_cert_no_certificate_found)
 
-    val optionManualKeyTransfer = stringResource(R.string.option_manual_key_transfer)
     val clearButtonText = stringResource(R.string.clear_text)
     val buttonName = stringResource(id = R.string.button_name)
 
@@ -189,12 +314,6 @@ fun EncryptionServicesSettingsScreen(
     var textFieldSize by remember { mutableStateOf(Size.Zero) }
     val interactionSource = remember { MutableInteractionSource() }
     val focusRequester = remember { FocusRequester() }
-
-    val nameChoices =
-        listOf(
-            stringResource(R.string.option_ria),
-            stringResource(R.string.option_manual_key_transfer),
-        )
 
     LaunchedEffect(messages) {
         messages.forEach { message ->
@@ -351,6 +470,8 @@ fun EncryptionServicesSettingsScreen(
                             checked = useKeyTransfer.value,
                             onCheckedChange = {
                                 useKeyTransfer.value = it
+                                setUseOnlineEncryption(it)
+                                saveParameters()
                             },
                             title = manualKeyTransferText,
                             contentDescription = manualKeyTransferText,
@@ -370,7 +491,7 @@ fun EncryptionServicesSettingsScreen(
                                     label = {
                                         Text("Name")
                                     },
-                                    value = stringResource(settingsCdocNameChoice.intValue),
+                                    value = nameChoices[settingsCdocNameChoiceInt.intValue],
                                     onValueChange = {},
                                     readOnly = true,
                                     singleLine = true,
@@ -436,14 +557,15 @@ fun EncryptionServicesSettingsScreen(
                                                 modifier = modifier,
                                                 title = R.string.choose_name_option,
                                                 choices = nameChoices,
-                                                selectedChoice = settingsCdocNameChoice.intValue,
+                                                selectedChoice = settingsCdocNameChoiceInt.intValue,
                                                 cancelButtonClick = {
                                                     openOptionChooserDialog = false
                                                 },
-                                                okButtonClick = { selectedResId ->
-                                                    settingsCdocNameChoice.intValue = selectedResId
+                                                okButtonClick = { selectedIndex ->
+                                                    settingsCdocNameChoiceInt.intValue = selectedIndex
                                                     useDefaultKeyTransferServer.value =
-                                                        selectedResId == R.string.option_ria
+                                                        nameChoices[selectedIndex] == settingsCdocNameChoice.value
+                                                    saveParameters()
                                                     openOptionChooserDialog = false
                                                 },
                                             )
@@ -471,6 +593,7 @@ fun EncryptionServicesSettingsScreen(
                                     singleLine = true,
                                     onValueChange = {
                                         uuidText = it.copy(selection = TextRange(it.text.length))
+                                        setCDOC2UUID(it.text)
                                     },
                                     shape = RectangleShape,
                                     label = { Text("UUID") },
@@ -542,6 +665,7 @@ fun EncryptionServicesSettingsScreen(
                                     onValueChange = {
                                         fetchUrlText =
                                             it.copy(selection = TextRange(it.text.length))
+                                        setCDOC2FetchURL(it.text)
                                     },
                                     shape = RectangleShape,
                                     label = { Text("Fetch URL") },
@@ -612,6 +736,7 @@ fun EncryptionServicesSettingsScreen(
                                     singleLine = true,
                                     onValueChange = {
                                         postUrlText = it.copy(selection = TextRange(it.text.length))
+                                        setCDOC2PostURL(it.text)
                                     },
                                     shape = RectangleShape,
                                     label = { Text("Post URL") },
@@ -663,71 +788,75 @@ fun EncryptionServicesSettingsScreen(
                                     }
                                 }
                             }
-
-                            Spacer(modifier = modifier.height(SPadding))
-
-                            Text(
-                                modifier =
-                                    modifier
-                                        .fillMaxWidth()
-                                        .semantics {
-                                            heading()
-                                        },
-                                text = "Key transfer server SSL certificate",
-                                style = MaterialTheme.typography.bodyLarge,
-                            )
-
-                            Text(
-                                modifier = modifier.fillMaxWidth(),
-                                text = "$issuedToTitleText placeholder",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-
-                            Text(
-                                modifier = modifier.fillMaxWidth(),
-                                text = "$validToTitleText placeholder",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-
-                            Spacer(modifier = modifier.height(SPadding))
-
-                            FlowRow(
-                                modifier = modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End,
-                                verticalArrangement = Arrangement.Center,
+                            if (settingsCdocServiceChoice.value == CDOCSetting.CDOC2.name &&
+                                useKeyTransfer.value &&
+                                !useDefaultKeyTransferServer.value
                             ) {
-                                TextButton(onClick = {}) {
-                                    Text(
-                                        modifier =
-                                            modifier
-                                                .semantics {
-                                                    contentDescription =
-                                                        "$showCertificateButtonText $buttonName"
-                                                    testTagsAsResourceId = true
-                                                }
-                                                .testTag("encryptionServicesShowCertificateActionButton"),
-                                        text = showCertificateButtonText,
-                                        color = MaterialTheme.colorScheme.primary,
-                                    )
-                                }
+                                Spacer(modifier = modifier.height(SPadding))
 
-                                TextButton(onClick = {
-                                    filePicker.launch("*/*")
-                                }) {
-                                    Text(
-                                        modifier =
-                                            modifier
-                                                .semantics {
-                                                    contentDescription =
-                                                        "$addCertificateButtonText $buttonName"
-                                                    testTagsAsResourceId = true
-                                                }
-                                                .testTag("encryptionServicesAddCertificateActionButton"),
-                                        text = addCertificateButtonText,
-                                        color = MaterialTheme.colorScheme.primary,
-                                    )
+                                Text(
+                                    modifier =
+                                        modifier
+                                            .fillMaxWidth()
+                                            .semantics {
+                                                heading()
+                                            },
+                                    text = "Key transfer server SSL certificate",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                )
+
+                                Text(
+                                    modifier = modifier.fillMaxWidth(),
+                                    text = "$issuedToTitleText placeholder",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+
+                                Text(
+                                    modifier = modifier.fillMaxWidth(),
+                                    text = "$validToTitleText placeholder",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+
+                                Spacer(modifier = modifier.height(SPadding))
+
+                                FlowRow(
+                                    modifier = modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.End,
+                                    verticalArrangement = Arrangement.Center,
+                                ) {
+                                    TextButton(onClick = {}) {
+                                        Text(
+                                            modifier =
+                                                modifier
+                                                    .semantics {
+                                                        contentDescription =
+                                                            "$showCertificateButtonText $buttonName"
+                                                        testTagsAsResourceId = true
+                                                    }
+                                                    .testTag("encryptionServicesShowCertificateActionButton"),
+                                            text = showCertificateButtonText,
+                                            color = MaterialTheme.colorScheme.primary,
+                                        )
+                                    }
+
+                                    TextButton(onClick = {
+                                        filePicker.launch("*/*")
+                                    }) {
+                                        Text(
+                                            modifier =
+                                                modifier
+                                                    .semantics {
+                                                        contentDescription =
+                                                            "$addCertificateButtonText $buttonName"
+                                                        testTagsAsResourceId = true
+                                                    }
+                                                    .testTag("encryptionServicesAddCertificateActionButton"),
+                                            text = addCertificateButtonText,
+                                            color = MaterialTheme.colorScheme.primary,
+                                        )
+                                    }
                                 }
                             }
                         }

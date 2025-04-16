@@ -11,9 +11,9 @@ import javax.inject.Inject
 
 class CDOC2Settings
     @Inject
-    constructor(private var context: Context) {
-        private val logTag = javaClass.simpleName
-
+    constructor(
+        context: Context,
+    ) {
         private var preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         private var resources: Resources = context.resources
 
@@ -93,7 +93,7 @@ class CDOC2Settings
 
         fun getCDOC2FetchURL(): String {
             return preferences.getString(
-                resources.getString(R.string.crypto_settings_use_cdoc2_post_url),
+                resources.getString(R.string.crypto_settings_use_cdoc2_fetch_url),
                 "",
             ) ?: ""
         }
@@ -101,7 +101,7 @@ class CDOC2Settings
         fun setCDOC2FetchURL(fetchUrl: String) {
             preferences.edit {
                 putString(
-                    resources.getString(R.string.crypto_settings_use_cdoc2_post_url),
+                    resources.getString(R.string.crypto_settings_use_cdoc2_fetch_url),
                     fetchUrl,
                 )
             }
