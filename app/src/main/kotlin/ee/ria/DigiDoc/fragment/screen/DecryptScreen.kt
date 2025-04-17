@@ -284,20 +284,22 @@ fun DecryptScreen(
                             isDecrypting = false
                             navController.navigateUp()
                         },
-                        isSigning = isDecrypting,
+                        isSigning = false,
                         rememberMe = rememberMe,
                         sharedSettingsViewModel = sharedSettingsViewModel,
                         sharedContainerViewModel = sharedContainerViewModel,
                         isSupported = { supported ->
                             nfcSupported = supported
                         },
-                        isValidToSign = { isValid ->
-                            isValidToDecrypt = isValid
-                        },
+                        isValidToSign = {},
                         signAction = { action ->
-                            decryptAction = action
+                            decryptAction = {
+                                isDecrypting = true
+                                action()
+                            }
                         },
                         cancelAction = { action ->
+                            isDecrypting = false
                             cancelAction = action
                         },
                         isAddingRoleAndAddress = false,

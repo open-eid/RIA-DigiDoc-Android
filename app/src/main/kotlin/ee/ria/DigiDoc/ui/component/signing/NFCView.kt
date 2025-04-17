@@ -179,7 +179,11 @@ fun NFCView(
 
     BackHandler {
         nfcViewModel.handleBackButton()
-        onError()
+        if (isSigning) {
+            onError()
+        } else {
+            onSuccess()
+        }
     }
 
     LaunchedEffect(nfcViewModel.shouldResetPIN2) {
