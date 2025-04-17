@@ -177,6 +177,12 @@
     <string name="crypto_encrypt_recipients_empty_error">Невозможно создать контейнер без получателей</string>
     <string name="crypto_recipients_error_exists">Получатель уже добавлен в контейнер</string>
 
+    <string name="crypto_decrypt_method_title">Выберите способ расшифровки</string>
+    <string name="crypto_decrypt_method_changed">Метод расшифровки изменен</string>
+    <string name="crypto_decrypt_method_selected">Метод расшифровки выбран</string>
+    <string name="crypto_decrypt_title">Расшифровка контейнера</string>
+    <string name="crypto_decrypt_method">Метод расшифровки</string>
+
     <!-- Signature Add -->
     <string name="signature_update_title">Подписание контейнера</string>
     <string name="signature_update_name_update_name">Название контейнера</string>
@@ -216,7 +222,7 @@
     <string name="signature_update_signature_role_and_address_info_title">Введите свою роль и адрес</string>
 
     <string name="signature_update_remember_me">Запомни меня</string>
-    <string name="signature_update_remember_me_message">При следующем подписании будет выбран метод и заполнены поля данных</string>
+    <string name="signature_update_remember_me_message">При следующем использовании будет выбран метод и заполнены поля данных</string>
 
     <string name="signature_update_mobile_id_message">Введите свой телефонный номер и личный код для подписания с помощью mobiil-ID</string>
     <string name="signature_update_mobile_id_phone_no">Код страны и телефонный номер</string>

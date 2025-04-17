@@ -87,7 +87,7 @@ class NFCViewModel
         }
 
         fun resetShouldResetPIN2() {
-            _shouldResetPIN2.postValue(null)
+            _shouldResetPIN2.postValue(false)
         }
 
         fun shouldShowCANNumberError(canNumber: String?): Boolean {

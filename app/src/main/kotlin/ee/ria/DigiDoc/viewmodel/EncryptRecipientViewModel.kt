@@ -144,6 +144,7 @@ class EncryptRecipientViewModel
         }
 
         fun onQueryTextChange(text: String) {
+            _queryText.value = ""
             _queryText.value = text
         }
     }

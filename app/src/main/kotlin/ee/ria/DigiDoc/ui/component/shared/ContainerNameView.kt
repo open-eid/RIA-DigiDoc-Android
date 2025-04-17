@@ -61,8 +61,8 @@ fun ContainerNameView(
     modifier: Modifier = Modifier,
     @DrawableRes icon: Int,
     name: String,
-    showSignButton: Boolean,
-    showEncryptButton: Boolean,
+    showLeftActionButton: Boolean,
+    showRightActionButton: Boolean,
     @StringRes leftActionButtonName: Int,
     @StringRes rightActionButtonName: Int,
     @StringRes leftActionButtonContentDescription: Int,
@@ -177,7 +177,7 @@ fun ContainerNameView(
                 }
             }
 
-            if (showSignButton || showEncryptButton) {
+            if (showLeftActionButton || showRightActionButton) {
                 Spacer(modifier = modifier.height(SPadding))
 
                 FlowRow(
@@ -185,7 +185,7 @@ fun ContainerNameView(
                     horizontalArrangement = Arrangement.End,
                     verticalArrangement = Arrangement.Center,
                 ) {
-                    if (showSignButton) {
+                    if (showLeftActionButton) {
                         TextButton(onClick = onLeftActionButtonClick) {
                             Text(
                                 modifier =
@@ -201,7 +201,7 @@ fun ContainerNameView(
                             )
                         }
                     }
-                    if (showEncryptButton) {
+                    if (showRightActionButton) {
                         TextButton(onClick = onRightActionButtonClick) {
                             Text(
                                 modifier =
@@ -231,8 +231,8 @@ fun SignedContainerNameViewPreview() {
         ContainerNameView(
             icon = R.drawable.ic_m3_stylus_note_48dp_wght400,
             name = "Signed container.asice",
-            showSignButton = true,
-            showEncryptButton = true,
+            showLeftActionButton = true,
+            showRightActionButton = true,
             leftActionButtonName = R.string.signature_update_signature_add,
             rightActionButtonName = R.string.encrypt_button,
             leftActionButtonContentDescription = R.string.signature_update_signature_add,

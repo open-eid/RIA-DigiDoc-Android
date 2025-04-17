@@ -2,34 +2,23 @@
 
 package ee.ria.DigiDoc.cryptolib
 
+import ee.ria.DigiDoc.idcard.CertificateType
+import ee.ria.DigiDoc.idcard.Token
 import ee.ria.cdoc.CDoc
 import ee.ria.cdoc.CryptoBackend
 import ee.ria.cdoc.DataBuffer
 
-interface AbstractSmartToken {
-    @Throws(Exception::class)
-    fun getCertificate(): ByteArray
-
-    @Throws(Exception::class)
-    fun derive(publicKey: ByteArray): ByteArray
-
-    @Throws(Exception::class)
-    fun decrypt(data: ByteArray): ByteArray
-
-    @Throws(Exception::class)
-    fun authenticate(digest: ByteArray): ByteArray
-}
-
 class SmartCardTokenWrapper(
-    private val smartToken: AbstractSmartToken,
-) {
+    private val pin: ByteArray,
+    private val smartToken: Token,
+) : CryptoBackend() {
     private var lastError: Throwable? = null
 
     fun getLastError(): Throwable? = lastError
 
     fun cert(): ByteArray {
         return try {
-            smartToken.getCertificate().also {
+            smartToken.certificate(CertificateType.AUTHENTICATION).also {
                 lastError = null
             }
         } catch (e: Exception) {
@@ -38,65 +27,65 @@ class SmartCardTokenWrapper(
         }
     }
 
-    fun deriveECDH1(
+    override fun deriveECDH1(
         dst: DataBuffer,
         publicKey: ByteArray,
         idx: Int,
-    ): Int {
+    ): Long {
         var data = byteArrayOf()
         try {
-            data = smartToken.derive(publicKey)
+            data = smartToken.decrypt(pin, publicKey, true)
             dst.data = data
         } catch (e: Exception) {
             lastError = e
         }
 
         return if (data.isNotEmpty()) {
-            CDoc.OK
+            CDoc.OK.toLong()
         } else {
-            CDoc.CRYPTO_ERROR
+            CDoc.CRYPTO_ERROR.toLong()
         }
     }
 
-    fun decryptRSA(
+    override fun decryptRSA(
         dst: DataBuffer,
         data: ByteArray,
         oaep: Boolean,
         idx: Int,
-    ): Int {
+    ): Long {
         var decryptedData = byteArrayOf()
         try {
-            decryptedData = smartToken.decrypt(data)
+            decryptedData = smartToken.decrypt(pin, data, true)
             dst.data = decryptedData
         } catch (e: Exception) {
             lastError = e
         }
 
         return if (decryptedData.isNotEmpty()) {
-            CDoc.OK
+            CDoc.OK.toLong()
         } else {
-            CDoc.CRYPTO_ERROR
+            CDoc.CRYPTO_ERROR.toLong()
         }
     }
 
-    fun sign(
+    override fun sign(
         dst: DataBuffer,
-        algorithm: CryptoBackend.HashAlgorithm,
+        algorithm: HashAlgorithm,
         digest: ByteArray,
         idx: Int,
-    ): Int {
+    ): Long {
         var data = byteArrayOf()
         try {
-            data = smartToken.authenticate(digest)
+            data = smartToken.authenticate(pin, digest)
             dst.data = data
         } catch (e: Exception) {
             lastError = e
         }
 
         return if (data.isNotEmpty()) {
-            CDoc.OK
+            CDoc.OK.toLong()
         } else {
-            CDoc.CRYPTO_ERROR
+            CDoc.CRYPTO_ERROR.toLong()
         }
     }
 }

@@ -21,9 +21,12 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 fun CryptoNextBottomBar(
     modifier: Modifier,
     isNoRecipientContainer: Boolean,
+    isShareButtonShown: Boolean,
+    encryptionButtonEnabled: Boolean,
     onNextClick: () -> Unit = {},
     onShareClick: () -> Unit = {},
     onAddMoreFiles: () -> Unit = {},
+    onEncryptClick: () -> Unit = {},
 ) {
     Column(
         modifier =
@@ -45,13 +48,19 @@ fun CryptoNextBottomBar(
                 rightButtonIcon = R.drawable.ic_m3_arrow_forward_48dp_wght400,
                 onRightButtonClick = onNextClick,
             )
-        } else {
+        } else if (isShareButtonShown) {
             ShareButtonBottomBar(
                 modifier = modifier,
                 shareButtonIcon = R.drawable.ic_m3_ios_share_48dp_wght400,
                 shareButtonName = R.string.share_button,
                 shareButtonContentDescription = R.string.share_button_accessibility,
                 onShareButtonClick = onShareClick,
+            )
+        } else {
+            EncryptBottomBar(
+                modifier = modifier,
+                isEncryptButtonEnabled = encryptionButtonEnabled,
+                onEncryptClick = onEncryptClick,
             )
         }
     }
@@ -62,19 +71,27 @@ fun CryptoNextBottomBar(
 @Composable
 fun CryptoNextBottomBarPreview() {
     RIADigiDocTheme {
-        CryptoNextBottomBar(
-            modifier = Modifier,
-            isNoRecipientContainer = true,
-        )
+        Column {
+            CryptoNextBottomBar(
+                modifier = Modifier,
+                isNoRecipientContainer = true,
+                isShareButtonShown = false,
+                encryptionButtonEnabled = true,
+            )
 
-        CryptoNextBottomBar(
-            modifier = Modifier,
-            isNoRecipientContainer = false,
-        )
+            CryptoNextBottomBar(
+                modifier = Modifier,
+                isNoRecipientContainer = false,
+                isShareButtonShown = false,
+                encryptionButtonEnabled = true,
+            )
 
-        CryptoNextBottomBar(
-            modifier = Modifier,
-            isNoRecipientContainer = false,
-        )
+            CryptoNextBottomBar(
+                modifier = Modifier,
+                isNoRecipientContainer = false,
+                isShareButtonShown = true,
+                encryptionButtonEnabled = true,
+            )
+        }
     }
 }

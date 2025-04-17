@@ -742,7 +742,7 @@ fun SigningNavigation(
                             ContainerNameView(
                                 icon = R.drawable.ic_m3_stylus_note_48dp_wght400,
                                 name = signedContainerName,
-                                showSignButton =
+                                showLeftActionButton =
                                     signedContainer?.isSigned() == true &&
                                         signingViewModel.isSignButtonShown(
                                             signedContainer,
@@ -750,7 +750,7 @@ fun SigningNavigation(
                                             isXadesContainer,
                                             isCadesContainer,
                                         ),
-                                showEncryptButton =
+                                showRightActionButton =
                                     signingViewModel.isEncryptButtonShown(
                                         signedContainer,
                                         isNestedContainer,

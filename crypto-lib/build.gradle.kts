@@ -83,4 +83,5 @@ dependencies {
     implementation(project(":config-lib"))
     implementation(project(":commons-lib"))
     implementation(project(":utils-lib"))
+    implementation(project(":id-card-lib"))
 }
