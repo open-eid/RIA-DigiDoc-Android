@@ -220,7 +220,7 @@ fun EncryptNavigation(
             recipientRemovalCancelled,
         )
     }
-
+    val encryptionButtonEnabled = remember { mutableStateOf(true) }
     val openEncryptionDialog = rememberSaveable { mutableStateOf(false) }
     val encryptionCancelled = stringResource(id = R.string.encryption_cancelled)
     val dismissDialog = {
@@ -277,6 +277,17 @@ fun EncryptNavigation(
                     }
                     launchSingleTop = true
                 }
+                showLoadingScreen.value = false
+            }
+        }
+    }
+
+    val onEncryptClick = {
+        if (encryptionButtonEnabled.value) {
+            encryptionButtonEnabled.value = false
+            showLoadingScreen.value = true
+            CoroutineScope(Main).launch {
+                encryptRecipientViewModel.encryptContainer(sharedContainerViewModel)
                 showLoadingScreen.value = false
             }
         }
@@ -343,6 +354,9 @@ fun EncryptNavigation(
 
                     encryptRecipientViewModel.handleIsContainerEncrypted(false)
                     containerEncryptedSuccess.value = false
+
+                    delay(500)
+                    encryptionButtonEnabled.value = true
                 }
             }
         }
@@ -472,7 +486,10 @@ fun EncryptNavigation(
                         Route.CryptoFileChoosing.route,
                     )
                 },
-                isNoRecipientContainer = cryptoContainer?.hasRecipients() == false,
+                isNoRecipientContainer = encryptViewModel.isContainerWithoutRecipients(cryptoContainer),
+                isShareButtonShown = encryptViewModel.isShareButtonShown(cryptoContainer),
+                onEncryptClick = onEncryptClick,
+                encryptionButtonEnabled = encryptionButtonEnabled.value,
             )
         },
     ) { paddingValues ->
@@ -627,11 +644,7 @@ fun EncryptNavigation(
                                         navController.navigate(Route.DecryptScreen.route)
                                         showLoadingScreen.value = false
                                     } else if (encryptViewModel.isContainerLocked(cryptoContainer)) {
-                                        showLoadingScreen.value = true
-                                        CoroutineScope(Main).launch {
-                                            encryptRecipientViewModel.encryptContainer(sharedContainerViewModel)
-                                            showLoadingScreen.value = false
-                                        }
+                                        onEncryptClick()
                                     }
                                 },
                                 onMoreOptionsActionButtonClick = {
