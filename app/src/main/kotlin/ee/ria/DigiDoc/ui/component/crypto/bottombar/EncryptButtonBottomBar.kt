@@ -91,7 +91,7 @@ fun EncryptButtonBottomBar(
             Icon(
                 imageVector = ImageVector.vectorResource(encryptButtonIcon),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface,
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
                 modifier = modifier.size(Dimensions.iconSizeXXS),
             )
             Spacer(modifier = modifier.width(Dimensions.XSPadding))

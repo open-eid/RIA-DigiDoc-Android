@@ -184,7 +184,7 @@ fun NFCView(
 
     LaunchedEffect(nfcViewModel.shouldResetPIN2) {
         nfcViewModel.shouldResetPIN2.asFlow().collect { bool ->
-            bool?.let {
+            bool.let {
                 if (bool) {
                     pin2Code =
                         TextFieldValue(
