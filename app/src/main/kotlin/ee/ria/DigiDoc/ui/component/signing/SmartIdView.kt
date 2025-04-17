@@ -176,7 +176,11 @@ fun SmartIdView(
     val personalCodeWithInvisibleSpaces = TextFieldValue(addInvisibleElement(personalCode.text))
 
     BackHandler {
-        onError()
+        if (isSigning) {
+            onError()
+        } else {
+            onSuccess()
+        }
     }
 
     LaunchedEffect(smartIdViewModel.status) {
