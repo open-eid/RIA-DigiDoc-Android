@@ -254,11 +254,11 @@ fun DecryptScreen(
                             }
                         },
                         isSigning = false,
+                        isAuthenticating = false,
                         sharedSettingsViewModel = sharedSettingsViewModel,
                         sharedContainerViewModel = sharedContainerViewModel,
-                        isValidToSign = { isValid ->
-                            isValidToDecrypt = isValid
-                        },
+                        isValidToSign = {},
+                        isValidToAuthenticate = {},
                         signAction = { action ->
                             decryptAction = {
                                 isDecrypting = true
