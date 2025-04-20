@@ -60,6 +60,9 @@ class SharedContainerViewModel
         private val _signedIDCardStatus = MutableLiveData<Boolean?>(null)
         val signedIDCardStatus: LiveData<Boolean?> = _signedIDCardStatus
 
+        private val _decryptNFCStatus = MutableLiveData<Boolean?>(null)
+        val decryptNFCStatus: LiveData<Boolean?> = _decryptNFCStatus
+
         private val _externalFileUris = MutableStateFlow<List<Uri>>(listOf())
         val externalFileUris: StateFlow<List<Uri>> = _externalFileUris
 
@@ -76,6 +79,10 @@ class SharedContainerViewModel
 
         fun setSignedNFCStatus(signedStatus: Boolean?) {
             _signedNFCStatus.postValue(signedStatus)
+        }
+
+        fun setDecryptNFCStatus(decryptStatus: Boolean?) {
+            _decryptNFCStatus.postValue(decryptStatus)
         }
 
         fun setSignedIDCardStatus(signedStatus: Boolean?) {

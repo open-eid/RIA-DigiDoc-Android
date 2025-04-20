@@ -54,6 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.domain.model.UseCase
 import ee.ria.DigiDoc.domain.model.crypto.DecryptMethodSetting
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
@@ -97,7 +98,7 @@ fun DecryptScreen(
     val chosenMethodName by remember { mutableIntStateOf(chosenMethod.label) }
     var isValidToDecrypt by remember { mutableStateOf(false) }
     var decryptAction by remember { mutableStateOf<() -> Unit>({}) }
-    var cancelAction by remember { mutableStateOf<() -> Unit>({}) }
+    var cancelDecryptAction by remember { mutableStateOf<() -> Unit>({}) }
 
     val snackBarHostState = remember { SnackbarHostState() }
     val snackBarScope = rememberCoroutineScope()
@@ -138,7 +139,7 @@ fun DecryptScreen(
                     },
                 onLeftButtonClick = {
                     if (isDecrypting) {
-                        cancelAction()
+                        cancelDecryptAction()
                         isDecrypting = false
                     } else {
                         navController.navigateUp()
@@ -242,7 +243,7 @@ fun DecryptScreen(
                         onError = {
                             isDecrypting = false
                             isIdCardProcessStarted = false
-                            cancelAction()
+                            cancelDecryptAction()
                         },
                         onSuccess = {
                             isDecrypting = false
@@ -267,7 +268,7 @@ fun DecryptScreen(
                         },
                         cancelAction = { action ->
                             isDecrypting = false
-                            cancelAction = action
+                            cancelDecryptAction = action
                         },
                         isAddingRoleAndAddress = false,
                     )
@@ -278,29 +279,29 @@ fun DecryptScreen(
                         activity = context,
                         onError = {
                             isDecrypting = false
-                            cancelAction()
+                            cancelDecryptAction()
                         },
                         onSuccess = {
                             isDecrypting = false
                             navController.navigateUp()
                         },
+                        useCase = UseCase.DECRYPT,
                         isSigning = false,
+                        isDecrypting = isDecrypting,
                         rememberMe = rememberMe,
                         sharedSettingsViewModel = sharedSettingsViewModel,
                         sharedContainerViewModel = sharedContainerViewModel,
                         isSupported = { supported ->
                             nfcSupported = supported
                         },
-                        isValidToSign = {},
-                        signAction = { action ->
-                            decryptAction = {
-                                isDecrypting = true
-                                action()
-                            }
+                        isValidToDecrypt = { isValid ->
+                            isValidToDecrypt = isValid
                         },
-                        cancelAction = { action ->
-                            isDecrypting = false
-                            cancelAction = action
+                        decryptAction = { action ->
+                            decryptAction = action
+                        },
+                        cancelDecryptAction = { action ->
+                            cancelDecryptAction = action
                         },
                         isAddingRoleAndAddress = false,
                     )
@@ -330,17 +331,10 @@ fun DecryptScreen(
 
                 Button(
                     onClick = {
-                        // TODO: Implement decryption logic
-
-                        /*isDecrypting = true
-                        decryptAction()*/
-
-                        navController.navigate(
-                            Route.Encrypt.route,
-                        )
+                        isDecrypting = true
+                        decryptAction()
                     },
-                    // isValidToDecrypt
-                    enabled = true,
+                    enabled = isValidToDecrypt,
                     modifier =
                         modifier
                             .fillMaxWidth(),

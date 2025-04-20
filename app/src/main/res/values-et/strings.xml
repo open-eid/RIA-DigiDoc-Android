@@ -147,6 +147,7 @@
 
     <!-- Encrypt -->
     <string name="crypto_create_success">Ümbrik edukalt krüpteeritud!</string>
+    <string name="crypto_decrypt_success">Ümbrik edukalt dekrüpteeritud!</string>
     <string name="crypto_create_encrypt">Krüpteeri</string>
     <string name="crypto_files_encrypted">Failide nägemiseks vali «Dekrüpteeri», et tuvastada isik ja dekrüpteerida ümbriku sisu.</string>
     <string name="crypto_empty_file_message">Ümbrikule on lisatud tühi fail. Krüpteerimiseks eemalda ümbrikust tühi fail.</string>
@@ -182,6 +183,7 @@
     <string name="crypto_decrypt_method_selected">Dekrüpteerimise meetod valitud</string>
     <string name="crypto_decrypt_title">Ümbriku dekrüpteerimine</string>
     <string name="crypto_decrypt_method">Dekrüpteerimise meetod</string>
+    <string name="crypto_decrypt_nfc_pin1">PIN1 kood</string>
 
     <!-- Signature Add -->
     <string name="signature_update_title">Ümbriku allkirjastamine</string>
@@ -309,9 +311,9 @@
     <string name="signature_update_mobile_id_error_simultaneous_requests_limit_exceeded">Samaaegsete pöördumiste limiit ületatud</string>
     <string name="signature_update_mobile_id_error_technical_error">Päringu saatmine ebaõnnestus. Mobiil-ID teenuses esinevad tehnilised tõrked. Palun proovige mõne aja pärast uuesti.</string>
 
-    <string name="signature_update_id_card_sign_pin2_invalid">Vale PIN2. Saad PIN2-koodi sisestada veel %1$d korda.</string>
-    <string name="signature_update_id_card_sign_pin2_invalid_final">Vale PIN2. Järgmise vale sisestusega lukustub PIN.</string>
-    <string name="signature_update_id_card_sign_pin2_locked">PIN2 on lukus. Mine Minu eID, et avada.</string>
+    <string name="signature_update_id_card_sign_pin2_invalid">Vale %s. Saad PIN2-koodi sisestada veel %1$d korda.</string>
+    <string name="signature_update_id_card_sign_pin2_invalid_final">Vale %s. Järgmise vale sisestusega lukustub PIN.</string>
+    <string name="signature_update_id_card_sign_pin2_locked">%s on lukus. Mine Minu eID, et avada.</string>
 
     <string name="nfc_sign_can_invalid_length">Ligipääsu number (CAN) peab olema %1$s-kohaline</string>
     <string name="nfc_sign_can_location">6-kohaline number asub dokumendil foto all</string>

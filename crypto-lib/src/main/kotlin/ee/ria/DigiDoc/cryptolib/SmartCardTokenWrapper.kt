@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.cryptolib
 
-import ee.ria.DigiDoc.idcard.CertificateType
 import ee.ria.DigiDoc.idcard.Token
 import ee.ria.cdoc.CDoc
 import ee.ria.cdoc.CryptoBackend
@@ -15,17 +14,6 @@ class SmartCardTokenWrapper(
     private var lastError: Throwable? = null
 
     fun getLastError(): Throwable? = lastError
-
-    fun cert(): ByteArray {
-        return try {
-            smartToken.certificate(CertificateType.AUTHENTICATION).also {
-                lastError = null
-            }
-        } catch (e: Exception) {
-            lastError = e
-            byteArrayOf()
-        }
-    }
 
     override fun deriveECDH1(
         dst: DataBuffer,

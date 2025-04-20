@@ -147,6 +147,7 @@
 
     <!-- Encrypt -->
     <string name="crypto_create_success">Контейнер успешно зашифрован!</string>
+    <string name="crypto_decrypt_success">Контейнер успешно расшифрован!</string>
     <string name="crypto_create_encrypt">Зашифровать</string>
     <string name="crypto_files_encrypted">Чтобы просмотреть файлы, выберите «Расшифровать», чтобы идентифицировать получателя и расшифровать содержимое конверта.</string>
     <string name="crypto_empty_file_message">В контейнер добавлен пустой файл. Для шифрования удалите из контейнера пустой файл.</string>
@@ -182,6 +183,7 @@
     <string name="crypto_decrypt_method_selected">Метод расшифровки выбран</string>
     <string name="crypto_decrypt_title">Расшифровка контейнера</string>
     <string name="crypto_decrypt_method">Метод расшифровки</string>
+    <string name="crypto_decrypt_nfc_pin1">PIN1 код</string>
 
     <!-- Signature Add -->
     <string name="signature_update_title">Подписание контейнера</string>
@@ -284,9 +286,9 @@
     <string name="signature_update_mobile_id_error_simultaneous_requests_limit_exceeded">Превышен лимит одновременных запросов</string>
     <string name="signature_update_mobile_id_error_technical_error">Не удалось отправить запрос. Технический сбой услуги mobiil-ID. Пожалуйста, попробуйте позже.</string>
 
-    <string name="signature_update_id_card_sign_pin2_invalid">Неверный PIN2. У Вас осталось %1$d попыток.</string>
-    <string name="signature_update_id_card_sign_pin2_invalid_final">Неверный PIN2. У Вас осталась 1 попытка до блокировки Вашего PIN2.</string>
-    <string name="signature_update_id_card_sign_pin2_locked">PIN2 заблокирован. Зайдите в Мой eID, чтобы разблокировать его.</string>
+    <string name="signature_update_id_card_sign_pin2_invalid">Неверный %s. У Вас осталось %1$d попыток.</string>
+    <string name="signature_update_id_card_sign_pin2_invalid_final">Неверный %s. У Вас осталась 1 попытка до блокировки Вашего PIN2.</string>
+    <string name="signature_update_id_card_sign_pin2_locked">%s заблокирован. Зайдите в Мой eID, чтобы разблокировать его.</string>
 
     <string name="nfc_sign_can_invalid_length">Номер доступа (CAN) должен состоять из %1$s-цифр</string>
     <string name="nfc_sign_can_location">6-значный номер находится под фотографией на документе</string>

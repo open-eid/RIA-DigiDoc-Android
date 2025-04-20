@@ -113,7 +113,7 @@ class CryptoContainer
                     val containerDataFile = dataFiles[i]
                     if (containerDataFile != null) {
                         if (dataFile.name == containerDataFile.name) {
-                            if (file != null) {
+                            if (file != null && !file.exists()) {
                                 containerDataFile.saveAs(file.absolutePath)
                             }
                             return file
@@ -213,9 +213,11 @@ class CryptoContainer
             }
 
             @Throws(CryptoException::class)
-            suspend fun decrypt(
+            fun decrypt(
                 context: Context,
-                file: File,
+                file: File?,
+                recipients: List<Addressee?>?,
+                signerCert: ByteArray?,
                 pin: ByteArray,
                 smartToken: Token,
                 cdoc2Settings: CDOC2Settings,
@@ -224,7 +226,9 @@ class CryptoContainer
                 val conf = CryptoLibConf(cdoc2Settings)
                 val network = CryptoLibNetworkBackend()
                 network.token = token
-                network.cert = token.cert()
+                if (signerCert != null) {
+                    network.cert = signerCert
+                }
 
                 if (network.cert.isEmpty()) {
                     if (token.getLastError() != null) {
@@ -232,9 +236,8 @@ class CryptoContainer
                     }
                 }
                 val dataFiles = ArrayList<File>()
-                val cdocReader = CDocReader.createReader(file.path, conf, token, network)
-                val idx = cdocReader.getLockForCert(network.cert)
-
+                val cdocReader = CDocReader.createReader(file?.path, conf, token, network)
+                val idx = cdocReader.getLockForCert(signerCert)
                 if (idx < 0) {
                     throw CryptoException("Failed to get lock for certificate")
                 }
@@ -248,26 +251,35 @@ class CryptoContainer
                 if (cdocReader.beginDecryption(fmk) != 0L) {
                     throw CryptoException("Failed to begin decryption")
                 }
-                withContext(IO) {
-                    val fi = FileInfo()
-                    var result: Long = cdocReader.nextFile(fi)
-                    try {
-                        while (result == CDoc.OK.toLong()) {
-                            val ofile = File(fi.name)
-                            val ofs: OutputStream = FileOutputStream(ofile.name)
-                            cdocReader.readFile(ofs)
-                            dataFiles.add(ofile)
-                            result = cdocReader.nextFile(fi)
+
+                val fi = FileInfo()
+                var result: Long = cdocReader.nextFile(fi)
+                try {
+                    while (result == CDoc.OK.toLong()) {
+                        val ofile = File(fi.name)
+                        val dir =
+                            ContainerUtil.getContainerDataFilesDir(
+                                context,
+                                file,
+                            )
+                        val fileToSave = sanitizeString(ofile.name, "")?.let { File(dir, it) }
+                        val ofs: OutputStream = FileOutputStream(fileToSave)
+                        cdocReader.readFile(ofs)
+                        if (fileToSave != null) {
+                            dataFiles.add(fileToSave)
+                            ofs.close()
                         }
-                    } catch (exc: IOException) {
-                        throw CryptoException("IO Exception: ${exc.message}", exc)
+                        result = cdocReader.nextFile(fi)
                     }
+                } catch (exc: IOException) {
+                    throw CryptoException("IO Exception: ${exc.message}", exc)
                 }
+
                 if (cdocReader.finishDecryption() != 0L) {
                     throw CryptoException("Failed to finish decryption")
                 }
-                val cryptoContainer = open(context, file)
-                return create(context, file, dataFiles, cryptoContainer.recipients, true, false)
+
+                return create(context, file, dataFiles, recipients, true, false)
             }
 
             @Throws(CryptoException::class)
@@ -429,7 +441,7 @@ class CryptoContainer
                 lateinit var token: SmartCardTokenWrapper
 
                 override fun getClientTLSCertificate(dst: DataBuffer?): Long {
-                    dst?.data = cert
+                    dst?.setData(cert)
                     return CDoc.OK.toLong()
                 }
 

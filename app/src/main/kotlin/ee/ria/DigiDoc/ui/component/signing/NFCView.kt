@@ -75,8 +75,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.NFCConstants.CAN_LENGTH
+import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN1_MIN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN2_MIN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN_MAX_LENGTH
+import ee.ria.DigiDoc.domain.model.UseCase
+import ee.ria.DigiDoc.domain.model.pin.PinChoice
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager.NfcStatus
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
@@ -112,22 +115,28 @@ import java.nio.charset.StandardCharsets
 fun NFCView(
     activity: Activity,
     modifier: Modifier = Modifier,
-    isSigning: Boolean,
+    useCase: UseCase,
+    isSigning: Boolean = false,
+    isDecrypting: Boolean = false,
     onError: () -> Unit = {},
     onSuccess: () -> Unit = {},
-    isAddingRoleAndAddress: Boolean,
-    rememberMe: Boolean,
+    isAddingRoleAndAddress: Boolean = false,
+    rememberMe: Boolean = true,
     nfcViewModel: NFCViewModel = hiltViewModel(),
     sharedSettingsViewModel: SharedSettingsViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
-    isSupported: (Boolean) -> Unit,
-    isValidToSign: (Boolean) -> Unit,
+    isSupported: (Boolean) -> Unit = {},
+    isValidToSign: (Boolean) -> Unit = {},
+    isValidToDecrypt: (Boolean) -> Unit = {},
     signAction: (() -> Unit) -> Unit = {},
+    decryptAction: (() -> Unit) -> Unit = {},
     cancelAction: (() -> Unit) -> Unit = {},
+    cancelDecryptAction: (() -> Unit) -> Unit = {},
 ) {
     val context = LocalContext.current
 
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
+    val cryptoContainer by sharedContainerViewModel.cryptoContainer.asFlow().collectAsState(null)
     var nfcStatus by remember { mutableStateOf(nfcViewModel.getNFCStatus(activity)) }
     var nfcImage by remember { mutableIntStateOf(R.drawable.ic_icon_nfc) }
 
@@ -137,7 +146,12 @@ fun NFCView(
 
     val canNumberLabel = stringResource(id = R.string.signature_update_nfc_can)
     val canNumberLocationText = stringResource(R.string.nfc_sign_can_location)
-    val pin2CodeLabel = stringResource(id = R.string.signature_update_nfc_pin2)
+    val pinCodeLabel =
+        if (useCase == UseCase.SIGN) {
+            stringResource(id = R.string.signature_update_nfc_pin2)
+        } else {
+            stringResource(id = R.string.crypto_decrypt_nfc_pin1)
+        }
 
     var shouldRememberMe by rememberSaveable { mutableStateOf(rememberMe) }
 
@@ -149,7 +163,7 @@ fun NFCView(
             ),
         )
     }
-    var pin2Code by rememberSaveable(stateSaver = textFieldValueSaver) {
+    var pinCode by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
             TextFieldValue(
                 text = "",
@@ -173,34 +187,55 @@ fun NFCView(
 
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     val canNumberFocusRequester = remember { FocusRequester() }
-    val pin2NumberFocusRequester = remember { FocusRequester() }
+    val pinNumberFocusRequester = remember { FocusRequester() }
     val canNumberWithInvisibleSpaces = TextFieldValue(addInvisibleElement(canNumber.text))
-    var pin2WithInvisibleSpaces = TextFieldValue(addInvisibleElement(pin2Code.text))
+    var pinWithInvisibleSpaces = TextFieldValue(addInvisibleElement(pinCode.text))
+
+    val pinType =
+        if (useCase == UseCase.SIGN) {
+            stringResource(id = R.string.signature_id_card_pin2)
+        } else {
+            stringResource(id = R.string.signature_id_card_pin1)
+        }
+
+    val pinMinLength =
+        if (useCase == UseCase.SIGN) {
+            PIN2_MIN_LENGTH
+        } else {
+            PIN1_MIN_LENGTH
+        }
+
+    val pinChoice =
+        if (useCase == UseCase.SIGN) {
+            PinChoice.PIN2
+        } else {
+            PinChoice.PIN1
+        }
 
     BackHandler {
         nfcViewModel.handleBackButton()
-        if (isSigning) {
+        if (isSigning || isDecrypting) {
             onError()
         } else {
             onSuccess()
         }
     }
 
-    LaunchedEffect(nfcViewModel.shouldResetPIN2) {
-        nfcViewModel.shouldResetPIN2.asFlow().collect { bool ->
+    LaunchedEffect(nfcViewModel.shouldResetPIN) {
+        nfcViewModel.shouldResetPIN.asFlow().collect { bool ->
             bool.let {
                 if (bool) {
-                    pin2Code =
+                    pinCode =
                         TextFieldValue(
                             text = "",
                             selection = TextRange.Zero,
                         )
-                    pin2WithInvisibleSpaces =
+                    pinWithInvisibleSpaces =
                         TextFieldValue(
                             text = "",
                             selection = TextRange.Zero,
                         )
-                    nfcViewModel.resetShouldResetPIN2()
+                    nfcViewModel.resetShouldResetPIN()
                 }
             }
         }
@@ -219,6 +254,15 @@ fun NFCView(
             signStatus?.let {
                 sharedContainerViewModel.setSignedNFCStatus(signStatus)
                 nfcViewModel.resetSignStatus()
+            }
+        }
+    }
+
+    LaunchedEffect(nfcViewModel.decryptStatus) {
+        nfcViewModel.decryptStatus.asFlow().collect { decryptStatus ->
+            decryptStatus?.let {
+                sharedContainerViewModel.setDecryptNFCStatus(decryptStatus)
+                nfcViewModel.resetDecryptStatus()
             }
         }
     }
@@ -242,6 +286,16 @@ fun NFCView(
             signedContainer?.let {
                 sharedContainerViewModel.setSignedContainer(it)
                 nfcViewModel.resetSignedContainer()
+                onSuccess()
+            }
+        }
+    }
+
+    LaunchedEffect(nfcViewModel.cryptoContainer) {
+        nfcViewModel.cryptoContainer.asFlow().collect { cryptoContainer ->
+            cryptoContainer?.let {
+                sharedContainerViewModel.setCryptoContainer(it)
+                nfcViewModel.resetCryptoContainer()
                 onSuccess()
             }
         }
@@ -361,6 +415,11 @@ fun NFCView(
                 nfcViewModel = nfcViewModel,
                 onError = onError,
             )
+        } else if (isDecrypting) {
+            NFCSignatureUpdateContainer(
+                nfcViewModel = nfcViewModel,
+                onError = onError,
+            )
         } else {
             LaunchedEffect(Unit, isSupported) {
                 isSupported(nfcStatus != NfcStatus.NFC_NOT_SUPPORTED)
@@ -402,11 +461,16 @@ fun NFCView(
                 val isValid =
                     nfcViewModel.positiveButtonEnabled(
                         canNumber.text,
-                        pin2Code.text.toByteArray(StandardCharsets.UTF_8),
+                        pinCode.text.toByteArray(StandardCharsets.UTF_8),
+                        pinChoice,
                     )
 
                 LaunchedEffect(isValid) {
                     isValidToSign(isValid)
+                }
+
+                LaunchedEffect(isValid) {
+                    isValidToDecrypt(isValid)
                 }
 
                 LaunchedEffect(Unit, rememberMe) {
@@ -441,21 +505,37 @@ fun NFCView(
                                     )
                             }
                             CoroutineScope(IO).launch {
-                                nfcViewModel.performNFCWorkRequest(
+                                nfcViewModel.performNFCSignWorkRequest(
                                     activity = activity,
                                     context = context,
                                     container = signedContainer,
-                                    pin2Code = pin2Code.text.toByteArray(StandardCharsets.UTF_8),
+                                    pin2Code = pinCode.text.toByteArray(StandardCharsets.UTF_8),
                                     canNumber = canNumber.text,
                                     roleData = roleDataRequest,
+                                )
+                            }
+                        }
+                        decryptAction {
+                            saveFormParams()
+                            CoroutineScope(IO).launch {
+                                nfcViewModel.performNFCDecryptWorkRequest(
+                                    activity = activity,
+                                    context = context,
+                                    container = cryptoContainer,
+                                    pin1Code = pinCode.text.toByteArray(StandardCharsets.UTF_8),
+                                    canNumber = canNumber.text,
                                 )
                             }
                         }
                         cancelAction {
                             nfcViewModel.handleBackButton()
                             CoroutineScope(IO).launch {
-                                signedContainer?.let { nfcViewModel.cancelNFCWorkRequest(it) }
+                                signedContainer?.let { nfcViewModel.cancelNFCSignWorkRequest(it) }
                             }
+                        }
+                        cancelDecryptAction {
+                            nfcViewModel.handleBackButton()
+                            nfcViewModel.cancelNFCDecryptWorkRequest()
                         }
                     }
                 }
@@ -519,7 +599,7 @@ fun NFCView(
                                 modifier
                                     .focusRequester(canNumberFocusRequester)
                                     .focusProperties {
-                                        next = pin2NumberFocusRequester
+                                        next = pinNumberFocusRequester
                                     }
                                     .weight(1f)
                                     .semantics(mergeDescendants = true) {
@@ -595,19 +675,19 @@ fun NFCView(
                             color = Red500,
                         )
                     }
-
-                    val pin2CodeTextEdited = rememberSaveable { mutableStateOf(false) }
-                    val pin2CodeErrorText =
-                        if (pin2CodeTextEdited.value && pin2Code.text.isNotEmpty()) {
+                    val pinCodeTextEdited = rememberSaveable { mutableStateOf(false) }
+                    val pinCodeErrorText =
+                        if (pinCodeTextEdited.value && pinCode.text.isNotEmpty()) {
                             if (nfcViewModel
-                                    .shouldShowPIN2CodeError(
-                                        pin2Code.text.toByteArray(StandardCharsets.UTF_8),
+                                    .shouldShowPINCodeError(
+                                        pinCode.text.toByteArray(StandardCharsets.UTF_8),
+                                        pinChoice,
                                     )
                             ) {
                                 String.format(
                                     stringResource(id = R.string.id_card_sign_pin_invalid_length),
-                                    stringResource(id = R.string.signature_id_card_pin2),
-                                    PIN2_MIN_LENGTH.toString(),
+                                    pinType,
+                                    pinMinLength,
                                     PIN_MAX_LENGTH.toString(),
                                 )
                             } else {
@@ -627,21 +707,21 @@ fun NFCView(
                     ) {
                         OutlinedTextField(
                             label = {
-                                Text(text = pin2CodeLabel)
+                                Text(text = pinCodeLabel)
                             },
                             value =
                                 when {
-                                    !isTalkBackEnabled(context) -> pin2Code
+                                    !isTalkBackEnabled(context) -> pinCode
                                     passwordVisible ->
-                                        pin2WithInvisibleSpaces.copy(
-                                            selection = TextRange(pin2WithInvisibleSpaces.text.length),
+                                        pinWithInvisibleSpaces.copy(
+                                            selection = TextRange(pinWithInvisibleSpaces.text.length),
                                         )
-                                    else -> pin2Code
+                                    else -> pinCode
                                 },
                             singleLine = true,
                             modifier =
                                 modifier
-                                    .focusRequester(pin2NumberFocusRequester)
+                                    .focusRequester(pinNumberFocusRequester)
                                     .focusProperties {
                                         previous = canNumberFocusRequester
                                     }
@@ -649,10 +729,10 @@ fun NFCView(
                                     .semantics(mergeDescendants = true) {
                                         testTagsAsResourceId = true
                                     }
-                                    .testTag("nfcPin2TextField"),
+                                    .testTag("nfcPinTextField"),
                             onValueChange = {
-                                pin2Code = it.copy(selection = TextRange(it.text.length))
-                                pin2CodeTextEdited.value = true
+                                pinCode = it.copy(selection = TextRange(it.text.length))
+                                pinCodeTextEdited.value = true
                             },
                             trailingIcon = {
                                 val image =
@@ -673,7 +753,7 @@ fun NFCView(
                                     modifier =
                                         modifier
                                             .semantics { traversalIndex = 9f }
-                                            .testTag("nfcPin2PasswordVisibleButton"),
+                                            .testTag("nfcPinPasswordVisibleButton"),
                                     onClick = { passwordVisible = !passwordVisible },
                                 ) {
                                     Icon(imageVector = image, description)
@@ -682,12 +762,13 @@ fun NFCView(
                             visualTransformation =
                                 if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                             isError =
-                                pin2CodeTextEdited.value &&
+                                pinCodeTextEdited.value &&
                                     nfcViewModel
-                                        .shouldShowPIN2CodeError(
-                                            pin2Code.text.toByteArray(
+                                        .shouldShowPINCodeError(
+                                            pinCode.text.toByteArray(
                                                 StandardCharsets.UTF_8,
                                             ),
+                                            pinChoice,
                                         ),
                             colors =
                                 OutlinedTextFieldDefaults.colors(
@@ -700,12 +781,12 @@ fun NFCView(
                                     keyboardType = KeyboardType.NumberPassword,
                                 ),
                         )
-                        if (isTalkBackEnabled(context) && pin2Code.text.isNotEmpty()) {
+                        if (isTalkBackEnabled(context) && pinCode.text.isNotEmpty()) {
                             IconButton(
                                 modifier =
                                     modifier
                                         .align(Alignment.CenterVertically),
-                                onClick = { pin2Code = TextFieldValue("") },
+                                onClick = { pinCode = TextFieldValue("") },
                             ) {
                                 Icon(
                                     modifier =
@@ -714,7 +795,7 @@ fun NFCView(
                                             .semantics {
                                                 testTagsAsResourceId = true
                                             }
-                                            .testTag("nfcPin2RemoveIconButton"),
+                                            .testTag("nfcPinRemoveIconButton"),
                                     imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                     contentDescription = "$clearButtonText $buttonName",
                                 )
@@ -722,15 +803,15 @@ fun NFCView(
                         }
                     }
 
-                    if (pin2CodeErrorText.isNotEmpty()) {
+                    if (pinCodeErrorText.isNotEmpty()) {
                         Text(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
                                     .focusable(enabled = true)
-                                    .semantics { contentDescription = pin2CodeErrorText }
-                                    .testTag("nfcPin2ErrorText"),
-                            text = pin2CodeErrorText,
+                                    .semantics { contentDescription = pinCodeErrorText }
+                                    .testTag("nfcPinErrorText"),
+                            text = pinCodeErrorText,
                             color = Red500,
                         )
                     }
@@ -751,11 +832,7 @@ fun NFCViewPreview() {
             activity = LocalActivity.current as Activity,
             sharedSettingsViewModel = sharedSettingsViewModel,
             sharedContainerViewModel = sharedContainerViewModel,
-            isSigning = false,
-            isAddingRoleAndAddress = false,
-            rememberMe = true,
-            isSupported = {},
-            isValidToSign = {},
+            useCase = UseCase.SIGN,
         )
     }
 }

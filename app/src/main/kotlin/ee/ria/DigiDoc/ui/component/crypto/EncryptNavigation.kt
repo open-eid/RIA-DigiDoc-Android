@@ -138,6 +138,8 @@ fun EncryptNavigation(
 
     val containerEncryptedSuccess = remember { mutableStateOf(false) }
     val containerEncryptedSuccessText = stringResource(id = R.string.crypto_create_success)
+    val containerDecryptedSuccess = remember { mutableStateOf(false) }
+    val containerDecryptedSuccessText = stringResource(id = R.string.crypto_decrypt_success)
 
     val emptyFileInContainerText = stringResource(id = R.string.crypto_empty_file_message)
 
@@ -423,6 +425,26 @@ fun EncryptNavigation(
         }
     }
 
+    LaunchedEffect(sharedContainerViewModel.decryptNFCStatus) {
+        sharedContainerViewModel.decryptNFCStatus.asFlow().collect { status ->
+            status?.let {
+                if (status == true) {
+                    withContext(Main) {
+                        containerDecryptedSuccess.value = true
+                        AccessibilityUtil.sendAccessibilityEvent(
+                            context,
+                            TYPE_ANNOUNCEMENT,
+                            containerDecryptedSuccessText,
+                        )
+                        delay(5000)
+                        containerDecryptedSuccess.value = false
+                        sharedContainerViewModel.setDecryptNFCStatus(null)
+                    }
+                }
+            }
+        }
+    }
+
     Scaffold(
         snackbarHost = {
             SnackbarHost(
@@ -571,6 +593,11 @@ fun EncryptNavigation(
                 if (containerEncryptedSuccess.value == true) {
                     showMessage(containerEncryptedSuccessText)
                     containerEncryptedSuccess.value = false
+                }
+
+                if (containerDecryptedSuccess.value == true) {
+                    showMessage(containerDecryptedSuccessText)
+                    containerDecryptedSuccess.value = false
                 }
 
                 if (encryptViewModel.isEmptyFileInContainer(cryptoContainer) &&
