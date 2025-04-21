@@ -641,7 +641,7 @@ fun EncryptNavigation(
                             val rightActionButtonName =
                                 if (encryptViewModel.isDecryptButtonShown(cryptoContainer)) {
                                     R.string.decrypt_button
-                                } else if (encryptViewModel.isContainerLocked(cryptoContainer)) {
+                                } else if (encryptViewModel.isEncryptButtonShown(cryptoContainer)) {
                                     R.string.encrypt_button
                                 } else {
                                     0
@@ -657,7 +657,7 @@ fun EncryptNavigation(
                                     encryptViewModel.isDecryptButtonShown(
                                         cryptoContainer,
                                     ) ||
-                                        encryptViewModel.isContainerLocked(
+                                        encryptViewModel.isEncryptButtonShown(
                                             cryptoContainer,
                                         ),
                                 leftActionButtonName = R.string.signature_update_signature_add,
@@ -670,7 +670,7 @@ fun EncryptNavigation(
                                         showLoadingScreen.value = true
                                         navController.navigate(Route.DecryptScreen.route)
                                         showLoadingScreen.value = false
-                                    } else if (encryptViewModel.isContainerLocked(cryptoContainer)) {
+                                    } else if (encryptViewModel.isEncryptButtonShown(cryptoContainer)) {
                                         onEncryptClick()
                                     }
                                 },
@@ -747,7 +747,7 @@ fun EncryptNavigation(
                                                         modifier = modifier,
                                                         dataFiles = dataFiles,
                                                         isMoreOptionsButtonShown =
-                                                            encryptViewModel.isContainerLocked(
+                                                            encryptViewModel.isContainerUnlocked(
                                                                 cryptoContainer,
                                                             ),
                                                         onClick = onDataFileClick,
@@ -983,7 +983,7 @@ fun EncryptNavigation(
                 clickedRecipient = clickedRecipient,
                 sharedRecipientViewModel = sharedRecipientViewModel,
                 navController = navController,
-                isRecipientRemoveShown = encryptViewModel.isContainerLocked(cryptoContainer),
+                isRecipientRemoveShown = encryptViewModel.isContainerUnlocked(cryptoContainer),
                 openRemoveRecipientDialog = openRemoveRecipientDialog,
                 onRecipientRemove = { actionRecipient = it },
             )

@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.viewmodel
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.pm.ActivityInfo
@@ -45,7 +44,6 @@ import java.util.Arrays
 import javax.inject.Inject
 
 @HiltViewModel
-@SuppressLint("StringFormatMatches")
 class NFCViewModel
     @Inject
     constructor(
