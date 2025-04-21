@@ -2,7 +2,7 @@
 
 package ee.ria.DigiDoc.domain.model
 
-enum class UseCase(
+enum class IdentityAction(
     val useCaseName: String,
 ) {
     SIGN("SIGN"),
@@ -11,8 +11,8 @@ enum class UseCase(
     ;
 
     companion object {
-        fun fromName(mode: String): UseCase {
-            return UseCase.entries.find { it.useCaseName == mode } ?: SIGN
+        fun fromName(mode: String): IdentityAction {
+            return IdentityAction.entries.find { it.useCaseName == mode } ?: SIGN
         }
     }
 }

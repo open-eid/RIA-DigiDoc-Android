@@ -183,7 +183,6 @@
     <string name="crypto_decrypt_method_selected">Метод расшифровки выбран</string>
     <string name="crypto_decrypt_title">Расшифровка контейнера</string>
     <string name="crypto_decrypt_method">Метод расшифровки</string>
-    <string name="crypto_decrypt_nfc_pin1">PIN1 код</string>
 
     <!-- Signature Add -->
     <string name="signature_update_title">Подписание контейнера</string>
@@ -296,7 +295,7 @@
 
     <string name="signature_update_nfc_message">Чтобы подписать с помощью ID-карты, введите ее номер доступа (CAN) и PIN2-код</string>
     <string name="signature_update_nfc_can">Номер доступа ID-карты (CAN)</string>
-    <string name="signature_update_nfc_pin2">PIN2-код</string>
+    <string name="signature_update_nfc_pin">PIN2-код</string>
     <string name="signature_update_nfc_adapter_missing">Данное устройство не поддерживает бесконтактное соединение</string>
     <string name="signature_update_nfc_turned_off">NFC отключен</string>
     <string name="signature_update_nfc_tag_lost">Создание бесконтактного соединения не удалось</string>

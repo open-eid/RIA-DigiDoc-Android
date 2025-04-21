@@ -765,6 +765,7 @@ fun EncryptNavigation(
                                                     showRecipientsLoadingIndicator.value,
                                                     recipientsLoading,
                                                     onRecipientItemClick,
+                                                    !encryptViewModel.isCDOC1Container(cryptoContainer),
                                                 )
                                             },
                                         ),

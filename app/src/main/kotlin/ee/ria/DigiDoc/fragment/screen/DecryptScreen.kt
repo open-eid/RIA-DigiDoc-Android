@@ -54,7 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.domain.model.UseCase
+import ee.ria.DigiDoc.domain.model.IdentityAction
 import ee.ria.DigiDoc.domain.model.crypto.DecryptMethodSetting
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
@@ -285,7 +285,7 @@ fun DecryptScreen(
                             isDecrypting = false
                             navController.navigateUp()
                         },
-                        useCase = UseCase.DECRYPT,
+                        identityAction = IdentityAction.DECRYPT,
                         isSigning = false,
                         isDecrypting = isDecrypting,
                         rememberMe = rememberMe,

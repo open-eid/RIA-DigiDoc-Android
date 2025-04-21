@@ -173,11 +173,14 @@ class CryptoContainer
                         if (lock.isCertificate) {
                             addressees.add(Addressee(lock.label, lock.getBytes(Lock.Params.CERT)))
                         } else if (lock.isPKI) {
-                            addressees.add(Addressee(lock.label, lock.getBytes(Lock.Params.RCPT_KEY)))
+                            addressees.add(
+                                Addressee(lock.label, lock.getBytes(Lock.Params.RCPT_KEY)),
+                            )
                         } else {
                             addressees.add(Addressee("Unknown capsule", ByteArray(0)))
                         }
                     }
+                    cdocReader.delete()
                 }
 
                 return create(context, file, listOf(), addressees, false, true)

@@ -54,7 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.domain.model.UseCase
+import ee.ria.DigiDoc.domain.model.IdentityAction
 import ee.ria.DigiDoc.domain.model.myeid.MyEidIdentificationMethodSetting
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
@@ -287,7 +287,7 @@ fun MyEidIdentificationScreen(
                             isAuthenticating = false
                             navController.navigateUp()
                         },
-                        useCase = UseCase.AUTH,
+                        identityAction = IdentityAction.AUTH,
                         isSigning = false,
                         rememberMe = rememberMe,
                         sharedSettingsViewModel = sharedSettingsViewModel,

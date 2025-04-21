@@ -54,7 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.domain.model.UseCase
+import ee.ria.DigiDoc.domain.model.IdentityAction
 import ee.ria.DigiDoc.domain.model.methods.SigningMethod
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
@@ -362,7 +362,7 @@ fun SignatureInputScreen(
                             isAddingRoleAndAddress = false
                             navController.navigateUp()
                         },
-                        useCase = UseCase.SIGN,
+                        identityAction = IdentityAction.SIGN,
                         isSigning = isSigning,
                         isAddingRoleAndAddress = isAddingRoleAndAddress,
                         rememberMe = rememberMe,

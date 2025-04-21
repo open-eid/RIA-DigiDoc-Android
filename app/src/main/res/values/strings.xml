@@ -183,7 +183,6 @@
     <string name="crypto_decrypt_method_selected">Decryption method selected</string>
     <string name="crypto_decrypt_title">Container decryption</string>
     <string name="crypto_decrypt_method">Decryption method</string>
-    <string name="crypto_decrypt_nfc_pin1">PIN1 code</string>
 
     <!-- Signature Add -->
     <string name="signature_update_title">Container signing</string>
@@ -321,7 +320,7 @@
 
     <string name="signature_update_nfc_message">Enter your ID-card access number (CAN) and PIN2 code to sign with ID-card</string>
     <string name="signature_update_nfc_can">ID-card access number (CAN)</string>
-    <string name="signature_update_nfc_pin2">PIN2 code</string>
+    <string name="signature_update_nfc_pin">PIN2 code</string>
     <string name="signature_update_nfc_adapter_missing">This device does not support contactless connection</string>
     <string name="signature_update_nfc_turned_off">NFC is turned off</string>
     <string name="signature_update_nfc_tag_lost">NFC connection lost</string>

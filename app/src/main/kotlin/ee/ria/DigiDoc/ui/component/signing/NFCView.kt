@@ -78,7 +78,7 @@ import ee.ria.DigiDoc.common.Constant.NFCConstants.CAN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN1_MIN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN2_MIN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN_MAX_LENGTH
-import ee.ria.DigiDoc.domain.model.UseCase
+import ee.ria.DigiDoc.domain.model.IdentityAction
 import ee.ria.DigiDoc.domain.model.pin.PinChoice
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager.NfcStatus
@@ -115,7 +115,7 @@ import java.nio.charset.StandardCharsets
 fun NFCView(
     activity: Activity,
     modifier: Modifier = Modifier,
-    useCase: UseCase,
+    identityAction: IdentityAction,
     isSigning: Boolean = false,
     isDecrypting: Boolean = false,
     onError: () -> Unit = {},
@@ -146,12 +146,6 @@ fun NFCView(
 
     val canNumberLabel = stringResource(id = R.string.signature_update_nfc_can)
     val canNumberLocationText = stringResource(R.string.nfc_sign_can_location)
-    val pinCodeLabel =
-        if (useCase == UseCase.SIGN) {
-            stringResource(id = R.string.signature_update_nfc_pin2)
-        } else {
-            stringResource(id = R.string.crypto_decrypt_nfc_pin1)
-        }
 
     var shouldRememberMe by rememberSaveable { mutableStateOf(rememberMe) }
 
@@ -192,21 +186,23 @@ fun NFCView(
     var pinWithInvisibleSpaces = TextFieldValue(addInvisibleElement(pinCode.text))
 
     val pinType =
-        if (useCase == UseCase.SIGN) {
+        if (identityAction == IdentityAction.SIGN) {
             stringResource(id = R.string.signature_id_card_pin2)
         } else {
             stringResource(id = R.string.signature_id_card_pin1)
         }
 
+    val pinCodeLabel = stringResource(id = R.string.signature_update_nfc_pin, pinType)
+
     val pinMinLength =
-        if (useCase == UseCase.SIGN) {
+        if (identityAction == IdentityAction.SIGN) {
             PIN2_MIN_LENGTH
         } else {
             PIN1_MIN_LENGTH
         }
 
     val pinChoice =
-        if (useCase == UseCase.SIGN) {
+        if (identityAction == IdentityAction.SIGN) {
             PinChoice.PIN2
         } else {
             PinChoice.PIN1
@@ -271,8 +267,11 @@ fun NFCView(
         nfcViewModel.errorState.asFlow().collect { errorState ->
             errorState?.let {
                 withContext(Main) {
-                    if (errorState != "") {
-                        errorText = errorState
+                    if (errorState.first != 0) {
+                        errorText =
+                            context.getString(
+                                errorState.first, errorState.second, errorState.third,
+                            )
                     }
 
                     nfcViewModel.resetErrorState()
@@ -832,7 +831,7 @@ fun NFCViewPreview() {
             activity = LocalActivity.current as Activity,
             sharedSettingsViewModel = sharedSettingsViewModel,
             sharedContainerViewModel = sharedContainerViewModel,
-            useCase = UseCase.SIGN,
+            identityAction = IdentityAction.SIGN,
         )
     }
 }

@@ -183,7 +183,6 @@
     <string name="crypto_decrypt_method_selected">Dekrüpteerimise meetod valitud</string>
     <string name="crypto_decrypt_title">Ümbriku dekrüpteerimine</string>
     <string name="crypto_decrypt_method">Dekrüpteerimise meetod</string>
-    <string name="crypto_decrypt_nfc_pin1">PIN1 kood</string>
 
     <!-- Signature Add -->
     <string name="signature_update_title">Ümbriku allkirjastamine</string>
@@ -321,7 +320,7 @@
 
     <string name="signature_update_nfc_message">ID-kaardiga allkirjastamiseks sisesta oma ID-kaardi ligipääsu number (CAN) ja PIN2 kood</string>
     <string name="signature_update_nfc_can">ID-kaardi ligipääsu number (CAN)</string>
-    <string name="signature_update_nfc_pin2">PIN2 kood</string>
+    <string name="signature_update_nfc_pin">%1$s kood</string>
     <string name="signature_update_nfc_adapter_missing">See seade ei toeta kontaktivaba ühendust</string>
     <string name="signature_update_nfc_turned_off">NFC on välja lülitatud</string>
     <string name="signature_update_nfc_tag_lost">Kontaktivaba ühendust ei saa luua</string>
