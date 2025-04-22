@@ -46,8 +46,9 @@ workflows:
       defaultCentralConfigurationTslUrl_input:
         description: Default Central Configuration TSL URL
         type: choice
-        default: https://repo.ria/tsl/trusted-test-mp.xml
+        default: https://10.0.25.57/tsl/trusted-test-mp.xml
         options:
+          - https://10.0.25.57/tsl/trusted-test-mp.xml
           - https://repo.ria/tsl/trusted-test-mp.xml
           - https://ec.europa.eu/tools/lotl/eu-lotl.xml
           - https://open-eid.github.io/test-TL/tl-mp-test-EE.xml
