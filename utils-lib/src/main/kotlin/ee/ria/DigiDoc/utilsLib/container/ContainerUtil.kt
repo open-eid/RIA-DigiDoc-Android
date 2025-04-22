@@ -139,17 +139,17 @@ object ContainerUtil {
 
     fun getContainerDataFilesDir(
         context: Context,
-        containerFile: File,
+        containerFile: File?,
     ): File {
         val directory: File =
-            if (containerFile.parentFile == signatureContainersDir(context)) {
+            if (containerFile?.parentFile == signatureContainersDir(context)) {
                 createDataFileDirectory(
                     context.cacheDir,
                     containerFile,
                 )
             } else {
                 createDataFileDirectory(
-                    containerFile.parentFile,
+                    containerFile?.parentFile,
                     containerFile,
                 )
             }
@@ -158,7 +158,7 @@ object ContainerUtil {
 
     private fun createDataFileDirectory(
         directory: File?,
-        container: File,
+        container: File?,
     ): File {
         var dir: File
         var i = 0
@@ -168,7 +168,7 @@ object ContainerUtil {
                     String.format(
                         Locale.US,
                         DATA_FILE_DIR,
-                        container.name,
+                        container?.name,
                     ),
                 )
             if (i > 0) {

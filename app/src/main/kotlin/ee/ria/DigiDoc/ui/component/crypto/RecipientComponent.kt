@@ -61,6 +61,7 @@ fun RecipientComponent(
     showRecipientsLoadingIndicator: Boolean,
     recipientsLoadingContentDescription: String,
     onClick: (Addressee) -> Unit,
+    isCDOC2Container: Boolean = false,
 ) {
     val context = LocalContext.current
     val recipientText = stringResource(R.string.crypto_recipient_title)
@@ -89,7 +90,7 @@ fun RecipientComponent(
             recipients.forEachIndexed { index, recipient ->
                 val nameText = formatName(recipient.surname, recipient.givenName, recipient.identifier)
                 val certTypeText = getRecipientCertTypeText(LocalContext.current, recipient.certType)
-                val certValidTo =
+                var certValidTo =
                     recipient.validTo?.let {
                         dateFormat.format(
                             it,
@@ -101,8 +102,22 @@ fun RecipientComponent(
                         )
                     } ?: ""
 
-                // TODO: Decryption valid to date
-                val decryptionValidToText = ""
+                val decryptionValidToText =
+                    if (isCDOC2Container) {
+                        certValidTo = ""
+                        recipient.validTo?.let {
+                            dateFormat.format(
+                                it,
+                            )
+                        }?.let {
+                            stringResource(
+                                R.string.crypto_decryption_valid_to,
+                                it,
+                            )
+                        } ?: ""
+                    } else {
+                        ""
+                    }
 
                 Card(
                     modifier =

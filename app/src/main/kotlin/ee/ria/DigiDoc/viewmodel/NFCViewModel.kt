@@ -12,8 +12,13 @@ import com.google.common.collect.ImmutableMap
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.NFCConstants.CAN_LENGTH
+import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN1_MIN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN2_MIN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN_MAX_LENGTH
+import ee.ria.DigiDoc.common.Constant.NFCConstants.PUK_MIN_LENGTH
+import ee.ria.DigiDoc.cryptolib.CDOC2Settings
+import ee.ria.DigiDoc.cryptolib.CryptoContainer
+import ee.ria.DigiDoc.domain.model.pin.PinChoice
 import ee.ria.DigiDoc.idcard.CertificateType
 import ee.ria.DigiDoc.idcard.PaceTunnelException
 import ee.ria.DigiDoc.idcard.TokenWithPace
@@ -44,21 +49,30 @@ class NFCViewModel
     constructor(
         private val nfcSmartCardReaderManager: NfcSmartCardReaderManager,
         private val containerWrapper: ContainerWrapper,
+        private val cdoc2Settings: CDOC2Settings,
     ) : ViewModel() {
         private val logTag = javaClass.simpleName
 
         private val _signedContainer = MutableLiveData<SignedContainer?>(null)
         val signedContainer: LiveData<SignedContainer?> = _signedContainer
-        private val _errorState = MutableLiveData<String?>(null)
-        val errorState: LiveData<String?> = _errorState
+        private val _cryptoContainer = MutableLiveData<CryptoContainer?>(null)
+        val cryptoContainer: LiveData<CryptoContainer?> = _cryptoContainer
+
+        private val _errorState = MutableLiveData<Triple<Int, String?, Int?>?>(null)
+        val errorState: LiveData<Triple<Int, String?, Int?>?> = _errorState
+
         private val _message = MutableLiveData<Int?>(null)
         val message: LiveData<Int?> = _message
         private val _nfcStatus = MutableLiveData<NfcStatus?>(null)
         val nfcStatus: LiveData<NfcStatus?> = _nfcStatus
+
         private val _signStatus = MutableLiveData<Boolean?>(null)
         val signStatus: LiveData<Boolean?> = _signStatus
-        private val _shouldResetPIN2 = MutableLiveData(false)
-        val shouldResetPIN2: LiveData<Boolean> = _shouldResetPIN2
+        private val _decryptStatus = MutableLiveData<Boolean?>(null)
+        val decryptStatus: LiveData<Boolean?> = _decryptStatus
+
+        private val _shouldResetPIN = MutableLiveData(false)
+        val shouldResetPIN: LiveData<Boolean> = _shouldResetPIN
         private val _dialogError = MutableLiveData(0)
         val dialogError: LiveData<Int> = _dialogError
 
@@ -82,12 +96,20 @@ class NFCViewModel
             _signStatus.postValue(null)
         }
 
+        fun resetDecryptStatus() {
+            _decryptStatus.postValue(null)
+        }
+
         fun resetSignedContainer() {
             _signedContainer.postValue(null)
         }
 
-        fun resetShouldResetPIN2() {
-            _shouldResetPIN2.postValue(false)
+        fun resetCryptoContainer() {
+            _cryptoContainer.postValue(null)
+        }
+
+        fun resetShouldResetPIN() {
+            _shouldResetPIN.postValue(false)
         }
 
         fun shouldShowCANNumberError(canNumber: String?): Boolean {
@@ -97,12 +119,22 @@ class NFCViewModel
             )
         }
 
-        fun shouldShowPIN2CodeError(pin2Code: ByteArray?): Boolean {
-            return (pin2Code != null && pin2Code.isNotEmpty() && !isPIN2LengthValid(pin2Code))
+        fun shouldShowPINCodeError(
+            pinCode: ByteArray?,
+            pinChoice: PinChoice,
+        ): Boolean {
+            return (pinCode != null && pinCode.isNotEmpty() && !isPINLengthValid(pinCode, pinChoice))
         }
 
-        private fun isPIN2LengthValid(pin2Code: ByteArray): Boolean {
-            return pin2Code.size in PIN2_MIN_LENGTH..PIN_MAX_LENGTH
+        private fun isPINLengthValid(
+            pinCode: ByteArray,
+            pinChoice: PinChoice,
+        ): Boolean {
+            return when (pinChoice) {
+                PinChoice.PIN1 -> pinCode.size in PIN1_MIN_LENGTH..PIN_MAX_LENGTH
+                PinChoice.PIN2 -> pinCode.size in PIN2_MIN_LENGTH..PIN_MAX_LENGTH
+                PinChoice.PUK -> pinCode.size > PUK_MIN_LENGTH
+            }
         }
 
         private fun isCANLengthValid(canNumber: String): Boolean {
@@ -111,11 +143,12 @@ class NFCViewModel
 
         fun positiveButtonEnabled(
             canNumber: String?,
-            pin2Code: ByteArray?,
+            pinCode: ByteArray?,
+            pinChoice: PinChoice,
         ): Boolean {
-            if (canNumber != null && pin2Code != null) {
+            if (canNumber != null && pinCode != null) {
                 return isCANLengthValid(canNumber.toString()) &&
-                    isPIN2LengthValid(pin2Code)
+                    isPINLengthValid(pinCode, pinChoice)
             }
             return false
         }
@@ -128,6 +161,7 @@ class NFCViewModel
             _errorState.postValue(null)
             _message.postValue(null)
             _signStatus.postValue(null)
+            _decryptStatus.postValue(null)
             _nfcStatus.postValue(null)
         }
 
@@ -143,9 +177,13 @@ class NFCViewModel
             }
         }
 
-        suspend fun cancelNFCWorkRequest(signedContainer: SignedContainer) {
+        suspend fun cancelNFCSignWorkRequest(signedContainer: SignedContainer) {
             removePendingSignature(signedContainer)
 
+            nfcSmartCardReaderManager.disableNfcReaderMode()
+        }
+
+        fun cancelNFCDecryptWorkRequest() {
             nfcSmartCardReaderManager.disableNfcReaderMode()
         }
 
@@ -160,7 +198,7 @@ class NFCViewModel
             }
         }
 
-        suspend fun performNFCWorkRequest(
+        suspend fun performNFCSignWorkRequest(
             activity: Activity,
             context: Context,
             container: SignedContainer?,
@@ -168,6 +206,7 @@ class NFCViewModel
             canNumber: String,
             roleData: RoleData?,
         ) {
+            val pinType = context.getString(R.string.signature_id_card_pin2)
             activity.requestedOrientation = activity.resources.configuration.orientation
             resetValues()
 
@@ -199,7 +238,7 @@ class NFCViewModel
                                 containerWrapper.finalizeSignature(container, signatureArray)
 
                                 CoroutineScope(Main).launch {
-                                    _shouldResetPIN2.postValue(true)
+                                    _shouldResetPIN.postValue(true)
                                     _signStatus.postValue(true)
                                     _signedContainer.postValue(container)
                                 }
@@ -210,70 +249,71 @@ class NFCViewModel
                                 }
 
                                 if (ex.message?.contains("TagLostException") == true) {
-                                    _errorState.postValue(context.getString(R.string.signature_update_nfc_tag_lost))
+                                    _errorState.postValue(Triple(R.string.signature_update_nfc_tag_lost, null, null))
                                 } else if (ex.message?.contains("PIN2 verification failed") == true &&
                                     ex.message?.contains("Retries left: 2") == true
                                 ) {
-                                    _shouldResetPIN2.postValue(true)
+                                    _shouldResetPIN.postValue(true)
                                     _errorState.postValue(
-                                        context.getString(R.string.signature_update_id_card_sign_pin2_invalid, 2),
+                                        Triple(
+                                            R.string.signature_update_id_card_sign_pin2_invalid,
+                                            pinType,
+                                            2,
+                                        ),
                                     )
                                 } else if (ex.message?.contains("PIN2 verification failed") == true &&
                                     ex.message?.contains("Retries left: 1") == true
                                 ) {
-                                    _shouldResetPIN2.postValue(true)
+                                    _shouldResetPIN.postValue(true)
                                     _errorState.postValue(
-                                        context.getString(R.string.signature_update_id_card_sign_pin2_invalid_final),
+                                        Triple(
+                                            R.string.signature_update_id_card_sign_pin2_invalid_final,
+                                            pinType,
+                                            null,
+                                        ),
                                     )
                                 } else if (ex.message?.contains("PIN2 verification failed") == true &&
                                     ex.message?.contains("Retries left: 0") == true
                                 ) {
-                                    _shouldResetPIN2.postValue(true)
+                                    _shouldResetPIN.postValue(true)
                                     _errorState.postValue(
-                                        context.getString(R.string.signature_update_id_card_sign_pin2_locked),
+                                        Triple(R.string.signature_update_id_card_sign_pin2_locked, pinType, null),
                                     )
                                 } else if (ex is ApduResponseException) {
                                     _errorState.postValue(
-                                        context.getString(R.string.signature_update_nfc_technical_error),
+                                        Triple(R.string.signature_update_nfc_technical_error, null, null),
                                     )
                                 } else if (ex is PaceTunnelException) {
                                     _errorState.postValue(
-                                        context.getString(R.string.signature_update_nfc_wrong_can),
+                                        Triple(R.string.signature_update_nfc_wrong_can, null, null),
                                     )
                                 } else {
-                                    _errorState.postValue(
-                                        ex.message ?: context.getString(R.string.signature_update_nfc_technical_error),
-                                    )
+                                    showTechnicalError(ex)
                                 }
 
                                 errorLog(logTag, "Exception: " + ex.message, ex)
                             } catch (ex: Exception) {
                                 _signStatus.postValue(false)
-                                _shouldResetPIN2.postValue(true)
+                                _shouldResetPIN.postValue(true)
 
                                 val message = ex.message ?: ""
 
                                 when {
                                     message.contains("Failed to connect") ||
                                         message.contains("Failed to create connection with host") ->
-                                        showNetworkError(
-                                            context,
-                                            ex,
-                                        )
+                                        showNetworkError(ex)
                                     message.contains(
                                         "Failed to create proxy connection with host",
-                                    ) -> showProxyError(context, ex)
+                                    ) -> showProxyError(ex)
                                     message.contains("Too Many Requests") ->
                                         setErrorState(
-                                            context,
                                             SessionStatusResponseProcessStatus.TOO_MANY_REQUESTS,
                                         )
                                     message.contains("OCSP response not in valid time slot") ->
                                         setErrorState(
-                                            context,
                                             SessionStatusResponseProcessStatus.OCSP_INVALID_TIME_SLOT,
                                         )
-                                    else -> showTechnicalError(context, ex)
+                                    else -> showTechnicalError(ex)
                                 }
 
                                 errorLog(logTag, "Exception: " + ex.message, ex)
@@ -288,14 +328,159 @@ class NFCViewModel
                 withContext(Main) {
                     _nfcStatus.postValue(nfcSmartCardReaderManager.detectNfcStatus(activity))
                     _signStatus.postValue(false)
-                    _errorState.postValue(context.getString(R.string.error_general_client))
+                    _errorState.postValue(Triple(R.string.error_general_client, null, null))
+                    errorLog(logTag, "Unable to get container value. Container is 'null'")
+                }
+            }
+        }
+
+        suspend fun performNFCDecryptWorkRequest(
+            activity: Activity,
+            context: Context,
+            container: CryptoContainer?,
+            pin1Code: ByteArray,
+            canNumber: String,
+        ) {
+            val pinType = context.getString(R.string.signature_id_card_pin1)
+            activity.requestedOrientation = activity.resources.configuration.orientation
+            resetValues()
+
+            if (container != null) {
+                withContext(Main) {
+                    _message.postValue(R.string.signature_update_nfc_hold)
+                }
+
+                checkNFCStatus(
+                    nfcSmartCardReaderManager.startDiscovery(activity) { nfcReader, exc ->
+                        if ((nfcReader != null) && (exc == null)) {
+                            try {
+                                CoroutineScope(Main).launch {
+                                    _message.postValue(R.string.signature_update_nfc_detected)
+                                }
+                                val card = TokenWithPace.create(nfcReader)
+                                card.tunnel(canNumber)
+
+                                val authCert =
+                                    card.certificate(CertificateType.AUTHENTICATION)
+                                debugLog(
+                                    logTag,
+                                    "Auth certificate: " + Base64.toBase64String(authCert),
+                                )
+                                var decryptedContainer =
+                                    CryptoContainer.decrypt(
+                                        context,
+                                        container.file,
+                                        container.recipients,
+                                        authCert,
+                                        pin1Code,
+                                        card,
+                                        cdoc2Settings,
+                                    )
+                                CoroutineScope(Main).launch {
+                                    _shouldResetPIN.postValue(true)
+                                    _decryptStatus.postValue(true)
+                                    _cryptoContainer.postValue(decryptedContainer)
+                                }
+                            } catch (ex: SmartCardReaderException) {
+                                _decryptStatus.postValue(false)
+
+                                if (ex.message?.contains("TagLostException") == true) {
+                                    _errorState.postValue(Triple(R.string.signature_update_nfc_tag_lost, null, null))
+                                } else if (ex.message?.contains("PIN2 verification failed") == true &&
+                                    ex.message?.contains("Retries left: 2") == true
+                                ) {
+                                    _shouldResetPIN.postValue(true)
+                                    _errorState.postValue(
+                                        Triple(
+                                            R.string.signature_update_id_card_sign_pin2_invalid,
+                                            pinType,
+                                            2,
+                                        ),
+                                    )
+                                } else if (ex.message?.contains("PIN2 verification failed") == true &&
+                                    ex.message?.contains("Retries left: 1") == true
+                                ) {
+                                    _shouldResetPIN.postValue(true)
+                                    _errorState.postValue(
+                                        Triple(
+                                            R.string.signature_update_id_card_sign_pin2_invalid_final,
+                                            pinType,
+                                            null,
+                                        ),
+                                    )
+                                } else if (ex.message?.contains("PIN2 verification failed") == true &&
+                                    ex.message?.contains("Retries left: 0") == true
+                                ) {
+                                    _shouldResetPIN.postValue(true)
+                                    _errorState.postValue(
+                                        Triple(
+                                            R.string.signature_update_id_card_sign_pin2_locked,
+                                            pinType,
+                                            null,
+                                        ),
+                                    )
+                                } else if (ex is ApduResponseException) {
+                                    _errorState.postValue(
+                                        Triple(R.string.signature_update_nfc_technical_error, null, null),
+                                    )
+                                } else if (ex is PaceTunnelException) {
+                                    _errorState.postValue(
+                                        Triple(R.string.signature_update_nfc_wrong_can, null, null),
+                                    )
+                                } else {
+                                    showTechnicalError(ex)
+                                }
+
+                                errorLog(logTag, "Exception: " + ex.message, ex)
+                            } catch (ex: Exception) {
+                                _decryptStatus.postValue(false)
+                                _shouldResetPIN.postValue(true)
+
+                                val message = ex.message ?: ""
+
+                                when {
+                                    message.contains("Failed to connect") ||
+                                        message.contains("Failed to create connection with host") ->
+                                        showNetworkError(ex)
+
+                                    message.contains(
+                                        "Failed to create proxy connection with host",
+                                    ) -> showProxyError(ex)
+
+                                    message.contains("Too Many Requests") ->
+                                        setErrorState(
+                                            SessionStatusResponseProcessStatus.TOO_MANY_REQUESTS,
+                                        )
+
+                                    message.contains("OCSP response not in valid time slot") ->
+                                        setErrorState(
+                                            SessionStatusResponseProcessStatus.OCSP_INVALID_TIME_SLOT,
+                                        )
+
+                                    else -> showTechnicalError(ex)
+                                }
+
+                                errorLog(logTag, "Exception: " + ex.message, ex)
+                            } finally {
+                                nfcSmartCardReaderManager.disableNfcReaderMode()
+                                activity.requestedOrientation =
+                                    ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                            }
+                        }
+                    },
+                )
+            } else {
+                withContext(Main) {
+                    _nfcStatus.postValue(nfcSmartCardReaderManager.detectNfcStatus(activity))
+                    _decryptStatus.postValue(false)
+                    _errorState.postValue(Triple(R.string.error_general_client, null, null))
                     errorLog(logTag, "Unable to get container value. Container is 'null'")
                 }
             }
         }
 
         fun handleBackButton() {
-            _shouldResetPIN2.postValue(true)
+            _shouldResetPIN.postValue(true)
             resetValues()
         }
 
@@ -303,10 +488,7 @@ class NFCViewModel
             _dialogError.postValue(0)
         }
 
-        private fun setErrorState(
-            context: Context,
-            status: SessionStatusResponseProcessStatus,
-        ) {
+        private fun setErrorState(status: SessionStatusResponseProcessStatus) {
             val res = dialogMessages[status]
 
             if (res == R.string.too_many_requests_message ||
@@ -314,37 +496,22 @@ class NFCViewModel
             ) {
                 _dialogError.postValue(res)
             } else {
-                _errorState.postValue(
-                    res?.let {
-                        context.getString(
-                            it,
-                        )
-                    },
-                )
+                _errorState.postValue(res?.let { Triple(it, null, null) })
             }
         }
 
-        private fun showNetworkError(
-            context: Context,
-            e: Exception,
-        ) {
-            _errorState.postValue(context.getString(R.string.no_internet_connection))
+        private fun showNetworkError(e: Exception) {
+            _errorState.postValue(Triple(R.string.no_internet_connection, null, null))
             errorLog(logTag, "Unable to sign with NFC - Unable to connect to Internet", e)
         }
 
-        private fun showProxyError(
-            context: Context,
-            e: Exception,
-        ) {
-            _errorState.postValue(context.getString(R.string.main_settings_proxy_invalid_settings))
+        private fun showProxyError(e: Exception) {
+            _errorState.postValue(Triple(R.string.main_settings_proxy_invalid_settings, null, null))
             errorLog(logTag, "Unable to sign with NFC - Unable to create proxy connection with host", e)
         }
 
-        private fun showTechnicalError(
-            context: Context,
-            e: Exception,
-        ) {
-            _errorState.postValue(context.getString(R.string.signature_update_nfc_technical_error))
-            errorLog(logTag, "Unable to sign with NFC: ${e.message}", e)
+        private fun showTechnicalError(e: Exception) {
+            _errorState.postValue(Triple(R.string.signature_update_nfc_technical_error, null, null))
+            errorLog(logTag, "Unable to perform with NFC: ${e.message}", e)
         }
     }
