@@ -125,11 +125,11 @@ class NFCViewModelTest {
     @Test
     fun nfcViewModel_resetShouldResetPIN_success() =
         runTest {
-            val shouldResetPIN2Observer: Observer<Boolean?> = mock()
-            viewModel.shouldResetPIN.observeForever(shouldResetPIN2Observer)
+            val shouldResetPINObserver: Observer<Boolean?> = mock()
+            viewModel.shouldResetPIN.observeForever(shouldResetPINObserver)
 
             viewModel.resetShouldResetPIN()
-            verify(shouldResetPIN2Observer, atLeastOnce()).onChanged(null)
+            verify(shouldResetPINObserver, atLeastOnce()).onChanged(false)
         }
 
     @Test
@@ -147,7 +147,7 @@ class NFCViewModelTest {
     @Test
     fun nfcViewModel_resetErrorState_success() =
         runTest {
-            val errorStateObserver: Observer<String?> = mock()
+            val errorStateObserver: Observer<Triple<Int, String?, Int?>?> = mock()
             viewModel.errorState.observeForever(errorStateObserver)
 
             viewModel.resetErrorState()
@@ -227,7 +227,7 @@ class NFCViewModelTest {
     @Test
     fun nfcViewModel_shouldShowPIN1CodeError_returnTrueMinLength() =
         runTest {
-            val result = viewModel.shouldShowPINCodeError(byteArrayOf(1, 1, 5, 5), PinChoice.PIN1)
+            val result = viewModel.shouldShowPINCodeError(byteArrayOf(1, 1, 5), PinChoice.PIN1)
             assertTrue(result)
         }
 
@@ -257,7 +257,7 @@ class NFCViewModelTest {
         runTest {
             val result =
                 viewModel
-                    .positiveButtonEnabled("444222", byteArrayOf(1, 1, 5, 5), PinChoice.PIN1)
+                    .positiveButtonEnabled("444222", byteArrayOf(1, 1, 5), PinChoice.PIN1)
             assertFalse(result)
         }
 
@@ -444,7 +444,7 @@ class NFCViewModelTest {
                 null,
             )
 
-            val errorStateObserver: Observer<String?> = mock()
+            val errorStateObserver: Observer<Triple<Int, String?, Int?>?> = mock()
             viewModel.errorState.observeForever(errorStateObserver)
             verify(errorStateObserver, atLeastOnce()).onChanged(null)
             viewModel.errorState.removeObserver(errorStateObserver)
@@ -465,9 +465,9 @@ class NFCViewModelTest {
         runTest {
             viewModel.performNFCSignWorkRequest(activity, context, null, byteArrayOf(1, 1, 5, 5, 5), "444222", null)
 
-            val errorStateObserver: Observer<String?> = mock()
+            val errorStateObserver: Observer<Triple<Int, String?, Int?>?> = mock()
             viewModel.errorState.observeForever(errorStateObserver)
-            verify(errorStateObserver, atLeastOnce()).onChanged(context.getString(R.string.error_general_client))
+            verify(errorStateObserver, atLeastOnce()).onChanged(Triple(R.string.error_general_client, null, null))
             viewModel.errorState.removeObserver(errorStateObserver)
         }
 

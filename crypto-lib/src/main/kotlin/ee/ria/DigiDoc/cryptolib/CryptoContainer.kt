@@ -220,7 +220,7 @@ class CryptoContainer
                 context: Context,
                 file: File?,
                 recipients: List<Addressee?>?,
-                signerCert: ByteArray?,
+                authCert: ByteArray?,
                 pin: ByteArray,
                 smartToken: Token,
                 cdoc2Settings: CDOC2Settings,
@@ -229,18 +229,16 @@ class CryptoContainer
                 val conf = CryptoLibConf(cdoc2Settings)
                 val network = CryptoLibNetworkBackend()
                 network.token = token
-                if (signerCert != null) {
-                    network.cert = signerCert
+                if (authCert != null) {
+                    network.cert = authCert
                 }
 
                 if (network.cert.isEmpty()) {
-                    if (token.getLastError() != null) {
-                        throw token.getLastError()!!
-                    }
+                    throw CryptoException("Failed to get auth certificate")
                 }
                 val dataFiles = ArrayList<File>()
                 val cdocReader = CDocReader.createReader(file?.path, conf, token, network)
-                val idx = cdocReader.getLockForCert(signerCert)
+                val idx = cdocReader.getLockForCert(authCert)
                 if (idx < 0) {
                     throw CryptoException("Failed to get lock for certificate")
                 }

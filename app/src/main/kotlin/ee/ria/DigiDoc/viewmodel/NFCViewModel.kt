@@ -360,18 +360,18 @@ class NFCViewModel
                                 val card = TokenWithPace.create(nfcReader)
                                 card.tunnel(canNumber)
 
-                                val signerCert =
+                                val authCert =
                                     card.certificate(CertificateType.AUTHENTICATION)
                                 debugLog(
                                     logTag,
-                                    "Signer certificate: " + Base64.toBase64String(signerCert),
+                                    "Auth certificate: " + Base64.toBase64String(authCert),
                                 )
                                 var decryptedContainer =
                                     CryptoContainer.decrypt(
                                         context,
                                         container.file,
                                         container.recipients,
-                                        signerCert,
+                                        authCert,
                                         pin1Code,
                                         card,
                                         cdoc2Settings,

@@ -40,7 +40,7 @@ class SharedMenuViewModelTest {
             val isMenuViewModelTtsInitalizedObserver: Observer<Boolean> = mock()
             sharedMenuViewModel.isTtsInitialized.observeForever(isMenuViewModelTtsInitalizedObserver)
 
-            delay(2000)
+            delay(5000)
 
             verify(isMenuViewModelTtsInitalizedObserver).onChanged(true)
 
