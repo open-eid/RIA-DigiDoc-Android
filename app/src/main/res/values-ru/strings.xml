@@ -285,10 +285,6 @@
     <string name="signature_update_mobile_id_error_simultaneous_requests_limit_exceeded">Превышен лимит одновременных запросов</string>
     <string name="signature_update_mobile_id_error_technical_error">Не удалось отправить запрос. Технический сбой услуги mobiil-ID. Пожалуйста, попробуйте позже.</string>
 
-    <string name="signature_update_id_card_sign_pin2_invalid">Неверный %s. У Вас осталось %1$d попыток.</string>
-    <string name="signature_update_id_card_sign_pin2_invalid_final">Неверный %s. У Вас осталась 1 попытка до блокировки Вашего PIN2.</string>
-    <string name="signature_update_id_card_sign_pin2_locked">%s заблокирован. Зайдите в Мой eID, чтобы разблокировать его.</string>
-
     <string name="nfc_sign_can_invalid_length">Номер доступа (CAN) должен состоять из %1$s-цифр</string>
     <string name="nfc_sign_can_location">6-значный номер находится под фотографией на документе</string>
     <string name="id_card_sign_pin_invalid_length">%1$s-код должен состоять минимум из %2$s и максимум из %3$s символов</string>
@@ -324,10 +320,10 @@
     <string name="id_card_sign_data">%1$s %2$s (%3$s)</string>
     <string name="id_card_sign_pin2">Введите PIN2</string>
     <string name="id_card_progress_message_signing">Происходит подписание. Пожалуйста, подождите.</string>
-    <string name="id_card_sign_pin2_wrong">Неверный PIN2</string>
-    <string name="id_card_sign_pin2_invalid">Неверный PIN2. У Вас осталось %1$d попыток.</string>
-    <string name="id_card_sign_pin2_invalid_final">Неверный PIN2. У Вас осталась 1 попытка до блокировки Вашего PIN2.</string>
-    <string name="id_card_sign_pin2_locked">PIN2 заблокирован. Зайдите в Мой eID, чтобы разблокировать его.</string>
+    <string name="id_card_sign_pin_wrong">Неверный %1$s</string>
+    <string name="id_card_sign_pin_invalid">Неверный %1$s. У Вас осталось %2$d попыток.</string>
+    <string name="id_card_sign_pin_invalid_final">Неверный %1$s. У Вас осталась 1 попытка до блокировки Вашего %1$s.</string>
+    <string name="id_card_sign_pin_locked">%1$s заблокирован. Зайдите в Мой eID, чтобы разблокировать его.</string>
 
     <string name="sign_button">Подписать</string>
     <string name="next_button">Далее</string>
@@ -586,6 +582,8 @@
     <string name="myeid_firstname">Имя</string>
     <string name="myeid_lastname">Фамилия</string>
     <string name="myeid_citizenship">Гражданство</string>
+    <string name="myeid_personal_code">Личный код</string>
+    <string name="myeid_date_of_birth">Дата рождения</string>
     <string name="myeid_document_number">Номер документа</string>
     <string name="myeid_valid_to">Годен до</string>
     <string name="myeid_status_valid">Действителен</string>
@@ -616,6 +614,21 @@
     <string name="myeid_pin_changed_success">%1$s изменен</string>
     <string name="myeid_pin_unblock_button">Разблокировать %1$s</string>
     <string name="myeid_pin_unblocked_success">%1$s разблокирован</string>
+    <plurals name="myeid_pin_error_code_verification">
+        <item quantity="one">Неверный %1$s-код. Вы можете попробовать ещё 1 раз.</item>
+        <item quantity="other">Неверный %1$s-код. Вы можете попробовать ещё %2$s раз.</item>
+        <item quantity="few">Неверный %1$s-код. Вы можете попробовать ещё %2$s раз.</item>
+        <item quantity="many">Неверный %1$s-код. Вы можете попробовать ещё %2$s раз.</item>
+    </plurals>
+    <string name="myeid_pin_blocked">%1$s заблокирован, потому что был неверно введен 3 раза.</string>
+    <string name="myeid_pin_blocked_with_unblock_message">%1$s заблокирован, потому что %2$s-код был введён неверно 3 раза. Разблокируйте, чтобы использовать %3$s.</string>
+    <string name="myeid_puk_blocked">PUK заблокирован, потому что PUK-код был введён неверно 3 раза. PUK невозможно разблокировать самому.</string>
+    <string name="myeid_cert_expired">Срок действия сертификата &lt;c>истек&lt;/c>! %1$s не может быть использован, потому что срок действия сертификата истёк.</string>
+    <string name="myeid_pin_part_personal_code_error">Новый %1$s-код не может быть частью Вашего личного кода</string>
+    <string name="myeid_pin_part_dob_error">Новый %1$s-код не может быть датой Вашего рождения</string>
+    <string name="myeid_pin_too_easy_error">Новый %1$s-код не может быть таким простым</string>
+    <string name="myeid_new_and_current_pin_match_error">Старый и новый %1$s должны быть разными</string>
+    <string name="myeid_pin_repeat_error">Новые %1$s-коды должны совпадать</string>
 
     <!-- Voice Control -->
     <string name="signing_container_name_update_button_voice">Изменить</string>

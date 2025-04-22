@@ -2,10 +2,10 @@
 
 package ee.ria.DigiDoc.ui.component.myeid.pinandcertificate
 
-import ee.ria.DigiDoc.domain.model.pin.PinChoice
+import ee.ria.DigiDoc.idcard.CodeType
 
 data class PinChangeContent(
     val title: Int,
-    val pinChoice: PinChoice,
+    val codeType: CodeType,
     val isForgottenPin: Boolean = false,
 )

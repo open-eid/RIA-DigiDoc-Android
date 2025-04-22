@@ -22,6 +22,8 @@ fun MyEidMyDataView(
     firstname: String,
     lastname: String,
     citizenship: String,
+    personalCode: String,
+    dateOfBirth: String,
     documentNumber: String,
     validTo: String,
 ) {
@@ -41,6 +43,8 @@ fun MyEidMyDataView(
                 firstname = firstname,
                 lastname = lastname,
                 citizenship = citizenship,
+                personalCode = personalCode,
+                dateOfBirth = dateOfBirth,
                 documentNumber = documentNumber,
                 validTo = validTo,
             )

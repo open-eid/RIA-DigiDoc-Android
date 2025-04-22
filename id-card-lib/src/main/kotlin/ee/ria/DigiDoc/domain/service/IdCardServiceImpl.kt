@@ -8,10 +8,12 @@ import ee.ria.DigiDoc.common.model.ExtendedCertificate
 import ee.ria.DigiDoc.domain.model.IdCardData
 import ee.ria.DigiDoc.idcard.CertificateType
 import ee.ria.DigiDoc.idcard.CodeType
+import ee.ria.DigiDoc.idcard.CodeVerificationException
 import ee.ria.DigiDoc.idcard.Token
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
+import ee.ria.DigiDoc.smartcardreader.SmartCardReaderException
 import ee.ria.DigiDoc.utilsLib.text.TextUtil
 import ee.ria.libdigidocpp.StringVector
 import kotlinx.coroutines.Dispatchers.IO
@@ -62,6 +64,28 @@ class IdCardServiceImpl
                     pukRetryCount = pukRetryCounter,
                 )
             }
+
+        @Throws(CodeVerificationException::class, SmartCardReaderException::class)
+        override suspend fun editPin(
+            token: Token,
+            codeType: CodeType,
+            currentPin: ByteArray,
+            newPin: ByteArray,
+        ): Boolean {
+            token.changeCode(codeType, currentPin, newPin)
+            return true
+        }
+
+        @Throws(CodeVerificationException::class, SmartCardReaderException::class)
+        override suspend fun unblockAndEditPin(
+            token: Token,
+            codeType: CodeType,
+            currentPuk: ByteArray,
+            newPin: ByteArray,
+        ): Boolean {
+            token.unblockAndChangeCode(currentPuk, codeType, newPin)
+            return true
+        }
 
         @Throws(Exception::class)
         private suspend fun sign(

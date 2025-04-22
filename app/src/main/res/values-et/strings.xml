@@ -251,10 +251,10 @@
     <string name="id_card_sign_data">%1$s %2$s (%3$s)</string>
     <string name="id_card_sign_pin2">Sisesta PIN2</string>
     <string name="id_card_progress_message_signing">Toimub allkirjastamine. Palun oota.</string>
-    <string name="id_card_sign_pin2_wrong">Vale PIN2</string>
-    <string name="id_card_sign_pin2_invalid">Vale PIN2. Saad PIN2-koodi sisestada veel %1$d korda.</string>
-    <string name="id_card_sign_pin2_invalid_final">Vale PIN2. Järgmise vale sisestusega lukustub PIN.</string>
-    <string name="id_card_sign_pin2_locked">PIN2 on lukus. Mine Minu eID, et avada.</string>
+    <string name="id_card_sign_pin_wrong">Vale %1$s</string>
+    <string name="id_card_sign_pin_invalid">Vale %1$s. Saad PIN2-koodi sisestada veel %2$d korda.</string>
+    <string name="id_card_sign_pin_invalid_final">Vale %1$s. Järgmise vale sisestusega lukustub PIN.</string>
+    <string name="id_card_sign_pin_locked">%1$s on lukus. Mine Minu eID, et avada.</string>
 
     <string name="signature_update_mobile_id_invalid_country_code">Vigane riigikood.</string>
     <string name="signature_update_mobile_id_invalid_phone_number">Telefoninumber pole korrektne.</string>
@@ -309,10 +309,6 @@
     <string name="signature_update_mobile_id_error_message_access_rights">Ümbriku allkirjastamine ebaõnnestus. Kontrolli mobiil-ID teenuse ligipääsu seadeid. https://www.id.ee/artikkel/asutustele-kus-allkirjastatakse-digidoc4-kliendi-kaudu-suuremates-kogustes-dokumente/</string>
     <string name="signature_update_mobile_id_error_simultaneous_requests_limit_exceeded">Samaaegsete pöördumiste limiit ületatud</string>
     <string name="signature_update_mobile_id_error_technical_error">Päringu saatmine ebaõnnestus. Mobiil-ID teenuses esinevad tehnilised tõrked. Palun proovige mõne aja pärast uuesti.</string>
-
-    <string name="signature_update_id_card_sign_pin2_invalid">Vale %s. Saad PIN2-koodi sisestada veel %1$d korda.</string>
-    <string name="signature_update_id_card_sign_pin2_invalid_final">Vale %s. Järgmise vale sisestusega lukustub PIN.</string>
-    <string name="signature_update_id_card_sign_pin2_locked">%s on lukus. Mine Minu eID, et avada.</string>
 
     <string name="nfc_sign_can_invalid_length">Ligipääsu number (CAN) peab olema %1$s-kohaline</string>
     <string name="nfc_sign_can_location">6-kohaline number asub dokumendil foto all</string>
@@ -586,6 +582,8 @@
     <string name="myeid_firstname">Eesnimi</string>
     <string name="myeid_lastname">Perekonnanimi</string>
     <string name="myeid_citizenship">Kodakondsus</string>
+    <string name="myeid_personal_code">Isikukood</string>
+    <string name="myeid_date_of_birth">Sünniaeg</string>
     <string name="myeid_document_number">Dokumendi number</string>
     <string name="myeid_valid_to">Kehtiv kuni</string>
     <string name="myeid_status_valid">Kehtib</string>
@@ -616,6 +614,21 @@
     <string name="myeid_pin_changed_success">%1$s muudetud</string>
     <string name="myeid_pin_unblock_button">Tühista %1$s blokeering</string>
     <string name="myeid_pin_unblocked_success">%1$s blokeering tühistatud</string>
+    <plurals name="myeid_pin_error_code_verification">
+        <item quantity="one">Vale %1$s-kood. Saad veel proovida 1 kord.</item>
+        <item quantity="other">Vale %1$s-kood. Saad veel proovida %2$s korda.</item>
+        <!-- placeholder to keep line numbers same in different locales -->
+        <!-- placeholder to keep line numbers same in different locales -->
+    </plurals>
+    <string name="myeid_pin_blocked">%1$s on blokeeritud, kuna %1$s-koodi on sisestatud 3 korda valesti.</string>
+    <string name="myeid_pin_blocked_with_unblock_message">%1$s on blokeeritud, kuna %1$s-koodi on sisestatud 3 korda valesti. Tühista blokeering, et %1$s taas kasutada.</string>
+    <string name="myeid_puk_blocked">PUK on blokeeritud, kuna PUK-koodi on sisestatud 3 korda valesti. PUK-koodi ei saa ise lahti blokeerida.</string>
+    <string name="myeid_cert_expired">Sertifikaat on &lt;c>aegunud&lt;/c>! %1$s ei saa kasutada, kuna sertifikaat on aegunud.</string>
+    <string name="myeid_pin_part_personal_code_error">Uus %1$s-kood ei saa olla osa sinu isikukoodist</string>
+    <string name="myeid_pin_part_dob_error">Uus %1$s-kood ei saa olla sinu sünnikuupäev</string>
+    <string name="myeid_pin_too_easy_error">Uus %1$s-kood ei saa olla nii lihtne</string>
+    <string name="myeid_new_and_current_pin_match_error">Kehtiv ja uus %1$s peavad olema erinevad</string>
+    <string name="myeid_pin_repeat_error">Uued %1$s-koodid peavad olema samad</string>
 
     <!-- Voice Control -->
     <string name="signing_container_name_update_button_voice">Muuda</string>

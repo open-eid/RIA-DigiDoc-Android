@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
@@ -47,6 +48,7 @@ fun MyEidPinAndCertificateView(
     modifier: Modifier = Modifier,
     title: String,
     subtitle: String,
+    isPinBlocked: Boolean = false,
     showForgotPin: Boolean = true,
     forgotPinText: String = "",
     onForgotPinClick: (() -> Unit)? = null,
@@ -124,22 +126,18 @@ fun MyEidPinAndCertificateView(
                         onClick = onForgotPinClick,
                         modifier = modifier.weight(1f),
                     ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_m3_open_in_new_48dp_wght400),
-                            contentDescription = null,
-                            modifier = modifier.size(SPadding),
-                        )
-                        Spacer(modifier = modifier.width(XSPadding))
                         Text(
                             text = forgotPinText,
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center,
                         )
                     }
 
                     Spacer(modifier = modifier.width(XSPadding))
 
                     Button(
+                        enabled = !isPinBlocked,
                         onClick = onChangePinClick ?: {},
                         modifier = modifier,
                     ) {

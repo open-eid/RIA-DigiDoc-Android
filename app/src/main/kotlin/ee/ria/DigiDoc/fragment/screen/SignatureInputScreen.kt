@@ -345,7 +345,7 @@ fun SignatureInputScreen(
                             isAddingRoleAndAddress = false
                             cancelAction = action
                         },
-                        isValidToAuthenticate = {},
+                        isAuthenticated = { _, _ -> {} },
                     )
 
                 SigningMethod.NFC ->
@@ -381,6 +381,9 @@ fun SignatureInputScreen(
                             isAddingRoleAndAddress = false
                             cancelAction = action
                         },
+                        isAuthenticating = false,
+                        isAuthenticated = { _, _ -> {} },
+                        isValidToAuthenticate = {},
                     )
             }
 
