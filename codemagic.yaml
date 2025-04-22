@@ -32,13 +32,13 @@ workflows:
       defaultCentralConfigurationUrl_input:
         description: Default Central Configuration URL
         type: choice
-        default: http://10.0.25.57/config
+        default: https://10.0.25.57/config
         options:
-          - http://10.0.25.57/config
+          - https://10.0.25.57/config
           - https://repo.ria/config
           - https://id.eesti.ee
           - https://id.test.eesti.ee
-          - http://10.0.25.57/updater
+          - https://10.0.25.57/updater
       defaultCentralConfigurationUpdateInterval_input:
         description: Default Central Configuration Update Interval
         type: number
@@ -89,7 +89,7 @@ workflows:
           wget "https://ec.europa.eu/tools/lotl/eu-lotl.xml" -P $TSL_FILES_DIR
 
           # Get repo.ria values from environmental variables, as CodeMagic doesn't have access to repo.ria domain
-          if [[ "${{ inputs.defaultCentralConfigurationTslUrl_input }}" == *"repo.ria"* ]]; then
+          if [[ "${{ inputs.defaultCentralConfigurationTslUrl_input }}" == *"repo.ria"* || "${{ inputs.defaultCentralConfigurationTslUrl_input }}" == *"10.0.25.57"* ]]; then
             echo "Using repo.ria configuration"
             echo $REPO_RIA_DEFAULT_PROPERTIES | base64 --decode > $CONFIG_DIR/configuration.properties
             echo $REPO_RIA_CONFIG | base64 --decode > $CONFIG_DIR/default-config.json
@@ -106,7 +106,7 @@ workflows:
           if [ -f "$TSL_FILES_DIR/eu-lotl.xml" ]; then
             echo "Getting TSL (local LOTL)"
             # Repo.ria TSL files already in assets folder, doesn't need to download separately anymore
-            if [[ "${{ inputs.defaultCentralConfigurationTslUrl_input }}" == *"repo.ria"* ]]; then
+            if [[ "${{ inputs.defaultCentralConfigurationTslUrl_input }}" == *"repo.ria"* || "${{ inputs.defaultCentralConfigurationTslUrl_input }}" == *"10.0.25.57"* ]]; then
               python3 scripts/TSLXMLDownloader.py --tslFile="$TSL_FILES_DIR/eu-lotl.xml" --countries="${{ inputs.memberTsl_input }}" --isDevBuild="True"
             else
               python3 scripts/TSLXMLDownloader.py --tslFile="$TSL_FILES_DIR/eu-lotl.xml" --tslTestFile="$TSL_FILES_DIR/$(basename ${{ inputs.defaultCentralConfigurationTslUrl_input }})" --countries="${{ inputs.memberTsl_input }}" --isDevBuild="True"
@@ -139,7 +139,7 @@ workflows:
       - name: Fetch default configuration
         script: |
           # Not running 'fetchAndPackageDefaultConfiguration' for repo.ria as necessary files are already setup
-          if [[ ! "${{ inputs.defaultCentralConfigurationTslUrl_input }}" == *"repo.ria"* ]]; then
+          if [[ ! "${{ inputs.defaultCentralConfigurationTslUrl_input }}" == *"repo.ria"* && ! "${{ inputs.defaultCentralConfigurationTslUrl_input }}" == *"10.0.25.57"* ]]; then
             ./gradlew clean --no-daemon fetchAndPackageDefaultConfiguration --args="${{ inputs.defaultCentralConfigurationUrl_input }} ${{ inputs.defaultCentralConfigurationUpdateInterval_input }}"
           else
             echo "Skipping default configuration fetching for repo.ria"
