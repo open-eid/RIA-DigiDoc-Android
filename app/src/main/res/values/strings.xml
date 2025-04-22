@@ -320,7 +320,7 @@
 
     <string name="signature_update_nfc_message">Enter your ID-card access number (CAN) and PIN2 code to sign with ID-card</string>
     <string name="signature_update_nfc_can">ID-card access number (CAN)</string>
-    <string name="signature_update_nfc_pin">%1$s kood</string>
+    <string name="signature_update_nfc_pin">%1$s code</string>
     <string name="signature_update_nfc_adapter_missing">This device does not support contactless connection</string>
     <string name="signature_update_nfc_turned_off">NFC is turned off</string>
     <string name="signature_update_nfc_tag_lost">NFC connection lost</string>

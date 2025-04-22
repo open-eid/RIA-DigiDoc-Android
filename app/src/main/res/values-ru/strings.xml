@@ -295,7 +295,7 @@
 
     <string name="signature_update_nfc_message">Чтобы подписать с помощью ID-карты, введите ее номер доступа (CAN) и PIN2-код</string>
     <string name="signature_update_nfc_can">Номер доступа ID-карты (CAN)</string>
-    <string name="signature_update_nfc_pin">%1$s kood</string>
+    <string name="signature_update_nfc_pin">%1$s код</string>
     <string name="signature_update_nfc_adapter_missing">Данное устройство не поддерживает бесконтактное соединение</string>
     <string name="signature_update_nfc_turned_off">NFC отключен</string>
     <string name="signature_update_nfc_tag_lost">Создание бесконтактного соединения не удалось</string>
