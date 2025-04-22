@@ -19,6 +19,8 @@ data class MyEidMyDataDetailItem(
         firstname: String?,
         lastname: String?,
         citizenship: String?,
+        personalCode: String?,
+        dateOfBirth: String?,
         documentNumber: String?,
         validTo: String?,
     ): List<MyEidMyDataDetailItem> =
@@ -55,6 +57,28 @@ data class MyEidMyDataDetailItem(
                         ""
                     },
                 testTag = "myEidMyDataCitizenship",
+            ),
+            MyEidMyDataDetailItem(
+                label = R.string.myeid_personal_code,
+                value = personalCode,
+                contentDescription =
+                    if (value != null) {
+                        "${stringResource(id = R.string.myeid_personal_code)}, $value"
+                    } else {
+                        ""
+                    },
+                testTag = "myEidMyDataPersonalCode",
+            ),
+            MyEidMyDataDetailItem(
+                label = R.string.myeid_date_of_birth,
+                value = dateOfBirth,
+                contentDescription =
+                    if (value != null) {
+                        "${stringResource(id = R.string.myeid_date_of_birth)}, $value"
+                    } else {
+                        ""
+                    },
+                testTag = "myEidMyDataDateOfBirth",
             ),
             MyEidMyDataDetailItem(
                 label = R.string.myeid_document_number,

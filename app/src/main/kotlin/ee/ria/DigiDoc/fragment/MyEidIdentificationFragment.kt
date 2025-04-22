@@ -21,6 +21,7 @@ import ee.ria.DigiDoc.fragment.screen.MyEidIdentificationScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedMyEidViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -31,6 +32,7 @@ fun MyEidIdentificationFragment(
     sharedSettingsViewModel: SharedSettingsViewModel,
     sharedMenuViewModel: SharedMenuViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
+    sharedMyEidViewModel: SharedMyEidViewModel,
 ) {
     Surface(
         modifier =
@@ -49,6 +51,7 @@ fun MyEidIdentificationFragment(
             sharedSettingsViewModel = sharedSettingsViewModel,
             sharedMenuViewModel = sharedMenuViewModel,
             sharedContainerViewModel = sharedContainerViewModel,
+            sharedMyEidViewModel = sharedMyEidViewModel,
         )
     }
 }
@@ -63,6 +66,7 @@ fun MyEidIdentificationFragmentPreview() {
             sharedSettingsViewModel = hiltViewModel(),
             sharedMenuViewModel = hiltViewModel(),
             sharedContainerViewModel = hiltViewModel(),
+            sharedMyEidViewModel = hiltViewModel(),
         )
     }
 }

@@ -49,7 +49,7 @@ import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
-import ee.ria.DigiDoc.viewmodel.shared.SharedPinViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedMyEidViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedRecipientViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
@@ -63,7 +63,7 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
     val sharedSignatureViewModel: SharedSignatureViewModel = hiltViewModel()
     val sharedCertificateViewModel: SharedCertificateViewModel = hiltViewModel()
     val sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel()
-    val sharedPinViewModel: SharedPinViewModel = hiltViewModel()
+    val sharedMyEidViewModel: SharedMyEidViewModel = hiltViewModel()
 
     sharedContainerViewModel.setExternalFileUris(externalFileUris)
 
@@ -292,6 +292,7 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
                 sharedSettingsViewModel = sharedSettingsViewModel,
                 sharedMenuViewModel = sharedMenuViewModel,
                 sharedContainerViewModel = sharedContainerViewModel,
+                sharedMyEidViewModel = sharedMyEidViewModel,
             )
         }
         composable(route = Route.MyEidIdentificationMethodScreen.route) {
@@ -315,7 +316,7 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 sharedMenuViewModel = sharedMenuViewModel,
-                sharedPinViewModel = sharedPinViewModel,
+                sharedMyEidViewModel = sharedMyEidViewModel,
             )
         }
         composable(route = Route.MyEidPinScreen.route) {
@@ -323,7 +324,7 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 sharedMenuViewModel = sharedMenuViewModel,
-                sharedPinViewModel = sharedPinViewModel,
+                sharedMyEidViewModel = sharedMyEidViewModel,
             )
         }
     }

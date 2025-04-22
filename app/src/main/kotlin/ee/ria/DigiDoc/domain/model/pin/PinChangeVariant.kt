@@ -2,12 +2,6 @@
 
 package ee.ria.DigiDoc.domain.model.pin
 
-enum class PinChoice {
-    PIN1,
-    PIN2,
-    PUK,
-}
-
 sealed class PinChangeVariant {
     object ChangePin1 : PinChangeVariant()
 

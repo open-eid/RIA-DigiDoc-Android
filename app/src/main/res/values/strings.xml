@@ -251,10 +251,10 @@
     <string name="id_card_sign_data">%1$s %2$s (%3$s)</string>
     <string name="id_card_sign_pin2">Enter PIN2</string>
     <string name="id_card_progress_message_signing">Signing in progress. Please wait.</string>
-    <string name="id_card_sign_pin2_wrong">Wrong PIN2</string>
-    <string name="id_card_sign_pin2_invalid">Wrong PIN2. You have %1$d attempts left.</string>
-    <string name="id_card_sign_pin2_invalid_final">Wrong PIN2. You have 1 attempt left until your PIN2 is blocked.</string>
-    <string name="id_card_sign_pin2_locked">PIN2 blocked. Go to My eID to unblock it.</string>
+    <string name="id_card_sign_pin_wrong">Wrong %1$s</string>
+    <string name="id_card_sign_pin_invalid">Wrong %1$s. You have %2$d attempts left.</string>
+    <string name="id_card_sign_pin_invalid_final">Wrong %1$s. You have 1 attempt left until your %1$s is blocked.</string>
+    <string name="id_card_sign_pin_locked">%1$s blocked. Go to My eID to unblock it.</string>
 
     <string name="signature_update_mobile_id_invalid_country_code">Invalid country code.</string>
     <string name="signature_update_mobile_id_invalid_phone_number">Phone number is not valid.</string>
@@ -309,10 +309,6 @@
     <string name="signature_update_mobile_id_error_message_access_rights">Failed to sign container. Check your mobile-ID service access settings. https://www.id.ee/en/article/for-organisations-that-sign-large-quantities-of-documents-using-digidoc4-client/</string>
     <string name="signature_update_mobile_id_error_simultaneous_requests_limit_exceeded">Simultaneous requests limit exceeded</string>
     <string name="signature_update_mobile_id_error_technical_error">Failed to send request. Mobile-ID service has encountered technical errors. Please try again later.</string>
-
-    <string name="signature_update_id_card_sign_pin2_invalid">Wrong %s. You have %s attempts left.</string>
-    <string name="signature_update_id_card_sign_pin2_invalid_final">Wrong %s. You have 1 attempt left until your PIN2 is blocked.</string>
-    <string name="signature_update_id_card_sign_pin2_locked">%s blocked. Go to My eID to unblock it.</string>
 
     <string name="nfc_sign_can_invalid_length">CAN-code must be %1$s digits long</string>
     <string name="nfc_sign_can_location">The 6-digit number is located under the document photo</string>
@@ -586,6 +582,8 @@
     <string name="myeid_firstname">Firstname</string>
     <string name="myeid_lastname">Lastname</string>
     <string name="myeid_citizenship">Citizenship</string>
+    <string name="myeid_personal_code">Personal code</string>
+    <string name="myeid_date_of_birth">Date of birth</string>
     <string name="myeid_document_number">Document number</string>
     <string name="myeid_valid_to">Valid to</string>
     <string name="myeid_status_valid">Valid</string>
@@ -616,6 +614,21 @@
     <string name="myeid_pin_changed_success">%1$s changed</string>
     <string name="myeid_pin_unblock_button">Unblock %1$s</string>
     <string name="myeid_pin_unblocked_success">%1$s unblocked</string>
+    <plurals name="myeid_pin_error_code_verification">
+        <item quantity="one">Wrong %1$s code. You can try 1 more time.</item>
+        <item quantity="other">Wrong %1$s code. You can try %2$s more times.</item>
+        <!-- placeholder to keep line numbers same in different locales -->
+        <!-- placeholder to keep line numbers same in different locales -->
+    </plurals>
+    <string name="myeid_pin_blocked">%1$s is blocked, because %1$s has been inserted 3 times incorrectly.</string>
+    <string name="myeid_pin_blocked_with_unblock_message">%1$s has been blocked because %1$s code has been entered incorrectly 3 times. Unblock to reuse PIN1.</string>
+    <string name="myeid_puk_blocked">PUK has been blocked because PUK code has been entered incorrectly 3 times. You can not unblock the PUK code yourself.</string>
+    <string name="myeid_cert_expired">Certificate has &lt;c>expired&lt;/c>! %1$s cannot be used because the certificate has expired.</string>
+    <string name="myeid_pin_part_personal_code_error">New %1$s code can\'t be part of your personal code</string>
+    <string name="myeid_pin_part_dob_error">New %1$s code can\'t be your date of birth</string>
+    <string name="myeid_pin_too_easy_error">New %1$s code can\'t be so easy</string>
+    <string name="myeid_new_and_current_pin_match_error">Old and new %1$s have to be different</string>
+    <string name="myeid_pin_repeat_error">New %1$s codes must match</string>
 
     <!-- Voice Control -->
     <string name="signing_container_name_update_button_voice">Edit</string>

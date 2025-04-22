@@ -70,6 +70,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.domain.model.IdCardData
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderStatus
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
@@ -118,9 +119,8 @@ fun IdCardView(
     sharedSettingsViewModel: SharedSettingsViewModel,
     idCardViewModel: IdCardViewModel = hiltViewModel(),
     isValidToSign: (Boolean) -> Unit,
-    isValidToAuthenticate: (Boolean) -> Unit,
+    isAuthenticated: (Boolean, IdCardData) -> Unit,
     signAction: (() -> Unit) -> Unit = {},
-    authAction: (() -> Unit) -> Unit = {},
     cancelAction: (() -> Unit) -> Unit = {},
 ) {
     val context = LocalContext.current
@@ -128,8 +128,7 @@ fun IdCardView(
     val loading by remember { mutableStateOf(true) }
 
     val idCardStatus by idCardViewModel.idCardStatus.asFlow().collectAsState(SmartCardReaderStatus.IDLE)
-    val personalData by idCardViewModel.userData.asFlow().collectAsState(null)
-    val pinError by idCardViewModel.pinErrorState.asFlow().collectAsState(null)
+    val idCardData by idCardViewModel.userData.asFlow().collectAsState(null)
     val dialogError by idCardViewModel.dialogError.asFlow().collectAsState(null)
 
     val idCardStatusInitialMessage = stringResource(id = R.string.id_card_status_initial_message)
@@ -152,6 +151,7 @@ fun IdCardView(
     var roleDataRequest: RoleData? by remember { mutableStateOf(null) }
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
     var errorText by remember { mutableStateOf("") }
+    var pinErrorText by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     val statusMessageFocusRequester = remember { FocusRequester() }
     val readyToSignFocusRequester = remember { FocusRequester() }
@@ -163,7 +163,7 @@ fun IdCardView(
     val buttonName = stringResource(id = R.string.button_name)
 
     BackHandler {
-        if (isSigning) {
+        if (isSigning || isAuthenticating) {
             isDataLoadingStarted = false
             showLoadingIndicator = false
             onError()
@@ -202,7 +202,7 @@ fun IdCardView(
                     showLoadingIndicator = true
                     isDataLoadingStarted = true
                     withContext(IO) {
-                        idCardViewModel.loadPersonalData(context)
+                        idCardViewModel.loadPersonalData()
                     }
                     idCardStatusMessage.value = idCardStatusCardDetectedMessage
                 }
@@ -246,8 +246,11 @@ fun IdCardView(
                     idCardViewModel.resetErrorState()
                 }
                 withContext(Main) {
-                    if (errorState != "") {
-                        errorText = errorState
+                    if (errorState.first != 0) {
+                        errorText =
+                            context.getString(
+                                errorState.first, errorState.second, errorState.third,
+                            )
                     }
 
                     pin2Code = TextFieldValue("")
@@ -263,15 +266,21 @@ fun IdCardView(
     LaunchedEffect(idCardViewModel.pinErrorState) {
         idCardViewModel.pinErrorState.asFlow()
             .filterNotNull()
-            .collect {
-                withContext(Main) {
+            .collect { pinErrorState ->
+                withContext(IO) {
                     idCardViewModel.resetErrorState()
                     idCardViewModel.resetDialogErrorState()
+                }
+                withContext(Main) {
                     pin2Code = TextFieldValue("")
                     pin2WithInvisibleSpaces =
                         TextFieldValue(
                             text = "",
                             selection = TextRange.Zero,
+                        )
+                    pinErrorText =
+                        context.getString(
+                            pinErrorState.first, pinErrorState.second, pinErrorState.third,
                         )
                     onError()
                 }
@@ -306,16 +315,25 @@ fun IdCardView(
             }
     }
 
-    LaunchedEffect(Unit, personalData, isValid, isSigning, idCardStatusMessage) {
-        if (personalData == null || (isValid && isSigning)) {
+    LaunchedEffect(Unit, idCardData, isValid, isSigning, idCardStatusMessage, isAuthenticating) {
+        if (idCardData?.personalData == null || (isValid && isSigning) || isAuthenticating) {
             statusMessageFocusRequester.requestFocus()
         }
     }
 
-    LaunchedEffect(Unit, personalData, isSigning) {
-        if (personalData != null && !isSigning) {
+    LaunchedEffect(Unit, idCardData, isSigning) {
+        if (idCardData?.personalData != null && !isSigning && !isAuthenticating) {
             delay(500)
             readyToSignFocusRequester.requestFocus()
+        }
+    }
+
+    LaunchedEffect(Unit, idCardData, isAuthenticating) {
+        if (idCardData?.personalData != null && isAuthenticating && !isSigning) {
+            idCardData?.let { data ->
+                isAuthenticated(true, data)
+                idCardViewModel.resetPersonalUserData()
+            }
         }
     }
 
@@ -451,7 +469,6 @@ fun IdCardView(
                         CoroutineScope(IO).launch {
                             idCardViewModel.sign(
                                 activity,
-                                context,
                                 signedContainer!!,
                                 pin2Code.text.toByteArray(),
                                 roleDataRequest,
@@ -478,11 +495,11 @@ fun IdCardView(
                 }
             }
 
-            if (personalData != null && isSigning) {
+            if (idCardData?.personalData != null && isSigning) {
                 idCardStatusMessage.value = idCardStatusSigningMessage
             }
 
-            if (personalData == null || (isValid && isSigning)) {
+            if (idCardData?.personalData == null || (isValid && isSigning) || isAuthenticating) {
                 if (!showLoadingIndicator) {
                     Icon(
                         modifier =
@@ -506,21 +523,28 @@ fun IdCardView(
                     )
                 }
 
-                Text(
-                    text = idCardStatusMessage.value,
-                    style = MaterialTheme.typography.titleLarge,
+                Row(
                     modifier =
                         modifier
-                            .focusRequester(statusMessageFocusRequester)
-                            .focusable()
-                            .padding(vertical = SPadding)
-                            .testTag("idCardStatusMessage"),
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
+                            .fillMaxWidth()
+                            .padding(vertical = SPadding),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    Text(
+                        text = idCardStatusMessage.value,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier =
+                            modifier
+                                .focusRequester(statusMessageFocusRequester)
+                                .focusable()
+                                .testTag("idCardStatusMessage"),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
             }
 
-            if (personalData != null && !isSigning) {
+            if (idCardData?.personalData != null && !isSigning && !isAuthenticating) {
                 Column(
                     modifier =
                         modifier
@@ -544,6 +568,8 @@ fun IdCardView(
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+
+                    val personalData = idCardData?.personalData
 
                     val nameText =
                         formatName(
@@ -587,7 +613,7 @@ fun IdCardView(
                                         modifier = modifier.notAccessible(),
                                         text = pin2Text,
                                         color =
-                                            if (!pinError.isNullOrEmpty()) {
+                                            if (pinErrorText.isNotEmpty()) {
                                                 Red500
                                             } else {
                                                 MaterialTheme.colorScheme.onSurface
@@ -659,7 +685,7 @@ fun IdCardView(
                                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                                         unfocusedBorderColor = MaterialTheme.colorScheme.primary,
                                     ),
-                                isError = !pinError.isNullOrEmpty(),
+                                isError = pinErrorText.isNotEmpty(),
                                 visualTransformation =
                                     if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                                 keyboardOptions =
@@ -690,15 +716,15 @@ fun IdCardView(
                             }
                         }
 
-                        if (!pinError.isNullOrEmpty()) {
+                        if (pinErrorText.isNotEmpty()) {
                             Text(
                                 modifier =
                                     modifier
                                         .fillMaxWidth()
                                         .focusable(true)
-                                        .semantics { contentDescription = pinError ?: "" }
+                                        .semantics { contentDescription = pinErrorText }
                                         .testTag("idCardPin2Error"),
-                                text = pinError ?: "",
+                                text = pinErrorText,
                                 textAlign = TextAlign.Start,
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.error,
@@ -731,7 +757,7 @@ fun IdCardViewPreview() {
             isSigning = true,
             isValidToSign = {},
             isAuthenticating = false,
-            isValidToAuthenticate = {},
+            isAuthenticated = { _, _ -> {} },
         )
     }
 }

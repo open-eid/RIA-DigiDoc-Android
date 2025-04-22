@@ -259,7 +259,6 @@ fun DecryptScreen(
                         sharedSettingsViewModel = sharedSettingsViewModel,
                         sharedContainerViewModel = sharedContainerViewModel,
                         isValidToSign = {},
-                        isValidToAuthenticate = {},
                         signAction = { action ->
                             decryptAction = {
                                 isDecrypting = true
@@ -271,6 +270,7 @@ fun DecryptScreen(
                             cancelDecryptAction = action
                         },
                         isAddingRoleAndAddress = false,
+                        isAuthenticated = { _, _ -> {} },
                     )
 
                 DecryptMethodSetting.NFC ->
@@ -304,6 +304,9 @@ fun DecryptScreen(
                             cancelDecryptAction = action
                         },
                         isAddingRoleAndAddress = false,
+                        isAuthenticating = false,
+                        isAuthenticated = { _, _ -> {} },
+                        isValidToAuthenticate = {},
                     )
             }
 

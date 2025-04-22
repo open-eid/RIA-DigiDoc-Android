@@ -40,6 +40,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
@@ -72,6 +73,7 @@ import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedMyEidViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.launch
 
@@ -82,6 +84,7 @@ fun MyEidIdentificationScreen(
     sharedMenuViewModel: SharedMenuViewModel,
     sharedSettingsViewModel: SharedSettingsViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
+    sharedMyEidViewModel: SharedMyEidViewModel,
 ) {
     val context = LocalActivity.current as Activity
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
@@ -97,7 +100,6 @@ fun MyEidIdentificationScreen(
     }
     val chosenMethodName by remember { mutableIntStateOf(chosenMethod.label) }
     var isValidToAuthenticate by remember { mutableStateOf(false) }
-    var authAction by remember { mutableStateOf<() -> Unit>({}) }
     var cancelAction by remember { mutableStateOf<() -> Unit>({}) }
 
     val snackBarHostState = remember { SnackbarHostState() }
@@ -117,6 +119,10 @@ fun MyEidIdentificationScreen(
             }
             SnackBarManager.removeMessage(message)
         }
+    }
+
+    LaunchedEffect(chosenMethod) {
+        sharedMyEidViewModel.setIdentificationMethod(chosenMethod)
     }
 
     Scaffold(
@@ -176,62 +182,67 @@ fun MyEidIdentificationScreen(
                 style = MaterialTheme.typography.headlineMedium,
             )
 
-            if (!isAuthenticating && !isIdCardProcessStarted) {
-                Column(
+            Column(
+                modifier =
+                    modifier
+                        .fillMaxWidth()
+                        .padding(vertical = XSPadding)
+                        .alpha(
+                            if (!isAuthenticating && !isIdCardProcessStarted) {
+                                1f
+                            } else {
+                                0.01f
+                            },
+                        ),
+                horizontalAlignment = Alignment.Start,
+            ) {
+                Text(
+                    text = identificationMethodText,
+                    modifier =
+                        modifier
+                            .focusable(false)
+                            .notAccessible()
+                            .testTag("identificationMethodTitle"),
+                    color = MaterialTheme.colorScheme.onSecondary,
+                    textAlign = TextAlign.Start,
+                    style = MaterialTheme.typography.labelLarge,
+                )
+
+                Row(
                     modifier =
                         modifier
                             .fillMaxWidth()
-                            .padding(vertical = XSPadding),
-                    horizontalAlignment = Alignment.Start,
+                            .background(Color.Transparent)
+                            .clickable {
+                                navController.navigate(
+                                    Route.MyEidIdentificationMethodScreen.route,
+                                )
+                            },
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = identificationMethodText,
                         modifier =
                             modifier
-                                .focusable(false)
-                                .notAccessible()
-                                .testTag("identificationMethodTitle"),
-                        color = MaterialTheme.colorScheme.onSecondary,
+                                .semantics {
+                                    contentDescription = "$identificationMethodText $chosenMethodNameText"
+                                },
+                        text = chosenMethodNameText,
+                        color = MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Start,
-                        style = MaterialTheme.typography.labelLarge,
                     )
 
-                    Row(
+                    Spacer(modifier = modifier.weight(1f))
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_m3_arrow_right_48dp_wght400),
+                        contentDescription = null,
                         modifier =
                             modifier
-                                .fillMaxWidth()
-                                .background(Color.Transparent)
-                                .clickable {
-                                    navController.navigate(
-                                        Route.MyEidIdentificationMethodScreen.route,
-                                    )
-                                },
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            modifier =
-                                modifier
-                                    .semantics {
-                                        contentDescription = "$identificationMethodText $chosenMethodNameText"
-                                    },
-                            text = chosenMethodNameText,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            textAlign = TextAlign.Start,
-                        )
-
-                        Spacer(modifier = modifier.weight(1f))
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_m3_arrow_right_48dp_wght400),
-                            contentDescription = null,
-                            modifier =
-                                modifier
-                                    .padding(MSPadding)
-                                    .size(iconSizeXXS)
-                                    .wrapContentHeight(align = Alignment.CenterVertically)
-                                    .notAccessible(),
-                        )
-                    }
+                                .padding(MSPadding)
+                                .size(iconSizeXXS)
+                                .wrapContentHeight(align = Alignment.CenterVertically)
+                                .notAccessible(),
+                    )
                 }
             }
 
@@ -255,24 +266,27 @@ fun MyEidIdentificationScreen(
                             }
                         },
                         isSigning = false,
-                        isAuthenticating = isAuthenticating,
+                        isAuthenticating = true,
                         sharedSettingsViewModel = sharedSettingsViewModel,
                         sharedContainerViewModel = sharedContainerViewModel,
                         isValidToSign = { isValid ->
                             isValidToAuthenticate = isValid
                         },
-                        signAction = { action ->
-                            authAction = {
-                                isAuthenticating = true
-                                action()
-                            }
-                        },
+                        signAction = {},
                         cancelAction = { action ->
                             isAuthenticating = false
                             cancelAction = action
                         },
-                        isValidToAuthenticate = {},
                         isAddingRoleAndAddress = false,
+                        isAuthenticated = { authenticated, personalData ->
+                            if (authenticated) {
+                                sharedMyEidViewModel.setIdCardData(personalData)
+
+                                navController.navigate(
+                                    Route.MyEidScreen.route,
+                                )
+                            }
+                        },
                     )
 
                 MyEidIdentificationMethodSetting.NFC ->
@@ -289,60 +303,62 @@ fun MyEidIdentificationScreen(
                         },
                         identityAction = IdentityAction.AUTH,
                         isSigning = false,
+                        isAuthenticating = isAuthenticating,
                         rememberMe = rememberMe,
                         sharedSettingsViewModel = sharedSettingsViewModel,
                         sharedContainerViewModel = sharedContainerViewModel,
+                        showPinField = false,
                         isSupported = { supported ->
                             nfcSupported = supported
                         },
-                        isValidToSign = { isValid ->
-                            isValidToAuthenticate = isValid
-                        },
-                        signAction = { action ->
-                            authAction = action
-                        },
+                        isValidToSign = {},
+                        signAction = {},
                         cancelAction = { action ->
                             cancelAction = action
                         },
                         isAddingRoleAndAddress = false,
+                        isAuthenticated = { authenticated, idCardData ->
+                            if (authenticated) {
+                                sharedMyEidViewModel.setIdCardData(idCardData)
+
+                                navController.navigate(
+                                    Route.MyEidScreen.route,
+                                )
+                            }
+                        },
+                        isValidToAuthenticate = { isValid ->
+                            isValidToAuthenticate = isValid
+                        },
                     )
             }
 
-            if (!isAuthenticating && (chosenMethod != MyEidIdentificationMethodSetting.NFC || nfcSupported)) {
-                if (chosenMethod != MyEidIdentificationMethodSetting.ID_CARD) {
-                    SettingsSwitchItem(
-                        modifier = modifier,
-                        checked = rememberMe,
-                        onCheckedChange = {
-                            rememberMe = it
-                        },
-                        title = rememberMeText,
-                        contentDescription = rememberMeText,
-                        testTag = "myEidRememberMeSwitch",
+            if (!isAuthenticating && chosenMethod != MyEidIdentificationMethodSetting.ID_CARD &&
+                (chosenMethod != MyEidIdentificationMethodSetting.NFC || nfcSupported)
+            ) {
+                SettingsSwitchItem(
+                    modifier = modifier,
+                    checked = rememberMe,
+                    onCheckedChange = {
+                        rememberMe = it
+                    },
+                    title = rememberMeText,
+                    contentDescription = rememberMeText,
+                    testTag = "myEidRememberMeSwitch",
+                )
+
+                if (rememberMe) {
+                    Text(
+                        text = stringResource(R.string.signature_update_remember_me_message),
                     )
-
-                    if (rememberMe) {
-                        Text(
-                            text = stringResource(R.string.signature_update_remember_me_message),
-                        )
-                    }
-
-                    Spacer(modifier = modifier.height(SPadding))
                 }
+
+                Spacer(modifier = modifier.height(SPadding))
 
                 Button(
                     onClick = {
-                        // TODO: Change when implementing logic
-
-                        /*isAuthenticating = true
-                        authAction()*/
-
-                        navController.navigate(
-                            Route.MyEidScreen.route,
-                        )
+                        isAuthenticating = true
                     },
-                    // isValidToAuthenticate
-                    enabled = true,
+                    enabled = isValidToAuthenticate,
                     modifier =
                         modifier
                             .fillMaxWidth(),
@@ -370,6 +386,7 @@ fun MyEidIdentificationScreenPreview() {
             sharedMenuViewModel = hiltViewModel(),
             sharedSettingsViewModel = hiltViewModel(),
             sharedContainerViewModel = hiltViewModel(),
+            sharedMyEidViewModel = hiltViewModel(),
         )
     }
 }

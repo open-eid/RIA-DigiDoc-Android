@@ -13,7 +13,8 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.cryptolib.CDOC2Settings
-import ee.ria.DigiDoc.domain.model.pin.PinChoice
+import ee.ria.DigiDoc.domain.service.IdCardService
+import ee.ria.DigiDoc.idcard.CodeType
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapperImpl
@@ -66,6 +67,9 @@ class NFCViewModelTest {
 
     private lateinit var cdoc2Settings: CDOC2Settings
 
+    @Mock
+    private lateinit var idCardService: IdCardService
+
     companion object {
         @JvmStatic
         @BeforeClass
@@ -89,7 +93,7 @@ class NFCViewModelTest {
 
         containerWrapper = ContainerWrapperImpl()
         cdoc2Settings = CDOC2Settings(context)
-        viewModel = NFCViewModel(NfcSmartCardReaderManager(), containerWrapper, cdoc2Settings)
+        viewModel = NFCViewModel(NfcSmartCardReaderManager(), containerWrapper, cdoc2Settings, idCardService)
 
         scenario = ActivityScenario.launch(ComponentActivity::class.java)
 
@@ -206,28 +210,28 @@ class NFCViewModelTest {
     @Test
     fun nfcViewModel_shouldShowPIN1CodeError_false() =
         runTest {
-            val result = viewModel.shouldShowPINCodeError(byteArrayOf(1, 1, 5, 5, 5), PinChoice.PIN1)
+            val result = viewModel.shouldShowPINCodeError(byteArrayOf(1, 1, 5, 5, 5), CodeType.PIN1)
             assertFalse(result)
         }
 
     @Test
     fun nfcViewModel_isPIN1CodeValid_shouldShowNullReturnFalse() =
         runTest {
-            val result = viewModel.shouldShowPINCodeError(null, PinChoice.PIN1)
+            val result = viewModel.shouldShowPINCodeError(null, CodeType.PIN1)
             assertFalse(result)
         }
 
     @Test
     fun nfcViewModel_isPIN1CodeValid_shouldShowEmptyReturnFalse() =
         runTest {
-            val result = viewModel.shouldShowPINCodeError(byteArrayOf(), PinChoice.PIN1)
+            val result = viewModel.shouldShowPINCodeError(byteArrayOf(), CodeType.PIN1)
             assertFalse(result)
         }
 
     @Test
     fun nfcViewModel_shouldShowPIN1CodeError_returnTrueMinLength() =
         runTest {
-            val result = viewModel.shouldShowPINCodeError(byteArrayOf(1, 1, 5), PinChoice.PIN1)
+            val result = viewModel.shouldShowPINCodeError(byteArrayOf(1, 1, 5), CodeType.PIN1)
             assertTrue(result)
         }
 
@@ -238,7 +242,7 @@ class NFCViewModelTest {
                 viewModel
                     .shouldShowPINCodeError(
                         byteArrayOf(1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7),
-                        PinChoice.PIN1,
+                        CodeType.PIN1,
                     )
             assertTrue(result)
         }
@@ -248,7 +252,7 @@ class NFCViewModelTest {
         runTest {
             val result =
                 viewModel
-                    .positiveButtonEnabled("444222", byteArrayOf(1, 1, 5, 5, 5), PinChoice.PIN1)
+                    .positiveButtonEnabled("444222", byteArrayOf(1, 1, 5, 5, 5), CodeType.PIN1)
             assertTrue(result)
         }
 
@@ -257,42 +261,42 @@ class NFCViewModelTest {
         runTest {
             val result =
                 viewModel
-                    .positiveButtonEnabled("444222", byteArrayOf(1, 1, 5), PinChoice.PIN1)
+                    .positiveButtonEnabled("444222", byteArrayOf(1, 1, 5), CodeType.PIN1)
             assertFalse(result)
         }
 
     @Test
     fun nfcViewModel_positiveButtonEnabled_PIN1NullReturnFalse() =
         runTest {
-            val result = viewModel.positiveButtonEnabled("444222", null, PinChoice.PIN1)
+            val result = viewModel.positiveButtonEnabled("444222", null, CodeType.PIN1)
             assertFalse(result)
         }
 
     @Test
     fun nfcViewModel_shouldShowPIN2CodeError_false() =
         runTest {
-            val result = viewModel.shouldShowPINCodeError(byteArrayOf(1, 1, 5, 5, 5), PinChoice.PIN2)
+            val result = viewModel.shouldShowPINCodeError(byteArrayOf(1, 1, 5, 5, 5), CodeType.PIN2)
             assertFalse(result)
         }
 
     @Test
     fun nfcViewModel_isPIN2CodeValid_shouldShowNullReturnFalse() =
         runTest {
-            val result = viewModel.shouldShowPINCodeError(null, PinChoice.PIN2)
+            val result = viewModel.shouldShowPINCodeError(null, CodeType.PIN2)
             assertFalse(result)
         }
 
     @Test
     fun nfcViewModel_isPIN2CodeValid_shouldShowEmptyReturnFalse() =
         runTest {
-            val result = viewModel.shouldShowPINCodeError(byteArrayOf(), PinChoice.PIN2)
+            val result = viewModel.shouldShowPINCodeError(byteArrayOf(), CodeType.PIN2)
             assertFalse(result)
         }
 
     @Test
     fun nfcViewModel_shouldShowPIN2CodeError_returnTrueMinLength() =
         runTest {
-            val result = viewModel.shouldShowPINCodeError(byteArrayOf(1, 1, 5, 5), PinChoice.PIN2)
+            val result = viewModel.shouldShowPINCodeError(byteArrayOf(1, 1, 5, 5), CodeType.PIN2)
             assertTrue(result)
         }
 
@@ -303,7 +307,7 @@ class NFCViewModelTest {
                 viewModel
                     .shouldShowPINCodeError(
                         byteArrayOf(1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7),
-                        PinChoice.PIN2,
+                        CodeType.PIN2,
                     )
             assertTrue(result)
         }
@@ -313,7 +317,7 @@ class NFCViewModelTest {
         runTest {
             val result =
                 viewModel
-                    .positiveButtonEnabled("444222", byteArrayOf(1, 1, 5, 5, 5), PinChoice.PIN2)
+                    .positiveButtonEnabled("444222", byteArrayOf(1, 1, 5, 5, 5), CodeType.PIN2)
             assertTrue(result)
         }
 
@@ -322,14 +326,14 @@ class NFCViewModelTest {
         runTest {
             val result =
                 viewModel
-                    .positiveButtonEnabled("444222", byteArrayOf(1, 1, 5, 5), PinChoice.PIN2)
+                    .positiveButtonEnabled("444222", byteArrayOf(1, 1, 5, 5), CodeType.PIN2)
             assertFalse(result)
         }
 
     @Test
     fun nfcViewModel_positiveButtonEnabled_PIN2NullReturnFalse() =
         runTest {
-            val result = viewModel.positiveButtonEnabled("444222", null, PinChoice.PIN2)
+            val result = viewModel.positiveButtonEnabled("444222", null, CodeType.PIN2)
             assertFalse(result)
         }
 
@@ -338,7 +342,7 @@ class NFCViewModelTest {
         runTest {
             val result =
                 viewModel
-                    .positiveButtonEnabled("44422", byteArrayOf(1, 1, 5, 5, 5), PinChoice.PIN2)
+                    .positiveButtonEnabled("44422", byteArrayOf(1, 1, 5, 5, 5), CodeType.PIN2)
             assertFalse(result)
         }
 
@@ -347,7 +351,7 @@ class NFCViewModelTest {
         runTest {
             val result =
                 viewModel
-                    .positiveButtonEnabled("44422", byteArrayOf(1, 1, 5, 5), PinChoice.PIN2)
+                    .positiveButtonEnabled("44422", byteArrayOf(1, 1, 5, 5), CodeType.PIN2)
             assertFalse(result)
         }
 
@@ -356,14 +360,14 @@ class NFCViewModelTest {
         runTest {
             val result =
                 viewModel
-                    .positiveButtonEnabled(null, byteArrayOf(1, 1, 5, 5, 5), PinChoice.PIN2)
+                    .positiveButtonEnabled(null, byteArrayOf(1, 1, 5, 5, 5), CodeType.PIN2)
             assertFalse(result)
         }
 
     @Test
     fun nfcViewModel_positiveButtonEnabled_bothNullsReturnFalse() =
         runTest {
-            val result = viewModel.positiveButtonEnabled(null, null, PinChoice.PIN2)
+            val result = viewModel.positiveButtonEnabled(null, null, CodeType.PIN2)
             assertFalse(result)
         }
 

@@ -3,16 +3,16 @@
 package ee.ria.DigiDoc.viewmodel
 
 import android.app.Activity
-import android.content.Context
 import android.content.pm.ActivityInfo
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.domain.model.IdCardData
 import ee.ria.DigiDoc.domain.service.IdCardService
+import ee.ria.DigiDoc.idcard.CodeType
 import ee.ria.DigiDoc.idcard.CodeVerificationException
-import ee.ria.DigiDoc.idcard.PersonalData
 import ee.ria.DigiDoc.idcard.Token
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
@@ -41,8 +41,8 @@ class IdCardViewModel
         private val _idCardStatus = MutableLiveData(SmartCardReaderStatus.IDLE)
         val idCardStatus: LiveData<SmartCardReaderStatus?> = _idCardStatus
 
-        private val _userData = MutableLiveData<PersonalData?>(null)
-        val userData: LiveData<PersonalData?> = _userData
+        private val _userData = MutableLiveData<IdCardData?>(null)
+        val userData: LiveData<IdCardData?> = _userData
 
         private val _signStatus = MutableLiveData<Boolean?>(null)
         val signStatus: LiveData<Boolean?> = _signStatus
@@ -50,11 +50,11 @@ class IdCardViewModel
         private val _signedContainer = MutableLiveData<SignedContainer?>(null)
         val signedContainer: LiveData<SignedContainer?> = _signedContainer
 
-        private val _errorState = MutableLiveData<String?>(null)
-        val errorState: LiveData<String?> = _errorState
+        private val _errorState = MutableLiveData<Triple<Int, String?, Int?>?>(null)
+        val errorState: LiveData<Triple<Int, String?, Int?>?> = _errorState
 
-        private val _pinErrorState = MutableLiveData<String?>(null)
-        val pinErrorState: LiveData<String?> = _pinErrorState
+        private val _pinErrorState = MutableLiveData<Triple<Int, String?, Int?>?>(null)
+        val pinErrorState: LiveData<Triple<Int, String?, Int?>?> = _pinErrorState
 
         private val _dialogError = MutableLiveData<String?>(null)
         val dialogError: LiveData<String?> = _dialogError
@@ -67,7 +67,7 @@ class IdCardViewModel
             }
         }
 
-        suspend fun loadPersonalData(context: Context) =
+        suspend fun loadPersonalData() =
             withContext(IO) {
                 try {
                     val token =
@@ -75,14 +75,14 @@ class IdCardViewModel
                             Token.create(smartCardReaderManager.connectedReader())
                         }
 
-                    val personalData = idCardService.data(token).personalData
+                    val data = idCardService.data(token)
 
-                    _userData.postValue(personalData)
+                    _userData.postValue(data)
                 } catch (e: Exception) {
                     _signStatus.postValue(false)
 
                     _errorState.postValue(
-                        context.getString(R.string.error_general_client),
+                        Triple(R.string.error_general_client, null, null),
                     )
                     errorLog(logTag, "Unable to get ID-card personal data: ${e.message}", e)
 
@@ -92,7 +92,6 @@ class IdCardViewModel
 
         suspend fun sign(
             activity: Activity,
-            context: Context,
             signedContainer: SignedContainer,
             pin2: ByteArray,
             roleData: RoleData?,
@@ -115,7 +114,7 @@ class IdCardViewModel
                     _signedContainer.postValue(signedContainerResult)
                 }
             } catch (e: Exception) {
-                handleSigningError(context, e, signedContainer)
+                handleSigningError(e, signedContainer)
             } finally {
                 activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             }
@@ -133,32 +132,7 @@ class IdCardViewModel
             }
         }
 
-        private suspend fun getPIN2RetryCount(context: Context): Int =
-            withContext(IO) {
-                try {
-                    val token =
-                        withContext(Main) {
-                            Token.create(smartCardReaderManager.connectedReader())
-                        }
-
-                    val idCardData = idCardService.data(token)
-
-                    idCardData.pin2RetryCount
-                } catch (e: Exception) {
-                    _signStatus.postValue(false)
-
-                    _errorState.postValue(
-                        context.getString(R.string.error_general_client),
-                    )
-                    errorLog(logTag, "Unable to get ID-card PIN2 retry count: ${e.message}", e)
-
-                    resetValues()
-                    -1
-                }
-            }
-
         private suspend fun handleSigningError(
-            context: Context,
             e: Exception,
             signedContainer: SignedContainer,
         ) {
@@ -168,7 +142,7 @@ class IdCardViewModel
             val message = e.message ?: ""
 
             when {
-                e is CodeVerificationException -> handlePin2Error(context)
+                e is CodeVerificationException -> handlePin2Error(e)
                 message.contains("Too Many Requests") ->
                     showErrorDialog(
                         e,
@@ -179,25 +153,22 @@ class IdCardViewModel
                         e,
                         "Unable to sign with ID-card - OCSP response not in valid time slot",
                     )
-                message.contains("Certificate status: revoked") -> showRevokedCertificateError(context, e)
+                message.contains("Certificate status: revoked") -> showRevokedCertificateError(e)
                 message.contains("Failed to connect") || message.contains("Failed to create connection with host") ->
-                    showNetworkError(
-                        context,
-                        e,
-                    )
-                message.contains("Failed to create proxy connection with host") -> showProxyError(context, e)
-                else -> showGeneralError(context, e)
+                    showNetworkError(e)
+                message.contains("Failed to create proxy connection with host") -> showProxyError(e)
+                else -> showGeneralError(e)
             }
         }
 
-        private suspend fun handlePin2Error(context: Context) {
-            val pin2RetryCount = getPIN2RetryCount(context)
+        private fun handlePin2Error(e: CodeVerificationException) {
+            val pin2RetryCount = e.retries
             val pinErrorMessage =
-                when {
-                    pin2RetryCount > 1 -> context.getString(R.string.id_card_sign_pin2_invalid, pin2RetryCount)
-                    pin2RetryCount == 1 -> context.getString(R.string.id_card_sign_pin2_invalid_final)
-                    pin2RetryCount == 0 -> context.getString(R.string.id_card_sign_pin2_locked)
-                    else -> context.getString(R.string.id_card_sign_pin2_wrong)
+                when (pin2RetryCount) {
+                    2 -> Triple(R.string.id_card_sign_pin_invalid, CodeType.PIN2.name, pin2RetryCount)
+                    1 -> Triple(R.string.id_card_sign_pin_invalid_final, CodeType.PIN2.name, null)
+                    0 -> Triple(R.string.id_card_sign_pin_locked, CodeType.PIN2.name, null)
+                    else -> Triple(R.string.id_card_sign_pin_wrong, CodeType.PIN2.name, null)
                 }
             _pinErrorState.postValue(pinErrorMessage)
         }
@@ -210,37 +181,25 @@ class IdCardViewModel
             errorLog(logTag, logMessage, e)
         }
 
-        private fun showRevokedCertificateError(
-            context: Context,
-            e: Exception,
-        ) {
+        private fun showRevokedCertificateError(e: Exception) {
             _errorState.postValue(
-                context.getString(R.string.signature_update_signature_error_message_certificate_revoked),
+                Triple(R.string.signature_update_signature_error_message_certificate_revoked, null, null),
             )
             errorLog(logTag, "Unable to sign with ID-card - Certificate status: revoked", e)
         }
 
-        private fun showNetworkError(
-            context: Context,
-            e: Exception,
-        ) {
-            _errorState.postValue(context.getString(R.string.no_internet_connection))
+        private fun showNetworkError(e: Exception) {
+            _errorState.postValue(Triple(R.string.no_internet_connection, null, null))
             errorLog(logTag, "Unable to sign with ID-card - Unable to connect to Internet", e)
         }
 
-        private fun showProxyError(
-            context: Context,
-            e: Exception,
-        ) {
-            _errorState.postValue(context.getString(R.string.main_settings_proxy_invalid_settings))
+        private fun showProxyError(e: Exception) {
+            _errorState.postValue(Triple(R.string.main_settings_proxy_invalid_settings, null, null))
             errorLog(logTag, "Unable to sign with ID-card - Unable to create proxy connection with host", e)
         }
 
-        private fun showGeneralError(
-            context: Context,
-            e: Exception,
-        ) {
-            _errorState.postValue(context.getString(R.string.error_general_client))
+        private fun showGeneralError(e: Exception) {
+            _errorState.postValue(Triple(R.string.error_general_client, null, null))
             errorLog(logTag, "Unable to sign with ID-card: ${e.message}", e)
         }
 

@@ -8,6 +8,7 @@ import android.content.pm.ActivityInfo
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.common.collect.ImmutableMap
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
@@ -18,8 +19,10 @@ import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN_MAX_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PUK_MIN_LENGTH
 import ee.ria.DigiDoc.cryptolib.CDOC2Settings
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
-import ee.ria.DigiDoc.domain.model.pin.PinChoice
+import ee.ria.DigiDoc.domain.model.IdCardData
+import ee.ria.DigiDoc.domain.service.IdCardService
 import ee.ria.DigiDoc.idcard.CertificateType
+import ee.ria.DigiDoc.idcard.CodeType
 import ee.ria.DigiDoc.idcard.PaceTunnelException
 import ee.ria.DigiDoc.idcard.TokenWithPace
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
@@ -37,6 +40,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.bouncycastle.util.encoders.Base64
 import org.bouncycastle.util.encoders.Hex
@@ -50,6 +54,7 @@ class NFCViewModel
         private val nfcSmartCardReaderManager: NfcSmartCardReaderManager,
         private val containerWrapper: ContainerWrapper,
         private val cdoc2Settings: CDOC2Settings,
+        private val idCardService: IdCardService,
     ) : ViewModel() {
         private val logTag = javaClass.simpleName
 
@@ -70,9 +75,10 @@ class NFCViewModel
         val signStatus: LiveData<Boolean?> = _signStatus
         private val _decryptStatus = MutableLiveData<Boolean?>(null)
         val decryptStatus: LiveData<Boolean?> = _decryptStatus
-
         private val _shouldResetPIN = MutableLiveData(false)
         val shouldResetPIN: LiveData<Boolean> = _shouldResetPIN
+        private val _userData = MutableLiveData<IdCardData?>(null)
+        val userData: LiveData<IdCardData?> = _userData
         private val _dialogError = MutableLiveData(0)
         val dialogError: LiveData<Int> = _dialogError
 
@@ -121,34 +127,34 @@ class NFCViewModel
 
         fun shouldShowPINCodeError(
             pinCode: ByteArray?,
-            pinChoice: PinChoice,
+            codeType: CodeType,
         ): Boolean {
-            return (pinCode != null && pinCode.isNotEmpty() && !isPINLengthValid(pinCode, pinChoice))
+            return (pinCode != null && pinCode.isNotEmpty() && !isPINLengthValid(pinCode, codeType))
         }
 
         private fun isPINLengthValid(
             pinCode: ByteArray,
-            pinChoice: PinChoice,
+            codeType: CodeType,
         ): Boolean {
-            return when (pinChoice) {
-                PinChoice.PIN1 -> pinCode.size in PIN1_MIN_LENGTH..PIN_MAX_LENGTH
-                PinChoice.PIN2 -> pinCode.size in PIN2_MIN_LENGTH..PIN_MAX_LENGTH
-                PinChoice.PUK -> pinCode.size > PUK_MIN_LENGTH
+            return when (codeType) {
+                CodeType.PIN1 -> pinCode.size in PIN1_MIN_LENGTH..PIN_MAX_LENGTH
+                CodeType.PIN2 -> pinCode.size in PIN2_MIN_LENGTH..PIN_MAX_LENGTH
+                CodeType.PUK -> pinCode.size > PUK_MIN_LENGTH
             }
         }
 
-        private fun isCANLengthValid(canNumber: String): Boolean {
+        fun isCANLengthValid(canNumber: String): Boolean {
             return canNumber.length == CAN_LENGTH
         }
 
         fun positiveButtonEnabled(
             canNumber: String?,
             pinCode: ByteArray?,
-            pinChoice: PinChoice,
+            codeType: CodeType,
         ): Boolean {
             if (canNumber != null && pinCode != null) {
                 return isCANLengthValid(canNumber.toString()) &&
-                    isPINLengthValid(pinCode, pinChoice)
+                    isPINLengthValid(pinCode, codeType)
             }
             return false
         }
@@ -225,11 +231,16 @@ class NFCViewModel
                                 val card = TokenWithPace.create(nfcReader)
                                 card.tunnel(canNumber)
                                 val signerCert = card.certificate(CertificateType.SIGNING)
-                                debugLog(logTag, "Signer certificate: " + Base64.toBase64String(signerCert))
+                                debugLog(
+                                    logTag,
+                                    "Signer certificate: " + Base64.toBase64String(signerCert),
+                                )
 
-                                val dataToSignBytes = containerWrapper.prepareSignature(container, signerCert, roleData)
+                                val dataToSignBytes =
+                                    containerWrapper.prepareSignature(container, signerCert, roleData)
 
-                                val signatureArray = card.calculateSignature(pin2Code, dataToSignBytes, true)
+                                val signatureArray =
+                                    card.calculateSignature(pin2Code, dataToSignBytes, true)
                                 if (null != pin2Code && pin2Code.isNotEmpty()) {
                                     Arrays.fill(pin2Code, 0.toByte())
                                 }
@@ -256,7 +267,7 @@ class NFCViewModel
                                     _shouldResetPIN.postValue(true)
                                     _errorState.postValue(
                                         Triple(
-                                            R.string.signature_update_id_card_sign_pin2_invalid,
+                                            R.string.id_card_sign_pin_invalid,
                                             pinType,
                                             2,
                                         ),
@@ -267,7 +278,7 @@ class NFCViewModel
                                     _shouldResetPIN.postValue(true)
                                     _errorState.postValue(
                                         Triple(
-                                            R.string.signature_update_id_card_sign_pin2_invalid_final,
+                                            R.string.id_card_sign_pin_invalid_final,
                                             pinType,
                                             null,
                                         ),
@@ -277,7 +288,7 @@ class NFCViewModel
                                 ) {
                                     _shouldResetPIN.postValue(true)
                                     _errorState.postValue(
-                                        Triple(R.string.signature_update_id_card_sign_pin2_locked, pinType, null),
+                                        Triple(R.string.id_card_sign_pin_locked, pinType, null),
                                     )
                                 } else if (ex is ApduResponseException) {
                                     _errorState.postValue(
@@ -309,6 +320,7 @@ class NFCViewModel
                                         setErrorState(
                                             SessionStatusResponseProcessStatus.TOO_MANY_REQUESTS,
                                         )
+
                                     message.contains("OCSP response not in valid time slot") ->
                                         setErrorState(
                                             SessionStatusResponseProcessStatus.OCSP_INVALID_TIME_SLOT,
@@ -319,7 +331,8 @@ class NFCViewModel
                                 errorLog(logTag, "Exception: " + ex.message, ex)
                             } finally {
                                 nfcSmartCardReaderManager.disableNfcReaderMode()
-                                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                                activity.requestedOrientation =
+                                    ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                             }
                         }
                     },
@@ -392,7 +405,7 @@ class NFCViewModel
                                     _shouldResetPIN.postValue(true)
                                     _errorState.postValue(
                                         Triple(
-                                            R.string.signature_update_id_card_sign_pin2_invalid,
+                                            R.string.id_card_sign_pin_invalid,
                                             pinType,
                                             2,
                                         ),
@@ -403,7 +416,7 @@ class NFCViewModel
                                     _shouldResetPIN.postValue(true)
                                     _errorState.postValue(
                                         Triple(
-                                            R.string.signature_update_id_card_sign_pin2_invalid_final,
+                                            R.string.id_card_sign_pin_invalid_final,
                                             pinType,
                                             null,
                                         ),
@@ -414,7 +427,7 @@ class NFCViewModel
                                     _shouldResetPIN.postValue(true)
                                     _errorState.postValue(
                                         Triple(
-                                            R.string.signature_update_id_card_sign_pin2_locked,
+                                            R.string.id_card_sign_pin_locked,
                                             pinType,
                                             null,
                                         ),
@@ -479,6 +492,62 @@ class NFCViewModel
             }
         }
 
+        suspend fun loadPersonalData(
+            activity: Activity,
+            canNumber: String,
+        ) {
+            checkNFCStatus(
+                nfcSmartCardReaderManager.startDiscovery(activity) { nfcReader, exc ->
+                    if ((nfcReader != null) && (exc == null)) {
+                        viewModelScope.launch {
+                            _message.postValue(R.string.signature_update_nfc_detected)
+                        }
+                        try {
+                            val card = TokenWithPace.create(nfcReader)
+                            card.tunnel(canNumber)
+
+                            // NFC operations must run on the same thread as the startDiscovery callback.
+                            // Only "runBlocking" works here — coroutines or new threads break the NFC session.
+                            val data =
+                                runBlocking {
+                                    idCardService.data(card)
+                                }
+
+                            _userData.postValue(data)
+                        } catch (e: Exception) {
+                            resetIdCardUserData()
+
+                            if (e.message?.contains("TagLostException") == true) {
+                                _errorState.postValue(
+                                    Triple(R.string.signature_update_nfc_tag_lost, null, null),
+                                )
+                            } else if (e is ApduResponseException) {
+                                _errorState.postValue(
+                                    Triple(R.string.signature_update_nfc_technical_error, null, null),
+                                )
+                            } else if (e is PaceTunnelException) {
+                                _errorState.postValue(
+                                    Triple(R.string.signature_update_nfc_wrong_can, null, null),
+                                )
+                            } else {
+                                _errorState.postValue(
+                                    Triple(R.string.signature_update_nfc_technical_error, null, null),
+                                )
+                            }
+
+                            errorLog(
+                                logTag,
+                                "Unable to get ID-card personal data: ${e.message}",
+                                e,
+                            )
+
+                            resetValues()
+                        }
+                    }
+                },
+            )
+        }
+
         fun handleBackButton() {
             _shouldResetPIN.postValue(true)
             resetValues()
@@ -486,6 +555,10 @@ class NFCViewModel
 
         fun resetDialogErrorState() {
             _dialogError.postValue(0)
+        }
+
+        fun resetIdCardUserData() {
+            _userData.postValue(null)
         }
 
         private fun setErrorState(status: SessionStatusResponseProcessStatus) {

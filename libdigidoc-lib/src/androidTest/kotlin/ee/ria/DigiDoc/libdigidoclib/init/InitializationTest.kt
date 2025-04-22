@@ -53,11 +53,11 @@ class InitializationTest {
                 cdoc2Conf =
                     mapOf(
                         "00000000-0000-0000-0000-000000000000" to
-                                ConfigurationProvider.CDOC2Conf(
-                                    name = "RIA",
-                                    post = "https://cdoc2.id.ee:8443",
-                                    fetch = "https://cdoc2.id.ee:8444",
-                                ),
+                            ConfigurationProvider.CDOC2Conf(
+                                name = "RIA",
+                                post = "https://cdoc2.id.ee:8443",
+                                fetch = "https://cdoc2.id.ee:8444",
+                            ),
                     ),
                 cdoc2UseKeyServer = false,
                 cdoc2DefaultKeyServer = "00000000-0000-0000-0000-000000000000",

@@ -20,7 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.ui.component.myeid.MyEidScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
-import ee.ria.DigiDoc.viewmodel.shared.SharedPinViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedMyEidViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -28,7 +28,7 @@ fun MyEidFragment(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     sharedMenuViewModel: SharedMenuViewModel,
-    sharedPinViewModel: SharedPinViewModel,
+    sharedMyEidViewModel: SharedMyEidViewModel,
 ) {
     Surface(
         modifier =
@@ -45,7 +45,7 @@ fun MyEidFragment(
             modifier = modifier,
             navController = navController,
             sharedMenuViewModel = sharedMenuViewModel,
-            sharedPinViewModel = sharedPinViewModel,
+            sharedMyEidViewModel = sharedMyEidViewModel,
         )
     }
 }
@@ -58,7 +58,7 @@ fun MyEidFragmentPreview() {
         MyEidFragment(
             navController = rememberNavController(),
             sharedMenuViewModel = hiltViewModel(),
-            sharedPinViewModel = hiltViewModel(),
+            sharedMyEidViewModel = hiltViewModel(),
         )
     }
 }

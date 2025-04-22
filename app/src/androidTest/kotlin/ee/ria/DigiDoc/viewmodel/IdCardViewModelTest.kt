@@ -143,7 +143,7 @@ class IdCardViewModelTest {
         runTest {
             `when`(smartCardReaderManager.status()).thenReturn(Observable.just(SmartCardReaderStatus.CARD_DETECTED))
 
-            val mockPersonalData = mock(PersonalData::class.java)
+            val mockIdCardData = createMockIdCardData()
             val keyUsage = mock(KeyUsage::class.java)
             val extendedKeyUsage = mock(ExtendedKeyUsage::class.java)
             val mockSmartCardReader = mock(SmartCardReader::class.java)
@@ -151,9 +151,8 @@ class IdCardViewModelTest {
             `when`(mockSmartCardReader.atr()).thenReturn(Hex.decode("3bdb960080b1fe451f830012233f536549440f9000f1"))
             `when`(smartCardReaderManager.connectedReader()).thenReturn(mockSmartCardReader)
 
-            `when`(token.personalData()).thenReturn(mockPersonalData)
+            `when`(token.personalData()).thenReturn(mockIdCardData.personalData)
 
-            val testData = byteArrayOf(1, 2, 3)
             val testName = "Test name"
 
             `when`(certificateService.parseCertificate(anyOrNull()))
@@ -165,14 +164,12 @@ class IdCardViewModelTest {
             `when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
             `when`(certificateService.extractExtendedKeyUsage(any())).thenReturn(extendedKeyUsage)
 
-            val certificate = ExtendedCertificate.create(testData, certificateService)
-
             val idCardData =
                 IdCardData(
                     EIDType.ID_CARD,
-                    mockPersonalData,
-                    certificate,
-                    certificate,
+                    mockIdCardData.personalData,
+                    mockIdCardData.authCertificate,
+                    mockIdCardData.signCertificate,
                     3,
                     3,
                     3,
@@ -180,20 +177,20 @@ class IdCardViewModelTest {
 
             `when`(idCardService.data(anyOrNull())).thenReturn(idCardData)
 
-            viewModel.loadPersonalData(mockContext)
+            viewModel.loadPersonalData()
 
             val userDataValue = viewModel.userData.value
-            assertEquals(mockPersonalData, userDataValue)
+            assertEquals(mockIdCardData, userDataValue)
         }
 
     @Test
     fun idCardViewModel_loadPersonalData_resetValuesAfterException() =
         runTest {
-            viewModel.loadPersonalData(mockContext)
+            viewModel.loadPersonalData()
 
             assertNull(viewModel.signStatus.value)
             assertNull(viewModel.dialogError.value)
-            assertNull(viewModel.idCardStatus.value)
+            assertEquals(SmartCardReaderStatus.IDLE, viewModel.idCardStatus.value)
             assertNull(viewModel.userData.value)
             assertNull(viewModel.errorState.value)
             assertNull(viewModel.pinErrorState.value)
@@ -253,7 +250,7 @@ class IdCardViewModelTest {
 
             `when`(idCardService.data(anyOrNull())).thenReturn(idCardData)
 
-            viewModel.sign(mockComponentActivity, mockContext, signedContainer, pin2, null)
+            viewModel.sign(mockComponentActivity, signedContainer, pin2, null)
 
             val signStatus = viewModel.signStatus.value
 
@@ -317,7 +314,7 @@ class IdCardViewModelTest {
                 CodeVerificationException(CodeType.PIN2, 2),
             )
 
-            viewModel.sign(mockComponentActivity, context, signedContainer, pin2, null)
+            viewModel.sign(mockComponentActivity, signedContainer, pin2, null)
 
             val signStatusValue = viewModel.signStatus.value
             if (signStatusValue != null) {
@@ -326,7 +323,10 @@ class IdCardViewModelTest {
                 fail("signStatusValue is null")
             }
             assertNull(viewModel.signedContainer.value)
-            assertEquals(context.getString(R.string.id_card_sign_pin2_invalid, 2), viewModel.pinErrorState.value)
+            assertEquals(
+                Triple(R.string.id_card_sign_pin_invalid, CodeType.PIN2.name, 2),
+                viewModel.pinErrorState.value,
+            )
         }
 
     @Test
@@ -380,7 +380,7 @@ class IdCardViewModelTest {
                 CodeVerificationException(CodeType.PIN2, 1),
             )
 
-            viewModel.sign(mockComponentActivity, context, signedContainer, pin2, null)
+            viewModel.sign(mockComponentActivity, signedContainer, pin2, null)
 
             val signStatusValue = viewModel.signStatus.value
             if (signStatusValue != null) {
@@ -389,7 +389,10 @@ class IdCardViewModelTest {
                 fail("signStatusValue is null")
             }
             assertNull(viewModel.signedContainer.value)
-            assertEquals(context.getString(R.string.id_card_sign_pin2_invalid_final), viewModel.pinErrorState.value)
+            assertEquals(
+                Triple(R.string.id_card_sign_pin_invalid_final, CodeType.PIN2.name, null),
+                viewModel.pinErrorState.value,
+            )
         }
 
     @Test
@@ -443,7 +446,7 @@ class IdCardViewModelTest {
                 CodeVerificationException(CodeType.PIN2, 0),
             )
 
-            viewModel.sign(mockComponentActivity, context, signedContainer, pin2, null)
+            viewModel.sign(mockComponentActivity, signedContainer, pin2, null)
 
             val signStatusValue = viewModel.signStatus.value
             if (signStatusValue != null) {
@@ -452,7 +455,10 @@ class IdCardViewModelTest {
                 fail("signStatusValue is null")
             }
             assertNull(viewModel.signedContainer.value)
-            assertEquals(context.getString(R.string.id_card_sign_pin2_locked), viewModel.pinErrorState.value)
+            assertEquals(
+                Triple(R.string.id_card_sign_pin_locked, CodeType.PIN2.name, null),
+                viewModel.pinErrorState.value,
+            )
         }
 
     @Test
@@ -479,11 +485,14 @@ class IdCardViewModelTest {
                 CodeVerificationException(CodeType.PIN2, 0),
             )
 
-            viewModel.sign(mockComponentActivity, context, signedContainer, pin2, null)
+            viewModel.sign(mockComponentActivity, signedContainer, pin2, null)
 
-            assertNull(viewModel.signStatus.value)
+            assertFalse(viewModel.signStatus.value == true)
             assertNull(viewModel.signedContainer.value)
-            assertEquals(context.getString(R.string.id_card_sign_pin2_wrong), viewModel.pinErrorState.value)
+            assertEquals(
+                Triple(R.string.id_card_sign_pin_locked, CodeType.PIN2.name, null),
+                viewModel.pinErrorState.value,
+            )
         }
 
     @Test
@@ -512,7 +521,7 @@ class IdCardViewModelTest {
                 exception,
             )
 
-            viewModel.sign(mockComponentActivity, context, signedContainer, pin2, null)
+            viewModel.sign(mockComponentActivity, signedContainer, pin2, null)
 
             assertNotNull(viewModel.dialogError.value)
             assertEquals(exception.message, viewModel.dialogError.value)
@@ -544,7 +553,7 @@ class IdCardViewModelTest {
                 exception,
             )
 
-            viewModel.sign(mockComponentActivity, context, signedContainer, pin2, null)
+            viewModel.sign(mockComponentActivity, signedContainer, pin2, null)
 
             assertNotNull(viewModel.dialogError.value)
             assertEquals(exception.message, viewModel.dialogError.value)
@@ -576,11 +585,11 @@ class IdCardViewModelTest {
                 exception,
             )
 
-            viewModel.sign(mockComponentActivity, context, signedContainer, pin2, null)
+            viewModel.sign(mockComponentActivity, signedContainer, pin2, null)
 
             assertNotNull(viewModel.errorState.value)
             assertEquals(
-                context.getString(R.string.signature_update_signature_error_message_certificate_revoked),
+                Triple(R.string.signature_update_signature_error_message_certificate_revoked, null, null),
                 viewModel.errorState.value,
             )
         }
@@ -611,10 +620,10 @@ class IdCardViewModelTest {
                 exception,
             )
 
-            viewModel.sign(mockComponentActivity, context, signedContainer, pin2, null)
+            viewModel.sign(mockComponentActivity, signedContainer, pin2, null)
 
             assertNotNull(viewModel.errorState.value)
-            assertEquals(context.getString(R.string.no_internet_connection), viewModel.errorState.value)
+            assertEquals(Triple(R.string.no_internet_connection, null, null), viewModel.errorState.value)
         }
 
     @Test
@@ -643,10 +652,10 @@ class IdCardViewModelTest {
                 exception,
             )
 
-            viewModel.sign(mockComponentActivity, context, signedContainer, pin2, null)
+            viewModel.sign(mockComponentActivity, signedContainer, pin2, null)
 
             assertNotNull(viewModel.errorState.value)
-            assertEquals(context.getString(R.string.no_internet_connection), viewModel.errorState.value)
+            assertEquals(Triple(R.string.no_internet_connection, null, null), viewModel.errorState.value)
         }
 
     @Test
@@ -675,10 +684,10 @@ class IdCardViewModelTest {
                 exception,
             )
 
-            viewModel.sign(mockComponentActivity, context, signedContainer, pin2, null)
+            viewModel.sign(mockComponentActivity, signedContainer, pin2, null)
 
             assertNotNull(viewModel.errorState.value)
-            assertEquals(context.getString(R.string.main_settings_proxy_invalid_settings), viewModel.errorState.value)
+            assertEquals(Triple(R.string.main_settings_proxy_invalid_settings, null, null), viewModel.errorState.value)
         }
 
     @Test
@@ -707,10 +716,10 @@ class IdCardViewModelTest {
                 exception,
             )
 
-            viewModel.sign(mockComponentActivity, context, signedContainer, pin2, null)
+            viewModel.sign(mockComponentActivity, signedContainer, pin2, null)
 
             assertNotNull(viewModel.errorState.value)
-            assertEquals(context.getString(R.string.error_general_client), viewModel.errorState.value)
+            assertEquals(Triple(R.string.error_general_client, null, null), viewModel.errorState.value)
         }
 
     @Test
@@ -745,7 +754,7 @@ class IdCardViewModelTest {
     @Test
     fun idCardViewModel_resetErrorState_success() =
         runTest {
-            val errorStateObserver: Observer<String?> = mock()
+            val errorStateObserver: Observer<Triple<Int, String?, Int?>?> = mock()
             viewModel.errorState.observeForever(errorStateObserver)
 
             viewModel.resetErrorState()
@@ -781,7 +790,7 @@ class IdCardViewModelTest {
     @Test
     fun idCardViewModel_resetPersonalUserData_success() =
         runTest {
-            val userDataObserver: Observer<PersonalData?> = mock()
+            val userDataObserver: Observer<IdCardData?> = mock()
             viewModel.userData.observeForever(userDataObserver)
 
             viewModel.resetPersonalUserData()
@@ -793,7 +802,7 @@ class IdCardViewModelTest {
     @Test
     fun idCardViewModel_resetPINErrorState_success() =
         runTest {
-            val pinErrorStateObserver: Observer<String?> = mock()
+            val pinErrorStateObserver: Observer<Triple<Int, String?, Int?>?> = mock()
             viewModel.pinErrorState.observeForever(pinErrorStateObserver)
 
             viewModel.resetPINErrorState()
@@ -801,4 +810,34 @@ class IdCardViewModelTest {
 
             viewModel.pinErrorState.removeObserver(pinErrorStateObserver)
         }
+
+    private fun createMockIdCardData(
+        type: EIDType = EIDType.ID_CARD,
+        personalData: PersonalData = mock(PersonalData::class.java),
+        authCertificate: ExtendedCertificate = createMockExtendedCertificate(),
+        signCertificate: ExtendedCertificate = createMockExtendedCertificate(),
+        pin1RetryCount: Int = 3,
+        pin2RetryCount: Int = 3,
+        pukRetryCount: Int = 3,
+    ): IdCardData {
+        return IdCardData(
+            type = type,
+            personalData = personalData,
+            authCertificate = authCertificate,
+            signCertificate = signCertificate,
+            pin1RetryCount = pin1RetryCount,
+            pin2RetryCount = pin2RetryCount,
+            pukRetryCount = pukRetryCount,
+        )
+    }
+
+    private fun createMockExtendedCertificate(): ExtendedCertificate {
+        return ExtendedCertificate(
+            type = EIDType.ID_CARD,
+            data = byteArrayOf(0x01, 0x02, 0x03),
+            keyUsage = mock(KeyUsage::class.java),
+            extendedKeyUsage = mock(ExtendedKeyUsage::class.java),
+            ellipticCurve = true,
+        )
+    }
 }
