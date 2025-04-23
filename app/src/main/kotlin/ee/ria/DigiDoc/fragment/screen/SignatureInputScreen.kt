@@ -346,6 +346,7 @@ fun SignatureInputScreen(
                             cancelAction = action
                         },
                         isAuthenticated = { _, _ -> {} },
+                        identityAction = IdentityAction.SIGN,
                     )
 
                 SigningMethod.NFC ->
@@ -362,7 +363,6 @@ fun SignatureInputScreen(
                             isAddingRoleAndAddress = false
                             navController.navigateUp()
                         },
-                        identityAction = IdentityAction.SIGN,
                         isSigning = isSigning,
                         isAddingRoleAndAddress = isAddingRoleAndAddress,
                         rememberMe = rememberMe,
@@ -384,6 +384,7 @@ fun SignatureInputScreen(
                         isAuthenticating = false,
                         isAuthenticated = { _, _ -> {} },
                         isValidToAuthenticate = {},
+                        identityAction = IdentityAction.SIGN,
                     )
             }
 

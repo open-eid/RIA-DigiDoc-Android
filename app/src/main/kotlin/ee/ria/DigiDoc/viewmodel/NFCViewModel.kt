@@ -320,7 +320,6 @@ class NFCViewModel
                                         setErrorState(
                                             SessionStatusResponseProcessStatus.TOO_MANY_REQUESTS,
                                         )
-
                                     message.contains("OCSP response not in valid time slot") ->
                                         setErrorState(
                                             SessionStatusResponseProcessStatus.OCSP_INVALID_TIME_SLOT,
@@ -389,6 +388,9 @@ class NFCViewModel
                                         card,
                                         cdoc2Settings,
                                     )
+                                if (pin1Code.isNotEmpty()) {
+                                    Arrays.fill(pin1Code, 0.toByte())
+                                }
                                 CoroutineScope(Main).launch {
                                     _shouldResetPIN.postValue(true)
                                     _decryptStatus.postValue(true)

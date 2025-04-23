@@ -255,11 +255,13 @@ fun DecryptScreen(
                             }
                         },
                         isSigning = false,
-                        isAuthenticating = false,
+                        isDecrypting = isDecrypting,
                         sharedSettingsViewModel = sharedSettingsViewModel,
                         sharedContainerViewModel = sharedContainerViewModel,
-                        isValidToSign = {},
-                        signAction = { action ->
+                        isValidToDecrypt = { isValid ->
+                            isValidToDecrypt = isValid
+                        },
+                        decryptAction = { action ->
                             decryptAction = {
                                 isDecrypting = true
                                 action()
@@ -271,6 +273,7 @@ fun DecryptScreen(
                         },
                         isAddingRoleAndAddress = false,
                         isAuthenticated = { _, _ -> {} },
+                        identityAction = IdentityAction.DECRYPT,
                     )
 
                 DecryptMethodSetting.NFC ->
@@ -285,7 +288,6 @@ fun DecryptScreen(
                             isDecrypting = false
                             navController.navigateUp()
                         },
-                        identityAction = IdentityAction.DECRYPT,
                         isSigning = false,
                         isDecrypting = isDecrypting,
                         rememberMe = rememberMe,
@@ -304,6 +306,7 @@ fun DecryptScreen(
                             cancelDecryptAction = action
                         },
                         isAddingRoleAndAddress = false,
+                        identityAction = IdentityAction.DECRYPT,
                         isAuthenticating = false,
                         isAuthenticated = { _, _ -> {} },
                         isValidToAuthenticate = {},

@@ -74,6 +74,10 @@ class EncryptViewModel
         fun isDecryptButtonShown(cryptoContainer: CryptoContainer?): Boolean = isEncryptedContainer(cryptoContainer)
 
         fun isEncryptButtonShown(cryptoContainer: CryptoContainer?): Boolean {
+            if (isDecryptedContainer(cryptoContainer)) {
+                return false
+            }
+
             return (
                 !isEncryptedContainer(cryptoContainer) &&
                     !isContainerWithoutRecipients(cryptoContainer)

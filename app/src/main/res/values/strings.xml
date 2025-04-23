@@ -249,7 +249,7 @@
     <string name="id_card_status_card_detected_message">ID-card found. Requesting information…</string>
     <string name="id_card_sign_message">Ready to sign with ID-card</string>
     <string name="id_card_sign_data">%1$s %2$s (%3$s)</string>
-    <string name="id_card_sign_pin2">Enter PIN2</string>
+    <string name="id_card_identity_pin">Enter %1$s</string>
     <string name="id_card_progress_message_signing">Signing in progress. Please wait.</string>
     <string name="id_card_sign_pin_wrong">Wrong %1$s</string>
     <string name="id_card_sign_pin_invalid">Wrong %1$s. You have %2$d attempts left.</string>

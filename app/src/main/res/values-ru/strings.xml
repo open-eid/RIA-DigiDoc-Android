@@ -318,7 +318,7 @@
     <string name="id_card_status_card_detected_message">Обнаружена ID-карта. Запрашивается информация…</string>
     <string name="id_card_sign_message">Готово к подписанию с использованием ID-карты</string>
     <string name="id_card_sign_data">%1$s %2$s (%3$s)</string>
-    <string name="id_card_sign_pin2">Введите PIN2</string>
+    <string name="id_card_identity_pin">Введите %1$s</string>
     <string name="id_card_progress_message_signing">Происходит подписание. Пожалуйста, подождите.</string>
     <string name="id_card_sign_pin_wrong">Неверный %1$s</string>
     <string name="id_card_sign_pin_invalid">Неверный %1$s. У Вас осталось %2$d попыток.</string>

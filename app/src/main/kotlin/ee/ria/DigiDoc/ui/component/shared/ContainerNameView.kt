@@ -201,7 +201,7 @@ fun ContainerNameView(
                             )
                         }
                     }
-                    if (showRightActionButton) {
+                    if (showRightActionButton && rightActionButtonName != 0) {
                         TextButton(onClick = onRightActionButtonClick) {
                             Text(
                                 modifier =

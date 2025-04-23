@@ -45,6 +45,7 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -105,6 +106,8 @@ fun EncryptRecipientScreen(
     val context = LocalContext.current
     val activity = (context as Activity)
     markAsSecure(context, activity.window)
+
+    val focusManager = LocalFocusManager.current
 
     val snackBarHostState = remember { SnackbarHostState() }
     val snackBarScope = rememberCoroutineScope()
@@ -324,7 +327,10 @@ fun EncryptRecipientScreen(
                                 .wrapContentHeight(),
                         query = searchText,
                         onQueryChange = encryptRecipientViewModel::onSearchTextChange,
-                        onSearch = encryptRecipientViewModel::onQueryTextChange,
+                        onSearch = {
+                            encryptRecipientViewModel.onQueryTextChange(searchText)
+                            focusManager.clearFocus()
+                        },
                         expanded = expanded,
                         enabled = true,
                         placeholder = {
