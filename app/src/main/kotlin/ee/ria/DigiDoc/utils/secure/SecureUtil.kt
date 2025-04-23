@@ -2,37 +2,32 @@
 
 package ee.ria.DigiDoc.utils.secure
 
-import android.content.Context
-import android.content.SharedPreferences
-import android.view.Window
+import android.app.Activity
 import android.view.WindowManager
-import androidx.preference.PreferenceManager
-import ee.ria.DigiDoc.BuildConfig
-import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.domain.preferences.DataStore
+import javax.inject.Inject
+import javax.inject.Singleton
 
-object SecureUtil {
-    fun markAsSecure(
-        context: Context,
-        window: Window,
-    ) {
-        if (shouldMarkAsSecure(context)) {
-            window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
-        } else {
-            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+@Singleton
+class SecureUtil
+    @Inject
+    constructor(val dataStore: DataStore) {
+        fun markAsSecure(activity: Activity?) {
+            if (activity == null) {
+                return
+            }
+
+            if (shouldMarkAsSecure()) {
+                activity.window.setFlags(
+                    WindowManager.LayoutParams.FLAG_SECURE,
+                    WindowManager.LayoutParams.FLAG_SECURE,
+                )
+            } else {
+                activity.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            }
+        }
+
+        private fun shouldMarkAsSecure(): Boolean {
+            return !dataStore.getSettingsAllowScreenshots()
         }
     }
-
-    private fun shouldMarkAsSecure(context: Context): Boolean {
-        val sharedPreferences: SharedPreferences =
-            PreferenceManager.getDefaultSharedPreferences(context)
-        val isScreenshotAllowed =
-            sharedPreferences.getBoolean(
-                context.getString(R.string.main_settings_allow_screenshots_key),
-                false,
-            )
-        if (BuildConfig.BUILD_TYPE.contentEquals("debug")) {
-            return false
-        }
-        return !isScreenshotAllowed
-    }
-}

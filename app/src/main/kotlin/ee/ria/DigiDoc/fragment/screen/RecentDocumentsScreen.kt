@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.fragment.screen
 
-import android.app.Activity
 import android.content.res.Configuration
 import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
 import androidx.compose.foundation.focusable
@@ -78,7 +77,6 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
-import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.extensions.isCades
@@ -105,8 +103,6 @@ fun RecentDocumentsScreen(
     val logTag = "RecentDocumentsScreen"
 
     val context = LocalContext.current
-    val activity = (context as Activity)
-    markAsSecure(context, activity.window)
 
     val snackBarHostState = remember { SnackbarHostState() }
     val snackBarScope = rememberCoroutineScope()

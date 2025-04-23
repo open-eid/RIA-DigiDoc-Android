@@ -24,6 +24,7 @@ import ee.ria.DigiDoc.root.RootChecker
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.locale.LocaleUtil
 import ee.ria.DigiDoc.utils.locale.LocaleUtilImpl
+import ee.ria.DigiDoc.utils.secure.SecureUtil
 import ee.ria.DigiDoc.utilsLib.R.string.main_diagnostics_logging_key
 import ee.ria.DigiDoc.utilsLib.R.string.main_diagnostics_logging_running_key
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
@@ -57,8 +58,15 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
     @Inject
     lateinit var loggingUtil: LoggingUtil
 
+    @Inject
+    lateinit var secureUtil: SecureUtil
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super<ComponentActivity>.onCreate(savedInstanceState)
+
+        if (BuildConfig.BUILD_TYPE.contentEquals("release")) {
+            secureUtil.markAsSecure(this)
+        }
 
         installSplashScreen()
 

@@ -67,7 +67,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
-import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
@@ -91,9 +90,6 @@ fun DiagnosticsScreen(
     diagnosticsViewModel: DiagnosticsViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
-    val activity = (context as Activity)
-
-    markAsSecure(context, activity.window)
 
     val snackBarHostState = remember { SnackbarHostState() }
     val snackBarScope = rememberCoroutineScope()
