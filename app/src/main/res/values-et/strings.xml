@@ -248,9 +248,11 @@
     <string name="id_card_status_reader_detected_message">Kaardilugeja leitud. Sisesta ID-kaart lugejasse.</string>
     <string name="id_card_status_card_detected_message">ID-kaart leitud. Pärin andmeid…</string>
     <string name="id_card_sign_message">ID-kaart on valmis allkirjastamiseks</string>
+    <string name="id_card_decrypt_message">ID-kaart on valmis dekrüpteerimiseks</string>
     <string name="id_card_sign_data">%1$s %2$s (%3$s)</string>
     <string name="id_card_identity_pin">Sisesta %1$s</string>
     <string name="id_card_progress_message_signing">Toimub allkirjastamine. Palun oota.</string>
+    <string name="id_card_progress_message_decrypt">Toimub dekrüpteerimine. Palun oota.</string>
     <string name="id_card_sign_pin_wrong">Vale %1$s</string>
     <string name="id_card_sign_pin_invalid">Vale %1$s. Saad PIN2-koodi sisestada veel %2$d korda.</string>
     <string name="id_card_sign_pin_invalid_final">Vale %1$s. Järgmise vale sisestusega lukustub PIN.</string>

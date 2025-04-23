@@ -144,8 +144,22 @@ fun IdCardView(
     val idCardStatusMessage = remember { mutableStateOf(idCardStatusInitialMessage) }
     val idCardStatusReaderDetectedMessage = stringResource(id = R.string.id_card_status_reader_detected_message)
     val idCardStatusCardDetectedMessage = stringResource(id = R.string.id_card_status_card_detected_message)
-    val idCardStatusSigningMessage = stringResource(id = R.string.id_card_progress_message_signing)
-    val idCardStatusReadyToSignMessage = stringResource(R.string.id_card_sign_message)
+    val idCardStatusSigningMessage =
+        if (identityAction == IdentityAction.SIGN) {
+            stringResource(id = R.string.id_card_progress_message_signing)
+        } else if (identityAction == IdentityAction.DECRYPT) {
+            stringResource(id = R.string.id_card_progress_message_decrypt)
+        } else {
+            ""
+        }
+    val idCardStatusReadyToSignMessage =
+        if (identityAction == IdentityAction.SIGN) {
+            stringResource(R.string.id_card_sign_message)
+        } else if (identityAction == IdentityAction.DECRYPT) {
+            stringResource(R.string.id_card_decrypt_message)
+        } else {
+            ""
+        }
 
     val showErrorDialog = rememberSaveable { mutableStateOf(false) }
     var isDataLoadingStarted by rememberSaveable { mutableStateOf(false) }
