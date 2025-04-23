@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.ui.component.signing.certificate
 
-import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
@@ -21,7 +19,6 @@ import androidx.navigation.NavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
-import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -31,9 +28,6 @@ fun RolesDetailsView(
     modifier: Modifier = Modifier,
     sharedSignatureViewModel: SharedSignatureViewModel,
 ) {
-    val context = LocalContext.current
-    val activity = (context as Activity)
-    markAsSecure(context, activity.window)
     val signature = sharedSignatureViewModel.signature.value
 
     BackHandler {

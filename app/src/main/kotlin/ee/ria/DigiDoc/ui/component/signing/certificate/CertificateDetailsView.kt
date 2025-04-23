@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.ui.component.signing.certificate
 
-import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
@@ -33,7 +32,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -52,7 +50,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
-import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
 import ee.ria.DigiDoc.utilsLib.extensions.formatHexString
@@ -74,9 +71,6 @@ fun CertificateDetailsView(
     sharedCertificateViewModel: SharedCertificateViewModel,
     certificateDetailViewModel: CertificateDetailViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
-    val activity = (context as Activity)
-    markAsSecure(context, activity.window)
     val certificate = sharedCertificateViewModel.certificate.value
 
     val snackBarHostState = remember { SnackbarHostState() }

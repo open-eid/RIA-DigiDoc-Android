@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.ui.component.signing.certificate
 
-import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
@@ -64,7 +63,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil.getSignatureStatusText
-import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatName
 import ee.ria.DigiDoc.utilsLib.extensions.x509Certificate
@@ -86,10 +84,6 @@ fun SignerDetailsView(
     sharedContainerViewModel: SharedContainerViewModel,
     certificateDetailViewModel: CertificateDetailViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
-    val activity = (context as Activity)
-    markAsSecure(context, activity.window)
-
     val snackBarHostState = remember { SnackbarHostState() }
     val snackBarScope = rememberCoroutineScope()
 

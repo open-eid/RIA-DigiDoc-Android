@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.fragment.screen
 
-import android.app.Activity
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,7 +26,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
@@ -46,7 +44,6 @@ import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import kotlinx.coroutines.launch
@@ -58,10 +55,6 @@ fun AccessibilityScreen(
     navController: NavHostController,
     sharedMenuViewModel: SharedMenuViewModel,
 ) {
-    val context = LocalContext.current
-    val activity = (context as Activity)
-    markAsSecure(context, activity.window)
-
     val snackBarHostState = remember { SnackbarHostState() }
     val snackBarScope = rememberCoroutineScope()
 

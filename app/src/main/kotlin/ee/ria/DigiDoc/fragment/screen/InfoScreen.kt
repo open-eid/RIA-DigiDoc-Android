@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.fragment.screen
 
-import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
@@ -73,7 +72,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
 import ee.ria.DigiDoc.utils.extensions.notAccessible
-import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utilsLib.text.TextUtil
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
@@ -87,8 +85,6 @@ fun InfoScreen(
     sharedMenuViewModel: SharedMenuViewModel,
 ) {
     val context = LocalContext.current
-    val activity = (context as Activity)
-    markAsSecure(context, activity.window)
 
     val snackBarHostState = remember { SnackbarHostState() }
     val snackBarScope = rememberCoroutineScope()

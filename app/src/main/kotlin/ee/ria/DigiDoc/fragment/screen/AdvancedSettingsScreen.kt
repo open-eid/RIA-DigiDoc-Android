@@ -2,8 +2,8 @@
 
 package ee.ria.DigiDoc.fragment.screen
 
-import android.app.Activity
 import android.content.res.Configuration
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
@@ -60,7 +60,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.extensions.notAccessible
-import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
+import ee.ria.DigiDoc.utils.secure.SecureUtil
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
@@ -74,10 +74,10 @@ fun AdvancedSettingsScreen(
     navController: NavHostController,
     sharedMenuViewModel: SharedMenuViewModel,
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
+    secureUtil: SecureUtil = SecureUtil(sharedSettingsViewModel.dataStore),
 ) {
     val context = LocalContext.current
-    val activity = (context as Activity)
-    markAsSecure(context, activity.window)
+    val activity = LocalActivity.current
 
     val snackBarHostState = remember { SnackbarHostState() }
     val snackBarScope = rememberCoroutineScope()
@@ -89,9 +89,14 @@ fun AdvancedSettingsScreen(
     val getIsRoleAskingEnabled = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
     val setIsRoleAskingEnabled = sharedSettingsViewModel.dataStore::setSettingsAskRoleAndAddress
 
+    val getAllowScreenshotsEnabled = sharedSettingsViewModel.dataStore::getSettingsAllowScreenshots
+    val setAllowScreenshotsEnabled = sharedSettingsViewModel.dataStore::setSettingsAllowScreenshots
+
     var checkedAskRoleAndAddress by remember { mutableStateOf(getIsRoleAskingEnabled()) }
+    var checkedAllowScreenshots by remember { mutableStateOf(getAllowScreenshotsEnabled()) }
 
     val askRoleAndAddressTitleText = stringResource(R.string.main_settings_ask_role_and_address_title)
+    val allowScreenshotsTitleText = stringResource(R.string.main_settings_allow_screenshots_title)
     val defaultSettingsButtonText = stringResource(R.string.main_settings_use_default_settings_button_title)
     val buttonName = stringResource(id = R.string.button_name)
 
@@ -191,6 +196,41 @@ fun AdvancedSettingsScreen(
                     },
                 )
             }
+
+            Row(
+                modifier =
+                    modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            checkedAllowScreenshots = !checkedAllowScreenshots
+                            setAllowScreenshotsEnabled(checkedAllowScreenshots)
+                            secureUtil.markAsSecure(activity)
+                        },
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = allowScreenshotsTitleText,
+                    modifier =
+                        modifier
+                            .weight(1f)
+                            .notAccessible(),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                Checkbox(
+                    modifier =
+                        modifier
+                            .focusable(true)
+                            .semantics {
+                                contentDescription = allowScreenshotsTitleText
+                            },
+                    checked = checkedAllowScreenshots,
+                    onCheckedChange = {
+                        checkedAllowScreenshots = it
+                        setAllowScreenshotsEnabled(it)
+                        secureUtil.markAsSecure(activity)
+                    },
+                )
+            }
             HorizontalDivider(modifier = modifier.padding(vertical = MPadding))
 
             Text(
@@ -228,6 +268,7 @@ fun AdvancedSettingsScreen(
             ) {
                 TextButton(onClick = {
                     checkedAskRoleAndAddress = false
+                    checkedAllowScreenshots = false
                     sharedSettingsViewModel.resetToDefaultSettings()
                     showMessage(context, R.string.main_settings_use_default_settings_message)
                 }) {
@@ -240,7 +281,7 @@ fun AdvancedSettingsScreen(
                                         "$defaultSettingsButtonText $buttonName"
                                     testTagsAsResourceId = true
                                 }
-                                .testTag("mainSettingsProxyServicesCheckInternetConnectionButton"),
+                                .testTag("mainSettingsRestoreDefaultSettingsButton"),
                         text = defaultSettingsButtonText,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,

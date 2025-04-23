@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.fragment.screen
 
-import android.app.Activity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,7 +22,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
@@ -32,17 +30,12 @@ import androidx.compose.ui.text.style.TextAlign
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
-import ee.ria.DigiDoc.utils.secure.SecureUtil.markAsSecure
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun RootScreen(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val activity = (context as Activity)
-    markAsSecure(context, activity.window)
-
     val snackBarHostState = remember { SnackbarHostState() }
     val snackBarScope = rememberCoroutineScope()
 
