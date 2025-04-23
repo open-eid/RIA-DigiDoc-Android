@@ -98,7 +98,7 @@ class InitializationTest {
             runTest {
                 initialization.init(context)
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             fail("No exceptions should be thrown")
         }
     }

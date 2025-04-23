@@ -3,15 +3,17 @@
 package ee.ria.DigiDoc.viewmodel
 
 import android.app.Activity
+import android.content.Context
 import android.content.pm.ActivityInfo
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.cryptolib.CDOC2Settings
+import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.domain.model.IdCardData
 import ee.ria.DigiDoc.domain.service.IdCardService
-import ee.ria.DigiDoc.idcard.CodeType
 import ee.ria.DigiDoc.idcard.CodeVerificationException
 import ee.ria.DigiDoc.idcard.Token
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
@@ -19,6 +21,7 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderManager
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderStatus
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -27,6 +30,8 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.asFlow
 import kotlinx.coroutines.withContext
+import org.bouncycastle.util.encoders.Base64
+import java.util.Arrays
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,6 +40,7 @@ class IdCardViewModel
     constructor(
         private val smartCardReaderManager: SmartCardReaderManager,
         private val idCardService: IdCardService,
+        private val cdoc2Settings: CDOC2Settings,
     ) : ViewModel() {
         private val logTag = javaClass.simpleName
 
@@ -47,8 +53,14 @@ class IdCardViewModel
         private val _signStatus = MutableLiveData<Boolean?>(null)
         val signStatus: LiveData<Boolean?> = _signStatus
 
+        private val _decryptStatus = MutableLiveData<Boolean?>(null)
+        val decryptStatus: LiveData<Boolean?> = _decryptStatus
+
         private val _signedContainer = MutableLiveData<SignedContainer?>(null)
         val signedContainer: LiveData<SignedContainer?> = _signedContainer
+
+        private val _cryptoContainer = MutableLiveData<CryptoContainer?>(null)
+        val cryptoContainer: LiveData<CryptoContainer?> = _cryptoContainer
 
         private val _errorState = MutableLiveData<Triple<Int, String?, Int?>?>(null)
         val errorState: LiveData<Triple<Int, String?, Int?>?> = _errorState
@@ -80,10 +92,9 @@ class IdCardViewModel
                     _userData.postValue(data)
                 } catch (e: Exception) {
                     _signStatus.postValue(false)
+                    _decryptStatus.postValue(false)
 
-                    _errorState.postValue(
-                        Triple(R.string.error_general_client, null, null),
-                    )
+                    showGeneralError(e)
                     errorLog(logTag, "Unable to get ID-card personal data: ${e.message}", e)
 
                     resetValues()
@@ -93,7 +104,7 @@ class IdCardViewModel
         suspend fun sign(
             activity: Activity,
             signedContainer: SignedContainer,
-            pin2: ByteArray,
+            pin2Code: ByteArray,
             roleData: RoleData?,
         ) {
             activity.requestedOrientation = activity.resources.configuration.orientation
@@ -106,8 +117,12 @@ class IdCardViewModel
 
                 val signedContainerResult: SignedContainer =
                     withContext(IO) {
-                        idCardService.signContainer(token, signedContainer, pin2, roleData)
+                        idCardService.signContainer(token, signedContainer, pin2Code, roleData)
                     }
+
+                if (pin2Code.isNotEmpty()) {
+                    Arrays.fill(pin2Code, 0.toByte())
+                }
 
                 withContext(Main) {
                     _signStatus.postValue(true)
@@ -117,6 +132,58 @@ class IdCardViewModel
                 handleSigningError(e, signedContainer)
             } finally {
                 activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            }
+        }
+
+        suspend fun decrypt(
+            activity: Activity,
+            context: Context,
+            container: CryptoContainer?,
+            pin1Code: ByteArray,
+        ) {
+            activity.requestedOrientation = activity.resources.configuration.orientation
+            if (container != null) {
+                try {
+                    val token: Token =
+                        withContext(Main) {
+                            Token.create(smartCardReaderManager.connectedReader())
+                        }
+
+                    val authCert = idCardService.data(token).authCertificate.data
+
+                    debugLog(
+                        logTag,
+                        "Auth certificate: " + Base64.toBase64String(authCert),
+                    )
+                    var decryptedContainer =
+                        CryptoContainer.decrypt(
+                            context,
+                            container.file,
+                            container.recipients,
+                            authCert,
+                            pin1Code,
+                            token,
+                            cdoc2Settings,
+                        )
+                    if (pin1Code.isNotEmpty()) {
+                        Arrays.fill(pin1Code, 0.toByte())
+                    }
+
+                    withContext(Main) {
+                        _decryptStatus.postValue(true)
+                        _cryptoContainer.postValue(decryptedContainer)
+                    }
+                } catch (e: Exception) {
+                    handleDecryptError(e)
+                } finally {
+                    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                }
+            } else {
+                withContext(Main) {
+                    _decryptStatus.postValue(false)
+                    _errorState.postValue(Triple(R.string.error_general_client, null, null))
+                    errorLog(logTag, "Unable to get container value. Container is 'null'")
+                }
             }
         }
 
@@ -132,17 +199,11 @@ class IdCardViewModel
             }
         }
 
-        private suspend fun handleSigningError(
-            e: Exception,
-            signedContainer: SignedContainer,
-        ) {
-            removePendingSignature(signedContainer)
-            _signStatus.postValue(false)
-
+        private fun handleIdentityError(e: Exception) {
             val message = e.message ?: ""
 
             when {
-                e is CodeVerificationException -> handlePin2Error(e)
+                e is CodeVerificationException -> handlePinError(e)
                 message.contains("Too Many Requests") ->
                     showErrorDialog(
                         e,
@@ -154,21 +215,38 @@ class IdCardViewModel
                         "Unable to sign with ID-card - OCSP response not in valid time slot",
                     )
                 message.contains("Certificate status: revoked") -> showRevokedCertificateError(e)
-                message.contains("Failed to connect") || message.contains("Failed to create connection with host") ->
+                message.contains("Failed to connect") ||
+                    message.contains("Failed to create connection with host") ->
                     showNetworkError(e)
                 message.contains("Failed to create proxy connection with host") -> showProxyError(e)
                 else -> showGeneralError(e)
             }
         }
 
-        private fun handlePin2Error(e: CodeVerificationException) {
-            val pin2RetryCount = e.retries
+        private fun handleDecryptError(e: Exception) {
+            _decryptStatus.postValue(false)
+
+            handleIdentityError(e)
+        }
+
+        private suspend fun handleSigningError(
+            e: Exception,
+            signedContainer: SignedContainer,
+        ) {
+            removePendingSignature(signedContainer)
+            _signStatus.postValue(false)
+
+            handleIdentityError(e)
+        }
+
+        private fun handlePinError(e: CodeVerificationException) {
+            val pinRetryCount = e.retries
             val pinErrorMessage =
-                when (pin2RetryCount) {
-                    2 -> Triple(R.string.id_card_sign_pin_invalid, CodeType.PIN2.name, pin2RetryCount)
-                    1 -> Triple(R.string.id_card_sign_pin_invalid_final, CodeType.PIN2.name, null)
-                    0 -> Triple(R.string.id_card_sign_pin_locked, CodeType.PIN2.name, null)
-                    else -> Triple(R.string.id_card_sign_pin_wrong, CodeType.PIN2.name, null)
+                when (pinRetryCount) {
+                    2 -> Triple(R.string.id_card_sign_pin_invalid, e.type.name, pinRetryCount)
+                    1 -> Triple(R.string.id_card_sign_pin_invalid_final, e.type.name, null)
+                    0 -> Triple(R.string.id_card_sign_pin_locked, e.type.name, null)
+                    else -> Triple(R.string.id_card_sign_pin_wrong, e.type.name, null)
                 }
             _pinErrorState.postValue(pinErrorMessage)
         }
@@ -183,7 +261,11 @@ class IdCardViewModel
 
         private fun showRevokedCertificateError(e: Exception) {
             _errorState.postValue(
-                Triple(R.string.signature_update_signature_error_message_certificate_revoked, null, null),
+                Triple(
+                    R.string.signature_update_signature_error_message_certificate_revoked,
+                    null,
+                    null,
+                ),
             )
             errorLog(logTag, "Unable to sign with ID-card - Certificate status: revoked", e)
         }
@@ -207,6 +289,10 @@ class IdCardViewModel
             _signStatus.postValue(null)
         }
 
+        fun resetDecryptStatus() {
+            _decryptStatus.postValue(null)
+        }
+
         fun resetErrorState() {
             _errorState.postValue(null)
         }
@@ -217,6 +303,10 @@ class IdCardViewModel
 
         fun resetSignedContainer() {
             _signedContainer.postValue(null)
+        }
+
+        fun resetCryptoContainer() {
+            _cryptoContainer.postValue(null)
         }
 
         fun resetPersonalUserData() {

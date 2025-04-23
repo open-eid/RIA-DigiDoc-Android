@@ -70,7 +70,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN1_MIN_LENGTH
+import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN2_MIN_LENGTH
+import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN_MAX_LENGTH
 import ee.ria.DigiDoc.domain.model.IdCardData
+import ee.ria.DigiDoc.domain.model.IdentityAction
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderStatus
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
@@ -109,19 +113,24 @@ import kotlinx.coroutines.withContext
 fun IdCardView(
     activity: Activity,
     modifier: Modifier = Modifier,
-    isSigning: Boolean,
-    isAuthenticating: Boolean,
-    isStarted: (Boolean) -> Unit,
+    identityAction: IdentityAction,
+    isSigning: Boolean = false,
+    isDecrypting: Boolean = false,
+    isAuthenticating: Boolean = false,
+    isStarted: (Boolean) -> Unit = {},
     onError: () -> Unit = {},
     onSuccess: () -> Unit = {},
-    isAddingRoleAndAddress: Boolean,
+    isAddingRoleAndAddress: Boolean = false,
     sharedContainerViewModel: SharedContainerViewModel,
     sharedSettingsViewModel: SharedSettingsViewModel,
     idCardViewModel: IdCardViewModel = hiltViewModel(),
-    isValidToSign: (Boolean) -> Unit,
+    isValidToSign: (Boolean) -> Unit = {},
     isAuthenticated: (Boolean, IdCardData) -> Unit,
+    isValidToDecrypt: (Boolean) -> Unit = {},
     signAction: (() -> Unit) -> Unit = {},
+    decryptAction: (() -> Unit) -> Unit = {},
     cancelAction: (() -> Unit) -> Unit = {},
+    cancelDecryptAction: (() -> Unit) -> Unit = {},
 ) {
     val context = LocalContext.current
 
@@ -135,18 +144,48 @@ fun IdCardView(
     val idCardStatusMessage = remember { mutableStateOf(idCardStatusInitialMessage) }
     val idCardStatusReaderDetectedMessage = stringResource(id = R.string.id_card_status_reader_detected_message)
     val idCardStatusCardDetectedMessage = stringResource(id = R.string.id_card_status_card_detected_message)
-    val idCardStatusSigningMessage = stringResource(id = R.string.id_card_progress_message_signing)
-    val idCardStatusReadyToSignMessage = stringResource(R.string.id_card_sign_message)
+    val idCardStatusSigningMessage =
+        if (identityAction == IdentityAction.SIGN) {
+            stringResource(id = R.string.id_card_progress_message_signing)
+        } else if (identityAction == IdentityAction.DECRYPT) {
+            stringResource(id = R.string.id_card_progress_message_decrypt)
+        } else {
+            ""
+        }
+    val idCardStatusReadyToSignMessage =
+        if (identityAction == IdentityAction.SIGN) {
+            stringResource(R.string.id_card_sign_message)
+        } else if (identityAction == IdentityAction.DECRYPT) {
+            stringResource(R.string.id_card_decrypt_message)
+        } else {
+            ""
+        }
 
     val showErrorDialog = rememberSaveable { mutableStateOf(false) }
     var isDataLoadingStarted by rememberSaveable { mutableStateOf(false) }
     var showLoadingIndicator by rememberSaveable { mutableStateOf(false) }
 
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
+    val cryptoContainer by sharedContainerViewModel.cryptoContainer.asFlow().collectAsState(null)
 
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
-    val pin2Text = stringResource(R.string.id_card_sign_pin2)
-    var pin2Code by remember { mutableStateOf(TextFieldValue("")) }
+
+    val pinType =
+        if (identityAction == IdentityAction.SIGN) {
+            stringResource(id = R.string.signature_id_card_pin2)
+        } else {
+            stringResource(id = R.string.signature_id_card_pin1)
+        }
+
+    val pinMinLength =
+        if (identityAction == IdentityAction.SIGN) {
+            PIN2_MIN_LENGTH
+        } else {
+            PIN1_MIN_LENGTH
+        }
+
+    val pinText = stringResource(R.string.id_card_identity_pin, pinType)
+    var pinCode by remember { mutableStateOf(TextFieldValue("")) }
 
     var roleDataRequest: RoleData? by remember { mutableStateOf(null) }
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
@@ -157,13 +196,13 @@ fun IdCardView(
     val readyToSignFocusRequester = remember { FocusRequester() }
 
     var isValid by rememberSaveable { mutableStateOf(false) }
-    var pin2WithInvisibleSpaces = TextFieldValue(addInvisibleElement(pin2Code.text))
+    var pinWithInvisibleSpaces = TextFieldValue(addInvisibleElement(pinCode.text))
 
     val clearButtonText = stringResource(R.string.clear_text)
     val buttonName = stringResource(id = R.string.button_name)
 
     BackHandler {
-        if (isSigning || isAuthenticating) {
+        if (isSigning || isDecrypting || isAuthenticating) {
             isDataLoadingStarted = false
             showLoadingIndicator = false
             onError()
@@ -173,8 +212,8 @@ fun IdCardView(
     }
 
     LaunchedEffect(Unit) {
-        pin2Code = TextFieldValue("")
-        pin2WithInvisibleSpaces =
+        pinCode = TextFieldValue("")
+        pinWithInvisibleSpaces =
             TextFieldValue(
                 text = "",
                 selection = TextRange.Zero,
@@ -210,8 +249,8 @@ fun IdCardView(
 
             if (idCardStatus != SmartCardReaderStatus.CARD_DETECTED) {
                 idCardViewModel.resetPersonalUserData()
-                pin2Code = TextFieldValue("")
-                pin2WithInvisibleSpaces =
+                pinCode = TextFieldValue("")
+                pinWithInvisibleSpaces =
                     TextFieldValue(
                         text = "",
                         selection = TextRange.Zero,
@@ -228,8 +267,23 @@ fun IdCardView(
             .collect { signStatus ->
                 sharedContainerViewModel.setSignedIDCardStatus(signStatus)
                 idCardViewModel.resetSignStatus()
-                pin2Code = TextFieldValue("")
-                pin2WithInvisibleSpaces =
+                pinCode = TextFieldValue("")
+                pinWithInvisibleSpaces =
+                    TextFieldValue(
+                        text = "",
+                        selection = TextRange.Zero,
+                    )
+            }
+    }
+
+    LaunchedEffect(idCardViewModel.decryptStatus) {
+        idCardViewModel.decryptStatus.asFlow()
+            .filterNotNull()
+            .collect { decryptStatus ->
+                sharedContainerViewModel.setDecryptIDCardStatus(decryptStatus)
+                idCardViewModel.resetDecryptStatus()
+                pinCode = TextFieldValue("")
+                pinWithInvisibleSpaces =
                     TextFieldValue(
                         text = "",
                         selection = TextRange.Zero,
@@ -253,8 +307,8 @@ fun IdCardView(
                             )
                     }
 
-                    pin2Code = TextFieldValue("")
-                    pin2WithInvisibleSpaces =
+                    pinCode = TextFieldValue("")
+                    pinWithInvisibleSpaces =
                         TextFieldValue(
                             text = "",
                             selection = TextRange.Zero,
@@ -272,8 +326,8 @@ fun IdCardView(
                     idCardViewModel.resetDialogErrorState()
                 }
                 withContext(Main) {
-                    pin2Code = TextFieldValue("")
-                    pin2WithInvisibleSpaces =
+                    pinCode = TextFieldValue("")
+                    pinWithInvisibleSpaces =
                         TextFieldValue(
                             text = "",
                             selection = TextRange.Zero,
@@ -294,8 +348,8 @@ fun IdCardView(
                 withContext(Main) {
                     idCardViewModel.resetErrorState()
                     idCardViewModel.resetPINErrorState()
-                    pin2Code = TextFieldValue("")
-                    pin2WithInvisibleSpaces =
+                    pinCode = TextFieldValue("")
+                    pinWithInvisibleSpaces =
                         TextFieldValue(
                             text = "",
                             selection = TextRange.Zero,
@@ -315,14 +369,28 @@ fun IdCardView(
             }
     }
 
-    LaunchedEffect(Unit, idCardData, isValid, isSigning, idCardStatusMessage, isAuthenticating) {
-        if (idCardData?.personalData == null || (isValid && isSigning) || isAuthenticating) {
+    LaunchedEffect(idCardViewModel.cryptoContainer) {
+        idCardViewModel.cryptoContainer.asFlow()
+            .filterNotNull()
+            .collect { cryptoContainer ->
+                sharedContainerViewModel.setCryptoContainer(cryptoContainer)
+                idCardViewModel.resetCryptoContainer()
+                onSuccess()
+            }
+    }
+
+    LaunchedEffect(Unit, idCardData, isValid, isSigning, isDecrypting, isAuthenticating, idCardStatusMessage) {
+        if (idCardData?.personalData == null ||
+            (isValid && isSigning) ||
+            (isValid && isDecrypting) ||
+            isAuthenticating
+        ) {
             statusMessageFocusRequester.requestFocus()
         }
     }
 
-    LaunchedEffect(Unit, idCardData, isSigning) {
-        if (idCardData?.personalData != null && !isSigning && !isAuthenticating) {
+    LaunchedEffect(Unit, idCardData, isSigning, isAuthenticating, isDecrypting) {
+        if (idCardData?.personalData != null && !isSigning && !isAuthenticating && !isDecrypting) {
             delay(500)
             readyToSignFocusRequester.requestFocus()
         }
@@ -434,10 +502,14 @@ fun IdCardView(
         if (isAddingRoleAndAddress) {
             RoleDataView(modifier, sharedSettingsViewModel, onError)
         } else {
-            isValid = pin2Code.text.length in 5..12
+            isValid = pinCode.text.length in pinMinLength..PIN_MAX_LENGTH
 
             LaunchedEffect(isValid) {
                 isValidToSign(isValid)
+            }
+
+            LaunchedEffect(isValid) {
+                isValidToDecrypt(isValid)
             }
 
             LaunchedEffect(Unit, isValid) {
@@ -470,11 +542,27 @@ fun IdCardView(
                             idCardViewModel.sign(
                                 activity,
                                 signedContainer!!,
-                                pin2Code.text.toByteArray(),
+                                pinCode.text.toByteArray(),
                                 roleDataRequest,
                             )
-                            pin2Code = TextFieldValue("")
-                            pin2WithInvisibleSpaces =
+                            pinCode = TextFieldValue("")
+                            pinWithInvisibleSpaces =
+                                TextFieldValue(
+                                    text = "",
+                                    selection = TextRange.Zero,
+                                )
+                        }
+                    }
+                    decryptAction {
+                        CoroutineScope(IO).launch {
+                            idCardViewModel.decrypt(
+                                activity,
+                                context,
+                                cryptoContainer!!,
+                                pinCode.text.toByteArray(),
+                            )
+                            pinCode = TextFieldValue("")
+                            pinWithInvisibleSpaces =
                                 TextFieldValue(
                                     text = "",
                                     selection = TextRange.Zero,
@@ -483,6 +571,11 @@ fun IdCardView(
                     }
                 }
                 cancelAction {
+                    CoroutineScope(IO).launch {
+                        signedContainer?.let { idCardViewModel.removePendingSignature(it) }
+                    }
+                }
+                cancelDecryptAction {
                     CoroutineScope(IO).launch {
                         signedContainer?.let { idCardViewModel.removePendingSignature(it) }
                     }
@@ -499,7 +592,15 @@ fun IdCardView(
                 idCardStatusMessage.value = idCardStatusSigningMessage
             }
 
-            if (idCardData?.personalData == null || (isValid && isSigning) || isAuthenticating) {
+            if (idCardData?.personalData != null && isDecrypting) {
+                idCardStatusMessage.value = idCardStatusSigningMessage
+            }
+
+            if (idCardData?.personalData == null ||
+                (isValid && isSigning) ||
+                (isValid && isDecrypting) ||
+                isAuthenticating
+            ) {
                 if (!showLoadingIndicator) {
                     Icon(
                         modifier =
@@ -544,7 +645,7 @@ fun IdCardView(
                 }
             }
 
-            if (idCardData?.personalData != null && !isSigning && !isAuthenticating) {
+            if (idCardData?.personalData != null && !isSigning && !isAuthenticating && !isDecrypting) {
                 Column(
                     modifier =
                         modifier
@@ -611,7 +712,7 @@ fun IdCardView(
                                 label = {
                                     Text(
                                         modifier = modifier.notAccessible(),
-                                        text = pin2Text,
+                                        text = pinText,
                                         color =
                                             if (pinErrorText.isNotEmpty()) {
                                                 Red500
@@ -622,23 +723,23 @@ fun IdCardView(
                                 },
                                 value =
                                     when {
-                                        !isTalkBackEnabled(context) -> pin2Code
+                                        !isTalkBackEnabled(context) -> pinCode
                                         passwordVisible ->
-                                            pin2WithInvisibleSpaces.copy(
-                                                selection = TextRange(pin2WithInvisibleSpaces.text.length),
+                                            pinWithInvisibleSpaces.copy(
+                                                selection = TextRange(pinWithInvisibleSpaces.text.length),
                                             )
 
-                                        else -> pin2Code
+                                        else -> pinCode
                                     },
                                 singleLine = true,
                                 onValueChange = {
                                     if (!isTalkBackEnabled(context)) {
-                                        pin2Code =
+                                        pinCode =
                                             it.copy(selection = TextRange(it.text.length))
                                     } else {
                                         val noInvisibleElement =
                                             TextFieldValue(removeInvisibleElement(it.text))
-                                        pin2Code =
+                                        pinCode =
                                             noInvisibleElement.copy(
                                                 selection =
                                                     TextRange(
@@ -652,9 +753,9 @@ fun IdCardView(
                                         .weight(1f)
                                         .semantics(mergeDescendants = true) {
                                             testTagsAsResourceId = true
-                                            contentDescription = pin2Text
+                                            contentDescription = pinText
                                         }
-                                        .testTag("idCardPin2TextField"),
+                                        .testTag("idCardPinTextField"),
                                 trailingIcon = {
                                     val image =
                                         if (passwordVisible) {
@@ -674,7 +775,7 @@ fun IdCardView(
                                         modifier =
                                             modifier
                                                 .semantics { traversalIndex = 9f }
-                                                .testTag("idCardPin2PasswordVisibleButton"),
+                                                .testTag("idCardPinPasswordVisibleButton"),
                                         onClick = { passwordVisible = !passwordVisible },
                                     ) {
                                         Icon(imageVector = image, description)
@@ -694,12 +795,12 @@ fun IdCardView(
                                         keyboardType = KeyboardType.NumberPassword,
                                     ),
                             )
-                            if (isTalkBackEnabled(context) && pin2Code.text.isNotEmpty()) {
+                            if (isTalkBackEnabled(context) && pinCode.text.isNotEmpty()) {
                                 IconButton(
                                     modifier =
                                         modifier
                                             .align(Alignment.CenterVertically),
-                                    onClick = { pin2Code = TextFieldValue("") },
+                                    onClick = { pinCode = TextFieldValue("") },
                                 ) {
                                     Icon(
                                         modifier =
@@ -708,7 +809,7 @@ fun IdCardView(
                                                 .semantics {
                                                     testTagsAsResourceId = true
                                                 }
-                                                .testTag("idCardPin2CodeRemoveIconButton"),
+                                                .testTag("idCardPinCodeRemoveIconButton"),
                                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                         contentDescription = "$clearButtonText $buttonName",
                                     )
@@ -723,7 +824,7 @@ fun IdCardView(
                                         .fillMaxWidth()
                                         .focusable(true)
                                         .semantics { contentDescription = pinErrorText }
-                                        .testTag("idCardPin2Error"),
+                                        .testTag("idCardPinError"),
                                 text = pinErrorText,
                                 textAlign = TextAlign.Start,
                                 style = MaterialTheme.typography.bodyLarge,
@@ -752,10 +853,7 @@ fun IdCardViewPreview() {
             activity = LocalActivity.current as Activity,
             sharedSettingsViewModel = sharedSettingsViewModel,
             sharedContainerViewModel = sharedContainerViewModel,
-            isAddingRoleAndAddress = false,
-            isStarted = {},
-            isSigning = true,
-            isValidToSign = {},
+            identityAction = IdentityAction.SIGN,
             isAuthenticating = false,
             isAuthenticated = { _, _ -> {} },
         )

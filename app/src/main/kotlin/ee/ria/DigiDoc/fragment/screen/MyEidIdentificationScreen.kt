@@ -287,6 +287,7 @@ fun MyEidIdentificationScreen(
                                 )
                             }
                         },
+                        identityAction = IdentityAction.AUTH,
                     )
 
                 MyEidIdentificationMethodSetting.NFC ->
@@ -301,7 +302,6 @@ fun MyEidIdentificationScreen(
                             isAuthenticating = false
                             navController.navigateUp()
                         },
-                        identityAction = IdentityAction.AUTH,
                         isSigning = false,
                         isAuthenticating = isAuthenticating,
                         rememberMe = rememberMe,
@@ -329,6 +329,7 @@ fun MyEidIdentificationScreen(
                         isValidToAuthenticate = { isValid ->
                             isValidToAuthenticate = isValid
                         },
+                        identityAction = IdentityAction.AUTH,
                     )
             }
 

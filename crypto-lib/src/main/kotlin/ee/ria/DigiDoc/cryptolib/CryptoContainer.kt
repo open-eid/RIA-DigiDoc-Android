@@ -238,7 +238,7 @@ class CryptoContainer
                 }
                 val dataFiles = ArrayList<File>()
                 val cdocReader = CDocReader.createReader(file?.path, conf, token, network)
-                val idx = cdocReader.getLockForCert(authCert)
+                val idx = cdocReader.getLockForCert(network.cert)
                 if (idx < 0) {
                     throw CryptoException("Failed to get lock for certificate")
                 }

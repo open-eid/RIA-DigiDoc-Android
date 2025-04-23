@@ -436,9 +436,27 @@ fun EncryptNavigation(
                             TYPE_ANNOUNCEMENT,
                             containerDecryptedSuccessText,
                         )
-                        delay(5000)
                         containerDecryptedSuccess.value = false
                         sharedContainerViewModel.setDecryptNFCStatus(null)
+                    }
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(sharedContainerViewModel.decryptIDCardStatus) {
+        sharedContainerViewModel.decryptIDCardStatus.asFlow().collect { status ->
+            status?.let {
+                if (status == true) {
+                    withContext(Main) {
+                        containerDecryptedSuccess.value = true
+                        AccessibilityUtil.sendAccessibilityEvent(
+                            context,
+                            TYPE_ANNOUNCEMENT,
+                            containerDecryptedSuccessText,
+                        )
+                        containerDecryptedSuccess.value = false
+                        sharedContainerViewModel.setDecryptIDCardStatus(null)
                     }
                 }
             }
@@ -660,9 +678,9 @@ fun EncryptNavigation(
                                         encryptViewModel.isEncryptButtonShown(
                                             cryptoContainer,
                                         ),
-                                leftActionButtonName = R.string.signature_update_signature_add,
+                                leftActionButtonName = R.string.sign_button,
                                 rightActionButtonName = rightActionButtonName,
-                                leftActionButtonContentDescription = R.string.signature_update_signature_add,
+                                leftActionButtonContentDescription = R.string.sign_button,
                                 rightActionButtonContentDescription = R.string.decrypt_button_accessibility,
                                 onLeftActionButtonClick = onSignActionClick,
                                 onRightActionButtonClick = {

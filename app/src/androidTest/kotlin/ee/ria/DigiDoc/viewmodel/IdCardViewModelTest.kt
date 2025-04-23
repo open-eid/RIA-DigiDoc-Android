@@ -14,6 +14,7 @@ import ee.ria.DigiDoc.common.model.EIDType
 import ee.ria.DigiDoc.common.model.ExtendedCertificate
 import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
+import ee.ria.DigiDoc.cryptolib.CDOC2Settings
 import ee.ria.DigiDoc.domain.model.IdCardData
 import ee.ria.DigiDoc.domain.service.IdCardService
 import ee.ria.DigiDoc.idcard.CodeType
@@ -94,6 +95,8 @@ class IdCardViewModelTest {
 
     private lateinit var viewModel: IdCardViewModel
 
+    private lateinit var cdoc2Settings: CDOC2Settings
+
     companion object {
         @JvmStatic
         @BeforeClass
@@ -113,13 +116,12 @@ class IdCardViewModelTest {
     fun setUp() {
         MockitoAnnotations.openMocks(this)
         context = InstrumentationRegistry.getInstrumentation().targetContext
-
         `when`(smartCardReaderManager.status()).thenReturn(Observable.just(SmartCardReaderStatus.IDLE))
         `when`(mockContext.resources).thenReturn(resources)
         `when`(smartCardReaderManager.connectedReader()).thenReturn(mockSmartCardReader)
         `when`(mockSmartCardReader.atr()).thenReturn(Hex.decode("3bdb960080b1fe451f830012233f536549440f9000f1"))
-
-        viewModel = IdCardViewModel(smartCardReaderManager, idCardService)
+        cdoc2Settings = CDOC2Settings(context)
+        viewModel = IdCardViewModel(smartCardReaderManager, idCardService, cdoc2Settings)
 
         container =
             AssetFile.getResourceFileAsFile(
@@ -203,7 +205,7 @@ class IdCardViewModelTest {
         runBlocking {
             val pin2 = byteArrayOf(1, 2, 3)
             val signedContainer = SignedContainer.openOrCreate(context, container, listOf(container), true)
-
+            `when`(resources.getString(any())).thenReturn("Mocked String")
             `when`(smartCardReaderManager.status()).thenReturn(Observable.just(SmartCardReaderStatus.CARD_DETECTED))
 
             val mockPersonalData = mock(PersonalData::class.java)

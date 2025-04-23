@@ -435,12 +435,7 @@ fun NFCView(
     ) {
         if (isAddingRoleAndAddress) {
             RoleDataView(modifier, sharedSettingsViewModel)
-        } else if (isSigning || isAuthenticating) {
-            NFCSignatureUpdateContainer(
-                nfcViewModel = nfcViewModel,
-                onError = onError,
-            )
-        } else if (isDecrypting) {
+        } else if (isSigning || isAuthenticating || isDecrypting) {
             NFCSignatureUpdateContainer(
                 nfcViewModel = nfcViewModel,
                 onError = onError,
@@ -483,7 +478,7 @@ fun NFCView(
             } else {
                 nfcImage = R.drawable.ic_icon_nfc
 
-                val isValidForSigning =
+                val isValid =
                     nfcViewModel.positiveButtonEnabled(
                         canNumber.text,
                         pinCode.text.toByteArray(StandardCharsets.UTF_8),
@@ -493,9 +488,9 @@ fun NFCView(
                 val isValidForAuthenticating =
                     nfcViewModel.isCANLengthValid(canNumber.text)
 
-                LaunchedEffect(isValidForSigning) {
-                    isValidToSign(isValidForSigning)
-                    isValidToDecrypt(isValidForSigning)
+                LaunchedEffect(isValid) {
+                    isValidToSign(isValid)
+                    isValidToDecrypt(isValid)
                 }
 
                 LaunchedEffect(Unit, rememberMe) {
@@ -506,8 +501,8 @@ fun NFCView(
                     isValidToAuthenticate(isValidForAuthenticating)
                 }
 
-                LaunchedEffect(Unit, isValidForSigning) {
-                    if (isValidForSigning) {
+                LaunchedEffect(Unit, isValid) {
+                    if (isValid) {
                         signAction {
                             saveFormParams()
                             var roleDataRequest: RoleData? = null
