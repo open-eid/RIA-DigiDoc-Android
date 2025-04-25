@@ -24,9 +24,11 @@ import ee.ria.cdoc.CDocException
 import ee.ria.cdoc.CDocReader
 import ee.ria.cdoc.CDocWriter
 import ee.ria.cdoc.Configuration
+import ee.ria.cdoc.ConsoleLogger
 import ee.ria.cdoc.CryptoBackend
 import ee.ria.cdoc.DataBuffer
 import ee.ria.cdoc.FileInfo
+import ee.ria.cdoc.ILogger
 import ee.ria.cdoc.Lock
 import ee.ria.cdoc.NetworkBackend
 import ee.ria.cdoc.Recipient
@@ -421,6 +423,14 @@ class CryptoContainer
                     open(context, containerFileWithExtension)
                 } else {
                     create(context, containerFileWithExtension, dataFiles, listOf(), false, false)
+                }
+            }
+
+            fun setLogging(isLoggingEnabled: Boolean) {
+                if (isLoggingEnabled) {
+                    val logger = ConsoleLogger()
+                    logger.SetMinLogLevel(ILogger.LogLevel.LEVEL_DEBUG)
+                    ILogger.addLogger(logger)
                 }
             }
 
