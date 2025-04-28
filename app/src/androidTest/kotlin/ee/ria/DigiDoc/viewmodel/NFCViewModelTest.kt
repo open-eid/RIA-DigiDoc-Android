@@ -13,6 +13,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.cryptolib.CDOC2Settings
+import ee.ria.DigiDoc.domain.model.IdCardData
 import ee.ria.DigiDoc.domain.service.IdCardService
 import ee.ria.DigiDoc.idcard.CodeType
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
@@ -514,5 +515,38 @@ class NFCViewModelTest {
             verify(errorStateObserver, atLeastOnce()).onChanged(0)
 
             viewModel.dialogError.removeObserver(errorStateObserver)
+        }
+
+    @Test
+    fun nfcViewModel_loadPersonalData_success() =
+        runTest {
+            viewModel.loadPersonalData(activity, "123456")
+
+            val errorStateObserver: Observer<Triple<Int, String?, Int?>?> = mock()
+            viewModel.errorState.observeForever(errorStateObserver)
+            verify(errorStateObserver, atLeastOnce()).onChanged(null)
+            viewModel.errorState.removeObserver(errorStateObserver)
+
+            val userDataObserver: Observer<IdCardData?> = mock()
+            viewModel.userData.observeForever(userDataObserver)
+            verify(userDataObserver, atLeastOnce()).onChanged(null)
+            viewModel.userData.removeObserver(userDataObserver)
+
+            val messageObserver: Observer<Int?> = mock()
+            viewModel.message.observeForever(messageObserver)
+            verify(messageObserver, atLeastOnce()).onChanged(R.string.signature_update_nfc_adapter_missing)
+            viewModel.message.removeObserver(messageObserver)
+        }
+
+    @Test
+    fun nfcViewModel_resetIdCardUserData_success() =
+        runTest {
+            val userDataObserver: Observer<IdCardData?> = mock()
+            viewModel.userData.observeForever(userDataObserver)
+
+            viewModel.resetIdCardUserData()
+            verify(userDataObserver, atLeastOnce()).onChanged(null)
+
+            viewModel.userData.removeObserver(userDataObserver)
         }
 }
