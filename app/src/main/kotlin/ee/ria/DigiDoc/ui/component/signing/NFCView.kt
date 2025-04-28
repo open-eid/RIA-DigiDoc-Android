@@ -471,7 +471,10 @@ fun NFCView(
                         modifier
                             .fillMaxWidth()
                             .padding(SPadding)
-                            .semantics { heading() }
+                            .semantics {
+                                heading()
+                                testTagsAsResourceId = true
+                            }
                             .testTag("signatureUpdateNFCNotFoundMessage"),
                     textAlign = TextAlign.Center,
                 )
@@ -640,6 +643,7 @@ fun NFCView(
                                     .weight(1f)
                                     .semantics(mergeDescendants = true) {
                                         testTagsAsResourceId = true
+                                        contentDescription = canNumberLocationText
                                     }
                                     .testTag("signatureUpdateNFCCAN"),
                             trailingIcon = {
@@ -701,7 +705,8 @@ fun NFCView(
                         modifier =
                             modifier
                                 .padding(vertical = XSPadding)
-                                .testTag("signatureInputMethodTitle"),
+                                .testTag("signatureInputMethodTitle")
+                                .notAccessible(),
                         color = MaterialTheme.colorScheme.onSecondary,
                         textAlign = TextAlign.Start,
                         style = MaterialTheme.typography.labelMedium,
@@ -712,7 +717,10 @@ fun NFCView(
                                 Modifier
                                     .fillMaxWidth()
                                     .focusable(enabled = true)
-                                    .semantics { contentDescription = canNumberErrorText }
+                                    .semantics {
+                                        contentDescription = canNumberErrorText
+                                        testTagsAsResourceId = true
+                                    }
                                     .testTag("nfcCANErrorText"),
                             text = canNumberErrorText,
                             color = Red500,
@@ -797,7 +805,10 @@ fun NFCView(
                                     IconButton(
                                         modifier =
                                             modifier
-                                                .semantics { traversalIndex = 9f }
+                                                .semantics {
+                                                    traversalIndex = 9f
+                                                    testTagsAsResourceId = true
+                                                }
                                                 .testTag("nfcPinPasswordVisibleButton"),
                                         onClick = { passwordVisible = !passwordVisible },
                                     ) {
@@ -831,7 +842,10 @@ fun NFCView(
                                     modifier =
                                         modifier
                                             .align(Alignment.CenterVertically)
-                                            .semantics { traversalIndex = 9f }
+                                            .semantics {
+                                                traversalIndex = 9f
+                                                testTagsAsResourceId = true
+                                            }
                                             .testTag("nfcPinPasswordVisibleButton"),
                                     onClick = { passwordVisible = !passwordVisible },
                                 ) {
@@ -856,7 +870,10 @@ fun NFCView(
                                     modifier
                                         .fillMaxWidth()
                                         .focusable(enabled = true)
-                                        .semantics { contentDescription = pinCodeErrorText }
+                                        .semantics {
+                                            contentDescription = pinCodeErrorText
+                                            testTagsAsResourceId = true
+                                        }
                                         .testTag("nfcPinErrorText"),
                                 text = pinCodeErrorText,
                                 color = Red500,

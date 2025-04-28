@@ -9,6 +9,7 @@ import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,6 +37,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.lifecycle.asFlow
@@ -91,6 +95,16 @@ fun MyEidScreen(
     val showPukDialog = rememberSaveable { mutableStateOf(false) }
     val showForgotPin1Dialog = rememberSaveable { mutableStateOf(false) }
     val showForgotPin2Dialog = rememberSaveable { mutableStateOf(false) }
+
+    val changePukText =
+        stringResource(
+            R.string.myeid_change_pin,
+            CodeType.PUK,
+        )
+
+    val changePukSubtitleText = stringResource(R.string.myeid_puk_info)
+
+    val buttonName = stringResource(id = R.string.button_name)
 
     val pin1Guidelines =
         """
@@ -321,6 +335,7 @@ fun MyEidScreen(
                                                 showChangePin1Dialog.value = true
                                             },
                                         )
+
                                         if (idCardData?.pin1RetryCount == 0) {
                                             Text(
                                                 modifier =
@@ -411,35 +426,53 @@ fun MyEidScreen(
                                         verticalArrangement = Arrangement.spacedBy(SPadding),
                                     ) {
                                         val isPukBlocked = idCardData?.pukRetryCount == 0
-                                        MyEidPinAndCertificateView(
+                                        Row(
                                             modifier =
                                                 modifier
-                                                    .clickable(
-                                                        enabled = !isPukBlocked,
-                                                    ) {
+                                                    .fillMaxWidth()
+                                                    .clickable(enabled = !isPukBlocked) {
                                                         showPukDialog.value = true
                                                     }
-                                                    .alpha(if (!isPukBlocked) 1f else 0.7f),
-                                            title =
-                                                stringResource(
-                                                    R.string.myeid_change_pin,
-                                                    CodeType.PUK,
-                                                ),
-                                            isPinBlocked = isPukBlocked,
-                                            subtitle = stringResource(R.string.myeid_puk_info),
-                                            showForgotPin = false,
-                                        )
-                                        if (isPukBlocked) {
-                                            Text(
+                                                    .semantics {
+                                                        this.role = Role.Button
+                                                        this.contentDescription =
+                                                            "$changePukText. $changePukSubtitleText. $buttonName"
+                                                                .lowercase()
+                                                        testTagsAsResourceId = true
+                                                    }
+                                                    .testTag("myEidPukChangeButton"),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically,
+                                        ) {
+                                            MyEidPinAndCertificateView(
                                                 modifier =
                                                     modifier
-                                                        .fillMaxWidth()
-                                                        .focusable(true)
-                                                        .testTag("myEidBlockedPukDescriptionText"),
-                                                text = stringResource(R.string.myeid_puk_blocked),
-                                                color = Red500,
-                                                style = MaterialTheme.typography.bodySmall,
+                                                        .alpha(if (!isPukBlocked) 1f else 0.7f),
+                                                title = changePukText,
+                                                isPinBlocked = isPukBlocked,
+                                                subtitle = changePukSubtitleText,
+                                                showForgotPin = false,
                                             )
+                                        }
+                                        Row(
+                                            modifier =
+                                                modifier
+                                                    .fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically,
+                                        ) {
+                                            if (isPukBlocked) {
+                                                Text(
+                                                    modifier =
+                                                        modifier
+                                                            .fillMaxWidth()
+                                                            .focusable(true)
+                                                            .testTag("myEidBlockedPukDescriptionText"),
+                                                    text = stringResource(R.string.myeid_puk_blocked),
+                                                    color = Red500,
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                )
+                                            }
                                         }
                                     }
                                 }

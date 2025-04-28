@@ -171,6 +171,13 @@ class NFCViewModel
             _nfcStatus.postValue(null)
         }
 
+        private fun resetNonErrorValues() {
+            _message.postValue(null)
+            _signStatus.postValue(null)
+            _decryptStatus.postValue(null)
+            _nfcStatus.postValue(null)
+        }
+
         suspend fun removePendingSignature(signedContainer: SignedContainer) {
             val signatures = signedContainer.getSignatures(Main)
             if (signatures.isNotEmpty()) {
@@ -498,6 +505,8 @@ class NFCViewModel
             activity: Activity,
             canNumber: String,
         ) {
+            activity.requestedOrientation = activity.resources.configuration.orientation
+
             checkNFCStatus(
                 nfcSmartCardReaderManager.startDiscovery(activity) { nfcReader, exc ->
                     if ((nfcReader != null) && (exc == null)) {
@@ -543,7 +552,11 @@ class NFCViewModel
                                 e,
                             )
 
-                            resetValues()
+                            resetNonErrorValues()
+                        } finally {
+                            nfcSmartCardReaderManager.disableNfcReaderMode()
+                            activity.requestedOrientation =
+                                ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                         }
                     }
                 },

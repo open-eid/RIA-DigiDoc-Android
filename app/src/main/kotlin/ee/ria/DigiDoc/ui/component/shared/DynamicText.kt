@@ -6,16 +6,21 @@ import android.util.Patterns
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
@@ -28,6 +33,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import ee.ria.DigiDoc.ui.theme.Dimensions.LINE_HEIGHT
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DynamicText(
     modifier: Modifier,
@@ -68,7 +74,10 @@ fun DynamicText(
             modifier
                 .fillMaxWidth()
                 .then(pressIndicator)
-                .semantics(mergeDescendants = true) {}
+                .verticalScroll(rememberScrollState())
+                .semantics(mergeDescendants = true) {
+                    testTagsAsResourceId = true
+                }
                 .let {
                     val urlInText =
                         annotatedStringWithLinks
@@ -80,7 +89,8 @@ fun DynamicText(
                     } else {
                         it
                     }
-                },
+                }
+                .testTag("dynamicTextMessage"),
         text = annotatedStringWithLinks,
         style = textStyle,
     )

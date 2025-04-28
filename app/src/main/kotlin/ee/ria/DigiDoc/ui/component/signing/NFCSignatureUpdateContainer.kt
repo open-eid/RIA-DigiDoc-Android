@@ -78,6 +78,11 @@ fun NFCSignatureUpdateContainer(
     LaunchedEffect(nfcViewModel.errorState) {
         nfcViewModel.errorState.asFlow().collect { error ->
             error?.let {
+                context.getString(
+                    error.first,
+                    error.second,
+                    error.third,
+                )
                 onError()
             }
         }

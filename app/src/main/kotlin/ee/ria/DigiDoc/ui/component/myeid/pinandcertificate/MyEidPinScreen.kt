@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.ui.component.myeid.pinandcertificate
 
+import android.view.accessibility.AccessibilityEvent
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
@@ -40,7 +41,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -60,6 +63,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.zIndex
 import androidx.core.text.isDigitsOnly
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
@@ -83,9 +87,10 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeM
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.addInvisibleElement
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.removeInvisibleElement
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.NFCViewModel
@@ -94,6 +99,7 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedMyEidViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -145,9 +151,9 @@ fun MyEidPinScreen(
     val clearButtonText = stringResource(R.string.clear_text)
     val buttonName = stringResource(id = R.string.button_name)
 
-    val title = content?.title ?: R.string.myeid_pin_change_title
     val codeType = content?.codeType ?: CodeType.PIN1
     val isForgottenPin = content?.isForgottenPin == true
+    val title = stringResource(content?.title ?: R.string.myeid_pin_change_title, codeType.name)
 
     val showNFCScreen = remember { mutableStateOf(false) }
 
@@ -210,6 +216,35 @@ fun MyEidPinScreen(
     val errorState by sharedMyEidViewModel.errorState.asFlow().collectAsState(null)
     val isPinBlocked by sharedMyEidViewModel.isPinBlocked.asFlow().collectAsState(false)
 
+    val currentPinText =
+        if (isForgottenPin) {
+            stringResource(
+                R.string.myeid_current_pin_code_title,
+                CodeType.PUK,
+            )
+        } else {
+            stringResource(
+                R.string.myeid_current_pin_code_title,
+                codeType.name,
+            )
+        }
+
+    val newPinText =
+        stringResource(
+            R.string.myeid_new_pin_code_title,
+            codeType.name,
+        )
+
+    val newPinRepeatedText =
+        stringResource(
+            R.string.myeid_repeat_new_pin_code_title,
+            codeType.name,
+        )
+
+    val pinChangeTitleFocusRequester = remember { FocusRequester() }
+    val newPinDescriptionFocusRequester = remember { FocusRequester() }
+    val newPinRepeatedDescriptionFocusRequester = remember { FocusRequester() }
+
     fun resetPins() {
         newPinRepeated = TextFieldValue("")
         newPinRepeatedWithInvisibleSpaces = TextFieldValue(text = "", selection = TextRange.Zero)
@@ -226,6 +261,23 @@ fun MyEidPinScreen(
         showNewPinField.value = false
         showNewRepeatPinField.value = false
         showCurrentPinField.value = true
+    }
+
+    LaunchedEffect(Unit, showCurrentPinField) {
+        if (isTalkBackEnabled(context)) {
+            delay(1000)
+            pinChangeTitleFocusRequester.requestFocus()
+        }
+    }
+
+    LaunchedEffect(pinErrorText.value) {
+        if (isTalkBackEnabled(context) && pinErrorText.value.isNotEmpty()) {
+            AccessibilityUtil.sendAccessibilityEvent(
+                context,
+                AccessibilityEvent.TYPE_ANNOUNCEMENT,
+                pinErrorText.value.lowercase(),
+            )
+        }
     }
 
     LaunchedEffect(messages) {
@@ -557,16 +609,24 @@ fun MyEidPinScreen(
                     }
                 } else {
                     Text(
-                        text = stringResource(title, codeType.name),
+                        text = title,
                         maxLines = 2,
                         modifier =
                             modifier
+                                .focusRequester(pinChangeTitleFocusRequester)
+                                .zIndex(1f)
                                 .fillMaxWidth()
                                 .padding(SPadding)
-                                .semantics { heading() }
+                                .semantics {
+                                    heading()
+                                    this.contentDescription = title.lowercase()
+                                    traversalIndex = 1f
+                                    testTagsAsResourceId = true
+                                }
                                 .focusable(enabled = true)
                                 .focusTarget()
-                                .focusProperties { canFocus = true },
+                                .focusProperties { canFocus = true }
+                                .testTag("myEidPinChangeTitle"),
                         textAlign = TextAlign.Start,
                         style = MaterialTheme.typography.headlineSmall,
                     )
@@ -591,25 +651,15 @@ fun MyEidPinScreen(
                     ) {
                         if (showCurrentPinField.value) {
                             Text(
-                                text =
-                                    if (isForgottenPin) {
-                                        stringResource(
-                                            R.string.myeid_current_pin_code_title,
-                                            CodeType.PUK,
-                                        )
-                                    } else {
-                                        stringResource(
-                                            R.string.myeid_current_pin_code_title,
-                                            codeType.name,
-                                        )
-                                    },
+                                text = currentPinText,
                                 modifier =
                                     modifier
                                         .focusable(false)
                                         .semantics {
                                             testTagsAsResourceId = true
                                         }
-                                        .testTag("myEidPinCurrentPinCodeTitle"),
+                                        .testTag("myEidPinCurrentPinCodeTitle")
+                                        .notAccessible(),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 style = MaterialTheme.typography.titleLarge,
                             )
@@ -623,38 +673,30 @@ fun MyEidPinScreen(
                             ) {
                                 OutlinedTextField(
                                     value =
-                                        if (!isTalkBackEnabled(context)) {
-                                            currentPin
-                                        } else {
-                                            currentPinWithInvisibleSpaces.copy(
-                                                selection = TextRange(currentPinWithInvisibleSpaces.text.length),
-                                            )
+                                        when {
+                                            !isTalkBackEnabled(context) -> currentPin
+                                            passwordVisible ->
+                                                currentPinWithInvisibleSpaces.copy(
+                                                    selection = TextRange(currentPinWithInvisibleSpaces.text.length),
+                                                )
+
+                                            else -> currentPin
                                         },
                                     singleLine = true,
                                     onValueChange = {
                                         if (it.text.isDigitsOnly() &&
                                             it.text.length <= Constant.MyEID.PIN_MAXIMUM_LENGTH
                                         ) {
-                                            if (!isTalkBackEnabled(context)) {
-                                                currentPin =
-                                                    it.copy(selection = TextRange(it.text.length))
-                                            } else {
-                                                val noInvisibleElement =
-                                                    TextFieldValue(removeInvisibleElement(it.text))
-                                                currentPin =
-                                                    noInvisibleElement.copy(
-                                                        selection =
-                                                            TextRange(
-                                                                noInvisibleElement.text.length,
-                                                            ),
-                                                    )
-                                            }
+                                            currentPin = it.copy(selection = TextRange(it.text.length))
                                         }
                                     },
                                     modifier =
                                         modifier
+                                            .zIndex(3f)
                                             .weight(1f)
                                             .semantics(mergeDescendants = true) {
+                                                this.contentDescription = currentPinText.lowercase()
+                                                traversalIndex = 3f
                                                 testTagsAsResourceId = true
                                             }
                                             .testTag("myEidCurrentPinTextField"),
@@ -676,7 +718,11 @@ fun MyEidPinScreen(
                                         IconButton(
                                             modifier =
                                                 modifier
-                                                    .semantics { traversalIndex = 9f }
+                                                    .zIndex(4f)
+                                                    .semantics {
+                                                        traversalIndex = 4f
+                                                        testTagsAsResourceId = true
+                                                    }
                                                     .testTag("myEidCurrentPinPasswordVisibleButton"),
                                             onClick = { passwordVisible = !passwordVisible },
                                         ) {
@@ -717,7 +763,13 @@ fun MyEidPinScreen(
                                     IconButton(
                                         modifier =
                                             modifier
-                                                .align(Alignment.CenterVertically),
+                                                .align(Alignment.CenterVertically)
+                                                .zIndex(5f)
+                                                .semantics {
+                                                    traversalIndex = 5f
+                                                    testTagsAsResourceId = true
+                                                }
+                                                .testTag("myEidCurrentPinButton"),
                                         onClick = { currentPin = TextFieldValue("") },
                                     ) {
                                         Icon(
@@ -738,8 +790,13 @@ fun MyEidPinScreen(
                                 modifier =
                                     modifier
                                         .fillMaxWidth()
+                                        .zIndex(2f)
                                         .focusable(true)
-                                        .semantics { contentDescription = pinLengthRequirementText }
+                                        .semantics {
+                                            this.contentDescription = pinLengthRequirementText.lowercase()
+                                            traversalIndex = 2f
+                                            testTagsAsResourceId = true
+                                        }
                                         .testTag("myEidCurrentPinDescriptionText"),
                                 text = pinLengthRequirementText,
                                 color =
@@ -754,18 +811,15 @@ fun MyEidPinScreen(
 
                         if (showNewPinField.value) {
                             Text(
-                                text =
-                                    stringResource(
-                                        R.string.myeid_new_pin_code_title,
-                                        codeType.name,
-                                    ),
+                                text = newPinText,
                                 modifier =
                                     modifier
                                         .focusable(false)
                                         .semantics {
                                             testTagsAsResourceId = true
                                         }
-                                        .testTag("myEidNewPinCodeTitle"),
+                                        .testTag("myEidNewPinCodeTitle")
+                                        .notAccessible(),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 style = MaterialTheme.typography.titleLarge,
                             )
@@ -779,39 +833,32 @@ fun MyEidPinScreen(
                             ) {
                                 OutlinedTextField(
                                     value =
-                                        if (!isTalkBackEnabled(context)) {
-                                            newPin
-                                        } else {
-                                            newPinWithInvisibleSpaces.copy(
-                                                selection = TextRange(newPinWithInvisibleSpaces.text.length),
-                                            )
+                                        when {
+                                            !isTalkBackEnabled(context) -> newPin
+                                            passwordVisible ->
+                                                newPinWithInvisibleSpaces.copy(
+                                                    selection = TextRange(newPinWithInvisibleSpaces.text.length),
+                                                )
+
+                                            else -> newPin
                                         },
                                     singleLine = true,
                                     onValueChange = {
                                         if (it.text.isDigitsOnly() &&
                                             it.text.length <= Constant.MyEID.PIN_MAXIMUM_LENGTH
                                         ) {
-                                            if (!isTalkBackEnabled(context)) {
-                                                newPin =
-                                                    it.copy(selection = TextRange(it.text.length))
-                                            } else {
-                                                val noInvisibleElement =
-                                                    TextFieldValue(removeInvisibleElement(it.text))
-                                                newPin =
-                                                    noInvisibleElement.copy(
-                                                        selection =
-                                                            TextRange(
-                                                                noInvisibleElement.text.length,
-                                                            ),
-                                                    )
-                                            }
+                                            newPin = it.copy(selection = TextRange(it.text.length))
                                         }
                                     },
                                     modifier =
                                         modifier
+                                            .zIndex(7f)
                                             .weight(1f)
                                             .semantics(mergeDescendants = true) {
+                                                this.contentDescription =
+                                                    "$newPinText ${pinErrorText.value}".lowercase()
                                                 testTagsAsResourceId = true
+                                                traversalIndex = 7f
                                             }
                                             .testTag("myEidNewPinTextField"),
                                     trailingIcon = {
@@ -832,7 +879,11 @@ fun MyEidPinScreen(
                                         IconButton(
                                             modifier =
                                                 modifier
-                                                    .semantics { traversalIndex = 9f }
+                                                    .zIndex(8f)
+                                                    .semantics {
+                                                        traversalIndex = 8f
+                                                        testTagsAsResourceId = true
+                                                    }
                                                     .testTag("myEidNewPinPasswordVisibleButton"),
                                             onClick = { passwordVisible = !passwordVisible },
                                         ) {
@@ -873,7 +924,13 @@ fun MyEidPinScreen(
                                     IconButton(
                                         modifier =
                                             modifier
-                                                .align(Alignment.CenterVertically),
+                                                .align(Alignment.CenterVertically)
+                                                .zIndex(9f)
+                                                .semantics {
+                                                    traversalIndex = 9f
+                                                    testTagsAsResourceId = true
+                                                }
+                                                .testTag("myEidNewPinRemoveButton"),
                                         onClick = { newPin = TextFieldValue("") },
                                     ) {
                                         Icon(
@@ -893,11 +950,17 @@ fun MyEidPinScreen(
                             Text(
                                 modifier =
                                     modifier
+                                        .focusRequester(newPinDescriptionFocusRequester)
                                         .fillMaxWidth()
-                                        .focusable(true)
+                                        .zIndex(6f)
+                                        .focusable(enabled = true)
+                                        .focusTarget()
+                                        .focusProperties { canFocus = true }
                                         .semantics {
-                                            contentDescription =
+                                            this.contentDescription =
                                                 "$pinDifferentRequirementText $pinLengthRequirementText"
+                                            traversalIndex = 6f
+                                            testTagsAsResourceId = true
                                         }
                                         .testTag("myEidNewPinDescriptionText"),
                                 text = "$pinDifferentRequirementText $pinLengthRequirementText",
@@ -923,22 +986,26 @@ fun MyEidPinScreen(
                                     style = MaterialTheme.typography.bodySmall,
                                 )
                             }
+
+                            LaunchedEffect(Unit) {
+                                if (isTalkBackEnabled(context)) {
+                                    delay(1000)
+                                    newPinDescriptionFocusRequester.requestFocus()
+                                }
+                            }
                         }
 
                         if (showNewRepeatPinField.value) {
                             Text(
-                                text =
-                                    stringResource(
-                                        R.string.myeid_repeat_new_pin_code_title,
-                                        codeType.name,
-                                    ),
+                                text = newPinRepeatedText,
                                 modifier =
                                     modifier
                                         .focusable(false)
                                         .semantics {
                                             testTagsAsResourceId = true
                                         }
-                                        .testTag("myEidNewPinRepeatCodeTitle"),
+                                        .testTag("myEidNewPinRepeatCodeTitle")
+                                        .notAccessible(),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 style = MaterialTheme.typography.titleLarge,
                             )
@@ -952,42 +1019,35 @@ fun MyEidPinScreen(
                             ) {
                                 OutlinedTextField(
                                     value =
-                                        if (!isTalkBackEnabled(context)) {
-                                            newPinRepeated
-                                        } else {
-                                            newPinRepeatedWithInvisibleSpaces.copy(
-                                                selection =
-                                                    TextRange(
-                                                        newPinRepeatedWithInvisibleSpaces.text.length,
-                                                    ),
-                                            )
+                                        when {
+                                            !isTalkBackEnabled(context) -> newPinRepeated
+                                            passwordVisible ->
+                                                newPinRepeatedWithInvisibleSpaces.copy(
+                                                    selection =
+                                                        TextRange(
+                                                            newPinRepeatedWithInvisibleSpaces.text.length,
+                                                        ),
+                                                )
+
+                                            else -> newPinRepeated
                                         },
                                     singleLine = true,
                                     onValueChange = {
                                         if (it.text.isDigitsOnly() &&
                                             it.text.length <= Constant.MyEID.PIN_MAXIMUM_LENGTH
                                         ) {
-                                            if (!isTalkBackEnabled(context)) {
-                                                newPinRepeated =
-                                                    it.copy(selection = TextRange(it.text.length))
-                                            } else {
-                                                val noInvisibleElement =
-                                                    TextFieldValue(removeInvisibleElement(it.text))
-                                                newPinRepeated =
-                                                    noInvisibleElement.copy(
-                                                        selection =
-                                                            TextRange(
-                                                                noInvisibleElement.text.length,
-                                                            ),
-                                                    )
-                                            }
+                                            newPinRepeated = it.copy(selection = TextRange(it.text.length))
                                         }
                                     },
                                     modifier =
                                         modifier
+                                            .zIndex(11f)
                                             .weight(1f)
                                             .semantics(mergeDescendants = true) {
+                                                this.contentDescription =
+                                                    "$newPinRepeatedText ${pinErrorText.value}".lowercase()
                                                 testTagsAsResourceId = true
+                                                traversalIndex = 11f
                                             }
                                             .testTag("myEidNewRepeatPinTextField"),
                                     trailingIcon = {
@@ -1008,7 +1068,11 @@ fun MyEidPinScreen(
                                         IconButton(
                                             modifier =
                                                 modifier
-                                                    .semantics { traversalIndex = 9f }
+                                                    .zIndex(12f)
+                                                    .semantics {
+                                                        traversalIndex = 12f
+                                                        testTagsAsResourceId = true
+                                                    }
                                                     .testTag("myEidNewPinRepeatPasswordVisibleButton"),
                                             onClick = { passwordVisible = !passwordVisible },
                                         ) {
@@ -1037,7 +1101,13 @@ fun MyEidPinScreen(
                                     IconButton(
                                         modifier =
                                             modifier
-                                                .align(Alignment.CenterVertically),
+                                                .align(Alignment.CenterVertically)
+                                                .zIndex(13f)
+                                                .semantics {
+                                                    traversalIndex = 13f
+                                                    testTagsAsResourceId = true
+                                                }
+                                                .testTag("myEidNewPinRepeatRemoveButton"),
                                         onClick = { newPinRepeated = TextFieldValue("") },
                                     ) {
                                         Icon(
@@ -1057,9 +1127,18 @@ fun MyEidPinScreen(
                             Text(
                                 modifier =
                                     modifier
+                                        .focusRequester(newPinRepeatedDescriptionFocusRequester)
                                         .fillMaxWidth()
-                                        .focusable(true)
-                                        .semantics { contentDescription = pinLengthRequirementText }
+                                        .zIndex(10f)
+                                        .focusable(enabled = true)
+                                        .focusTarget()
+                                        .focusProperties { canFocus = true }
+                                        .semantics {
+                                            this.contentDescription =
+                                                "$pinDifferentRequirementText $pinLengthRequirementText".lowercase()
+                                            traversalIndex = 10f
+                                            testTagsAsResourceId = true
+                                        }
                                         .testTag("myEidNewPinRepeatDescriptionText"),
                                 text = "$pinDifferentRequirementText $pinLengthRequirementText",
                                 color =
@@ -1083,6 +1162,13 @@ fun MyEidPinScreen(
                                     color = Red500,
                                     style = MaterialTheme.typography.bodySmall,
                                 )
+                            }
+
+                            LaunchedEffect(Unit) {
+                                if (isTalkBackEnabled(context)) {
+                                    delay(1000)
+                                    newPinRepeatedDescriptionFocusRequester.requestFocus()
+                                }
                             }
                         }
                     }

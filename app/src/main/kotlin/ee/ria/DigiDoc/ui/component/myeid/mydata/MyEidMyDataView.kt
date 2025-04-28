@@ -5,14 +5,13 @@ package ee.ria.DigiDoc.ui.component.myeid.mydata
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTagsAsResourceId
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -32,10 +31,7 @@ fun MyEidMyDataView(
             modifier
                 .fillMaxSize()
                 .padding(vertical = XSPadding)
-                .semantics {
-                    testTagsAsResourceId = true
-                }
-                .testTag("myEidMyDataView"),
+                .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         MyEidMyDataDetailItem()

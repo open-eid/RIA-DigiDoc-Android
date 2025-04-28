@@ -6,6 +6,7 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 
 data class MyEidMyDataDetailItem(
     val showTagBadge: Boolean = false,
@@ -29,8 +30,8 @@ data class MyEidMyDataDetailItem(
                 label = R.string.myeid_firstname,
                 value = firstname,
                 contentDescription =
-                    if (value != null) {
-                        "${stringResource(id = R.string.myeid_firstname)} $value"
+                    if (firstname != null) {
+                        "${stringResource(id = R.string.myeid_firstname)} ${firstname.lowercase()}"
                     } else {
                         ""
                     },
@@ -40,8 +41,8 @@ data class MyEidMyDataDetailItem(
                 label = R.string.myeid_lastname,
                 value = lastname,
                 contentDescription =
-                    if (value != null) {
-                        "${stringResource(id = R.string.myeid_lastname)}, $value"
+                    if (lastname != null) {
+                        "${stringResource(id = R.string.myeid_lastname)}, ${lastname.lowercase()}"
                     } else {
                         ""
                     },
@@ -51,8 +52,8 @@ data class MyEidMyDataDetailItem(
                 label = R.string.myeid_citizenship,
                 value = citizenship,
                 contentDescription =
-                    if (value != null) {
-                        "${stringResource(id = R.string.myeid_citizenship)}, $value"
+                    if (citizenship != null) {
+                        "${stringResource(id = R.string.myeid_citizenship)}, ${citizenship.lowercase()}"
                     } else {
                         ""
                     },
@@ -62,8 +63,8 @@ data class MyEidMyDataDetailItem(
                 label = R.string.myeid_personal_code,
                 value = personalCode,
                 contentDescription =
-                    if (value != null) {
-                        "${stringResource(id = R.string.myeid_personal_code)}, $value"
+                    if (personalCode != null) {
+                        "${stringResource(id = R.string.myeid_personal_code)}, ${formatNumbers(personalCode)}"
                     } else {
                         ""
                     },
@@ -73,8 +74,8 @@ data class MyEidMyDataDetailItem(
                 label = R.string.myeid_date_of_birth,
                 value = dateOfBirth,
                 contentDescription =
-                    if (value != null) {
-                        "${stringResource(id = R.string.myeid_date_of_birth)}, $value"
+                    if (dateOfBirth != null) {
+                        "${stringResource(id = R.string.myeid_date_of_birth)}, $dateOfBirth"
                     } else {
                         ""
                     },
@@ -84,8 +85,8 @@ data class MyEidMyDataDetailItem(
                 label = R.string.myeid_document_number,
                 value = documentNumber,
                 contentDescription =
-                    if (value != null) {
-                        "${stringResource(id = R.string.myeid_document_number)}, $value"
+                    if (documentNumber != null) {
+                        "${stringResource(id = R.string.myeid_document_number)}, ${formatNumbers(documentNumber)}"
                     } else {
                         ""
                     },
@@ -96,8 +97,8 @@ data class MyEidMyDataDetailItem(
                 label = R.string.myeid_valid_to,
                 value = validTo,
                 contentDescription =
-                    if (value != null) {
-                        "${stringResource(id = R.string.myeid_valid_to)}, $value"
+                    if (validTo != null) {
+                        "${stringResource(id = R.string.myeid_valid_to)}, $validTo"
                     } else {
                         ""
                     },
