@@ -50,7 +50,7 @@ class SharedMyEidViewModel
         private val smartCardReaderManager: SmartCardReaderManager,
         private val idCardService: IdCardService,
         private val nfcSmartCardReaderManager: NfcSmartCardReaderManager,
-        val dataStore: DataStore,
+        private val dataStore: DataStore,
     ) : ViewModel() {
         private val logTag = "SharedMyEidViewModel"
 

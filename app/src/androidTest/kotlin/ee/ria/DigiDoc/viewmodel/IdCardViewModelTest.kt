@@ -8,6 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.test.platform.app.InstrumentationRegistry
+import ee.ria.DigiDoc.IdCardDataCreator.Companion.createMockIdCardData
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.certificate.CertificateService
 import ee.ria.DigiDoc.common.model.EIDType
@@ -812,34 +813,4 @@ class IdCardViewModelTest {
 
             viewModel.pinErrorState.removeObserver(pinErrorStateObserver)
         }
-
-    private fun createMockIdCardData(
-        type: EIDType = EIDType.ID_CARD,
-        personalData: PersonalData = mock(PersonalData::class.java),
-        authCertificate: ExtendedCertificate = createMockExtendedCertificate(),
-        signCertificate: ExtendedCertificate = createMockExtendedCertificate(),
-        pin1RetryCount: Int = 3,
-        pin2RetryCount: Int = 3,
-        pukRetryCount: Int = 3,
-    ): IdCardData {
-        return IdCardData(
-            type = type,
-            personalData = personalData,
-            authCertificate = authCertificate,
-            signCertificate = signCertificate,
-            pin1RetryCount = pin1RetryCount,
-            pin2RetryCount = pin2RetryCount,
-            pukRetryCount = pukRetryCount,
-        )
-    }
-
-    private fun createMockExtendedCertificate(): ExtendedCertificate {
-        return ExtendedCertificate(
-            type = EIDType.ID_CARD,
-            data = byteArrayOf(0x01, 0x02, 0x03),
-            keyUsage = mock(KeyUsage::class.java),
-            extendedKeyUsage = mock(ExtendedKeyUsage::class.java),
-            ellipticCurve = true,
-        )
-    }
 }
