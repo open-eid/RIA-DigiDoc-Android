@@ -39,6 +39,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -49,6 +50,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -69,6 +71,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
@@ -77,6 +80,7 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedMyEidViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MyEidIdentificationScreen(
     modifier: Modifier = Modifier,
@@ -176,7 +180,9 @@ fun MyEidIdentificationScreen(
                     modifier
                         .semantics {
                             heading()
-                        },
+                            testTagsAsResourceId = true
+                        }
+                        .testTag("myEidIdentificationTitle"),
                 text = stringResource(R.string.myeid_identification_title),
                 color = MaterialTheme.colorScheme.onBackground,
                 style = MaterialTheme.typography.headlineMedium,
@@ -191,7 +197,7 @@ fun MyEidIdentificationScreen(
                             if (!isAuthenticating && !isIdCardProcessStarted) {
                                 1f
                             } else {
-                                0.01f
+                                0.001f
                             },
                         ),
                 horizontalAlignment = Alignment.Start,
@@ -213,11 +219,20 @@ fun MyEidIdentificationScreen(
                         modifier
                             .fillMaxWidth()
                             .background(Color.Transparent)
-                            .clickable {
+                            .clickable(
+                                enabled = !isAuthenticating && !isIdCardProcessStarted,
+                            ) {
                                 navController.navigate(
                                     Route.MyEidIdentificationMethodScreen.route,
                                 )
-                            },
+                            }
+                            .then(
+                                if (isAuthenticating || isIdCardProcessStarted && isTalkBackEnabled(context)) {
+                                    modifier.notAccessible()
+                                } else {
+                                    modifier
+                                },
+                            ),
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -226,7 +241,9 @@ fun MyEidIdentificationScreen(
                             modifier
                                 .semantics {
                                     contentDescription = "$identificationMethodText $chosenMethodNameText"
-                                },
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("myEidChosenMethodNameTitle"),
                         text = chosenMethodNameText,
                         color = MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Start,
@@ -362,7 +379,8 @@ fun MyEidIdentificationScreen(
                     enabled = isValidToAuthenticate,
                     modifier =
                         modifier
-                            .fillMaxWidth(),
+                            .fillMaxWidth()
+                            .focusable(),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 ) {
                     Text(

@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.ui.component.myeid.mydata
 import android.content.res.Configuration
 import androidx.annotation.StringRes
 import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -64,10 +65,13 @@ fun MyEidMyDataItem(
             modifier
                 .fillMaxWidth()
                 .focusable(true, interactionSource)
+                .focusGroup()
                 .indication(interactionSource, LocalIndication.current)
                 .semantics(mergeDescendants = true) {
                     this.contentDescription = contentDescription ?: ""
-                },
+                    testTagsAsResourceId = true
+                }
+                .testTag("$testTag-container"),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -75,7 +79,8 @@ fun MyEidMyDataItem(
             modifier =
                 modifier
                     .weight(1f)
-                    .padding(vertical = SPadding),
+                    .padding(vertical = SPadding)
+                    .notAccessible(),
         ) {
             Text(
                 text = detailKeyText,
@@ -85,8 +90,7 @@ fun MyEidMyDataItem(
                         .semantics {
                             testTagsAsResourceId = true
                         }
-                        .testTag(testTag)
-                        .notAccessible(),
+                        .testTag("$testTag-key"),
                 color = MaterialTheme.colorScheme.onSecondary,
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.labelMedium,
@@ -96,8 +100,10 @@ fun MyEidMyDataItem(
                 modifier =
                     modifier
                         .focusable(false)
-                        .testTag(testTag)
-                        .notAccessible(),
+                        .semantics {
+                            testTagsAsResourceId = true
+                        }
+                        .testTag("$testTag-value"),
                 textAlign = TextAlign.Start,
             )
         }

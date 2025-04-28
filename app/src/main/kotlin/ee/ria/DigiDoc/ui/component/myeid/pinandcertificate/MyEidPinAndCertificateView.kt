@@ -4,15 +4,17 @@ package ee.ria.DigiDoc.ui.component.myeid.pinandcertificate
 
 import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -29,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
@@ -42,7 +45,7 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import java.time.LocalDate
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun MyEidPinAndCertificateView(
     modifier: Modifier = Modifier,
@@ -100,14 +103,24 @@ fun MyEidPinAndCertificateView(
                 )
 
                 Column(
-                    modifier = modifier.weight(1f),
+                    modifier =
+                        modifier
+                            .weight(1f)
+                            .focusable()
+                            .semantics(mergeDescendants = true) {
+                                this.contentDescription = "$title. $subtitle".lowercase()
+                                testTagsAsResourceId = true
+                            }
+                            .testTag("myEidCertificateTitle"),
                 ) {
                     Text(
+                        modifier = modifier.notAccessible(),
                         text = title,
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
+                        modifier = modifier.notAccessible(),
                         text = subtitle,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -116,17 +129,31 @@ fun MyEidPinAndCertificateView(
             }
 
             if (showForgotPin && forgotPinText.isNotBlank() && onForgotPinClick != null) {
-                Row(
+                FlowRow(
                     modifier =
                         modifier
                             .padding(SPadding),
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalArrangement = Arrangement.spacedBy(XSPadding),
+                    horizontalArrangement = Arrangement.Center,
                 ) {
                     OutlinedButton(
                         onClick = onForgotPinClick,
-                        modifier = modifier.weight(1f),
+                        modifier =
+                            modifier
+                                .weight(1f)
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("myEidPinAndCertificateForgotPinButton"),
                     ) {
                         Text(
+                            modifier =
+                                modifier
+                                    .semantics {
+                                        this.contentDescription = forgotPinText.lowercase()
+                                        testTagsAsResourceId = true
+                                    }
+                                    .testTag("myEidForgotPinButtonText"),
                             text = forgotPinText,
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary,
@@ -134,7 +161,7 @@ fun MyEidPinAndCertificateView(
                         )
                     }
 
-                    Spacer(modifier = modifier.width(XSPadding))
+                    Spacer(modifier = modifier.size(XSPadding))
 
                     Button(
                         enabled = !isPinBlocked,
@@ -142,6 +169,13 @@ fun MyEidPinAndCertificateView(
                         modifier = modifier,
                     ) {
                         Text(
+                            modifier =
+                                modifier
+                                    .semantics {
+                                        this.contentDescription = changePinText.lowercase()
+                                        testTagsAsResourceId = true
+                                    }
+                                    .testTag("myEidPinAndCertificateChangePinButton"),
                             text = changePinText,
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.onPrimary,
