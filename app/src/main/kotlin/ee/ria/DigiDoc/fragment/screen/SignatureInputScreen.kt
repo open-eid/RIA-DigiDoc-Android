@@ -39,6 +39,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -48,6 +49,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -77,6 +79,7 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignatureInputScreen(
     modifier: Modifier = Modifier,
@@ -198,6 +201,9 @@ fun SignatureInputScreen(
                             modifier
                                 .focusable(false)
                                 .notAccessible()
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }
                                 .testTag("signatureInputMethodTitle"),
                         color = MaterialTheme.colorScheme.onSecondary,
                         textAlign = TextAlign.Start,
@@ -222,7 +228,9 @@ fun SignatureInputScreen(
                                 modifier
                                     .semantics {
                                         contentDescription = "$signatureMethodText $chosenMethodNameText"
-                                    },
+                                        testTagsAsResourceId = true
+                                    }
+                                    .testTag("signatureInputMethodChosen"),
                             text = chosenMethodNameText,
                             color = MaterialTheme.colorScheme.onSurface,
                             textAlign = TextAlign.Start,
