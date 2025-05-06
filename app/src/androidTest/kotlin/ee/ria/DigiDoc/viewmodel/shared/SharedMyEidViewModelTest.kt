@@ -147,8 +147,8 @@ class SharedMyEidViewModelTest {
         val result =
             viewModel.isPinCodeValid(
                 codeType = CodeType.PIN1,
-                currentPin = "1234",
-                newPin = "1235",
+                currentPin = byteArrayOf(49, 50, 51, 52),
+                newPin = byteArrayOf(49, 50, 51, 53),
                 personalCode = "38703294793",
             )
         assertTrue(result)
@@ -159,8 +159,8 @@ class SharedMyEidViewModelTest {
         val result =
             viewModel.isPinCodeValid(
                 codeType = CodeType.PIN1,
-                currentPin = "1234",
-                newPin = "1234",
+                currentPin = byteArrayOf(49, 50, 51, 52),
+                newPin = byteArrayOf(49, 50, 51, 52),
                 personalCode = "38703294793",
             )
         assertFalse(result)
@@ -171,8 +171,8 @@ class SharedMyEidViewModelTest {
         val result =
             viewModel.isPinCodeValid(
                 codeType = CodeType.PIN1,
-                currentPin = "1234",
-                newPin = "7032",
+                currentPin = byteArrayOf(49, 50, 51, 52),
+                newPin = byteArrayOf(55, 48, 51, 50),
                 personalCode = "38703294793",
             )
         assertFalse(result)
@@ -183,8 +183,8 @@ class SharedMyEidViewModelTest {
         val result =
             viewModel.isPinCodeValid(
                 codeType = CodeType.PIN1,
-                currentPin = "1234",
-                newPin = "1987",
+                currentPin = byteArrayOf(49, 50, 51, 52),
+                newPin = byteArrayOf(49, 57, 56, 55),
                 personalCode = "38703294793",
             )
         assertFalse(result)
@@ -195,8 +195,8 @@ class SharedMyEidViewModelTest {
         val result =
             viewModel.isPinCodeValid(
                 codeType = CodeType.PIN1,
-                currentPin = "1234",
-                newPin = "1111",
+                currentPin = byteArrayOf(49, 50, 51, 52),
+                newPin = byteArrayOf(49, 49, 49, 49),
                 personalCode = "38703294793",
             )
         assertFalse(result)
@@ -207,8 +207,8 @@ class SharedMyEidViewModelTest {
         val result =
             viewModel.isPinCodeValid(
                 codeType = CodeType.PIN1,
-                currentPin = "1234",
-                newPin = "123",
+                currentPin = byteArrayOf(49, 50, 51, 52),
+                newPin = byteArrayOf(49, 50, 51),
                 personalCode = "38703294793",
             )
         assertFalse(result)
@@ -216,126 +216,126 @@ class SharedMyEidViewModelTest {
 
     @Test
     fun sharedMyEidViewModel_pinCodesMatch_returnTrue() {
-        val result = viewModel.pinCodesMatch("1234", "1234")
+        val result = viewModel.pinCodesMatch(byteArrayOf(49, 50, 51, 52), byteArrayOf(49, 50, 51, 52))
         assertTrue(result)
     }
 
     @Test
     fun sharedMyEidViewModel_pinCodesMatch_returnFalse() {
-        val result = viewModel.pinCodesMatch("1234", "4321")
+        val result = viewModel.pinCodesMatch(byteArrayOf(49, 50, 51, 52), byteArrayOf(52, 51, 50, 49))
         assertFalse(result)
     }
 
     @Test
     fun sharedMyEidViewModel_isNewPinPartOfPersonalCode_returnTrue() {
-        val result = viewModel.isNewPinPartOfPersonalCode("0329", "38703294793")
+        val result = viewModel.isNewPinPartOfPersonalCode(byteArrayOf(48, 51, 50, 57), "38703294793")
         assertTrue(result)
     }
 
     @Test
     fun sharedMyEidViewModel_isNewPinPartOfPersonalCode_returnFalse() {
-        val result = viewModel.isNewPinPartOfPersonalCode("1234", "38703294793")
+        val result = viewModel.isNewPinPartOfPersonalCode(byteArrayOf(49, 50, 51, 52), "38703294793")
         assertFalse(result)
     }
 
     @Test
     fun sharedMyEidViewModel_isNewPinPartOfBirthDate_returnFalse() {
-        val result = viewModel.isNewPinPartOfBirthDate("1234", "38703294793")
+        val result = viewModel.isNewPinPartOfBirthDate(byteArrayOf(49, 50, 51, 52), "38703294793")
         assertFalse(result)
     }
 
     @Test
     fun sharedMyEidViewModel_isNewPinPartOfBirthDate_returnTrueWhenPinMatches_yyyy() {
-        assertTrue(viewModel.isNewPinPartOfBirthDate("1987", "38703294793"))
+        assertTrue(viewModel.isNewPinPartOfBirthDate(byteArrayOf(49, 57, 56, 55), "38703294793"))
     }
 
     @Test
     fun sharedMyEidViewModel_isNewPinPartOfBirthDate_returnTrueWhenPinMatches_MMdd() {
-        assertTrue(viewModel.isNewPinPartOfBirthDate("0329", "38703294793"))
+        assertTrue(viewModel.isNewPinPartOfBirthDate(byteArrayOf(48, 51, 50, 57), "38703294793"))
     }
 
     @Test
     fun sharedMyEidViewModel_isNewPinPartOfBirthDate_returnTrueWhenPinMatches_ddMM() {
-        assertTrue(viewModel.isNewPinPartOfBirthDate("2903", "38703294793"))
+        assertTrue(viewModel.isNewPinPartOfBirthDate(byteArrayOf(50, 57, 48, 51), "38703294793"))
     }
 
     @Test
     fun sharedMyEidViewModel_isNewPinPartOfBirthDate_returnTrueWhenPinMatches_ddMMyyyy() {
-        assertTrue(viewModel.isNewPinPartOfBirthDate("29031987", "38703294793"))
+        assertTrue(viewModel.isNewPinPartOfBirthDate(byteArrayOf(50, 57, 48, 51, 49, 57, 56, 55), "38703294793"))
     }
 
     @Test
     fun sharedMyEidViewModel_isNewPinPartOfBirthDate_returnTrueWhenPinMatches_yyyyMM() {
-        assertTrue(viewModel.isNewPinPartOfBirthDate("198703", "38703294793"))
+        assertTrue(viewModel.isNewPinPartOfBirthDate(byteArrayOf(49, 57, 56, 55, 48, 51), "38703294793"))
     }
 
     @Test
     fun sharedMyEidViewModel_isNewPinPartOfBirthDate_returnTrueWhenPinMatches_yyyyMMdd() {
-        assertTrue(viewModel.isNewPinPartOfBirthDate("19870329", "38703294793"))
+        assertTrue(viewModel.isNewPinPartOfBirthDate(byteArrayOf(49, 57, 56, 55, 48, 51, 50, 57), "38703294793"))
     }
 
     @Test
     fun sharedMyEidViewModel_isNewPinPartOfBirthDate_returnFalseWhenPinDoesNotMatchAnyFormat() {
-        assertFalse(viewModel.isNewPinPartOfBirthDate("1234", "38703294793"))
+        assertFalse(viewModel.isNewPinPartOfBirthDate(byteArrayOf(49, 50, 52, 54), "38703294793"))
     }
 
     @Test
     fun sharedMyEidViewModel_isNewPinPartOfBirthDate_returnFalseWhenPersonalCodeEmpty() {
-        assertFalse(viewModel.isNewPinPartOfBirthDate("1234", ""))
+        assertFalse(viewModel.isNewPinPartOfBirthDate(byteArrayOf(49, 50, 51, 52), ""))
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun sharedMyEidViewModel_isNewPinPartOfBirthDate_throwsIllegalArgumentExceptionForInvalidPersonalCode() {
         val invalidPersonalCode = "08702314793"
-        viewModel.isNewPinPartOfBirthDate("1987", invalidPersonalCode)
+        viewModel.isNewPinPartOfBirthDate(byteArrayOf(49, 57, 56, 55), invalidPersonalCode)
     }
 
     @Test(expected = DateTimeException::class)
     fun sharedMyEidViewModel_isNewPinPartOfBirthDate_throwsDateTimeExceptionForInvalidPersonalCode() {
         val invalidPersonalCode = "38702314793"
-        viewModel.isNewPinPartOfBirthDate("1987", invalidPersonalCode)
+        viewModel.isNewPinPartOfBirthDate(byteArrayOf(49, 57, 56, 55), invalidPersonalCode)
     }
 
     @Test
     fun sharedMyEidViewModel_isPinCodeTooEasy_returnFalse() {
-        assertFalse(viewModel.isPinCodeTooEasy("1357"))
-        assertFalse(viewModel.isPinCodeTooEasy("1246"))
+        assertFalse(viewModel.isPinCodeTooEasy(byteArrayOf(48, 51, 53, 55)))
+        assertFalse(viewModel.isPinCodeTooEasy(byteArrayOf(49, 50, 52, 54)))
     }
 
     @Test
     fun sharedMyEidViewModel_isPinCodeTooEasy_returnTrueForAscendingSequence() {
-        assertTrue(viewModel.isPinCodeTooEasy("1234"))
-        assertTrue(viewModel.isPinCodeTooEasy("012345"))
+        assertTrue(viewModel.isPinCodeTooEasy(byteArrayOf(49, 50, 51, 52)))
+        assertTrue(viewModel.isPinCodeTooEasy(byteArrayOf(48, 49, 50, 51, 52, 53)))
     }
 
     @Test
     fun sharedMyEidViewModel_isPinCodeTooEasy_returnTrueForDescendingSequence() {
-        assertTrue(viewModel.isPinCodeTooEasy("9876"))
-        assertTrue(viewModel.isPinCodeTooEasy("3210"))
+        assertTrue(viewModel.isPinCodeTooEasy(byteArrayOf(57, 56, 55, 54)))
+        assertTrue(viewModel.isPinCodeTooEasy(byteArrayOf(51, 50, 49, 48)))
     }
 
     @Test
     fun sharedMyEidViewModel_isPinCodeTooEasy_returnTrueForWrapAround9To0() {
-        assertTrue(viewModel.isPinCodeTooEasy("7890"))
-        assertTrue(viewModel.isPinCodeTooEasy("8901"))
+        assertTrue(viewModel.isPinCodeTooEasy(byteArrayOf(55, 56, 57, 48)))
+        assertTrue(viewModel.isPinCodeTooEasy(byteArrayOf(56, 57, 48, 49)))
     }
 
     @Test
     fun sharedMyEidViewModel_isPinCodeTooEasy_returnTrueForWrapAround0To9() {
-        assertTrue(viewModel.isPinCodeTooEasy("2109"))
+        assertTrue(viewModel.isPinCodeTooEasy(byteArrayOf(50, 49, 48, 57)))
     }
 
     @Test
     fun sharedMyEidViewModel_isPinCodeTooEasy_returnTrueForRepeatingNonSequentialDigits() {
-        assertFalse(viewModel.isPinCodeTooEasy("1122"))
-        assertFalse(viewModel.isPinCodeTooEasy("5566"))
+        assertFalse(viewModel.isPinCodeTooEasy(byteArrayOf(49, 49, 50, 50)))
+        assertFalse(viewModel.isPinCodeTooEasy(byteArrayOf(53, 53, 54, 54)))
     }
 
     @Test
     fun sharedMyEidViewModel_isPinCodeTooEasy_returnTrueForRepeatingSingleDigits() {
-        assertTrue(viewModel.isPinCodeTooEasy("0000"))
-        assertTrue(viewModel.isPinCodeTooEasy("1111"))
-        assertTrue(viewModel.isPinCodeTooEasy("9999"))
+        assertTrue(viewModel.isPinCodeTooEasy(byteArrayOf(48, 48, 48, 48)))
+        assertTrue(viewModel.isPinCodeTooEasy(byteArrayOf(49, 49, 49, 49)))
+        assertTrue(viewModel.isPinCodeTooEasy(byteArrayOf(57, 57, 57, 57)))
     }
 
     @Test
@@ -406,7 +406,7 @@ class SharedMyEidViewModelTest {
         runTest {
             `when`(mockIdCardService.editPin(any(), any(), any(), any())).thenReturn(true)
 
-            viewModel.editPin(mockToken, CodeType.PIN1, byteArrayOf(1, 2, 3, 4), byteArrayOf(4, 5, 6, 7))
+            viewModel.editPin(mockToken, CodeType.PIN1, byteArrayOf(49, 50, 51, 52), byteArrayOf(52, 53, 54, 55))
 
             assertTrue(viewModel.pinChangingState.value == true)
             verify(errorStateObserver, never()).onChanged(any())
@@ -418,7 +418,7 @@ class SharedMyEidViewModelTest {
             val exception = CodeVerificationException(CodeType.PIN1, 2)
             `when`(mockIdCardService.editPin(any(), any(), any(), any())).thenThrow(exception)
 
-            viewModel.editPin(mockToken, CodeType.PIN1, byteArrayOf(1, 2, 3, 4), byteArrayOf(4, 5, 6, 7))
+            viewModel.editPin(mockToken, CodeType.PIN1, byteArrayOf(49, 50, 51, 52), byteArrayOf(52, 53, 54, 55))
 
             assertFalse(viewModel.pinChangingState.value == true)
             assertEquals(
@@ -434,7 +434,7 @@ class SharedMyEidViewModelTest {
             val exception = CodeVerificationException(CodeType.PIN2, 0)
             `when`(mockIdCardService.editPin(any(), any(), any(), any())).thenThrow(exception)
 
-            viewModel.editPin(mockToken, CodeType.PIN2, byteArrayOf(1, 2, 3, 4), byteArrayOf(4, 5, 6, 7))
+            viewModel.editPin(mockToken, CodeType.PIN2, byteArrayOf(49, 50, 51, 52), byteArrayOf(52, 53, 54, 55))
 
             assertFalse(viewModel.pinChangingState.value == true)
             assertTrue(viewModel.isPinBlocked.value == true)
@@ -450,7 +450,12 @@ class SharedMyEidViewModelTest {
             val exception = SmartCardReaderException("Reader disconnected")
             `when`(mockIdCardService.editPin(any(), any(), any(), any())).thenThrow(exception)
 
-            viewModel.editPin(mockToken, CodeType.PUK, byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8), byteArrayOf(1, 2, 3, 4))
+            viewModel.editPin(
+                mockToken,
+                CodeType.PUK,
+                byteArrayOf(49, 50, 51, 52, 53, 54, 55, 56),
+                byteArrayOf(49, 50, 51, 52),
+            )
 
             assertEquals(false, viewModel.pinChangingState.value)
             assertEquals(
@@ -464,7 +469,12 @@ class SharedMyEidViewModelTest {
         runTest {
             `when`(mockIdCardService.unblockAndEditPin(any(), any(), any(), any())).thenReturn(true)
 
-            viewModel.unblockAndEditPin(mockToken, CodeType.PIN1, byteArrayOf(1, 2, 3, 4), byteArrayOf(4, 5, 6, 7))
+            viewModel.unblockAndEditPin(
+                mockToken,
+                CodeType.PIN1,
+                byteArrayOf(49, 50, 51, 52),
+                byteArrayOf(52, 53, 54, 55),
+            )
 
             assertTrue(viewModel.pinChangingState.value == true)
             verify(errorStateObserver, never()).onChanged(any())
@@ -476,7 +486,12 @@ class SharedMyEidViewModelTest {
             val exception = CodeVerificationException(CodeType.PIN1, 2)
             `when`(mockIdCardService.unblockAndEditPin(any(), any(), any(), any())).thenThrow(exception)
 
-            viewModel.unblockAndEditPin(mockToken, CodeType.PIN1, byteArrayOf(1, 2, 3, 4), byteArrayOf(4, 5, 6, 7))
+            viewModel.unblockAndEditPin(
+                mockToken,
+                CodeType.PIN1,
+                byteArrayOf(49, 50, 51, 52),
+                byteArrayOf(52, 53, 54, 55),
+            )
 
             assertFalse(viewModel.pinChangingState.value == true)
             assertEquals(
@@ -492,7 +507,12 @@ class SharedMyEidViewModelTest {
             val exception = CodeVerificationException(CodeType.PIN2, 0)
             `when`(mockIdCardService.unblockAndEditPin(any(), any(), any(), any())).thenThrow(exception)
 
-            viewModel.unblockAndEditPin(mockToken, CodeType.PIN2, byteArrayOf(1, 2, 3, 4), byteArrayOf(4, 5, 6, 7))
+            viewModel.unblockAndEditPin(
+                mockToken,
+                CodeType.PIN2,
+                byteArrayOf(49, 50, 51, 52),
+                byteArrayOf(52, 53, 54, 55),
+            )
 
             assertFalse(viewModel.pinChangingState.value == true)
             assertFalse(viewModel.isPinBlocked.value == true)
@@ -511,8 +531,8 @@ class SharedMyEidViewModelTest {
             viewModel.unblockAndEditPin(
                 mockToken,
                 CodeType.PUK,
-                byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8),
-                byteArrayOf(1, 2, 3, 4),
+                byteArrayOf(49, 50, 51, 52, 53, 54, 55, 56),
+                byteArrayOf(49, 50, 51, 52),
             )
 
             assertEquals(false, viewModel.pinChangingState.value)
@@ -569,7 +589,7 @@ class SharedMyEidViewModelTest {
         viewModel.setIdentificationMethod(MyEidIdentificationMethodSetting.ID_CARD)
 
         `when`(mockSmartCardReaderManager.connectedReader()).thenReturn(mockSmartCardReader)
-        `when`(mockSmartCardReader.atr()).thenReturn(byteArrayOf(1, 2, 3, 4))
+        `when`(mockSmartCardReader.atr()).thenReturn(byteArrayOf(49, 50, 51, 52))
 
         var resultToken: Token? = null
         var resultError: Exception? = null

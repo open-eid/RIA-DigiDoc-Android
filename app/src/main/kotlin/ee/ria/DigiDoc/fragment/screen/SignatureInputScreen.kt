@@ -320,7 +320,6 @@ fun SignatureInputScreen(
                         activity = context,
                         onError = {
                             isSigning = false
-                            isIdCardProcessStarted = false
                             isAddingRoleAndAddress = false
                             cancelAction()
                         },
