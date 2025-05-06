@@ -92,12 +92,17 @@ fun AdvancedSettingsScreen(
     val getAllowScreenshotsEnabled = sharedSettingsViewModel.dataStore::getSettingsAllowScreenshots
     val setAllowScreenshotsEnabled = sharedSettingsViewModel.dataStore::setSettingsAllowScreenshots
 
+    val getOpenAllFileTypesEnabled = sharedSettingsViewModel.dataStore::getSettingsOpenAllFileTypes
+    val setOpenAllFileTypesEnabled = sharedSettingsViewModel.dataStore::setSettingsOpenAllFileTypes
+
     var checkedAskRoleAndAddress by remember { mutableStateOf(getIsRoleAskingEnabled()) }
     var checkedAllowScreenshots by remember { mutableStateOf(getAllowScreenshotsEnabled()) }
+    var checkedAllowOpeningAllFileTypes by remember { mutableStateOf(getOpenAllFileTypesEnabled()) }
 
     val askRoleAndAddressTitleText = stringResource(R.string.main_settings_ask_role_and_address_title)
     val allowScreenshotsTitleText = stringResource(R.string.main_settings_allow_screenshots_title)
     val defaultSettingsButtonText = stringResource(R.string.main_settings_use_default_settings_button_title)
+    val allowOpeningAllFileTypesButtonText = stringResource(R.string.main_settings_open_all_filetypes_title)
     val buttonName = stringResource(id = R.string.button_name)
 
     LaunchedEffect(messages) {
@@ -231,6 +236,42 @@ fun AdvancedSettingsScreen(
                     },
                 )
             }
+
+            Row(
+                modifier =
+                    modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            checkedAllowOpeningAllFileTypes = !checkedAllowOpeningAllFileTypes
+                            setOpenAllFileTypesEnabled(checkedAllowOpeningAllFileTypes)
+                            sharedSettingsViewModel.recreateActivity()
+                        },
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = allowOpeningAllFileTypesButtonText,
+                    modifier =
+                        modifier
+                            .weight(1f)
+                            .notAccessible(),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                Checkbox(
+                    modifier =
+                        modifier
+                            .focusable(true)
+                            .semantics {
+                                contentDescription = allowOpeningAllFileTypesButtonText
+                            },
+                    checked = checkedAllowOpeningAllFileTypes,
+                    onCheckedChange = {
+                        checkedAllowOpeningAllFileTypes = it
+                        setOpenAllFileTypesEnabled(it)
+                        sharedSettingsViewModel.recreateActivity()
+                    },
+                )
+            }
+
             HorizontalDivider(modifier = modifier.padding(vertical = MPadding))
 
             Text(
@@ -269,6 +310,7 @@ fun AdvancedSettingsScreen(
                 TextButton(onClick = {
                     checkedAskRoleAndAddress = false
                     checkedAllowScreenshots = false
+                    checkedAllowOpeningAllFileTypes = true
                     sharedSettingsViewModel.resetToDefaultSettings()
                     showMessage(context, R.string.main_settings_use_default_settings_message)
                 }) {
