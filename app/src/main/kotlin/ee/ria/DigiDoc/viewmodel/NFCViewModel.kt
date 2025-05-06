@@ -336,6 +336,9 @@ class NFCViewModel
 
                                 errorLog(logTag, "Exception: " + ex.message, ex)
                             } finally {
+                                if (null != pin2Code && pin2Code.isNotEmpty()) {
+                                    Arrays.fill(pin2Code, 0.toByte())
+                                }
                                 nfcSmartCardReaderManager.disableNfcReaderMode()
                                 activity.requestedOrientation =
                                     ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
@@ -484,6 +487,9 @@ class NFCViewModel
 
                                 errorLog(logTag, "Exception: " + ex.message, ex)
                             } finally {
+                                if (null != pin1Code && pin1Code.isNotEmpty()) {
+                                    Arrays.fill(pin1Code, 0.toByte())
+                                }
                                 nfcSmartCardReaderManager.disableNfcReaderMode()
                                 activity.requestedOrientation =
                                     ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED

@@ -6,7 +6,6 @@ import android.app.Activity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.common.collect.ImmutableSet
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant
@@ -39,6 +38,7 @@ import java.security.cert.X509Certificate
 import java.text.SimpleDateFormat
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Arrays
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.abs
@@ -93,8 +93,8 @@ class SharedMyEidViewModel
 
         fun isPinCodeValid(
             codeType: CodeType,
-            currentPin: String,
-            newPin: String,
+            currentPin: ByteArray,
+            newPin: ByteArray,
             personalCode: String,
         ): Boolean {
             return isPinCodeLengthValid(codeType, newPin) &&
@@ -105,48 +105,78 @@ class SharedMyEidViewModel
         }
 
         fun pinCodesMatch(
-            first: String,
-            second: String,
+            first: ByteArray,
+            second: ByteArray,
         ): Boolean {
-            return first == second
+            return first.contentEquals(second)
         }
 
         fun isNewPinPartOfPersonalCode(
-            newPin: String,
+            newPin: ByteArray,
             personalCode: String,
         ): Boolean {
-            return personalCode.contains(newPin)
+            val pinLength = newPin.size
+            if (personalCode.length < pinLength) return false
+
+            for (i in 0..(personalCode.length - pinLength)) {
+                var match = true
+                for (j in newPin.indices) {
+                    val personalChar = personalCode[i + j]
+                    val pinDigit = newPin[j].toInt() - '0'.code
+
+                    if (pinDigit !in 0..9 || personalChar.digitToIntOrNull() != pinDigit) {
+                        match = false
+                        break
+                    }
+                }
+                if (match) return true
+            }
+
+            return false
         }
 
         fun isNewPinPartOfBirthDate(
-            pin: String,
+            pin: ByteArray,
             personalCode: String,
         ): Boolean {
-            if (personalCode.isEmpty()) {
-                return false
+            if (personalCode.isEmpty()) return false
+
+            val dateOfBirth = DateOfBirthUtil.parseDateOfBirth(personalCode) ?: return false
+
+            val patterns =
+                listOf(
+                    DateTimeFormatter.ofPattern("yyyy"),
+                    DateTimeFormatter.ofPattern("MMdd"),
+                    DateTimeFormatter.ofPattern("ddMM"),
+                    DateTimeFormatter.ofPattern("ddMMyyyy"),
+                    DateTimeFormatter.ofPattern("yyyyMM"),
+                    DateTimeFormatter.ofPattern("yyyyMMdd"),
+                )
+
+            for (formatter in patterns) {
+                val dateStr = dateOfBirth.format(formatter)
+                val dateBytes = dateStr.encodeToByteArray()
+
+                for (i in 0..(dateBytes.size - pin.size)) {
+                    var match = true
+                    for (j in pin.indices) {
+                        if (dateBytes[i + j] != pin[j]) {
+                            match = false
+                            break
+                        }
+                    }
+                    if (match) return true
+                }
             }
 
-            val dateOfBirth = DateOfBirthUtil.parseDateOfBirth(personalCode)
-            val dateOfBirthValuesBuilder = ImmutableSet.builder<String>()
-            if (dateOfBirth != null) {
-                dateOfBirthValuesBuilder
-                    .add(dateOfBirth.format(DateTimeFormatter.ofPattern("yyyy")))
-                    .add(dateOfBirth.format(DateTimeFormatter.ofPattern("MMdd")))
-                    .add(dateOfBirth.format(DateTimeFormatter.ofPattern("ddMM")))
-                    .add(dateOfBirth.format(DateTimeFormatter.ofPattern("ddMMyyyy")))
-                    .add(dateOfBirth.format(DateTimeFormatter.ofPattern("yyyyMM")))
-                    .add(dateOfBirth.format(DateTimeFormatter.ofPattern("yyyyMMdd")))
-            }
-            val dateOfBirthValues = dateOfBirthValuesBuilder.build()
-
-            return dateOfBirthValues.contains(pin)
+            return false
         }
 
-        fun isPinCodeTooEasy(pin: String): Boolean {
+        fun isPinCodeTooEasy(pin: ByteArray): Boolean {
             var delta: Int? = null
-            for (i in 0..<pin.length - 1) {
-                val currentNumber = Character.getNumericValue(pin[i])
-                val nextNumber = Character.getNumericValue(pin[i + 1])
+            for (i in 0..<pin.size - 1) {
+                val currentNumber = Character.getNumericValue(pin[i].toInt())
+                val nextNumber = Character.getNumericValue(pin[i + 1].toInt())
 
                 var d = currentNumber - nextNumber
 
@@ -172,17 +202,17 @@ class SharedMyEidViewModel
 
         fun isPinCodeLengthValid(
             codeType: CodeType,
-            pinCode: String,
+            pinCode: ByteArray,
         ): Boolean {
             return when (codeType) {
                 CodeType.PIN1 ->
-                    pinCode.length in
+                    pinCode.size in
                         Constant.MyEID.PIN1_MINIMUM_LENGTH..Constant.MyEID.PIN_MAXIMUM_LENGTH
                 CodeType.PIN2 ->
-                    pinCode.length in
+                    pinCode.size in
                         Constant.MyEID.PIN2_MINIMUM_LENGTH..Constant.MyEID.PIN_MAXIMUM_LENGTH
                 CodeType.PUK ->
-                    pinCode.length in
+                    pinCode.size in
                         Constant.MyEID.PUK_MINIMUM_LENGTH..Constant.MyEID.PIN_MAXIMUM_LENGTH
             }
         }
@@ -243,6 +273,11 @@ class SharedMyEidViewModel
                 )
                 _pinChangingState.postValue(false)
                 _errorState.postValue(Triple(R.string.error_general_client, null, null))
+            } finally {
+                if (currentPin.isNotEmpty() && newPin.isNotEmpty()) {
+                    Arrays.fill(currentPin, 0.toByte())
+                    Arrays.fill(newPin, 0.toByte())
+                }
             }
         }
 
@@ -269,6 +304,11 @@ class SharedMyEidViewModel
                 )
                 _pinChangingState.postValue(false)
                 _errorState.postValue(Triple(R.string.error_general_client, null, null))
+            } finally {
+                if (currentPuk.isNotEmpty() && newPin.isNotEmpty()) {
+                    Arrays.fill(currentPuk, 0.toByte())
+                    Arrays.fill(newPin, 0.toByte())
+                }
             }
         }
 

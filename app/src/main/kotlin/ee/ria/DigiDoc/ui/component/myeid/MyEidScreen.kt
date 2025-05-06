@@ -530,7 +530,7 @@ fun MyEidScreen(
 
     PinGuideDialog(
         showDialog = showForgotPin2Dialog,
-        pinChangeVariant = PinChangeVariant.ChangePin2,
+        pinChangeVariant = PinChangeVariant.ForgotPin2,
         title = R.string.myeid_change_pin_info_title,
         titleExtra = CodeType.PIN2.name,
         guidelines = pin2Guidelines,

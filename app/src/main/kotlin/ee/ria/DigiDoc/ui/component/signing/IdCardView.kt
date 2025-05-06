@@ -22,16 +22,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -58,13 +54,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.compose.ui.semantics.traversalIndex
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -81,19 +70,15 @@ import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.HrefMessageDialog
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
+import ee.ria.DigiDoc.ui.component.shared.SecurePinTextField
 import ee.ria.DigiDoc.ui.theme.Dimensions.LPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXL
-import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.addInvisibleElement
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.removeInvisibleElement
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatName
@@ -185,7 +170,7 @@ fun IdCardView(
         }
 
     val pinText = stringResource(R.string.id_card_identity_pin, pinType)
-    var pinCode by remember { mutableStateOf(TextFieldValue("")) }
+    var pinCode = remember { mutableStateOf(byteArrayOf()) }
 
     var roleDataRequest: RoleData? by remember { mutableStateOf(null) }
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
@@ -194,9 +179,9 @@ fun IdCardView(
     val focusManager = LocalFocusManager.current
     val statusMessageFocusRequester = remember { FocusRequester() }
     val readyToSignFocusRequester = remember { FocusRequester() }
+    val pinCodeFocusRequester = remember { FocusRequester() }
 
     var isValid by rememberSaveable { mutableStateOf(false) }
-    var pinWithInvisibleSpaces = TextFieldValue(addInvisibleElement(pinCode.text))
 
     val clearButtonText = stringResource(R.string.clear_text)
     val buttonName = stringResource(id = R.string.button_name)
@@ -212,12 +197,7 @@ fun IdCardView(
     }
 
     LaunchedEffect(Unit) {
-        pinCode = TextFieldValue("")
-        pinWithInvisibleSpaces =
-            TextFieldValue(
-                text = "",
-                selection = TextRange.Zero,
-            )
+        pinCode.value = byteArrayOf()
         idCardViewModel.resetPINErrorState()
         idCardViewModel.resetPersonalUserData()
     }
@@ -249,12 +229,7 @@ fun IdCardView(
 
             if (idCardStatus != SmartCardReaderStatus.CARD_DETECTED) {
                 idCardViewModel.resetPersonalUserData()
-                pinCode = TextFieldValue("")
-                pinWithInvisibleSpaces =
-                    TextFieldValue(
-                        text = "",
-                        selection = TextRange.Zero,
-                    )
+                pinCode.value.fill(0)
             }
         } ?: run {
             idCardStatusMessage.value = idCardStatusInitialMessage
@@ -267,12 +242,7 @@ fun IdCardView(
             .collect { signStatus ->
                 sharedContainerViewModel.setSignedIDCardStatus(signStatus)
                 idCardViewModel.resetSignStatus()
-                pinCode = TextFieldValue("")
-                pinWithInvisibleSpaces =
-                    TextFieldValue(
-                        text = "",
-                        selection = TextRange.Zero,
-                    )
+                pinCode.value.fill(0)
             }
     }
 
@@ -282,12 +252,7 @@ fun IdCardView(
             .collect { decryptStatus ->
                 sharedContainerViewModel.setDecryptIDCardStatus(decryptStatus)
                 idCardViewModel.resetDecryptStatus()
-                pinCode = TextFieldValue("")
-                pinWithInvisibleSpaces =
-                    TextFieldValue(
-                        text = "",
-                        selection = TextRange.Zero,
-                    )
+                pinCode.value.fill(0)
             }
     }
 
@@ -307,12 +272,7 @@ fun IdCardView(
                             )
                     }
 
-                    pinCode = TextFieldValue("")
-                    pinWithInvisibleSpaces =
-                        TextFieldValue(
-                            text = "",
-                            selection = TextRange.Zero,
-                        )
+                    pinCode.value.fill(0)
                 }
             }
     }
@@ -326,12 +286,7 @@ fun IdCardView(
                     idCardViewModel.resetDialogErrorState()
                 }
                 withContext(Main) {
-                    pinCode = TextFieldValue("")
-                    pinWithInvisibleSpaces =
-                        TextFieldValue(
-                            text = "",
-                            selection = TextRange.Zero,
-                        )
+                    pinCode.value.fill(0)
                     pinErrorText =
                         context.getString(
                             pinErrorState.first, pinErrorState.second, pinErrorState.third,
@@ -348,12 +303,7 @@ fun IdCardView(
                 withContext(Main) {
                     idCardViewModel.resetErrorState()
                     idCardViewModel.resetPINErrorState()
-                    pinCode = TextFieldValue("")
-                    pinWithInvisibleSpaces =
-                        TextFieldValue(
-                            text = "",
-                            selection = TextRange.Zero,
-                        )
+                    pinCode.value.fill(0)
                     showErrorDialog.value = true
                 }
             }
@@ -502,7 +452,7 @@ fun IdCardView(
         if (isAddingRoleAndAddress) {
             RoleDataView(modifier, sharedSettingsViewModel, onError)
         } else {
-            isValid = pinCode.text.length in pinMinLength..PIN_MAX_LENGTH
+            isValid = pinCode.value.size in pinMinLength..PIN_MAX_LENGTH
 
             LaunchedEffect(isValid) {
                 isValidToSign(isValid)
@@ -542,15 +492,10 @@ fun IdCardView(
                             idCardViewModel.sign(
                                 activity,
                                 signedContainer!!,
-                                pinCode.text.toByteArray(),
+                                pinCode.value,
                                 roleDataRequest,
                             )
-                            pinCode = TextFieldValue("")
-                            pinWithInvisibleSpaces =
-                                TextFieldValue(
-                                    text = "",
-                                    selection = TextRange.Zero,
-                                )
+                            pinCode.value.fill(0)
                         }
                     }
                     decryptAction {
@@ -559,14 +504,9 @@ fun IdCardView(
                                 activity,
                                 context,
                                 cryptoContainer!!,
-                                pinCode.text.toByteArray(),
+                                pinCode.value,
                             )
-                            pinCode = TextFieldValue("")
-                            pinWithInvisibleSpaces =
-                                TextFieldValue(
-                                    text = "",
-                                    selection = TextRange.Zero,
-                                )
+                            pinCode.value.fill(0)
                         }
                     }
                 }
@@ -708,113 +648,16 @@ fun IdCardView(
                             horizontalArrangement = Arrangement.Start,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            OutlinedTextField(
-                                label = {
-                                    Text(
-                                        modifier = modifier.notAccessible(),
-                                        text = pinText,
-                                        color =
-                                            if (pinErrorText.isNotEmpty()) {
-                                                Red500
-                                            } else {
-                                                MaterialTheme.colorScheme.onSurface
-                                            },
-                                    )
-                                },
-                                value =
-                                    when {
-                                        !isTalkBackEnabled(context) -> pinCode
-                                        passwordVisible ->
-                                            pinWithInvisibleSpaces.copy(
-                                                selection = TextRange(pinWithInvisibleSpaces.text.length),
-                                            )
-
-                                        else -> pinCode
-                                    },
-                                singleLine = true,
-                                onValueChange = {
-                                    if (!isTalkBackEnabled(context)) {
-                                        pinCode =
-                                            it.copy(selection = TextRange(it.text.length))
-                                    } else {
-                                        val noInvisibleElement =
-                                            TextFieldValue(removeInvisibleElement(it.text))
-                                        pinCode =
-                                            noInvisibleElement.copy(
-                                                selection =
-                                                    TextRange(
-                                                        noInvisibleElement.text.length,
-                                                    ),
-                                            )
-                                    }
-                                },
-                                modifier =
-                                    modifier
-                                        .weight(1f)
-                                        .semantics(mergeDescendants = true) {
-                                            testTagsAsResourceId = true
-                                            contentDescription = pinText
-                                        }
-                                        .testTag("idCardPinTextField"),
-                                trailingIcon = {
-                                    val image =
-                                        if (passwordVisible) {
-                                            ImageVector.vectorResource(id = R.drawable.ic_visibility)
-                                        } else {
-                                            ImageVector.vectorResource(id = R.drawable.ic_visibility_off)
-                                        }
-                                    val description =
-                                        if (passwordVisible) {
-                                            stringResource(
-                                                id = R.string.hide_password,
-                                            )
-                                        } else {
-                                            stringResource(id = R.string.show_password)
-                                        }
-                                    IconButton(
-                                        modifier =
-                                            modifier
-                                                .semantics { traversalIndex = 9f }
-                                                .testTag("idCardPinPasswordVisibleButton"),
-                                        onClick = { passwordVisible = !passwordVisible },
-                                    ) {
-                                        Icon(imageVector = image, description)
-                                    }
-                                },
-                                colors =
-                                    OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-                                    ),
+                            SecurePinTextField(
+                                modifier = modifier.weight(1f),
+                                pin = pinCode,
+                                pinCodeLabel = pinText,
+                                pinNumberFocusRequester = pinCodeFocusRequester,
+                                previousFocusRequester = readyToSignFocusRequester,
+                                pinCodeTextEdited = null,
+                                trailingIconContentDescription = "$clearButtonText $buttonName",
                                 isError = pinErrorText.isNotEmpty(),
-                                visualTransformation =
-                                    if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                                keyboardOptions =
-                                    KeyboardOptions.Default.copy(
-                                        imeAction = ImeAction.Done,
-                                        keyboardType = KeyboardType.NumberPassword,
-                                    ),
                             )
-                            if (isTalkBackEnabled(context) && pinCode.text.isNotEmpty()) {
-                                IconButton(
-                                    modifier =
-                                        modifier
-                                            .align(Alignment.CenterVertically),
-                                    onClick = { pinCode = TextFieldValue("") },
-                                ) {
-                                    Icon(
-                                        modifier =
-                                            modifier
-                                                .size(iconSizeXXS)
-                                                .semantics {
-                                                    testTagsAsResourceId = true
-                                                }
-                                                .testTag("idCardPinCodeRemoveIconButton"),
-                                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                        contentDescription = "$clearButtonText $buttonName",
-                                    )
-                                }
-                            }
                         }
 
                         if (pinErrorText.isNotEmpty()) {
