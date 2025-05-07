@@ -17,6 +17,7 @@ import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN1_MIN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN2_MIN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN_MAX_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PUK_MIN_LENGTH
+import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.cryptolib.CDOC2Settings
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.domain.model.IdCardData
@@ -54,6 +55,7 @@ class NFCViewModel
         private val nfcSmartCardReaderManager: NfcSmartCardReaderManager,
         private val containerWrapper: ContainerWrapper,
         private val cdoc2Settings: CDOC2Settings,
+        private val configurationRepository: ConfigurationRepository,
         private val idCardService: IdCardService,
     ) : ViewModel() {
         private val logTag = javaClass.simpleName
@@ -387,6 +389,7 @@ class NFCViewModel
                                         pin1Code,
                                         card,
                                         cdoc2Settings,
+                                        configurationRepository,
                                     )
                                 if (pin1Code.isNotEmpty()) {
                                     Arrays.fill(pin1Code, 0.toByte())
@@ -401,7 +404,7 @@ class NFCViewModel
 
                                 if (ex.message?.contains("TagLostException") == true) {
                                     _errorState.postValue(Triple(R.string.signature_update_nfc_tag_lost, null, null))
-                                } else if (ex.message?.contains("PIN2 verification failed") == true &&
+                                } else if (ex.message?.contains("PIN1 verification failed") == true &&
                                     ex.message?.contains("Retries left: 2") == true
                                 ) {
                                     _shouldResetPIN.postValue(true)
@@ -412,7 +415,7 @@ class NFCViewModel
                                             2,
                                         ),
                                     )
-                                } else if (ex.message?.contains("PIN2 verification failed") == true &&
+                                } else if (ex.message?.contains("PIN1 verification failed") == true &&
                                     ex.message?.contains("Retries left: 1") == true
                                 ) {
                                     _shouldResetPIN.postValue(true)
@@ -423,7 +426,7 @@ class NFCViewModel
                                             null,
                                         ),
                                     )
-                                } else if (ex.message?.contains("PIN2 verification failed") == true &&
+                                } else if (ex.message?.contains("PIN1 verification failed") == true &&
                                     ex.message?.contains("Retries left: 0") == true
                                 ) {
                                     _shouldResetPIN.postValue(true)

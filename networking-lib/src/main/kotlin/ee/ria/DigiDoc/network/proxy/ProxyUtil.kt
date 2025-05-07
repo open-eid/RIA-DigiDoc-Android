@@ -18,6 +18,32 @@ import java.security.GeneralSecurityException
 import java.util.concurrent.CompletableFuture
 
 object ProxyUtil {
+    fun getProxyValues(
+        proxySetting: ProxySetting?,
+        manualProxySettings: ManualProxy?,
+    ): ManualProxy? {
+        when (proxySetting) {
+            ProxySetting.NO_PROXY -> null
+            ProxySetting.SYSTEM_PROXY -> {
+                val systemProxy =
+                    ManualProxy(
+                        System.getProperty("http.proxyHost") ?: "",
+                        NumberUtils.toInt(System.getProperty("http.proxyPort"), 80),
+                        System.getProperty("http.proxyUser") ?: "",
+                        System.getProperty("http.proxyPassword") ?: "",
+                    )
+                return systemProxy
+            }
+
+            ProxySetting.MANUAL_PROXY -> {
+                return manualProxySettings ?: ManualProxy("", 80, "", "")
+            }
+
+            null -> null
+        }
+        return null
+    }
+
     fun getProxy(
         proxySetting: ProxySetting?,
         manualProxySettings: ManualProxy?,

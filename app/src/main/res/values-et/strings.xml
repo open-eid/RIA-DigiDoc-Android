@@ -254,7 +254,7 @@
     <string name="id_card_progress_message_signing">Toimub allkirjastamine. Palun oota.</string>
     <string name="id_card_progress_message_decrypt">Toimub dekrüpteerimine. Palun oota.</string>
     <string name="id_card_sign_pin_wrong">Vale %1$s</string>
-    <string name="id_card_sign_pin_invalid">Vale %1$s. Saad PIN2-koodi sisestada veel %2$d korda.</string>
+    <string name="id_card_sign_pin_invalid">Vale %1$s. Saad %1$s-koodi sisestada veel %2$d korda.</string>
     <string name="id_card_sign_pin_invalid_final">Vale %1$s. Järgmise vale sisestusega lukustub PIN.</string>
     <string name="id_card_sign_pin_locked">%1$s on lukus. Mine Minu eID, et avada.</string>
 

@@ -12,8 +12,9 @@ import javax.inject.Inject
 class CDOC2Settings
     @Inject
     constructor(
-        context: Context,
+        private var context: Context,
     ) {
+        private val logTag = javaClass.simpleName
         private var preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         private var resources: Resources = context.resources
 
