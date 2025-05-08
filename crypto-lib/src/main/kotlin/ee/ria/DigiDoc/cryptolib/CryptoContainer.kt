@@ -435,12 +435,13 @@ class CryptoContainer
             }
 
             fun setLogging(isLoggingEnabled: Boolean) {
+// TODO: Resolve fatal crashes in libcdoc when logging is enabled
 //                if (isLoggingEnabled) {
 //                    val logger = ConsoleLogger()
 //                    logger.SetMinLogLevel(ILogger.LogLevel.LEVEL_DEBUG)
 //                    ILogger.addLogger(logger)
 //
-//                    ILogger.getLogger().LogMessage(ILogger.LogLevel.LEVEL_DEBUG, "FILENAME", 0, "Set libcdoc logging: $isLoggingEnabled");
+//                    ILogger.getLogger().LogMessage(ILogger.LogLevel.LEVEL_DEBUG, "FILENAME", 0, "Set libcdoc logging: $isLoggingEnabled")
 //                }
             }
 
@@ -465,8 +466,8 @@ class CryptoContainer
                     dst: CertificateList?,
                     url: String?,
                 ): Long {
-                    super.getPeerTLSCertificates(dst)
                     var certs = configurationProvider?.certBundle ?: listOf()
+                    dst?.clear()
                     for (cert in certs) {
                         val certBytes = org.bouncycastle.util.encoders.Base64.decode(cert)
                         dst?.addCertificate(certBytes)
@@ -492,11 +493,11 @@ class CryptoContainer
 
                     if (proxyValues != null) {
                         cred?.host = proxyValues.host
-                        cred?.password = proxyValues.password
-                        cred?.password = proxyValues.password
+                        cred?.port = proxyValues.port
+                        cred?.username = proxyValues.username
                         cred?.password = proxyValues.password
                     }
-                    return super.getProxyCredentials(cred)
+                    return CDoc.OK.toLong()
                 }
             }
 
