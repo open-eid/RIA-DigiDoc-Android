@@ -3,6 +3,7 @@
 package ee.ria.DigiDoc.cryptolib
 
 import android.content.Context
+import android.util.Base64
 import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.common.Constant.CDOC1_EXTENSION
 import ee.ria.DigiDoc.common.Constant.CDOC2_EXTENSION
@@ -470,7 +471,7 @@ class CryptoContainer
                     var certs = configurationProvider?.certBundle ?: listOf()
                     dst?.clear()
                     for (cert in certs) {
-                        val certBytes = org.bouncycastle.util.encoders.Base64.decode(cert)
+                        val certBytes = Base64.decode(cert, Base64.DEFAULT)
                         dst?.addCertificate(certBytes)
                     }
 
