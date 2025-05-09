@@ -355,6 +355,7 @@ class CryptoContainer
                             if (cdocWriter.writeData(bytes) != 0L) {
                                 throw CryptoException("Failed to write data")
                             }
+                            ifs.close()
                         }
                     }
 
@@ -441,7 +442,7 @@ class CryptoContainer
 //                    logger.SetMinLogLevel(ILogger.LogLevel.LEVEL_DEBUG)
 //                    ILogger.addLogger(logger)
 //
-//                    ILogger.getLogger().LogMessage(ILogger.LogLevel.LEVEL_DEBUG, "FILENAME", 0, "Set libcdoc logging: $isLoggingEnabled")
+//                    ILogger.getLogger().LogMessage(ILogger.LogLevel.LEVEL_DEBUG, "CryptContainer", 449, "Set libcdoc logging: $isLoggingEnabled")
 //                }
             }
 
