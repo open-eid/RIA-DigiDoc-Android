@@ -143,6 +143,7 @@ fun SignatureComponent(
                                         .wrapContentHeight(),
                                 contentAlignment = Alignment.Center,
                             ) {
+                                val iconTestTagSuffix = if (isTimestamped) "Timestamp" else "Signature"
                                 Icon(
                                     imageVector =
                                         if (isTimestamped) {
@@ -160,7 +161,7 @@ fun SignatureComponent(
                                             .semantics {
                                                 testTagsAsResourceId = true
                                             }
-                                            .testTag("signatureComponentIcon")
+                                            .testTag("signatureComponentIcon-$iconTestTagSuffix")
                                             .notAccessible(),
                                 )
                             }
