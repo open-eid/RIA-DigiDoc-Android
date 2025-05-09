@@ -67,6 +67,8 @@ class NFCViewModelTest {
 
     private lateinit var cdoc2Settings: CDOC2Settings
 
+    private lateinit var configurationRepository: ConfigurationRepository
+
     @Mock
     private lateinit var idCardService: IdCardService
 
@@ -93,7 +95,16 @@ class NFCViewModelTest {
 
         containerWrapper = ContainerWrapperImpl()
         cdoc2Settings = CDOC2Settings(context)
-        viewModel = NFCViewModel(NfcSmartCardReaderManager(), containerWrapper, cdoc2Settings, idCardService)
+        configurationRepository = mock(ConfigurationRepository::class.java)
+
+        viewModel =
+            NFCViewModel(
+                NfcSmartCardReaderManager(),
+                containerWrapper,
+                cdoc2Settings,
+                configurationRepository,
+                idCardService,
+            )
 
         scenario = ActivityScenario.launch(ComponentActivity::class.java)
 
