@@ -368,6 +368,7 @@ fun EncryptNavigation(
         encryptRecipientViewModel.errorState.asFlow().collect { error ->
             error?.let {
                 showMessage(context, error)
+                encryptionButtonEnabled.value = true
             }
         }
     }

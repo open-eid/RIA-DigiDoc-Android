@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.exception.NoInternetConnectionException
+import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.cryptolib.Addressee
 import ee.ria.DigiDoc.cryptolib.CDOC2Settings
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
@@ -35,6 +36,7 @@ class EncryptRecipientViewModel
         private val mimeTypeResolver: MimeTypeResolver,
         private val recipientRepository: RecipientRepository,
         private val cdoc2Settings: CDOC2Settings,
+        private val configurationRepository: ConfigurationRepository,
     ) : ViewModel() {
         private val _errorState = MutableLiveData<Int?>(null)
         val errorState: LiveData<Int?> = _errorState
@@ -121,6 +123,7 @@ class EncryptRecipientViewModel
                             dataFiles = cryptoContainer.dataFiles,
                             recipients = cryptoContainer.recipients,
                             cdoc2Settings = cdoc2Settings,
+                            configurationRepository = configurationRepository,
                         )
                     sharedContainerViewModel.setCryptoContainer(cryptoContainer)
                     handleIsContainerEncrypted(true)

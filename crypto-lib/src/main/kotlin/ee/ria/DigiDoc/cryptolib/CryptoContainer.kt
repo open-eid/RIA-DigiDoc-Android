@@ -3,16 +3,21 @@
 package ee.ria.DigiDoc.cryptolib
 
 import android.content.Context
+import android.util.Base64
 import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.common.Constant.CDOC1_EXTENSION
 import ee.ria.DigiDoc.common.Constant.CDOC2_EXTENSION
 import ee.ria.DigiDoc.common.Constant.CONTAINER_MIME_TYPE
 import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
+import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
+import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.cryptolib.exception.ContainerDataFilesEmptyException
 import ee.ria.DigiDoc.cryptolib.exception.CryptoException
 import ee.ria.DigiDoc.cryptolib.exception.DataFilesEmptyException
 import ee.ria.DigiDoc.cryptolib.exception.RecipientsEmptyException
 import ee.ria.DigiDoc.idcard.Token
+import ee.ria.DigiDoc.network.proxy.ProxyUtil
+import ee.ria.DigiDoc.smartcardreader.SmartCardReaderException
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import ee.ria.DigiDoc.utilsLib.extensions.isCryptoContainer
 import ee.ria.DigiDoc.utilsLib.extensions.saveAs
@@ -23,6 +28,7 @@ import ee.ria.cdoc.CDoc
 import ee.ria.cdoc.CDocException
 import ee.ria.cdoc.CDocReader
 import ee.ria.cdoc.CDocWriter
+import ee.ria.cdoc.CertificateList
 import ee.ria.cdoc.Configuration
 import ee.ria.cdoc.CryptoBackend
 import ee.ria.cdoc.DataBuffer
@@ -215,7 +221,7 @@ class CryptoContainer
                 return create(context, file, dataFiles, recipients, false, true)
             }
 
-            @Throws(CryptoException::class)
+            @Throws(CryptoException::class, SmartCardReaderException::class)
             fun decrypt(
                 context: Context,
                 file: File?,
@@ -224,26 +230,29 @@ class CryptoContainer
                 pin: ByteArray,
                 smartToken: Token,
                 cdoc2Settings: CDOC2Settings,
+                configurationRepository: ConfigurationRepository,
             ): CryptoContainer {
                 val token = SmartCardTokenWrapper(pin, smartToken)
                 val conf = CryptoLibConf(cdoc2Settings)
-                val network = CryptoLibNetworkBackend()
-                network.token = token
-                if (authCert != null) {
-                    network.cert = authCert
-                }
+                val configurationProvider = configurationRepository.getConfiguration()
 
-                if (network.cert.isEmpty()) {
+                if (authCert == null || authCert.isEmpty()) {
                     throw CryptoException("Failed to get auth certificate")
                 }
+                val network = CryptoLibNetworkBackend(configurationProvider, context, authCert, token)
                 val dataFiles = ArrayList<File>()
                 val cdocReader = CDocReader.createReader(file?.path, conf, token, network)
-                val idx = cdocReader.getLockForCert(network.cert)
+                val idx = cdocReader.getLockForCert(authCert)
+
                 if (idx < 0) {
                     throw CryptoException("Failed to get lock for certificate")
                 }
 
                 val fmk = cdocReader.getFMK(idx.toInt())
+
+                if (token.lastError != null) {
+                    throw token.lastError as Throwable
+                }
 
                 if (fmk.isEmpty()) {
                     throw CryptoException("Failed to get FMK")
@@ -290,6 +299,7 @@ class CryptoContainer
                 dataFiles: List<File?>?,
                 recipients: List<Addressee?>?,
                 cdoc2Settings: CDOC2Settings,
+                configurationRepository: ConfigurationRepository,
             ): CryptoContainer {
                 if (dataFiles.isNullOrEmpty()) {
                     throw DataFilesEmptyException("Cannot create an empty crypto container")
@@ -300,7 +310,8 @@ class CryptoContainer
                 }
 
                 val conf = CryptoLibConf(cdoc2Settings)
-                val network = NetworkBackend()
+                val configurationProvider = configurationRepository.getConfiguration()
+                val network = Network(configurationProvider, context)
 
                 val version =
                     if (file?.extension == CDOC2_EXTENSION) {
@@ -345,6 +356,7 @@ class CryptoContainer
                             if (cdocWriter.writeData(bytes) != 0L) {
                                 throw CryptoException("Failed to write data")
                             }
+                            ifs.close()
                         }
                     }
 
@@ -424,6 +436,17 @@ class CryptoContainer
                 }
             }
 
+            fun setLogging(isLoggingEnabled: Boolean) {
+// TODO: Resolve fatal crashes in libcdoc when logging is enabled
+//                if (isLoggingEnabled) {
+//                    val logger = ConsoleLogger()
+//                    logger.SetMinLogLevel(ILogger.LogLevel.LEVEL_DEBUG)
+//                    ILogger.addLogger(logger)
+//
+//                    ILogger.getLogger().LogMessage(ILogger.LogLevel.LEVEL_DEBUG, "CryptContainer", 449, "Set libcdoc logging: $isLoggingEnabled")
+//                }
+            }
+
             private class CryptoLibConf(private val cdoc2Settings: CDOC2Settings) : Configuration() {
                 override fun getValue(
                     domain: String?,
@@ -437,13 +460,62 @@ class CryptoContainer
                 }
             }
 
-            private class CryptoLibNetworkBackend : NetworkBackend() {
-                lateinit var cert: ByteArray
-                lateinit var token: SmartCardTokenWrapper
+            private open class Network(
+                private val configurationProvider: ConfigurationProvider?,
+                private val context: Context,
+            ) : NetworkBackend() {
+                override fun getPeerTLSCertificates(
+                    dst: CertificateList?,
+                    url: String?,
+                ): Long {
+                    var certs = configurationProvider?.certBundle ?: listOf()
+                    dst?.clear()
+                    for (cert in certs) {
+                        val certBytes = Base64.decode(cert, Base64.DEFAULT)
+                        dst?.addCertificate(certBytes)
+                    }
 
+                    /* TODO: Add support for custom CDOC2 cert
+
+                    if (CDoc2Settings.getCDOC2Cert != null) {
+                        val certBytes =
+                            org.bouncycastle.util.encoders.Base64.decode(CDoc2Settings.getCDOC2Cert)
+                        dst?.addCertificate(certBytes)
+                     */
+
+                    return CDoc.OK.toLong()
+                }
+
+                override fun getProxyCredentials(cred: ProxyCredentials?): Long {
+                    val proxyValues =
+                        ProxyUtil.getProxyValues(
+                            ProxyUtil.getProxySetting(context),
+                            ProxyUtil.getManualProxySettings(context),
+                        )
+
+                    if (proxyValues != null) {
+                        cred?.host = proxyValues.host
+                        cred?.port = proxyValues.port
+                        cred?.username = proxyValues.username
+                        cred?.password = proxyValues.password
+                    }
+                    return CDoc.OK.toLong()
+                }
+            }
+
+            private class CryptoLibNetworkBackend(
+                configurationProvider: ConfigurationProvider?,
+                context: Context,
+                private var cert: ByteArray,
+                private var token: SmartCardTokenWrapper,
+            ) : Network(configurationProvider, context) {
                 override fun getClientTLSCertificate(dst: DataBuffer?): Long {
                     dst?.setData(cert)
-                    return CDoc.OK.toLong()
+                    if (dst == null || dst.data == null || dst.data.isEmpty()) {
+                        return CDoc.IO_ERROR.toLong()
+                    } else {
+                        return CDoc.OK.toLong()
+                    }
                 }
 
                 override fun signTLS(

@@ -7,13 +7,11 @@ import ee.ria.cdoc.CDoc
 import ee.ria.cdoc.CryptoBackend
 import ee.ria.cdoc.DataBuffer
 
-class SmartCardTokenWrapper(
+open class SmartCardTokenWrapper(
     private val pin: ByteArray,
     private val smartToken: Token,
 ) : CryptoBackend() {
-    private var lastError: Throwable? = null
-
-    fun getLastError(): Throwable? = lastError
+    var lastError: Throwable? = null
 
     override fun deriveECDH1(
         dst: DataBuffer,

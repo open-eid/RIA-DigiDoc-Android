@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.cryptolib.CDOC2Settings
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.domain.model.IdCardData
@@ -41,6 +42,7 @@ class IdCardViewModel
         private val smartCardReaderManager: SmartCardReaderManager,
         private val idCardService: IdCardService,
         private val cdoc2Settings: CDOC2Settings,
+        private val configurationRepository: ConfigurationRepository,
     ) : ViewModel() {
         private val logTag = javaClass.simpleName
 
@@ -164,6 +166,7 @@ class IdCardViewModel
                             pin1Code,
                             token,
                             cdoc2Settings,
+                            configurationRepository,
                         )
                     if (pin1Code.isNotEmpty()) {
                         Arrays.fill(pin1Code, 0.toByte())

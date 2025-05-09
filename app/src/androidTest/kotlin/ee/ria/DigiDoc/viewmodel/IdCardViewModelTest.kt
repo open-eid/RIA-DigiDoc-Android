@@ -98,6 +98,8 @@ class IdCardViewModelTest {
 
     private lateinit var cdoc2Settings: CDOC2Settings
 
+    private lateinit var configurationRepository: ConfigurationRepository
+
     companion object {
         @JvmStatic
         @BeforeClass
@@ -122,7 +124,8 @@ class IdCardViewModelTest {
         `when`(smartCardReaderManager.connectedReader()).thenReturn(mockSmartCardReader)
         `when`(mockSmartCardReader.atr()).thenReturn(Hex.decode("3bdb960080b1fe451f830012233f536549440f9000f1"))
         cdoc2Settings = CDOC2Settings(context)
-        viewModel = IdCardViewModel(smartCardReaderManager, idCardService, cdoc2Settings)
+        configurationRepository = mock(ConfigurationRepository::class.java)
+        viewModel = IdCardViewModel(smartCardReaderManager, idCardService, cdoc2Settings, configurationRepository)
 
         container =
             AssetFile.getResourceFileAsFile(
