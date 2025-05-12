@@ -33,7 +33,6 @@ import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.FileOpeningViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
@@ -49,12 +48,15 @@ fun FileOpeningNavigation(
 ) {
     val context = LocalContext.current
 
+    val scope = rememberCoroutineScope()
+
     val snackBarHostState = remember { SnackbarHostState() }
     val snackBarScope = rememberCoroutineScope()
 
     val messages by SnackBarManager.messages.collectAsState(emptyList())
 
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
+    val cryptoContainer by sharedContainerViewModel.cryptoContainer.asFlow().collectAsState(null)
     val externalFileUris by sharedContainerViewModel.externalFileUris.collectAsState()
     val showSivaDialog = remember { mutableStateOf(false) }
     var isExternalFile by remember { mutableStateOf(false) }
@@ -62,17 +64,31 @@ fun FileOpeningNavigation(
 
     val handleSivaConfirmation: () -> Unit = {
         showSivaDialog.value = false
+        scope.launch(Main) {
+            sharedContainerViewModel.setIsSivaConfirmed(true)
+        }
         fileOpeningViewModel.resetExternalFileState(sharedContainerViewModel)
-        CoroutineScope(IO).launch {
-            fileOpeningViewModel.handleFiles(context, fileUris, signedContainer, true)
+        scope.launch(IO) {
+            fileOpeningViewModel.handleFiles(
+                context,
+                fileUris,
+                signedContainer,
+                cryptoContainer,
+                true,
+                false,
+                isExternalFile,
+            )
             fileUris = emptyList()
         }
     }
 
     val handleSivaCancel: () -> Unit = {
         showSivaDialog.value = false
+        scope.launch(Main) {
+            sharedContainerViewModel.setIsSivaConfirmed(false)
+        }
         fileOpeningViewModel.resetExternalFileState(sharedContainerViewModel)
-        CoroutineScope(IO).launch {
+        scope.launch(IO) {
             val fileMimeType = fileOpeningViewModel.getFileMimetype(fileUris)
             when (fileMimeType) {
                 DDOC_MIMETYPE -> {
@@ -122,7 +138,7 @@ fun FileOpeningNavigation(
                 }
                 fileUris = uris
 
-                CoroutineScope(IO).launch {
+                scope.launch(IO) {
                     if ((signedContainer?.getDataFiles()?.isNotEmpty() != true) &&
                         fileOpeningViewModel.isSivaConfirmationNeeded(uris)
                     ) {
@@ -155,7 +171,7 @@ fun FileOpeningNavigation(
     }
 
     BackHandler {
-        CoroutineScope(Main).launch {
+        scope.launch(Main) {
             fileOpeningViewModel.resetContainer()
             if (externalFileUris.isNotEmpty()) {
                 navController.popBackStack()
@@ -199,6 +215,22 @@ fun FileOpeningNavigation(
         }
     }
 
+    LaunchedEffect(fileOpeningViewModel.cryptoContainer) {
+        fileOpeningViewModel.cryptoContainer.asFlow().collect { cryptoContainer ->
+            cryptoContainer?.let {
+                sharedContainerViewModel.setCryptoContainer(it)
+                delay(2000)
+
+                navController.navigate(Route.Encrypt.route) {
+                    popUpTo(Route.Home.route) {
+                        inclusive = false
+                    }
+                    launchSingleTop = true
+                }
+            }
+        }
+    }
+
     LaunchedEffect(fileOpeningViewModel.launchFilePicker) {
         if (externalFileUris.isEmpty()) {
             fileOpeningViewModel.launchFilePicker.asFlow().collect { launchFilePicker ->
@@ -212,7 +244,7 @@ fun FileOpeningNavigation(
             externalFileUris.let { extFileUris ->
                 fileUris = extFileUris
                 isExternalFile = true
-                CoroutineScope(IO).launch {
+                scope.launch(IO) {
                     if (fileOpeningViewModel.isSivaConfirmationNeeded(extFileUris)) {
                         showSivaDialog.value = true
                     } else {

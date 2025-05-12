@@ -2,6 +2,9 @@
 
 package ee.ria.DigiDoc.common
 
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
+
 object Constant {
     object SignatureRequest {
         const val SIGNATURE_PROFILE_TS = "time-stamp"
@@ -164,6 +167,8 @@ object Constant {
         setOf(ADOC_MIMETYPE, DDOC_MIMETYPE, ASICS_MIMETYPE)
 
     val SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES: Set<String> = setOf(DDOC_MIMETYPE, ASICS_MIMETYPE)
+
+    val DDOC_STAMPED_VALID_UNTIL_DATE: ZonedDateTime = ZonedDateTime.of(2018, 7, 1, 0, 0, 0, 0, ZoneOffset.UTC)
 
     object Theme {
         const val THEME_SETTING = "THEME_SETTING"

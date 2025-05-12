@@ -13,15 +13,19 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.Constant.CDOC1_EXTENSION
+import ee.ria.DigiDoc.common.Constant.CDOC2_EXTENSION
 import ee.ria.DigiDoc.common.Constant.CONTAINER_MIME_TYPE
 import ee.ria.DigiDoc.common.R.string.documents_add_error_exists
 import ee.ria.DigiDoc.common.R.string.empty_file_error
 import ee.ria.DigiDoc.common.exception.NoInternetConnectionException
+import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.exceptions.FileAlreadyExistsException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
+import ee.ria.DigiDoc.utilsLib.extensions.isCryptoContainer
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
@@ -43,6 +47,9 @@ class FileOpeningViewModel
         private val mimeTypeResolver: MimeTypeResolver,
     ) : ViewModel() {
         private val logTag = javaClass.simpleName
+
+        private val _cryptoContainer = MutableLiveData<CryptoContainer?>(null)
+        val cryptoContainer: LiveData<CryptoContainer?> = _cryptoContainer
 
         private val _signedContainer = MutableLiveData<SignedContainer?>(null)
         val signedContainer: LiveData<SignedContainer?> = _signedContainer
@@ -114,8 +121,10 @@ class FileOpeningViewModel
             context: Context,
             uris: List<Uri>,
             existingSignedContainer: SignedContainer? = null,
+            existingCryptoContainer: CryptoContainer? = null,
             isSivaConfirmed: Boolean,
             forceFirstDataFileContainer: Boolean = false,
+            isExternalFile: Boolean = false,
         ) {
             if (existingSignedContainer != null) {
                 try {
@@ -154,7 +163,14 @@ class FileOpeningViewModel
                         existingSignedContainer,
                         validFiles,
                     )
-                    _signedContainer.postValue(existingSignedContainer)
+
+                    val isCdoc = files.size == 1 && files.first().isCryptoContainer()
+
+                    if (isCdoc) {
+                        _cryptoContainer.postValue(existingCryptoContainer)
+                    } else {
+                        _signedContainer.postValue(existingSignedContainer)
+                    }
                     _filesAdded.postValue(validFiles)
                 } catch (e: Exception) {
                     _signedContainer.postValue(existingSignedContainer)
@@ -163,26 +179,47 @@ class FileOpeningViewModel
                 }
             } else {
                 try {
-                    val signedContainer =
-                        fileOpeningRepository.openOrCreateContainer(
-                            context,
-                            contentResolver,
-                            uris,
-                            isSivaConfirmed,
-                            forceFirstDataFileContainer,
-                        )
+                    val files = urisToFile(context, contentResolver, uris)
 
-                    if (sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed) ||
-                        signedContainer.isCades() && !signedContainer.isXades()
-                    ) {
-                        val nestedTimestampedContainer =
-                            sivaRepository.getTimestampedContainer(
+                    val isCdoc =
+                        files.firstOrNull()?.let { file ->
+                            uris.size == 1 && file.isCryptoContainer()
+                        } == true
+
+                    if (isExternalFile && isCdoc) {
+                        val cryptoContainer =
+                            fileOpeningRepository.openOrCreateCryptoContainer(
                                 context,
-                                signedContainer,
+                                contentResolver,
+                                uris,
                             )
-                        _signedContainer.postValue(nestedTimestampedContainer)
+
+                        _cryptoContainer.postValue(cryptoContainer)
                     } else {
-                        _signedContainer.postValue(signedContainer)
+                        val signedContainer =
+                            fileOpeningRepository.openOrCreateContainer(
+                                context,
+                                contentResolver,
+                                uris,
+                                isSivaConfirmed,
+                                forceFirstDataFileContainer,
+                            )
+
+                        if (sivaRepository.isTimestampedContainer(
+                                signedContainer,
+                                isSivaConfirmed,
+                            ) ||
+                            signedContainer.isCades() && !signedContainer.isXades()
+                        ) {
+                            val nestedTimestampedContainer =
+                                sivaRepository.getTimestampedContainer(
+                                    context,
+                                    signedContainer,
+                                )
+                            _signedContainer.postValue(nestedTimestampedContainer)
+                        } else {
+                            _signedContainer.postValue(signedContainer)
+                        }
                     }
 
                     _filesAdded.postValue(urisToFile(context, contentResolver, uris))
@@ -251,10 +288,10 @@ class FileOpeningViewModel
             fileUris: List<Uri>,
             signedContainer: SignedContainer?,
         ) {
-            handleFiles(context, fileUris, signedContainer, false)
+            handleFiles(context, fileUris, signedContainer, null, false)
         }
 
         fun resetExternalFileState(sharedContainerViewModel: SharedContainerViewModel) {
-            sharedContainerViewModel.setExternalFileUris(listOf())
+            sharedContainerViewModel.resetExternalFileUris()
         }
     }

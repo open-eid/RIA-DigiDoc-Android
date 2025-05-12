@@ -98,6 +98,10 @@
     <string name="main_diagnostics_sid_v2_sk_url_title">SIDV2_SK_URL:\u0020</string>
     <string name="main_diagnostics_rpuuid_title">RPUUID:\u0020</string>
 
+    <string name="main_diagnostics_cdoc2_default_title">CDOC2-DEFAULT:\u0020</string>
+    <string name="main_diagnostics_cdoc2_use_keyserver_title">CDOC2-USE-KEYSERVER:\u0020</string>
+    <string name="main_diagnostics_cdoc2_default_keyserver_title">CDOC2-DEFAULT-KEYSERVER:\u0020</string>
+
     <string name="main_diagnostics_date_title">DATE:\u0020</string>
     <string name="main_diagnostics_serial_title">SERIAL:\u0020</string>
     <string name="main_diagnostics_url_title">URL:\u0020</string>

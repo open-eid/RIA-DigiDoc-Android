@@ -69,6 +69,7 @@ import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
 import ee.ria.DigiDoc.domain.model.notifications.ContainerNotificationType
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
@@ -100,6 +101,7 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
+import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
@@ -134,6 +136,8 @@ fun SigningNavigation(
     val shouldResetContainer by signingViewModel.shouldResetSignedContainer.asFlow().collectAsState(false)
     val context = LocalContext.current
 
+    val signedContainerExists = signedContainer?.getContainerFile()?.exists()
+
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
     var isViewInitialized by rememberSaveable { mutableStateOf(false) }
@@ -154,7 +158,8 @@ fun SigningNavigation(
 
     var isSignaturesCountLoaded by remember { mutableStateOf(false) }
 
-    var isSivaConfirmed by remember { mutableStateOf(true) }
+    val isParentContainerSivaConfirmed = sharedContainerViewModel.isSivaConfirmed.value == true
+    var isSivaConfirmed by remember { mutableStateOf(isParentContainerSivaConfirmed) }
     var isTimestampedContainer by remember { mutableStateOf(false) }
 
     val containerHasText = stringResource(id = R.string.container_has)
@@ -300,8 +305,6 @@ fun SigningNavigation(
         }
     }
 
-    val actionDataFile by remember { mutableStateOf<DataFileInterface?>(null) }
-
     var isSaved by remember { mutableStateOf(false) }
 
     val selectedSignedContainerTabIndex = rememberSaveable { mutableIntStateOf(0) }
@@ -317,11 +320,12 @@ fun SigningNavigation(
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 try {
-                    actionDataFile?.let { datafile ->
+                    clickedDataFile.value?.let { datafile ->
                         sharedContainerViewModel
                             .getContainerDataFile(signedContainer, datafile)
                             ?.let { sharedContainerViewModel.saveContainerFile(it, result) }
                         showMessage(context, R.string.file_saved)
+                        clickedDataFile.value = null
                         isSaved = true
                     } ?: run {
                         signedContainer?.getContainerFile()?.let {
@@ -543,6 +547,10 @@ fun SigningNavigation(
             }
             SnackBarManager.removeMessage(message)
         }
+    }
+
+    if (signedContainerExists == false) {
+        return
     }
 
     Scaffold(
@@ -850,12 +858,24 @@ fun SigningNavigation(
                                                                             timestamps,
                                                                             showSignaturesLoadingIndicator.value,
                                                                             signaturesLoading,
+                                                                            true,
+                                                                            false,
                                                                             onSignatureItemClick,
                                                                         )
                                                                     }
                                                                 }
                                                         }
                                                     }
+
+                                                    val timestamps = signedContainer?.getTimestamps()
+                                                    val firstTimestamp = timestamps?.firstOrNull()
+                                                    val isDdoc = signedContainer?.containerMimetype() == DDOC_MIMETYPE
+                                                    val isValid =
+                                                        firstTimestamp
+                                                            ?.let {
+                                                                SignatureStatusUtil.isDdocSignatureValid(it)
+                                                            } == true
+
                                                     Row {
                                                         SignatureComponent(
                                                             modifier,
@@ -863,6 +883,11 @@ fun SigningNavigation(
                                                             signatures,
                                                             showSignaturesLoadingIndicator.value,
                                                             signaturesLoading,
+                                                            isTimestampedContainer ||
+                                                                signedContainer
+                                                                    ?.containerMimetype() == ASICS_MIMETYPE &&
+                                                                signatures.size == 1,
+                                                            !timestamps.isNullOrEmpty() && isDdoc && isValid,
                                                             onSignatureItemClick,
                                                         )
                                                     }
@@ -1158,6 +1183,7 @@ fun handleBackButtonClick(
     sharedContainerViewModel: SharedContainerViewModel,
 ) {
     sharedContainerViewModel.resetExternalFileUris()
+    sharedContainerViewModel.resetIsSivaConfirmed()
     if (sharedContainerViewModel.nestedContainers.size > 1) {
         sharedContainerViewModel.removeLastContainer()
         sharedContainerViewModel.setSignedContainer(sharedContainerViewModel.currentSignedContainer())

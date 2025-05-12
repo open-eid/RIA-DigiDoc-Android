@@ -98,7 +98,7 @@
     <string name="main_home_recent">Recent documents</string>
     <string name="main_home_menu_settings">SETTINGS</string>
     <string name="main_home_menu_about">About DigiDoc app</string>
-    <string name="main_home_menu_diagnostics">Accessibility</string>
+    <string name="main_home_menu_diagnostics">Diagnostics</string>
 
     <string name="main_menu_add_file">Add file</string>
     <string name="main_menu_recent_documents">Recent documents</string>
@@ -503,6 +503,7 @@
     <string name="main_diagnostics_operating_system_title">OS:\u0020</string>
     <string name="main_diagnostics_libraries_title">Libraries:</string>
     <string name="main_diagnostics_urls_title">URLs:</string>
+    <string name="main_diagnostics_cdoc2_title">CDOC2:</string>
     <string name="main_diagnostics_tsl_cache_title">TSL cache:</string>
     <string name="main_diagnostics_central_configuration_title">Central configuration:</string>
     <string name="main_diagnostics_configuration_update_date">UPDATE DATE:\u0020</string>

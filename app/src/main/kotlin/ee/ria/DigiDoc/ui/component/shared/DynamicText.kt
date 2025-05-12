@@ -6,9 +6,7 @@ import android.util.Patterns
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -74,7 +72,6 @@ fun DynamicText(
             modifier
                 .fillMaxWidth()
                 .then(pressIndicator)
-                .verticalScroll(rememberScrollState())
                 .semantics(mergeDescendants = true) {
                     testTagsAsResourceId = true
                 }

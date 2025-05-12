@@ -201,7 +201,7 @@ class FileOpeningViewModelTest {
             )
                 .thenReturn(listOf(file))
 
-            viewModel.handleFiles(context, uris, signedContainer, true)
+            viewModel.handleFiles(context, uris, signedContainer, null, true)
 
             verify(filesAddedObserver, atLeastOnce()).onChanged(listOf(file))
             verify(signedContainerObserver, atLeastOnce()).onChanged(signedContainer)

@@ -19,6 +19,7 @@ import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
 import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.configuration.utils.TSLUtil
+import ee.ria.DigiDoc.domain.model.settings.CDOCSetting
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
@@ -123,6 +124,13 @@ class DiagnosticsViewModel
                     R.string.main_diagnostics_rpuuid_custom
                 }
             return uuid
+        }
+
+        fun isCdoc2DefaultSettingsUsed(): Boolean {
+            val isCdoc2Setting = dataStore.getCdocSetting() == CDOCSetting.CDOC2
+            val cdoc2UseKeyServer = updatedConfiguration.value?.cdoc2UseKeyServer
+            return isCdoc2Setting &&
+                cdoc2UseKeyServer?.equals(dataStore.getUseOnlineEncryption(cdoc2UseKeyServer)) != false
         }
 
         fun getTslCacheData(context: Context): List<String> {
@@ -323,6 +331,24 @@ class DiagnosticsViewModel
                         "${context.getString(
                             R.string.main_diagnostics_rpuuid_title,
                         )} ${context.getString(getRpUuid())}",
+                    )
+
+                    // CDOC2
+                    appendLine()
+                    appendLine(
+                        "${context.getString(
+                            R.string.main_diagnostics_cdoc2_default_title,
+                        )} ${isCdoc2DefaultSettingsUsed()}",
+                    )
+                    appendLine(
+                        "${context.getString(
+                            R.string.main_diagnostics_cdoc2_use_keyserver_title,
+                        )} ${updatedConfiguration.value?.cdoc2UseKeyServer}",
+                    )
+                    appendLine(
+                        "${context.getString(
+                            R.string.main_diagnostics_cdoc2_default_keyserver_title,
+                        )} ${updatedConfiguration.value?.cdoc2DefaultKeyServer}",
                     )
 
                     // Category

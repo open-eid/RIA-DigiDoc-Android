@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -106,6 +108,7 @@ fun MessageDialog(
                             this.contentDescription = message.lowercase()
                             testTagsAsResourceId = true
                         }
+                        .verticalScroll(rememberScrollState())
                         .testTag("messageDialogMessageText"),
                 text = message,
             )

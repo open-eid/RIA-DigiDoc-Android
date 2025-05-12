@@ -39,6 +39,7 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextOverflow
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
+import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SBorder
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
@@ -62,6 +63,8 @@ fun SignatureComponent(
     signatures: List<SignatureInterface>,
     showSignaturesLoadingIndicator: Boolean,
     signaturesLoadingContentDescription: String,
+    showNameAsAllCaps: Boolean = false,
+    isDdocValid: Boolean = false,
     onClick: (SignatureInterface) -> Unit,
 ) {
     val context = LocalContext.current
@@ -95,7 +98,11 @@ fun SignatureComponent(
                     if (isTimestamped) {
                         getTimestampStatusText(LocalContext.current, signature.validator.status)
                     } else {
-                        getSignatureStatusText(LocalContext.current, signature.validator.status)
+                        if (isDdocValid) {
+                            getSignatureStatusText(LocalContext.current, ValidatorInterface.Status.Valid)
+                        } else {
+                            getSignatureStatusText(LocalContext.current, signature.validator.status)
+                        }
                     }
                 val signedTime =
                     stringResource(
@@ -187,7 +194,7 @@ fun SignatureComponent(
                                             }
                                             .testTag("signatureComponentSignatureName"),
                                     name = nameText,
-                                    allCaps = isTimestamped,
+                                    allCaps = isTimestamped || showNameAsAllCaps,
                                 )
                                 Text(
                                     text = signedTime,
