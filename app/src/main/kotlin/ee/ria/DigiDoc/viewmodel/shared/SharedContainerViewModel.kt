@@ -72,6 +72,9 @@ class SharedContainerViewModel
         private val _containerNotifications = MutableStateFlow<List<ContainerNotificationType>>(listOf())
         val containerNotifications: StateFlow<List<ContainerNotificationType>> = _containerNotifications
 
+        private val _isSivaConfirmed = MutableLiveData<Boolean>(true)
+        val isSivaConfirmed: LiveData<Boolean> = _isSivaConfirmed
+
         fun setSignedSidStatus(signedStatus: SessionStatusResponseProcessStatus?) {
             _signedSidStatus.postValue(signedStatus)
         }
@@ -144,6 +147,14 @@ class SharedContainerViewModel
 
         fun isNestedContainer(signedContainer: SignedContainer?): Boolean =
             nestedContainers.size > 1 && signedContainer == currentSignedContainer()
+
+        fun setIsSivaConfirmed(isConfirmed: Boolean) {
+            _isSivaConfirmed.value = isConfirmed
+        }
+
+        fun resetIsSivaConfirmed() {
+            _isSivaConfirmed.value = true
+        }
 
         @Throws(Exception::class)
         fun getCryptoContainerDataFile(

@@ -33,7 +33,7 @@ object MobileCreateSignatureRequestHelper {
             MobileCreateSignatureRequest(
                 relyingPartyName = RELYING_PARTY_NAME,
                 relyingPartyUUID = if (uuid.isNullOrEmpty()) RELYING_PARTY_UUID else uuid,
-                url = if (uuid.isNullOrEmpty()) proxyUrl else skUrl,
+                url = if ((uuid == null || uuid.isEmpty()) || uuid == RELYING_PARTY_UUID) proxyUrl else skUrl,
                 phoneNumber = "+$phoneNo",
                 nationalIdentityNumber = personalCode,
                 containerPath = container?.getContainerFile()?.path,

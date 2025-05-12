@@ -36,6 +36,7 @@ fun StyledNameText(
 
                 append(", $code")
             } else {
+                pushStyle(SpanStyle(fontWeight = FontWeight.Bold))
                 append(formattedName)
             }
         }

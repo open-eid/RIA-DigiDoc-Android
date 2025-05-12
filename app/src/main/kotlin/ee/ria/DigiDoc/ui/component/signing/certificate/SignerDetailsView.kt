@@ -47,6 +47,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.shared.DynamicText
@@ -62,6 +63,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
+import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil.getSignatureStatusText
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatName
@@ -92,11 +94,15 @@ fun SignerDetailsView(
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
     val signature = sharedSignatureViewModel.signature.value
-    val signatureStatus = signature?.validator?.status
+    var signatureStatus = signature?.validator?.status
     val diagnosticsInfo = signature?.validator?.diagnostics ?: ""
-    val isSignatureWithWarning =
-        signatureStatus == ValidatorInterface.Status.Warning ||
-            signatureStatus == ValidatorInterface.Status.NonQSCD
+
+    val timestamps = sharedContainerViewModel.signedContainer.value?.getTimestamps()
+    val firstTimestamp = timestamps?.firstOrNull()
+    val isDdoc = sharedContainerViewModel.signedContainer.value?.containerMimetype() == DDOC_MIMETYPE
+    val isValid = firstTimestamp?.let { SignatureStatusUtil.isDdocSignatureValid(it) } == true
+    val isDdocValid = !timestamps.isNullOrEmpty() && isDdoc && isValid
+
     val warningText =
         when (signatureStatus) {
             ValidatorInterface.Status.Warning -> {
@@ -233,7 +239,11 @@ fun SignerDetailsView(
                         val statusText =
                             getSignatureStatusText(
                                 LocalContext.current,
-                                signature.validator.status,
+                                if (isDdocValid) {
+                                    ValidatorInterface.Status.Valid
+                                } else {
+                                    signature.validator.status
+                                },
                             )
                         Column(
                             modifier =
@@ -259,7 +269,14 @@ fun SignerDetailsView(
                             )
                             ColoredSignedStatusText(
                                 text = statusText,
-                                status = signature.validator.status,
+                                status =
+                                    if (isDdocValid) {
+                                        val validStatus = ValidatorInterface.Status.Valid
+                                        signatureStatus = validStatus
+                                        validStatus
+                                    } else {
+                                        signature.validator.status
+                                    },
                                 modifier =
                                     modifier
                                         .padding(vertical = SBorder)

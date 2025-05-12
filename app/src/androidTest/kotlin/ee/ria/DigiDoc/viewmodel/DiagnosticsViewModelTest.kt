@@ -22,6 +22,7 @@ import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepositoryImp
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
+import ee.ria.DigiDoc.domain.model.settings.CDOCSetting
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.network.proxy.ManualProxy
@@ -31,6 +32,7 @@ import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertFalse
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -315,6 +317,26 @@ class DiagnosticsViewModelTest {
         intent.data = mock(Uri::class.java)
         val activityResult = ActivityResult(-1, intent)
         viewModel.saveFile(file, activityResult)
+    }
+
+    @Test
+    fun diagnosticsViewModel_isCdoc2DefaultSettingsUsed_returnTrue() {
+        dataStore.setCdocSetting(CDOCSetting.CDOC2)
+        viewModel.updatedConfiguration = MutableLiveData(configurationProvider)
+
+        val result = viewModel.isCdoc2DefaultSettingsUsed()
+
+        assertTrue(result)
+    }
+
+    @Test
+    fun diagnosticsViewModel_isCdoc2DefaultSettingsUsed_returnFalse() {
+        dataStore.setCdocSetting(CDOCSetting.CDOC1)
+        viewModel.updatedConfiguration = MutableLiveData(configurationProvider)
+
+        val result = viewModel.isCdoc2DefaultSettingsUsed()
+
+        assertFalse(result)
     }
 
     private fun createTempFileWithStringContent(

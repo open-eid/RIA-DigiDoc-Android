@@ -595,6 +595,20 @@ class SharedContainerViewModelTest {
             }
         }
 
+    @Test
+    fun sharedContainerViewModel_setIsSivaConfirmed_success() {
+        viewModel.setIsSivaConfirmed(false)
+
+        assertTrue(viewModel.isSivaConfirmed.value == false)
+    }
+
+    @Test
+    fun sharedContainerViewModel_resetIsSivaConfirmed_success() {
+        viewModel.resetIsSivaConfirmed()
+
+        assertTrue(viewModel.isSivaConfirmed.value == true)
+    }
+
     private fun createTempFileWithStringContent(
         filename: String,
         content: String,
