@@ -506,6 +506,7 @@ class NFCViewModel
                     _decryptStatus.postValue(false)
                     _errorState.postValue(Triple(R.string.error_general_client, null, null))
                     errorLog(logTag, "Unable to get container value. Container is 'null'")
+                    _shouldResetPIN.postValue(true)
                 }
             }
         }

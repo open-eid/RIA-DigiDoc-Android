@@ -18,6 +18,7 @@ import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.ui.component.shared.BottomSheet
 import ee.ria.DigiDoc.utilsLib.extensions.isContainer
+import ee.ria.DigiDoc.utilsLib.extensions.isCryptoContainer
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.viewmodel.SigningViewModel
@@ -73,7 +74,7 @@ fun DataFileBottomSheet(
                                 )
                             showLoadingScreen.value = false
                             containerDataFile?.let { file ->
-                                if (file.isContainer(context)) {
+                                if (file.isContainer(context) || file.isCryptoContainer()) {
                                     nestedFile.value = file
                                     currentNestedFile.value = file
                                     val nestedFileMimetype = file.mimeType(context)

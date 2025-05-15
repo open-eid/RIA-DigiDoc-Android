@@ -60,6 +60,7 @@ fun SignedContainerBottomSheet(
                     onClick = onEncryptClick,
                 ),
                 BottomSheetButton(
+                    showButton = !isNestedContainer,
                     icon = R.drawable.ic_m3_more_time_48dp_wght400,
                     text = stringResource(R.string.extend_signature_button),
                     isExtraActionButtonShown = true,

@@ -64,7 +64,9 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
     override fun onCreate(savedInstanceState: Bundle?) {
         super<ComponentActivity>.onCreate(savedInstanceState)
 
-        if (BuildConfig.BUILD_TYPE.contentEquals("release")) {
+        val isDebug = BuildConfig.BUILD_TYPE.contentEquals("debug")
+
+        if (!isDebug) {
             secureUtil.markAsSecure(this)
         }
 
@@ -108,7 +110,7 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
         Firebase.crashlytics.isCrashlyticsCollectionEnabled = false
 
         activityManager.shouldResetLogging.observe(this) { shouldResetLogging ->
-            if (shouldResetLogging) {
+            if (shouldResetLogging && !isDebug) {
                 activityManager.setShouldResetLogging(false)
                 loggingUtil.handleOneTimeLogging(this)
                 LoggingUtil.resetLogs(FileUtil.getLogsDirectory(this))
@@ -122,7 +124,7 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
                 getString(main_diagnostics_logging_running_key),
                 false,
             )
-        val isLoggingEnabled = BuildConfig.DEBUG || (isDiagnosticsLoggingEnabled && isDiagnosticsLoggingRunning)
+        val isLoggingEnabled = isDebug || (isDiagnosticsLoggingEnabled && isDiagnosticsLoggingRunning)
         lifecycleScope.launch {
             LoggingUtil.initialize(
                 applicationContext,

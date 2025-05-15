@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.CDOC1_EXTENSION
+import ee.ria.DigiDoc.cryptolib.CDOC2Settings
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
@@ -30,6 +31,7 @@ class EncryptViewModel
         private val mimeTypeResolver: MimeTypeResolver,
         private val contentResolver: ContentResolver,
         private val fileOpeningRepository: FileOpeningRepository,
+        private val cdoc2Settings: CDOC2Settings,
     ) : ViewModel() {
         private val _shouldResetCryptoContainer = MutableLiveData(false)
         val shouldResetCryptoContainer: LiveData<Boolean?> = _shouldResetCryptoContainer
@@ -69,12 +71,21 @@ class EncryptViewModel
             ) && isDataFilesInContainer(cryptoContainer)
         }
 
-        fun isSignButtonShown(cryptoContainer: CryptoContainer?): Boolean = isEncryptedContainer(cryptoContainer)
+        fun isSignButtonShown(
+            cryptoContainer: CryptoContainer?,
+            isNestedContainer: Boolean,
+        ): Boolean = isEncryptedContainer(cryptoContainer) && !isNestedContainer
 
-        fun isDecryptButtonShown(cryptoContainer: CryptoContainer?): Boolean = isEncryptedContainer(cryptoContainer)
+        fun isDecryptButtonShown(
+            cryptoContainer: CryptoContainer?,
+            isNestedContainer: Boolean,
+        ): Boolean = isEncryptedContainer(cryptoContainer) && !isNestedContainer
 
-        fun isEncryptButtonShown(cryptoContainer: CryptoContainer?): Boolean {
-            if (isDecryptedContainer(cryptoContainer)) {
+        fun isEncryptButtonShown(
+            cryptoContainer: CryptoContainer?,
+            isNestedContainer: Boolean,
+        ): Boolean {
+            if (isNestedContainer || isDecryptedContainer(cryptoContainer)) {
                 return false
             }
 
@@ -139,6 +150,25 @@ class EncryptViewModel
                     )
 
                 sharedContainerViewModel.setSignedContainer(signedContainer)
+            }
+        }
+
+        @Throws(Exception::class)
+        suspend fun openNestedContainer(
+            context: Context,
+            nestedFile: File?,
+            sharedContainerViewModel: SharedContainerViewModel,
+        ) {
+            if (nestedFile != null) {
+                val nestedContainer =
+                    CryptoContainer.openOrCreate(
+                        context,
+                        nestedFile,
+                        listOf(nestedFile),
+                        cdoc2Settings,
+                    )
+
+                sharedContainerViewModel.setCryptoContainer(nestedContainer)
             }
         }
     }

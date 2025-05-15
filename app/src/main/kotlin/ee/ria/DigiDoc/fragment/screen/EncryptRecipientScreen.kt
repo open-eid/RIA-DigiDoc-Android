@@ -254,20 +254,22 @@ fun EncryptRecipientScreen(
             }
         },
         bottomBar = {
-            EncryptBottomBar(
-                modifier = modifier,
-                isEncryptButtonEnabled = encryptionButtonEnabled.value,
-                onEncryptClick = {
-                    if (encryptionButtonEnabled.value) {
-                        encryptionButtonEnabled.value = false
-                        showLoading.value = true
-                        CoroutineScope(Main).launch {
-                            encryptRecipientViewModel.encryptContainer(sharedContainerViewModel)
-                            showLoading.value = false
+            if (cryptoContainer != null) {
+                EncryptBottomBar(
+                    modifier = modifier,
+                    isEncryptButtonEnabled = encryptionButtonEnabled.value,
+                    onEncryptClick = {
+                        if (encryptionButtonEnabled.value) {
+                            encryptionButtonEnabled.value = false
+                            showLoading.value = true
+                            CoroutineScope(Main).launch {
+                                encryptRecipientViewModel.encryptContainer(sharedContainerViewModel)
+                                showLoading.value = false
+                            }
                         }
-                    }
-                },
-            )
+                    },
+                )
+            }
         },
     ) { paddingValues ->
         SettingsMenuBottomSheet(

@@ -221,6 +221,7 @@ fun NFCView(
                 if (bool) {
                     pinCode.value.fill(0)
                     nfcViewModel.resetShouldResetPIN()
+                    pinCode.value = byteArrayOf()
                 }
             }
         }

@@ -67,7 +67,10 @@ import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
 import ee.ria.DigiDoc.cryptolib.Addressee
+import ee.ria.DigiDoc.cryptolib.CryptoContainer
+import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.ui.component.crypto.bottombar.CryptoNextBottomBar
 import ee.ria.DigiDoc.ui.component.crypto.bottomsheet.CryptoDataFileBottomSheet
 import ee.ria.DigiDoc.ui.component.crypto.bottomsheet.EncryptContainerBottomSheet
@@ -82,6 +85,7 @@ import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
 import ee.ria.DigiDoc.ui.component.shared.TabView
 import ee.ria.DigiDoc.ui.component.shared.TopBar
+import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XLPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
@@ -96,6 +100,8 @@ import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.removeExtensionFromContainerFilename
+import ee.ria.DigiDoc.utilsLib.extensions.isContainer
+import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.viewmodel.EncryptRecipientViewModel
@@ -104,7 +110,6 @@ import ee.ria.DigiDoc.viewmodel.SigningViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedRecipientViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
@@ -129,12 +134,16 @@ fun EncryptNavigation(
     val shouldResetContainer by encryptViewModel.shouldResetCryptoContainer.asFlow().collectAsState(false)
     val context = LocalContext.current
 
+    val scope = rememberCoroutineScope()
+
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
     var isViewInitialized by rememberSaveable { mutableStateOf(false) }
 
     val clickedFile = remember { mutableStateOf<File?>(null) }
     val clickedRecipient = remember { mutableStateOf<Addressee?>(null) }
+
+    val isNestedContainer = sharedContainerViewModel.isNestedContainer(cryptoContainer)
 
     val containerEncryptedSuccess = remember { mutableStateOf(false) }
     val containerEncryptedSuccessText = stringResource(id = R.string.crypto_create_success)
@@ -264,7 +273,7 @@ fun EncryptNavigation(
 
     val onSignActionClick: () -> Unit = {
         showLoadingScreen.value = true
-        CoroutineScope(IO).launch {
+        scope.launch(IO) {
             encryptViewModel.openSignedContainer(
                 context,
                 cryptoContainer?.file,
@@ -288,7 +297,7 @@ fun EncryptNavigation(
         if (encryptionButtonEnabled.value) {
             encryptionButtonEnabled.value = false
             showLoadingScreen.value = true
-            CoroutineScope(Main).launch {
+            scope.launch(Main) {
                 encryptRecipientViewModel.encryptContainer(sharedContainerViewModel)
                 showLoadingScreen.value = false
             }
@@ -330,7 +339,15 @@ fun EncryptNavigation(
         }
 
     BackHandler {
-        showContainerCloseConfirmationDialog.value = true
+        if (!isNestedContainer && encryptViewModel.isEncryptedContainer(cryptoContainer)) {
+            showContainerCloseConfirmationDialog.value = true
+        } else {
+            handleBackButtonClick(
+                navController,
+                encryptViewModel,
+                sharedContainerViewModel,
+            )
+        }
     }
 
     DisposableEffect(shouldResetContainer) {
@@ -340,6 +357,10 @@ fun EncryptNavigation(
                 sharedContainerViewModel.resetCryptoContainer()
             }
         }
+    }
+
+    LaunchedEffect(Unit) {
+        sharedContainerViewModel.setCryptoContainer(sharedContainerViewModel.currentContainer() as? CryptoContainer)
     }
 
     LaunchedEffect(encryptRecipientViewModel.isContainerEncrypted) {
@@ -485,7 +506,7 @@ fun EncryptNavigation(
                 leftIcon = R.drawable.ic_m3_close_48dp_wght400,
                 leftIconContentDescription = R.string.crypto_close_container_title,
                 onLeftButtonClick = {
-                    if (encryptViewModel.isEncryptedContainer(cryptoContainer)) {
+                    if (!isNestedContainer && encryptViewModel.isEncryptedContainer(cryptoContainer)) {
                         showContainerCloseConfirmationDialog.value = true
                     } else {
                         handleBackButtonClick(
@@ -501,37 +522,42 @@ fun EncryptNavigation(
             )
         },
         bottomBar = {
-            CryptoNextBottomBar(
-                modifier = modifier,
-                onNextClick = {
-                    navController.navigate(
-                        Route.EncryptRecipientScreen.route,
-                    )
-                },
-                onShareClick = {
-                    val containerFile = cryptoContainer?.file
-                    if (containerFile != null) {
-                        val intent =
-                            createContainerAction(
-                                context,
-                                context.getString(R.string.file_provider_authority),
-                                containerFile,
-                                encryptViewModel.getMimetype(containerFile) ?: "",
-                                Intent.ACTION_SEND,
-                            )
-                        context.startActivity(intent, null)
-                    }
-                },
-                onAddMoreFiles = {
-                    navController.navigate(
-                        Route.CryptoFileChoosing.route,
-                    )
-                },
-                isNoRecipientContainer = encryptViewModel.isContainerWithoutRecipients(cryptoContainer),
-                isShareButtonShown = encryptViewModel.isShareButtonShown(cryptoContainer),
-                onEncryptClick = onEncryptClick,
-                encryptionButtonEnabled = encryptionButtonEnabled.value,
-            )
+            if (cryptoContainer != null) {
+                CryptoNextBottomBar(
+                    modifier = modifier,
+                    onNextClick = {
+                        navController.navigate(
+                            Route.EncryptRecipientScreen.route,
+                        )
+                    },
+                    onShareClick = {
+                        val containerFile = cryptoContainer?.file
+                        if (containerFile != null) {
+                            val intent =
+                                createContainerAction(
+                                    context,
+                                    context.getString(R.string.file_provider_authority),
+                                    containerFile,
+                                    encryptViewModel.getMimetype(containerFile) ?: "",
+                                    Intent.ACTION_SEND,
+                                )
+                            context.startActivity(intent, null)
+                        }
+                    },
+                    onAddMoreFiles = {
+                        navController.navigate(
+                            Route.CryptoFileChoosing.route,
+                        )
+                    },
+                    isNoRecipientContainer =
+                        encryptViewModel.isContainerWithoutRecipients(
+                            cryptoContainer,
+                        ),
+                    isShareButtonShown = encryptViewModel.isShareButtonShown(cryptoContainer),
+                    onEncryptClick = onEncryptClick,
+                    encryptionButtonEnabled = encryptionButtonEnabled.value,
+                )
+            }
         },
     ) { paddingValues ->
         SettingsMenuBottomSheet(
@@ -557,23 +583,28 @@ fun EncryptNavigation(
 
             val openNestedContainer: (nestedContainer: File, isSivaConfirmed: Boolean) -> Unit =
                 { nestedContainer, isSivaConfirmed ->
-                    CoroutineScope(IO).launch {
+                    scope.launch(IO) {
                         try {
-                            signingViewModel.openNestedContainer(
-                                context,
-                                nestedContainer,
-                                sharedContainerViewModel,
-                                isSivaConfirmed,
-                            )
+                            val isSigningContainer = nestedContainer.isContainer(context)
 
-                            delay(2000)
-                            withContext(Main) {
-                                navController.navigate(Route.Signing.route) {
-                                    popUpTo(Route.Home.route) {
-                                        inclusive = false
-                                    }
-                                    launchSingleTop = true
+                            if (isSigningContainer) {
+                                signingViewModel.openNestedContainer(
+                                    context,
+                                    nestedContainer,
+                                    sharedContainerViewModel,
+                                    isSivaConfirmed,
+                                )
+
+                                withContext(Main) {
+                                    sharedContainerViewModel.setIsSivaConfirmed(isSivaConfirmed)
+                                    navController.navigate(Route.Signing.route)
                                 }
+                            } else {
+                                encryptViewModel.openNestedContainer(
+                                    context,
+                                    nestedContainer,
+                                    sharedContainerViewModel,
+                                )
                             }
                             showLoadingScreen.value = false
                         } catch (ex: Exception) {
@@ -594,10 +625,27 @@ fun EncryptNavigation(
                     }
                 }
 
+            val handleSivaCancel: () -> Unit = {
+                showSivaDialog.value = false
+                nestedFile.value?.let { file ->
+                    if (DDOC_MIMETYPE != file.mimeType(context)) {
+                        openNestedContainer(file, false)
+                    }
+                }
+            }
+
             val handleSivaConfirmation: () -> Unit = {
                 showSivaDialog.value = false
                 nestedFile.value?.let { file ->
                     openNestedContainer(file, true)
+                }
+            }
+
+            val handleResult: (Boolean) -> Unit = { isSivaConfirmed ->
+                if (isSivaConfirmed) {
+                    handleSivaConfirmation()
+                } else {
+                    handleSivaCancel()
                 }
             }
 
@@ -637,7 +685,8 @@ fun EncryptNavigation(
                             )
                         cryptoContainer?.let {
                             val isNoRecipientsContainer =
-                                !encryptViewModel.isContainerWithoutRecipients(cryptoContainer)
+                                !encryptViewModel.isContainerWithoutRecipients(cryptoContainer) &&
+                                    !isNestedContainer
                             val title =
                                 if (!isNoRecipientsContainer) {
                                     stringResource(R.string.crypto_new_title)
@@ -658,9 +707,9 @@ fun EncryptNavigation(
                                 textAlign = TextAlign.Start,
                             )
                             val rightActionButtonName =
-                                if (encryptViewModel.isDecryptButtonShown(cryptoContainer)) {
+                                if (encryptViewModel.isDecryptButtonShown(cryptoContainer, isNestedContainer)) {
                                     R.string.decrypt_button
-                                } else if (encryptViewModel.isEncryptButtonShown(cryptoContainer)) {
+                                } else if (encryptViewModel.isEncryptButtonShown(cryptoContainer, isNestedContainer)) {
                                     R.string.encrypt_button
                                 } else {
                                     0
@@ -671,13 +720,14 @@ fun EncryptNavigation(
                                 showLeftActionButton =
                                     encryptViewModel.isSignButtonShown(
                                         cryptoContainer,
+                                        isNestedContainer,
                                     ),
                                 showRightActionButton =
                                     encryptViewModel.isDecryptButtonShown(
-                                        cryptoContainer,
+                                        cryptoContainer, isNestedContainer,
                                     ) ||
                                         encryptViewModel.isEncryptButtonShown(
-                                            cryptoContainer,
+                                            cryptoContainer, isNestedContainer,
                                         ),
                                 leftActionButtonName = R.string.sign_button,
                                 rightActionButtonName = rightActionButtonName,
@@ -685,11 +735,15 @@ fun EncryptNavigation(
                                 rightActionButtonContentDescription = R.string.decrypt_button_accessibility,
                                 onLeftActionButtonClick = onSignActionClick,
                                 onRightActionButtonClick = {
-                                    if (encryptViewModel.isDecryptButtonShown(cryptoContainer)) {
+                                    if (encryptViewModel.isDecryptButtonShown(cryptoContainer, isNestedContainer)) {
                                         showLoadingScreen.value = true
                                         navController.navigate(Route.DecryptScreen.route)
                                         showLoadingScreen.value = false
-                                    } else if (encryptViewModel.isEncryptButtonShown(cryptoContainer)) {
+                                    } else if (encryptViewModel.isEncryptButtonShown(
+                                            cryptoContainer,
+                                            isNestedContainer,
+                                        )
+                                    ) {
                                         onEncryptClick()
                                     }
                                 },
@@ -721,7 +775,7 @@ fun EncryptNavigation(
                                 }
                             }
                         } else {
-                            if (encryptViewModel.isContainerWithoutRecipients(cryptoContainer)) {
+                            if (encryptViewModel.isContainerWithoutRecipients(cryptoContainer) && !isNestedContainer) {
                                 item {
                                     Text(
                                         modifier =
@@ -834,7 +888,7 @@ fun EncryptNavigation(
                             },
                             cancelButtonClick = dismissEditContainerNameDialog,
                             okButtonClick = {
-                                CoroutineScope(IO).launch {
+                                scope.launch(IO) {
                                     cryptoContainer?.setName(
                                         "${containerName.text}.$containerExtension",
                                     )
@@ -891,7 +945,7 @@ fun EncryptNavigation(
                                         sharedContainerViewModel,
                                     )
                                 } else {
-                                    CoroutineScope(IO).launch {
+                                    scope.launch(IO) {
                                         try {
                                             sharedContainerViewModel.removeCryptoContainerDataFile(
                                                 cryptoContainer,
@@ -942,7 +996,7 @@ fun EncryptNavigation(
                             onDismissRequest = dismissRemoveRecipientDialog,
                             onDismissButton = dismissRemoveRecipientDialog,
                             onConfirmButton = {
-                                CoroutineScope(IO).launch {
+                                scope.launch(IO) {
                                     sharedContainerViewModel.removeRecipient(
                                         cryptoContainer,
                                         actionRecipient,
@@ -956,6 +1010,12 @@ fun EncryptNavigation(
                     }
                 }
             }
+
+            SivaConfirmationDialog(
+                showDialog = showSivaDialog,
+                modifier = modifier,
+                onResult = handleResult,
+            )
 
             CryptoDataFileBottomSheet(
                 modifier = modifier,
@@ -1053,9 +1113,27 @@ fun handleBackButtonClick(
     encryptViewModel: EncryptViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
 ) {
-    sharedContainerViewModel.clearContainers()
-    encryptViewModel.handleBackButton()
-    navController.navigateUp()
+    sharedContainerViewModel.resetExternalFileUris()
+    sharedContainerViewModel.resetIsSivaConfirmed()
+    if (sharedContainerViewModel.nestedContainers.size > 1) {
+        sharedContainerViewModel.removeLastContainer()
+        val currentContainer = sharedContainerViewModel.currentContainer()
+        when (currentContainer) {
+            is SignedContainer -> {
+                sharedContainerViewModel.resetCryptoContainer()
+                sharedContainerViewModel.setSignedContainer(currentContainer)
+                navController.navigateUp()
+            }
+            is CryptoContainer -> {
+                sharedContainerViewModel.resetSignedContainer()
+                sharedContainerViewModel.setCryptoContainer(currentContainer)
+            }
+        }
+    } else {
+        sharedContainerViewModel.clearContainers()
+        encryptViewModel.handleBackButton()
+        navController.navigateUp()
+    }
 }
 
 private fun saveFile(

@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModel
 import com.google.common.io.ByteStreams
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import ee.ria.DigiDoc.common.container.Container
 import ee.ria.DigiDoc.cryptolib.Addressee
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.domain.model.notifications.ContainerNotificationType
@@ -42,11 +43,11 @@ class SharedContainerViewModel
         private val _signedContainer = MutableLiveData<SignedContainer?>()
         val signedContainer: LiveData<SignedContainer?> = _signedContainer
 
-        private val _nestedContainers = mutableStateListOf<SignedContainer?>()
-        val nestedContainers: List<SignedContainer?> get() = _nestedContainers
-
         private val _cryptoContainer = MutableLiveData<CryptoContainer?>()
         val cryptoContainer: LiveData<CryptoContainer?> = _cryptoContainer
+
+        private val _nestedContainers = mutableStateListOf<Container?>()
+        val nestedContainers: List<Container?> get() = _nestedContainers
 
         private val _signedMidStatus = MutableLiveData<MobileCreateSignatureProcessStatus?>(null)
         val signedMidStatus: LiveData<MobileCreateSignatureProcessStatus?> = _signedMidStatus
@@ -106,6 +107,7 @@ class SharedContainerViewModel
 
         fun setCryptoContainer(cryptoContainer: CryptoContainer?) {
             _cryptoContainer.postValue(cryptoContainer)
+            addNestedContainer(cryptoContainer)
         }
 
         fun setExternalFileUris(uris: List<Uri>) {
@@ -118,10 +120,6 @@ class SharedContainerViewModel
 
         fun resetSignedContainer() {
             _signedContainer.postValue(null)
-        }
-
-        fun addNestedSignedContainer(signedContainer: SignedContainer?) {
-            _nestedContainers.add(signedContainer)
         }
 
         fun resetCryptoContainer() {
@@ -142,11 +140,10 @@ class SharedContainerViewModel
             _nestedContainers.clear()
         }
 
-        fun currentSignedContainer(): SignedContainer? =
-            if (_nestedContainers.isNotEmpty()) _nestedContainers.last() else null
+        fun currentContainer(): Container? = if (_nestedContainers.isNotEmpty()) _nestedContainers.last() else null
 
-        fun isNestedContainer(signedContainer: SignedContainer?): Boolean =
-            nestedContainers.size > 1 && signedContainer == currentSignedContainer()
+        fun isNestedContainer(container: Container?): Boolean =
+            nestedContainers.size > 1 && container == currentContainer()
 
         fun setIsSivaConfirmed(isConfirmed: Boolean) {
             _isSivaConfirmed.value = isConfirmed
@@ -256,9 +253,9 @@ class SharedContainerViewModel
             _containerNotifications.value = listOf()
         }
 
-        private fun addNestedContainer(signedContainer: SignedContainer?) {
-            if (signedContainer != null && !nestedContainers.contains(signedContainer)) {
-                _nestedContainers.add(signedContainer)
+        private fun addNestedContainer(container: Container?) {
+            if (container != null && !nestedContainers.contains(container)) {
+                _nestedContainers.add(container)
             }
         }
     }

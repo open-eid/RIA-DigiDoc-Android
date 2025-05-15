@@ -50,7 +50,7 @@ class SignedContainer
         private var containerFile: File? = null,
         private val isExistingContainer: Boolean = false,
         private val timestamps: List<SignatureInterface>? = emptyList(),
-    ) {
+    ) : ee.ria.DigiDoc.common.container.Container {
         suspend fun getDataFiles(): List<DataFileInterface> {
             return CoroutineScope(IO).async {
                 val wrappedDataFile =

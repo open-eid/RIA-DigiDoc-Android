@@ -71,7 +71,9 @@ import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
+import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.domain.model.notifications.ContainerNotificationType
+import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
@@ -106,14 +108,15 @@ import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.removeExtensionFromContainerFilename
+import ee.ria.DigiDoc.utilsLib.extensions.isContainer
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
+import ee.ria.DigiDoc.viewmodel.EncryptViewModel
 import ee.ria.DigiDoc.viewmodel.SigningViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
@@ -131,10 +134,13 @@ fun SigningNavigation(
     sharedContainerViewModel: SharedContainerViewModel,
     sharedSignatureViewModel: SharedSignatureViewModel,
     signingViewModel: SigningViewModel = hiltViewModel(),
+    encryptViewModel: EncryptViewModel = hiltViewModel(),
 ) {
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
     val shouldResetContainer by signingViewModel.shouldResetSignedContainer.asFlow().collectAsState(false)
     val context = LocalContext.current
+
+    val scope = rememberCoroutineScope()
 
     val signedContainerExists = signedContainer?.getContainerFile()?.exists()
 
@@ -285,7 +291,7 @@ fun SigningNavigation(
 
     val onEncryptActionClick: () -> Unit = {
         showLoadingScreen.value = true
-        CoroutineScope(IO).launch {
+        scope.launch(IO) {
             signingViewModel.openCryptoContainer(
                 context,
                 signedContainer?.getContainerFile(),
@@ -341,7 +347,15 @@ fun SigningNavigation(
         }
 
     BackHandler {
-        showContainerCloseConfirmationDialog.value = true
+        if (!isNestedContainer) {
+            showContainerCloseConfirmationDialog.value = true
+        } else {
+            handleBackButtonClick(
+                navController,
+                signingViewModel,
+                sharedContainerViewModel,
+            )
+        }
     }
 
     DisposableEffect(shouldResetContainer) {
@@ -355,7 +369,7 @@ fun SigningNavigation(
     }
 
     LaunchedEffect(Unit) {
-        sharedContainerViewModel.setSignedContainer(sharedContainerViewModel.currentSignedContainer())
+        sharedContainerViewModel.setSignedContainer(sharedContainerViewModel.currentContainer() as? SignedContainer)
     }
 
     LaunchedEffect(sharedContainerViewModel.signedMidStatus) {
@@ -527,7 +541,7 @@ fun SigningNavigation(
 
     LaunchedEffect(signedContainer, isSivaConfirmed) {
         signedContainer?.let { container ->
-            CoroutineScope(IO).launch {
+            scope.launch(IO) {
                 isTimestampedContainer =
                     signingViewModel.isTimestampedContainer(
                         container,
@@ -652,14 +666,27 @@ fun SigningNavigation(
 
             val openNestedContainer: (nestedContainer: File, isSivaConfirmed: Boolean) -> Unit =
                 { nestedContainer, isSivaConfirmed ->
-                    CoroutineScope(IO).launch {
+                    scope.launch(IO) {
                         try {
-                            signingViewModel.openNestedContainer(
-                                context,
-                                nestedContainer,
-                                sharedContainerViewModel,
-                                isSivaConfirmed,
-                            )
+                            val isSigningContainer = nestedContainer.isContainer(context)
+                            if (!isSigningContainer) {
+                                encryptViewModel.openNestedContainer(
+                                    context,
+                                    nestedContainer,
+                                    sharedContainerViewModel,
+                                )
+
+                                withContext(Main) {
+                                    navController.navigate(Route.Encrypt.route)
+                                }
+                            } else {
+                                signingViewModel.openNestedContainer(
+                                    context,
+                                    nestedContainer,
+                                    sharedContainerViewModel,
+                                    isSivaConfirmed,
+                                )
+                            }
                             showLoadingScreen.value = false
                         } catch (ex: Exception) {
                             withContext(Main) {
@@ -940,7 +967,7 @@ fun SigningNavigation(
                             },
                             cancelButtonClick = dismissEditContainerNameDialog,
                             okButtonClick = {
-                                CoroutineScope(IO).launch {
+                                scope.launch(IO) {
                                     signedContainer?.setName(
                                         "${containerName.text}.$containerExtension",
                                     )
@@ -994,7 +1021,7 @@ fun SigningNavigation(
                                     sharedContainerViewModel.resetContainerNotifications()
                                     handleBackButtonClick(navController, signingViewModel, sharedContainerViewModel)
                                 } else {
-                                    CoroutineScope(IO).launch {
+                                    scope.launch(IO) {
                                         try {
                                             sharedContainerViewModel.removeContainerDataFile(
                                                 signedContainer,
@@ -1045,7 +1072,7 @@ fun SigningNavigation(
                             onDismissRequest = dismissRemoveSignatureDialog,
                             onDismissButton = dismissRemoveSignatureDialog,
                             onConfirmButton = {
-                                CoroutineScope(IO).launch {
+                                scope.launch(IO) {
                                     sharedContainerViewModel.removeSignature(
                                         signedContainer,
                                         actionSignature,
@@ -1186,7 +1213,18 @@ fun handleBackButtonClick(
     sharedContainerViewModel.resetIsSivaConfirmed()
     if (sharedContainerViewModel.nestedContainers.size > 1) {
         sharedContainerViewModel.removeLastContainer()
-        sharedContainerViewModel.setSignedContainer(sharedContainerViewModel.currentSignedContainer())
+        val currentContainer = sharedContainerViewModel.currentContainer()
+        when (currentContainer) {
+            is SignedContainer -> {
+                sharedContainerViewModel.resetCryptoContainer()
+                sharedContainerViewModel.setSignedContainer(currentContainer)
+            }
+            is CryptoContainer -> {
+                sharedContainerViewModel.resetSignedContainer()
+                sharedContainerViewModel.setCryptoContainer(currentContainer)
+                navController.navigateUp()
+            }
+        }
     } else {
         sharedContainerViewModel.clearContainers()
         signingViewModel.handleBackButton()

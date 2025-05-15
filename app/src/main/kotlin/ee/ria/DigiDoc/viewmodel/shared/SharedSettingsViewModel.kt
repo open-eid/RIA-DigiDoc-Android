@@ -16,6 +16,9 @@ import ee.ria.DigiDoc.common.Constant.DIR_SIVA_CERT
 import ee.ria.DigiDoc.common.Constant.DIR_TSA_CERT
 import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
+import ee.ria.DigiDoc.domain.model.settings.CDOCSetting
+import ee.ria.DigiDoc.domain.model.settings.TSASetting
+import ee.ria.DigiDoc.domain.model.settings.UUIDSetting
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.manager.ActivityManager
@@ -26,6 +29,7 @@ import ee.ria.DigiDoc.network.proxy.ProxyUtil
 import ee.ria.DigiDoc.network.siva.SivaSetting
 import ee.ria.DigiDoc.network.utils.NetworkUtil.constructClientBuilder
 import ee.ria.DigiDoc.network.utils.UserAgentUtil
+import ee.ria.DigiDoc.utils.Constant
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
@@ -106,6 +110,7 @@ class SharedSettingsViewModel
             resetRightsSettings()
             resetSivaSettings()
             resetProxySettings()
+            resetCryptoSettings()
         }
 
         private fun resetProxySettings() {
@@ -135,6 +140,15 @@ class SharedSettingsViewModel
             )
         }
 
+        private fun resetCryptoSettings() {
+            dataStore.setCdocSetting(CDOCSetting.CDOC1)
+            dataStore.setUseOnlineEncryption(false)
+            dataStore.setCDOC2SelectedService(Constant.Defaults.DEFAULT_UUID_VALUE)
+            dataStore.setCDOC2UUID("00000000-0000-0000-0000-000000000002")
+            dataStore.setCDOC2FetchURL("https://cdoc2-keyserver-get")
+            dataStore.setCDOC2PostURL("https://cdoc2-keyserver-post")
+        }
+
         private fun resetSivaSettings() {
             dataStore.setSivaSetting(SivaSetting.DEFAULT)
             dataStore.setSettingsSivaUrl("")
@@ -148,6 +162,8 @@ class SharedSettingsViewModel
         }
 
         private fun resetSigningSettings() {
+            dataStore.setUuidSetting(UUIDSetting.DEFAULT)
+            dataStore.setTsaSetting(TSASetting.DEFAULT)
             dataStore.setSettingsUUID("")
             dataStore.setSettingsTSAUrl("")
             dataStore.setSettingsAskRoleAndAddress(false)

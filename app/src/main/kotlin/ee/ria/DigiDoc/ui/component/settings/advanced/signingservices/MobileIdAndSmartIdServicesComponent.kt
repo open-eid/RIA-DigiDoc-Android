@@ -193,7 +193,7 @@ fun MobileIdAndSmartIdServicesComponent(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = useDefaultAccessText,
+                        text = useManualAccessText,
                         style = MaterialTheme.typography.bodyLarge,
                         modifier =
                             modifier

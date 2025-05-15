@@ -148,7 +148,6 @@
     <!-- Encrypt -->
     <string name="crypto_create_success">Ümbrik edukalt krüpteeritud!</string>
     <string name="crypto_decrypt_success">Ümbrik edukalt dekrüpteeritud!</string>
-    <string name="crypto_create_encrypt">Krüpteeri</string>
     <string name="crypto_files_encrypted">Failide nägemiseks vali «Dekrüpteeri», et tuvastada isik ja dekrüpteerida ümbriku sisu.</string>
     <string name="crypto_empty_file_message">Ümbrikule on lisatud tühi fail. Krüpteerimiseks eemalda ümbrikust tühi fail.</string>
     <string name="crypto_close_container_title">Sulge ümbrik</string>
