@@ -9,6 +9,7 @@ import ee.ria.DigiDoc.common.Constant.CDOC1_EXTENSION
 import ee.ria.DigiDoc.common.Constant.CDOC2_EXTENSION
 import ee.ria.DigiDoc.common.Constant.CONTAINER_MIME_TYPE
 import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
+import ee.ria.DigiDoc.common.container.Container
 import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.cryptolib.exception.ContainerDataFilesEmptyException
@@ -47,9 +48,11 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import javax.inject.Inject
+import javax.inject.Singleton
 
 private const val LOG_TAG = "CryptoContainer"
 
+@Singleton
 class CryptoContainer
     @Inject
     constructor(
@@ -59,7 +62,7 @@ class CryptoContainer
         val recipients: ArrayList<Addressee?>?,
         val decrypted: Boolean,
         val encrypted: Boolean,
-    ) {
+    ) : Container {
         fun containerMimetype(): String = CONTAINER_MIME_TYPE
 
         fun getName(): String = file?.name ?: DEFAULT_FILENAME

@@ -148,7 +148,6 @@
     <!-- Encrypt -->
     <string name="crypto_create_success">Контейнер успешно зашифрован!</string>
     <string name="crypto_decrypt_success">Контейнер успешно расшифрован!</string>
-    <string name="crypto_create_encrypt">Зашифровать</string>
     <string name="crypto_files_encrypted">Чтобы просмотреть файлы, выберите «Расшифровать», чтобы идентифицировать получателя и расшифровать содержимое конверта.</string>
     <string name="crypto_empty_file_message">В контейнер добавлен пустой файл. Для шифрования удалите из контейнера пустой файл.</string>
     <string name="crypto_close_container_title">Закрыть контейнер</string>

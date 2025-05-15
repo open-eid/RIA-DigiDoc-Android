@@ -7,6 +7,7 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.utilsLib.container.NameUtil
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
@@ -83,7 +84,7 @@ data class SignerDetailItem(
             SignerDetailItem(
                 icon = 0,
                 label = R.string.container_format_label,
-                value = sharedContainerViewModel.currentSignedContainer()?.containerMimetype() ?: "",
+                value = (sharedContainerViewModel.currentContainer() as? SignedContainer)?.containerMimetype() ?: "",
                 contentDescription =
                     if (value != null) {
                         "${stringResource(

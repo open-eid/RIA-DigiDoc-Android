@@ -148,7 +148,6 @@
     <!-- Encrypt -->
     <string name="crypto_create_success">Container successfully encrypted!</string>
     <string name="crypto_decrypt_success">Container successfully decrypted!</string>
-    <string name="crypto_create_encrypt">Encrypt</string>
     <string name="crypto_files_encrypted">To see the files, select «Decrypt» to identify the recipient and decrypt the envelope contents.</string>
     <string name="crypto_empty_file_message">An empty file is attached to the envelope. Remove the empty file from the container to encrypt.</string>
     <string name="crypto_close_container_title">Close container</string>

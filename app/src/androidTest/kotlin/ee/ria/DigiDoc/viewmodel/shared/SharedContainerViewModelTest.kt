@@ -362,37 +362,6 @@ class SharedContainerViewModelTest {
     }
 
     @Test
-    fun sharedContainerViewModel_addNestedSignedContainer_success() {
-        val uris = listOf(mock(Uri::class.java))
-        val nestedUris = listOf(mock(Uri::class.java))
-
-        runBlocking {
-            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, true)).thenReturn(
-                SignedContainer(context),
-            )
-            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, nestedUris, true)).thenReturn(
-                SignedContainer(context),
-            )
-        }
-
-        val signedContainer =
-            runBlocking {
-                fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, true)
-            }
-
-        val nestedSignedContainer =
-            runBlocking {
-                fileOpeningRepository.openOrCreateContainer(context, contentResolver, nestedUris, true)
-            }
-
-        viewModel.setSignedContainer(signedContainer)
-        viewModel.addNestedSignedContainer(nestedSignedContainer)
-
-        assertEquals(signedContainer, viewModel.nestedContainers.first())
-        assertEquals(nestedSignedContainer, viewModel.nestedContainers[1])
-    }
-
-    @Test
     fun sharedContainerViewModel_removeLastContainer_success() {
         val uris = listOf(mock(Uri::class.java))
 
@@ -460,7 +429,7 @@ class SharedContainerViewModelTest {
     }
 
     @Test
-    fun sharedContainerViewModel_currentSignedContainer_success() {
+    fun sharedContainerViewModel_currentContainer_success() {
         val uris = listOf(mock(Uri::class.java))
         val nestedUris = listOf(mock(Uri::class.java))
 
@@ -484,13 +453,13 @@ class SharedContainerViewModelTest {
             }
 
         viewModel.setSignedContainer(signedContainer)
-        viewModel.addNestedSignedContainer(nestedSignedContainer)
+        viewModel.setSignedContainer(nestedSignedContainer)
 
-        assertEquals(nestedSignedContainer, viewModel.currentSignedContainer())
+        assertEquals(nestedSignedContainer, viewModel.currentContainer())
     }
 
     @Test
-    fun sharedContainerViewModel_currentSignedContainer_returnNullWhenContainerListEmpty() {
+    fun sharedContainerViewModel_currentContainer_returnNullWhenContainerListEmpty() {
         val uris = listOf<Uri>()
         val nestedUris = listOf<Uri>()
 
@@ -505,9 +474,8 @@ class SharedContainerViewModelTest {
             }
 
         viewModel.setSignedContainer(signedContainer)
-        viewModel.addNestedSignedContainer(nestedSignedContainer)
 
-        assertNull(viewModel.currentSignedContainer())
+        assertNull(viewModel.currentContainer())
     }
 
     @Test
@@ -535,7 +503,7 @@ class SharedContainerViewModelTest {
             }
 
         viewModel.setSignedContainer(signedContainer)
-        viewModel.addNestedSignedContainer(nestedSignedContainer)
+        viewModel.setSignedContainer(nestedSignedContainer)
 
         assertTrue(viewModel.isNestedContainer(nestedSignedContainer))
     }
@@ -559,13 +527,11 @@ class SharedContainerViewModelTest {
                 fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, true)
             }
 
-        val nestedSignedContainer =
-            runBlocking {
-                fileOpeningRepository.openOrCreateContainer(context, contentResolver, nestedUris, true)
-            }
+        runBlocking {
+            fileOpeningRepository.openOrCreateContainer(context, contentResolver, nestedUris, true)
+        }
 
         viewModel.setSignedContainer(signedContainer)
-        viewModel.addNestedSignedContainer(nestedSignedContainer)
 
         assertFalse(viewModel.isNestedContainer(signedContainer))
     }

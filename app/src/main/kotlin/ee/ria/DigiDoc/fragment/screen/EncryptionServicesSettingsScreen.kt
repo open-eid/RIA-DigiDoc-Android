@@ -807,14 +807,14 @@ fun EncryptionServicesSettingsScreen(
 
                                 Text(
                                     modifier = modifier.fillMaxWidth(),
-                                    text = "$issuedToTitleText placeholder",
+                                    text = issuedToTitleText,
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
 
                                 Text(
                                     modifier = modifier.fillMaxWidth(),
-                                    text = "$validToTitleText placeholder",
+                                    text = validToTitleText,
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
