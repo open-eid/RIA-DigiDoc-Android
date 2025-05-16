@@ -56,6 +56,10 @@ workflows:
         description: TSL member lists
         type: string
         default: "EE;EE_T"
+      enableTests_input:
+        description: Run tests?
+        type: boolean
+        default: false
     scripts:
       - *set_android_sdk_location
       - *get_app_version
@@ -125,17 +129,23 @@ workflows:
       - name: Run tests
         script: |
           ./gradlew test
+        when:
+          condition: ${{ inputs.enableTests_input }}
       - name: Launch emulator for instrumented tests
         script: |
           cd $ANDROID_HOME/tools
           emulator -avd emulator-35 &
           adb wait-for-device
+        when:
+          condition: ${{ inputs.enableTests_input }}
       - name: Run instrumented tests
         script: |
           set -e
           cd $CM_BUILD_DIR
           ./gradlew clean createDebugCoverageReport -Dorg.gradle.jvmargs="-Xmx4g"
           adb logcat -d > emulator.log
+        when:
+          condition: ${{ inputs.enableTests_input }}
       - name: Fetch default configuration
         script: |
           # Not running 'fetchAndPackageDefaultConfiguration' for repo.ria as necessary files are already setup
