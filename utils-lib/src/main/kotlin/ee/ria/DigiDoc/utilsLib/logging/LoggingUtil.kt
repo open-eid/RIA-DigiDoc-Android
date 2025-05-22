@@ -120,7 +120,7 @@ class LoggingUtil
             ) {
                 if (isLoggingEnabled) {
                     throwable?.let {
-                        logger.severe("$tag: $message ${it.localizedMessage}")
+                        logger.severe("$tag: $message: ${it.localizedMessage}")
                     } ?: logger.severe("$tag: $message")
                 }
             }
@@ -132,7 +132,7 @@ class LoggingUtil
             ) {
                 if (isLoggingEnabled) {
                     throwable?.let {
-                        logger.fine("$tag: $message ${it.localizedMessage}")
+                        logger.fine("$tag: $message: ${it.localizedMessage}")
                     } ?: logger.fine("$tag: $message")
                 }
             }

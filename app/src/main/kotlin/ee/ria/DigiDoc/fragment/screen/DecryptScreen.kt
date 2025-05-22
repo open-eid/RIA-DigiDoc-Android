@@ -244,6 +244,7 @@ fun DecryptScreen(
                             isDecrypting = false
                             isIdCardProcessStarted = false
                             cancelDecryptAction()
+                            navController.navigateUp()
                         },
                         onSuccess = {
                             isDecrypting = false

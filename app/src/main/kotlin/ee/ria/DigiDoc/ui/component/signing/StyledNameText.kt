@@ -16,8 +16,9 @@ fun StyledNameText(
     modifier: Modifier = Modifier,
     name: String,
     allCaps: Boolean = false,
+    formatName: Boolean = true,
 ) {
-    var formattedName = NameUtil.formatName(name)
+    var formattedName = if (formatName) NameUtil.formatName(name) else name
 
     if (allCaps) {
         formattedName = formattedName.uppercase()
@@ -44,6 +45,7 @@ fun StyledNameText(
     Text(
         modifier = modifier,
         text = styledText,
+        color = MaterialTheme.colorScheme.onSurface,
         style = MaterialTheme.typography.bodyLarge,
     )
 }

@@ -24,8 +24,8 @@ import ee.ria.DigiDoc.common.model.ExtendedCertificate
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.cryptolib.Addressee
 import ee.ria.DigiDoc.cryptolib.exception.CryptoException
-import ee.ria.DigiDoc.cryptolib.ldap.EstEidLdapFilter
 import ee.ria.DigiDoc.cryptolib.ldap.LdapFilter
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import org.bouncycastle.asn1.x509.KeyPurposeId
@@ -43,45 +43,51 @@ class RecipientRepositoryImpl
         private val configurationRepository: ConfigurationRepository,
         private val certificateService: CertificateService,
     ) : RecipientRepository {
+        private val logTag = "RecipientRepositoryImpl"
+
         @Throws(CryptoException::class, NoInternetConnectionException::class)
         override suspend fun find(
             context: Context,
             query: String,
-        ): List<Addressee> {
-            var certs: List<Addressee>
+        ): Pair<List<Addressee>, Int> {
+            var certs: Pair<List<Addressee>, Int> = Pair(listOf(), 0)
             withContext(IO) {
+                val escapedQuery =
+                    query
+                        .replace("\\", "\\5c")
+                        .replace("(", "\\28")
+                        .replace(")", "\\29")
+                        .replace("*", "\\2a")
+
                 certs =
                     try {
-                        findPersonCertificate(context, query)
+                        findCertificates(context, escapedQuery)
                     } catch (e: NoInternetConnectionException) {
                         throw e
-                    } catch (_: CryptoException) {
-                        findCorporationCertificate(context, query)
+                    } catch (ce: CryptoException) {
+                        errorLog(logTag, "Unable to get certificates from LDAP", ce)
+                        Pair(listOf(), 0)
                     }
-                certs = if (certs.isEmpty()) findCorporationCertificate(context, query) else certs
             }
 
             return certs
         }
 
         @Throws(CryptoException::class, NoInternetConnectionException::class)
-        private fun findPersonCertificate(
+        private fun findCertificates(
             context: Context,
             query: String,
-        ): List<Addressee> {
+        ): Pair<List<Addressee>, Int> {
             val configurationProvider = configurationRepository.getConfiguration()
-            val ldapPersonUrl = configurationProvider?.ldapPersonUrl?.split("://")[1]
-            return search(context, ldapPersonUrl, EstEidLdapFilter(query))
-        }
 
-        @Throws(CryptoException::class, NoInternetConnectionException::class)
-        private fun findCorporationCertificate(
-            context: Context,
-            query: String,
-        ): List<Addressee> {
-            val configurationProvider = configurationRepository.getConfiguration()
-            val ldapCorpUrl = configurationProvider?.ldapCorpUrl?.split("://")[1]
-            return search(context, ldapCorpUrl, LdapFilter(query))
+            val ldapFilter = LdapFilter(query)
+            if (ldapFilter.isPersonalCode(query)) {
+                val ldapPersonUrl = configurationProvider?.ldapPersonUrl?.split("://")[1]
+                return search(context, ldapPersonUrl, LdapFilter(query))
+            } else {
+                val ldapCorpUrl = configurationProvider?.ldapCorpUrl?.split("://")[1]
+                return search(context, ldapCorpUrl, LdapFilter(query))
+            }
         }
 
         @Throws(CryptoException::class, NoInternetConnectionException::class)
@@ -89,7 +95,7 @@ class RecipientRepositoryImpl
             context: Context,
             url: String?,
             ldapFilter: LdapFilter,
-        ): List<Addressee> {
+        ): Pair<List<Addressee>, Int> {
             try {
                 LDAPConnection(getDefaultKeystoreSslSocketFactory()).use { connection ->
                     connection.connect(url, LDAP_PORT)
@@ -107,7 +113,7 @@ class RecipientRepositoryImpl
         private fun executeSearch(
             connection: LDAPConnection,
             ldapFilter: LdapFilter,
-        ): List<Addressee> {
+        ): Pair<List<Addressee>, Int> {
             val maximumNumberOfResults = 50
             val searchRequest =
                 SearchRequest(
@@ -118,6 +124,7 @@ class RecipientRepositoryImpl
                 )
             var extraResponseCookie: ASN1OctetString? = null
             val builder: ImmutableList.Builder<Addressee> = ImmutableList.builder<Addressee>()
+            var resultCount = 0
             while (true) {
                 searchRequest.setControls(
                     SimplePagedResultsControl(
@@ -126,7 +133,9 @@ class RecipientRepositoryImpl
                     ),
                 )
                 val searchResult = connection.search(searchRequest)
-                for (entry in searchResult.getSearchEntries()) {
+                val searchEntries = searchResult.getSearchEntries()
+                resultCount += searchEntries.size
+                for (entry in searchEntries) {
                     for (attribute in entry.attributes) {
                         for (value in attribute.rawValues) {
                             val certificate = ExtendedCertificate.create(value.value, certificateService)
@@ -151,7 +160,7 @@ class RecipientRepositoryImpl
                 }
             }
 
-            return builder.build()
+            return Pair(builder.build(), resultCount)
         }
 
         @Throws(GeneralSecurityException::class)
@@ -163,13 +172,9 @@ class RecipientRepositoryImpl
 
         private fun isSuitableKeyAndNotMobileId(certificate: ExtendedCertificate): Boolean {
             return (hasKeyEnciphermentUsage(certificate) || hasKeyAgreementUsage(certificate)) &&
-                !isServerAuthKeyPurpose(
-                    certificate,
-                ) &&
+                !isServerAuthKeyPurpose(certificate) &&
                 (!isESealType(certificate) || !isTlsClientAuthKeyPurpose(certificate)) &&
-                !isMobileIdType(
-                    certificate,
-                )
+                !isMobileIdType(certificate)
         }
 
         private fun isTlsClientAuthKeyPurpose(certificate: ExtendedCertificate): Boolean {

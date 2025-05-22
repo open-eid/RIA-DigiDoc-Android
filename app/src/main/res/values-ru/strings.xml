@@ -163,7 +163,7 @@
     <string name="crypto_container_added_recipients_title">Добавленные получатели</string>
     <string name="crypto_recipient_title">Получатель</string>
     <string name="crypto_decryption_valid_to">Шифрование до %1$s</string>
-    <string name="crypto_cert_valid_to">(Действителен до %1$s)</string>
+    <string name="crypto_cert_valid_to">(действителен до %1$s)</string>
     <string name="crypto_documents_title">Файлы контейнера</string>
     <string name="crypto_encrypted_documents_title">Зашифрованные файлы</string>
     <string name="crypto_containter_update_name">Название контейнера</string>
@@ -176,6 +176,7 @@
     <string name="crypto_encrypt_data_files_empty_error">Невозможно создать пустой контейнер</string>
     <string name="crypto_encrypt_recipients_empty_error">Невозможно создать контейнер без получателей</string>
     <string name="crypto_recipients_error_exists">Получатель уже добавлен в контейнер</string>
+    <string name="crypto_recipients_too_many_results">Согласно Вашему запросу выдается много ответов, пожалуйста уточните запрос</string>
 
     <string name="crypto_decrypt_method_title">Выберите способ расшифровки</string>
     <string name="crypto_decrypt_method_changed">Метод расшифровки изменен</string>

@@ -39,6 +39,19 @@ object NameUtil {
         return formatName(nameComponents)
     }
 
+    fun formatCompanyName(
+        identifier: String?,
+        serialNumber: String?,
+    ): String {
+        val nameComponents = mutableListOf<String>()
+        identifier?.let { nameComponents.add(it) }
+        serialNumber?.let { nameComponents.add(it) }
+
+        return nameComponents
+            .filter { it.isNotBlank() }
+            .joinToString(", ")
+    }
+
     private fun capitalizeName(name: String): String {
         return name.lowercase()
             .replace(Regex("([\\p{L}\\d])([\\p{L}\\d]*)")) { matchResult ->

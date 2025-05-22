@@ -99,10 +99,8 @@ class EncryptViewModel
             isEncryptedContainer(cryptoContainer) || isDecryptedContainer(cryptoContainer)
 
         fun isContainerUnlocked(cryptoContainer: CryptoContainer?): Boolean {
-            return isDecryptedContainer(cryptoContainer) || (
-                !isEncryptedContainer(cryptoContainer) &&
+            return !isEncryptedContainer(cryptoContainer) &&
                     !isContainerWithoutRecipients(cryptoContainer)
-            )
         }
 
         fun getViewIntent(
@@ -168,7 +166,7 @@ class EncryptViewModel
                         cdoc2Settings,
                     )
 
-                sharedContainerViewModel.setCryptoContainer(nestedContainer)
+                sharedContainerViewModel.setCryptoContainer(nestedContainer, true)
             }
         }
     }

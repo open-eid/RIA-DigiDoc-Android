@@ -18,7 +18,6 @@ import androidx.lifecycle.ViewModel
 import com.google.common.collect.ImmutableMap
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.common.Constant.MAXIMUM_PERSONAL_CODE_LENGTH
 import ee.ria.DigiDoc.common.Constant.SmartIdConstants.NOTIFICATION_CHANNEL
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.domain.preferences.DataStore
@@ -35,7 +34,7 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.signing.NotificationUtil
 import ee.ria.DigiDoc.utilsLib.signing.PowerUtil
-import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator.validatePersonalCode
+import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator
 import ee.ria.libdigidocpp.Conf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -392,7 +391,7 @@ class SmartIdViewModel
             personalCode: String?,
         ): Boolean {
             if (personalCode != null) {
-                return country != 0 || isPersonalCodeCorrect(personalCode)
+                return country != 0 || PersonalCodeValidator.isPersonalCodeValid(personalCode)
             }
             return false
         }
@@ -400,12 +399,8 @@ class SmartIdViewModel
         fun isPersonalCodeValid(personalCode: String?): Boolean {
             return !(
                 !personalCode.isNullOrEmpty() &&
-                    !isPersonalCodeCorrect(personalCode)
+                    !PersonalCodeValidator.isPersonalCodeValid(personalCode)
             )
-        }
-
-        fun isPersonalCodeCorrect(personalCode: String): Boolean {
-            return validatePersonalCode(personalCode) && personalCode.length == MAXIMUM_PERSONAL_CODE_LENGTH
         }
 
         @Throws(NumberFormatException::class)

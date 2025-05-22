@@ -50,8 +50,10 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumb
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.libdigidoc.RecipientCertTypeUtil.getRecipientCertTypeText
+import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatCompanyName
 import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatName
 import ee.ria.DigiDoc.utilsLib.date.DateUtil.dateFormat
+import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -88,7 +90,12 @@ fun RecipientComponent(
     } else {
         Column {
             recipients.forEachIndexed { index, recipient ->
-                val nameText = formatName(recipient.surname, recipient.givenName, recipient.identifier)
+                val nameText =
+                    if (PersonalCodeValidator.isPersonalCodeValid(recipient.identifier)) {
+                        formatName(recipient.surname, recipient.givenName, recipient.identifier)
+                    } else {
+                        formatCompanyName(recipient.identifier, recipient.serialNumber)
+                    }
                 val certTypeText = getRecipientCertTypeText(LocalContext.current, recipient.certType)
                 var certValidTo =
                     recipient.validTo?.let {
@@ -194,7 +201,8 @@ fun RecipientComponent(
                                                 testTagsAsResourceId = true
                                             }
                                             .testTag("recipientComponentName"),
-                                    nameText,
+                                    name = nameText,
+                                    formatName = false,
                                 )
                                 Text(
                                     text = "$certTypeText $certValidTo",

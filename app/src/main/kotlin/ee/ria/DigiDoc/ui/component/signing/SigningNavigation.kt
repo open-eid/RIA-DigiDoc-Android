@@ -1204,7 +1204,7 @@ fun SigningNavigation(
     }
 }
 
-fun handleBackButtonClick(
+private fun handleBackButtonClick(
     navController: NavHostController,
     signingViewModel: SigningViewModel,
     sharedContainerViewModel: SharedContainerViewModel,

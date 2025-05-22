@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.utilsLib.validator
 
-import ee.ria.DigiDoc.common.Constant.MAXIMUM_PERSONAL_CODE_LENGTH
 import ee.ria.DigiDoc.utilsLib.date.DateOfBirthUtil.parseDateOfBirth
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import org.apache.commons.lang3.StringUtils
@@ -12,12 +11,7 @@ import java.time.LocalDate
 object PersonalCodeValidator {
     private val LOG_TAG = javaClass.simpleName
 
-    fun validatePersonalCode(personalCode: String?): Boolean {
-        return personalCode == null || personalCode.length < MAXIMUM_PERSONAL_CODE_LENGTH ||
-            isPersonalCodeValid(personalCode)
-    }
-
-    private fun isPersonalCodeValid(personalCode: String): Boolean {
+    fun isPersonalCodeValid(personalCode: String): Boolean {
         return (
             isPersonalCodeLengthValid(personalCode) && isBirthDateValid(personalCode) &&
                 isChecksumValid(personalCode)

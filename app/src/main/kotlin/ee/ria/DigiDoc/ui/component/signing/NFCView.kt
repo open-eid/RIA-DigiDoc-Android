@@ -285,7 +285,7 @@ fun NFCView(
     LaunchedEffect(nfcViewModel.cryptoContainer) {
         nfcViewModel.cryptoContainer.asFlow().collect { cryptoContainer ->
             cryptoContainer?.let {
-                sharedContainerViewModel.setCryptoContainer(it)
+                sharedContainerViewModel.setCryptoContainer(it, true)
                 nfcViewModel.resetCryptoContainer()
                 onSuccess()
             }

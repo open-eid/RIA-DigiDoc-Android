@@ -50,8 +50,10 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumb
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.libdigidoc.RecipientCertTypeUtil.getRecipientCertTypeText
+import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatCompanyName
 import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatName
 import ee.ria.DigiDoc.utilsLib.date.DateUtil.dateFormat
+import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -65,7 +67,12 @@ fun Recipient(
     val recipientText = stringResource(id = R.string.crypto_recipient_title)
     val buttonName = stringResource(id = R.string.button_name)
 
-    val nameText = formatName(recipient.surname, recipient.givenName, recipient.identifier)
+    val nameText =
+        if (PersonalCodeValidator.isPersonalCodeValid(recipient.identifier)) {
+            formatName(recipient.surname, recipient.givenName, recipient.identifier)
+        } else {
+            formatCompanyName(recipient.identifier, recipient.serialNumber)
+        }
     val certTypeText = getRecipientCertTypeText(LocalContext.current, recipient.certType)
     val certValidTo =
         recipient.validTo?.let {
@@ -103,8 +110,7 @@ fun Recipient(
             modifier =
                 modifier
                     .fillMaxWidth()
-                    .padding(vertical = SPadding)
-                    .padding(start = SPadding, end = XSPadding),
+                    .padding(SPadding),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -153,7 +159,8 @@ fun Recipient(
                                     testTagsAsResourceId = true
                                 }
                                 .testTag("recipientItemName"),
-                        nameText,
+                        name = nameText,
+                        formatName = false,
                     )
                     Text(
                         text = "$certTypeText $certValidTo",
@@ -202,6 +209,7 @@ fun RecipientPreview() {
                 surname = "Doe",
                 givenName = "John",
                 identifier = "123456789",
+                serialNumber = "12345678",
                 certType = CertType.IDCardType,
                 validTo = null,
                 data = byteArrayOf(),

@@ -85,6 +85,7 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBack
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.removeInvisibleElement
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
+import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator
 import ee.ria.DigiDoc.viewmodel.MobileIdViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
@@ -174,7 +175,7 @@ fun MobileIdView(
     val personalCodeEdited = rememberSaveable { mutableStateOf(false) }
     val personalCodeErrorText =
         if (personalCodeEdited.value && personalCode.text.isNotEmpty()) {
-            if (!mobileIdViewModel.isPersonalCodeCorrect(personalCode.text)) {
+            if (!PersonalCodeValidator.isPersonalCodeValid(personalCode.text)) {
                 stringResource(id = R.string.signature_update_mobile_id_invalid_personal_code)
             } else {
                 ""
@@ -346,7 +347,7 @@ fun MobileIdView(
             val isValid =
                 countryCodeAndPhone.text.isNotEmpty() &&
                     personalCode.text.isNotEmpty() &&
-                    mobileIdViewModel.isPersonalCodeCorrect(personalCode.text)
+                    PersonalCodeValidator.isPersonalCodeValid(personalCode.text)
 
             LaunchedEffect(isValid) {
                 isValidToSign(isValid)

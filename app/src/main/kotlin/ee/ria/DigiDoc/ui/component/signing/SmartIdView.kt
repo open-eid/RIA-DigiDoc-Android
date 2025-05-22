@@ -91,6 +91,7 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.addInvisib
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.removeInvisibleElement
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
+import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator
 import ee.ria.DigiDoc.viewmodel.SmartIdViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
@@ -141,7 +142,7 @@ fun SmartIdView(
     }
     val personalCodeErrorText =
         if (personalCode.text.isNotEmpty()) {
-            if (!smartIdViewModel.isPersonalCodeCorrect(personalCode.text)) {
+            if (!PersonalCodeValidator.isPersonalCodeValid(personalCode.text)) {
                 stringResource(id = R.string.signature_update_mobile_id_invalid_personal_code)
             } else {
                 ""
@@ -330,7 +331,7 @@ fun SmartIdView(
             val isValid =
                 countryString.isNotEmpty() &&
                     personalCode.text.isNotEmpty() &&
-                    smartIdViewModel.isPersonalCodeCorrect(
+                    PersonalCodeValidator.isPersonalCodeValid(
                         personalCode.text,
                     )
 
