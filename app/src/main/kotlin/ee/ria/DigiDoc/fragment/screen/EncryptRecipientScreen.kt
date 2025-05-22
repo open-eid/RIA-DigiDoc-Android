@@ -53,6 +53,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.text.isDigitsOnly
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
@@ -80,11 +81,11 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
+import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator
 import ee.ria.DigiDoc.viewmodel.EncryptRecipientViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedRecipientViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
@@ -102,6 +103,8 @@ fun EncryptRecipientScreen(
     encryptRecipientViewModel: EncryptRecipientViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
+
+    val scope = rememberCoroutineScope()
 
     val focusManager = LocalFocusManager.current
 
@@ -141,6 +144,10 @@ fun EncryptRecipientScreen(
         stringResource(id = R.string.crypto_cancel_recipient_removal_button)
     val removeRecipientOkButtonContentDescription =
         stringResource(id = R.string.crypto_confirm_recipient_removal_button)
+
+    val invalidPersonalCodeMessage =
+        stringResource(id = R.string.signature_update_mobile_id_invalid_personal_code)
+
     val closeRecipientDialog = {
         openRemoveRecipientDialog.value = false
     }
@@ -153,6 +160,7 @@ fun EncryptRecipientScreen(
     var expanded by rememberSaveable { mutableStateOf(false) }
     val searchText by encryptRecipientViewModel.searchText.collectAsState()
     val recipientList by encryptRecipientViewModel.recipientList.collectAsState()
+    val hasSearched by encryptRecipientViewModel.hasSearched.asFlow().collectAsState(false)
 
     val dismissSearch = {
         expanded = false
@@ -172,7 +180,6 @@ fun EncryptRecipientScreen(
                         TYPE_ANNOUNCEMENT,
                         recipientAddedSuccessText,
                     )
-                    delay(3000)
                     recipientAddedSuccess.value = false
                     encryptRecipientViewModel.handleIsRecipientAdded(false)
                 }
@@ -212,6 +219,7 @@ fun EncryptRecipientScreen(
             error?.let {
                 showMessage(context, error)
                 encryptionButtonEnabled.value = true
+                encryptRecipientViewModel.resetErrorState()
             }
         }
     }
@@ -262,7 +270,7 @@ fun EncryptRecipientScreen(
                         if (encryptionButtonEnabled.value) {
                             encryptionButtonEnabled.value = false
                             showLoading.value = true
-                            CoroutineScope(Main).launch {
+                            scope.launch(Main) {
                                 encryptRecipientViewModel.encryptContainer(sharedContainerViewModel)
                                 showLoading.value = false
                             }
@@ -327,6 +335,13 @@ fun EncryptRecipientScreen(
                         query = searchText,
                         onQueryChange = encryptRecipientViewModel::onSearchTextChange,
                         onSearch = {
+                            if (searchText.isDigitsOnly() &&
+                                searchText.length == 11 &&
+                                !PersonalCodeValidator.isPersonalCodeValid(searchText)
+                            ) {
+                                showMessage(invalidPersonalCodeMessage)
+                                return@InputField
+                            }
                             encryptRecipientViewModel.onQueryTextChange(searchText)
                             focusManager.clearFocus()
                         },
@@ -347,23 +362,28 @@ fun EncryptRecipientScreen(
                             )
                         },
                         trailingIcon = {
-                            IconButton(
-                                modifier =
-                                    modifier
-                                        .padding(end = XSPadding)
-                                        .size(iconSizeXXS)
-                                        .testTag("searchCancelButton"),
-                                onClick = dismissSearch,
-                                content = {
-                                    Icon(
-                                        imageVector = ImageVector.vectorResource(R.drawable.ic_m3_close_48dp_wght400),
-                                        contentDescription =
-                                            stringResource(
-                                                id = R.string.crypto_recipients_search_cancel,
-                                            ),
-                                    )
-                                },
-                            )
+                            if (expanded) {
+                                IconButton(
+                                    modifier =
+                                        modifier
+                                            .padding(end = XSPadding)
+                                            .size(iconSizeXXS)
+                                            .testTag("searchCancelButton"),
+                                    onClick = dismissSearch,
+                                    content = {
+                                        Icon(
+                                            imageVector =
+                                                ImageVector.vectorResource(
+                                                    R.drawable.ic_m3_close_48dp_wght400,
+                                                ),
+                                            contentDescription =
+                                                stringResource(
+                                                    id = R.string.crypto_recipients_search_cancel,
+                                                ),
+                                        )
+                                    },
+                                )
+                            }
                         },
                         onExpandedChange = { expanded = it },
                         colors = inputFieldColors(),
@@ -406,11 +426,12 @@ fun EncryptRecipientScreen(
                                         .height(dividerHeight),
                             )
                         }
-                    } else {
+                    } else if (hasSearched) {
                         item {
                             Box(
                                 modifier =
                                     modifier
+                                        .fillParentMaxSize()
                                         .padding(SPadding),
                                 contentAlignment = Alignment.Center,
                             ) {
@@ -418,7 +439,9 @@ fun EncryptRecipientScreen(
                                     modifier =
                                         modifier
                                             .testTag("encryptRecipientsListEmpty"),
+                                    textAlign = TextAlign.Center,
                                     text = stringResource(id = R.string.crypto_recipients_search_empty),
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     style = MaterialTheme.typography.bodyLarge,
                                 )
                             }
@@ -444,12 +467,10 @@ fun EncryptRecipientScreen(
                         items(containerRecipientList.value) { recipient ->
                             Recipient(
                                 recipient = recipient,
-                                isMoreOptionsButtonShown = false,
+                                isMoreOptionsButtonShown = true,
                                 onClick = {
-                                    encryptRecipientViewModel.addRecipientToContainer(
-                                        recipient,
-                                        sharedContainerViewModel,
-                                    )
+                                    clickedRecipient.value = recipient
+                                    showRecipientBottomSheet.value = true
                                 },
                             )
                             HorizontalDivider(
@@ -552,7 +573,7 @@ fun EncryptRecipientScreen(
                 onDismissRequest = dismissRemoveRecipientDialog,
                 onDismissButton = dismissRemoveRecipientDialog,
                 onConfirmButton = {
-                    CoroutineScope(IO).launch {
+                    scope.launch(IO) {
                         sharedContainerViewModel.removeRecipient(cryptoContainer, actionRecipient)
                         delay(1000L)
                         containerRecipientList.value =
@@ -560,7 +581,6 @@ fun EncryptRecipientScreen(
                                 .getContainerRecipientList(sharedContainerViewModel)
                     }
 
-                    dismissSearch()
                     closeRecipientDialog()
                     AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, recipientRemoved)
                 },

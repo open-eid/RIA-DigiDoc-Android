@@ -460,6 +460,7 @@ fun EncryptNavigation(
                         )
                         containerDecryptedSuccess.value = false
                         sharedContainerViewModel.setDecryptNFCStatus(null)
+                        showMessage(containerDecryptedSuccessText)
                     }
                 }
             }
@@ -479,6 +480,7 @@ fun EncryptNavigation(
                         )
                         containerDecryptedSuccess.value = false
                         sharedContainerViewModel.setDecryptIDCardStatus(null)
+                        showMessage(containerDecryptedSuccessText)
                     }
                 }
             }
@@ -1062,7 +1064,8 @@ fun EncryptNavigation(
                 clickedRecipient = clickedRecipient,
                 sharedRecipientViewModel = sharedRecipientViewModel,
                 navController = navController,
-                isRecipientRemoveShown = encryptViewModel.isContainerUnlocked(cryptoContainer),
+                isRecipientRemoveShown = !encryptViewModel.isDecryptedContainer(cryptoContainer) &&
+                        encryptViewModel.isContainerUnlocked(cryptoContainer),
                 openRemoveRecipientDialog = openRemoveRecipientDialog,
                 onRecipientRemove = { actionRecipient = it },
             )
@@ -1108,7 +1111,7 @@ fun EncryptNavigation(
     }
 }
 
-fun handleBackButtonClick(
+private fun handleBackButtonClick(
     navController: NavHostController,
     encryptViewModel: EncryptViewModel,
     sharedContainerViewModel: SharedContainerViewModel,

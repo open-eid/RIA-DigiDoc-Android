@@ -19,14 +19,16 @@ import java.util.Objects
 class Addressee(
     var data: ByteArray,
     var identifier: String,
+    var serialNumber: String?,
     var givenName: String?,
     var surname: String?,
     var certType: CertType,
     var validTo: Date?,
 ) {
-    constructor(cn: String, certType: CertType, validTo: Date?, data: ByteArray) : this(
+    constructor(cn: String, sn: String, certType: CertType, validTo: Date?, data: ByteArray) : this(
         data = data,
         identifier = "",
+        serialNumber = "",
         givenName = null,
         surname = null,
         certType = certType,
@@ -42,10 +44,12 @@ class Addressee(
             givenName = null
             identifier = cn
         }
+        serialNumber = sn
     }
 
     constructor(cert: ByteArray) : this(
         cn = extractCNFromCertificate(cert),
+        sn = extractSerialNumberFromCertificate(cert),
         certType = extractCertTypeFromCertificate(cert),
         validTo = extractValidToFromCertificate(cert),
         data = cert,
@@ -54,6 +58,7 @@ class Addressee(
     constructor(label: String, pub: ByteArray) : this(
         data = pub,
         identifier = "",
+        serialNumber = "",
         givenName = null,
         surname = null,
         certType = CertType.UnknownType,
@@ -63,6 +68,7 @@ class Addressee(
         val cn = info["cn"]
         val type = info["type"]
         val serverExp = info["server_exp"]
+        val sn = info["serial_number"]
 
         val certType =
             when (type) {
@@ -86,6 +92,7 @@ class Addressee(
                 this.identifier = cn
             }
         }
+        this.serialNumber = sn
         this.certType = certType
         this.validTo = validTo
         this.data = pub
@@ -129,6 +136,30 @@ class Addressee(
                 if (cnAttributes.isNotEmpty()) {
                     // Get all CN values and join them with commas (like the Swift version)
                     cnAttributes.flatMap { rdn ->
+                        rdn.typesAndValues.map { IETFUtils.valueToString(it.value) }
+                    }.joinToString(",")
+                } else {
+                    ""
+                }
+            } catch (e: Exception) {
+                ""
+            }
+        }
+
+        private fun extractSerialNumberFromCertificate(cert: ByteArray): String {
+            return try {
+                val certificate =
+                    CertificateFactory.getInstance("X.509")
+                        .generateCertificate(cert.inputStream()) as X509Certificate
+                val principal = certificate.subjectX500Principal
+
+                // Use Bouncy Castle for proper DN parsing
+                val x500Name = X500Name.getInstance(principal.encoded)
+                val serialNumberAttributes = x500Name.getRDNs(BCStyle.SERIALNUMBER)
+
+                if (serialNumberAttributes.isNotEmpty()) {
+                    // Get all Serial number values and join them with commas
+                    serialNumberAttributes.flatMap { rdn ->
                         rdn.typesAndValues.map { IETFUtils.valueToString(it.value) }
                     }.joinToString(",")
                 } else {

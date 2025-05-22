@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableMap
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.ALLOWED_PHONE_NUMBER_COUNTRY_CODES
-import ee.ria.DigiDoc.common.Constant.MAXIMUM_PERSONAL_CODE_LENGTH
 import ee.ria.DigiDoc.common.Constant.MINIMUM_PHONE_NUMBER_LENGTH
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.domain.preferences.DataStore
@@ -28,7 +27,7 @@ import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
-import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator.validatePersonalCode
+import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator
 import ee.ria.libdigidocpp.Conf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -336,7 +335,7 @@ class MobileIdViewModel
         fun isPersonalCodeValid(personalCode: String?): Boolean {
             return !(
                 !personalCode.isNullOrEmpty() &&
-                    !isPersonalCodeCorrect(personalCode)
+                    !PersonalCodeValidator.isPersonalCodeValid(personalCode)
             )
         }
 
@@ -360,7 +359,7 @@ class MobileIdViewModel
             if (phoneNumber != null && personalCode != null) {
                 return isCountryCodeCorrect(phoneNumber.toString()) &&
                     isPhoneNumberCorrect(phoneNumber.toString()) &&
-                    isPersonalCodeCorrect(personalCode.toString())
+                    PersonalCodeValidator.isPersonalCodeValid(personalCode.toString())
             }
             return false
         }
@@ -381,9 +380,5 @@ class MobileIdViewModel
 
         fun isPhoneNumberCorrect(phoneNumber: String): Boolean {
             return phoneNumber.length >= MINIMUM_PHONE_NUMBER_LENGTH
-        }
-
-        fun isPersonalCodeCorrect(personalCode: String): Boolean {
-            return validatePersonalCode(personalCode) && personalCode.length == MAXIMUM_PERSONAL_CODE_LENGTH
         }
     }

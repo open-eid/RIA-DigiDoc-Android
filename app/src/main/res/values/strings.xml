@@ -163,7 +163,7 @@
     <string name="crypto_container_added_recipients_title">Added recipients</string>
     <string name="crypto_recipient_title">Recipient</string>
     <string name="crypto_decryption_valid_to">Decryption until %1$s</string>
-    <string name="crypto_cert_valid_to">(Valid to %1$s)</string>
+    <string name="crypto_cert_valid_to">(valid to %1$s)</string>
     <string name="crypto_documents_title">Container files</string>
     <string name="crypto_encrypted_documents_title">Encrypted files</string>
     <string name="crypto_containter_update_name">Container name</string>
@@ -176,6 +176,7 @@
     <string name="crypto_encrypt_data_files_empty_error">Cannot create an empty crypto container</string>
     <string name="crypto_encrypt_recipients_empty_error">Cannot create crypto container without recipients</string>
     <string name="crypto_recipients_error_exists">Recipient already exists in the container</string>
+    <string name="crypto_recipients_too_many_results">The name you were looking for gave too many results, please refine your search</string>
 
     <string name="crypto_decrypt_method_title">Choose a method of decryption</string>
     <string name="crypto_decrypt_method_changed">Decryption method changed</string>

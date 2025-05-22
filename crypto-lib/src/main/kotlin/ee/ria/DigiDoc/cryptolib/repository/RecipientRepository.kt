@@ -12,5 +12,5 @@ interface RecipientRepository {
     suspend fun find(
         context: Context,
         query: String,
-    ): List<Addressee>
+    ): Pair<List<Addressee>, Int>
 }

@@ -243,6 +243,8 @@ fun IdCardView(
                 sharedContainerViewModel.setSignedIDCardStatus(signStatus)
                 idCardViewModel.resetSignStatus()
                 pinCode.value.fill(0)
+                idCardViewModel.resetPINErrorState()
+                pinCode.value = byteArrayOf()
             }
     }
 
@@ -253,6 +255,8 @@ fun IdCardView(
                 sharedContainerViewModel.setDecryptIDCardStatus(decryptStatus)
                 idCardViewModel.resetDecryptStatus()
                 pinCode.value.fill(0)
+                idCardViewModel.resetPINErrorState()
+                pinCode.value = byteArrayOf()
             }
     }
 
@@ -272,7 +276,14 @@ fun IdCardView(
                             )
                     }
 
-                    pinCode.value.fill(0)
+                    pinCode.value = byteArrayOf()
+
+                    isDataLoadingStarted = false
+                    showLoadingIndicator = false
+                    idCardStatusMessage.value = idCardStatusInitialMessage
+                    isValidToSign(false)
+                    isValidToDecrypt(false)
+                    onError()
                 }
             }
     }
@@ -286,7 +297,7 @@ fun IdCardView(
                     idCardViewModel.resetDialogErrorState()
                 }
                 withContext(Main) {
-                    pinCode.value.fill(0)
+                    pinCode.value = byteArrayOf()
                     pinErrorText =
                         context.getString(
                             pinErrorState.first, pinErrorState.second, pinErrorState.third,
@@ -301,9 +312,10 @@ fun IdCardView(
             .filterNotNull()
             .collect {
                 withContext(Main) {
+                    pinCode.value.fill(0)
                     idCardViewModel.resetErrorState()
                     idCardViewModel.resetPINErrorState()
-                    pinCode.value.fill(0)
+                    pinCode.value = byteArrayOf()
                     showErrorDialog.value = true
                 }
             }
@@ -323,7 +335,7 @@ fun IdCardView(
         idCardViewModel.cryptoContainer.asFlow()
             .filterNotNull()
             .collect { cryptoContainer ->
-                sharedContainerViewModel.setCryptoContainer(cryptoContainer)
+                sharedContainerViewModel.setCryptoContainer(cryptoContainer, true)
                 idCardViewModel.resetCryptoContainer()
                 onSuccess()
             }

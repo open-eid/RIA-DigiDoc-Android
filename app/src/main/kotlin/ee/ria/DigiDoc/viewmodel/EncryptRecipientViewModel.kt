@@ -18,6 +18,8 @@ import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.cryptolib.exception.DataFilesEmptyException
 import ee.ria.DigiDoc.cryptolib.exception.RecipientsEmptyException
 import ee.ria.DigiDoc.cryptolib.repository.RecipientRepository
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,6 +40,8 @@ class EncryptRecipientViewModel
         private val cdoc2Settings: CDOC2Settings,
         private val configurationRepository: ConfigurationRepository,
     ) : ViewModel() {
+        private val logTag = "EncryptRecipientViewModel"
+
         private val _errorState = MutableLiveData<Int?>(null)
         val errorState: LiveData<Int?> = _errorState
 
@@ -56,6 +60,9 @@ class EncryptRecipientViewModel
         private val _isContainerEncrypted = MutableLiveData(false)
         val isContainerEncrypted: LiveData<Boolean> = _isContainerEncrypted
 
+        private val _hasSearched = MutableLiveData(false)
+        val hasSearched: LiveData<Boolean> = _hasSearched
+
         fun handleIsRecipientAdded(isRecipientAdded: Boolean) {
             _isRecipientAdded.postValue(isRecipientAdded)
         }
@@ -68,13 +75,25 @@ class EncryptRecipientViewModel
             queryText
                 .combine(_recipientList) { text, recipients ->
                     if (!text.isEmpty()) {
-                        var filteredRecipients = listOf<Addressee>()
+                        var allRecipients: Pair<List<Addressee>, Int> = Pair(listOf(), 0)
                         try {
-                            filteredRecipients = recipientRepository.find(context, text)
-                        } catch (_: NoInternetConnectionException) {
+                            allRecipients = recipientRepository.find(context, text)
+                        } catch (nce: NoInternetConnectionException) {
+                            errorLog(logTag, "Unable to get LDAP addressees. No Internet connection", nce)
                             _errorState.postValue(R.string.no_internet_connection)
+                        } catch (e: Exception) {
+                            errorLog(logTag, "Unable to get LDAP addressees", e)
+                            _errorState.postValue(R.string.error_general_client)
                         }
-                        filteredRecipients
+
+                        if (allRecipients.second >= 50) {
+                            debugLog(logTag, "Found ${allRecipients.second} addressees")
+                            _errorState.postValue(R.string.crypto_recipients_too_many_results)
+                        }
+
+                        _hasSearched.postValue(true)
+
+                        allRecipients.first
                     } else {
                         listOf()
                     }
@@ -125,7 +144,7 @@ class EncryptRecipientViewModel
                             cdoc2Settings = cdoc2Settings,
                             configurationRepository = configurationRepository,
                         )
-                    sharedContainerViewModel.setCryptoContainer(cryptoContainer)
+                    sharedContainerViewModel.setCryptoContainer(cryptoContainer, true)
                     handleIsContainerEncrypted(true)
                 } catch (_: DataFilesEmptyException) {
                     _errorState.postValue(R.string.crypto_encrypt_data_files_empty_error)
@@ -144,10 +163,16 @@ class EncryptRecipientViewModel
         fun onSearchTextChange(text: String) {
             _queryText.value = ""
             _searchText.value = text
+            _hasSearched.postValue(false)
         }
 
         fun onQueryTextChange(text: String) {
             _queryText.value = ""
             _queryText.value = text
+            _hasSearched.postValue(false)
+        }
+
+        fun resetErrorState() {
+            _errorState.postValue(null)
         }
     }

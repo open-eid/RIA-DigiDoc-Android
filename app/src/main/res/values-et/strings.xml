@@ -131,7 +131,7 @@
     <string name="document">Dokument</string>
     <string name="recent_documents_search">Otsi ümbrikku…</string>
     <string name="recent_documents_search_cancel">Katkesta ümbriku otsing</string>
-    <string name="recent_documents_search_empty">Hiljutisi ümbrikke ei ole leitud</string>
+    <string name="recent_documents_search_empty">Hiljutisi ümbrikke ei leitud</string>
     <string name="recent_documents_title">Hiljutised ümbrikud</string>
     <string name="recent_documents_empty_message">Ümbrikud puuduvad</string>
     <string name="recent_documents_remove_button">Eemalda ümbrik</string>
@@ -163,19 +163,20 @@
     <string name="crypto_container_added_recipients_title">Lisatud adressaadid</string>
     <string name="crypto_recipient_title">Adressaat</string>
     <string name="crypto_decryption_valid_to">Dekrüpteerimine võimalik kuni %1$s</string>
-    <string name="crypto_cert_valid_to">(Kehtiv kuni %1$s)</string>
+    <string name="crypto_cert_valid_to">(kehtiv kuni %1$s)</string>
     <string name="crypto_documents_title">Ümbriku failid</string>
     <string name="crypto_encrypted_documents_title">Krüpteeritud failid</string>
     <string name="crypto_containter_update_name">Ümbriku nimi</string>
     <string name="crypto_recipients_description">Krüpteerimiseks peab olema lisatud vähemalt üks adressaat – isik (isikukood) või asutus (registrinumber), kellel on volitus andmete dekrüpteerimiseks. Lisage oma isikukood, kui soovite ümbrikut hiljem dekrüpteerida.</string>
     <string name="crypto_recipients_search">Leia adressaat…</string>
     <string name="crypto_recipients_search_cancel">Katkesta adressaadi otsing</string>
-    <string name="crypto_recipients_search_empty">Adressaati ei ole leitud</string>
+    <string name="crypto_recipients_search_empty">Adressaati ei leitud</string>
     <string name="crypto_recipients_recipient_add_success">Adressaat lisatud</string>
     <string name="crypto_encrypt_error">Midagi läks krüpteerimisel valesti</string>
     <string name="crypto_encrypt_data_files_empty_error">Ei saa luua tühja krüptokonteinerit</string>
     <string name="crypto_encrypt_recipients_empty_error">Ei saa luua krüptokonteinerit ilma adressaatideta</string>
     <string name="crypto_recipients_error_exists">Adressaat on konteineris juba olemas</string>
+    <string name="crypto_recipients_too_many_results">Sinu otsitud nimi andis liiga palju vastuseid, palun täpsusta otsingut</string>
 
     <string name="crypto_decrypt_method_title">Vali dekrüpteerimise meetod</string>
     <string name="crypto_decrypt_method_changed">Dekrüpteerimise meetod muudetud</string>
