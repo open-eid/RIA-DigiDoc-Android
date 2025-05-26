@@ -58,7 +58,7 @@ data class RecipientDetailItem(
                     },
                 testTag = "recipientCertificateIssuer",
             ),
-            // TODO: Add certificate Concat KDF Digest
+            // TODO (MOPPAND-1581): Add certificate Concat KDF Digest
             RecipientDetailItem(
                 icon = 0,
                 label = R.string.recipient_details_certificate_valid_to_label,

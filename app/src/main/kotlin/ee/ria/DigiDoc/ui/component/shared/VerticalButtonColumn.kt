@@ -15,7 +15,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
-import ee.ria.DigiDoc.ui.theme.Normal
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 data class VerticalButtonConfig(
@@ -23,7 +22,7 @@ data class VerticalButtonConfig(
     val contentDescription: String = "",
     val isEnabled: Boolean = true,
     val isSubButton: Boolean = true,
-    val containerColor: Color = Normal,
+    val containerColor: Color = Color.White,
     val contentColor: Color = Color.Blue,
     val onClick: () -> Unit = {},
     val testTag: String = "",

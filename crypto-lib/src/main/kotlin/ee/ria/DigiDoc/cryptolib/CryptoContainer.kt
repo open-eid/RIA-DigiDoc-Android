@@ -34,6 +34,7 @@ import ee.ria.cdoc.Configuration
 import ee.ria.cdoc.CryptoBackend
 import ee.ria.cdoc.DataBuffer
 import ee.ria.cdoc.FileInfo
+import ee.ria.cdoc.ILogger
 import ee.ria.cdoc.Lock
 import ee.ria.cdoc.NetworkBackend
 import ee.ria.cdoc.Recipient
@@ -164,6 +165,8 @@ class CryptoContainer
         }
 
         companion object {
+            val logger = JavaLogger()
+
             @Throws(CryptoException::class)
             private suspend fun open(
                 context: Context,
@@ -174,6 +177,7 @@ class CryptoContainer
                 }
 
                 val addressees = ArrayList<Addressee>()
+
                 val cdocReader = CDocReader.createReader(file?.path, null, null, null)
                 debugLog(LOG_TAG, "Reader created: (version ${cdocReader.version})")
 
@@ -244,6 +248,7 @@ class CryptoContainer
                 }
                 val network = CryptoLibNetworkBackend(configurationProvider, context, authCert, token)
                 val dataFiles = ArrayList<File>()
+
                 val cdocReader = CDocReader.createReader(file?.path, conf, token, network)
                 val idx = cdocReader.getLockForCert(authCert)
 
@@ -478,8 +483,9 @@ class CryptoContainer
                         dst?.addCertificate(certBytes)
                     }
 
-                    /* TODO: Add support for custom CDOC2 cert
+                    // TODO (MOPPAND-1583): Add support for custom CDOC2 cert
 
+                    /*
                     if (CDoc2Settings.getCDOC2Cert != null) {
                         val certBytes =
                             org.bouncycastle.util.encoders.Base64.decode(CDoc2Settings.getCDOC2Cert)

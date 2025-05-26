@@ -13,8 +13,6 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.common.Constant.CDOC1_EXTENSION
-import ee.ria.DigiDoc.common.Constant.CDOC2_EXTENSION
 import ee.ria.DigiDoc.common.Constant.CONTAINER_MIME_TYPE
 import ee.ria.DigiDoc.common.R.string.documents_add_error_exists
 import ee.ria.DigiDoc.common.R.string.empty_file_error
@@ -97,7 +95,7 @@ class FileOpeningViewModel
                 return fileOpeningRepository.isSivaConfirmationNeeded(context, files)
             } catch (e: Exception) {
                 errorLog(logTag, "Unable to check if SiVa confirmation is needed", e)
-                handleException(context, e)
+                handleException(e)
                 return false
             }
         }
@@ -112,7 +110,7 @@ class FileOpeningViewModel
                 }
             } catch (e: Exception) {
                 errorLog(logTag, "Unable to get file mimetype", e)
-                handleException(context, e)
+                handleException(e)
             }
             return CONTAINER_MIME_TYPE
         }
@@ -174,7 +172,7 @@ class FileOpeningViewModel
                     _filesAdded.postValue(validFiles)
                 } catch (e: Exception) {
                     _signedContainer.postValue(existingSignedContainer)
-                    handleException(context, e)
+                    handleException(e)
                     errorLog(logTag, "Unable to add file to container", e)
                 }
             } else {
@@ -228,15 +226,12 @@ class FileOpeningViewModel
                     _launchFilePicker.postValue(false)
                     errorLog(logTag, "Unable to open or create container: ", e)
 
-                    handleException(context, e)
+                    handleException(e)
                 }
             }
         }
 
-        private fun handleException(
-            context: Context,
-            e: Exception,
-        ) {
+        private fun handleException(e: Exception) {
             when (e) {
                 is EmptyFileException -> {
                     _errorState.postValue(Pair(empty_file_error, null))

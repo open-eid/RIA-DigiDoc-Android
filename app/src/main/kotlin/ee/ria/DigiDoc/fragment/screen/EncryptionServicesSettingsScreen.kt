@@ -293,10 +293,8 @@ fun EncryptionServicesSettingsScreen(
                     return@rememberLauncherForActivityResult
                 }
                 CoroutineScope(Dispatchers.IO).launch {
-                    // TODO: Handle certificate
-                    withContext(Main) {
-                        // TODO: Update CDOC data
-                    }
+                    // TODO (MOPPAND-1583): Handle certificate
+                    withContext(Main) {}
                 }
             },
         )
@@ -305,6 +303,7 @@ fun EncryptionServicesSettingsScreen(
     val validToTitleText = stringResource(R.string.main_settings_timestamp_cert_valid_to_title)
     val showCertificateButtonText = stringResource(R.string.main_settings_timestamp_cert_show_certificate_button)
     val addCertificateButtonText = stringResource(R.string.main_settings_timestamp_cert_add_certificate_button)
+    // TODO (MOPPAND-1583): Use no certificate found text
     val noCertificateFoundText = stringResource(R.string.main_settings_timestamp_cert_no_certificate_found)
 
     val clearButtonText = stringResource(R.string.clear_text)
