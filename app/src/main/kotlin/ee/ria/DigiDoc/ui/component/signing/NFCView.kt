@@ -41,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -101,9 +102,9 @@ import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.NFCViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -137,7 +138,7 @@ fun NFCView(
     isAuthenticated: (Boolean, IdCardData) -> Unit,
 ) {
     val context = LocalContext.current
-
+    val scope = rememberCoroutineScope()
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
     val cryptoContainer by sharedContainerViewModel.cryptoContainer.asFlow().collectAsState(null)
     var nfcStatus by remember { mutableStateOf(nfcViewModel.getNFCStatus(activity)) }
@@ -176,7 +177,6 @@ fun NFCView(
     val clearButtonText = stringResource(R.string.clear_text)
     val buttonName = stringResource(id = R.string.button_name)
 
-    var passwordVisible by rememberSaveable { mutableStateOf(false) }
     val canNumberFocusRequester = remember { FocusRequester() }
     val pinNumberFocusRequester = remember { FocusRequester() }
     val canNumberWithInvisibleSpaces = TextFieldValue(addInvisibleElement(canNumber.text))
@@ -518,7 +518,7 @@ fun NFCView(
                                         zip = zip,
                                     )
                             }
-                            CoroutineScope(IO).launch {
+                            scope.launch(IO) {
                                 nfcViewModel.performNFCSignWorkRequest(
                                     activity = activity,
                                     context = context,
@@ -531,7 +531,7 @@ fun NFCView(
                         }
                         decryptAction {
                             saveFormParams()
-                            CoroutineScope(IO).launch {
+                            scope.launch(IO) {
                                 nfcViewModel.performNFCDecryptWorkRequest(
                                     activity = activity,
                                     context = context,
@@ -543,7 +543,7 @@ fun NFCView(
                         }
                         cancelAction {
                             nfcViewModel.handleBackButton()
-                            CoroutineScope(IO).launch {
+                            scope.launch(IO) {
                                 signedContainer?.let { nfcViewModel.cancelNFCSignWorkRequest(it) }
                             }
                         }
@@ -671,7 +671,15 @@ fun NFCView(
                                 modifier =
                                     modifier
                                         .align(Alignment.CenterVertically),
-                                onClick = { canNumber = TextFieldValue("") },
+                                onClick = {
+                                    canNumber = TextFieldValue("")
+                                    scope.launch(Main) {
+                                        canNumberFocusRequester.requestFocus()
+                                        focusManager.clearFocus()
+                                        delay(200)
+                                        canNumberFocusRequester.requestFocus()
+                                    }
+                                },
                             ) {
                                 Icon(
                                     modifier =
@@ -745,7 +753,13 @@ fun NFCView(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             SecurePinTextField(
-                                modifier = modifier.weight(1f),
+                                modifier =
+                                    modifier
+                                        .weight(1f)
+                                        .semantics {
+                                            testTagsAsResourceId = true
+                                        }
+                                        .testTag("nfcPinTextField"),
                                 pin = pinCode,
                                 pinCodeLabel = pinCodeLabel,
                                 pinNumberFocusRequester = pinNumberFocusRequester,
@@ -768,8 +782,16 @@ fun NFCView(
                                                 traversalIndex = 9f
                                                 testTagsAsResourceId = true
                                             }
-                                            .testTag("nfcPinPasswordVisibleButton"),
-                                    onClick = { passwordVisible = !passwordVisible },
+                                            .testTag("nfcPinRemoveButton"),
+                                    onClick = {
+                                        pinCode.value = byteArrayOf()
+                                        scope.launch(Main) {
+                                            pinNumberFocusRequester.requestFocus()
+                                            focusManager.clearFocus()
+                                            delay(200)
+                                            pinNumberFocusRequester.requestFocus()
+                                        }
+                                    },
                                 ) {
                                     Icon(
                                         modifier =

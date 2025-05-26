@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -30,6 +31,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -54,6 +56,9 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -68,6 +73,9 @@ fun EditValueDialog(
     okButtonClick: () -> Unit = {},
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+    val scope = rememberCoroutineScope()
+
     val focusRequester = remember { FocusRequester() }
 
     val buttonName = stringResource(id = R.string.button_name)
@@ -148,7 +156,15 @@ fun EditValueDialog(
                     ),
                 trailingIcon = {
                     if (!isTalkBackEnabled(context) && editValue.text.isNotEmpty()) {
-                        IconButton(onClick = onClearValueClick) {
+                        IconButton(onClick = {
+                            onClearValueClick()
+                            scope.launch(Main) {
+                                focusRequester.requestFocus()
+                                focusManager.clearFocus()
+                                delay(200)
+                                focusRequester.requestFocus()
+                            }
+                        }) {
                             Icon(
                                 imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                 contentDescription = "${stringResource(R.string.clear_text)} $buttonName",

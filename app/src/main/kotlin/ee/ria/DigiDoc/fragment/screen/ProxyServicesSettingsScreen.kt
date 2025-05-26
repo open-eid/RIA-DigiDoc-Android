@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -86,6 +87,7 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -99,7 +101,13 @@ fun ProxyServicesSettingsScreen(
     navController: NavHostController,
 ) {
     val context = LocalContext.current
-    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    val scope = rememberCoroutineScope()
+
+    val hostFocusRequester = remember { FocusRequester() }
+    val portFocusRequester = remember { FocusRequester() }
+    val usernameFocusRequester = remember { FocusRequester() }
+    val passwordFocusRequester = remember { FocusRequester() }
 
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
@@ -403,7 +411,7 @@ fun ProxyServicesSettingsScreen(
                                 label = { Text(stringResource(R.string.main_settings_proxy_host)) },
                                 modifier =
                                     modifier
-                                        .focusRequester(focusRequester)
+                                        .focusRequester(hostFocusRequester)
                                         .weight(1f)
                                         .fillMaxWidth()
                                         .semantics {
@@ -435,7 +443,15 @@ fun ProxyServicesSettingsScreen(
                             )
 
                             if (isTalkBackEnabled(context) && proxyHost.text.isNotEmpty()) {
-                                IconButton(onClick = { proxyHost = TextFieldValue("") }) {
+                                IconButton(onClick = {
+                                    proxyHost = TextFieldValue("")
+                                    scope.launch(Main) {
+                                        hostFocusRequester.requestFocus()
+                                        focusManager.clearFocus()
+                                        delay(200)
+                                        hostFocusRequester.requestFocus()
+                                    }
+                                }) {
                                     Icon(
                                         modifier =
                                             modifier
@@ -471,6 +487,7 @@ fun ProxyServicesSettingsScreen(
                                 label = { Text(stringResource(R.string.main_settings_proxy_port)) },
                                 modifier =
                                     modifier
+                                        .focusRequester(portFocusRequester)
                                         .weight(1f)
                                         .fillMaxWidth()
                                         .semantics {
@@ -502,7 +519,15 @@ fun ProxyServicesSettingsScreen(
                             )
 
                             if (isTalkBackEnabled(context) && proxyPort.text.isNotEmpty()) {
-                                IconButton(onClick = { proxyPort = TextFieldValue("") }) {
+                                IconButton(onClick = {
+                                    proxyPort = TextFieldValue("")
+                                    scope.launch(Main) {
+                                        portFocusRequester.requestFocus()
+                                        focusManager.clearFocus()
+                                        delay(200)
+                                        portFocusRequester.requestFocus()
+                                    }
+                                }) {
                                     Icon(
                                         modifier =
                                             modifier
@@ -549,6 +574,7 @@ fun ProxyServicesSettingsScreen(
                                 label = { Text(stringResource(R.string.main_settings_proxy_username)) },
                                 modifier =
                                     modifier
+                                        .focusRequester(usernameFocusRequester)
                                         .weight(1f)
                                         .fillMaxWidth()
                                         .semantics {
@@ -580,7 +606,15 @@ fun ProxyServicesSettingsScreen(
                             )
 
                             if (isTalkBackEnabled(context) && proxyUsername.text.isNotEmpty()) {
-                                IconButton(onClick = { proxyUsername = TextFieldValue("") }) {
+                                IconButton(onClick = {
+                                    proxyUsername = TextFieldValue("")
+                                    scope.launch(Main) {
+                                        usernameFocusRequester.requestFocus()
+                                        focusManager.clearFocus()
+                                        delay(200)
+                                        usernameFocusRequester.requestFocus()
+                                    }
+                                }) {
                                     Icon(
                                         modifier =
                                             modifier
@@ -616,6 +650,7 @@ fun ProxyServicesSettingsScreen(
                                 label = { Text(stringResource(R.string.main_settings_proxy_password)) },
                                 modifier =
                                     modifier
+                                        .focusRequester(passwordFocusRequester)
                                         .weight(1f)
                                         .fillMaxWidth()
                                         .semantics {
@@ -663,7 +698,15 @@ fun ProxyServicesSettingsScreen(
                             )
 
                             if (isTalkBackEnabled(context) && proxyPassword.text.isNotEmpty()) {
-                                IconButton(onClick = { proxyPassword = TextFieldValue("") }) {
+                                IconButton(onClick = {
+                                    proxyPassword = TextFieldValue("")
+                                    scope.launch(Main) {
+                                        passwordFocusRequester.requestFocus()
+                                        focusManager.clearFocus()
+                                        delay(200)
+                                        passwordFocusRequester.requestFocus()
+                                    }
+                                }) {
                                     Icon(
                                         modifier =
                                             modifier

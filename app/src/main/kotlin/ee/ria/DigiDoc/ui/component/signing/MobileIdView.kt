@@ -39,6 +39,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -89,9 +90,9 @@ import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator
 import ee.ria.DigiDoc.viewmodel.MobileIdViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -115,6 +116,7 @@ fun MobileIdView(
     cancelAction: (() -> Unit) -> Unit = {},
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
     val dialogError by mobileIdViewModel.dialogError.asFlow().collectAsState(0)
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
@@ -384,7 +386,7 @@ fun MobileIdView(
                                     zip = zip,
                                 )
                         }
-                        CoroutineScope(IO).launch {
+                        scope.launch(IO) {
                             mobileIdViewModel.performMobileIdWorkRequest(
                                 activity = activity,
                                 context = context,
@@ -493,12 +495,20 @@ fun MobileIdView(
                                 keyboardType = KeyboardType.Decimal,
                             ),
                     )
-                    if (isTalkBackEnabled(context) && personalCode.text.isNotEmpty()) {
+                    if (isTalkBackEnabled(context) && countryCodeAndPhone.text.isNotEmpty()) {
                         IconButton(
                             modifier =
                                 modifier
                                     .align(Alignment.CenterVertically),
-                            onClick = { personalCode = TextFieldValue("") },
+                            onClick = {
+                                countryCodeAndPhone = TextFieldValue("")
+                                scope.launch(Main) {
+                                    phoneNumberFocusRequester.requestFocus()
+                                    focusManager.clearFocus()
+                                    delay(200)
+                                    phoneNumberFocusRequester.requestFocus()
+                                }
+                            },
                         ) {
                             Icon(
                                 modifier =
@@ -507,7 +517,7 @@ fun MobileIdView(
                                         .semantics {
                                             testTagsAsResourceId = true
                                         }
-                                        .testTag("smartIdPersonalCodeRemoveIconButton"),
+                                        .testTag("smartIdCountryCodeAndPhoneNumberRemoveIconButton"),
                                 imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                 contentDescription = "$clearButtonText $buttonName",
                             )
@@ -603,7 +613,15 @@ fun MobileIdView(
                             modifier =
                                 modifier
                                     .align(Alignment.CenterVertically),
-                            onClick = { personalCode = TextFieldValue("") },
+                            onClick = {
+                                personalCode = TextFieldValue("")
+                                scope.launch(Main) {
+                                    personalCodeFocusRequester.requestFocus()
+                                    focusManager.clearFocus()
+                                    delay(200)
+                                    personalCodeFocusRequester.requestFocus()
+                                }
+                            },
                         ) {
                             Icon(
                                 modifier =
