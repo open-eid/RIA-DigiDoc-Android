@@ -444,15 +444,34 @@ class CryptoContainer
                 }
             }
 
+            // TODO (MOPPAND-1582): Resolve fatal crashes in libcdoc when logging is enabled
+            // Should be resolved with libcdoc C++ ownewrship refactor
+            // Temp solution is to add custom logger to CryptoContainer static variable
             fun setLogging(isLoggingEnabled: Boolean) {
-// TODO: Resolve fatal crashes in libcdoc when logging is enabled
-//                if (isLoggingEnabled) {
-//                    val logger = ConsoleLogger()
-//                    logger.SetMinLogLevel(ILogger.LogLevel.LEVEL_DEBUG)
-//                    ILogger.addLogger(logger)
-//
-//                    ILogger.getLogger().LogMessage(ILogger.LogLevel.LEVEL_DEBUG, "CryptContainer", 449, "Set libcdoc logging: $isLoggingEnabled")
-//                }
+                if (isLoggingEnabled) {
+                    logger.SetMinLogLevel(ILogger.LogLevel.LEVEL_TRACE)
+                    ILogger.addLogger(logger)
+
+                    val lgr = ILogger.getLogger()
+
+                    lgr.LogMessage(
+                        ILogger.LogLevel.LEVEL_DEBUG,
+                        "CryptoContainer",
+                        450,
+                        "Set libcdoc logging: $isLoggingEnabled",
+                    )
+                }
+            }
+
+            class JavaLogger : ILogger() {
+                override fun LogMessage(
+                    level: LogLevel?,
+                    file: String?,
+                    line: Int,
+                    message: String?,
+                ) {
+                    System.out.format("%s:%s %s %s\n", file, line, level, message)
+                }
             }
 
             private class CryptoLibConf(private val cdoc2Settings: CDOC2Settings) : Configuration() {
