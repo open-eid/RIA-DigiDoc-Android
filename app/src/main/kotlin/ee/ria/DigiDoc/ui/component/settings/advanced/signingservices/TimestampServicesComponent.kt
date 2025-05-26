@@ -32,6 +32,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -43,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -70,9 +72,9 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBack
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -85,6 +87,8 @@ fun TimestampServicesComponent(
     navController: NavHostController,
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+    val scope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
 
     val configuration = sharedSettingsViewModel.updatedConfiguration.value
@@ -123,7 +127,7 @@ fun TimestampServicesComponent(
                     navController.popBackStack()
                     return@rememberLauncherForActivityResult
                 }
-                CoroutineScope(Dispatchers.IO).launch {
+                scope.launch(IO) {
                     sharedSettingsViewModel.handleTsaFile(uri)
                     withContext(Main) {
                         sharedSettingsViewModel.updateTsaData(settingsTsaServiceUrl.text, context)
@@ -314,7 +318,15 @@ fun TimestampServicesComponent(
                         )
 
                         if (isTalkBackEnabled(context) && settingsTsaServiceUrl.text.isNotEmpty()) {
-                            IconButton(onClick = { settingsTsaServiceUrl = TextFieldValue("") }) {
+                            IconButton(onClick = {
+                                settingsTsaServiceUrl = TextFieldValue("")
+                                scope.launch(Main) {
+                                    focusRequester.requestFocus()
+                                    focusManager.clearFocus()
+                                    delay(200)
+                                    focusRequester.requestFocus()
+                                }
+                            }) {
                                 Icon(
                                     modifier =
                                         modifier

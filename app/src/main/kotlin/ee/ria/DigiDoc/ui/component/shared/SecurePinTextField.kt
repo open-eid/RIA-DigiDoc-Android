@@ -20,6 +20,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.zIndex
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -45,6 +47,8 @@ fun SecurePinTextField(
     keyboardImeAction: ImeAction = ImeAction.Done,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
 ) {
+    val context = LocalContext.current
+
     OutlinedTextField(
         label = {
             Text(text = pinCodeLabel)
@@ -76,25 +80,27 @@ fun SecurePinTextField(
             pinCodeTextEdited?.value = true
         },
         trailingIcon = {
-            IconButton(
-                modifier =
-                    modifier
-                        .zIndex(2f)
-                        .semantics { traversalIndex = 2f }
-                        .testTag("pinRemoveButton"),
-                onClick = { pin.value = byteArrayOf() },
-            ) {
-                Icon(
+            if (!isTalkBackEnabled(context) && pin.value.isNotEmpty()) {
+                IconButton(
                     modifier =
                         modifier
-                            .size(iconSizeXXS)
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }
-                            .testTag("pinRemoveButtonIcon"),
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                    contentDescription = trailingIconContentDescription,
-                )
+                            .zIndex(2f)
+                            .semantics { traversalIndex = 2f }
+                            .testTag("pinRemoveButton"),
+                    onClick = { pin.value = byteArrayOf() },
+                ) {
+                    Icon(
+                        modifier =
+                            modifier
+                                .size(iconSizeXXS)
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }
+                                .testTag("pinRemoveButtonIcon"),
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
+                        contentDescription = trailingIconContentDescription,
+                    )
+                }
             }
         },
         colors =

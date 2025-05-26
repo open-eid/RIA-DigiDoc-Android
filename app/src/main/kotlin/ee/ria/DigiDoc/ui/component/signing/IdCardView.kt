@@ -27,6 +27,7 @@ import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -36,6 +37,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -54,8 +56,10 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import ee.ria.DigiDoc.R
@@ -75,17 +79,18 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.LPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXL
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatName
 import ee.ria.DigiDoc.viewmodel.IdCardViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
@@ -118,6 +123,7 @@ fun IdCardView(
     cancelDecryptAction: (() -> Unit) -> Unit = {},
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val loading by remember { mutableStateOf(true) }
 
@@ -152,8 +158,6 @@ fun IdCardView(
 
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
     val cryptoContainer by sharedContainerViewModel.cryptoContainer.asFlow().collectAsState(null)
-
-    var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
     val pinType =
         if (identityAction == IdentityAction.SIGN) {
@@ -500,7 +504,7 @@ fun IdCardView(
                                 )
                         }
 
-                        CoroutineScope(IO).launch {
+                        scope.launch(IO) {
                             idCardViewModel.sign(
                                 activity,
                                 signedContainer!!,
@@ -511,7 +515,7 @@ fun IdCardView(
                         }
                     }
                     decryptAction {
-                        CoroutineScope(IO).launch {
+                        scope.launch(IO) {
                             idCardViewModel.decrypt(
                                 activity,
                                 context,
@@ -523,12 +527,12 @@ fun IdCardView(
                     }
                 }
                 cancelAction {
-                    CoroutineScope(IO).launch {
+                    scope.launch(IO) {
                         signedContainer?.let { idCardViewModel.removePendingSignature(it) }
                     }
                 }
                 cancelDecryptAction {
-                    CoroutineScope(IO).launch {
+                    scope.launch(IO) {
                         signedContainer?.let { idCardViewModel.removePendingSignature(it) }
                     }
                 }
@@ -613,8 +617,13 @@ fun IdCardView(
                     Text(
                         modifier =
                             modifier
+                                .zIndex(1f)
                                 .focusRequester(readyToSignFocusRequester)
                                 .focusable()
+                                .semantics {
+                                    traversalIndex = 1f
+                                    testTagsAsResourceId = true
+                                }
                                 .testTag("idCardReadyToSignMessage"),
                         text = idCardStatusReadyToSignMessage,
                         textAlign = TextAlign.Start,
@@ -632,8 +641,10 @@ fun IdCardView(
                     StyledNameText(
                         modifier =
                             modifier
+                                .zIndex(2f)
                                 .focusable(false)
                                 .semantics {
+                                    traversalIndex = 2f
                                     testTagsAsResourceId = true
                                     contentDescription = formatNumbers(nameText)
                                 }
@@ -648,7 +659,7 @@ fun IdCardView(
                                 .semantics {
                                     testTagsAsResourceId = true
                                 }
-                                .testTag("signatureUpdateIdCardContainer"),
+                                .testTag("idCardContainer"),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(LPadding),
                     ) {
@@ -661,7 +672,15 @@ fun IdCardView(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             SecurePinTextField(
-                                modifier = modifier.weight(1f),
+                                modifier =
+                                    modifier
+                                        .weight(1f)
+                                        .zIndex(3f)
+                                        .semantics {
+                                            traversalIndex = 3f
+                                            testTagsAsResourceId = true
+                                        }
+                                        .testTag("idCardPinTextField"),
                                 pin = pinCode,
                                 pinCodeLabel = pinText,
                                 pinNumberFocusRequester = pinCodeFocusRequester,
@@ -670,6 +689,40 @@ fun IdCardView(
                                 trailingIconContentDescription = "$clearButtonText $buttonName",
                                 isError = pinErrorText.isNotEmpty(),
                             )
+                            if (isTalkBackEnabled(context) && pinCode.value.isNotEmpty()) {
+                                IconButton(
+                                    modifier =
+                                        modifier
+                                            .zIndex(4f)
+                                            .align(Alignment.CenterVertically)
+                                            .semantics {
+                                                traversalIndex = 4f
+                                                testTagsAsResourceId = true
+                                            }
+                                            .testTag("idCardPinRemoveButton"),
+                                    onClick = {
+                                        pinCode.value = byteArrayOf()
+                                        scope.launch(Main) {
+                                            pinCodeFocusRequester.requestFocus()
+                                            focusManager.clearFocus()
+                                            delay(200)
+                                            pinCodeFocusRequester.requestFocus()
+                                        }
+                                    },
+                                ) {
+                                    Icon(
+                                        modifier =
+                                            modifier
+                                                .size(iconSizeXXS)
+                                                .semantics {
+                                                    testTagsAsResourceId = true
+                                                }
+                                                .testTag("idCardPinRemoveIconButton"),
+                                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
+                                        contentDescription = "$clearButtonText $buttonName",
+                                    )
+                                }
+                            }
                         }
 
                         if (pinErrorText.isNotEmpty()) {

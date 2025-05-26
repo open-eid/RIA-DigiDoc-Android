@@ -8,6 +8,7 @@ import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +20,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -41,6 +43,7 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
@@ -74,6 +77,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeM
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
@@ -84,7 +88,6 @@ import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.NFCViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMyEidViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
@@ -103,6 +106,7 @@ fun MyEidPinScreen(
 ) {
     val activity = LocalActivity.current
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
     val snackBarScope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
@@ -447,7 +451,7 @@ fun MyEidPinScreen(
                         showNFCScreen.value = true
                     }
 
-                    CoroutineScope(IO).launch {
+                    scope.launch(IO) {
                         if (activity == null) {
                             withContext(Main) {
                                 showMessage(context, R.string.error_general_client)
@@ -621,7 +625,12 @@ fun MyEidPinScreen(
                         modifier =
                             modifier
                                 .fillMaxWidth()
-                                .padding(vertical = SPadding),
+                                .padding(vertical = SPadding)
+                                .pointerInput(Unit) {
+                                    detectTapGestures(onTap = {
+                                        focusManager.clearFocus()
+                                    })
+                                },
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(SPadding),
                     ) {
@@ -651,11 +660,12 @@ fun MyEidPinScreen(
                                     modifier =
                                         modifier
                                             .weight(1f)
-                                            .focusable()
                                             .zIndex(3f)
                                             .semantics {
                                                 traversalIndex = 3f
-                                            },
+                                                testTagsAsResourceId = true
+                                            }
+                                            .testTag("myEidCurrentPinTextField"),
                                     pin = currentPinState,
                                     pinCodeLabel = pinCodeLabel,
                                     pinNumberFocusRequester = currentPinFocusRequester,
@@ -677,6 +687,40 @@ fun MyEidPinScreen(
                                             },
                                         ),
                                 )
+                                if (isTalkBackEnabled(context) && currentPinState.value.isNotEmpty()) {
+                                    IconButton(
+                                        modifier =
+                                            modifier
+                                                .zIndex(4f)
+                                                .align(Alignment.CenterVertically)
+                                                .semantics {
+                                                    traversalIndex = 4f
+                                                    testTagsAsResourceId = true
+                                                }
+                                                .testTag("myEidCurrentPinRemoveButton"),
+                                        onClick = {
+                                            currentPinState.value = byteArrayOf()
+                                            scope.launch(Main) {
+                                                currentPinFocusRequester.requestFocus()
+                                                focusManager.clearFocus()
+                                                delay(200)
+                                                currentPinFocusRequester.requestFocus()
+                                            }
+                                        },
+                                    ) {
+                                        Icon(
+                                            modifier =
+                                                modifier
+                                                    .size(iconSizeXXS)
+                                                    .semantics {
+                                                        testTagsAsResourceId = true
+                                                    }
+                                                    .testTag("idCardCurrentPinRemoveIconButton"),
+                                            imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
+                                            contentDescription = "$clearButtonText $buttonName",
+                                        )
+                                    }
+                                }
                             }
                             Text(
                                 modifier =
@@ -727,11 +771,12 @@ fun MyEidPinScreen(
                                     modifier =
                                         modifier
                                             .weight(1f)
-                                            .focusable()
-                                            .zIndex(6f)
+                                            .zIndex(7f)
                                             .semantics {
-                                                traversalIndex = 6f
-                                            },
+                                                traversalIndex = 7f
+                                                testTagsAsResourceId = true
+                                            }
+                                            .testTag("myEidNewPinTextField"),
                                     pin = newPinState,
                                     pinCodeLabel = pinCodeLabel,
                                     pinNumberFocusRequester = newPinFocusRequester,
@@ -753,20 +798,54 @@ fun MyEidPinScreen(
                                             },
                                         ),
                                 )
+                                if (isTalkBackEnabled(context) && newPinState.value.isNotEmpty()) {
+                                    IconButton(
+                                        modifier =
+                                            modifier
+                                                .zIndex(8f)
+                                                .align(Alignment.CenterVertically)
+                                                .semantics {
+                                                    traversalIndex = 8f
+                                                    testTagsAsResourceId = true
+                                                }
+                                                .testTag("myEidNewPinRemoveButton"),
+                                        onClick = {
+                                            newPinState.value = byteArrayOf()
+                                            scope.launch(Main) {
+                                                newPinFocusRequester.requestFocus()
+                                                focusManager.clearFocus()
+                                                delay(200)
+                                                newPinFocusRequester.requestFocus()
+                                            }
+                                        },
+                                    ) {
+                                        Icon(
+                                            modifier =
+                                                modifier
+                                                    .size(iconSizeXXS)
+                                                    .semantics {
+                                                        testTagsAsResourceId = true
+                                                    }
+                                                    .testTag("idCardNewPinRemoveIconButton"),
+                                            imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
+                                            contentDescription = "$clearButtonText $buttonName",
+                                        )
+                                    }
+                                }
                             }
                             Text(
                                 modifier =
                                     modifier
                                         .focusRequester(newPinDescriptionFocusRequester)
                                         .fillMaxWidth()
-                                        .zIndex(4f)
+                                        .zIndex(5f)
                                         .focusable(enabled = true)
                                         .focusTarget()
                                         .focusProperties { canFocus = true }
                                         .semantics {
                                             this.contentDescription =
                                                 "$pinDifferentRequirementText $pinLengthRequirementText"
-                                            traversalIndex = 4f
+                                            traversalIndex = 5f
                                             testTagsAsResourceId = true
                                         }
                                         .testTag("myEidNewPinDescriptionText"),
@@ -784,12 +863,12 @@ fun MyEidPinScreen(
                                 Text(
                                     modifier =
                                         modifier
-                                            .zIndex(5f)
+                                            .zIndex(6f)
                                             .padding(vertical = XSPadding)
                                             .fillMaxWidth()
                                             .focusable(true)
                                             .semantics {
-                                                traversalIndex = 5f
+                                                traversalIndex = 6f
                                                 testTagsAsResourceId = true
                                             }
                                             .testTag("myEidNewPinErrorText"),
@@ -833,11 +912,12 @@ fun MyEidPinScreen(
                                     modifier =
                                         modifier
                                             .weight(1f)
-                                            .focusable()
-                                            .zIndex(10f)
+                                            .zIndex(11f)
                                             .semantics {
-                                                traversalIndex = 10f
-                                            },
+                                                traversalIndex = 11f
+                                                testTagsAsResourceId = true
+                                            }
+                                            .testTag("myEidNewPinRepeatedTextField"),
                                     pin = newPinRepeatedState,
                                     pinCodeLabel = pinCodeLabel,
                                     pinNumberFocusRequester = newPinRepeatedFocusRequester,
@@ -846,6 +926,40 @@ fun MyEidPinScreen(
                                     trailingIconContentDescription = "$clearButtonText $buttonName",
                                     isError = !isNewRepeatedPinValid,
                                 )
+                                if (isTalkBackEnabled(context) && newPinRepeatedState.value.isNotEmpty()) {
+                                    IconButton(
+                                        modifier =
+                                            modifier
+                                                .zIndex(12f)
+                                                .align(Alignment.CenterVertically)
+                                                .semantics {
+                                                    traversalIndex = 12f
+                                                    testTagsAsResourceId = true
+                                                }
+                                                .testTag("myEidNewPinRepeatedRemoveButton"),
+                                        onClick = {
+                                            newPinRepeatedState.value = byteArrayOf()
+                                            scope.launch(Main) {
+                                                newPinRepeatedFocusRequester.requestFocus()
+                                                focusManager.clearFocus()
+                                                delay(200)
+                                                newPinRepeatedFocusRequester.requestFocus()
+                                            }
+                                        },
+                                    ) {
+                                        Icon(
+                                            modifier =
+                                                modifier
+                                                    .size(iconSizeXXS)
+                                                    .semantics {
+                                                        testTagsAsResourceId = true
+                                                    }
+                                                    .testTag("idCardNewPinRepeatedRemoveIconButton"),
+                                            imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
+                                            contentDescription = "$clearButtonText $buttonName",
+                                        )
+                                    }
+                                }
                             }
                             Text(
                                 modifier =
@@ -877,12 +991,12 @@ fun MyEidPinScreen(
                                 Text(
                                     modifier =
                                         modifier
-                                            .zIndex(8f)
+                                            .zIndex(10f)
                                             .padding(vertical = XSPadding)
                                             .fillMaxWidth()
                                             .focusable(true)
                                             .semantics {
-                                                traversalIndex = 8f
+                                                traversalIndex = 10f
                                                 testTagsAsResourceId = true
                                             }
                                             .testTag("myEidNewPinErrorText"),

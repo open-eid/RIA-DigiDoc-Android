@@ -50,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -84,6 +85,7 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -97,6 +99,9 @@ fun ValidationServicesSettingsScreen(
     navController: NavHostController,
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+    val scope = rememberCoroutineScope()
+
     val focusRequester = remember { FocusRequester() }
 
     val snackBarHostState = remember { SnackbarHostState() }
@@ -378,6 +383,12 @@ fun ValidationServicesSettingsScreen(
                             if (isTalkBackEnabled(context) && settingsSivaServiceUrl.text.isNotEmpty()) {
                                 IconButton(onClick = {
                                     settingsSivaServiceUrl = TextFieldValue("")
+                                    scope.launch(Main) {
+                                        focusRequester.requestFocus()
+                                        focusManager.clearFocus()
+                                        delay(200)
+                                        focusRequester.requestFocus()
+                                    }
                                 }) {
                                     Icon(
                                         modifier =

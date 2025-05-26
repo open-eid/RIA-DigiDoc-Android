@@ -18,9 +18,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -31,6 +33,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -47,6 +50,9 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -56,6 +62,10 @@ fun RoleDataView(
     onDismiss: () -> Unit = {},
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+    val scope = rememberCoroutineScope()
+
+    val roleAndAddressTitleFocusRequester = remember { FocusRequester() }
     val roleFocusRequester = remember { FocusRequester() }
     val cityFocusRequester = remember { FocusRequester() }
     val stateFocusRequester = remember { FocusRequester() }
@@ -91,6 +101,10 @@ fun RoleDataView(
         onDismiss()
     }
 
+    LaunchedEffect(Unit) {
+        roleAndAddressTitleFocusRequester.requestFocus()
+    }
+
     Column(
         modifier =
             modifier
@@ -105,6 +119,7 @@ fun RoleDataView(
             style = MaterialTheme.typography.titleLarge,
             modifier =
                 modifier
+                    .focusRequester(roleAndAddressTitleFocusRequester)
                     .padding(vertical = SPadding)
                     .semantics {
                         heading()
@@ -179,7 +194,15 @@ fun RoleDataView(
                     modifier =
                         modifier
                             .align(Alignment.CenterVertically),
-                    onClick = { rolesAndResolutions = TextFieldValue("") },
+                    onClick = {
+                        rolesAndResolutions = TextFieldValue("")
+                        scope.launch(Main) {
+                            roleFocusRequester.requestFocus()
+                            focusManager.clearFocus()
+                            delay(200)
+                            roleFocusRequester.requestFocus()
+                        }
+                    },
                 ) {
                     Icon(
                         modifier =
@@ -253,7 +276,15 @@ fun RoleDataView(
                     modifier =
                         modifier
                             .align(Alignment.CenterVertically),
-                    onClick = { city = TextFieldValue("") },
+                    onClick = {
+                        city = TextFieldValue("")
+                        scope.launch(Main) {
+                            cityFocusRequester.requestFocus()
+                            focusManager.clearFocus()
+                            delay(200)
+                            cityFocusRequester.requestFocus()
+                        }
+                    },
                 ) {
                     Icon(
                         modifier =
@@ -327,7 +358,15 @@ fun RoleDataView(
                     modifier =
                         modifier
                             .align(Alignment.CenterVertically),
-                    onClick = { state = TextFieldValue("") },
+                    onClick = {
+                        state = TextFieldValue("")
+                        scope.launch(Main) {
+                            stateFocusRequester.requestFocus()
+                            focusManager.clearFocus()
+                            delay(200)
+                            stateFocusRequester.requestFocus()
+                        }
+                    },
                 ) {
                     Icon(
                         modifier =
@@ -401,7 +440,15 @@ fun RoleDataView(
                     modifier =
                         modifier
                             .align(Alignment.CenterVertically),
-                    onClick = { country = TextFieldValue("") },
+                    onClick = {
+                        country = TextFieldValue("")
+                        scope.launch(Main) {
+                            countryFocusRequester.requestFocus()
+                            focusManager.clearFocus()
+                            delay(200)
+                            countryFocusRequester.requestFocus()
+                        }
+                    },
                 ) {
                     Icon(
                         modifier =
@@ -474,7 +521,15 @@ fun RoleDataView(
                     modifier =
                         modifier
                             .align(Alignment.CenterVertically),
-                    onClick = { zip = TextFieldValue("") },
+                    onClick = {
+                        zip = TextFieldValue("")
+                        scope.launch(Main) {
+                            zipFocusRequester.requestFocus()
+                            focusManager.clearFocus()
+                            delay(200)
+                            zipFocusRequester.requestFocus()
+                        }
+                    },
                 ) {
                     Icon(
                         modifier =

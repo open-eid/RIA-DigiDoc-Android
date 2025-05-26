@@ -60,6 +60,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -97,6 +98,7 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -113,6 +115,8 @@ fun EncryptionServicesSettingsScreen(
     navController: NavHostController,
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+    val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
     val snackBarScope = rememberCoroutineScope()
 
@@ -312,7 +316,10 @@ fun EncryptionServicesSettingsScreen(
     var openOptionChooserDialog by remember { mutableStateOf(false) }
     var textFieldSize by remember { mutableStateOf(Size.Zero) }
     val interactionSource = remember { MutableInteractionSource() }
-    val focusRequester = remember { FocusRequester() }
+    val nameFocusRequester = remember { FocusRequester() }
+    val uuidFocusRequester = remember { FocusRequester() }
+    val fetchUrlFocusRequester = remember { FocusRequester() }
+    val postUrlFocusRequester = remember { FocusRequester() }
 
     LaunchedEffect(messages) {
         messages.forEach { message ->
@@ -497,7 +504,7 @@ fun EncryptionServicesSettingsScreen(
                                     modifier =
                                         modifier
                                             .fillMaxWidth()
-                                            .focusRequester(focusRequester)
+                                            .focusRequester(nameFocusRequester)
                                             .onGloballyPositioned { coordinates ->
                                                 textFieldSize = coordinates.size.toSize()
                                             },
@@ -598,7 +605,7 @@ fun EncryptionServicesSettingsScreen(
                                     label = { Text("UUID") },
                                     modifier =
                                         modifier
-                                            .focusRequester(focusRequester)
+                                            .focusRequester(uuidFocusRequester)
                                             .weight(1f)
                                             .fillMaxWidth()
                                             .semantics {
@@ -630,7 +637,15 @@ fun EncryptionServicesSettingsScreen(
                                 )
 
                                 if (isTalkBackEnabled(context) && uuidText.text.isNotEmpty()) {
-                                    IconButton(onClick = { uuidText = TextFieldValue("") }) {
+                                    IconButton(onClick = {
+                                        uuidText = TextFieldValue("")
+                                        scope.launch(Main) {
+                                            uuidFocusRequester.requestFocus()
+                                            focusManager.clearFocus()
+                                            delay(200)
+                                            uuidFocusRequester.requestFocus()
+                                        }
+                                    }) {
                                         Icon(
                                             modifier =
                                                 modifier
@@ -670,7 +685,7 @@ fun EncryptionServicesSettingsScreen(
                                     label = { Text("Fetch URL") },
                                     modifier =
                                         modifier
-                                            .focusRequester(focusRequester)
+                                            .focusRequester(fetchUrlFocusRequester)
                                             .weight(1f)
                                             .fillMaxWidth()
                                             .semantics {
@@ -702,7 +717,15 @@ fun EncryptionServicesSettingsScreen(
                                 )
 
                                 if (isTalkBackEnabled(context) && fetchUrlText.text.isNotEmpty()) {
-                                    IconButton(onClick = { fetchUrlText = TextFieldValue("") }) {
+                                    IconButton(onClick = {
+                                        fetchUrlText = TextFieldValue("")
+                                        scope.launch(Main) {
+                                            fetchUrlFocusRequester.requestFocus()
+                                            focusManager.clearFocus()
+                                            delay(200)
+                                            fetchUrlFocusRequester.requestFocus()
+                                        }
+                                    }) {
                                         Icon(
                                             modifier =
                                                 modifier
@@ -741,7 +764,7 @@ fun EncryptionServicesSettingsScreen(
                                     label = { Text("Post URL") },
                                     modifier =
                                         modifier
-                                            .focusRequester(focusRequester)
+                                            .focusRequester(postUrlFocusRequester)
                                             .weight(1f)
                                             .fillMaxWidth()
                                             .semantics {
@@ -773,7 +796,15 @@ fun EncryptionServicesSettingsScreen(
                                 )
 
                                 if (isTalkBackEnabled(context) && postUrlText.text.isNotEmpty()) {
-                                    IconButton(onClick = { postUrlText = TextFieldValue("") }) {
+                                    IconButton(onClick = {
+                                        postUrlText = TextFieldValue("")
+                                        scope.launch(Main) {
+                                            postUrlFocusRequester.requestFocus()
+                                            focusManager.clearFocus()
+                                            delay(200)
+                                            postUrlFocusRequester.requestFocus()
+                                        }
+                                    }) {
                                         Icon(
                                             modifier =
                                                 modifier

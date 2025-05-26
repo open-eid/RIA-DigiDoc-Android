@@ -50,8 +50,10 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -431,12 +433,19 @@ fun SignatureInputScreen(
                     enabled = isValidToSign,
                     modifier =
                         modifier
-                            .fillMaxWidth(),
+                            .zIndex(99f)
+                            .fillMaxWidth()
+                            .semantics {
+                                traversalIndex = 99f
+                                testTagsAsResourceId = true
+                            }
+                            .testTag("signatureInputSignButton"),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 ) {
                     Text(
                         text = stringResource(R.string.sign_button),
-                        color = MaterialTheme.colorScheme.surface,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.titleMedium,
                     )
                 }
             }
