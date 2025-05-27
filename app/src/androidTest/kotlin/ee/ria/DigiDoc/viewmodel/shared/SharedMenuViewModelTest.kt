@@ -31,7 +31,8 @@ class SharedMenuViewModelTest {
     }
 
     @Test
-    @Ignore("TODO: This test is ignored because it is flaky.")
+    // FIXME:
+    @Ignore("This test is ignored because it is flaky.")
     fun menuViewModel_init_successTtsInitialized() =
         runTest {
             val mockTtsWrapper: TextToSpeechWrapper = mock()
@@ -42,7 +43,7 @@ class SharedMenuViewModelTest {
             val isMenuViewModelTtsInitalizedObserver: Observer<Boolean> = mock()
             sharedMenuViewModel.isTtsInitialized.observeForever(isMenuViewModelTtsInitalizedObserver)
 
-            delay(5000) // TODO: hack to wait for TTS initialization
+            delay(5000) // hack to wait for TTS initialization
 
             verify(isMenuViewModelTtsInitalizedObserver).onChanged(true)
 

@@ -17,6 +17,7 @@ import ee.ria.DigiDoc.common.BuildVersionProviderImpl
 import ee.ria.DigiDoc.common.certificate.CertificateService
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.cryptolib.CDOC2Settings
+import ee.ria.DigiDoc.cryptolib.init.CryptoInitialization
 import ee.ria.DigiDoc.domain.model.tts.TextToSpeechWrapper
 import ee.ria.DigiDoc.domain.model.tts.TextToSpeechWrapperImpl
 import ee.ria.DigiDoc.domain.preferences.DataStore
@@ -100,6 +101,12 @@ class AppModules {
     @Singleton
     fun provideInitialization(configurationRepository: ConfigurationRepository): Initialization {
         return Initialization(configurationRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCryptoInitialization(): CryptoInitialization {
+        return CryptoInitialization()
     }
 
     @Provides

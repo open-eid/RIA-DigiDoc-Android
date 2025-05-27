@@ -34,6 +34,7 @@ import ee.ria.cdoc.Configuration
 import ee.ria.cdoc.CryptoBackend
 import ee.ria.cdoc.DataBuffer
 import ee.ria.cdoc.FileInfo
+import ee.ria.cdoc.ILogger
 import ee.ria.cdoc.Lock
 import ee.ria.cdoc.NetworkBackend
 import ee.ria.cdoc.Recipient
@@ -164,6 +165,8 @@ class CryptoContainer
         }
 
         companion object {
+            val logger = JavaLogger()
+
             @Throws(CryptoException::class)
             private suspend fun open(
                 context: Context,
@@ -174,6 +177,7 @@ class CryptoContainer
                 }
 
                 val addressees = ArrayList<Addressee>()
+
                 val cdocReader = CDocReader.createReader(file?.path, null, null, null)
                 debugLog(LOG_TAG, "Reader created: (version ${cdocReader.version})")
 
@@ -244,6 +248,7 @@ class CryptoContainer
                 }
                 val network = CryptoLibNetworkBackend(configurationProvider, context, authCert, token)
                 val dataFiles = ArrayList<File>()
+
                 val cdocReader = CDocReader.createReader(file?.path, conf, token, network)
                 val idx = cdocReader.getLockForCert(authCert)
 
@@ -439,15 +444,34 @@ class CryptoContainer
                 }
             }
 
+            // TODO (MOPPAND-1582): Resolve fatal crashes in libcdoc when logging is enabled
+            // Should be resolved with libcdoc C++ ownewrship refactor
+            // Temp solution is to add custom logger to CryptoContainer static variable
             fun setLogging(isLoggingEnabled: Boolean) {
-// TODO: Resolve fatal crashes in libcdoc when logging is enabled
-//                if (isLoggingEnabled) {
-//                    val logger = ConsoleLogger()
-//                    logger.SetMinLogLevel(ILogger.LogLevel.LEVEL_DEBUG)
-//                    ILogger.addLogger(logger)
-//
-//                    ILogger.getLogger().LogMessage(ILogger.LogLevel.LEVEL_DEBUG, "CryptContainer", 449, "Set libcdoc logging: $isLoggingEnabled")
-//                }
+                if (isLoggingEnabled) {
+                    logger.SetMinLogLevel(ILogger.LogLevel.LEVEL_TRACE)
+                    ILogger.addLogger(logger)
+
+                    val lgr = ILogger.getLogger()
+
+                    lgr.LogMessage(
+                        ILogger.LogLevel.LEVEL_DEBUG,
+                        "CryptoContainer",
+                        450,
+                        "Set libcdoc logging: $isLoggingEnabled",
+                    )
+                }
+            }
+
+            class JavaLogger : ILogger() {
+                override fun LogMessage(
+                    level: LogLevel?,
+                    file: String?,
+                    line: Int,
+                    message: String?,
+                ) {
+                    System.out.format("%s:%s %s %s\n", file, line, level, message)
+                }
             }
 
             private class CryptoLibConf(private val cdoc2Settings: CDOC2Settings) : Configuration() {
@@ -478,8 +502,9 @@ class CryptoContainer
                         dst?.addCertificate(certBytes)
                     }
 
-                    /* TODO: Add support for custom CDOC2 cert
+                    // TODO (MOPPAND-1583): Add support for custom CDOC2 cert
 
+                    /*
                     if (CDoc2Settings.getCDOC2Cert != null) {
                         val certBytes =
                             org.bouncycastle.util.encoders.Base64.decode(CDoc2Settings.getCDOC2Cert)

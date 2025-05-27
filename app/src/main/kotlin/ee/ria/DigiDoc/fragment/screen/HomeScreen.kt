@@ -188,7 +188,6 @@ fun HomeScreen(
                 isOpenMenuBottomSheetVisible.value = false
                 navController.navigate(
                     openMenuAddFileNavigateTo,
-                    // TODO: Differentiate cases for open document/signature/encrypt
                 )
             },
             secondButtonClick = {
@@ -288,7 +287,6 @@ fun HomeScreen(
                             onClickItem = {
                                 openMenuAddFileNavigateTo = Route.FileChoosing.route
                                 isOpenMenuBottomSheetVisible.value = true
-                                // TODO: Customize additionally so that it navigates to Open document screen
                             },
                             testTag = "homeOpenDocumentButton",
                         )

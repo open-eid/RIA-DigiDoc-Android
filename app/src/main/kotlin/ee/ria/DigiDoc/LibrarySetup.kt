@@ -6,7 +6,7 @@ import android.content.Context
 import android.widget.Toast
 import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
 import ee.ria.DigiDoc.configuration.utils.TSLUtil
-import ee.ria.DigiDoc.cryptolib.CryptoContainer
+import ee.ria.DigiDoc.cryptolib.init.CryptoInitialization
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.libdigidoclib.exceptions.AlreadyInitializedException
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
@@ -24,6 +24,7 @@ class LibrarySetup
     @Inject
     constructor(
         private val initialization: Initialization,
+        private val cryptoInitialization: CryptoInitialization,
         private val configurationLoader: ConfigurationLoader,
         private val dataStore: DataStore,
     ) {
@@ -33,8 +34,7 @@ class LibrarySetup
             context: Context,
             isLoggingEnabled: Boolean,
         ) {
-            System.loadLibrary("cdoc_java")
-            CryptoContainer.setLogging(isLoggingEnabled)
+            cryptoInitialization.init(isLoggingEnabled)
             try {
                 TSLUtil.setupTSLFiles(context)
                 configurationLoader.initConfiguration(
