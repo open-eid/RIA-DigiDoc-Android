@@ -172,31 +172,49 @@ class CryptoContainer
                 context: Context,
                 file: File?,
             ): CryptoContainer {
+                var dataFiles = ArrayList<File>()
+                var recipients = ArrayList<Addressee>()
                 if (file?.extension == CDOC1_EXTENSION) {
-                    return openCDOC1(context, file)
+                    val cdoc1Container = openCDOC1(context, file)
+                    dataFiles.addAll(cdoc1Container.getDataFiles())
+                    recipients.addAll(cdoc1Container.getRecipients())
                 }
 
                 val addressees = ArrayList<Addressee>()
-
                 val cdocReader = CDocReader.createReader(file?.path, null, null, null)
                 debugLog(LOG_TAG, "Reader created: (version ${cdocReader.version})")
 
                 withContext(IO) {
                     cdocReader.locks.forEach { lock ->
                         if (lock.isCertificate) {
-                            addressees.add(Addressee(lock.label, lock.getBytes(Lock.Params.CERT)))
+                            val concatKDFAlgorithmURI = lock.getString(Lock.Params.CONCAT_DIGEST)
+                            addressees.add(
+                                Addressee(lock.label, lock.getBytes(Lock.Params.CERT), concatKDFAlgorithmURI),
+                            )
                         } else if (lock.isPKI) {
                             addressees.add(
-                                Addressee(lock.label, lock.getBytes(Lock.Params.RCPT_KEY)),
+                                Addressee(lock.label, lock.getBytes(Lock.Params.RCPT_KEY), ""),
+                            )
+                        } else if (lock.isSymmetric) {
+                            addressees.add(
+                                Addressee(lock.label, "", CertType.UnknownType, null, ByteArray(0)),
                             )
                         } else {
-                            addressees.add(Addressee("Unknown capsule", ByteArray(0)))
+                            addressees.add(Addressee("Unknown capsule", ByteArray(0), ""))
                         }
                     }
                     cdocReader.delete()
                 }
 
-                return create(context, file, listOf(), addressees, false, true)
+                addressees.forEach { addressee ->
+                    recipients.forEach { recipient ->
+                        if (addressee.data.contentEquals(recipient.data) == true) {
+                            recipient.concatKDFAlgorithmURI = addressee.concatKDFAlgorithmURI
+                        }
+                    }
+                }
+
+                return create(context, file, dataFiles, recipients, false, true)
             }
 
             @Throws(CryptoException::class)
@@ -538,11 +556,11 @@ class CryptoContainer
                 private var token: SmartCardTokenWrapper,
             ) : Network(configurationProvider, context) {
                 override fun getClientTLSCertificate(dst: DataBuffer?): Long {
-                    dst?.setData(cert)
-                    if (dst == null || dst.data == null || dst.data.isEmpty()) {
-                        return CDoc.IO_ERROR.toLong()
+                    dst?.data = cert
+                    return if (dst == null || dst.data == null || dst.data.isEmpty()) {
+                        CDoc.IO_ERROR.toLong()
                     } else {
-                        return CDoc.OK.toLong()
+                        CDoc.OK.toLong()
                     }
                 }
 

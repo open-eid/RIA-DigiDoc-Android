@@ -24,6 +24,7 @@ class Addressee(
     var surname: String?,
     var certType: CertType,
     var validTo: Date?,
+    var concatKDFAlgorithmURI: String?,
 ) {
     constructor(cn: String, sn: String, certType: CertType, validTo: Date?, data: ByteArray) : this(
         data = data,
@@ -33,6 +34,7 @@ class Addressee(
         surname = null,
         certType = certType,
         validTo = validTo,
+        concatKDFAlgorithmURI = "",
     ) {
         val split = cn.split(',').map { it.trim() }
         if (split.size > 1) {
@@ -55,7 +57,7 @@ class Addressee(
         data = cert,
     )
 
-    constructor(label: String, pub: ByteArray) : this(
+    constructor(label: String, pub: ByteArray, concatKDFAlgorithmURI: String) : this(
         data = pub,
         identifier = "",
         serialNumber = "",
@@ -63,6 +65,7 @@ class Addressee(
         surname = null,
         certType = CertType.UnknownType,
         validTo = null,
+        concatKDFAlgorithmURI = concatKDFAlgorithmURI,
     ) {
         val info = parseLabel(label)
         val cn = info["cn"]
@@ -96,6 +99,7 @@ class Addressee(
         this.certType = certType
         this.validTo = validTo
         this.data = pub
+        this.concatKDFAlgorithmURI = concatKDFAlgorithmURI
     }
 
     override fun equals(other: Any?): Boolean {
@@ -141,7 +145,7 @@ class Addressee(
                 } else {
                     ""
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 ""
             }
         }
@@ -165,7 +169,7 @@ class Addressee(
                 } else {
                     ""
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 ""
             }
         }
@@ -209,7 +213,7 @@ class Addressee(
                     }
                 }
                 CertType.UnknownType
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 CertType.UnknownType
             }
         }
@@ -220,7 +224,7 @@ class Addressee(
                     CertificateFactory.getInstance("X.509")
                         .generateCertificate(cert.inputStream()) as X509Certificate
                 certificate.notAfter
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 null
             }
         }

@@ -27,6 +27,7 @@ fun RecipientDetails(
     recipient: Addressee,
     recipientFormattedName: String,
     recipientIssuerName: String,
+    recipientConcatKDFAlgorithmURI: String,
     sharedCertificateViewModel: SharedCertificateViewModel,
     navController: NavController,
 ) {
@@ -46,6 +47,7 @@ fun RecipientDetails(
                 recipient = recipient,
                 recipientFormattedName = recipientFormattedName,
                 recipientIssuerName = recipientIssuerName,
+                recipientConcatKDFAlgorithmURI = recipientConcatKDFAlgorithmURI,
             )
             .forEach { navigationItem ->
                 if (!navigationItem.value.isNullOrEmpty()) {

@@ -27,6 +27,7 @@ data class RecipientDetailItem(
         recipient: Addressee,
         recipientFormattedName: String?,
         recipientIssuerName: String?,
+        recipientConcatKDFAlgorithmURI: String?,
     ): List<RecipientDetailItem> =
         listOf(
             RecipientDetailItem(
@@ -58,7 +59,20 @@ data class RecipientDetailItem(
                     },
                 testTag = "recipientCertificateIssuer",
             ),
-            // TODO (MOPPAND-1581): Add certificate Concat KDF Digest
+            RecipientDetailItem(
+                icon = 0,
+                label = R.string.recipient_details_concat_kdf_algorithm_url,
+                value = recipientConcatKDFAlgorithmURI,
+                contentDescription =
+                    if (value != null) {
+                        "${stringResource(
+                            id = R.string.recipient_details_concat_kdf_algorithm_url,
+                        )} $value"
+                    } else {
+                        ""
+                    },
+                testTag = "recipientConcatKDFAlgorithmURI",
+            ),
             RecipientDetailItem(
                 icon = 0,
                 label = R.string.recipient_details_certificate_valid_to_label,
