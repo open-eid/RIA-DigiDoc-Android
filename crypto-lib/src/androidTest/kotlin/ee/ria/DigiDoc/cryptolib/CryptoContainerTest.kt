@@ -15,6 +15,7 @@ import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
 import ee.ria.DigiDoc.cryptolib.CryptoContainer.Companion.openOrCreate
+import ee.ria.DigiDoc.cryptolib.init.CryptoInitialization
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -50,6 +51,9 @@ class CryptoContainerTest {
                             ConfigurationSignatureVerifierImpl(),
                         )
                     configurationRepository = ConfigurationRepositoryImpl(context, configurationLoader)
+                    CryptoInitialization().init(
+                        isLoggingEnabled = true,
+                    )
                 } catch (_: Exception) {
                 }
             }
