@@ -100,7 +100,7 @@ class EncryptViewModel
 
         fun isContainerUnlocked(cryptoContainer: CryptoContainer?): Boolean {
             return !isEncryptedContainer(cryptoContainer) &&
-                    !isContainerWithoutRecipients(cryptoContainer)
+                !isContainerWithoutRecipients(cryptoContainer)
         }
 
         fun getViewIntent(

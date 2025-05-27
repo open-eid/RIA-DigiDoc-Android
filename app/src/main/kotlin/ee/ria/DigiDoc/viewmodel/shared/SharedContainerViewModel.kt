@@ -105,7 +105,10 @@ class SharedContainerViewModel
             addNestedContainer(signedContainer)
         }
 
-        fun setCryptoContainer(cryptoContainer: CryptoContainer?, overwriteContainer: Boolean = false) {
+        fun setCryptoContainer(
+            cryptoContainer: CryptoContainer?,
+            overwriteContainer: Boolean = false,
+        ) {
             _cryptoContainer.postValue(cryptoContainer)
             if (overwriteContainer) {
                 removeLastContainer()

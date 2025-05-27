@@ -1064,7 +1064,8 @@ fun EncryptNavigation(
                 clickedRecipient = clickedRecipient,
                 sharedRecipientViewModel = sharedRecipientViewModel,
                 navController = navController,
-                isRecipientRemoveShown = !encryptViewModel.isDecryptedContainer(cryptoContainer) &&
+                isRecipientRemoveShown =
+                    !encryptViewModel.isDecryptedContainer(cryptoContainer) &&
                         encryptViewModel.isContainerUnlocked(cryptoContainer),
                 openRemoveRecipientDialog = openRemoveRecipientDialog,
                 onRecipientRemove = { actionRecipient = it },
