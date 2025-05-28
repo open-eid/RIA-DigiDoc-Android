@@ -126,6 +126,10 @@ object Constant {
     const val DDOC_EXTENSION = "ddoc"
     const val PDF_EXTENSION = "pdf"
 
+    val ALL_CONTAINER_EXTENSIONS: Set<String> =
+        setOf("asice", "sce", "adoc", "bdoc", "ddoc", "edoc", "cdoc", "cdoc2")
+            .plus(ASICS_CONTAINER_EXTENSIONS)
+
     val CONTAINER_EXTENSIONS: Set<String> =
         setOf("asice", "sce", "adoc", "bdoc", "ddoc", "edoc")
             .plus(ASICS_CONTAINER_EXTENSIONS)

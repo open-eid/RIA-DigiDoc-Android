@@ -206,12 +206,16 @@ class CryptoContainer
                     cdocReader.delete()
                 }
 
-                addressees.forEach { addressee ->
-                    recipients.forEach { recipient ->
-                        if (addressee.data.contentEquals(recipient.data) == true) {
-                            recipient.concatKDFAlgorithmURI = addressee.concatKDFAlgorithmURI
+                if (!recipients.isEmpty()) {
+                    addressees.forEach { addressee ->
+                        recipients.forEach { recipient ->
+                            if (addressee.data.contentEquals(recipient.data) == true) {
+                                recipient.concatKDFAlgorithmURI = addressee.concatKDFAlgorithmURI
+                            }
                         }
                     }
+                } else {
+                    recipients = addressees
                 }
 
                 return create(context, file, dataFiles, recipients, false, true)
@@ -394,6 +398,8 @@ class CryptoContainer
                     System.err.println("IO Exception: " + exc.message)
                 } catch (exc: CDocException) {
                     errorLog(LOG_TAG, "CDoc Exception ${exc.code}: ${exc.message}", exc)
+                } finally {
+                    cdocWriter.delete()
                 }
 
                 return open(context, file)
