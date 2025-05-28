@@ -396,7 +396,7 @@ class CryptoContainer
                     errorLog(LOG_TAG, "CDoc Exception ${exc.code}: ${exc.message}", exc)
                 }
 
-                return create(context, file, dataFiles, recipients, false, true)
+                return open(context, file)
             }
 
             @Throws(CryptoException::class)
