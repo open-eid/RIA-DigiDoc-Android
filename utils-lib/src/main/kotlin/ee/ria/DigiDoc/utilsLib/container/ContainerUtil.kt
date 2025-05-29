@@ -11,6 +11,7 @@ import android.content.pm.ResolveInfo
 import android.net.Uri
 import android.os.Parcelable
 import androidx.core.content.FileProvider
+import ee.ria.DigiDoc.common.Constant.ALL_CONTAINER_EXTENSIONS
 import ee.ria.DigiDoc.common.Constant.CONTAINER_EXTENSIONS
 import ee.ria.DigiDoc.common.Constant.DATA_FILE_DIR
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
@@ -256,7 +257,7 @@ object ContainerUtil {
         val displayName = FilenameUtils.getName(sanitizedFilename)
 
         return when {
-            displayName.isNotEmpty() && FilenameUtils.isExtension(displayName, CONTAINER_EXTENSIONS) ->
+            displayName.isNotEmpty() && FilenameUtils.isExtension(displayName, ALL_CONTAINER_EXTENSIONS) ->
                 displayName
             else ->
                 if (displayName.isNotEmpty()) {

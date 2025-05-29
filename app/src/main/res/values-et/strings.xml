@@ -387,6 +387,7 @@
     <string name="recipient_details_title">Adressaadi andmed</string>
     <string name="recipient_details_name_label">Adressaat:</string>
     <string name="recipient_details_certificate_issuer_label">Adressaadi sertifikaadi väljaandja:</string>
+    <string name="recipient_details_concat_kdf_algorithm_url">ConcatKDF referaatmeetod:</string>
     <string name="recipient_details_certificate_valid_to_label">Aegumiskuupäev:</string>
 
     <!-- Signature Details -->

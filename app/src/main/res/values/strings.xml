@@ -387,6 +387,7 @@
     <string name="recipient_details_title">Recipient details</string>
     <string name="recipient_details_name_label">Recipient:</string>
     <string name="recipient_details_certificate_issuer_label">Recipient\'s Certificate issuer:</string>
+    <string name="recipient_details_concat_kdf_algorithm_url">ConcatKDF reference method:</string>
     <string name="recipient_details_certificate_valid_to_label">Expiry date:</string>
 
     <!-- Signature Details -->

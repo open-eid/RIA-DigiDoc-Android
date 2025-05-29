@@ -213,6 +213,7 @@ fun RecipientPreview() {
                 certType = CertType.IDCardType,
                 validTo = null,
                 data = byteArrayOf(),
+                concatKDFAlgorithmURI = "http://example.com/concatKDF",
             )
         Surface(
             modifier = Modifier.background(MaterialTheme.colorScheme.background),

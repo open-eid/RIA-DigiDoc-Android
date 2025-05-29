@@ -387,6 +387,7 @@
     <string name="recipient_details_title">Детали получателя</string>
     <string name="recipient_details_name_label">Получатель:</string>
     <string name="recipient_details_certificate_issuer_label">Организация, выдавшая сертификат получателя:</string>
+    <string name="recipient_details_concat_kdf_algorithm_url">Ссылка на метод ConcatKDF алгоритма:</string>
     <string name="recipient_details_certificate_valid_to_label">Срок действия:</string>
 
     <!-- Signature Details -->

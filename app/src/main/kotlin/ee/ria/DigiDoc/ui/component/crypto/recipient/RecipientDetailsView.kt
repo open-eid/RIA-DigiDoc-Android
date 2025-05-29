@@ -67,6 +67,7 @@ fun RecipientDetailsView(
         certificateDetailViewModel.getIssuerCommonName(
             recipient?.data?.x509Certificate(),
         )
+    val recipientConcatKDFAlgorithmURI = recipient?.concatKDFAlgorithmURI ?: ""
 
     BackHandler {
         handleBackButtonClick(navController, sharedRecipientViewModel)
@@ -140,6 +141,7 @@ fun RecipientDetailsView(
                         recipient = recipient,
                         recipientFormattedName = recipientFormattedName,
                         recipientIssuerName = recipientIssuerName,
+                        recipientConcatKDFAlgorithmURI = recipientConcatKDFAlgorithmURI,
                         sharedCertificateViewModel = sharedCertificateViewModel,
                         navController = navController,
                     )
