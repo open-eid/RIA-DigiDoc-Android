@@ -20,8 +20,8 @@ class ConfigurationViewModel
     constructor(
         private val repository: ConfigurationRepository,
     ) : ViewModel() {
-        private val _configuration = MutableLiveData<ConfigurationProvider>()
-        val configuration: MutableLiveData<ConfigurationProvider> = _configuration
+        private val _configuration = MutableLiveData<ConfigurationProvider?>()
+        val configuration: MutableLiveData<ConfigurationProvider?> = _configuration
 
         suspend fun fetchConfiguration(
             lastUpdate: Long,
@@ -35,13 +35,13 @@ class ConfigurationViewModel
                     if (lastUpdate == 0L || (confUpdateDate != null && confUpdateDate.after(Date(lastUpdate)))) {
                         _configuration.postValue(configurationProvider)
                     }
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     // Handle error
                 }
             }
         }
 
-        suspend fun getConfiguration(): ConfigurationProvider? {
+        fun getConfiguration(): ConfigurationProvider? {
             return repository.getConfiguration()
         }
     }

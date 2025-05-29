@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.configuration.domain.model
 
-import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
@@ -33,10 +32,7 @@ class ConfigurationViewModelTest {
     private lateinit var repository: ConfigurationRepository
 
     @Mock
-    private lateinit var context: Context
-
-    @Mock
-    private lateinit var configurationProviderObserver: Observer<ConfigurationProvider>
+    private lateinit var configurationProviderObserver: Observer<ConfigurationProvider?>
 
     private lateinit var proxySetting: ProxySetting
     private lateinit var manualProxy: ManualProxy
