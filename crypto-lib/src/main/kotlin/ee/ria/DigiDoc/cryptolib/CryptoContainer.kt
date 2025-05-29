@@ -187,7 +187,10 @@ class CryptoContainer
                 withContext(IO) {
                     cdocReader.locks.forEach { lock ->
                         if (lock.isCertificate) {
-                            val concatKDFAlgorithmURI = lock.getString(Lock.Params.CONCAT_DIGEST)
+                            var concatKDFAlgorithmURI = ""
+                            if (!lock.isRSA) {
+                                concatKDFAlgorithmURI = lock.getString(Lock.Params.CONCAT_DIGEST)
+                            }
                             addressees.add(
                                 Addressee(lock.label, lock.getBytes(Lock.Params.CERT), concatKDFAlgorithmURI),
                             )
