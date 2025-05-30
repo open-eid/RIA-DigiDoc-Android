@@ -73,6 +73,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.toSize
+import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider.CDOC2Conf
@@ -90,9 +91,11 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.XSBorder
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
 import ee.ria.DigiDoc.utils.Constant.Defaults.DEFAULT_UUID_VALUE
+import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
+import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -112,6 +115,7 @@ fun EncryptionServicesSettingsScreen(
     modifier: Modifier = Modifier,
     sharedSettingsViewModel: SharedSettingsViewModel,
     sharedMenuViewModel: SharedMenuViewModel,
+    sharedCertificateViewModel: SharedCertificateViewModel,
     navController: NavHostController,
 ) {
     val context = LocalContext.current
@@ -144,7 +148,7 @@ fun EncryptionServicesSettingsScreen(
     val getCDOC2PostURL = sharedSettingsViewModel.dataStore::getCDOC2PostURL
     val setCDOC2PostURL = sharedSettingsViewModel.dataStore::setCDOC2PostURL
 
-    val cdoc2UseKeyServerDefault = configuration?.cdoc2UseKeyServer ?: false
+    val cdoc2UseKeyServerDefault = configuration?.cdoc2UseKeyServer == true
     val cdoc2DefaultKeyServer = configuration?.cdoc2DefaultKeyServer ?: DEFAULT_UUID_VALUE
     val useKeyTransfer = rememberSaveable { mutableStateOf(getUseOnlineEncryption(cdoc2UseKeyServerDefault)) }
     val useDefaultKeyTransferServer = rememberSaveable { mutableStateOf(true) }
@@ -288,6 +292,17 @@ fun EncryptionServicesSettingsScreen(
             )
     }
 
+    sharedSettingsViewModel.updateCryptoCertData(context)
+    val issuedTo by sharedSettingsViewModel.cryptoCertIssuedTo.asFlow().collectAsState(
+        "",
+    )
+    val validTo by sharedSettingsViewModel.cryptoCertValidTo.asFlow().collectAsState(
+        "",
+    )
+    val cryptoCertificate by sharedSettingsViewModel.cryptoCertificate.asFlow().collectAsState(
+        null,
+    )
+
     val filePicker =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent(),
@@ -297,8 +312,10 @@ fun EncryptionServicesSettingsScreen(
                     return@rememberLauncherForActivityResult
                 }
                 CoroutineScope(Dispatchers.IO).launch {
-                    // TODO (MOPPAND-1583): Handle certificate
-                    withContext(Main) {}
+                    sharedSettingsViewModel.handleCryptoCertFile(uri)
+                    withContext(Main) {
+                        sharedSettingsViewModel.updateCryptoCertData(context)
+                    }
                 }
             },
         )
@@ -307,7 +324,6 @@ fun EncryptionServicesSettingsScreen(
     val validToTitleText = stringResource(R.string.main_settings_timestamp_cert_valid_to_title)
     val showCertificateButtonText = stringResource(R.string.main_settings_timestamp_cert_show_certificate_button)
     val addCertificateButtonText = stringResource(R.string.main_settings_timestamp_cert_add_certificate_button)
-    // TODO (MOPPAND-1583): Use no certificate found text
     val noCertificateFoundText = stringResource(R.string.main_settings_timestamp_cert_no_certificate_found)
 
     val clearButtonText = stringResource(R.string.clear_text)
@@ -831,23 +847,32 @@ fun EncryptionServicesSettingsScreen(
                                             .semantics {
                                                 heading()
                                             },
-                                    text = "Key transfer server SSL certificate",
+                                    text = stringResource(R.string.main_settings_crypto_certificate_title),
                                     style = MaterialTheme.typography.bodyLarge,
                                 )
 
-                                Text(
-                                    modifier = modifier.fillMaxWidth(),
-                                    text = issuedToTitleText,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
+                                if (cryptoCertificate != null) {
+                                    Text(
+                                        modifier = modifier.fillMaxWidth(),
+                                        text = "$issuedToTitleText $issuedTo",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
 
-                                Text(
-                                    modifier = modifier.fillMaxWidth(),
-                                    text = validToTitleText,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
+                                    Text(
+                                        modifier = modifier.fillMaxWidth(),
+                                        text = "$validToTitleText $validTo",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                } else {
+                                    Text(
+                                        modifier = modifier.fillMaxWidth(),
+                                        text = noCertificateFoundText,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
 
                                 Spacer(modifier = modifier.height(SPadding))
 
@@ -856,19 +881,30 @@ fun EncryptionServicesSettingsScreen(
                                     horizontalArrangement = Arrangement.End,
                                     verticalArrangement = Arrangement.Center,
                                 ) {
-                                    TextButton(onClick = {}) {
-                                        Text(
-                                            modifier =
-                                                modifier
-                                                    .semantics {
-                                                        contentDescription =
-                                                            "$showCertificateButtonText $buttonName"
-                                                        testTagsAsResourceId = true
-                                                    }
-                                                    .testTag("encryptionServicesShowCertificateActionButton"),
-                                            text = showCertificateButtonText,
-                                            color = MaterialTheme.colorScheme.primary,
-                                        )
+                                    if (cryptoCertificate != null) {
+                                        TextButton(onClick = {
+                                            cryptoCertificate?.let {
+                                                sharedCertificateViewModel.setCertificate(
+                                                    it,
+                                                )
+                                                navController.navigate(
+                                                    Route.CertificateDetail.route,
+                                                )
+                                            }
+                                        }) {
+                                            Text(
+                                                modifier =
+                                                    modifier
+                                                        .semantics {
+                                                            contentDescription =
+                                                                "$showCertificateButtonText $buttonName"
+                                                            testTagsAsResourceId = true
+                                                        }
+                                                        .testTag("encryptionServicesShowCertificateActionButton"),
+                                                text = showCertificateButtonText,
+                                                color = MaterialTheme.colorScheme.primary,
+                                            )
+                                        }
                                     }
 
                                     TextButton(onClick = {

@@ -573,6 +573,7 @@
     <string name="main_settings_siva_certificate_expired">Aegunud</string>
     <string name="main_settings_proxy_invalid_settings">Teenuse serveriga ühendus ebaõnnestus. Palun kontrolli võrgu sätteid või proovi hiljem uuesti.</string>
     <string name="main_settings_siva_certificate_title">Valideerimisteenuse SiVa SSL sertifikaat</string>
+    <string name="main_settings_crypto_certificate_title">Võtmeedastusserveri SSL sertifikaat</string>
 
     <!-- My eID -->
     <string name="myeid_identification_method_title">Vali isiku tuvastamise meetod</string>

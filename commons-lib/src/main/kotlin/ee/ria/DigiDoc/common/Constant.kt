@@ -105,6 +105,7 @@ object Constant {
 
     const val DIR_TSA_CERT = "tsa_cert"
     const val DIR_SIVA_CERT = "siva_cert"
+    const val DIR_CRYPTO_CERT = "crypto_cert"
 
     const val DATA_FILE_DIR = "%s-data-files"
     const val DIR_SIGNATURE_CONTAINERS = "signed_containers"

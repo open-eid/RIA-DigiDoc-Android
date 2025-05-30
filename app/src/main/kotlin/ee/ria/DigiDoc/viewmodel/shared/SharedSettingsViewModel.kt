@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.Constant.DIR_CRYPTO_CERT
 import ee.ria.DigiDoc.common.Constant.DIR_SIVA_CERT
 import ee.ria.DigiDoc.common.Constant.DIR_TSA_CERT
 import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
@@ -82,6 +83,12 @@ class SharedSettingsViewModel
         private val _tsaValidTo = MutableLiveData<String?>()
         val tsaValidTo: LiveData<String?> = _tsaValidTo
 
+        private val _cryptoCertIssuedTo = MutableLiveData<String?>()
+        val cryptoCertIssuedTo: LiveData<String?> = _cryptoCertIssuedTo
+
+        private val _cryptoCertValidTo = MutableLiveData<String?>()
+        val cryptoCertValidTo: LiveData<String?> = _cryptoCertValidTo
+
         private val _previousSivaUrl = MutableLiveData<String?>()
         val previousSivaUrl: LiveData<String?> = _previousSivaUrl
 
@@ -93,6 +100,9 @@ class SharedSettingsViewModel
 
         private val _tsaCertificate = MutableLiveData<X509Certificate?>()
         val tsaCertificate: LiveData<X509Certificate?> = _tsaCertificate
+
+        private val _cryptoCertificate = MutableLiveData<X509Certificate?>()
+        val cryptoCertificate: LiveData<X509Certificate?> = _cryptoCertificate
 
         private val _errorState = MutableLiveData<Int?>(null)
         val errorState: LiveData<Int?> = _errorState
@@ -147,6 +157,8 @@ class SharedSettingsViewModel
             dataStore.setCDOC2UUID("00000000-0000-0000-0000-000000000002")
             dataStore.setCDOC2FetchURL("https://cdoc2-keyserver-get")
             dataStore.setCDOC2PostURL("https://cdoc2-keyserver-post")
+            dataStore.setCryptoCertName(null)
+            removeCryptoCert()
         }
 
         private fun resetSivaSettings() {
@@ -198,6 +210,16 @@ class SharedSettingsViewModel
                 FileUtil.removeFile(tsaFile.path)
             }
             dataStore.setTSACertName(null)
+        }
+
+        private fun removeCryptoCert() {
+            val cryptoCertName = dataStore.getCryptoCertName()
+            val cryptoCertFile = FileUtil.getCertFile(context, cryptoCertName, DIR_CRYPTO_CERT)
+
+            if (cryptoCertFile != null) {
+                FileUtil.removeFile(cryptoCertFile.path)
+            }
+            dataStore.setCryptoCertName(null)
         }
 
         fun saveProxySettings(
@@ -322,6 +344,35 @@ class SharedSettingsViewModel
             }
         }
 
+        fun updateCryptoCertData(context: Context) {
+            val cryptoCertName: String = dataStore.getCryptoCertName()
+            val cryptoCertFile = FileUtil.getCertFile(context, cryptoCertName, DIR_CRYPTO_CERT)
+
+            if (cryptoCertFile != null) {
+                val fileContents: String = FileUtil.readFileContent(cryptoCertFile.path)
+                try {
+                    val cryptoCert = CertificateUtil.x509Certificate(fileContents)
+                    _cryptoCertificate.postValue(cryptoCert)
+                    val certificateHolder: X509CertificateHolder = JcaX509CertificateHolder(cryptoCert)
+                    val issuer: String = getSubject(certificateHolder)
+                    _cryptoCertIssuedTo.postValue(issuer)
+                    val notAfter: Date = certificateHolder.notAfter
+                    if (notAfter.before(Date())) {
+                        val expiredText = context.getString(R.string.main_settings_siva_certificate_expired)
+                        _cryptoCertValidTo.postValue("${getFormattedDateTime(notAfter)} ($expiredText)")
+                    } else {
+                        _cryptoCertValidTo.postValue(getFormattedDateTime(notAfter))
+                    }
+                } catch (e: CertificateException) {
+                    errorLog(logTag, "Unable to get Crypto certificate", e)
+
+                    // Remove invalid files
+                    removeCryptoCert()
+                    resetCertificateInfo()
+                }
+            }
+        }
+
         fun handleSivaFile(uri: Uri) {
             try {
                 val initialStream: InputStream? = contentResolver.openInputStream(uri)
@@ -380,11 +431,42 @@ class SharedSettingsViewModel
             }
         }
 
+        fun handleCryptoCertFile(uri: Uri) {
+            try {
+                val initialStream: InputStream? = contentResolver.openInputStream(uri)
+                val documentFile = DocumentFile.fromSingleUri(context, uri)
+                if (documentFile != null) {
+                    val cryptoCertFolder = File(context.filesDir, DIR_CRYPTO_CERT)
+                    if (!cryptoCertFolder.exists()) {
+                        val isFolderCreated = cryptoCertFolder.mkdirs()
+                        debugLog(
+                            logTag,
+                            String.format("Crypto cert folder created: %s", isFolderCreated),
+                        )
+                    }
+
+                    var fileName = documentFile.name
+                    if (fileName.isNullOrEmpty()) {
+                        fileName = "cryptoCert"
+                    }
+                    val cryptoCertFile = File(cryptoCertFolder, fileName)
+
+                    FileUtils.copyInputStreamToFile(initialStream, cryptoCertFile)
+
+                    dataStore.setCryptoCertName(cryptoCertFile.name)
+                }
+            } catch (e: Exception) {
+                errorLog(logTag, "Unable to read Crypto certificate file data", e)
+            }
+        }
+
         private fun resetCertificateInfo() {
             _sivaIssuedTo.postValue(null)
             _sivaValidTo.postValue(null)
             _tsaIssuedTo.postValue(null)
             _tsaValidTo.postValue(null)
+            _cryptoCertIssuedTo.postValue(null)
+            _cryptoCertValidTo.postValue(null)
         }
 
         fun checkConnection(manualProxySettings: ManualProxy) {

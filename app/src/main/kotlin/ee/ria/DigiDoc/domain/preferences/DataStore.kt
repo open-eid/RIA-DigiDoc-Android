@@ -549,6 +549,23 @@ class DataStore
                 ?: ""
         }
 
+        fun setCryptoCertName(cert: String?) {
+            preferences.edit {
+                putString(
+                    resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_crypto_cert_key),
+                    cert,
+                )
+            }
+        }
+
+        fun getCryptoCertName(): String {
+            return preferences.getString(
+                resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_crypto_cert_key),
+                "",
+            )
+                ?: ""
+        }
+
         fun setIsTsaCertificateViewVisible(isVisible: Boolean) {
             preferences.edit {
                 putBoolean(resources.getString(R.string.main_settings_tsa_cert_view), isVisible)
