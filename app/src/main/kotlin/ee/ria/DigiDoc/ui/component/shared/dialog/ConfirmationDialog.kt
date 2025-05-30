@@ -37,11 +37,22 @@ fun ConfirmationDialog(
 
     if (showDialog) {
         AlertDialog(
+            modifier =
+                modifier
+                    .semantics {
+                        testTagsAsResourceId = true
+                    }
+                    .testTag("sivaConfirmationDialog"),
             onDismissRequest = onDismiss,
             title = {},
             text = {
                 HrefMessageDialog(
-                    modifier = modifier,
+                    modifier =
+                        modifier
+                            .semantics {
+                                testTagsAsResourceId = true
+                            }
+                            .testTag("sivaConfirmationMessageDialog"),
                     text1 = text1,
                     text2 = text2,
                     linkText = linkText,
