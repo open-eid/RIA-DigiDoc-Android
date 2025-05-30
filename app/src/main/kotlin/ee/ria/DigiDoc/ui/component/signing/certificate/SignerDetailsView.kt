@@ -318,6 +318,7 @@ fun SignerDetailsView(
 
                     TabView(
                         modifier = modifier,
+                        testTag = "signatureDetailsTabView",
                         selectedTabIndex = selectedSignedContainerTabIndex.intValue,
                         onTabSelected = { index ->
                             selectedSignedContainerTabIndex.intValue = index

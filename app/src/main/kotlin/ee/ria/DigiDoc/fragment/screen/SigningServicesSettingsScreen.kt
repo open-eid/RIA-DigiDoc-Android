@@ -117,12 +117,8 @@ fun SigningServicesSettingsScreen(
                     .testTag("scrollView"),
         ) {
             TabView(
-                modifier =
-                    modifier
-                        .semantics {
-                            testTagsAsResourceId = true
-                        }
-                        .testTag("signingServicesSettingsTabView"),
+                modifier = modifier,
+                testTag = "signingServicesSettingsTabView",
                 selectedTabIndex = selectedSigningServiceTabIndex.intValue,
                 onTabSelected = { index -> selectedSigningServiceTabIndex.intValue = index },
                 listOf(

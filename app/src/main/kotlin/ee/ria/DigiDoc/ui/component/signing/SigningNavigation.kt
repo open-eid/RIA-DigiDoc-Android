@@ -849,12 +849,8 @@ fun SigningNavigation(
                             } else {
                                 item {
                                     TabView(
-                                        modifier =
-                                            modifier
-                                                .semantics {
-                                                    testTagsAsResourceId = true
-                                                }
-                                                .testTag("signingTabView"),
+                                        modifier = modifier,
+                                        testTag = "signingTabView",
                                         selectedTabIndex = selectedSignedContainerTabIndex.intValue,
                                         onTabSelected = { index -> selectedSignedContainerTabIndex.intValue = index },
                                         listOf(

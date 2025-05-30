@@ -236,12 +236,8 @@ fun MyEidScreen(
                 horizontalAlignment = Alignment.Start,
             ) {
                 TabView(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }
-                            .testTag("myEidTabView"),
+                    modifier = modifier,
+                    testTag = "myEidTabView",
                     selectedTabIndex = selectedMyEidTabIndex.intValue,
                     onTabSelected = { index -> selectedMyEidTabIndex.intValue = index },
                     listOf(

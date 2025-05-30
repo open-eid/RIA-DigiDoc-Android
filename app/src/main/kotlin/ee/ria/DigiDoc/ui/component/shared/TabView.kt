@@ -14,17 +14,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 
 @Composable
 fun TabView(
     modifier: Modifier = Modifier,
+    testTag: String = "tabView",
     selectedTabIndex: Int = 0,
     onTabSelected: (Int) -> Unit,
     tabItems: List<Pair<String, @Composable () -> Unit>>,
@@ -32,6 +35,10 @@ fun TabView(
     Column(
         modifier =
             modifier
+                .semantics {
+                    testTagsAsResourceId = true
+                }
+                .testTag(testTag)
                 .fillMaxSize(),
     ) {
         TabRow(
