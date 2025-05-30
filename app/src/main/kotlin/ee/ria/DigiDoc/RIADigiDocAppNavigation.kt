@@ -239,6 +239,7 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
                 navController = navController,
                 sharedMenuViewModel = sharedMenuViewModel,
                 sharedSettingsViewModel = sharedSettingsViewModel,
+                sharedCertificateViewModel = sharedCertificateViewModel,
             )
         }
         composable(route = Route.ProxyServicesScreen.route) {

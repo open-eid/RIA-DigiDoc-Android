@@ -19,6 +19,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.fragment.screen.EncryptionServicesSettingsScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 
@@ -29,6 +30,7 @@ fun EncryptionServicesSettingsFragment(
     modifier: Modifier = Modifier,
     sharedMenuViewModel: SharedMenuViewModel,
     sharedSettingsViewModel: SharedSettingsViewModel,
+    sharedCertificateViewModel: SharedCertificateViewModel,
 ) {
     Surface(
         modifier =
@@ -46,6 +48,7 @@ fun EncryptionServicesSettingsFragment(
             modifier = modifier,
             sharedSettingsViewModel = sharedSettingsViewModel,
             sharedMenuViewModel = sharedMenuViewModel,
+            sharedCertificateViewModel = sharedCertificateViewModel,
         )
     }
 }
@@ -59,6 +62,7 @@ fun EncryptionServicesSettingsFragmentPreview() {
             navController = rememberNavController(),
             sharedMenuViewModel = hiltViewModel(),
             sharedSettingsViewModel = hiltViewModel(),
+            sharedCertificateViewModel = hiltViewModel(),
         )
     }
 }

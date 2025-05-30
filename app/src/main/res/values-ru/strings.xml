@@ -573,6 +573,7 @@
     <string name="main_settings_siva_certificate_expired">Недействителен</string>
     <string name="main_settings_proxy_invalid_settings">Не удалось связаться с сервером услуги. Пожалуйста, проверьте настройки сети или повторите попытку позже.</string>
     <string name="main_settings_siva_certificate_title">Сертификат услуги валидации SiVa SSL</string>
+    <string name="main_settings_crypto_certificate_title">Сертификат SSL сервера передачи ключей</string>
 
     <!-- My eID -->
     <string name="myeid_identification_method_title">Выберите способ идентификации</string>

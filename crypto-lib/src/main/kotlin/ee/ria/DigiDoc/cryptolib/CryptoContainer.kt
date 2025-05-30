@@ -271,7 +271,7 @@ class CryptoContainer
                 if (authCert == null || authCert.isEmpty()) {
                     throw CryptoException("Failed to get auth certificate")
                 }
-                val network = CryptoLibNetworkBackend(configurationProvider, context, authCert, token)
+                val network = CryptoLibNetworkBackend(cdoc2Settings, configurationProvider, context, authCert, token)
                 val dataFiles = ArrayList<File>()
 
                 val cdocReader = CDocReader.createReader(file?.path, conf, token, network)
@@ -344,7 +344,7 @@ class CryptoContainer
 
                 val conf = CryptoLibConf(cdoc2Settings)
                 val configurationProvider = configurationRepository.getConfiguration()
-                val network = Network(configurationProvider, context)
+                val network = Network(cdoc2Settings, configurationProvider, context)
 
                 val version =
                     if (file?.extension == CDOC2_EXTENSION) {
@@ -515,6 +515,7 @@ class CryptoContainer
             }
 
             private open class Network(
+                private val cdoc2Settings: CDOC2Settings,
                 private val configurationProvider: ConfigurationProvider?,
                 private val context: Context,
             ) : NetworkBackend() {
@@ -528,15 +529,11 @@ class CryptoContainer
                         val certBytes = Base64.decode(cert, Base64.DEFAULT)
                         dst?.addCertificate(certBytes)
                     }
-
-                    // TODO (MOPPAND-1583): Add support for custom CDOC2 cert
-
-                    /*
-                    if (CDoc2Settings.getCDOC2Cert != null) {
-                        val certBytes =
-                            org.bouncycastle.util.encoders.Base64.decode(CDoc2Settings.getCDOC2Cert)
+                    val certFromSettings = cdoc2Settings.getCDOC2Cert()
+                    if (certFromSettings != null) {
+                        val certBytes = org.bouncycastle.util.encoders.Base64.decode(certFromSettings)
                         dst?.addCertificate(certBytes)
-                     */
+                    }
 
                     return CDoc.OK.toLong()
                 }
@@ -559,11 +556,12 @@ class CryptoContainer
             }
 
             private class CryptoLibNetworkBackend(
+                cdoc2Settings: CDOC2Settings,
                 configurationProvider: ConfigurationProvider?,
                 context: Context,
                 private var cert: ByteArray,
                 private var token: SmartCardTokenWrapper,
-            ) : Network(configurationProvider, context) {
+            ) : Network(cdoc2Settings, configurationProvider, context) {
                 override fun getClientTLSCertificate(dst: DataBuffer?): Long {
                     dst?.data = cert
                     return if (dst == null || dst.data == null || dst.data.isEmpty()) {
