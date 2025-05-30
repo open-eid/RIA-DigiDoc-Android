@@ -803,12 +803,8 @@ fun EncryptNavigation(
                             } else {
                                 item {
                                     TabView(
-                                        modifier =
-                                            modifier
-                                                .semantics {
-                                                    testTagsAsResourceId = true
-                                                }
-                                                .testTag("encryptionTabView"),
+                                        modifier = modifier,
+                                        testTag = "encryptionTabView",
                                         selectedTabIndex = selectedCryptoContainerTabIndex.intValue,
                                         onTabSelected = { index ->
                                             selectedCryptoContainerTabIndex.intValue = index

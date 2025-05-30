@@ -9,9 +9,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTagsAsResourceId
 import ee.ria.DigiDoc.R
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -31,12 +28,7 @@ fun SivaConfirmationDialog(
 
     if (showDialog.value) {
         ConfirmationDialog(
-            modifier =
-                modifier
-                    .semantics {
-                        testTagsAsResourceId = true
-                    }
-                    .testTag("sivaConfirmationDialog"),
+            modifier = modifier,
             showDialog = showDialog.value,
             text1 = R.string.siva_send_message_dialog,
             text2 = R.string.siva_continue_question,
