@@ -180,6 +180,8 @@ fun EncryptRecipientScreen(
                         TYPE_ANNOUNCEMENT,
                         recipientAddedSuccessText,
                     )
+                    // Show success message for 3 seconds, otherwise it will be dismissed too fast
+                    delay(3000)
                     recipientAddedSuccess.value = false
                     encryptRecipientViewModel.handleIsRecipientAdded(false)
                 }
