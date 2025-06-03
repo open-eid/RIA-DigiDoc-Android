@@ -28,7 +28,11 @@
 -dontwarn aQute.bnd.annotation.spi.ServiceProvider
 -dontwarn javax.security.sasl.SaslClient
 
+# libdigidoc
 -keep class ee.ria.libdigidocpp.* { *; }
+
+# libcdoc
+-keep class ee.ria.cdoc.* { *; }
 
 -keep public class * extends java.lang.Exception { *; }
 
