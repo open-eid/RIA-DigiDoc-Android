@@ -232,15 +232,6 @@ fun EncryptNavigation(
         )
     }
     val encryptionButtonEnabled = remember { mutableStateOf(true) }
-    val openEncryptionDialog = rememberSaveable { mutableStateOf(false) }
-    val encryptionCancelled = stringResource(id = R.string.encryption_cancelled)
-    val dismissDialog = {
-        openEncryptionDialog.value = false
-    }
-    val cancelButtonClick = {
-        dismissDialog()
-        AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, encryptionCancelled)
-    }
 
     var recipients by remember { mutableStateOf<List<Addressee>>(emptyList()) }
     val showRecipientsLoadingIndicator = remember { mutableStateOf(false) }
@@ -1047,7 +1038,8 @@ fun EncryptNavigation(
                 showSheet = showContainerBottomSheet,
                 isEditContainerButtonShown = cryptoContainer?.hasRecipients() == false,
                 openEditContainerNameDialog = openEditContainerNameDialog,
-                isSignButtonShown = cryptoContainer?.encrypted == true,
+                isSignButtonShown = encryptViewModel.isEncryptedContainer(cryptoContainer),
+                isSaveButtonShown = !isNestedContainer && encryptViewModel.isEncryptedContainer(cryptoContainer),
                 cryptoContainer = cryptoContainer,
                 onSignClick = onSignActionClick,
                 saveFileLauncher = saveFileLauncher,

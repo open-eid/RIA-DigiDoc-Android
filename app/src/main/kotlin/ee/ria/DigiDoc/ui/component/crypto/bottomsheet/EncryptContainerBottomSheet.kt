@@ -20,6 +20,7 @@ fun EncryptContainerBottomSheet(
     showSheet: MutableState<Boolean>,
     isEditContainerButtonShown: Boolean = true,
     openEditContainerNameDialog: MutableState<Boolean>,
+    isSaveButtonShown: Boolean = true,
     isSignButtonShown: Boolean = true,
     cryptoContainer: CryptoContainer?,
     onSignClick: () -> Unit,
@@ -47,6 +48,7 @@ fun EncryptContainerBottomSheet(
                     openEditContainerNameDialog.value = true
                 },
                 BottomSheetButton(
+                    showButton = isSaveButtonShown,
                     icon = R.drawable.ic_m3_download_48dp_wght400,
                     text = stringResource(R.string.container_save),
                     contentDescription = "${stringResource(

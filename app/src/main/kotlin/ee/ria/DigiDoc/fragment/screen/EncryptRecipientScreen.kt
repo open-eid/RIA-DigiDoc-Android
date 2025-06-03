@@ -180,7 +180,6 @@ fun EncryptRecipientScreen(
                         TYPE_ANNOUNCEMENT,
                         recipientAddedSuccessText,
                     )
-                    recipientAddedSuccess.value = false
                     encryptRecipientViewModel.handleIsRecipientAdded(false)
                 }
             }
@@ -230,6 +229,20 @@ fun EncryptRecipientScreen(
                 snackBarHostState.showSnackbar(message)
             }
             SnackBarManager.removeMessage(message)
+        }
+    }
+
+    LaunchedEffect(recipientAddedSuccess.value) {
+        if (recipientAddedSuccess.value) {
+            showMessage(recipientAddedSuccessText)
+            recipientAddedSuccess.value = false
+        }
+    }
+
+    LaunchedEffect(containerEncryptedSuccess.value) {
+        if (containerEncryptedSuccess.value) {
+            showMessage(containerEncryptedSuccessText)
+            containerEncryptedSuccess.value = false
         }
     }
 
@@ -292,14 +305,6 @@ fun EncryptRecipientScreen(
                     .fillMaxWidth(),
             horizontalAlignment = Alignment.Start,
         ) {
-            if (recipientAddedSuccess.value == true) {
-                showMessage(recipientAddedSuccessText)
-                recipientAddedSuccess.value = false
-            }
-            if (containerEncryptedSuccess.value == true) {
-                showMessage(containerEncryptedSuccessText)
-                containerEncryptedSuccess.value = false
-            }
             if (!expanded) {
                 Text(
                     text = stringResource(id = R.string.crypto_container_recipients_title),
