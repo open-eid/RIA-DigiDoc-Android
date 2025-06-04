@@ -122,10 +122,12 @@ fun SignatureComponent(
                             .semantics {
                                 if (roles.isEmpty()) {
                                     this.contentDescription =
-                                        "$signatureText ${index + 1} ${formatNumbers(nameText)} $statusText $signedTime"
+                                        "$signatureText ${index + 1}, ${formatNumbers(nameText)}," +
+                                        " $statusText, $signedTime"
                                 } else {
                                     this.contentDescription =
-                                        "${formatNumbers(nameText)}, $statusText, $signedTime, $roleAndAddress: $roles"
+                                        "$signatureText ${index + 1}, ${formatNumbers(nameText)}," +
+                                        " $statusText, $signedTime, $roleAndAddress: $roles"
                                 }
                                 testTagsAsResourceId = true
                             }
