@@ -10,6 +10,4 @@ sealed class ContainerNotificationType {
     data class UnknownSignatures(val count: Int) : ContainerNotificationType()
 
     data class InvalidSignatures(val count: Int) : ContainerNotificationType()
-
-    data object EmptyFileInContainer : ContainerNotificationType()
 }

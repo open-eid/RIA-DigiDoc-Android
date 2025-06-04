@@ -143,6 +143,7 @@ class RecentDocumentsViewModelTest {
     fun recentDocumentsViewModel_openDocument_successWithTimestampedContainer(): Unit =
         runBlocking {
             val tempFile = File.createTempFile("testFile", "asics", ContainerUtil.signatureContainersDir(context))
+            tempFile.writeText("test content")
             tempFile.deleteOnExit()
 
             `when`(sivaRepository.isTimestampedContainer(anyOrNull(), anyBoolean())).thenReturn(true)

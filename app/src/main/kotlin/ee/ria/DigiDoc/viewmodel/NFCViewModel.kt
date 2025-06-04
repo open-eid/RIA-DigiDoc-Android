@@ -17,6 +17,7 @@ import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN1_MIN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN2_MIN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN_MAX_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PUK_MIN_LENGTH
+import ee.ria.DigiDoc.common.Constant.SignatureRequest.SIGNATURE_PROFILE_TS
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.cryptolib.CDOC2Settings
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
@@ -31,12 +32,14 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
+import ee.ria.DigiDoc.network.utils.UserAgentUtil
 import ee.ria.DigiDoc.smartcardreader.ApduResponseException
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderException
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager.NfcStatus
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
+import ee.ria.libdigidocpp.ExternalSigner
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -245,8 +248,12 @@ class NFCViewModel
                                     "Signer certificate: " + Base64.toBase64String(signerCert),
                                 )
 
+                                val signer = ExternalSigner(signerCert)
+                                signer.setProfile(SIGNATURE_PROFILE_TS)
+                                signer.setUserAgent(UserAgentUtil.getUserAgent(context, false, true))
+
                                 val dataToSignBytes =
-                                    containerWrapper.prepareSignature(container, signerCert, roleData)
+                                    containerWrapper.prepareSignature(signer, container, signerCert, roleData)
 
                                 val signatureArray =
                                     card.calculateSignature(pin2Code, dataToSignBytes, true)
@@ -255,7 +262,11 @@ class NFCViewModel
                                 }
                                 debugLog(logTag, "Signature: " + Hex.toHexString(signatureArray))
 
-                                containerWrapper.finalizeSignature(container, signatureArray)
+                                containerWrapper.finalizeSignature(
+                                    signer,
+                                    container,
+                                    signatureArray,
+                                )
 
                                 CoroutineScope(Main).launch {
                                     _shouldResetPIN.postValue(true)
@@ -490,7 +501,7 @@ class NFCViewModel
 
                                 errorLog(logTag, "Exception: " + ex.message, ex)
                             } finally {
-                                if (null != pin1Code && pin1Code.isNotEmpty()) {
+                                if (pin1Code.isNotEmpty()) {
                                     Arrays.fill(pin1Code, 0.toByte())
                                 }
                                 nfcSmartCardReaderManager.disableNfcReaderMode()

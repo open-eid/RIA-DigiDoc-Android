@@ -25,6 +25,15 @@ object UserAgentUtil {
         context: Context?,
         buildVersionProvider: BuildVersionProvider = BuildVersionProviderImpl(),
     ): String {
+        return getUserAgent(context, false, false, buildVersionProvider)
+    }
+
+    fun getUserAgent(
+        context: Context?,
+        shouldIncludeDevices: Boolean,
+        isNFCSignature: Boolean,
+        buildVersionProvider: BuildVersionProvider = BuildVersionProviderImpl(),
+    ): String {
         val deviceProductNames = ArrayList<String?>()
         val initializingMessage = StringBuilder()
         if (context != null) {
@@ -34,9 +43,13 @@ object UserAgentUtil {
             initializingMessage.append("riadigidoc/").append(getAppVersion(context, buildVersionProvider))
             initializingMessage.append(" (Android ").append(Build.VERSION.RELEASE).append(")")
             initializingMessage.append(" Lang: ").append(Locale.getDefault().language)
-            if (deviceProductNames.isNotEmpty()) {
+
+            if (shouldIncludeDevices && deviceProductNames.isNotEmpty()) {
                 initializingMessage.append(" Devices: ")
                     .append(TextUtils.join(", ", deviceProductNames))
+            }
+            if (isNFCSignature) {
+                initializingMessage.append(" NFC: true")
             }
         }
         return initializingMessage.toString()
@@ -69,8 +82,8 @@ object UserAgentUtil {
                 }
                 .collect(
                     Collectors.toMap<Map.Entry<String, UsbDevice>, String, UsbDevice>(
-                        { (key, value) -> key },
-                        { (key, value) -> value },
+                        { (key, _) -> key },
+                        { (_, value) -> value },
                     ),
                 )
         return ArrayList(smartDevices.values)

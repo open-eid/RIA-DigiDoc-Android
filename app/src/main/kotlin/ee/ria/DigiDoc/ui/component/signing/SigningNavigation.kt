@@ -465,11 +465,6 @@ fun SigningNavigation(
                         ContainerNotificationType.InvalidSignatures(
                             invalidSignaturesCount,
                         ).takeIf { invalidSignaturesCount > 0 },
-                        ContainerNotificationType.EmptyFileInContainer.takeIf {
-                            signingViewModel.isEmptyFileInContainer(
-                                signedContainer,
-                            )
-                        },
                     ),
                 )
             }

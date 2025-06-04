@@ -19,7 +19,7 @@ class SignatureWrapper(signature: Signature) : SignatureInterface {
     override val dataToSign: ByteArray? =
         try {
             signature.dataToSign()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     override val policy: String = signature.policy()
@@ -37,10 +37,31 @@ class SignatureWrapper(signature: Signature) : SignatureInterface {
     override val streetAddress: String = signature.streetAddress()
     override val signedBy: String = signature.signedBy()
     override val messageImprint: ByteArray = signature.messageImprint()
-    override val signingCertificateDer: ByteArray = signature.signingCertificateDer()
-    override val ocspCertificateDer: ByteArray = signature.OCSPCertificateDer()
-    override val timeStampCertificateDer: ByteArray = signature.TimeStampCertificateDer()
-    override val archiveTimeStampCertificateDer: ByteArray = signature.ArchiveTimeStampCertificateDer()
+    override val signingCertificateDer: ByteArray =
+        try {
+            signature.signingCertificate().encoded
+        } catch (_: Exception) {
+            ByteArray(0)
+        }
+    override val ocspCertificateDer: ByteArray =
+        try {
+            signature.OCSPCertificate().encoded
+        } catch (_: Exception) {
+            ByteArray(0)
+        }
+    override val timeStampCertificateDer: ByteArray =
+        try {
+            signature.TimeStampCertificate().encoded
+        } catch (_: Exception) {
+            ByteArray(0)
+        }
+
+    override val archiveTimeStampCertificateDer: ByteArray =
+        try {
+            signature.ArchiveTimeStampCertificate().encoded
+        } catch (_: Exception) {
+            ByteArray(0)
+        }
 
     override val validator: ValidatorInterface = ValidatorWrapper(Signature.Validator(signature))
 
@@ -48,7 +69,7 @@ class SignatureWrapper(signature: Signature) : SignatureInterface {
         var commonName: String?
         try {
             commonName =
-                Certificate.create(signature.signingCertificateDer(), CertificateServiceImpl())
+                Certificate.create(signature.signingCertificate().encoded, CertificateServiceImpl())
                     .friendlyName
         } catch (e: IOException) {
             errorLog(logTag, "Can't parse certificate to get CN", e)

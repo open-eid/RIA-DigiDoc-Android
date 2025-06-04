@@ -2,6 +2,8 @@
 
 package ee.ria.DigiDoc.domain.service
 
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.SIGNATURE_PROFILE_TS
 import ee.ria.DigiDoc.common.certificate.CertificateService
 import ee.ria.DigiDoc.common.model.ExtendedCertificate
@@ -13,9 +15,9 @@ import ee.ria.DigiDoc.idcard.Token
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
+import ee.ria.DigiDoc.network.utils.UserAgentUtil
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderException
-import ee.ria.DigiDoc.utilsLib.text.TextUtil
-import ee.ria.libdigidocpp.StringVector
+import ee.ria.libdigidocpp.ExternalSigner
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.withContext
@@ -26,6 +28,7 @@ import javax.inject.Singleton
 class IdCardServiceImpl
     @Inject
     constructor(
+        @ApplicationContext private val context: Context,
         private val containerWrapper: ContainerWrapper,
         private val certificateService: CertificateService,
     ) : IdCardService {
@@ -99,26 +102,17 @@ class IdCardServiceImpl
 
             val dataToSign: ByteArray?
 
-            if (roleData != null) {
-                dataToSign =
-                    containerWrapper.prepareSignature(
-                        signedContainer, signCertificateData,
-                        RoleData(
-                            StringVector(TextUtil.removeEmptyStrings(roleData.roles)),
-                            roleData.city,
-                            roleData.state,
-                            roleData.zip,
-                            roleData.country,
-                        ),
-                    )
-            } else {
-                dataToSign =
-                    containerWrapper.prepareSignature(
-                        signedContainer,
-                        signCertificateData,
-                        SIGNATURE_PROFILE_TS,
-                    )?.dataToSign()
-            }
+            val signer = ExternalSigner(signCertificateData)
+            signer.setProfile(SIGNATURE_PROFILE_TS)
+            signer.setUserAgent(UserAgentUtil.getUserAgent(context, true, false))
+
+            dataToSign =
+                containerWrapper.prepareSignature(
+                    signer,
+                    signedContainer,
+                    signCertificateData,
+                    roleData,
+                )
 
             val signatureData =
                 token.calculateSignature(
@@ -127,7 +121,11 @@ class IdCardServiceImpl
                     idCardData.signCertificate.ellipticCurve,
                 )
 
-            containerWrapper.finalizeSignature(signedContainer, signatureData)
+            containerWrapper.finalizeSignature(
+                signer,
+                signedContainer,
+                signatureData,
+            )
             return signedContainer
         }
     }
