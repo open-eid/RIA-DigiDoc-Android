@@ -325,11 +325,13 @@ class MobileSignServiceImpl
                         signer.setUserAgent(UserAgentUtil.getUserAgent(context))
 
                         val dataToSignBytes =
-                            containerWrapper.prepareSignature(
-                                signer,
-                                signedContainer,
-                                signerCert,
-                                roleDataRequest,
+                            Base64.encode(
+                                containerWrapper.prepareSignature(
+                                    signer,
+                                    signedContainer,
+                                    signerCert,
+                                    roleDataRequest,
+                                ),
                             )
 
                         val base64Hash =
