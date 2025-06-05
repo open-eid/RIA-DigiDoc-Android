@@ -61,8 +61,6 @@ object Constant {
         const val NOTIFICATION_PERMISSION_CODE: Int = 1
 
         const val NOTIFICATION_NAME = "Smart-ID"
-        const val PEM_BEGIN_CERT = "-----BEGIN CERTIFICATE-----"
-        const val PEM_END_CERT = "-----END CERTIFICATE-----"
     }
 
     object MobileIdConstants {
@@ -88,9 +86,6 @@ object Constant {
         const val MANUAL_PROXY_PORT: String = "ee.ria.DigiDoc.androidmobileid.PORT"
         const val MANUAL_PROXY_USERNAME: String = "ee.ria.DigiDoc.androidmobileid.USERNAME"
         const val MANUAL_PROXY_PASSWORD: String = "ee.ria.DigiDoc.androidmobileid.PASSWORD"
-
-        const val CERT_PEM_HEADER = "-----BEGIN CERTIFICATE-----"
-        const val CERT_PEM_FOOTER = "-----END CERTIFICATE-----"
     }
 
     const val TSL_SEQUENCE_NUMBER_ELEMENT: String = "TSLSequenceNumber"
@@ -102,6 +97,9 @@ object Constant {
     const val DEFAULT_FILENAME = "newFile"
     const val ALLOWED_URL_CHARACTERS =
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_,.:/%;+=@?&!()"
+
+    const val PEM_BEGIN_CERT = "-----BEGIN CERTIFICATE-----"
+    const val PEM_END_CERT = "-----END CERTIFICATE-----"
 
     const val DIR_TSA_CERT = "tsa_cert"
     const val DIR_SIVA_CERT = "siva_cert"

@@ -9,6 +9,9 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import ee.ria.DigiDoc.common.Constant
+import ee.ria.DigiDoc.common.Constant.PEM_BEGIN_CERT
+import ee.ria.DigiDoc.common.Constant.PEM_END_CERT
+import ee.ria.DigiDoc.common.Constant.SignatureRequest.SIGNATURE_PROFILE_TS
 import ee.ria.DigiDoc.common.model.AppState
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
@@ -30,19 +33,24 @@ import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatu
 import ee.ria.DigiDoc.network.sid.dto.response.SmartIDServiceResponse
 import ee.ria.DigiDoc.network.sid.rest.SIDRestServiceClient
 import ee.ria.DigiDoc.network.sid.rest.ServiceGenerator
+import ee.ria.DigiDoc.network.utils.UserAgentUtil
 import ee.ria.DigiDoc.smartId.utils.VerificationCodeUtil
+import ee.ria.DigiDoc.utilsLib.extensions.removeWhitespaces
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
+import ee.ria.DigiDoc.utilsLib.signing.CertificateUtil
 import ee.ria.DigiDoc.utilsLib.signing.NotificationUtil
 import ee.ria.DigiDoc.utilsLib.signing.PowerUtil
 import ee.ria.DigiDoc.utilsLib.signing.UUIDUtil
 import ee.ria.DigiDoc.utilsLib.text.MessageUtil
+import ee.ria.libdigidocpp.ExternalSigner
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import org.bouncycastle.util.encoders.Base64
 import retrofit2.Call
 import java.io.IOException
 import java.net.UnknownHostException
+import java.nio.charset.StandardCharsets
 import java.security.NoSuchAlgorithmException
 import java.security.cert.CertificateException
 import javax.inject.Inject
@@ -231,14 +239,24 @@ class SmartSignServiceImpl
 
                     debugLog(logTag, "Session status response: $sessionStatusResponse")
 
-                    val base64Hash =
-                        containerWrapper.prepareSignature(
-                            signedContainer,
-                            getCertificatePem(
-                                sessionStatusResponse.cert?.value,
+                    val signerCert = getCertificate(sessionStatusResponse.cert?.value)
+                    val signer = ExternalSigner(signerCert)
+                    signer.setProfile(SIGNATURE_PROFILE_TS)
+                    signer.setUserAgent(UserAgentUtil.getUserAgent(context))
+
+                    val dataToSignBytes =
+                        Base64.encode(
+                            containerWrapper.prepareSignature(
+                                signer,
+                                signedContainer,
+                                signerCert,
+                                roleDataRequest,
                             ),
-                            roleDataRequest,
                         )
+
+                    val base64Hash =
+                        String(dataToSignBytes, StandardCharsets.UTF_8)
+                            .removeWhitespaces()
 
                     val containerSignatures = signedContainer.getSignatures(Main)
 
@@ -278,9 +296,11 @@ class SmartSignServiceImpl
                         }
                         debugLog(logTag, "SessionStatusResponse: $sessionStatusResponse")
                         debugLog(logTag, "Finalizing signature...")
+                        val signatureValueBytes: ByteArray = Base64.decode(sessionStatusResponse.signature?.value)
                         containerWrapper.finalizeSignature(
+                            signer,
                             signedContainer,
-                            sessionStatusResponse.signature?.value,
+                            signatureValueBytes,
                         )
                         debugLog(logTag, "Posting signature status response")
                         postSmartCreateSignatureStatusResponse(sessionStatusResponse)
@@ -466,9 +486,12 @@ class SmartSignServiceImpl
             notificationManager.notify(Constant.SmartIdConstants.NOTIFICATION_PERMISSION_CODE, notification)
         }
 
-        private fun getCertificatePem(cert: String?): String {
-            return Constant.SmartIdConstants.PEM_BEGIN_CERT + "\n" + cert +
-                "\n" + Constant.SmartIdConstants.PEM_END_CERT
+        private fun getCertificate(cert: String?): ByteArray {
+            val certPemString = (PEM_BEGIN_CERT + "\n" + cert + "\n" + PEM_END_CERT).trimIndent()
+
+            return certPemString.let {
+                CertificateUtil.x509Certificate(it).encoded
+            }
         }
 
         @Throws(IOException::class, SigningCancelledException::class)

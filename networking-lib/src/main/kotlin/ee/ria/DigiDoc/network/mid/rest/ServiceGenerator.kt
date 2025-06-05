@@ -4,8 +4,8 @@ package ee.ria.DigiDoc.network.mid.rest
 
 import android.content.Context
 import com.takisoft.preferencex.BuildConfig
-import ee.ria.DigiDoc.common.Constant.MobileIdConstants.CERT_PEM_FOOTER
-import ee.ria.DigiDoc.common.Constant.MobileIdConstants.CERT_PEM_HEADER
+import ee.ria.DigiDoc.common.Constant.PEM_BEGIN_CERT
+import ee.ria.DigiDoc.common.Constant.PEM_END_CERT
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxyConfig
 import ee.ria.DigiDoc.network.proxy.ProxySetting
@@ -117,7 +117,7 @@ class ServiceGeneratorImpl : ServiceGenerator {
                     trustManagers[0] as X509TrustManager,
                 )
             } catch (e: Exception) {
-                debugLog(logTag, "Error building httpClient with sslContext")
+                debugLog(logTag, "Error building httpClient with sslContext", e)
             }
         }
         return httpClientBuilder.build()
@@ -127,7 +127,8 @@ class ServiceGeneratorImpl : ServiceGenerator {
         httpClientBuilder: OkHttpClient.Builder,
         context: Context,
     ) {
-        if (isLoggingEnabled(context) || BuildConfig.DEBUG) {
+        val isDebug = BuildConfig.BUILD_TYPE.contentEquals("debug")
+        if (isLoggingEnabled(context) || isDebug) {
             debugLog(logTag, "Adding logging interceptor to HTTP client")
             loggingInterceptor = HttpLoggingInterceptor()
             loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
@@ -164,9 +165,9 @@ class ServiceGeneratorImpl : ServiceGenerator {
                 for (i in certBundle.indices) {
                     val pemCert =
                         """
-                        $CERT_PEM_HEADER
+                        $PEM_BEGIN_CERT
                         ${certBundle[i]}
-                        $CERT_PEM_FOOTER
+                        $PEM_END_CERT
                         """.trimIndent()
                     sha256Certificates[i] =
                         "sha256/" + getSHA256FromCertificate(CertificateUtil.x509Certificate(pemCert))

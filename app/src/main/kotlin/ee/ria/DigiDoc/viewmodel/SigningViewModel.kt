@@ -56,10 +56,6 @@ class SigningViewModel
             return signedContainer?.isSigned() == false
         }
 
-        fun isEmptyFileInContainer(signedContainer: SignedContainer?): Boolean {
-            return signedContainer?.rawContainer()?.dataFiles()?.any { it.fileSize() == 0L } == true
-        }
-
         fun isContainerWithTimestamps(signedContainer: SignedContainer?): Boolean =
             signedContainer?.getTimestamps()?.isNotEmpty() == true
 
@@ -80,7 +76,7 @@ class SigningViewModel
                         FilenameUtils
                             .getExtension(signedContainer.getName())
                             .lowercase(Locale.getDefault()),
-                    ) && !isEmptyFileInContainer(signedContainer)
+                    )
                 ) &&
                 !isNestedContainer && !isXadesContainer && !isCadesContainer
 

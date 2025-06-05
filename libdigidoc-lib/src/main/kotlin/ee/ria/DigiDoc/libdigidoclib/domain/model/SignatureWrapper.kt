@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.libdigidoclib.domain.model
 
 import ee.ria.DigiDoc.common.certificate.CertificateServiceImpl
 import ee.ria.DigiDoc.common.model.Certificate
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.libdigidocpp.Signature
 import java.io.IOException
@@ -20,6 +21,7 @@ class SignatureWrapper(signature: Signature) : SignatureInterface {
         try {
             signature.dataToSign()
         } catch (e: Exception) {
+            errorLog(logTag, "Can't get data to sign", e)
             null
         }
     override val policy: String = signature.policy()
@@ -37,10 +39,35 @@ class SignatureWrapper(signature: Signature) : SignatureInterface {
     override val streetAddress: String = signature.streetAddress()
     override val signedBy: String = signature.signedBy()
     override val messageImprint: ByteArray = signature.messageImprint()
-    override val signingCertificateDer: ByteArray = signature.signingCertificateDer()
-    override val ocspCertificateDer: ByteArray = signature.OCSPCertificateDer()
-    override val timeStampCertificateDer: ByteArray = signature.TimeStampCertificateDer()
-    override val archiveTimeStampCertificateDer: ByteArray = signature.ArchiveTimeStampCertificateDer()
+    override val signingCertificateDer: ByteArray =
+        try {
+            signature.signingCertificate().encoded
+        } catch (e: Exception) {
+            debugLog(logTag, "Can't get signing certificate DER", e)
+            ByteArray(0)
+        }
+    override val ocspCertificateDer: ByteArray =
+        try {
+            signature.OCSPCertificate().encoded
+        } catch (e: Exception) {
+            debugLog(logTag, "Can't get OCSP certificate DER", e)
+            ByteArray(0)
+        }
+    override val timeStampCertificateDer: ByteArray =
+        try {
+            signature.TimeStampCertificate().encoded
+        } catch (e: Exception) {
+            debugLog(logTag, "Can't get time stamp certificate DER", e)
+            ByteArray(0)
+        }
+
+    override val archiveTimeStampCertificateDer: ByteArray =
+        try {
+            signature.ArchiveTimeStampCertificate().encoded
+        } catch (e: Exception) {
+            debugLog(logTag, "Can't get archive time stamp certificate DER", e)
+            ByteArray(0)
+        }
 
     override val validator: ValidatorInterface = ValidatorWrapper(Signature.Validator(signature))
 
@@ -48,7 +75,7 @@ class SignatureWrapper(signature: Signature) : SignatureInterface {
         var commonName: String?
         try {
             commonName =
-                Certificate.create(signature.signingCertificateDer(), CertificateServiceImpl())
+                Certificate.create(signature.signingCertificate().encoded, CertificateServiceImpl())
                     .friendlyName
         } catch (e: IOException) {
             errorLog(logTag, "Can't parse certificate to get CN", e)

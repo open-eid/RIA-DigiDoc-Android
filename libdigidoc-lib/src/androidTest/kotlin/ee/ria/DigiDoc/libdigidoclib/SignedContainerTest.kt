@@ -8,7 +8,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
 import ee.ria.DigiDoc.common.Constant.ASICE_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
-import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
 import ee.ria.DigiDoc.common.testfiles.asset.AssetFile.Companion.getResourceFileAsFile
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifierImpl
@@ -45,6 +44,8 @@ import org.mockito.junit.MockitoJUnitRunner
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.nio.charset.Charset
+import java.nio.file.Files
 
 @RunWith(MockitoJUnitRunner::class)
 class SignedContainerTest {
@@ -89,13 +90,13 @@ class SignedContainerTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         context = InstrumentationRegistry.getInstrumentation().targetContext
-        testFile = File.createTempFile("testFile", ".txt", context.filesDir)
-        dataFile1 = File.createTempFile("dataFile1", ".txt", context.filesDir)
-        dataFile2 = File.createTempFile("dataFile2", ".txt", context.filesDir)
-        dataFile3 = File.createTempFile("dataFile3", ".txt", context.filesDir)
-        container = AssetFile.getResourceFileAsFile(context, "example.asice", ee.ria.DigiDoc.common.R.raw.example)
+        testFile = createTempFileWithStringContent("testFile", "test content")
+        dataFile1 = createTempFileWithStringContent("dataFile1", "test content")
+        dataFile2 = createTempFileWithStringContent("dataFile2", "test content")
+        dataFile3 = createTempFileWithStringContent("dataFile3", "test content")
+        container = getResourceFileAsFile(context, "example.asice", ee.ria.DigiDoc.common.R.raw.example)
         signedPdfDocument =
-            AssetFile.getResourceFileAsFile(
+            getResourceFileAsFile(
                 context, "example_signed_pdf.pdf",
                 ee.ria.DigiDoc.common.R.raw.example_signed_pdf,
             )
@@ -350,7 +351,7 @@ class SignedContainerTest {
     @Test
     fun signedContainer_openOrCreate_successWhenCreatingContainerWithSpecialCharacters() =
         runTest {
-            val testDataFile = File.createTempFile("dataFile1!@#$€%&=?", ".txt", context.filesDir)
+            val testDataFile = createTempFileWithStringContent("dataFile1!@#$€%&=?", "test content")
 
             val createdContainer = openOrCreate(context, testFile, listOf(testDataFile), true)
 
@@ -364,7 +365,7 @@ class SignedContainerTest {
     fun signedContainer_openOrCreate_successWhenCreatingContainerWithNoExtensionDataFile() =
         runTest {
             val testDataFile = File.createTempFile("dataFile1", "", context.filesDir)
-
+            testDataFile.writeText("test content")
             val signedContainer = openOrCreate(context, testDataFile, listOf(testDataFile), true)
 
             testDataFile.delete()
@@ -535,11 +536,21 @@ class SignedContainerTest {
     @Test
     fun signedContainer_openOrCreate_successCreatingNewContainerWithPDFSignatures() =
         runTest {
-            val isTestEnabled = System.getenv("WITH_EXTRA_DIGIDOC_TESTS")?.toBoolean() ?: false
+            val isTestEnabled = System.getenv("WITH_EXTRA_DIGIDOC_TESTS")?.toBoolean() == true
             assumeTrue("Is test enabled: $isTestEnabled", isTestEnabled)
 
             val pdfContainer = openOrCreate(context, signedPdfDocument, listOf(signedPdfDocument), true)
 
             assertTrue(pdfContainer.getName().endsWith("pdf"))
         }
+
+    @Suppress("SameParameterValue")
+    private fun createTempFileWithStringContent(
+        filename: String,
+        content: String,
+    ): File {
+        val tempFile = File.createTempFile(filename, ".txt", context.filesDir)
+        Files.write(tempFile.toPath(), content.toByteArray(Charset.defaultCharset()))
+        return tempFile
+    }
 }

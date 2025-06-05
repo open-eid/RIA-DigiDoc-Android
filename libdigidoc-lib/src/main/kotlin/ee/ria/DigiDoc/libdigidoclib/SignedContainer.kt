@@ -97,6 +97,7 @@ class SignedContainer
                             try {
                                 SignatureWrapper(signature)
                             } catch (e: Exception) {
+                                errorLog(LOG_TAG, "Failed to wrap signature", e)
                                 null
                             }
                         } ?: emptyList()
@@ -137,11 +138,11 @@ class SignedContainer
             if (!signatures.isNullOrEmpty()) {
                 for (i in signatures.indices) {
                     if (signature.id == signatures[i].id()) {
-                        container?.removeSignature(i.toLong())
+                        container.removeSignature(i.toLong())
                         break
                     }
                 }
-                container?.save()
+                container.save()
             }
         }
 
@@ -177,12 +178,12 @@ class SignedContainer
                 withContext(IO) {
                     for (i in dataFiles.indices) {
                         if (dataFile.id == dataFiles[i].id()) {
-                            container?.removeDataFile(i.toLong())
+                            container.removeDataFile(i.toLong())
                             break
                         }
                     }
 
-                    container?.save()
+                    container.save()
                 }
             }
         }

@@ -149,20 +149,6 @@ class SigningViewModelTest {
         }
 
     @Test
-    fun signingViewModel_isSignButtonShown_emptyFileInContainerReturnFalse() =
-        runTest {
-            `when`(mimeTypeCache.getMimeType(anyOrNull())).thenReturn(ASICE_MIMETYPE)
-
-            val file = File.createTempFile("temp", ".txt")
-
-            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
-
-            val isSignButtonShown = viewModel.isSignButtonShown(container, false, false, false)
-
-            assertFalse(isSignButtonShown)
-        }
-
-    @Test
     fun signingViewModel_isSignButtonShown_containerIsNullReturnFalse() =
         runTest {
             val isSignButtonShown = viewModel.isSignButtonShown(null, false, false, false)
@@ -205,31 +191,6 @@ class SigningViewModelTest {
         }
 
     @Test
-    fun signingViewModel_isEmptyFileInContainer_returnTrue() =
-        runTest {
-            val file = File.createTempFile("temp", ".txt")
-
-            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
-
-            val isEmptyFileInContainer = viewModel.isEmptyFileInContainer(container)
-
-            assertTrue(isEmptyFileInContainer)
-        }
-
-    @Test
-    fun signingViewModel_isEmptyFileInContainer_returnFalse() =
-        runTest {
-            val file = File.createTempFile("temp", ".txt")
-            Files.write(file.toPath(), "content".toByteArray(Charset.defaultCharset()))
-
-            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
-
-            val isEmptyFileInContainer = viewModel.isEmptyFileInContainer(container)
-
-            assertFalse(isEmptyFileInContainer)
-        }
-
-    @Test
     fun signingViewModel_isEncryptButtonShown_returnTrue() =
         runTest {
             val file =
@@ -250,6 +211,7 @@ class SigningViewModelTest {
     fun signingViewModel_isEncryptButtonShown_returnFalse() =
         runTest {
             val file = File.createTempFile("temp", ".txt")
+            file.writeText("test content")
 
             val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
@@ -279,6 +241,7 @@ class SigningViewModelTest {
     fun signingViewModel_isShareButtonShown_returnFalse() =
         runTest {
             val file = File.createTempFile("temp", ".txt")
+            file.writeText("test content")
 
             val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
@@ -308,7 +271,7 @@ class SigningViewModelTest {
     fun signingViewModel_isExistingContainer_returnFalse() =
         runTest {
             val file = File.createTempFile("temp", ".txt")
-
+            file.writeText("test content")
             val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
 
             val isExistingContainer = viewModel.isExistingContainer(container)

@@ -187,10 +187,6 @@ fun ContainerNotificationsScreen(
                                             count = type.count,
                                             type.count,
                                         )
-                                    ContainerNotificationType.EmptyFileInContainer ->
-                                        stringResource(
-                                            id = R.string.empty_file_message,
-                                        )
                                 },
                         )
                     }

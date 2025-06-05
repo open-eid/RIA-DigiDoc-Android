@@ -60,6 +60,7 @@ dependencies {
     androidTestImplementation(libs.mockito.kotlin)
 
     implementation(project(":libdigidoc-lib"))
+    implementation(project(":networking-lib"))
     implementation(project(":commons-lib"))
     implementation(project(":utils-lib"))
     implementation(project(":config-lib"))

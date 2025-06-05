@@ -57,7 +57,47 @@ class UserAgentUtilTest {
 
         assertEquals(
             userAgentString,
+            "riadigidoc/3.0.0.1234 (Android ${Build.VERSION.RELEASE}) Lang: en",
+        )
+    }
+
+    @Test
+    fun getUserAgent_successShouldIncludeDevicesTrue() {
+        val devices: HashMap<String, UsbDevice> = HashMap()
+        devices.put("device1", usbDevice)
+        `when`(context.packageManager).thenReturn(packageManager)
+        `when`(context.packageName).thenReturn("DigiDoc")
+        `when`(packageManager.getPackageInfo(anyString(), anyInt())).thenReturn(packageInfo)
+        `when`(context.getSystemService(Context.USB_SERVICE)).thenReturn(usbManager)
+        `when`(usbManager.getDeviceList()).thenReturn(devices)
+        `when`(usbDevice.productName).thenReturn("Smart Card Reader 1")
+        `when`(buildVersionProvider.getSDKInt()).thenReturn(32)
+
+        val userAgentString = getUserAgent(context, SendDiagnostics.Devices, buildVersionProvider)
+
+        assertEquals(
+            userAgentString,
             "riadigidoc/3.0.0.1234 (Android ${Build.VERSION.RELEASE}) Lang: en Devices: Smart Card Reader 1",
+        )
+    }
+
+    @Test
+    fun getUserAgent_successNFCTrue() {
+        val devices: HashMap<String, UsbDevice> = HashMap()
+        devices.put("device1", usbDevice)
+        `when`(context.packageManager).thenReturn(packageManager)
+        `when`(context.packageName).thenReturn("DigiDoc")
+        `when`(packageManager.getPackageInfo(anyString(), anyInt())).thenReturn(packageInfo)
+        `when`(context.getSystemService(Context.USB_SERVICE)).thenReturn(usbManager)
+        `when`(usbManager.getDeviceList()).thenReturn(devices)
+        `when`(usbDevice.productName).thenReturn("Smart Card Reader 1")
+        `when`(buildVersionProvider.getSDKInt()).thenReturn(32)
+
+        val userAgentString = getUserAgent(context, SendDiagnostics.NFC, buildVersionProvider)
+
+        assertEquals(
+            userAgentString,
+            "riadigidoc/3.0.0.1234 (Android ${Build.VERSION.RELEASE}) Lang: en NFC: true",
         )
     }
 }

@@ -5,6 +5,9 @@ package ee.ria.DigiDoc.mobileId
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import ee.ria.DigiDoc.common.Constant.PEM_BEGIN_CERT
+import ee.ria.DigiDoc.common.Constant.PEM_END_CERT
+import ee.ria.DigiDoc.common.Constant.SignatureRequest.SIGNATURE_PROFILE_TS
 import ee.ria.DigiDoc.common.model.AppState
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
@@ -30,12 +33,16 @@ import ee.ria.DigiDoc.network.mid.rest.ServiceGenerator
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.network.proxy.ProxyUtil
+import ee.ria.DigiDoc.network.utils.UserAgentUtil
+import ee.ria.DigiDoc.utilsLib.extensions.removeWhitespaces
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
+import ee.ria.DigiDoc.utilsLib.signing.CertificateUtil
 import ee.ria.DigiDoc.utilsLib.signing.TrustManagerUtil
 import ee.ria.DigiDoc.utilsLib.signing.UUIDUtil
 import ee.ria.DigiDoc.utilsLib.text.MessageUtil
 import ee.ria.libdigidocpp.Container
+import ee.ria.libdigidocpp.ExternalSigner
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import org.bouncycastle.util.encoders.Base64
@@ -44,6 +51,7 @@ import retrofit2.Response
 import java.io.FileInputStream
 import java.io.IOException
 import java.net.UnknownHostException
+import java.nio.charset.StandardCharsets
 import java.security.KeyManagementException
 import java.security.KeyStore
 import java.security.KeyStoreException
@@ -310,12 +318,25 @@ class MobileSignServiceImpl
                         ) {
                             return
                         }
-                        val base64Hash: String =
-                            containerWrapper.prepareSignature(
-                                signedContainer,
-                                getCertificatePem(response.cert),
-                                roleDataRequest,
+
+                        val signerCert = getCertificate(response.cert)
+                        val signer = ExternalSigner(signerCert)
+                        signer.setProfile(SIGNATURE_PROFILE_TS)
+                        signer.setUserAgent(UserAgentUtil.getUserAgent(context))
+
+                        val dataToSignBytes =
+                            Base64.encode(
+                                containerWrapper.prepareSignature(
+                                    signer,
+                                    signedContainer,
+                                    signerCert,
+                                    roleDataRequest,
+                                ),
                             )
+
+                        val base64Hash =
+                            String(dataToSignBytes, StandardCharsets.UTF_8)
+                                .removeWhitespaces()
 
                         val containerSignatures = signedContainer.getSignatures(Main)
 
@@ -343,6 +364,7 @@ class MobileSignServiceImpl
                             }
                             debugLog(logTag, "Session ID: $sessionId")
                             doCreateSignatureStatusRequestLoop(
+                                signer,
                                 signedContainer,
                                 GetMobileCreateSignatureSessionStatusRequest(sessionId),
                             )
@@ -504,16 +526,17 @@ class MobileSignServiceImpl
             return
         }
 
-        private fun getCertificatePem(cert: String?): String {
-            return """
-                $PEM_BEGIN_CERT
-                $cert
-                $PEM_END_CERT
-                """.trimIndent()
+        private fun getCertificate(cert: String?): ByteArray {
+            val certPemString = (PEM_BEGIN_CERT + "\n" + cert + "\n" + PEM_END_CERT).trimIndent()
+
+            return certPemString.let {
+                CertificateUtil.x509Certificate(it).encoded
+            }
         }
 
         @Throws(IOException::class, SigningCancelledException::class)
         private suspend fun doCreateSignatureStatusRequestLoop(
+            signer: ExternalSigner,
             signedContainer: SignedContainer,
             request: GetMobileCreateSignatureSessionStatusRequest,
         ) {
@@ -576,7 +599,8 @@ class MobileSignServiceImpl
                     )
                 }
                 debugLog(logTag, "Finalizing signature...")
-                containerWrapper.finalizeSignature(signedContainer, response.signature?.value)
+                val signatureValueBytes: ByteArray = Base64.decode(response.signature?.value)
+                containerWrapper.finalizeSignature(signer, signedContainer, signatureValueBytes)
                 debugLog(logTag, "Posting create signature status response")
                 signedContainer.rawContainer()?.let {
                     postMobileCreateSignatureStatusResponse(
@@ -594,7 +618,7 @@ class MobileSignServiceImpl
                 }
                 debugLog(logTag, "doCreateSignatureStatusRequestLoop timeout counter: $timeout")
                 sleep(SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS)
-                doCreateSignatureStatusRequestLoop(signedContainer, request)
+                doCreateSignatureStatusRequestLoop(signer, signedContainer, request)
             }
         }
 
@@ -943,9 +967,6 @@ class MobileSignServiceImpl
         }
 
         companion object {
-            private const val PEM_BEGIN_CERT = "-----BEGIN CERTIFICATE-----"
-            private const val PEM_END_CERT = "-----END CERTIFICATE-----"
-
             private const val INITIAL_STATUS_REQUEST_DELAY_IN_MILLISECONDS: Long = 1000
             private const val SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS = (5 * 1000).toLong()
             private const val TIMEOUT_CANCEL = (120 * 1000).toLong()

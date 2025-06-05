@@ -142,9 +142,10 @@ class AppModules {
 
     @Provides
     fun provideIdCardService(
+        @ApplicationContext context: Context,
         containerWrapper: ContainerWrapper,
         certificateService: CertificateService,
-    ): IdCardService = IdCardServiceImpl(containerWrapper, certificateService)
+    ): IdCardService = IdCardServiceImpl(context, containerWrapper, certificateService)
 
     @Provides
     fun provideTextToSpeechWrapper(

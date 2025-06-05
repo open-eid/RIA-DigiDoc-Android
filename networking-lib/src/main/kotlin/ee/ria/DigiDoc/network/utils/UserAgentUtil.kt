@@ -17,12 +17,26 @@ import java.util.Locale
 import java.util.Objects
 import java.util.stream.Collectors
 
+enum class SendDiagnostics {
+    Devices,
+    NFC,
+    None,
+}
+
 object UserAgentUtil {
     private val LOG_TAG = javaClass.simpleName
     private val deviceNameFilters = listOf("Smart", "Reader", "Card")
 
     fun getUserAgent(
         context: Context?,
+        buildVersionProvider: BuildVersionProvider = BuildVersionProviderImpl(),
+    ): String {
+        return getUserAgent(context, SendDiagnostics.None, buildVersionProvider)
+    }
+
+    fun getUserAgent(
+        context: Context?,
+        sendDiagnostics: SendDiagnostics,
         buildVersionProvider: BuildVersionProvider = BuildVersionProviderImpl(),
     ): String {
         val deviceProductNames = ArrayList<String?>()
@@ -34,9 +48,13 @@ object UserAgentUtil {
             initializingMessage.append("riadigidoc/").append(getAppVersion(context, buildVersionProvider))
             initializingMessage.append(" (Android ").append(Build.VERSION.RELEASE).append(")")
             initializingMessage.append(" Lang: ").append(Locale.getDefault().language)
-            if (deviceProductNames.isNotEmpty()) {
+
+            if (sendDiagnostics == SendDiagnostics.Devices && deviceProductNames.isNotEmpty()) {
                 initializingMessage.append(" Devices: ")
                     .append(TextUtils.join(", ", deviceProductNames))
+            }
+            if (sendDiagnostics == SendDiagnostics.NFC) {
+                initializingMessage.append(" NFC: true")
             }
         }
         return initializingMessage.toString()
@@ -69,8 +87,8 @@ object UserAgentUtil {
                 }
                 .collect(
                     Collectors.toMap<Map.Entry<String, UsbDevice>, String, UsbDevice>(
-                        { (key, value) -> key },
-                        { (key, value) -> value },
+                        { (key, _) -> key },
+                        { (_, value) -> value },
                     ),
                 )
         return ArrayList(smartDevices.values)
