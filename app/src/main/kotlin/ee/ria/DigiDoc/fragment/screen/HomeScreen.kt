@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.fragment.screen
 
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Box
@@ -77,6 +78,7 @@ fun HomeScreen(
     sharedMenuViewModel: SharedMenuViewModel,
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
+    val activity = LocalActivity.current
     val openCrashDetectorDialog = remember { mutableStateOf(false) }
     val hasUnsentReports by homeViewModel.hasUnsentReports.asFlow().collectAsState(Tasks.forResult(false))
 
@@ -92,8 +94,7 @@ fun HomeScreen(
     val messages by SnackBarManager.messages.collectAsState(emptyList())
 
     BackHandler {
-        isMainMenuBottomSheetVisible.value = false
-        isSettingsMenuBottomSheetVisible.value = false
+        activity?.finish()
     }
 
     LaunchedEffect(homeViewModel.didAppCrashOnPreviousExecution(), hasUnsentReports) {
