@@ -322,7 +322,7 @@ class MobileSignServiceImpl
                         val signerCert = getCertificate(response.cert)
                         val signer = ExternalSigner(signerCert)
                         signer.setProfile(SIGNATURE_PROFILE_TS)
-                        signer.setUserAgent(UserAgentUtil.getUserAgent(context, false, false))
+                        signer.setUserAgent(UserAgentUtil.getUserAgent(context))
 
                         val dataToSignBytes =
                             containerWrapper.prepareSignature(
@@ -332,8 +332,9 @@ class MobileSignServiceImpl
                                 roleDataRequest,
                             )
 
-                        val base64Hash = String(dataToSignBytes, StandardCharsets.UTF_8)
-                        base64Hash.removeWhitespaces()
+                        val base64Hash =
+                            String(dataToSignBytes, StandardCharsets.UTF_8)
+                                .removeWhitespaces()
 
                         val containerSignatures = signedContainer.getSignatures(Main)
 

@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.libdigidoclib.domain.model
 
 import ee.ria.DigiDoc.common.certificate.CertificateServiceImpl
 import ee.ria.DigiDoc.common.model.Certificate
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.libdigidocpp.Signature
 import java.io.IOException
@@ -19,7 +20,8 @@ class SignatureWrapper(signature: Signature) : SignatureInterface {
     override val dataToSign: ByteArray? =
         try {
             signature.dataToSign()
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            errorLog(logTag, "Can't get data to sign", e)
             null
         }
     override val policy: String = signature.policy()
@@ -40,26 +42,30 @@ class SignatureWrapper(signature: Signature) : SignatureInterface {
     override val signingCertificateDer: ByteArray =
         try {
             signature.signingCertificate().encoded
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            debugLog(logTag, "Can't get signing certificate DER", e)
             ByteArray(0)
         }
     override val ocspCertificateDer: ByteArray =
         try {
             signature.OCSPCertificate().encoded
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            debugLog(logTag, "Can't get OCSP certificate DER", e)
             ByteArray(0)
         }
     override val timeStampCertificateDer: ByteArray =
         try {
             signature.TimeStampCertificate().encoded
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            debugLog(logTag, "Can't get time stamp certificate DER", e)
             ByteArray(0)
         }
 
     override val archiveTimeStampCertificateDer: ByteArray =
         try {
             signature.ArchiveTimeStampCertificate().encoded
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            debugLog(logTag, "Can't get archive time stamp certificate DER", e)
             ByteArray(0)
         }
 

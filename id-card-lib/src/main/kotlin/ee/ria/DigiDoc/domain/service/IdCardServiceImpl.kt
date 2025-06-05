@@ -15,6 +15,7 @@ import ee.ria.DigiDoc.idcard.Token
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
+import ee.ria.DigiDoc.network.utils.SendDiagnostics
 import ee.ria.DigiDoc.network.utils.UserAgentUtil
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderException
 import ee.ria.libdigidocpp.ExternalSigner
@@ -104,7 +105,7 @@ class IdCardServiceImpl
 
             val signer = ExternalSigner(signCertificateData)
             signer.setProfile(SIGNATURE_PROFILE_TS)
-            signer.setUserAgent(UserAgentUtil.getUserAgent(context, true, false))
+            signer.setUserAgent(UserAgentUtil.getUserAgent(context, SendDiagnostics.Devices))
 
             dataToSign =
                 containerWrapper.prepareSignature(

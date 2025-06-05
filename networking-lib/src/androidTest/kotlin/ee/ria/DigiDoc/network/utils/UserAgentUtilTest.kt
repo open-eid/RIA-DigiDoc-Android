@@ -73,7 +73,7 @@ class UserAgentUtilTest {
         `when`(usbDevice.productName).thenReturn("Smart Card Reader 1")
         `when`(buildVersionProvider.getSDKInt()).thenReturn(32)
 
-        val userAgentString = getUserAgent(context, true, false, buildVersionProvider)
+        val userAgentString = getUserAgent(context, SendDiagnostics.Devices, buildVersionProvider)
 
         assertEquals(
             userAgentString,
@@ -93,11 +93,11 @@ class UserAgentUtilTest {
         `when`(usbDevice.productName).thenReturn("Smart Card Reader 1")
         `when`(buildVersionProvider.getSDKInt()).thenReturn(32)
 
-        val userAgentString = getUserAgent(context, true, true, buildVersionProvider)
+        val userAgentString = getUserAgent(context, SendDiagnostics.NFC, buildVersionProvider)
 
         assertEquals(
             userAgentString,
-            "riadigidoc/3.0.0.1234 (Android ${Build.VERSION.RELEASE}) Lang: en Devices: Smart Card Reader 1 NFC: true",
+            "riadigidoc/3.0.0.1234 (Android ${Build.VERSION.RELEASE}) Lang: en NFC: true",
         )
     }
 }

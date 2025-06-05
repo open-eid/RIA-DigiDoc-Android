@@ -32,6 +32,7 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
+import ee.ria.DigiDoc.network.utils.SendDiagnostics
 import ee.ria.DigiDoc.network.utils.UserAgentUtil
 import ee.ria.DigiDoc.smartcardreader.ApduResponseException
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderException
@@ -250,7 +251,7 @@ class NFCViewModel
 
                                 val signer = ExternalSigner(signerCert)
                                 signer.setProfile(SIGNATURE_PROFILE_TS)
-                                signer.setUserAgent(UserAgentUtil.getUserAgent(context, false, true))
+                                signer.setUserAgent(UserAgentUtil.getUserAgent(context, SendDiagnostics.NFC))
 
                                 val dataToSignBytes =
                                     containerWrapper.prepareSignature(signer, container, signerCert, roleData)

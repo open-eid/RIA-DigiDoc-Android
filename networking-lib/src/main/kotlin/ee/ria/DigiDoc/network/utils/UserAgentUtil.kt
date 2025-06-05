@@ -17,6 +17,12 @@ import java.util.Locale
 import java.util.Objects
 import java.util.stream.Collectors
 
+enum class SendDiagnostics {
+    Devices,
+    NFC,
+    None,
+}
+
 object UserAgentUtil {
     private val LOG_TAG = javaClass.simpleName
     private val deviceNameFilters = listOf("Smart", "Reader", "Card")
@@ -25,13 +31,12 @@ object UserAgentUtil {
         context: Context?,
         buildVersionProvider: BuildVersionProvider = BuildVersionProviderImpl(),
     ): String {
-        return getUserAgent(context, false, false, buildVersionProvider)
+        return getUserAgent(context, SendDiagnostics.None, buildVersionProvider)
     }
 
     fun getUserAgent(
         context: Context?,
-        shouldIncludeDevices: Boolean,
-        isNFCSignature: Boolean,
+        sendDiagnostics: SendDiagnostics,
         buildVersionProvider: BuildVersionProvider = BuildVersionProviderImpl(),
     ): String {
         val deviceProductNames = ArrayList<String?>()
@@ -44,11 +49,11 @@ object UserAgentUtil {
             initializingMessage.append(" (Android ").append(Build.VERSION.RELEASE).append(")")
             initializingMessage.append(" Lang: ").append(Locale.getDefault().language)
 
-            if (shouldIncludeDevices && deviceProductNames.isNotEmpty()) {
+            if (sendDiagnostics == SendDiagnostics.Devices && deviceProductNames.isNotEmpty()) {
                 initializingMessage.append(" Devices: ")
                     .append(TextUtils.join(", ", deviceProductNames))
             }
-            if (isNFCSignature) {
+            if (sendDiagnostics == SendDiagnostics.NFC) {
                 initializingMessage.append(" NFC: true")
             }
         }

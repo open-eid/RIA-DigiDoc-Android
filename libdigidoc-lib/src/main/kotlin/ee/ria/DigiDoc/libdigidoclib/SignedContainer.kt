@@ -97,7 +97,7 @@ class SignedContainer
                             try {
                                 SignatureWrapper(signature)
                             } catch (e: Exception) {
-                                debugLog("test", "Failed to wrap signature", e)
+                                errorLog(LOG_TAG, "Failed to wrap signature", e)
                                 null
                             }
                         } ?: emptyList()
