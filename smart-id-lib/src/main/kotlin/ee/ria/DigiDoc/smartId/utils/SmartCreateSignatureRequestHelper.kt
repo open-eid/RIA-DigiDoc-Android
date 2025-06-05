@@ -26,7 +26,12 @@ object SmartCreateSignatureRequestHelper {
             SmartCreateSignatureRequest(
                 relyingPartyName = RELYING_PARTY_NAME,
                 relyingPartyUUID = if (uuid.isNullOrEmpty()) RELYING_PARTY_UUID else uuid,
-                url = if (uuid.isNullOrEmpty()) proxyUrlV2 else skUrlV2,
+                url =
+                    if ((uuid == null || uuid.isEmpty()) || uuid == RELYING_PARTY_UUID) {
+                        proxyUrlV2
+                    } else {
+                        skUrlV2
+                    },
                 country = country,
                 nationalIdentityNumber = nationalIdentityNumber,
                 containerPath = container?.getContainerFile()?.path,

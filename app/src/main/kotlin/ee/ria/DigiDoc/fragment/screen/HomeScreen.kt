@@ -3,6 +3,7 @@
 package ee.ria.DigiDoc.fragment.screen
 
 import android.content.res.Configuration
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Box
@@ -89,6 +90,11 @@ fun HomeScreen(
     val snackBarScope = rememberCoroutineScope()
 
     val messages by SnackBarManager.messages.collectAsState(emptyList())
+
+    BackHandler {
+        isMainMenuBottomSheetVisible.value = false
+        isSettingsMenuBottomSheetVisible.value = false
+    }
 
     LaunchedEffect(homeViewModel.didAppCrashOnPreviousExecution(), hasUnsentReports) {
         if (!homeViewModel.isCrashSendingAlwaysEnabled() && hasUnsentReports.result) {
