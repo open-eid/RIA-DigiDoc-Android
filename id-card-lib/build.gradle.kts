@@ -56,8 +56,13 @@ dependencies {
     testImplementation(libs.mockito.core)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.mockito.android)
-    androidTestImplementation(libs.mockito.kotlin)
+    androidTestImplementation(libs.byte.buddy)
+    androidTestImplementation(libs.mockito.android) {
+        exclude("net.bytebuddy")
+    }
+    androidTestImplementation(libs.mockito.kotlin) {
+        exclude("net.bytebuddy")
+    }
 
     implementation(project(":libdigidoc-lib"))
     implementation(project(":networking-lib"))

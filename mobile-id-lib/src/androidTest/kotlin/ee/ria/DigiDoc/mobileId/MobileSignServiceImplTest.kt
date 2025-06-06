@@ -443,7 +443,7 @@ class MobileSignServiceImplTest {
 
             assertEquals("dTzZ20E8kmoXXBAh5cV5yw==", mobileSignServiceImpl.response.value?.signature)
 
-            verify(challengeObserver, atLeastOnce()).onChanged("3787")
+            verify(challengeObserver, atLeastOnce()).onChanged("3261")
 
             verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.OK)
 

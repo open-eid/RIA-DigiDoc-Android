@@ -50,8 +50,14 @@ dependencies {
     implementation(libs.google.dagger.hilt.android)
     kapt(libs.google.dagger.hilt.android.compile)
     implementation(libs.androidx.hilt)
-    androidTestImplementation(libs.mockito.android)
-    androidTestImplementation(libs.mockito.kotlin)
+
+    androidTestImplementation(libs.byte.buddy)
+    androidTestImplementation(libs.mockito.android) {
+        exclude("net.bytebuddy")
+    }
+    androidTestImplementation(libs.mockito.kotlin) {
+        exclude("net.bytebuddy")
+    }
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
