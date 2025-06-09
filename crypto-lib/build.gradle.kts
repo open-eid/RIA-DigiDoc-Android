@@ -72,7 +72,11 @@ dependencies {
     implementation(libs.stax.api)
 
     testImplementation(libs.junit)
-    androidTestImplementation(libs.mockito.android)
+
+    androidTestImplementation(libs.byte.buddy)
+    androidTestImplementation(libs.mockito.android) {
+        exclude("net.bytebuddy")
+    }
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

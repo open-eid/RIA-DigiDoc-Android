@@ -52,7 +52,12 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.kotlin)
-    androidTestImplementation(libs.mockito.android)
+
+    androidTestImplementation(libs.byte.buddy)
+    androidTestImplementation(libs.mockito.android) {
+        exclude("net.bytebuddy")
+    }
+
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

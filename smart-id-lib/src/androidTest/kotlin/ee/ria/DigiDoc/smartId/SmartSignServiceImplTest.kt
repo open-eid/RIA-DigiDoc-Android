@@ -447,7 +447,7 @@ class SmartSignServiceImplTest {
                 accessTokenPass = "accessTokenPass",
             )
 
-            verify(challengeObserver, atLeastOnce()).onChanged("2099")
+            verify(challengeObserver, atLeastOnce()).onChanged("9439")
             verify(responseObserver, atLeastOnce()).onChanged(
                 SmartIDServiceResponse(status = SessionStatusResponseProcessStatus.OK),
             )

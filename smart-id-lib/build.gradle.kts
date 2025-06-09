@@ -48,8 +48,15 @@ dependencies {
     implementation(libs.androidx.hilt)
     testImplementation(libs.junit)
     androidTestImplementation(libs.retrofit.mock)
-    androidTestImplementation(libs.mockito.kotlin)
-    androidTestImplementation(libs.mockito.android)
+
+    androidTestImplementation(libs.byte.buddy)
+    androidTestImplementation(libs.mockito.android) {
+        exclude("net.bytebuddy")
+    }
+    androidTestImplementation(libs.mockito.kotlin) {
+        exclude("net.bytebuddy")
+    }
+
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
