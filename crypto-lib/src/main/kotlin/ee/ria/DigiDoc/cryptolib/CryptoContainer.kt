@@ -471,9 +471,6 @@ class CryptoContainer
                 }
             }
 
-            // TODO (MOPPAND-1582): Resolve fatal crashes in libcdoc when logging is enabled
-            // Should be resolved with libcdoc C++ ownewrship refactor
-            // Temp solution is to add custom logger to CryptoContainer static variable
             fun setLogging(isLoggingEnabled: Boolean) {
                 if (isLoggingEnabled) {
                     logger.SetMinLogLevel(ILogger.LogLevel.LEVEL_TRACE)
