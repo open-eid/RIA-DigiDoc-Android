@@ -166,7 +166,7 @@ class EncryptViewModel
                         cdoc2Settings,
                     )
 
-                sharedContainerViewModel.setCryptoContainer(nestedContainer, true)
+                sharedContainerViewModel.setCryptoContainer(nestedContainer, false)
             }
         }
     }

@@ -481,7 +481,9 @@ fun ProxyServicesSettingsScreen(
                                 singleLine = true,
                                 onValueChange = {
                                     proxyPort = it.copy(selection = TextRange(it.text.length))
-                                    setProxyPort(it.text.toInt())
+                                    if (isValidPortNumber(it.text)) {
+                                        setProxyPort(it.text.toInt())
+                                    }
                                 },
                                 shape = RectangleShape,
                                 label = { Text(stringResource(R.string.main_settings_proxy_port)) },

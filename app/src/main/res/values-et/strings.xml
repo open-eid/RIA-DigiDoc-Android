@@ -125,7 +125,7 @@
     <string name="signing_container_signature_created_at">Allkirjastatud %1$s kell %2$s</string>
     <string name="signing_close_container_title">Sulge ümbrik</string>
     <string name="signing_close_container_message">Oled sulgemas ümbrikut. Palun vali, mida ümbrikuga edasi teha: </string>
-    <string name="container_notificaitons">Ümbriku teavitused</string>
+    <string name="container_notifications">Ümbriku teavitused</string>
 
     <!-- Recent Documents -->
     <string name="document">Dokument</string>

@@ -103,7 +103,7 @@ fun ContainerNotificationsScreen(
             TopBar(
                 modifier = modifier,
                 sharedMenuViewModel = sharedMenuViewModel,
-                title = R.string.container_notificaitons,
+                title = R.string.container_notifications,
                 onLeftButtonClick = {
                     navController.navigateUp()
                 },

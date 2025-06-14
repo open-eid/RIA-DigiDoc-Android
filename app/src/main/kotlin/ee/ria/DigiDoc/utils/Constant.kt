@@ -50,6 +50,5 @@ object Constant {
 
     object Defaults {
         const val DEFAULT_UUID_VALUE = "00000000-0000-0000-0000-000000000000"
-        const val DEFAULT_TSA_URL_VALUE = "https://eid-dd.ria.ee/ts"
     }
 }

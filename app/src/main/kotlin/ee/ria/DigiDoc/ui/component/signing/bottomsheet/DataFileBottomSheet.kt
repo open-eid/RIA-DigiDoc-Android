@@ -17,6 +17,7 @@ import ee.ria.DigiDoc.domain.model.bottomSheet.BottomSheetButton
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.ui.component.shared.BottomSheet
+import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.extensions.isContainer
 import ee.ria.DigiDoc.utilsLib.extensions.isCryptoContainer
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
@@ -92,7 +93,7 @@ fun DataFileBottomSheet(
                         }
                     } catch (ex: Exception) {
                         errorLog("SigningNavigation", "Unable to open container. Unable to get datafiles", ex)
-                        onBackButtonClick()
+                        showMessage(context, R.string.container_open_file_error)
                     }
                 },
                 BottomSheetButton(
