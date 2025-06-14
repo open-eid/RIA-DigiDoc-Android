@@ -21,6 +21,7 @@ import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.configuration.utils.TSLUtil
 import ee.ria.DigiDoc.domain.model.settings.CDOCSetting
 import ee.ria.DigiDoc.domain.preferences.DataStore
+import ee.ria.DigiDoc.utils.Constant.Defaults.DEFAULT_UUID_VALUE
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
@@ -118,7 +119,7 @@ class DiagnosticsViewModel
         fun getRpUuid(): Int {
             val rpUuid: String = dataStore.getSettingsUUID()
             val uuid: Int =
-                if (rpUuid.isEmpty()) {
+                if (rpUuid.isEmpty() || rpUuid == DEFAULT_UUID_VALUE) {
                     R.string.main_diagnostics_rpuuid_default
                 } else {
                     R.string.main_diagnostics_rpuuid_custom

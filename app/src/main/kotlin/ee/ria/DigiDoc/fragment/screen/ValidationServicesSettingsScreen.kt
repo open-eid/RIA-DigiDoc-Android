@@ -33,6 +33,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -65,6 +66,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.domain.model.settings.TSASetting
 import ee.ria.DigiDoc.network.siva.SivaSetting
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
@@ -176,6 +178,15 @@ fun ValidationServicesSettingsScreen(
                 snackBarHostState.showSnackbar(message)
             }
             SnackBarManager.removeMessage(message)
+        }
+    }
+
+    // Reset SiVa URL when the user navigates away from this screen and has set default choice
+    DisposableEffect(Unit) {
+        onDispose {
+            if (settingsSivaServiceChoice.value == SivaSetting.DEFAULT.name) {
+                setSettingsSivaUrl(configuration?.sivaUrl ?: "")
+            }
         }
     }
 
