@@ -192,7 +192,7 @@
 
     <string name="converted_to_signed_container">Переделан в контейнер для подписания!</string>
 
-    <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>
+    <string name="signature_update_signature_add_method_mobile_id">mobiil-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
     <string name="signature_update_signature_add_method_id_card">ID-карта через USB</string>
     <string name="signature_update_signature_add_method_id_card_accessibility">ID-карта через U S B</string>
@@ -332,7 +332,7 @@
     <string name="sign_button">Подписать</string>
     <string name="next_button">Далее</string>
     <string name="add_signature_button">Добавить новый подпись</string>
-    <string name="extend_signature_button">Расширить подпись</string>
+    <string name="extend_signature_button">Продлить срок действия подписи</string>
     <string name="share_button">Поделиться контейнера</string>
     <string name="share_button_accessibility">Поделиться</string>
     <string name="yes_button">ДА</string>

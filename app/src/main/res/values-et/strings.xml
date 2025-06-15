@@ -192,12 +192,12 @@
 
     <string name="converted_to_signed_container">Konverteeritud allkirjadokumendiks!</string>
 
-    <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>
+    <string name="signature_update_signature_add_method_mobile_id">mobiil-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
-    <string name="signature_update_signature_add_method_id_card">ID-kaart läbi USB</string>
-    <string name="signature_update_signature_add_method_id_card_accessibility">ID-kaart läbi U S B</string>
-    <string name="signature_update_signature_add_method_nfc">ID-kaart läbi NFC</string>
-    <string name="signature_update_signature_add_method_nfc_accessibility">ID-kaart läbi N F C</string>
+    <string name="signature_update_signature_add_method_id_card">ID-kaart kaardilugeja abil</string>
+    <string name="signature_update_signature_add_method_id_card_accessibility">ID-kaart kaardilugeja abil</string>
+    <string name="signature_update_signature_add_method_nfc">ID-kaart NFC abil</string>
+    <string name="signature_update_signature_add_method_nfc_accessibility">ID-kaart N F C abil</string>
     <string name="signature_update_signature_add_success">Allkiri lisatud</string>
     <string name="signature_update_signature_add">Lisa allkiri</string>
 
@@ -332,7 +332,7 @@
     <string name="sign_button">Allkirjasta</string>
     <string name="next_button">Edasi</string>
     <string name="add_signature_button">Lisa uus allkiri</string>
-    <string name="extend_signature_button">Pikenda allkirja</string>
+    <string name="extend_signature_button">Pikenda allkirja kehtivust</string>
     <string name="share_button">Jaga</string>
     <string name="share_button_accessibility">Jaga ümbrikut</string>
     <string name="yes_button">JAH</string>

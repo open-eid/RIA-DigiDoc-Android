@@ -218,12 +218,17 @@ object ContainerUtil {
     fun findSignatureContainerFiles(context: Context): List<File> {
         val signatureContainerFileList = signatureContainersDir(context).listFiles()
 
-        val fileList = signatureContainerFileList?.sortedWith(FILE_MODIFIED_DATE_COMPARATOR)?.toList()
+        val fileList =
+            signatureContainerFileList
+                ?.filter { file ->
+                    FilenameUtils.isExtension(file.name, CONTAINER_EXTENSIONS)
+                }
+                ?.sortedWith(FILE_MODIFIED_DATE_COMPARATOR)
+                ?.take(10)
+                ?.toList()
 
         if (fileList != null) {
-            return fileList.filter { file ->
-                FilenameUtils.isExtension(file.name, CONTAINER_EXTENSIONS)
-            }
+            return fileList
         }
 
         return emptyList()

@@ -192,7 +192,7 @@
 
     <string name="converted_to_signed_container">Converted to signed document!</string>
 
-    <string name="signature_update_signature_add_method_mobile_id">Mobile-ID</string>
+    <string name="signature_update_signature_add_method_mobile_id">mobile-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
     <string name="signature_update_signature_add_method_id_card">ID-card via USB</string>
     <string name="signature_update_signature_add_method_id_card_accessibility">ID-card via U S B</string>
@@ -332,7 +332,7 @@
     <string name="sign_button">Sign</string>
     <string name="next_button">Next</string>
     <string name="add_signature_button">Add new signature</string>
-    <string name="extend_signature_button">Extend signature</string>
+    <string name="extend_signature_button">Extend signature validity</string>
     <string name="share_button">Share</string>
     <string name="share_button_accessibility">Share container</string>
     <string name="yes_button">YES</string>

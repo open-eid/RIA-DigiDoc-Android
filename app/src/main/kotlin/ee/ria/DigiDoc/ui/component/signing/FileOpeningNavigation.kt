@@ -153,7 +153,7 @@ fun FileOpeningNavigation(
     val fileAddedText = stringResource(id = R.string.file_added)
     val filesAddedText = stringResource(id = R.string.files_added)
     var errorText by remember { mutableStateOf(Pair<Int, String?>(0, null)) }
-
+    var announcementText by remember { mutableStateOf("") }
     LaunchedEffect(fileOpeningViewModel.errorState) {
         fileOpeningViewModel.errorState.asFlow().collect { errorState ->
             errorState?.let {
@@ -184,7 +184,7 @@ fun FileOpeningNavigation(
     LaunchedEffect(fileOpeningViewModel.filesAdded) {
         fileOpeningViewModel.filesAdded.asFlow().collect { files ->
             if (!files.isNullOrEmpty()) {
-                val announcementText =
+                announcementText =
                     when (files.size) {
                         1 -> fileAddedText
                         else -> filesAddedText
@@ -197,6 +197,7 @@ fun FileOpeningNavigation(
                     TYPE_ANNOUNCEMENT,
                     announcementText,
                 )
+                delay(2000)
                 fileOpeningViewModel.resetFilesAdded()
             }
         }
@@ -276,6 +277,11 @@ fun FileOpeningNavigation(
     if (errorText.first != 0) {
         showMessage(context.getString(errorText.first, errorText.second))
         errorText = Pair(0, null)
+    }
+
+    if (announcementText.isNotEmpty()) {
+        showMessage(announcementText)
+        announcementText = ""
     }
 
     LoadingScreen(modifier = modifier)
