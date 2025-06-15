@@ -2,14 +2,14 @@
     <string name="main_home_version">version %1$s</string>
 
     <!-- Home Screen actions -->
-    <string name="main_home_open_document_title">Open Document</string>
-    <string name="main_home_open_document_description">Then choose an action if needed</string>
+    <string name="main_home_open_document_title">Files</string>
+    <string name="main_home_open_document_description">Find the file or document you need</string>
     <string name="main_home_signature_title">Signature</string>
-    <string name="main_home_signature_description">Add files and sign</string>
+    <string name="main_home_signature_description">Add file for signature or verification</string>
     <string name="main_home_crypto_title">Crypto</string>
-    <string name="main_home_crypto_description">Encrypt and decrypt</string>
+    <string name="main_home_crypto_description">Add a file for encryption or decryption</string>
     <string name="main_home_my_eid_title">My eID</string>
-    <string name="main_home_my_eid_description">View and modify your eID data</string>
+    <string name="main_home_my_eid_description">View or edit your eID details</string>
 
     <string name="back">Back</string>
     <string name="action_continue">Continue</string>

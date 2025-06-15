@@ -2,14 +2,14 @@
     <string name="main_home_version">версия %1$s</string>
 
     <!-- Home Screen actions -->
-    <string name="main_home_open_document_title">Открыть документ</string>
-    <string name="main_home_open_document_description">Затем выберите действие, если нужно</string>
+    <string name="main_home_open_document_title">Файлы</string>
+    <string name="main_home_open_document_description">Найдите нужный файл или документ</string>
     <string name="main_home_signature_title">Подпись</string>
-    <string name="main_home_signature_description">Добавьте файлы и подпишите</string>
+    <string name="main_home_signature_description">Добавьте файл для подписи или проверки</string>
     <string name="main_home_crypto_title">Крипто</string>
-    <string name="main_home_crypto_description">Шифрование и дешифрование</string>
+    <string name="main_home_crypto_description">Добавьте файл для шифрования или расшифрования.</string>
     <string name="main_home_my_eid_title">Мой eID</string>
-    <string name="main_home_my_eid_description">Просмотр и изменение данных eID</string>
+    <string name="main_home_my_eid_description">Просмотр или редактирование данных вашего eID</string>
 
     <string name="back">Назад</string>
     <string name="action_continue">Продолжать</string>
