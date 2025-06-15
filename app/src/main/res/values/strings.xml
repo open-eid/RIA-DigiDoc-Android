@@ -445,11 +445,12 @@
     <string name="main_settings_menu_appearance_accessibility">Appearance</string>
     <string name="main_settings_menu_signing_accessibility">Advanced settings</string>
 
-    <string name="choose_name_option">Choose name</string>
+    <string name="choose_server_option">Choose server</string>
     <string name="option">Option</string>
     <string name="option_selected">Option %1$s selected</string>
 
     <string name="option_ria">RIA</string>
+    <string name="option_key_transfer">Use a key transfer server for encryption</string>
     <string name="option_manual_key_transfer">Use a manually specified key transfer server for encryption</string>
 
     <string name="configuration_is_already_up_to_date">configuration is already up-to-date</string>
@@ -488,7 +489,6 @@
     <string name="main_accessibility_introduction_screen_magnification_tools_android">Magnification (Android, built in) https://support.google.com/accessibility/android/answer/6006949?hl=en</string>
 
     <!-- Main About -->
-    <string name="main_about_title">Info</string>
     <string name="main_about_1_logo_text">Eesti tuleviku heaks</string>
     <string name="main_about_2_logo_text">Euroopa Liit Euroopa Regionaalarengu Fond</string>
     <string name="main_about_digidoc_and_el_logos">The project is supported by the European Regional Development Fund</string>
@@ -552,7 +552,7 @@
     <string name="main_settings_signing_services_title">Signing services</string>
     <string name="main_settings_validation_services_title">Validation services</string>
     <string name="main_settings_crypto_services_title">Encryption settings</string>
-    <string name="main_settings_timestamp_services_title">Time-Stamping services</string>
+    <string name="main_settings_timestamp_services_title">Time-Stamping service</string>
     <string name="main_settings_mobile_id_and_smart_id_title">Mobile-ID ja Smart-ID</string>
     <string name="main_settings_ask_role_and_address_title">Ask role and address info on signing</string>
     <string name="main_settings_role_title">Role / resolution</string>
@@ -577,6 +577,13 @@
     <string name="main_settings_proxy_invalid_settings">Failed to connect with service server. Please check your network settings or try again later.</string>
     <string name="main_settings_siva_certificate_title">Digital Signature Validation Service SiVa SSL certificate</string>
     <string name="main_settings_crypto_certificate_title">Key transfer server SSL certificate</string>
+
+    <string name="main_settings_crypto_use_cdoc1">Use CDOC1 file format for encryption</string>
+    <string name="main_settings_crypto_use_cdoc2">Use CDOC2 file format for encryption</string>
+    <string name="main_settings_crypto_server">Server</string>
+    <string name="main_settings_crypto_uuid">UUID</string>
+    <string name="main_settings_crypto_fetch_url">Fetch URL</string>
+    <string name="main_settings_crypto_post_url">Post URL</string>
 
     <!-- My eID -->
     <string name="myeid_identification_method_title">Choose a method of identification</string>

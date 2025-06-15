@@ -94,9 +94,9 @@
     <string name="main_home_menu_help">ABI</string>
     <string name="main_home_menu_help_url_short">link www.id.ee</string>
     <string name="main_home_menu_help_url">https://www.id.ee/id-abikeskus/</string>
-    <string name="main_home_menu_accessibility">Juurdepääsetavus</string>
+    <string name="main_home_menu_accessibility">Ligipääsetavuse info</string>
     <string name="main_home_menu_settings">SEADED</string>
-    <string name="main_home_menu_about">DigiDoc äpi kohta</string>
+    <string name="main_home_menu_about">RIA DigiDoc äpi kohta</string>
     <string name="main_home_menu_diagnostics">Diagnostika</string>
     <string name="main_home_recent">Hiljutised dokumendid</string>
 
@@ -201,7 +201,7 @@
     <string name="signature_update_signature_add_success">Allkiri lisatud</string>
     <string name="signature_update_signature_add">Lisa allkiri</string>
 
-    <string name="signature_update_signature_selected_method_mobile_id">Allkirjastamise viisiks on Mobiil-ID, vahekaart %1$d / %2$d</string>
+    <string name="signature_update_signature_selected_method_mobile_id">Allkirjastamise viisiks on mobiil-ID, vahekaart %1$d / %2$d</string>
     <string name="signature_update_signature_selected_method_smart_id">Allkirjastamise viisiks on Smart-ID, vahekaart %1$d / %2$d</string>
     <string name="signature_update_signature_selected_method_id_card">Allkirjastamise viisiks on ID-kaart, vahekaart %1$d / %2$d</string>
 
@@ -427,10 +427,10 @@
     <!-- Menu -->
     <string name="main_home_menu_help_accessibility">Abi</string>
     <string name="main_home_menu_settings_accessibility">Seaded</string>
-    <string name="main_home_menu_about_accessibility">DigiDoc äpi kohta</string>
+    <string name="main_home_menu_about_accessibility">RIA DigiDoc äpi kohta</string>
     <string name="main_home_menu_diagnostics_accessibility">Diagnostika</string>
     <string name="main_home_menu_recent_accessibility">Hiljutised dokumendid</string>
-    <string name="main_home_menu_accessibility_accessibility">Juurdepääsetavus</string>
+    <string name="main_home_menu_accessibility_accessibility">Ligipääsetavuse info</string>
 
     <string name="main_menu_add_file_accessibility">Lisa fail</string>
     <string name="main_menu_recent_documents_accessibility">Hiljutised ümbrikud</string>
@@ -445,11 +445,12 @@
     <string name="main_settings_menu_appearance_accessibility">Välimus</string>
     <string name="main_settings_menu_signing_accessibility">Täpsemad seaded</string>
 
-    <string name="choose_name_option">Vali nimi</string>
+    <string name="choose_server_option">Vali server</string>
     <string name="option">Valik</string>
     <string name="option_selected">Valik %1$s valitud</string>
 
     <string name="option_ria">RIA</string>
+    <string name="option_key_transfer">Kasutage krüptimiseks võtmeedastusserverit</string>
     <string name="option_manual_key_transfer">Kasutage krüptimiseks käsitsi määratud võtmeedastusserverit</string>
 
     <string name="configuration_is_already_up_to_date">konfiguratsioon on juba ajakohane</string>
@@ -467,7 +468,7 @@
     <string name="main_settings_theme_system">Süsteemi vaikeseade</string>
 
     <!-- Main Accessibility -->
-    <string name="main_accessibility_title">Juurdepääsetavus</string>
+    <string name="main_accessibility_title">Ligipääsetavuse info</string>
 
     <string name="main_accessibility_link">Rohkem infot leiab <a href="https://www.id.ee/ligipaasetavuse-teatis/">ligipääsetavuse teatisest</a>.</string>
     <string name="main_accessibility_introduction">RIA DigiDoc on ehitatud nii, et see vastaks WCAG 2.1 AA juurdepääsetavuse suunistele. See tähendab, et RIA DigiDoc rakenduse arendamisel on kasutatud põhimõtteid, et see oleks kasutatav ilma nägemisvõimeta, piiratud nägemisvõimega, piiratud liikumisvõime või jõuga jms.</string>
@@ -488,7 +489,6 @@
     <string name="main_accessibility_introduction_screen_magnification_tools_android">Magnification (Android, sisseehitatud) https://support.google.com/accessibility/android/answer/6006949?hl=en</string>
 
     <!-- Main About -->
-    <string name="main_about_title">Info</string>
     <string name="main_about_1_logo_text">Eesti tuleviku heaks</string>
     <string name="main_about_2_logo_text">Euroopa Liit Euroopa Regionaalarengu Fond</string>
     <string name="main_about_digidoc_and_el_logos">Projekti on toetatud Euroopa Liidu Regionaalarengu Fondist</string>
@@ -530,8 +530,8 @@
     <string name="main_settings_signing">Allkirjastamine</string>
     <string name="main_settings_proxy_title">Proksi</string>
     <string name="main_settings_proxy_no_proxy">Ei kasuta proksit</string>
-    <string name="main_settings_proxy_use_system">Kasuta süsteemseid proksi seadeid</string>
-    <string name="main_settings_proxy_manual">Proksi seaded määratakse käsitsi</string>
+    <string name="main_settings_proxy_use_system">Kasuta süsteemseid proksiseadeid</string>
+    <string name="main_settings_proxy_manual">Kasuta käsitsi määratud proksiseadeid</string>
     <string name="main_settings_proxy_host">Host</string>
     <string name="main_settings_proxy_port">Port</string>
     <string name="main_settings_proxy_port_error">Min 1, max 65535</string>
@@ -552,7 +552,7 @@
     <string name="main_settings_signing_services_title">Allkirjastamisteenused</string>
     <string name="main_settings_validation_services_title">Valideerimisteenused</string>
     <string name="main_settings_crypto_services_title">Krüpteerimisseaded</string>
-    <string name="main_settings_timestamp_services_title">Ajatempliteenused</string>
+    <string name="main_settings_timestamp_services_title">Ajatempliteenus</string>
     <string name="main_settings_mobile_id_and_smart_id_title">Mobiil-ID ja Smart-ID</string>
     <string name="main_settings_ask_role_and_address_title">Küsi rolli ja aadressi igal allkirjastamisel</string>
     <string name="main_settings_role_title">Roll / resolutsioon</string>
@@ -570,13 +570,20 @@
     <string name="main_settings_timestamp_cert_show_certificate_button">Näita sertifikaati</string>
     <string name="main_settings_timestamp_cert_no_certificate_found">Sertifikaati ei ole lisatud</string>
     <string name="main_settings_siva_service_title">Ligipääs valideerimisteenusele SiVa</string>
-    <string name="main_settings_siva_default_access_title">Kasutan vaikimisi määratud ligipääsu</string>
-    <string name="main_settings_siva_default_manual_access_title">Kasutan käsitsi määratud ligipääsu</string>
+    <string name="main_settings_siva_default_access_title">Kasuta vaikimisi määratud ligipääsu</string>
+    <string name="main_settings_siva_default_manual_access_title">Kasuta käsitsi määratud ligipääsu</string>
     <string name="main_settings_siva_service_url">SiVa valideerimisteenuse URL</string>
     <string name="main_settings_siva_certificate_expired">Aegunud</string>
     <string name="main_settings_proxy_invalid_settings">Teenuse serveriga ühendus ebaõnnestus. Palun kontrolli võrgu sätteid või proovi hiljem uuesti.</string>
     <string name="main_settings_siva_certificate_title">Valideerimisteenuse SiVa SSL sertifikaat</string>
     <string name="main_settings_crypto_certificate_title">Võtmeedastusserveri SSL sertifikaat</string>
+
+    <string name="main_settings_crypto_use_cdoc1">Kasuta krüpteerimiseks CDOC1 failiformaati</string>
+    <string name="main_settings_crypto_use_cdoc2">Kasuta krüpteerimiseks CDOC2 failiformaati</string>
+    <string name="main_settings_crypto_server">Server</string>
+    <string name="main_settings_crypto_uuid">UUID</string>
+    <string name="main_settings_crypto_fetch_url">Fetch URL</string>
+    <string name="main_settings_crypto_post_url">Post URL</string>
 
     <!-- My eID -->
     <string name="myeid_identification_method_title">Vali isiku tuvastamise meetod</string>

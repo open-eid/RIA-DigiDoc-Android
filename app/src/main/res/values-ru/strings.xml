@@ -201,11 +201,11 @@
     <string name="signature_update_signature_add_success">Подпись добавлена</string>
     <string name="signature_update_signature_add">Добавить подпись</string>
 
-    <string name="signature_update_signature_selected_method_mobile_id">Метод подписи – Mobiil-ID, вкладка %1$d из %2$d</string>
+    <string name="signature_update_signature_selected_method_mobile_id">Метод подписи – mobiil-ID, вкладка %1$d из %2$d</string>
     <string name="signature_update_signature_selected_method_smart_id">Метод подписи – Smart-ID, вкладка %1$d из %2$d</string>
     <string name="signature_update_signature_selected_method_id_card">Метод подписи – ID-карта, вкладка %1$d из %2$d</string>
 
-    <string name="signature_update_signature_chosen_method_mobile_id">Выбран метод подписи Mobiil-ID</string>
+    <string name="signature_update_signature_chosen_method_mobile_id">Выбран метод подписи mobiil-ID</string>
     <string name="signature_update_signature_chosen_method_smart_id">Выбран метод подписи Smart-ID</string>
     <string name="signature_update_signature_chosen_method_id_card">Выбран метод подписи ID-карта</string>
 
@@ -445,11 +445,12 @@
     <string name="main_settings_menu_appearance_accessibility">Внешний вид</string>
     <string name="main_settings_menu_signing_accessibility">Настройки расширенные</string>
 
-    <string name="choose_name_option">Выбрать имя</string>
+    <string name="choose_server_option">Выбрать сервер</string>
     <string name="option">Вариант</string>
     <string name="option_selected">Выбранный %1$s вариант</string>
 
     <string name="option_ria">RIA</string>
+    <string name="option_key_transfer">Используйте сервер передачи ключей для шифрования</string>
     <string name="option_manual_key_transfer">Используйте вручную указанный сервер передачи ключей для шифрования</string>
 
     <string name="configuration_is_already_up_to_date">У вас последняя версия конфигурации</string>
@@ -488,7 +489,6 @@
     <string name="main_accessibility_introduction_screen_magnification_tools_android">Magnification (Android, встроенный) https://support.google.com/accessibility/android/answer/6006949?hl=ru</string>
 
     <!-- Main About -->
-    <string name="main_about_title">Информация</string>
     <string name="main_about_1_logo_text">Eesti tuleviku heaks</string>
     <string name="main_about_2_logo_text">Euroopa Liit Euroopa Regionaalarengu Fond</string>
     <string name="main_about_digidoc_and_el_logos">Проект поддерживается Европейским фондом регионального развития</string>
@@ -552,7 +552,7 @@
     <string name="main_settings_signing_services_title">Услуги подписания</string>
     <string name="main_settings_validation_services_title">Услуги валидации</string>
     <string name="main_settings_crypto_services_title">Настройки шифрования</string>
-    <string name="main_settings_timestamp_services_title">Услуги временной метки</string>
+    <string name="main_settings_timestamp_services_title">Услуга временной метки</string>
     <string name="main_settings_mobile_id_and_smart_id_title">Mobiil-ID и Smart-ID</string>
     <string name="main_settings_ask_role_and_address_title">Спросить роль и адрес при каждом подписании</string>
     <string name="main_settings_role_title">Роль / pезолюция</string>
@@ -577,6 +577,13 @@
     <string name="main_settings_proxy_invalid_settings">Не удалось связаться с сервером услуги. Пожалуйста, проверьте настройки сети или повторите попытку позже.</string>
     <string name="main_settings_siva_certificate_title">Сертификат услуги валидации SiVa SSL</string>
     <string name="main_settings_crypto_certificate_title">Сертификат SSL сервера передачи ключей</string>
+
+    <string name="main_settings_crypto_use_cdoc1">Использование формата CDOC1 для шифрования</string>
+    <string name="main_settings_crypto_use_cdoc2">Использование формата CDOC2 для шифрования</string>
+    <string name="main_settings_crypto_server">Server</string>
+    <string name="main_settings_crypto_uuid">UUID</string>
+    <string name="main_settings_crypto_fetch_url">Fetch URL</string>
+    <string name="main_settings_crypto_post_url">Post URL</string>
 
     <!-- My eID -->
     <string name="myeid_identification_method_title">Выберите способ идентификации</string>

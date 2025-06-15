@@ -168,7 +168,7 @@ fun OptionChooserDialog(
 fun OptionChooserDialogPreview() {
     RIADigiDocTheme {
         OptionChooserDialog(
-            title = R.string.choose_name_option,
+            title = R.string.choose_server_option,
             choices =
                 listOf(
                     stringResource(R.string.option),
