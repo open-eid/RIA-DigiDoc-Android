@@ -138,8 +138,6 @@ fun EncryptNavigation(
 
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
-    var isViewInitialized by rememberSaveable { mutableStateOf(false) }
-
     val clickedFile = remember { mutableStateOf<File?>(null) }
     val clickedRecipient = remember { mutableStateOf<Addressee?>(null) }
 
@@ -241,8 +239,8 @@ fun EncryptNavigation(
     var dataFiles by remember { mutableStateOf<List<File>>(emptyList()) }
     val showDataFilesLoadingIndicator = remember { mutableStateOf(false) }
     val dataFilesLoading = stringResource(id = R.string.container_files_loading)
-    val dataFilesLoaded = stringResource(id = R.string.container_files_loaded)
-    val containerFilesLoaded = stringResource(id = R.string.container_files_loaded)
+
+    val filesAdded by sharedContainerViewModel.addedFilesCount.collectAsState(0)
 
     val listState = rememberLazyListState()
 
@@ -265,21 +263,29 @@ fun EncryptNavigation(
     val onSignActionClick: () -> Unit = {
         showLoadingScreen.value = true
         scope.launch(IO) {
-            encryptViewModel.openSignedContainer(
-                context,
-                cryptoContainer?.file,
-                sharedContainerViewModel,
-            )
+            try {
+                encryptViewModel.openSignedContainer(
+                    context,
+                    cryptoContainer,
+                    sharedContainerViewModel,
+                )
 
-            delay(2000)
-            withContext(Main) {
-                navController.navigate(Route.Signing.route) {
-                    popUpTo(Route.Home.route) {
-                        inclusive = false
-                    }
-                    launchSingleTop = true
+                withContext(Main) {
+                    showMessage(context, R.string.converted_to_signed_container)
                 }
-                showLoadingScreen.value = false
+
+                delay(2000)
+                withContext(Main) {
+                    navController.navigate(Route.Signing.route) {
+                        popUpTo(Route.Home.route) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
+                    showLoadingScreen.value = false
+                }
+            } catch (_: Exception) {
+                showMessage(context, R.string.container_load_error)
             }
         }
     }
@@ -400,18 +406,9 @@ fun EncryptNavigation(
 
     LaunchedEffect(cryptoContainer) {
         cryptoContainer?.let {
-            val pastTime = System.currentTimeMillis()
             showDataFilesLoadingIndicator.value = true
             dataFiles = it.getDataFiles()
-            if (!isViewInitialized) {
-                showMessage(containerFilesLoaded)
-                isViewInitialized = true
-            }
             showDataFilesLoadingIndicator.value = false
-            val newTime = System.currentTimeMillis()
-            if (newTime >= (pastTime + 2 * 1000)) {
-                AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, dataFilesLoaded)
-            }
         }
     }
 
@@ -476,6 +473,14 @@ fun EncryptNavigation(
                 }
             }
         }
+    }
+
+    LaunchedEffect(filesAdded) {
+        when {
+            filesAdded == 1 -> showMessage(context, R.string.file_added)
+            filesAdded > 1 -> showMessage(context, R.string.files_added)
+        }
+        sharedContainerViewModel.resetAddedFilesCount()
     }
 
     Scaffold(
@@ -1038,7 +1043,6 @@ fun EncryptNavigation(
                 showSheet = showContainerBottomSheet,
                 isEditContainerButtonShown = cryptoContainer?.hasRecipients() == false,
                 openEditContainerNameDialog = openEditContainerNameDialog,
-                isSignButtonShown = encryptViewModel.isEncryptedContainer(cryptoContainer),
                 isSaveButtonShown = !isNestedContainer && encryptViewModel.isEncryptedContainer(cryptoContainer),
                 cryptoContainer = cryptoContainer,
                 onSignClick = onSignActionClick,

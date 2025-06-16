@@ -164,7 +164,7 @@ class FileOpeningViewModel
 
                     val isCdoc = files.size == 1 && files.first().isCryptoContainer()
 
-                    if (isCdoc) {
+                    if (isCdoc && existingCryptoContainer != null) {
                         _cryptoContainer.postValue(existingCryptoContainer)
                     } else {
                         _signedContainer.postValue(existingSignedContainer)

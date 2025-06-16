@@ -76,6 +76,9 @@ class SharedContainerViewModel
         private val _isSivaConfirmed = MutableLiveData<Boolean>(true)
         val isSivaConfirmed: LiveData<Boolean> = _isSivaConfirmed
 
+        private val _addedFilesCount = MutableStateFlow<Int>(0)
+        val addedFilesCount: StateFlow<Int> = _addedFilesCount
+
         fun setSignedSidStatus(signedStatus: SessionStatusResponseProcessStatus?) {
             _signedSidStatus.postValue(signedStatus)
         }
@@ -157,6 +160,14 @@ class SharedContainerViewModel
 
         fun resetIsSivaConfirmed() {
             _isSivaConfirmed.value = true
+        }
+
+        fun setAddedFilesCount(files: Int) {
+            _addedFilesCount.value = files
+        }
+
+        fun resetAddedFilesCount() {
+            _addedFilesCount.value = 0
         }
 
         @Throws(Exception::class)

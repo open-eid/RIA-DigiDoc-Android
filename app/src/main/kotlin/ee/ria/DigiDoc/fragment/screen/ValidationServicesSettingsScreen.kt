@@ -66,7 +66,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.domain.model.settings.TSASetting
 import ee.ria.DigiDoc.network.siva.SivaSetting
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement

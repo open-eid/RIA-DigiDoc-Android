@@ -196,8 +196,8 @@ class SigningViewModelTest {
             val file =
                 getResourceFileAsFile(
                     context,
-                    "example_no_signatures.asice",
-                    R.raw.example_no_signatures,
+                    "example.asice",
+                    R.raw.example,
                 )
 
             val container = SignedContainer.openOrCreate(context, file, listOf(file), true)

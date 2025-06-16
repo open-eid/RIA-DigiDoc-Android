@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.viewmodel
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -18,10 +19,14 @@ import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
+import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
 import java.io.File
 import java.util.Locale
@@ -36,6 +41,8 @@ class SigningViewModel
         private val fileOpeningRepository: FileOpeningRepository,
         private val contentResolver: ContentResolver,
     ) : ViewModel() {
+        private val logTag = javaClass.simpleName
+
         private val _shouldResetSignedContainer = MutableLiveData(false)
         val shouldResetSignedContainer: LiveData<Boolean?> = _shouldResetSignedContainer
 
@@ -85,7 +92,7 @@ class SigningViewModel
             isNestedContainer: Boolean,
         ): Boolean =
             (
-                isExistingContainer(signedContainer) ||
+                isExistingContainer(signedContainer) &&
                     !isContainerWithoutSignatures(signedContainer)
             ) &&
                 !isNestedContainer
@@ -109,19 +116,50 @@ class SigningViewModel
         @Throws(Exception::class)
         suspend fun openCryptoContainer(
             context: Context,
-            cryptoFile: File?,
+            container: SignedContainer?,
             sharedContainerViewModel: SharedContainerViewModel,
         ) {
-            if (cryptoFile != null) {
-                val uri = cryptoFile.toUri()
+            if (container == null) return
+
+            val uris = mutableListOf<Uri>()
+
+            val containerFile = container.getContainerFile()
+            val isSigned = container.isSigned()
+
+            if (isSigned && containerFile != null) {
+                uris += containerFile.toUri()
+            } else {
+                val dataFiles = container.getDataFiles()
+                val dataFilesDir =
+                    containerFile?.let {
+                        ContainerUtil.getContainerDataFilesDir(context, it)
+                    }
+
+                dataFiles.mapNotNullTo(uris) { dataFile ->
+                    container.getDataFile(dataFile, dataFilesDir)?.toUri()
+                }
+            }
+
+            try {
                 val cryptoContainer =
                     fileOpeningRepository.openOrCreateCryptoContainer(
-                        context,
-                        contentResolver,
-                        listOf(uri),
+                        context = context,
+                        contentResolver = contentResolver,
+                        uris = uris,
+                        forceCreate = true,
                     )
 
-                sharedContainerViewModel.setCryptoContainer(cryptoContainer)
+                withContext(Main) {
+                    sharedContainerViewModel.clearContainers()
+                    sharedContainerViewModel.resetSignedContainer()
+                    sharedContainerViewModel.resetCryptoContainer()
+                    sharedContainerViewModel.resetContainerNotifications()
+                    sharedContainerViewModel.resetIsSivaConfirmed()
+                    sharedContainerViewModel.setCryptoContainer(cryptoContainer)
+                }
+            } catch (e: Exception) {
+                errorLog(logTag, "Unable to open or create crypto container", e)
+                return
             }
         }
 

@@ -190,6 +190,8 @@
     <string name="signature_update_method_title">Vali allkirjastamise meetod</string>
     <string name="signature_update_method_save_button">Salvesta valik</string>
 
+    <string name="converted_to_signed_container">Konverteeritud allkirjadokumendiks!</string>
+
     <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
     <string name="signature_update_signature_add_method_id_card">ID-kaart läbi USB</string>
@@ -346,6 +348,7 @@
     <string name="encrypt_button_accessibility">Krüpteeri dokument</string>
     <string name="decrypt_button">Dekrüpteeri</string>
     <string name="decrypt_button_accessibility">Dekrüpteeri dokument</string>
+    <string name="converted_to_crypto_container">Konverteeritud turvaümbrikuks!</string>
 
     <!-- Accessibility -->
     <string name="file_added">Fail lisatud</string>
@@ -516,7 +519,7 @@
     <string name="main_diagnostics_logging_switch">Aktiveeri ühekordne logifaili genereerimine</string>
     <string name="main_diagnostics_save_log">Salvesta logifail</string>
     <string name="main_diagnostics_restart_message">Logimise aktiveerimiseks taaskäivita RIA DigiDoc.</string>
-    <string name="main_diagnostics_restart_message_href">https://www.id.ee/en/article/log-file-generation-in-digidoc4-client/</string>
+    <string name="main_diagnostics_restart_message_href">https://www.id.ee/artikkel/logifaili-genereerimine-digidoc4-kliendis/</string>
     <string name="main_diagnostics_restart_message_read_more">Loe täpsemalt siit</string>
     <string name="main_diagnostics_restart_message_restart_now">Taaskäivita rakendus?</string>
 

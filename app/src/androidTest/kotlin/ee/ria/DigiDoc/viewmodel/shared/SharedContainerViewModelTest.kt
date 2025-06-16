@@ -575,6 +575,20 @@ class SharedContainerViewModelTest {
         assertTrue(viewModel.isSivaConfirmed.value == true)
     }
 
+    @Test
+    fun sharedContainerViewModel_setAddedFilesCount_success() {
+        viewModel.setAddedFilesCount(1)
+
+        assertTrue(viewModel.addedFilesCount.value == 1)
+    }
+
+    @Test
+    fun sharedContainerViewModel_resetAddedFilesCount_success() {
+        viewModel.resetAddedFilesCount()
+
+        assertTrue(viewModel.addedFilesCount.value == 0)
+    }
+
     private fun createTempFileWithStringContent(
         filename: String,
         content: String,

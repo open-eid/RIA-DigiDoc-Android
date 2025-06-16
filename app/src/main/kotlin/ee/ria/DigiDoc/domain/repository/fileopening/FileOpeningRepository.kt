@@ -52,6 +52,7 @@ interface FileOpeningRepository {
         context: Context,
         contentResolver: ContentResolver,
         uris: List<Uri>,
+        forceCreate: Boolean = false,
     ): CryptoContainer
 
     @Throws(

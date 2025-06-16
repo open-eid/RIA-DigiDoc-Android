@@ -189,6 +189,9 @@ fun FileOpeningNavigation(
                         1 -> fileAddedText
                         else -> filesAddedText
                     }
+
+                sharedContainerViewModel.setAddedFilesCount(files.size)
+
                 AccessibilityUtil.sendAccessibilityEvent(
                     context,
                     TYPE_ANNOUNCEMENT,
