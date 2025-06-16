@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.viewmodel
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -17,9 +18,13 @@ import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
+import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
@@ -33,6 +38,8 @@ class EncryptViewModel
         private val fileOpeningRepository: FileOpeningRepository,
         private val cdoc2Settings: CDOC2Settings,
     ) : ViewModel() {
+        private val logTag = javaClass.simpleName
+
         private val _shouldResetCryptoContainer = MutableLiveData(false)
         val shouldResetCryptoContainer: LiveData<Boolean?> = _shouldResetCryptoContainer
 
@@ -134,20 +141,50 @@ class EncryptViewModel
         @Throws(Exception::class)
         suspend fun openSignedContainer(
             context: Context,
-            signedFile: File?,
+            container: CryptoContainer?,
             sharedContainerViewModel: SharedContainerViewModel,
         ) {
-            if (signedFile != null) {
-                val uri = signedFile.toUri()
+            if (container == null) return
+
+            val uris = mutableListOf<Uri>()
+
+            val containerFile = container.file
+            val isEncrypted = isEncryptedContainer(container)
+
+            if (isEncrypted && containerFile != null) {
+                uris += containerFile.toUri()
+            } else {
+                val dataFiles = container.getDataFiles()
+                val dataFilesDir =
+                    containerFile?.let {
+                        ContainerUtil.getContainerDataFilesDir(context, it)
+                    }
+
+                dataFiles.mapNotNullTo(uris) { dataFile ->
+                    container.getDataFile(dataFile, dataFilesDir)?.toUri()
+                }
+            }
+
+            try {
                 val signedContainer =
                     fileOpeningRepository.openOrCreateContainer(
-                        context,
-                        contentResolver,
-                        listOf(uri),
-                        true,
+                        context = context,
+                        contentResolver = contentResolver,
+                        uris = uris,
+                        isSivaConfirmed = true,
                     )
 
-                sharedContainerViewModel.setSignedContainer(signedContainer)
+                withContext(Main) {
+                    sharedContainerViewModel.clearContainers()
+                    sharedContainerViewModel.resetContainerNotifications()
+                    sharedContainerViewModel.resetIsSivaConfirmed()
+                    sharedContainerViewModel.resetCryptoContainer()
+                    sharedContainerViewModel.resetSignedContainer()
+                    sharedContainerViewModel.setSignedContainer(signedContainer)
+                }
+            } catch (e: Exception) {
+                errorLog(logTag, "Unable to open or create signed container", e)
+                return
             }
         }
 

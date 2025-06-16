@@ -190,6 +190,8 @@
     <string name="signature_update_method_title">Выберите метод подписи</string>
     <string name="signature_update_method_save_button">Сохранить выбор</string>
 
+    <string name="converted_to_signed_container">Переделан в контейнер для подписания!</string>
+
     <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
     <string name="signature_update_signature_add_method_id_card">ID-карта через USB</string>
@@ -346,6 +348,7 @@
     <string name="encrypt_button_accessibility">Зашифровать документ</string>
     <string name="decrypt_button">Расшифровать</string>
     <string name="decrypt_button_accessibility">Расшифровать документ</string>
+    <string name="converted_to_crypto_container">Переделан в контейнер для зашифровывания!</string>
 
     <!-- Accessibility -->
     <string name="file_added">Файл добавлен</string>
@@ -516,7 +519,7 @@
     <string name="main_diagnostics_logging_switch">Активировать одноразовое создание лог-файла</string>
     <string name="main_diagnostics_save_log">Сохранить лог-файл</string>
     <string name="main_diagnostics_restart_message">Перезапустите RIA DigiDoc, чтобы активировать ведение журнала.</string>
-    <string name="main_diagnostics_restart_message_href">https://www.id.ee/en/article/log-file-generation-in-digidoc4-client/</string>
+    <string name="main_diagnostics_restart_message_href">https://www.id.ee/ru/artikkel/generirovanie-log-fajla-v-kliente-digidoc4/</string>
     <string name="main_diagnostics_restart_message_read_more">Подробнее читайте здесь</string>
     <string name="main_diagnostics_restart_message_restart_now">Перезапустить приложение?</string>
 

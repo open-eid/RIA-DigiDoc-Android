@@ -433,6 +433,7 @@ class CryptoContainer
                 file: File,
                 dataFiles: List<File?>?,
                 cdoc2Settings: CDOC2Settings,
+                forceCreate: Boolean = false,
             ): CryptoContainer {
                 if (dataFiles.isNullOrEmpty()) {
                     throw DataFilesEmptyException("Cannot create an empty crypto container")
@@ -464,7 +465,7 @@ class CryptoContainer
                     file.copyTo(containerFileWithExtension, true)
                 }
 
-                return if (dataFiles.size == 1 && isFirstDataFileContainer) {
+                return if (!forceCreate && dataFiles.size == 1 && isFirstDataFileContainer) {
                     open(context, containerFileWithExtension)
                 } else {
                     create(context, containerFileWithExtension, dataFiles, listOf(), false, false)

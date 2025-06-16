@@ -190,6 +190,8 @@
     <string name="signature_update_method_title">Choose a signing method</string>
     <string name="signature_update_method_save_button">Save selection</string>
 
+    <string name="converted_to_signed_container">Converted to signed document!</string>
+
     <string name="signature_update_signature_add_method_mobile_id">Mobile-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
     <string name="signature_update_signature_add_method_id_card">ID-card via USB</string>
@@ -346,6 +348,7 @@
     <string name="encrypt_button_accessibility">Encrypt document</string>
     <string name="decrypt_button">Decrypt</string>
     <string name="decrypt_button_accessibility">Decrypt document</string>
+    <string name="converted_to_crypto_container">Converted to crypto container!</string>
 
     <!-- Accessibility -->
     <string name="file_added">File added</string>

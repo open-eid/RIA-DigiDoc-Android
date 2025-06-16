@@ -146,8 +146,6 @@ fun SigningNavigation(
 
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
-    var isViewInitialized by rememberSaveable { mutableStateOf(false) }
-
     val clickedDataFile = remember { mutableStateOf<DataFileInterface?>(null) }
     val clickedSignature = remember { mutableStateOf<SignatureInterface?>(null) }
 
@@ -267,8 +265,8 @@ fun SigningNavigation(
     var dataFiles by remember { mutableStateOf<List<DataFileInterface>>(emptyList()) }
     val showDataFilesLoadingIndicator = remember { mutableStateOf(false) }
     val dataFilesLoading = stringResource(id = R.string.container_files_loading)
-    val dataFilesLoaded = stringResource(id = R.string.container_files_loaded)
-    val containerFilesLoaded = stringResource(id = R.string.container_files_loaded)
+
+    val filesAdded by sharedContainerViewModel.addedFilesCount.collectAsState(0)
 
     val listState = rememberLazyListState()
 
@@ -292,21 +290,29 @@ fun SigningNavigation(
     val onEncryptActionClick: () -> Unit = {
         showLoadingScreen.value = true
         scope.launch(IO) {
-            signingViewModel.openCryptoContainer(
-                context,
-                signedContainer?.getContainerFile(),
-                sharedContainerViewModel,
-            )
+            try {
+                signingViewModel.openCryptoContainer(
+                    context,
+                    signedContainer,
+                    sharedContainerViewModel,
+                )
 
-            delay(2000)
-            withContext(Main) {
-                navController.navigate(Route.Encrypt.route) {
-                    popUpTo(Route.Home.route) {
-                        inclusive = false
-                    }
-                    launchSingleTop = true
+                withContext(Main) {
+                    showMessage(context, R.string.converted_to_crypto_container)
                 }
-                showLoadingScreen.value = false
+
+                delay(2000)
+                withContext(Main) {
+                    navController.navigate(Route.Encrypt.route) {
+                        popUpTo(Route.Home.route) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
+                    showLoadingScreen.value = false
+                }
+            } catch (_: Exception) {
+                showMessage(context, R.string.container_load_error)
             }
         }
     }
@@ -505,18 +511,9 @@ fun SigningNavigation(
 
     LaunchedEffect(signedContainer) {
         signedContainer?.let {
-            val pastTime = System.currentTimeMillis()
             showDataFilesLoadingIndicator.value = true
             dataFiles = it.getDataFiles()
-            if (!isViewInitialized) {
-                showMessage(containerFilesLoaded)
-                isViewInitialized = true
-            }
             showDataFilesLoadingIndicator.value = false
-            val newTime = System.currentTimeMillis()
-            if (newTime >= (pastTime + 2 * 1000)) {
-                AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, dataFilesLoaded)
-            }
         }
     }
 
@@ -544,6 +541,14 @@ fun SigningNavigation(
                     )
             }
         }
+    }
+
+    LaunchedEffect(filesAdded) {
+        when {
+            filesAdded == 1 -> showMessage(context, R.string.file_added)
+            filesAdded > 1 -> showMessage(context, R.string.files_added)
+        }
+        sharedContainerViewModel.resetAddedFilesCount()
     }
 
     LaunchedEffect(messages) {
@@ -634,7 +639,7 @@ fun SigningNavigation(
                         Route.FileChoosing.route,
                     )
                 },
-                isUnsignedContainer = signedContainer?.isSigned() == false,
+                isUnsignedContainer = !isNestedContainer && signedContainer?.isSigned() == false,
             )
         },
     ) { paddingValues ->

@@ -126,6 +126,7 @@ class FileOpeningRepositoryImpl
             context: Context,
             contentResolver: ContentResolver,
             uris: List<Uri>,
+            forceCreate: Boolean,
         ): CryptoContainer {
             val files = mutableListOf<File>()
 
@@ -146,6 +147,7 @@ class FileOpeningRepositoryImpl
                 containerPath,
                 files,
                 cdoc2Settings,
+                forceCreate,
             )
         }
 
