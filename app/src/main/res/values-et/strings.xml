@@ -452,8 +452,8 @@
     <string name="option_selected">Valik %1$s valitud</string>
 
     <string name="option_ria">RIA</string>
-    <string name="option_key_transfer">Kasutage krüptimiseks võtmeedastusserverit</string>
-    <string name="option_manual_key_transfer">Kasutage krüptimiseks käsitsi määratud võtmeedastusserverit</string>
+    <string name="option_key_transfer">Kasuta krüpteerimiseks võtmeedastusserverit</string>
+    <string name="option_manual_key_transfer">Kasuta krüpteerimiseks käsitsi määratud võtmeedastusserverit</string>
 
     <string name="configuration_is_already_up_to_date">konfiguratsioon on juba ajakohane</string>
     <string name="configuration_updated">Konfiguratsioon uuendatud</string>
