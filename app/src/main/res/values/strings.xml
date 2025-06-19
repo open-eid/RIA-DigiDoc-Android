@@ -157,7 +157,7 @@
     <string name="crypto_recipient_remove_button">Remove recipient</string>
     <string name="crypto_recipient_remove_confirmation_message">Remove recipient from container?</string>
     <string name="crypto_new_title">Container encryption</string>
-    <string name="crypto_view_title">Container content</string>
+    <string name="crypto_view_title">Container decryption</string>
     <string name="crypto_container_recipients_title">Container recipients</string>
     <string name="crypto_container_latest_recipients_title">Recently added</string>
     <string name="crypto_container_added_recipients_title">Added recipients</string>
@@ -351,8 +351,10 @@
     <string name="converted_to_crypto_container">Converted to crypto container!</string>
 
     <!-- Accessibility -->
-    <string name="file_added">File added</string>
-    <string name="files_added">Files added</string>
+    <string name="file_added">File successfully added</string>
+    <string name="files_added">Files successfully added</string>
+    <string name="file_added_to_container">File successfully added to container</string>
+    <string name="files_added_to_container">Files successfully added to container</string>
     <string name="container_name_changed">Container name changed</string>
     <string name="container_name_change_cancelled">Container name change cancelled</string>
     <string name="document_removed">Document removed</string>

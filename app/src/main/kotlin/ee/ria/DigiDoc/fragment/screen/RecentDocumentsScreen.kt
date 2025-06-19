@@ -96,6 +96,7 @@ import java.io.File
 fun RecentDocumentsScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    isFromEncrypt: Boolean = false,
     sharedMenuViewModel: SharedMenuViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
     recentDocumentsViewModel: RecentDocumentsViewModel = hiltViewModel(),
@@ -341,30 +342,46 @@ fun RecentDocumentsScreen(
                                 onItemClick = {
                                     CoroutineScope(IO).launch {
                                         selectedDocument.value = document
-                                        if ((
-                                                SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(
-                                                    recentDocumentsViewModel.getMimetype(
-                                                        document,
-                                                    ),
-                                                ) || document.isCades(context)
-                                            ) && !document.isXades(context)
-                                        ) {
-                                            showSivaDialog.value = true
-                                        } else {
-                                            showSivaDialog.value = false
+                                        if (isFromEncrypt) {
                                             val signedContainer =
-                                                recentDocumentsViewModel.openDocument(
+                                                recentDocumentsViewModel.openCryptoDocument(
                                                     document,
-                                                    true,
                                                 )
-                                            sharedContainerViewModel.setSignedContainer(
+                                            sharedContainerViewModel.setCryptoContainer(
                                                 signedContainer,
                                             )
 
                                             withContext(Main) {
                                                 navController.navigate(
-                                                    Route.Signing.route,
+                                                    Route.Encrypt.route,
                                                 )
+                                            }
+                                        } else {
+                                            if ((
+                                                    SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(
+                                                        recentDocumentsViewModel.getMimetype(
+                                                            document,
+                                                        ),
+                                                    ) || document.isCades(context)
+                                                ) && !document.isXades(context)
+                                            ) {
+                                                showSivaDialog.value = true
+                                            } else {
+                                                showSivaDialog.value = false
+                                                val signedContainer =
+                                                    recentDocumentsViewModel.openDocument(
+                                                        document,
+                                                        true,
+                                                    )
+                                                sharedContainerViewModel.setSignedContainer(
+                                                    signedContainer,
+                                                )
+
+                                                withContext(Main) {
+                                                    navController.navigate(
+                                                        Route.Signing.route,
+                                                    )
+                                                }
                                             }
                                         }
                                     }
@@ -432,30 +449,46 @@ fun RecentDocumentsScreen(
                                 onItemClick = {
                                     CoroutineScope(IO).launch {
                                         selectedDocument.value = document
-                                        if ((
-                                                SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(
-                                                    recentDocumentsViewModel.getMimetype(
-                                                        document,
-                                                    ),
-                                                ) || document.isCades(context)
-                                            ) && !document.isXades(context)
-                                        ) {
-                                            showSivaDialog.value = true
-                                        } else {
-                                            showSivaDialog.value = false
+                                        if (isFromEncrypt) {
                                             val signedContainer =
-                                                recentDocumentsViewModel.openDocument(
+                                                recentDocumentsViewModel.openCryptoDocument(
                                                     document,
-                                                    true,
                                                 )
-                                            sharedContainerViewModel.setSignedContainer(
+                                            sharedContainerViewModel.setCryptoContainer(
                                                 signedContainer,
                                             )
 
                                             withContext(Main) {
                                                 navController.navigate(
-                                                    Route.Signing.route,
+                                                    Route.Encrypt.route,
                                                 )
+                                            }
+                                        } else {
+                                            if ((
+                                                    SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(
+                                                        recentDocumentsViewModel.getMimetype(
+                                                            document,
+                                                        ),
+                                                    ) || document.isCades(context)
+                                                ) && !document.isXades(context)
+                                            ) {
+                                                showSivaDialog.value = true
+                                            } else {
+                                                showSivaDialog.value = false
+                                                val signedContainer =
+                                                    recentDocumentsViewModel.openDocument(
+                                                        document,
+                                                        true,
+                                                    )
+                                                sharedContainerViewModel.setSignedContainer(
+                                                    signedContainer,
+                                                )
+
+                                                withContext(Main) {
+                                                    navController.navigate(
+                                                        Route.Signing.route,
+                                                    )
+                                                }
                                             }
                                         }
                                     }

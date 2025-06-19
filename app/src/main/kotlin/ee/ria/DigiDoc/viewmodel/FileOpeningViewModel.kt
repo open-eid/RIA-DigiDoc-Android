@@ -60,6 +60,8 @@ class FileOpeningViewModel
 
         private val _filesAdded = MutableLiveData<List<File>?>(null)
         val filesAdded: LiveData<List<File>?> = _filesAdded
+        private val _filesAddedToContainer = MutableLiveData<List<File>?>(null)
+        val filesAddedToContainer: LiveData<List<File>?> = _filesAddedToContainer
 
         fun resetContainer() {
             _signedContainer.postValue(null)
@@ -67,6 +69,7 @@ class FileOpeningViewModel
 
         fun resetFilesAdded() {
             _filesAdded.postValue(null)
+            _filesAddedToContainer.postValue(null)
         }
 
         suspend fun showFileChooser(fileChooser: ActivityResultLauncher<String>) {
@@ -169,7 +172,7 @@ class FileOpeningViewModel
                     } else {
                         _signedContainer.postValue(existingSignedContainer)
                     }
-                    _filesAdded.postValue(validFiles)
+                    _filesAddedToContainer.postValue(validFiles)
                 } catch (e: Exception) {
                     _signedContainer.postValue(existingSignedContainer)
                     handleException(e)

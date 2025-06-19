@@ -157,7 +157,7 @@
     <string name="crypto_recipient_remove_button">Eemaldada adressaat</string>
     <string name="crypto_recipient_remove_confirmation_message">Soovid eemaldada adressaati?</string>
     <string name="crypto_new_title">Ümbriku krüpteerimine</string>
-    <string name="crypto_view_title">Ümbriku sisu</string>
+    <string name="crypto_view_title">Ümbriku dekrüpteerimine</string>
     <string name="crypto_container_recipients_title">Ümbriku adressaadid</string>
     <string name="crypto_container_latest_recipients_title">Viimati lisatud</string>
     <string name="crypto_container_added_recipients_title">Lisatud adressaadid</string>
@@ -351,8 +351,10 @@
     <string name="converted_to_crypto_container">Konverteeritud turvaümbrikuks!</string>
 
     <!-- Accessibility -->
-    <string name="file_added">Fail edukalt ümbrikku lisatud</string>
-    <string name="files_added">Failid edukalt ümbrikku lisatud</string>
+    <string name="file_added">Fail edukalt lisatud</string>
+    <string name="files_added">Failid edukalt lisatud</string>
+    <string name="file_added_to_container">Fail edukalt ümbrikku lisatud</string>
+    <string name="files_added_to_container">Failid edukalt ümbrikku lisatud</string>
     <string name="container_name_changed">Ümbriku nimi muudetud</string>
     <string name="container_name_change_cancelled">Ümbriku nime muutmine katkestatud</string>
     <string name="document_removed">Dokument eemaldatud</string>

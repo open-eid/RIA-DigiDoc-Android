@@ -277,12 +277,12 @@ fun EncryptNavigation(
                 delay(2000)
                 withContext(Main) {
                     navController.navigate(Route.Signing.route) {
-                        popUpTo(Route.Home.route) {
+                        popUpTo(Route.Encrypt.route) {
                             inclusive = false
                         }
                         launchSingleTop = true
                     }
-                    showLoadingScreen.value = false
+                    showLoadingScreen.value = true
                 }
             } catch (_: Exception) {
                 showMessage(context, R.string.container_load_error)

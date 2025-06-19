@@ -85,6 +85,7 @@ fun HomeScreen(
     val isMainMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
     val isOpenMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
+    val isOpenMenuBottomFromEncrypt = rememberSaveable { mutableStateOf(false) }
 
     var openMenuAddFileNavigateTo = Route.FileChoosing.route
 
@@ -199,9 +200,15 @@ fun HomeScreen(
             },
             secondButtonClick = {
                 isOpenMenuBottomSheetVisible.value = false
-                navController.navigate(
-                    Route.RecentDocuments.route,
-                )
+                if (isOpenMenuBottomFromEncrypt.value == true) {
+                    navController.navigate(
+                        Route.RecentDocumentsFromEncrypt.route,
+                    )
+                } else {
+                    navController.navigate(
+                        Route.RecentDocuments.route,
+                    )
+                }
             },
         )
 
@@ -294,6 +301,7 @@ fun HomeScreen(
                             onClickItem = {
                                 openMenuAddFileNavigateTo = Route.FileChoosing.route
                                 isOpenMenuBottomSheetVisible.value = true
+                                isOpenMenuBottomFromEncrypt.value = false
                             },
                             testTag = "homeOpenDocumentButton",
                         )
@@ -308,6 +316,7 @@ fun HomeScreen(
                             onClickItem = {
                                 openMenuAddFileNavigateTo = Route.FileChoosing.route
                                 isOpenMenuBottomSheetVisible.value = true
+                                isOpenMenuBottomFromEncrypt.value = false
                             },
                             testTag = "homeSignatureButton",
                         )
@@ -322,6 +331,7 @@ fun HomeScreen(
                             onClickItem = {
                                 openMenuAddFileNavigateTo = Route.CryptoFileChoosing.route
                                 isOpenMenuBottomSheetVisible.value = true
+                                isOpenMenuBottomFromEncrypt.value = true
                             },
                             testTag = "homeCryptoButton",
                         )

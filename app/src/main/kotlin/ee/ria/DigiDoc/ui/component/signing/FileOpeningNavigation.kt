@@ -152,6 +152,8 @@ fun FileOpeningNavigation(
 
     val fileAddedText = stringResource(id = R.string.file_added)
     val filesAddedText = stringResource(id = R.string.files_added)
+    val fileAddedToContainerText = stringResource(id = R.string.file_added_to_container)
+    val filesAddedToContainerText = stringResource(id = R.string.files_added_to_container)
     var errorText by remember { mutableStateOf(Pair<Int, String?>(0, null)) }
     var announcementText by remember { mutableStateOf("") }
     LaunchedEffect(fileOpeningViewModel.errorState) {
@@ -161,7 +163,7 @@ fun FileOpeningNavigation(
                     if (errorState.first != 0) {
                         errorText = errorState
                     }
-                    delay(2000)
+                    delay(1000)
                     if (signedContainer == null) {
                         navController.popBackStack()
                     }
@@ -197,7 +199,26 @@ fun FileOpeningNavigation(
                     TYPE_ANNOUNCEMENT,
                     announcementText,
                 )
-                delay(2000)
+                delay(1000)
+                fileOpeningViewModel.resetFilesAdded()
+            }
+        }
+    }
+
+    LaunchedEffect(fileOpeningViewModel.filesAddedToContainer) {
+        fileOpeningViewModel.filesAddedToContainer.asFlow().collect { files ->
+            if (!files.isNullOrEmpty()) {
+                announcementText =
+                    when (files.size) {
+                        1 -> fileAddedToContainerText
+                        else -> filesAddedToContainerText
+                    }
+                AccessibilityUtil.sendAccessibilityEvent(
+                    context,
+                    TYPE_ANNOUNCEMENT,
+                    announcementText,
+                )
+                delay(1000)
                 fileOpeningViewModel.resetFilesAdded()
             }
         }
@@ -207,7 +228,7 @@ fun FileOpeningNavigation(
         fileOpeningViewModel.signedContainer.asFlow().collect { signedContainer ->
             signedContainer?.let {
                 sharedContainerViewModel.setSignedContainer(it)
-                delay(2000)
+                delay(1000)
 
                 navController.navigate(Route.Signing.route) {
                     popUpTo(Route.Home.route) {
@@ -223,7 +244,6 @@ fun FileOpeningNavigation(
         fileOpeningViewModel.cryptoContainer.asFlow().collect { cryptoContainer ->
             cryptoContainer?.let {
                 sharedContainerViewModel.setCryptoContainer(it)
-                delay(2000)
 
                 navController.navigate(Route.Encrypt.route) {
                     popUpTo(Route.Home.route) {

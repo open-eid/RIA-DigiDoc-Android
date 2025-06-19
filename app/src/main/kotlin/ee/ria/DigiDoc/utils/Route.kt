@@ -23,6 +23,7 @@ import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_IDENTIFICATION_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_PIN_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.PROXY_SERVICES_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.RECENT_DOCUMENTS_FROM_ENCRYPT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.RECENT_DOCUMENTS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.RECIPIENT_DETAIL_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ROOT_SCREEN
@@ -73,6 +74,8 @@ sealed class Route(val route: String) {
     data object RecipientDetail : Route(RECIPIENT_DETAIL_SCREEN)
 
     data object RecentDocuments : Route(RECENT_DOCUMENTS_SCREEN)
+
+    data object RecentDocumentsFromEncrypt : Route(RECENT_DOCUMENTS_FROM_ENCRYPT_SCREEN)
 
     data object Settings : Route(SETTINGS_SCREEN)
 

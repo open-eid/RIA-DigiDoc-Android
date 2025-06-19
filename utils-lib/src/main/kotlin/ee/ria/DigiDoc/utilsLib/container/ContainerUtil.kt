@@ -12,7 +12,6 @@ import android.net.Uri
 import android.os.Parcelable
 import androidx.core.content.FileProvider
 import ee.ria.DigiDoc.common.Constant.ALL_CONTAINER_EXTENSIONS
-import ee.ria.DigiDoc.common.Constant.CONTAINER_EXTENSIONS
 import ee.ria.DigiDoc.common.Constant.DATA_FILE_DIR
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
 import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
@@ -215,23 +214,22 @@ object ContainerUtil {
         return validFiles
     }
 
-    fun findSignatureContainerFiles(context: Context): List<File> {
-        val signatureContainerFileList = signatureContainersDir(context).listFiles()
+    fun findRecentContainerFiles(context: Context): List<File> {
+        val signatureContainerFiles = signatureContainersDir(context).listFiles() ?: emptyArray<File>()
+        val cryptoContainerFiles = cryptoContainersDir(context).listFiles() ?: emptyArray<File>()
+
+        val allContainerFiles = signatureContainerFiles + cryptoContainerFiles
 
         val fileList =
-            signatureContainerFileList
-                ?.filter { file ->
-                    FilenameUtils.isExtension(file.name, CONTAINER_EXTENSIONS)
+            allContainerFiles
+                .filter { file ->
+                    FilenameUtils.isExtension(file.name, ALL_CONTAINER_EXTENSIONS)
                 }
-                ?.sortedWith(FILE_MODIFIED_DATE_COMPARATOR)
-                ?.take(10)
-                ?.toList()
+                .sortedWith(FILE_MODIFIED_DATE_COMPARATOR)
+                .take(10)
+                .toList()
 
-        if (fileList != null) {
-            return fileList
-        }
-
-        return emptyList()
+        return fileList
     }
 
     fun signatureContainersDir(context: Context): File {

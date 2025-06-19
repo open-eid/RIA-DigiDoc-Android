@@ -86,6 +86,9 @@ class FileOpeningViewModelTest {
     lateinit var filesAddedObserver: Observer<List<File>?>
 
     @Mock
+    lateinit var filesAddedToContainerObserver: Observer<List<File>?>
+
+    @Mock
     lateinit var errorStateObserver: Observer<Pair<Int, String?>?>
 
     @Mock
@@ -139,6 +142,7 @@ class FileOpeningViewModelTest {
         viewModel.errorState.observeForever(errorStateObserver)
         viewModel.launchFilePicker.observeForever(launchFilePickerObserver)
         viewModel.filesAdded.observeForever(filesAddedObserver)
+        viewModel.filesAddedToContainer.observeForever(filesAddedToContainerObserver)
     }
 
     @Test
@@ -162,6 +166,7 @@ class FileOpeningViewModelTest {
             viewModel.resetFilesAdded()
 
             verify(filesAddedObserver, atLeastOnce()).onChanged(null)
+            verify(filesAddedToContainerObserver, atLeastOnce()).onChanged(null)
         }
 
     @Test
@@ -203,7 +208,7 @@ class FileOpeningViewModelTest {
 
             viewModel.handleFiles(context, uris, signedContainer, null, true)
 
-            verify(filesAddedObserver, atLeastOnce()).onChanged(listOf(file))
+            verify(filesAddedToContainerObserver, atLeastOnce()).onChanged(listOf(file))
             verify(signedContainerObserver, atLeastOnce()).onChanged(signedContainer)
             verify(
                 errorStateObserver,
@@ -319,6 +324,10 @@ class FileOpeningViewModelTest {
                 }
 
             `when`(
+                fileOpeningRepository.uriToFile(context, contentResolver, uri),
+            )
+                .thenReturn(file)
+            `when`(
                 fileOpeningRepository.openOrCreateContainer(
                     context,
                     contentResolver,
@@ -332,6 +341,7 @@ class FileOpeningViewModelTest {
 
             viewModel.handleFiles(context, uris, isSivaConfirmed = isSivaConfirmed)
 
+            verify(filesAddedObserver, atLeastOnce()).onChanged(listOf(file))
             verify(signedContainerObserver, atLeastOnce()).onChanged(signedContainer)
         }
 

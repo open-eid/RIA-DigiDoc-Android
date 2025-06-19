@@ -82,7 +82,10 @@ fun CryptoFileOpeningNavigation(
 
     val fileAddedText = stringResource(id = R.string.file_added)
     val filesAddedText = stringResource(id = R.string.files_added)
+    val fileAddedToContainerText = stringResource(id = R.string.file_added_to_container)
+    val filesAddedToContainerText = stringResource(id = R.string.files_added_to_container)
     var errorText by remember { mutableStateOf(Pair<Int, String?>(0, null)) }
+    var announcementText by remember { mutableStateOf("") }
 
     LaunchedEffect(cryptoFileOpeningViewModel.errorState) {
         cryptoFileOpeningViewModel.errorState.asFlow().collect { errorState ->
@@ -91,7 +94,7 @@ fun CryptoFileOpeningNavigation(
                     if (errorState.first != 0) {
                         errorText = errorState
                     }
-                    delay(2000)
+                    delay(1000)
                     if (cryptoContainer == null) {
                         navController.popBackStack()
                     }
@@ -114,7 +117,7 @@ fun CryptoFileOpeningNavigation(
     LaunchedEffect(cryptoFileOpeningViewModel.filesAdded) {
         cryptoFileOpeningViewModel.filesAdded.asFlow().collect { files ->
             if (!files.isNullOrEmpty()) {
-                val announcementText =
+                announcementText =
                     when (files.size) {
                         1 -> fileAddedText
                         else -> filesAddedText
@@ -127,6 +130,26 @@ fun CryptoFileOpeningNavigation(
                     TYPE_ANNOUNCEMENT,
                     announcementText,
                 )
+                delay(1000)
+                cryptoFileOpeningViewModel.resetFilesAdded()
+            }
+        }
+    }
+
+    LaunchedEffect(cryptoFileOpeningViewModel.filesAddedToContainer) {
+        cryptoFileOpeningViewModel.filesAddedToContainer.asFlow().collect { files ->
+            if (!files.isNullOrEmpty()) {
+                announcementText =
+                    when (files.size) {
+                        1 -> fileAddedToContainerText
+                        else -> filesAddedToContainerText
+                    }
+                AccessibilityUtil.sendAccessibilityEvent(
+                    context,
+                    TYPE_ANNOUNCEMENT,
+                    announcementText,
+                )
+                delay(1000)
                 cryptoFileOpeningViewModel.resetFilesAdded()
             }
         }
@@ -136,7 +159,7 @@ fun CryptoFileOpeningNavigation(
         cryptoFileOpeningViewModel.cryptoContainer.asFlow().collect { cryptoContainer ->
             cryptoContainer?.let {
                 sharedContainerViewModel.setCryptoContainer(it)
-                delay(2000)
+                delay(1000)
 
                 navController.navigate(Route.Encrypt.route) {
                     popUpTo(Route.Home.route) {
@@ -180,6 +203,11 @@ fun CryptoFileOpeningNavigation(
     if (errorText.first != 0) {
         showMessage(context.getString(errorText.first, errorText.second))
         errorText = Pair(0, null)
+    }
+
+    if (announcementText.isNotEmpty()) {
+        showMessage(announcementText)
+        announcementText = ""
     }
 
     LoadingScreen(modifier = modifier)

@@ -157,7 +157,7 @@
     <string name="crypto_recipient_remove_button">Удалить получателя</string>
     <string name="crypto_recipient_remove_confirmation_message">Удалить получателя из контейнера?</string>
     <string name="crypto_new_title">Шифрование контейнера</string>
-    <string name="crypto_view_title">Содержание контейнера</string>
+    <string name="crypto_view_title">Расшифрование контейнера</string>
     <string name="crypto_container_recipients_title">Получатели контейнера</string>
     <string name="crypto_container_latest_recipients_title">Недавно добавленные</string>
     <string name="crypto_container_added_recipients_title">Добавленные получатели</string>
@@ -351,8 +351,10 @@
     <string name="converted_to_crypto_container">Переделан в контейнер для зашифровывания!</string>
 
     <!-- Accessibility -->
-    <string name="file_added">Файл добавлен</string>
-    <string name="files_added">Файлы добавлены</string>
+    <string name="file_added">Файл успешно добавлен</string>
+    <string name="files_added">Файлы успешно добавлены</string>
+    <string name="file_added_to_container">Файл успешно добавлен в контейнер</string>
+    <string name="files_added_to_container">Файлы успешно добавлены в контейнер</string>
     <string name="container_name_changed">Название контейнера изменено</string>
     <string name="container_name_change_cancelled">Изменение названия контейнера отменено</string>
     <string name="document_removed">Документ удален</string>
