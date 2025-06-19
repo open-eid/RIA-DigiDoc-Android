@@ -172,7 +172,7 @@
     <string name="crypto_recipients_search_cancel">Cancel search recipients</string>
     <string name="crypto_recipients_search_empty">No recipients found</string>
     <string name="crypto_recipients_recipient_add_success">Recipient added</string>
-    <string name="crypto_encrypt_error">Something went wrong with encryption</string>
+    <string name="crypto_encrypt_error">Container encryption was unsuccessful</string>
     <string name="crypto_encrypt_data_files_empty_error">Cannot create an empty crypto container</string>
     <string name="crypto_encrypt_recipients_empty_error">Cannot create crypto container without recipients</string>
     <string name="crypto_recipients_error_exists">Recipient already exists in the container</string>
@@ -391,7 +391,7 @@
     <string name="recipient_details_name_label">Recipient:</string>
     <string name="recipient_details_certificate_issuer_label">Recipient\'s Certificate issuer:</string>
     <string name="recipient_details_concat_kdf_algorithm_url">ConcatKDF reference method:</string>
-    <string name="recipient_details_certificate_valid_to_label">Expiry date:</string>
+    <string name="recipient_details_certificate_valid_to_label">Recipient\'s Certificate expiry date:</string>
 
     <!-- Signature Details -->
     <string name="signature_error_details_title">Warnings</string>

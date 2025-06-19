@@ -172,7 +172,7 @@
     <string name="crypto_recipients_search_cancel">Отменить поиск получателя</string>
     <string name="crypto_recipients_search_empty">Получатели не найдены</string>
     <string name="crypto_recipients_recipient_add_success">Получатель добавлен</string>
-    <string name="crypto_encrypt_error">Что-то пошло не так с шифрованием</string>
+    <string name="crypto_encrypt_error">Шифрование контейнера не удалось</string>
     <string name="crypto_encrypt_data_files_empty_error">Невозможно создать пустой контейнер</string>
     <string name="crypto_encrypt_recipients_empty_error">Невозможно создать контейнер без получателей</string>
     <string name="crypto_recipients_error_exists">Получатель уже добавлен в контейнер</string>
@@ -391,7 +391,7 @@
     <string name="recipient_details_name_label">Получатель:</string>
     <string name="recipient_details_certificate_issuer_label">Организация, выдавшая сертификат получателя:</string>
     <string name="recipient_details_concat_kdf_algorithm_url">Ссылка на метод ConcatKDF алгоритма:</string>
-    <string name="recipient_details_certificate_valid_to_label">Срок действия:</string>
+    <string name="recipient_details_certificate_valid_to_label">Срок действия сертификата получателя:</string>
 
     <!-- Signature Details -->
     <string name="signature_error_details_title">Предупреждения</string>
