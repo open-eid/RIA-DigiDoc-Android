@@ -327,7 +327,7 @@
     <string name="signature_update_nfc_technical_error">Midagi läks valesti. Palun proovi uuesti</string>
     <string name="signature_update_nfc_hold">Hoia ID-kaarti telefoni lähedal</string>
     <string name="signature_update_nfc_wrong_can">Vale CAN number</string>
-    <string name="signature_update_nfc_detected">ID-kaardiga kontaktivaba ühenduse loomine</string>
+    <string name="signature_update_nfc_detected">ID-kaardiga ühenduse loomine</string>
 
     <string name="sign_button">Allkirjasta</string>
     <string name="next_button">Edasi</string>
@@ -601,7 +601,7 @@
     <string name="myeid_citizenship">Kodakondsus</string>
     <string name="myeid_personal_code">Isikukood</string>
     <string name="myeid_date_of_birth">Sünniaeg</string>
-    <string name="myeid_document_number">Dokumendi number</string>
+    <string name="myeid_document_number">ID-kaardi number</string>
     <string name="myeid_valid_to">Kehtiv kuni</string>
     <string name="myeid_status_valid">Kehtib</string>
     <string name="myeid_status_expired">Aegunud</string>

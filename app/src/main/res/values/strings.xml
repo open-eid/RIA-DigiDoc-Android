@@ -601,7 +601,7 @@
     <string name="myeid_citizenship">Citizenship</string>
     <string name="myeid_personal_code">Personal code</string>
     <string name="myeid_date_of_birth">Date of birth</string>
-    <string name="myeid_document_number">Document number</string>
+    <string name="myeid_document_number">ID-card number</string>
     <string name="myeid_valid_to">Valid to</string>
     <string name="myeid_status_valid">Valid</string>
     <string name="myeid_status_expired">Expired</string>

@@ -300,7 +300,7 @@
     <string name="signature_update_nfc_technical_error">Что-то пошло не так. Пожалуйста, попробуйте еще раз</string>
     <string name="signature_update_nfc_hold">Удерживайте ID-карту рядом с телефоном</string>
     <string name="signature_update_nfc_wrong_can">Неправильный номер CAN</string>
-    <string name="signature_update_nfc_detected">Создание бесконтактного соединения с ID-картой</string>
+    <string name="signature_update_nfc_detected">Создание соединения с ID-картой</string>
 
     <string name="signature_update_smart_id_message">Введите свой личный код для подписи с Smart-ID</string>
     <string name="choose_country_option">Выберите страну</string>
@@ -601,7 +601,7 @@
     <string name="myeid_citizenship">Гражданство</string>
     <string name="myeid_personal_code">Личный код</string>
     <string name="myeid_date_of_birth">Дата рождения</string>
-    <string name="myeid_document_number">Номер документа</string>
+    <string name="myeid_document_number">Номер ID-карты</string>
     <string name="myeid_valid_to">Годен до</string>
     <string name="myeid_status_valid">Действителен</string>
     <string name="myeid_status_expired">Недействителен</string>
