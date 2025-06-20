@@ -82,10 +82,7 @@ fun CryptoFileOpeningNavigation(
 
     val fileAddedText = stringResource(id = R.string.file_added)
     val filesAddedText = stringResource(id = R.string.files_added)
-    val fileAddedToContainerText = stringResource(id = R.string.file_added_to_container)
-    val filesAddedToContainerText = stringResource(id = R.string.files_added_to_container)
-    var errorText by remember { mutableStateOf(Pair<Int, String?>(0, null)) }
-    var announcementText by remember { mutableStateOf("") }
+   var errorText by remember { mutableStateOf(Pair<Int, String?>(0, null)) }
 
     LaunchedEffect(cryptoFileOpeningViewModel.errorState) {
         cryptoFileOpeningViewModel.errorState.asFlow().collect { errorState ->
@@ -117,7 +114,7 @@ fun CryptoFileOpeningNavigation(
     LaunchedEffect(cryptoFileOpeningViewModel.filesAdded) {
         cryptoFileOpeningViewModel.filesAdded.asFlow().collect { files ->
             if (!files.isNullOrEmpty()) {
-                announcementText =
+                val announcementText =
                     when (files.size) {
                         1 -> fileAddedText
                         else -> filesAddedText
@@ -125,25 +122,6 @@ fun CryptoFileOpeningNavigation(
 
                 sharedContainerViewModel.setAddedFilesCount(files.size)
 
-                AccessibilityUtil.sendAccessibilityEvent(
-                    context,
-                    TYPE_ANNOUNCEMENT,
-                    announcementText,
-                )
-                delay(1000)
-                cryptoFileOpeningViewModel.resetFilesAdded()
-            }
-        }
-    }
-
-    LaunchedEffect(cryptoFileOpeningViewModel.filesAddedToContainer) {
-        cryptoFileOpeningViewModel.filesAddedToContainer.asFlow().collect { files ->
-            if (!files.isNullOrEmpty()) {
-                announcementText =
-                    when (files.size) {
-                        1 -> fileAddedToContainerText
-                        else -> filesAddedToContainerText
-                    }
                 AccessibilityUtil.sendAccessibilityEvent(
                     context,
                     TYPE_ANNOUNCEMENT,
@@ -203,11 +181,6 @@ fun CryptoFileOpeningNavigation(
     if (errorText.first != 0) {
         showMessage(context.getString(errorText.first, errorText.second))
         errorText = Pair(0, null)
-    }
-
-    if (announcementText.isNotEmpty()) {
-        showMessage(announcementText)
-        announcementText = ""
     }
 
     LoadingScreen(modifier = modifier)

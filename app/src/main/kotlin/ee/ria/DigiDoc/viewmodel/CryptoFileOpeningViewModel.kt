@@ -49,8 +49,6 @@ class CryptoFileOpeningViewModel
 
         private val _filesAdded = MutableLiveData<List<File>?>(null)
         val filesAdded: LiveData<List<File>?> = _filesAdded
-        private val _filesAddedToContainer = MutableLiveData<List<File>?>(null)
-        val filesAddedToContainer: LiveData<List<File>?> = _filesAddedToContainer
 
         fun resetContainer() {
             _cryptoContainer.postValue(null)
@@ -58,7 +56,6 @@ class CryptoFileOpeningViewModel
 
         fun resetFilesAdded() {
             _filesAdded.postValue(null)
-            _filesAddedToContainer.postValue(null)
         }
 
         suspend fun showFileChooser(fileChooser: ActivityResultLauncher<String>) {
@@ -135,7 +132,7 @@ class CryptoFileOpeningViewModel
                         validFiles,
                     )
                     _cryptoContainer.postValue(existingSignedContainer)
-                    _filesAddedToContainer.postValue(validFiles)
+                    _filesAdded.postValue(validFiles)
                 } catch (e: Exception) {
                     _cryptoContainer.postValue(existingSignedContainer)
                     handleException(e)

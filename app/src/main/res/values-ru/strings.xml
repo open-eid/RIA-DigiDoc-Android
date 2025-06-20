@@ -353,8 +353,6 @@
     <!-- Accessibility -->
     <string name="file_added">Файл успешно добавлен</string>
     <string name="files_added">Файлы успешно добавлены</string>
-    <string name="file_added_to_container">Файл успешно добавлен в контейнер</string>
-    <string name="files_added_to_container">Файлы успешно добавлены в контейнер</string>
     <string name="container_name_changed">Название контейнера изменено</string>
     <string name="container_name_change_cancelled">Изменение названия контейнера отменено</string>
     <string name="document_removed">Документ удален</string>
