@@ -2,14 +2,14 @@
     <string name="main_home_version">versioon %1$s</string>
 
     <!-- Home Screen actions -->
-    <string name="main_home_open_document_title">Ava dokument</string>
-    <string name="main_home_open_document_description">Seejärel vali soovi korral tegevus</string>
+    <string name="main_home_open_document_title">Failid</string>
+    <string name="main_home_open_document_description">Leia vajalik fail või dokument</string>
     <string name="main_home_signature_title">Allkiri</string>
-    <string name="main_home_signature_description">Lisa failid ja allkirjasta</string>
+    <string name="main_home_signature_description">Allkirjastamiseks või kontrollimiseks lisa fail</string>
     <string name="main_home_crypto_title">Krüpto</string>
-    <string name="main_home_crypto_description">Krüpteeri ja dekrüpteeri</string>
+    <string name="main_home_crypto_description">Krüpteerimiseks või dekrüpteerimiseks lisa fail</string>
     <string name="main_home_my_eid_title">Minu eID</string>
-    <string name="main_home_my_eid_description">Näe ja muuda oma eID andmeid</string>
+    <string name="main_home_my_eid_description">Vaata või muuda oma eID andmeid</string>
 
     <string name="back">Tagasi</string>
     <string name="action_continue">Jätka</string>
@@ -94,9 +94,9 @@
     <string name="main_home_menu_help">ABI</string>
     <string name="main_home_menu_help_url_short">link www.id.ee</string>
     <string name="main_home_menu_help_url">https://www.id.ee/id-abikeskus/</string>
-    <string name="main_home_menu_accessibility">Juurdepääsetavus</string>
+    <string name="main_home_menu_accessibility">Ligipääsetavuse info</string>
     <string name="main_home_menu_settings">SEADED</string>
-    <string name="main_home_menu_about">DigiDoc äpi kohta</string>
+    <string name="main_home_menu_about">RIA DigiDoc äpi kohta</string>
     <string name="main_home_menu_diagnostics">Diagnostika</string>
     <string name="main_home_recent">Hiljutised dokumendid</string>
 
@@ -157,7 +157,7 @@
     <string name="crypto_recipient_remove_button">Eemaldada adressaat</string>
     <string name="crypto_recipient_remove_confirmation_message">Soovid eemaldada adressaati?</string>
     <string name="crypto_new_title">Ümbriku krüpteerimine</string>
-    <string name="crypto_view_title">Ümbriku sisu</string>
+    <string name="crypto_view_title">Ümbriku dekrüpteerimine</string>
     <string name="crypto_container_recipients_title">Ümbriku adressaadid</string>
     <string name="crypto_container_latest_recipients_title">Viimati lisatud</string>
     <string name="crypto_container_added_recipients_title">Lisatud adressaadid</string>
@@ -167,12 +167,12 @@
     <string name="crypto_documents_title">Ümbriku failid</string>
     <string name="crypto_encrypted_documents_title">Krüpteeritud failid</string>
     <string name="crypto_containter_update_name">Ümbriku nimi</string>
-    <string name="crypto_recipients_description">Krüpteerimiseks peab olema lisatud vähemalt üks adressaat – isik (isikukood) või asutus (registrinumber), kellel on volitus andmete dekrüpteerimiseks. Lisage oma isikukood, kui soovite ümbrikut hiljem dekrüpteerida.</string>
+    <string name="crypto_recipients_description">Krüpteerimiseks tuleb lisada vähemalt üks adressaat – isik (isikukood) või asutus (registrikood, nimi või nimeosa), kellel on õigus andmeid dekrüpteerida. Lisa enda isikukood, kui soovid hiljem ümbrikku dekrüpteerida.</string>
     <string name="crypto_recipients_search">Leia adressaat…</string>
     <string name="crypto_recipients_search_cancel">Katkesta adressaadi otsing</string>
     <string name="crypto_recipients_search_empty">Adressaati ei leitud</string>
     <string name="crypto_recipients_recipient_add_success">Adressaat lisatud</string>
-    <string name="crypto_encrypt_error">Midagi läks krüpteerimisel valesti</string>
+    <string name="crypto_encrypt_error">Ümbriku krüpteerimine ebaõnnestus.</string>
     <string name="crypto_encrypt_data_files_empty_error">Ei saa luua tühja krüptokonteinerit</string>
     <string name="crypto_encrypt_recipients_empty_error">Ei saa luua krüptokonteinerit ilma adressaatideta</string>
     <string name="crypto_recipients_error_exists">Adressaat on konteineris juba olemas</string>
@@ -192,16 +192,16 @@
 
     <string name="converted_to_signed_container">Konverteeritud allkirjadokumendiks!</string>
 
-    <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>
+    <string name="signature_update_signature_add_method_mobile_id">mobiil-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
-    <string name="signature_update_signature_add_method_id_card">ID-kaart läbi USB</string>
-    <string name="signature_update_signature_add_method_id_card_accessibility">ID-kaart läbi U S B</string>
-    <string name="signature_update_signature_add_method_nfc">ID-kaart läbi NFC</string>
-    <string name="signature_update_signature_add_method_nfc_accessibility">ID-kaart läbi N F C</string>
+    <string name="signature_update_signature_add_method_id_card">ID-kaart kaardilugeja abil</string>
+    <string name="signature_update_signature_add_method_id_card_accessibility">ID-kaart kaardilugeja abil</string>
+    <string name="signature_update_signature_add_method_nfc">ID-kaart NFC abil</string>
+    <string name="signature_update_signature_add_method_nfc_accessibility">ID-kaart N F C abil</string>
     <string name="signature_update_signature_add_success">Allkiri lisatud</string>
     <string name="signature_update_signature_add">Lisa allkiri</string>
 
-    <string name="signature_update_signature_selected_method_mobile_id">Allkirjastamise viisiks on Mobiil-ID, vahekaart %1$d / %2$d</string>
+    <string name="signature_update_signature_selected_method_mobile_id">Allkirjastamise viisiks on mobiil-ID, vahekaart %1$d / %2$d</string>
     <string name="signature_update_signature_selected_method_smart_id">Allkirjastamise viisiks on Smart-ID, vahekaart %1$d / %2$d</string>
     <string name="signature_update_signature_selected_method_id_card">Allkirjastamise viisiks on ID-kaart, vahekaart %1$d / %2$d</string>
 
@@ -327,12 +327,12 @@
     <string name="signature_update_nfc_technical_error">Midagi läks valesti. Palun proovi uuesti</string>
     <string name="signature_update_nfc_hold">Hoia ID-kaarti telefoni lähedal</string>
     <string name="signature_update_nfc_wrong_can">Vale CAN number</string>
-    <string name="signature_update_nfc_detected">ID-kaardiga kontaktivaba ühenduse loomine</string>
+    <string name="signature_update_nfc_detected">ID-kaardiga ühenduse loomine</string>
 
     <string name="sign_button">Allkirjasta</string>
     <string name="next_button">Edasi</string>
     <string name="add_signature_button">Lisa uus allkiri</string>
-    <string name="extend_signature_button">Pikenda allkirja</string>
+    <string name="extend_signature_button">Pikenda allkirja kehtivust</string>
     <string name="share_button">Jaga</string>
     <string name="share_button_accessibility">Jaga ümbrikut</string>
     <string name="yes_button">JAH</string>
@@ -351,8 +351,8 @@
     <string name="converted_to_crypto_container">Konverteeritud turvaümbrikuks!</string>
 
     <!-- Accessibility -->
-    <string name="file_added">Fail lisatud</string>
-    <string name="files_added">Failid lisatud</string>
+    <string name="file_added">Fail edukalt lisatud</string>
+    <string name="files_added">Failid edukalt lisatud</string>
     <string name="container_name_changed">Ümbriku nimi muudetud</string>
     <string name="container_name_change_cancelled">Ümbriku nime muutmine katkestatud</string>
     <string name="document_removed">Dokument eemaldatud</string>
@@ -391,7 +391,7 @@
     <string name="recipient_details_name_label">Adressaat:</string>
     <string name="recipient_details_certificate_issuer_label">Adressaadi sertifikaadi väljaandja:</string>
     <string name="recipient_details_concat_kdf_algorithm_url">ConcatKDF referaatmeetod:</string>
-    <string name="recipient_details_certificate_valid_to_label">Aegumiskuupäev:</string>
+    <string name="recipient_details_certificate_valid_to_label">Adressaadi sertifikaadi aegumiskuupäev:</string>
 
     <!-- Signature Details -->
     <string name="signature_error_details_title">Hoiatused</string>
@@ -427,10 +427,10 @@
     <!-- Menu -->
     <string name="main_home_menu_help_accessibility">Abi</string>
     <string name="main_home_menu_settings_accessibility">Seaded</string>
-    <string name="main_home_menu_about_accessibility">DigiDoc äpi kohta</string>
+    <string name="main_home_menu_about_accessibility">RIA DigiDoc äpi kohta</string>
     <string name="main_home_menu_diagnostics_accessibility">Diagnostika</string>
     <string name="main_home_menu_recent_accessibility">Hiljutised dokumendid</string>
-    <string name="main_home_menu_accessibility_accessibility">Juurdepääsetavus</string>
+    <string name="main_home_menu_accessibility_accessibility">Ligipääsetavuse info</string>
 
     <string name="main_menu_add_file_accessibility">Lisa fail</string>
     <string name="main_menu_recent_documents_accessibility">Hiljutised ümbrikud</string>
@@ -445,12 +445,13 @@
     <string name="main_settings_menu_appearance_accessibility">Välimus</string>
     <string name="main_settings_menu_signing_accessibility">Täpsemad seaded</string>
 
-    <string name="choose_name_option">Vali nimi</string>
+    <string name="choose_server_option">Vali server</string>
     <string name="option">Valik</string>
     <string name="option_selected">Valik %1$s valitud</string>
 
     <string name="option_ria">RIA</string>
-    <string name="option_manual_key_transfer">Kasutage krüptimiseks käsitsi määratud võtmeedastusserverit</string>
+    <string name="option_key_transfer">Kasuta krüpteerimiseks võtmeedastusserverit</string>
+    <string name="option_manual_key_transfer">Kasuta krüpteerimiseks käsitsi määratud võtmeedastusserverit</string>
 
     <string name="configuration_is_already_up_to_date">konfiguratsioon on juba ajakohane</string>
     <string name="configuration_updated">Konfiguratsioon uuendatud</string>
@@ -467,7 +468,7 @@
     <string name="main_settings_theme_system">Süsteemi vaikeseade</string>
 
     <!-- Main Accessibility -->
-    <string name="main_accessibility_title">Juurdepääsetavus</string>
+    <string name="main_accessibility_title">Ligipääsetavuse info</string>
 
     <string name="main_accessibility_link">Rohkem infot leiab <a href="https://www.id.ee/ligipaasetavuse-teatis/">ligipääsetavuse teatisest</a>.</string>
     <string name="main_accessibility_introduction">RIA DigiDoc on ehitatud nii, et see vastaks WCAG 2.1 AA juurdepääsetavuse suunistele. See tähendab, et RIA DigiDoc rakenduse arendamisel on kasutatud põhimõtteid, et see oleks kasutatav ilma nägemisvõimeta, piiratud nägemisvõimega, piiratud liikumisvõime või jõuga jms.</string>
@@ -488,7 +489,6 @@
     <string name="main_accessibility_introduction_screen_magnification_tools_android">Magnification (Android, sisseehitatud) https://support.google.com/accessibility/android/answer/6006949?hl=en</string>
 
     <!-- Main About -->
-    <string name="main_about_title">Info</string>
     <string name="main_about_1_logo_text">Eesti tuleviku heaks</string>
     <string name="main_about_2_logo_text">Euroopa Liit Euroopa Regionaalarengu Fond</string>
     <string name="main_about_digidoc_and_el_logos">Projekti on toetatud Euroopa Liidu Regionaalarengu Fondist</string>
@@ -530,8 +530,8 @@
     <string name="main_settings_signing">Allkirjastamine</string>
     <string name="main_settings_proxy_title">Proksi</string>
     <string name="main_settings_proxy_no_proxy">Ei kasuta proksit</string>
-    <string name="main_settings_proxy_use_system">Kasuta süsteemseid proksi seadeid</string>
-    <string name="main_settings_proxy_manual">Proksi seaded määratakse käsitsi</string>
+    <string name="main_settings_proxy_use_system">Kasuta süsteemseid proksiseadeid</string>
+    <string name="main_settings_proxy_manual">Kasuta käsitsi määratud proksiseadeid</string>
     <string name="main_settings_proxy_host">Host</string>
     <string name="main_settings_proxy_port">Port</string>
     <string name="main_settings_proxy_port_error">Min 1, max 65535</string>
@@ -552,7 +552,7 @@
     <string name="main_settings_signing_services_title">Allkirjastamisteenused</string>
     <string name="main_settings_validation_services_title">Valideerimisteenused</string>
     <string name="main_settings_crypto_services_title">Krüpteerimisseaded</string>
-    <string name="main_settings_timestamp_services_title">Ajatempliteenused</string>
+    <string name="main_settings_timestamp_services_title">Ajatempliteenus</string>
     <string name="main_settings_mobile_id_and_smart_id_title">Mobiil-ID ja Smart-ID</string>
     <string name="main_settings_ask_role_and_address_title">Küsi rolli ja aadressi igal allkirjastamisel</string>
     <string name="main_settings_role_title">Roll / resolutsioon</string>
@@ -570,13 +570,20 @@
     <string name="main_settings_timestamp_cert_show_certificate_button">Näita sertifikaati</string>
     <string name="main_settings_timestamp_cert_no_certificate_found">Sertifikaati ei ole lisatud</string>
     <string name="main_settings_siva_service_title">Ligipääs valideerimisteenusele SiVa</string>
-    <string name="main_settings_siva_default_access_title">Kasutan vaikimisi määratud ligipääsu</string>
-    <string name="main_settings_siva_default_manual_access_title">Kasutan käsitsi määratud ligipääsu</string>
+    <string name="main_settings_siva_default_access_title">Kasuta vaikimisi määratud ligipääsu</string>
+    <string name="main_settings_siva_default_manual_access_title">Kasuta käsitsi määratud ligipääsu</string>
     <string name="main_settings_siva_service_url">SiVa valideerimisteenuse URL</string>
     <string name="main_settings_siva_certificate_expired">Aegunud</string>
     <string name="main_settings_proxy_invalid_settings">Teenuse serveriga ühendus ebaõnnestus. Palun kontrolli võrgu sätteid või proovi hiljem uuesti.</string>
     <string name="main_settings_siva_certificate_title">Valideerimisteenuse SiVa SSL sertifikaat</string>
     <string name="main_settings_crypto_certificate_title">Võtmeedastusserveri SSL sertifikaat</string>
+
+    <string name="main_settings_crypto_use_cdoc1">Kasuta krüpteerimiseks CDOC1 failiformaati</string>
+    <string name="main_settings_crypto_use_cdoc2">Kasuta krüpteerimiseks CDOC2 failiformaati</string>
+    <string name="main_settings_crypto_server">Server</string>
+    <string name="main_settings_crypto_uuid">UUID</string>
+    <string name="main_settings_crypto_fetch_url">Fetch URL</string>
+    <string name="main_settings_crypto_post_url">Post URL</string>
 
     <!-- My eID -->
     <string name="myeid_identification_method_title">Vali isiku tuvastamise meetod</string>
@@ -592,7 +599,7 @@
     <string name="myeid_citizenship">Kodakondsus</string>
     <string name="myeid_personal_code">Isikukood</string>
     <string name="myeid_date_of_birth">Sünniaeg</string>
-    <string name="myeid_document_number">Dokumendi number</string>
+    <string name="myeid_document_number">ID-kaardi number</string>
     <string name="myeid_valid_to">Kehtiv kuni</string>
     <string name="myeid_status_valid">Kehtib</string>
     <string name="myeid_status_expired">Aegunud</string>

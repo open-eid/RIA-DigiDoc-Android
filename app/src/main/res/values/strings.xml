@@ -2,14 +2,14 @@
     <string name="main_home_version">version %1$s</string>
 
     <!-- Home Screen actions -->
-    <string name="main_home_open_document_title">Open Document</string>
-    <string name="main_home_open_document_description">Then choose an action if needed</string>
+    <string name="main_home_open_document_title">Files</string>
+    <string name="main_home_open_document_description">Find the file or document you need</string>
     <string name="main_home_signature_title">Signature</string>
-    <string name="main_home_signature_description">Add files and sign</string>
+    <string name="main_home_signature_description">Add file for signature or verification</string>
     <string name="main_home_crypto_title">Crypto</string>
-    <string name="main_home_crypto_description">Encrypt and decrypt</string>
+    <string name="main_home_crypto_description">Add a file for encryption or decryption</string>
     <string name="main_home_my_eid_title">My eID</string>
-    <string name="main_home_my_eid_description">View and modify your eID data</string>
+    <string name="main_home_my_eid_description">View or edit your eID details</string>
 
     <string name="back">Back</string>
     <string name="action_continue">Continue</string>
@@ -157,7 +157,7 @@
     <string name="crypto_recipient_remove_button">Remove recipient</string>
     <string name="crypto_recipient_remove_confirmation_message">Remove recipient from container?</string>
     <string name="crypto_new_title">Container encryption</string>
-    <string name="crypto_view_title">Container content</string>
+    <string name="crypto_view_title">Container decryption</string>
     <string name="crypto_container_recipients_title">Container recipients</string>
     <string name="crypto_container_latest_recipients_title">Recently added</string>
     <string name="crypto_container_added_recipients_title">Added recipients</string>
@@ -172,7 +172,7 @@
     <string name="crypto_recipients_search_cancel">Cancel search recipients</string>
     <string name="crypto_recipients_search_empty">No recipients found</string>
     <string name="crypto_recipients_recipient_add_success">Recipient added</string>
-    <string name="crypto_encrypt_error">Something went wrong with encryption</string>
+    <string name="crypto_encrypt_error">Container encryption was unsuccessful</string>
     <string name="crypto_encrypt_data_files_empty_error">Cannot create an empty crypto container</string>
     <string name="crypto_encrypt_recipients_empty_error">Cannot create crypto container without recipients</string>
     <string name="crypto_recipients_error_exists">Recipient already exists in the container</string>
@@ -192,7 +192,7 @@
 
     <string name="converted_to_signed_container">Converted to signed document!</string>
 
-    <string name="signature_update_signature_add_method_mobile_id">Mobile-ID</string>
+    <string name="signature_update_signature_add_method_mobile_id">mobile-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
     <string name="signature_update_signature_add_method_id_card">ID-card via USB</string>
     <string name="signature_update_signature_add_method_id_card_accessibility">ID-card via U S B</string>
@@ -332,7 +332,7 @@
     <string name="sign_button">Sign</string>
     <string name="next_button">Next</string>
     <string name="add_signature_button">Add new signature</string>
-    <string name="extend_signature_button">Extend signature</string>
+    <string name="extend_signature_button">Extend signature validity</string>
     <string name="share_button">Share</string>
     <string name="share_button_accessibility">Share container</string>
     <string name="yes_button">YES</string>
@@ -351,8 +351,8 @@
     <string name="converted_to_crypto_container">Converted to crypto container!</string>
 
     <!-- Accessibility -->
-    <string name="file_added">File added</string>
-    <string name="files_added">Files added</string>
+    <string name="file_added">File successfully added</string>
+    <string name="files_added">Files successfully added</string>
     <string name="container_name_changed">Container name changed</string>
     <string name="container_name_change_cancelled">Container name change cancelled</string>
     <string name="document_removed">Document removed</string>
@@ -391,7 +391,7 @@
     <string name="recipient_details_name_label">Recipient:</string>
     <string name="recipient_details_certificate_issuer_label">Recipient\'s Certificate issuer:</string>
     <string name="recipient_details_concat_kdf_algorithm_url">ConcatKDF reference method:</string>
-    <string name="recipient_details_certificate_valid_to_label">Expiry date:</string>
+    <string name="recipient_details_certificate_valid_to_label">Recipient\'s Certificate expiry date:</string>
 
     <!-- Signature Details -->
     <string name="signature_error_details_title">Warnings</string>
@@ -445,11 +445,12 @@
     <string name="main_settings_menu_appearance_accessibility">Appearance</string>
     <string name="main_settings_menu_signing_accessibility">Advanced settings</string>
 
-    <string name="choose_name_option">Choose name</string>
+    <string name="choose_server_option">Choose server</string>
     <string name="option">Option</string>
     <string name="option_selected">Option %1$s selected</string>
 
     <string name="option_ria">RIA</string>
+    <string name="option_key_transfer">Use a key transfer server for encryption</string>
     <string name="option_manual_key_transfer">Use a manually specified key transfer server for encryption</string>
 
     <string name="configuration_is_already_up_to_date">configuration is already up-to-date</string>
@@ -488,7 +489,6 @@
     <string name="main_accessibility_introduction_screen_magnification_tools_android">Magnification (Android, built in) https://support.google.com/accessibility/android/answer/6006949?hl=en</string>
 
     <!-- Main About -->
-    <string name="main_about_title">Info</string>
     <string name="main_about_1_logo_text">Eesti tuleviku heaks</string>
     <string name="main_about_2_logo_text">Euroopa Liit Euroopa Regionaalarengu Fond</string>
     <string name="main_about_digidoc_and_el_logos">The project is supported by the European Regional Development Fund</string>
@@ -552,7 +552,7 @@
     <string name="main_settings_signing_services_title">Signing services</string>
     <string name="main_settings_validation_services_title">Validation services</string>
     <string name="main_settings_crypto_services_title">Encryption settings</string>
-    <string name="main_settings_timestamp_services_title">Time-Stamping services</string>
+    <string name="main_settings_timestamp_services_title">Time-Stamping service</string>
     <string name="main_settings_mobile_id_and_smart_id_title">Mobile-ID ja Smart-ID</string>
     <string name="main_settings_ask_role_and_address_title">Ask role and address info on signing</string>
     <string name="main_settings_role_title">Role / resolution</string>
@@ -578,6 +578,13 @@
     <string name="main_settings_siva_certificate_title">Digital Signature Validation Service SiVa SSL certificate</string>
     <string name="main_settings_crypto_certificate_title">Key transfer server SSL certificate</string>
 
+    <string name="main_settings_crypto_use_cdoc1">Use CDOC1 file format for encryption</string>
+    <string name="main_settings_crypto_use_cdoc2">Use CDOC2 file format for encryption</string>
+    <string name="main_settings_crypto_server">Server</string>
+    <string name="main_settings_crypto_uuid">UUID</string>
+    <string name="main_settings_crypto_fetch_url">Fetch URL</string>
+    <string name="main_settings_crypto_post_url">Post URL</string>
+
     <!-- My eID -->
     <string name="myeid_identification_method_title">Choose a method of identification</string>
     <string name="myeid_identification_method_changed">Identification method changed</string>
@@ -592,7 +599,7 @@
     <string name="myeid_citizenship">Citizenship</string>
     <string name="myeid_personal_code">Personal code</string>
     <string name="myeid_date_of_birth">Date of birth</string>
-    <string name="myeid_document_number">Document number</string>
+    <string name="myeid_document_number">ID-card number</string>
     <string name="myeid_valid_to">Valid to</string>
     <string name="myeid_status_valid">Valid</string>
     <string name="myeid_status_expired">Expired</string>

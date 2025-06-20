@@ -30,6 +30,7 @@ object Constant {
         const val CERTIFICATE_DETAIL_SCREEN = "certificate_detail_route"
         const val RECIPIENT_DETAIL_SCREEN = "recipient_detail_route"
         const val RECENT_DOCUMENTS_SCREEN = "recent_documents_route"
+        const val RECENT_DOCUMENTS_FROM_ENCRYPT_SCREEN = "recent_documents_from_encrypt_route"
         const val SETTINGS_SCREEN = "settings_route"
         const val SETTINGS_LANGUAGE_CHOOSER_SCREEN = "settings_language_chooser_route"
         const val SETTINGS_THEME_CHOOSER_SCREEN = "settings_theme_chooser_route"

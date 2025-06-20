@@ -66,6 +66,7 @@ fun SignatureComponent(
     showNameAsAllCaps: Boolean = false,
     isDdocValid: Boolean = false,
     onClick: (SignatureInterface) -> Unit,
+    onClickMore: (SignatureInterface) -> Unit,
 ) {
     val context = LocalContext.current
     val signatureText = stringResource(R.string.signature_details_signer_details_title)
@@ -235,7 +236,7 @@ fun SignatureComponent(
                                 }
                             }
 
-                            IconButton(onClick = { onClick(signature) }) {
+                            IconButton(onClick = { onClickMore(signature) }) {
                                 Icon(
                                     modifier =
                                         modifier

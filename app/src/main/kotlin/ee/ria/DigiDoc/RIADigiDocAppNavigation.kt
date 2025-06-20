@@ -208,6 +208,15 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
                 sharedContainerViewModel = sharedContainerViewModel,
             )
         }
+        composable(route = Route.RecentDocumentsFromEncrypt.route) {
+            RecentDocumentsFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                isFromEncrypt = true,
+                sharedMenuViewModel = sharedMenuViewModel,
+                sharedContainerViewModel = sharedContainerViewModel,
+            )
+        }
         composable(route = Route.Settings.route) {
             AdvancedSettingsFragment(
                 modifier = Modifier.safeDrawingPadding(),

@@ -91,7 +91,7 @@ fun CryptoFileOpeningNavigation(
                     if (errorState.first != 0) {
                         errorText = errorState
                     }
-                    delay(2000)
+                    delay(1000)
                     if (cryptoContainer == null) {
                         navController.popBackStack()
                     }
@@ -127,6 +127,7 @@ fun CryptoFileOpeningNavigation(
                     TYPE_ANNOUNCEMENT,
                     announcementText,
                 )
+                delay(1000)
                 cryptoFileOpeningViewModel.resetFilesAdded()
             }
         }
@@ -136,7 +137,7 @@ fun CryptoFileOpeningNavigation(
         cryptoFileOpeningViewModel.cryptoContainer.asFlow().collect { cryptoContainer ->
             cryptoContainer?.let {
                 sharedContainerViewModel.setCryptoContainer(it)
-                delay(2000)
+                delay(1000)
 
                 navController.navigate(Route.Encrypt.route) {
                     popUpTo(Route.Home.route) {

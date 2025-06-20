@@ -283,6 +283,11 @@ fun SigningNavigation(
     }
 
     val onSignatureItemClick: (SignatureInterface) -> Unit = { signature ->
+        sharedSignatureViewModel.setSignature(signature)
+        navController.navigate(Route.SignerDetail.route)
+    }
+
+    val onSignatureMoreClick: (SignatureInterface) -> Unit = { signature ->
         showSignatureBottomSheet.value = true
         clickedSignature.value = signature
     }
@@ -304,12 +309,12 @@ fun SigningNavigation(
                 delay(2000)
                 withContext(Main) {
                     navController.navigate(Route.Encrypt.route) {
-                        popUpTo(Route.Home.route) {
+                        popUpTo(Route.Signing.route) {
                             inclusive = false
                         }
                         launchSingleTop = true
                     }
-                    showLoadingScreen.value = false
+                    showLoadingScreen.value = true
                 }
             } catch (_: Exception) {
                 showMessage(context, R.string.container_load_error)
@@ -403,6 +408,7 @@ fun SigningNavigation(
                     signatures = signedContainer?.getSignatures() ?: emptyList()
                     withContext(Main) {
                         signatureAddedSuccess.value = true
+                        selectedSignedContainerTabIndex.intValue = 1
                         AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signatureAddedSuccessText)
                         delay(5000)
                         signatureAddedSuccess.value = false
@@ -420,6 +426,7 @@ fun SigningNavigation(
                     signatures = signedContainer?.getSignatures() ?: emptyList()
                     withContext(Main) {
                         signatureAddedSuccess.value = true
+                        selectedSignedContainerTabIndex.intValue = 1
                         AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signatureAddedSuccessText)
                         delay(5000)
                         signatureAddedSuccess.value = false
@@ -437,6 +444,7 @@ fun SigningNavigation(
                     signatures = signedContainer?.getSignatures() ?: emptyList()
                     withContext(Main) {
                         signatureAddedSuccess.value = true
+                        selectedSignedContainerTabIndex.intValue = 1
                         AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signatureAddedSuccessText)
                         delay(5000)
                         signatureAddedSuccess.value = false
@@ -884,6 +892,7 @@ fun SigningNavigation(
                                                                             true,
                                                                             false,
                                                                             onSignatureItemClick,
+                                                                            onSignatureMoreClick,
                                                                         )
                                                                     }
                                                                 }
@@ -912,6 +921,7 @@ fun SigningNavigation(
                                                                 signatures.size == 1,
                                                             !timestamps.isNullOrEmpty() && isDdoc && isValid,
                                                             onSignatureItemClick,
+                                                            onSignatureMoreClick,
                                                         )
                                                     }
                                                 }

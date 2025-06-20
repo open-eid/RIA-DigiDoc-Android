@@ -13,6 +13,8 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
 import ee.ria.DigiDoc.common.exception.NoInternetConnectionException
+import ee.ria.DigiDoc.cryptolib.CDOC2Settings
+import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
@@ -38,6 +40,7 @@ class RecentDocumentsViewModel
         @ApplicationContext private val context: Context,
         private val sivaRepository: SivaRepository,
         private val mimeTypeResolver: MimeTypeResolver,
+        private val cdoc2Settings: CDOC2Settings,
     ) : ViewModel() {
         private val _sendToSigningViewWithSiva = MutableLiveData(false)
         val sendToSigningViewWithSiva: LiveData<Boolean> = _sendToSigningViewWithSiva
@@ -78,8 +81,13 @@ class RecentDocumentsViewModel
             return SignedContainer.openOrCreate(context, document, listOf(document), isSivaConfirmed)
         }
 
+        @Throws(Exception::class)
+        suspend fun openCryptoDocument(document: File): CryptoContainer {
+            return CryptoContainer.openOrCreate(context, document, listOf(document), cdoc2Settings)
+        }
+
         fun getRecentDocumentList(): List<File> {
-            return ContainerUtil.findSignatureContainerFiles(context)
+            return ContainerUtil.findRecentContainerFiles(context)
         }
 
         suspend fun handleDocument(

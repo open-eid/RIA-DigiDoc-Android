@@ -173,7 +173,16 @@ fun EncryptionServicesSettingsScreen(
 
     var settingsCdocNameChoice = rememberSaveable { mutableStateOf(selectedCdoc2Conf.name) }
 
+    val keyTransferText = stringResource(R.string.option_key_transfer)
     val manualKeyTransferText = stringResource(R.string.option_manual_key_transfer)
+
+    val useCDOC1Label = stringResource(R.string.main_settings_crypto_use_cdoc1)
+    val useCDOC2Label = stringResource(R.string.main_settings_crypto_use_cdoc2)
+
+    val serverLabel = stringResource(R.string.main_settings_crypto_server)
+    val uuidLabel = stringResource(R.string.main_settings_crypto_uuid)
+    val fetchUrlLabel = stringResource(R.string.main_settings_crypto_fetch_url)
+    val postUrlLabel = stringResource(R.string.main_settings_crypto_post_url)
 
     val nameChoices = arrayListOf<String>()
 
@@ -412,7 +421,7 @@ fun EncryptionServicesSettingsScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Use CDOC1 file format for encryption",
+                        text = useCDOC1Label,
                         modifier =
                             modifier
                                 .weight(1f)
@@ -422,7 +431,7 @@ fun EncryptionServicesSettingsScreen(
                         modifier =
                             modifier
                                 .semantics {
-                                    contentDescription = "Use CDOC1 file format for encryption"
+                                    contentDescription = useCDOC1Label
                                 },
                         selected = settingsCdocServiceChoice.value == CDOCSetting.CDOC1.name,
                         onClick = {
@@ -463,7 +472,7 @@ fun EncryptionServicesSettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = "Use CDOC2 file format for encryption",
+                            text = useCDOC2Label,
                             style = MaterialTheme.typography.bodyLarge,
                             modifier =
                                 modifier
@@ -474,7 +483,7 @@ fun EncryptionServicesSettingsScreen(
                             modifier =
                                 modifier
                                     .semantics {
-                                        contentDescription = "Use CDOC2 file format for encryption"
+                                        contentDescription = useCDOC2Label
                                     },
                             selected = settingsCdocServiceChoice.value == CDOCSetting.CDOC2.name,
                             onClick = {
@@ -495,8 +504,8 @@ fun EncryptionServicesSettingsScreen(
                                 setUseOnlineEncryption(it)
                                 saveParameters()
                             },
-                            title = manualKeyTransferText,
-                            contentDescription = manualKeyTransferText,
+                            title = keyTransferText,
+                            contentDescription = keyTransferText,
                             testTag = "encryptionServicesManuallySpecifiedKeySwitch",
                         )
 
@@ -506,12 +515,12 @@ fun EncryptionServicesSettingsScreen(
                                     modifier
                                         .fillMaxWidth()
                                         .semantics {
-                                            contentDescription = "Name"
+                                            contentDescription = serverLabel
                                         },
                             ) {
                                 OutlinedTextField(
                                     label = {
-                                        Text("Name")
+                                        Text(serverLabel)
                                     },
                                     value = nameChoices[settingsCdocNameChoiceInt.intValue],
                                     onValueChange = {},
@@ -530,7 +539,7 @@ fun EncryptionServicesSettingsScreen(
                                                 ImageVector.vectorResource(
                                                     R.drawable.ic_baseline_keyboard_arrow_down_24,
                                                 ),
-                                            contentDescription = "Name",
+                                            contentDescription = serverLabel,
                                             modifier =
                                                 modifier.clickable {
                                                     openOptionChooserDialog = !openOptionChooserDialog
@@ -552,7 +561,7 @@ fun EncryptionServicesSettingsScreen(
                                                     indication = null,
                                                 )
                                                 .semantics {
-                                                    contentDescription = "Name"
+                                                    contentDescription = serverLabel
                                                 },
                                     )
                                 } else {
@@ -577,7 +586,7 @@ fun EncryptionServicesSettingsScreen(
                                         ) {
                                             OptionChooserDialog(
                                                 modifier = modifier,
-                                                title = R.string.choose_name_option,
+                                                title = R.string.choose_server_option,
                                                 choices = nameChoices,
                                                 selectedChoice = settingsCdocNameChoiceInt.intValue,
                                                 cancelButtonClick = {
@@ -618,7 +627,7 @@ fun EncryptionServicesSettingsScreen(
                                         setCDOC2UUID(it.text)
                                     },
                                     shape = RectangleShape,
-                                    label = { Text("UUID") },
+                                    label = { Text(uuidLabel) },
                                     modifier =
                                         modifier
                                             .focusRequester(uuidFocusRequester)
@@ -698,7 +707,7 @@ fun EncryptionServicesSettingsScreen(
                                         setCDOC2FetchURL(it.text)
                                     },
                                     shape = RectangleShape,
-                                    label = { Text("Fetch URL") },
+                                    label = { Text(fetchUrlLabel) },
                                     modifier =
                                         modifier
                                             .focusRequester(fetchUrlFocusRequester)
@@ -777,7 +786,7 @@ fun EncryptionServicesSettingsScreen(
                                         setCDOC2PostURL(it.text)
                                     },
                                     shape = RectangleShape,
-                                    label = { Text("Post URL") },
+                                    label = { Text(postUrlLabel) },
                                     modifier =
                                         modifier
                                             .focusRequester(postUrlFocusRequester)

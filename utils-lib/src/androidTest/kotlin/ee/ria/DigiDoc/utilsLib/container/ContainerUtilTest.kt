@@ -75,16 +75,16 @@ class ContainerUtilTest {
         }
 
     @Test
-    fun containerUtil_findSignatureContainerFiles_emptyList() {
+    fun containerUtil_findRecentContainerFiles_emptyList() {
         File(mockContext.filesDir, DIR_SIGNATURE_CONTAINERS).delete()
 
-        val file = ContainerUtil.findSignatureContainerFiles(mockContext)
+        val file = ContainerUtil.findRecentContainerFiles(mockContext)
 
         assertTrue(file.isEmpty())
     }
 
     @Test
-    fun containerUtil_findSignatureContainerFiles_success() {
+    fun containerUtil_findRecentContainerFiles_success() {
         val testFile = File.createTempFile("testFile", ".txt")
         `when`(mockContext.filesDir).thenReturn(testFile.parentFile)
 
@@ -92,7 +92,7 @@ class ContainerUtilTest {
         dir.delete()
 
         val testContainer = File.createTempFile("testFile", ".asice", ContainerUtil.signatureContainersDir(mockContext))
-        val file = ContainerUtil.findSignatureContainerFiles(mockContext)
+        val file = ContainerUtil.findRecentContainerFiles(mockContext)
 
         assertTrue(file.isNotEmpty())
 

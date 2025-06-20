@@ -25,8 +25,9 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun RecentDocumentsFragment(
-    navController: NavHostController,
     modifier: Modifier = Modifier,
+    navController: NavHostController,
+    isFromEncrypt: Boolean = false,
     sharedMenuViewModel: SharedMenuViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
 ) {
@@ -44,6 +45,7 @@ fun RecentDocumentsFragment(
         RecentDocumentsScreen(
             modifier = modifier,
             navController = navController,
+            isFromEncrypt = isFromEncrypt,
             sharedMenuViewModel = sharedMenuViewModel,
             sharedContainerViewModel = sharedContainerViewModel,
         )

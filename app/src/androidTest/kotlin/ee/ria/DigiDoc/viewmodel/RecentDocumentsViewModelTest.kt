@@ -20,6 +20,7 @@ import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepositoryImp
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
+import ee.ria.DigiDoc.cryptolib.CDOC2Settings
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
@@ -62,6 +63,8 @@ class RecentDocumentsViewModelTest {
 
     private lateinit var mimeTypeResolver: MimeTypeResolver
 
+    private lateinit var cdoc2Settings: CDOC2Settings
+
     private lateinit var container: File
     private lateinit var signedContainer: SignedContainer
 
@@ -101,7 +104,8 @@ class RecentDocumentsViewModelTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         mimeTypeResolver = MimeTypeResolverImpl(mimeTypeCache)
-        viewModel = RecentDocumentsViewModel(context, sivaRepository, mimeTypeResolver)
+        cdoc2Settings = CDOC2Settings(context)
+        viewModel = RecentDocumentsViewModel(context, sivaRepository, mimeTypeResolver, cdoc2Settings)
 
         container =
             AssetFile.getResourceFileAsFile(

@@ -319,6 +319,10 @@ class FileOpeningViewModelTest {
                 }
 
             `when`(
+                fileOpeningRepository.uriToFile(context, contentResolver, uri),
+            )
+                .thenReturn(file)
+            `when`(
                 fileOpeningRepository.openOrCreateContainer(
                     context,
                     contentResolver,
@@ -332,6 +336,7 @@ class FileOpeningViewModelTest {
 
             viewModel.handleFiles(context, uris, isSivaConfirmed = isSivaConfirmed)
 
+            verify(filesAddedObserver, atLeastOnce()).onChanged(listOf(file))
             verify(signedContainerObserver, atLeastOnce()).onChanged(signedContainer)
         }
 

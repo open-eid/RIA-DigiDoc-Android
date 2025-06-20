@@ -2,14 +2,14 @@
     <string name="main_home_version">версия %1$s</string>
 
     <!-- Home Screen actions -->
-    <string name="main_home_open_document_title">Открыть документ</string>
-    <string name="main_home_open_document_description">Затем выберите действие, если нужно</string>
+    <string name="main_home_open_document_title">Файлы</string>
+    <string name="main_home_open_document_description">Найдите нужный файл или документ</string>
     <string name="main_home_signature_title">Подпись</string>
-    <string name="main_home_signature_description">Добавьте файлы и подпишите</string>
+    <string name="main_home_signature_description">Добавьте файл для подписи или проверки</string>
     <string name="main_home_crypto_title">Крипто</string>
-    <string name="main_home_crypto_description">Шифрование и дешифрование</string>
+    <string name="main_home_crypto_description">Добавьте файл для шифрования или расшифрования.</string>
     <string name="main_home_my_eid_title">Мой eID</string>
-    <string name="main_home_my_eid_description">Просмотр и изменение данных eID</string>
+    <string name="main_home_my_eid_description">Просмотр или редактирование данных вашего eID</string>
 
     <string name="back">Назад</string>
     <string name="action_continue">Продолжать</string>
@@ -157,7 +157,7 @@
     <string name="crypto_recipient_remove_button">Удалить получателя</string>
     <string name="crypto_recipient_remove_confirmation_message">Удалить получателя из контейнера?</string>
     <string name="crypto_new_title">Шифрование контейнера</string>
-    <string name="crypto_view_title">Содержание контейнера</string>
+    <string name="crypto_view_title">Расшифрование контейнера</string>
     <string name="crypto_container_recipients_title">Получатели контейнера</string>
     <string name="crypto_container_latest_recipients_title">Недавно добавленные</string>
     <string name="crypto_container_added_recipients_title">Добавленные получатели</string>
@@ -172,7 +172,7 @@
     <string name="crypto_recipients_search_cancel">Отменить поиск получателя</string>
     <string name="crypto_recipients_search_empty">Получатели не найдены</string>
     <string name="crypto_recipients_recipient_add_success">Получатель добавлен</string>
-    <string name="crypto_encrypt_error">Что-то пошло не так с шифрованием</string>
+    <string name="crypto_encrypt_error">Шифрование контейнера не удалось</string>
     <string name="crypto_encrypt_data_files_empty_error">Невозможно создать пустой контейнер</string>
     <string name="crypto_encrypt_recipients_empty_error">Невозможно создать контейнер без получателей</string>
     <string name="crypto_recipients_error_exists">Получатель уже добавлен в контейнер</string>
@@ -192,7 +192,7 @@
 
     <string name="converted_to_signed_container">Переделан в контейнер для подписания!</string>
 
-    <string name="signature_update_signature_add_method_mobile_id">Mobiil-ID</string>
+    <string name="signature_update_signature_add_method_mobile_id">mobiil-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
     <string name="signature_update_signature_add_method_id_card">ID-карта через USB</string>
     <string name="signature_update_signature_add_method_id_card_accessibility">ID-карта через U S B</string>
@@ -201,11 +201,11 @@
     <string name="signature_update_signature_add_success">Подпись добавлена</string>
     <string name="signature_update_signature_add">Добавить подпись</string>
 
-    <string name="signature_update_signature_selected_method_mobile_id">Метод подписи – Mobiil-ID, вкладка %1$d из %2$d</string>
+    <string name="signature_update_signature_selected_method_mobile_id">Метод подписи – mobiil-ID, вкладка %1$d из %2$d</string>
     <string name="signature_update_signature_selected_method_smart_id">Метод подписи – Smart-ID, вкладка %1$d из %2$d</string>
     <string name="signature_update_signature_selected_method_id_card">Метод подписи – ID-карта, вкладка %1$d из %2$d</string>
 
-    <string name="signature_update_signature_chosen_method_mobile_id">Выбран метод подписи Mobiil-ID</string>
+    <string name="signature_update_signature_chosen_method_mobile_id">Выбран метод подписи mobiil-ID</string>
     <string name="signature_update_signature_chosen_method_smart_id">Выбран метод подписи Smart-ID</string>
     <string name="signature_update_signature_chosen_method_id_card">Выбран метод подписи ID-карта</string>
 
@@ -300,7 +300,7 @@
     <string name="signature_update_nfc_technical_error">Что-то пошло не так. Пожалуйста, попробуйте еще раз</string>
     <string name="signature_update_nfc_hold">Удерживайте ID-карту рядом с телефоном</string>
     <string name="signature_update_nfc_wrong_can">Неправильный номер CAN</string>
-    <string name="signature_update_nfc_detected">Создание бесконтактного соединения с ID-картой</string>
+    <string name="signature_update_nfc_detected">Создание соединения с ID-картой</string>
 
     <string name="signature_update_smart_id_message">Введите свой личный код для подписи с Smart-ID</string>
     <string name="choose_country_option">Выберите страну</string>
@@ -332,7 +332,7 @@
     <string name="sign_button">Подписать</string>
     <string name="next_button">Далее</string>
     <string name="add_signature_button">Добавить новый подпись</string>
-    <string name="extend_signature_button">Расширить подпись</string>
+    <string name="extend_signature_button">Продлить срок действия подписи</string>
     <string name="share_button">Поделиться контейнера</string>
     <string name="share_button_accessibility">Поделиться</string>
     <string name="yes_button">ДА</string>
@@ -351,8 +351,8 @@
     <string name="converted_to_crypto_container">Переделан в контейнер для зашифровывания!</string>
 
     <!-- Accessibility -->
-    <string name="file_added">Файл добавлен</string>
-    <string name="files_added">Файлы добавлены</string>
+    <string name="file_added">Файл успешно добавлен</string>
+    <string name="files_added">Файлы успешно добавлены</string>
     <string name="container_name_changed">Название контейнера изменено</string>
     <string name="container_name_change_cancelled">Изменение названия контейнера отменено</string>
     <string name="document_removed">Документ удален</string>
@@ -391,7 +391,7 @@
     <string name="recipient_details_name_label">Получатель:</string>
     <string name="recipient_details_certificate_issuer_label">Организация, выдавшая сертификат получателя:</string>
     <string name="recipient_details_concat_kdf_algorithm_url">Ссылка на метод ConcatKDF алгоритма:</string>
-    <string name="recipient_details_certificate_valid_to_label">Срок действия:</string>
+    <string name="recipient_details_certificate_valid_to_label">Срок действия сертификата получателя:</string>
 
     <!-- Signature Details -->
     <string name="signature_error_details_title">Предупреждения</string>
@@ -445,11 +445,12 @@
     <string name="main_settings_menu_appearance_accessibility">Внешний вид</string>
     <string name="main_settings_menu_signing_accessibility">Настройки расширенные</string>
 
-    <string name="choose_name_option">Выбрать имя</string>
+    <string name="choose_server_option">Выбрать сервер</string>
     <string name="option">Вариант</string>
     <string name="option_selected">Выбранный %1$s вариант</string>
 
     <string name="option_ria">RIA</string>
+    <string name="option_key_transfer">Используйте сервер передачи ключей для шифрования</string>
     <string name="option_manual_key_transfer">Используйте вручную указанный сервер передачи ключей для шифрования</string>
 
     <string name="configuration_is_already_up_to_date">У вас последняя версия конфигурации</string>
@@ -488,7 +489,6 @@
     <string name="main_accessibility_introduction_screen_magnification_tools_android">Magnification (Android, встроенный) https://support.google.com/accessibility/android/answer/6006949?hl=ru</string>
 
     <!-- Main About -->
-    <string name="main_about_title">Информация</string>
     <string name="main_about_1_logo_text">Eesti tuleviku heaks</string>
     <string name="main_about_2_logo_text">Euroopa Liit Euroopa Regionaalarengu Fond</string>
     <string name="main_about_digidoc_and_el_logos">Проект поддерживается Европейским фондом регионального развития</string>
@@ -552,7 +552,7 @@
     <string name="main_settings_signing_services_title">Услуги подписания</string>
     <string name="main_settings_validation_services_title">Услуги валидации</string>
     <string name="main_settings_crypto_services_title">Настройки шифрования</string>
-    <string name="main_settings_timestamp_services_title">Услуги временной метки</string>
+    <string name="main_settings_timestamp_services_title">Услуга временной метки</string>
     <string name="main_settings_mobile_id_and_smart_id_title">Mobiil-ID и Smart-ID</string>
     <string name="main_settings_ask_role_and_address_title">Спросить роль и адрес при каждом подписании</string>
     <string name="main_settings_role_title">Роль / pезолюция</string>
@@ -578,6 +578,13 @@
     <string name="main_settings_siva_certificate_title">Сертификат услуги валидации SiVa SSL</string>
     <string name="main_settings_crypto_certificate_title">Сертификат SSL сервера передачи ключей</string>
 
+    <string name="main_settings_crypto_use_cdoc1">Использование формата CDOC1 для шифрования</string>
+    <string name="main_settings_crypto_use_cdoc2">Использование формата CDOC2 для шифрования</string>
+    <string name="main_settings_crypto_server">Server</string>
+    <string name="main_settings_crypto_uuid">UUID</string>
+    <string name="main_settings_crypto_fetch_url">Fetch URL</string>
+    <string name="main_settings_crypto_post_url">Post URL</string>
+
     <!-- My eID -->
     <string name="myeid_identification_method_title">Выберите способ идентификации</string>
     <string name="myeid_identification_method_changed">Метод идентификации изменен</string>
@@ -592,7 +599,7 @@
     <string name="myeid_citizenship">Гражданство</string>
     <string name="myeid_personal_code">Личный код</string>
     <string name="myeid_date_of_birth">Дата рождения</string>
-    <string name="myeid_document_number">Номер документа</string>
+    <string name="myeid_document_number">Номер ID-карты</string>
     <string name="myeid_valid_to">Годен до</string>
     <string name="myeid_status_valid">Действителен</string>
     <string name="myeid_status_expired">Недействителен</string>
