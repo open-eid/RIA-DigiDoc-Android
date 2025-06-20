@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -28,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.vectorResource
@@ -52,6 +54,7 @@ fun MyEidPinAndCertificateView(
     title: String,
     subtitle: String,
     isPinBlocked: Boolean = false,
+    isPukBlocked: Boolean = false,
     showForgotPin: Boolean = true,
     forgotPinText: String = "",
     onForgotPinClick: (() -> Unit)? = null,
@@ -137,14 +140,23 @@ fun MyEidPinAndCertificateView(
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     OutlinedButton(
+                        enabled = !isPukBlocked,
                         onClick = onForgotPinClick,
                         modifier =
                             modifier
+                                .align(Alignment.CenterVertically)
                                 .weight(1f)
                                 .semantics {
                                     testTagsAsResourceId = true
                                 }
                                 .testTag("myEidPinAndCertificateForgotPinButton"),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent,
+                                contentColor = MaterialTheme.colorScheme.primary,
+                                disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                                disabledContentColor = MaterialTheme.colorScheme.outline,
+                            ),
                     ) {
                         Text(
                             modifier =
@@ -156,7 +168,6 @@ fun MyEidPinAndCertificateView(
                                     .testTag("myEidForgotPinButtonText"),
                             text = forgotPinText,
                             style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary,
                             textAlign = TextAlign.Center,
                         )
                     }
@@ -164,9 +175,16 @@ fun MyEidPinAndCertificateView(
                     Spacer(modifier = modifier.size(XSPadding))
 
                     Button(
-                        enabled = !isPinBlocked,
+                        enabled = !isPinBlocked && !isPukBlocked,
                         onClick = onChangePinClick ?: {},
-                        modifier = modifier,
+                        modifier = modifier.align(Alignment.CenterVertically),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary,
+                                disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                                disabledContentColor = MaterialTheme.colorScheme.outline,
+                            ),
                     ) {
                         Text(
                             modifier =
@@ -178,7 +196,6 @@ fun MyEidPinAndCertificateView(
                                     .testTag("myEidPinAndCertificateChangePinButton"),
                             text = changePinText,
                             style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onPrimary,
                         )
                     }
                 }

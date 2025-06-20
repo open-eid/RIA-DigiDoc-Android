@@ -3,7 +3,11 @@
 package ee.ria.DigiDoc.utilsLib.date
 
 import ee.ria.DigiDoc.utilsLib.date.DateUtil.getFormattedDateTime
+import ee.ria.DigiDoc.utilsLib.date.DateUtil.isBefore
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 import org.mockito.ArgumentMatchers.any
@@ -16,8 +20,10 @@ import org.mockito.Mockito.`when`
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.Date
 import java.util.Locale
@@ -200,5 +206,73 @@ class DateUtilTest {
         val inputDate = "invalid-date"
         val result = getFormattedDateTime(inputDate, true)
         assertEquals("", result)
+    }
+
+    @Test
+    fun dateUtil_isBefore_returnTrue() {
+        val yesterday = LocalDate.now().minusDays(1)
+        val formatted = yesterday.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+
+        val result = isBefore(formatted)
+
+        assertTrue(result == true)
+    }
+
+    @Test
+    fun dateUtil_isBefore_returnFalse() {
+        val tomorrow = LocalDate.now().plusDays(1)
+        val formatted = tomorrow.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+
+        val result = isBefore(formatted)
+
+        assertFalse(result == true)
+    }
+
+    @Test
+    fun dateUtil_isBefore_returnFalseIfDayIsToday() {
+        val today = LocalDate.now()
+        val formatted = today.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+
+        val result = isBefore(formatted)
+
+        assertFalse(result == true)
+    }
+
+    @Test
+    fun dateUtil_isBefore_returnNullWithInvalidDate() {
+        val invalidDate = "some date"
+
+        val result = isBefore(invalidDate)
+
+        assertNull(result)
+    }
+
+    @Test
+    fun dateUtil_isBefore_returnTrueWhenSuccessWithDifferentFormat() {
+        val date = LocalDate.now().minusDays(1)
+        val formatted = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+
+        val result = isBefore(formatted, "yyyy-MM-dd")
+
+        assertTrue(result == true)
+    }
+
+    @Test
+    fun dateUtil_isBefore_returnFalseWhenSuccessWithDifferentFormat() {
+        val date = LocalDate.now().plusDays(1)
+        val formatted = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+
+        val result = isBefore(formatted, "yyyy-MM-dd")
+
+        assertFalse(result == true)
+    }
+
+    @Test
+    fun dateUtil_isBefore_returnNullWithInvalidDateAndDifferentFormat() {
+        val invalidDate = "some date"
+
+        val result = isBefore(invalidDate, "yyyy-MM-dd")
+
+        assertNull(result)
     }
 }

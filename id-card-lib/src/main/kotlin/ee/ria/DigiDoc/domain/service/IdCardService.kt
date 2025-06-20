@@ -28,7 +28,7 @@ interface IdCardService {
         codeType: CodeType,
         currentPin: ByteArray,
         newPin: ByteArray,
-    ): Boolean
+    ): IdCardData
 
     @Throws(CodeVerificationException::class, SmartCardReaderException::class)
     suspend fun unblockAndEditPin(
@@ -36,5 +36,5 @@ interface IdCardService {
         codeType: CodeType,
         currentPuk: ByteArray,
         newPin: ByteArray,
-    ): Boolean
+    ): IdCardData
 }

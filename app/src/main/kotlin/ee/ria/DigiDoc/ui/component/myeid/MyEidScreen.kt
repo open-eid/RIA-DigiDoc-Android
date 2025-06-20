@@ -88,6 +88,12 @@ fun MyEidScreen(
 
     val idCardData by sharedMyEidViewModel.idCardData.asFlow().collectAsState(null)
 
+    val isPin1Blocked = idCardData?.pin1RetryCount == 0
+    val isPin2Blocked = idCardData?.pin2RetryCount == 0
+    val isPukBlocked = idCardData?.pukRetryCount == 0
+
+    val alphaForBlockedState = if (!isPukBlocked) 1f else 0.7f
+
     val selectedMyEidTabIndex = rememberSaveable { mutableIntStateOf(0) }
 
     val showChangePin1Dialog = rememberSaveable { mutableStateOf(false) }
@@ -143,9 +149,13 @@ fun MyEidScreen(
     }
 
     BackHandler {
-        sharedMyEidViewModel.resetValues()
-        sharedMyEidViewModel.resetIdCardData()
-        navController.navigateUp()
+        sharedMyEidViewModel.handleBackButton()
+        navController.navigate(Route.Home.route) {
+            popUpTo(Route.Home.route) {
+                inclusive = false
+            }
+            launchSingleTop = true
+        }
     }
 
     LaunchedEffect(messages) {
@@ -196,8 +206,7 @@ fun MyEidScreen(
                 leftIcon = R.drawable.ic_m3_close_48dp_wght400,
                 leftIconContentDescription = R.string.close_button,
                 onLeftButtonClick = {
-                    sharedMyEidViewModel.resetValues()
-                    sharedMyEidViewModel.resetIdCardData()
+                    sharedMyEidViewModel.handleBackButton()
                     navController.navigate(Route.Home.route) {
                         popUpTo(Route.Home.route) {
                             inclusive = false
@@ -298,6 +307,9 @@ fun MyEidScreen(
                                         verticalArrangement = Arrangement.spacedBy(SPadding),
                                     ) {
                                         MyEidPinAndCertificateView(
+                                            modifier =
+                                                modifier
+                                                    .alpha(alphaForBlockedState),
                                             title = stringResource(R.string.myeid_authentication_certificate_title),
                                             subtitle =
                                                 stringResource(
@@ -306,9 +318,10 @@ fun MyEidScreen(
                                                         idCardData?.authCertificate?.data?.x509Certificate(),
                                                     ),
                                                 ),
-                                            isPinBlocked = idCardData?.pin1RetryCount == 0,
+                                            isPinBlocked = isPin1Blocked,
+                                            isPukBlocked = isPukBlocked,
                                             forgotPinText =
-                                                if (idCardData?.pin1RetryCount == 0) {
+                                                if (isPin1Blocked) {
                                                     stringResource(
                                                         R.string.myeid_pin_unblock_button,
                                                         CodeType.PIN1,
@@ -332,7 +345,7 @@ fun MyEidScreen(
                                             },
                                         )
 
-                                        if (idCardData?.pin1RetryCount == 0) {
+                                        if (isPin1Blocked) {
                                             Text(
                                                 modifier =
                                                     modifier
@@ -360,6 +373,9 @@ fun MyEidScreen(
                                         verticalArrangement = Arrangement.spacedBy(SPadding),
                                     ) {
                                         MyEidPinAndCertificateView(
+                                            modifier =
+                                                modifier
+                                                    .alpha(alphaForBlockedState),
                                             title = stringResource(R.string.myeid_signing_certificate_title),
                                             subtitle =
                                                 stringResource(
@@ -368,9 +384,10 @@ fun MyEidScreen(
                                                         idCardData?.signCertificate?.data?.x509Certificate(),
                                                     ),
                                                 ),
-                                            isPinBlocked = idCardData?.pin2RetryCount == 0,
+                                            isPinBlocked = isPin2Blocked,
+                                            isPukBlocked = isPukBlocked,
                                             forgotPinText =
-                                                if (idCardData?.pin2RetryCount == 0) {
+                                                if (isPin2Blocked) {
                                                     stringResource(
                                                         R.string.myeid_pin_unblock_button,
                                                         CodeType.PIN2,
@@ -394,7 +411,7 @@ fun MyEidScreen(
                                             },
                                         )
 
-                                        if (idCardData?.pin2RetryCount == 0) {
+                                        if (isPin2Blocked) {
                                             Text(
                                                 modifier =
                                                     modifier
@@ -421,7 +438,6 @@ fun MyEidScreen(
                                         horizontalAlignment = Alignment.Start,
                                         verticalArrangement = Arrangement.spacedBy(SPadding),
                                     ) {
-                                        val isPukBlocked = idCardData?.pukRetryCount == 0
                                         Row(
                                             modifier =
                                                 modifier
@@ -443,9 +459,10 @@ fun MyEidScreen(
                                             MyEidPinAndCertificateView(
                                                 modifier =
                                                     modifier
-                                                        .alpha(if (!isPukBlocked) 1f else 0.7f),
+                                                        .alpha(alphaForBlockedState),
                                                 title = changePukText,
                                                 isPinBlocked = isPukBlocked,
+                                                isPukBlocked = isPukBlocked,
                                                 subtitle = changePukSubtitleText,
                                                 showForgotPin = false,
                                             )

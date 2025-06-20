@@ -318,9 +318,9 @@
     <string name="nfc_sign_can_location">6-kohaline number asub dokumendil foto all</string>
     <string name="id_card_sign_pin_invalid_length">%1$s-kood peab olema vähemalt %2$s-kohaline ja maksimaalselt %3$s-kohaline</string>
 
-    <string name="signature_update_nfc_message">ID-kaardiga allkirjastamiseks sisesta oma ID-kaardi ligipääsu number (CAN) ja PIN2 kood</string>
+    <string name="signature_update_nfc_message">ID-kaardiga allkirjastamiseks sisesta oma ID-kaardi ligipääsu number (CAN) ja PIN2-kood</string>
     <string name="signature_update_nfc_can">ID-kaardi ligipääsu number (CAN)</string>
-    <string name="signature_update_nfc_pin">%1$s kood</string>
+    <string name="signature_update_nfc_pin">%1$s-kood</string>
     <string name="signature_update_nfc_adapter_missing">See seade ei toeta kontaktivaba ühendust</string>
     <string name="signature_update_nfc_turned_off">NFC on välja lülitatud</string>
     <string name="signature_update_nfc_tag_lost">Kontaktivaba ühendust ei saa luua</string>

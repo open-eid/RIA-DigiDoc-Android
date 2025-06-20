@@ -404,11 +404,14 @@ class SharedMyEidViewModelTest {
     @Test
     fun sharedMyEidViewModel_editPin_success() =
         runTest {
-            `when`(mockIdCardService.editPin(any(), any(), any(), any())).thenReturn(true)
+            val mockIdCardData = createMockIdCardData()
+
+            `when`(mockIdCardService.editPin(any(), any(), any(), any())).thenReturn(mockIdCardData)
 
             viewModel.editPin(mockToken, CodeType.PIN1, byteArrayOf(49, 50, 51, 52), byteArrayOf(52, 53, 54, 55))
 
             assertTrue(viewModel.pinChangingState.value == true)
+            assertTrue(viewModel.idCardData.value == mockIdCardData)
             verify(errorStateObserver, never()).onChanged(any())
         }
 
@@ -467,7 +470,9 @@ class SharedMyEidViewModelTest {
     @Test
     fun sharedMyEidViewModel_unblockAndEditPin_success() =
         runTest {
-            `when`(mockIdCardService.unblockAndEditPin(any(), any(), any(), any())).thenReturn(true)
+            val mockIdCardData = createMockIdCardData()
+
+            `when`(mockIdCardService.unblockAndEditPin(any(), any(), any(), any())).thenReturn(mockIdCardData)
 
             viewModel.unblockAndEditPin(
                 mockToken,
@@ -477,6 +482,7 @@ class SharedMyEidViewModelTest {
             )
 
             assertTrue(viewModel.pinChangingState.value == true)
+            assertTrue(viewModel.idCardData.value == mockIdCardData)
             verify(errorStateObserver, never()).onChanged(any())
         }
 
@@ -517,7 +523,7 @@ class SharedMyEidViewModelTest {
             assertFalse(viewModel.pinChangingState.value == true)
             assertFalse(viewModel.isPinBlocked.value == true)
             assertEquals(
-                Triple(R.plurals.myeid_pin_error_code_verification, CodeType.PIN2.name, 0),
+                Triple(R.string.myeid_pin_blocked, CodeType.PIN2.name, null),
                 viewModel.errorState.value,
             )
         }

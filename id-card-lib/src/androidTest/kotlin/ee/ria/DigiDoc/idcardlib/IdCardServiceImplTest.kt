@@ -37,7 +37,6 @@ import org.bouncycastle.asn1.x509.KeyUsage
 import org.bouncycastle.cert.X509CertificateHolder
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
@@ -299,11 +298,35 @@ class IdCardServiceImplTest {
             val currentPin = byteArrayOf(1, 2, 3)
             val newPin = byteArrayOf(4, 5, 6)
 
+            val testData = byteArrayOf(1, 2, 3)
+
+            val mockPersonalData = mock(PersonalData::class.java)
+            val keyUsage = mock(KeyUsage::class.java)
+            val extendedKeyUsage = mock(ExtendedKeyUsage::class.java)
+
+            `when`(token.personalData()).thenReturn(mockPersonalData)
+
+            `when`(certificateService.parseCertificate(anyOrNull()))
+                .thenReturn(mock(X509CertificateHolder::class.java))
+            `when`(certificateService.extractEIDType(any()))
+                .thenReturn(EIDType.ID_CARD)
+            `when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
+            `when`(certificateService.extractExtendedKeyUsage(any())).thenReturn(extendedKeyUsage)
+
+            `when`(token.calculateSignature(anyOrNull(), anyOrNull(), anyBoolean())).thenReturn(testData)
+
+            `when`(token.certificate(CertificateType.AUTHENTICATION)).thenReturn(testData)
+            `when`(token.certificate(CertificateType.SIGNING)).thenReturn(testData)
+            `when`(token.codeRetryCounter(CodeType.PIN1)).thenReturn(1)
+            `when`(token.codeRetryCounter(CodeType.PIN2)).thenReturn(2)
+            `when`(token.codeRetryCounter(CodeType.PUK)).thenReturn(3)
+
             doNothing().`when`(token).changeCode(codeType, currentPin, newPin)
 
             val result = idCardService.editPin(token, codeType, currentPin, newPin)
 
-            assertTrue(result)
+            assertNotNull(result)
+            assertEquals(mockPersonalData, result.personalData)
             verify(token).changeCode(codeType, currentPin, newPin)
         }
 
@@ -344,11 +367,35 @@ class IdCardServiceImplTest {
             val currentPuk = byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8)
             val newPin = byteArrayOf(4, 5, 6)
 
+            val testData = byteArrayOf(1, 2, 3)
+
+            val mockPersonalData = mock(PersonalData::class.java)
+            val keyUsage = mock(KeyUsage::class.java)
+            val extendedKeyUsage = mock(ExtendedKeyUsage::class.java)
+
+            `when`(token.personalData()).thenReturn(mockPersonalData)
+
+            `when`(certificateService.parseCertificate(anyOrNull()))
+                .thenReturn(mock(X509CertificateHolder::class.java))
+            `when`(certificateService.extractEIDType(any()))
+                .thenReturn(EIDType.ID_CARD)
+            `when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
+            `when`(certificateService.extractExtendedKeyUsage(any())).thenReturn(extendedKeyUsage)
+
+            `when`(token.calculateSignature(anyOrNull(), anyOrNull(), anyBoolean())).thenReturn(testData)
+
+            `when`(token.certificate(CertificateType.AUTHENTICATION)).thenReturn(testData)
+            `when`(token.certificate(CertificateType.SIGNING)).thenReturn(testData)
+            `when`(token.codeRetryCounter(CodeType.PIN1)).thenReturn(1)
+            `when`(token.codeRetryCounter(CodeType.PIN2)).thenReturn(2)
+            `when`(token.codeRetryCounter(CodeType.PUK)).thenReturn(3)
+
             doNothing().`when`(token).unblockAndChangeCode(currentPuk, codeType, newPin)
 
             val result = idCardService.unblockAndEditPin(token, codeType, currentPuk, newPin)
 
-            assertTrue(result)
+            assertNotNull(result)
+            assertEquals(mockPersonalData, result.personalData)
             verify(token).unblockAndChangeCode(currentPuk, codeType, newPin)
         }
 
