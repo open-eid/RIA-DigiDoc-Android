@@ -2,8 +2,10 @@
 
 package ee.ria.DigiDoc.utilsLib.date
 
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
@@ -14,6 +16,8 @@ import java.util.TimeZone
 data class FormattedDateTime(val date: String, val time: String)
 
 object DateUtil {
+    private val logTag = javaClass.simpleName
+
     val dateFormat: SimpleDateFormat
         get() = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
     val dateTimeFormatWithDots: SimpleDateFormat
@@ -90,5 +94,20 @@ object DateUtil {
     ): String {
         val dateFormat = SimpleDateFormat("EEEE, d MMMM yyyy HH:mm:ss Z", locale)
         return dateFormat.format(date)
+    }
+
+    fun isBefore(
+        dateString: String,
+        format: String = "dd.MM.yyyy",
+    ): Boolean? {
+        return try {
+            val formatter = DateTimeFormatter.ofPattern(format)
+            val expiryDate = LocalDate.parse(dateString, formatter)
+            val today = LocalDate.now()
+            expiryDate.isBefore(today)
+        } catch (dtpe: DateTimeParseException) {
+            errorLog(logTag, "Unable to parse date $dateString", dtpe)
+            null
+        }
     }
 }

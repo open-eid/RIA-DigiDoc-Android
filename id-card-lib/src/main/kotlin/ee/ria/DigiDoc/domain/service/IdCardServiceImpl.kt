@@ -75,9 +75,9 @@ class IdCardServiceImpl
             codeType: CodeType,
             currentPin: ByteArray,
             newPin: ByteArray,
-        ): Boolean {
+        ): IdCardData {
             token.changeCode(codeType, currentPin, newPin)
-            return true
+            return data(token)
         }
 
         @Throws(CodeVerificationException::class, SmartCardReaderException::class)
@@ -86,9 +86,9 @@ class IdCardServiceImpl
             codeType: CodeType,
             currentPuk: ByteArray,
             newPin: ByteArray,
-        ): Boolean {
+        ): IdCardData {
             token.unblockAndChangeCode(currentPuk, codeType, newPin)
-            return true
+            return data(token)
         }
 
         @Throws(Exception::class)

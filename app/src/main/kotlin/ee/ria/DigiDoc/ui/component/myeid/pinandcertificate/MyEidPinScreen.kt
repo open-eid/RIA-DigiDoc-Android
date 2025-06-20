@@ -142,7 +142,18 @@ fun MyEidPinScreen(
     val isForgottenPin = content?.isForgottenPin == true
     val title = stringResource(content?.title ?: R.string.myeid_pin_change_title, codeType.name)
 
-    val pinCodeLabel = stringResource(id = R.string.signature_update_nfc_pin, codeType)
+    val currentPinCodeType =
+        if (isForgottenPin && showCurrentPinField.value) {
+            CodeType.PUK
+        } else {
+            codeType
+        }
+
+    val pinCodeLabel =
+        stringResource(
+            id = R.string.signature_update_nfc_pin,
+            currentPinCodeType.name,
+        )
 
     val showNFCScreen = remember { mutableStateOf(false) }
 
@@ -154,22 +165,19 @@ fun MyEidPinScreen(
         )
 
     val pinLengthRequirementText =
-        stringResource(
+        "${stringResource(
             R.string.id_card_sign_pin_invalid_length,
-            if (isForgottenPin && showCurrentPinField.value) {
-                CodeType.PUK.name
-            } else {
-                codeType.name
-            },
+            currentPinCodeType.name,
             sharedMyEidViewModel.getPinCodeMinimumLength(
-                if (isForgottenPin) {
-                    CodeType.PUK
-                } else {
-                    codeType
-                },
+                currentPinCodeType,
             ),
             Constant.MyEID.PIN_MAXIMUM_LENGTH,
-        )
+        )}. ${if (isForgottenPin && showCurrentPinField.value) {
+            stringResource(R.string.myeid_puk_info)
+        } else {
+            ""
+        }
+        }"
 
     val isCurrentPinValid =
         sharedMyEidViewModel.isPinCodeLengthValid(

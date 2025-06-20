@@ -254,9 +254,13 @@ class SharedMyEidViewModel
         ) {
             try {
                 val idCardData = idCardService.editPin(token, codeType, currentPin, newPin)
-                _pinChangingState.postValue(idCardData)
+                _idCardData.postValue(idCardData)
+                _pinChangingState.postValue(true)
             } catch (cve: CodeVerificationException) {
                 _pinChangingState.postValue(false)
+                val idCardData = idCardService.data(token)
+                _idCardData.postValue(idCardData)
+
                 if (cve.retries == 0) {
                     _isPinBlocked.postValue(true)
                     _errorState.postValue(Triple(R.string.myeid_pin_blocked, cve.type.name, null))
@@ -288,14 +292,19 @@ class SharedMyEidViewModel
             currentPuk: ByteArray,
             newPin: ByteArray,
         ) {
-            resetIdCardData()
-
             try {
                 val idCardData = idCardService.unblockAndEditPin(token, codeType, currentPuk, newPin)
-                _pinChangingState.postValue(idCardData)
+                _idCardData.postValue(idCardData)
+                _pinChangingState.postValue(true)
             } catch (cve: CodeVerificationException) {
                 _pinChangingState.postValue(false)
-                _errorState.postValue(Triple(R.plurals.myeid_pin_error_code_verification, cve.type.name, cve.retries))
+                if (cve.retries == 0) {
+                    _errorState.postValue(Triple(R.string.myeid_pin_blocked, cve.type.name, null))
+                } else {
+                    _errorState.postValue(
+                        Triple(R.plurals.myeid_pin_error_code_verification, cve.type.name, cve.retries),
+                    )
+                }
             } catch (scre: SmartCardReaderException) {
                 errorLog(
                     tag = logTag,
@@ -405,6 +414,11 @@ class SharedMyEidViewModel
             resetIsPinBlocked()
             resetScreenContent()
             resetPinChangingState()
+        }
+
+        fun handleBackButton() {
+            resetValues()
             resetIdentificationMethod()
+            resetIdCardData()
         }
     }

@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
+import ee.ria.DigiDoc.utilsLib.date.DateUtil.isBefore
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -53,7 +54,12 @@ fun MyEidMyDataView(
                         detailValue = navigationItem.value,
                         contentDescription = navigationItem.contentDescription,
                         showTagBadge = navigationItem.showTagBadge,
-                        status = MyEidDocumentStatus.VALID,
+                        status =
+                            when (isBefore(validTo)) {
+                                true -> MyEidDocumentStatus.EXPIRED
+                                false -> MyEidDocumentStatus.VALID
+                                null -> MyEidDocumentStatus.UNKNOWN
+                            },
                     )
                     HorizontalDivider()
                 }
