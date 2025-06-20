@@ -82,7 +82,7 @@ fun CryptoFileOpeningNavigation(
 
     val fileAddedText = stringResource(id = R.string.file_added)
     val filesAddedText = stringResource(id = R.string.files_added)
-   var errorText by remember { mutableStateOf(Pair<Int, String?>(0, null)) }
+    var errorText by remember { mutableStateOf(Pair<Int, String?>(0, null)) }
 
     LaunchedEffect(cryptoFileOpeningViewModel.errorState) {
         cryptoFileOpeningViewModel.errorState.asFlow().collect { errorState ->
