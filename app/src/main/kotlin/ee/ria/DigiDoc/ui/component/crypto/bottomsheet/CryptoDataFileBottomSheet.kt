@@ -58,9 +58,9 @@ fun CryptoDataFileBottomSheet(
             listOf(
                 BottomSheetButton(
                     icon = R.drawable.ic_m3_expand_content_48dp_wght400,
-                    text = stringResource(R.string.main_home_open_document_title),
+                    text = stringResource(R.string.main_menu_open_file),
                     contentDescription = "${stringResource(
-                        R.string.main_home_open_document_title,
+                        R.string.main_menu_open_file_accessibility,
                     )} ${clickedDataFile.value?.name ?: ""} $buttonName",
                 ) {
                     try {

@@ -41,8 +41,8 @@
     <string name="file_saved_error">Faili salvestamine ebaõnnestus</string>
     <string name="remove_title">Eemalda</string>
     <string name="remove_container">Eemalda ümbrik</string>
-    <string name="document_remove_button">Eemalda dokument</string>
-    <string name="document_save_button">Salvesta fail ümbrikust</string>
+    <string name="document_remove_button">Eemalda fail</string>
+    <string name="document_save_button">Salvesta fail</string>
     <string name="document_remove_confirmation_message">Soovid eemaldada faili ümbrikust?</string>
     <string name="document_remove_last_confirmation_message">Oled kustutamas viimast faili ümbrikus, koos sellega eemaldatakse ka ümbrik.</string>
     <string name="document_cancel_removal_button">Katkesta faili eemaldamine</string>

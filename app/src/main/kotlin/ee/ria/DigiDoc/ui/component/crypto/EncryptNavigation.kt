@@ -712,8 +712,18 @@ fun EncryptNavigation(
                                 } else {
                                     0
                                 }
+
+                            val containerNameIcon =
+                                if (encryptViewModel.isEncryptedContainer(cryptoContainer)) {
+                                    R.drawable.ic_m3_encrypted_48dp_wght400
+                                } else if (encryptViewModel.isDecryptedContainer(cryptoContainer)) {
+                                    R.drawable.ic_m3_encrypted_off_48dp_wght400
+                                } else {
+                                    R.drawable.ic_m3_folder_48dp_wght400
+                                }
+
                             ContainerNameView(
-                                icon = R.drawable.ic_m3_stylus_note_48dp_wght400,
+                                icon = containerNameIcon,
                                 name = cryptoContainerName,
                                 showLeftActionButton =
                                     encryptViewModel.isSignButtonShown(

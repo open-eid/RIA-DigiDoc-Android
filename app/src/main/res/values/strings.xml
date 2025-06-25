@@ -41,7 +41,7 @@
     <string name="file_saved_error">Failed to save file</string>
     <string name="remove_title">Remove</string>
     <string name="remove_container">Remove container</string>
-    <string name="document_remove_button">Remove document</string>
+    <string name="document_remove_button">Remove file</string>
     <string name="document_save_button">Save file</string>
     <string name="document_remove_confirmation_message">Remove file from container?</string>
     <string name="document_remove_last_confirmation_message">You are about to remove the last file in the container, it is removed along with the container.</string>
