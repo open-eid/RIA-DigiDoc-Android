@@ -294,6 +294,8 @@
     <string name="too_many_requests_url">https://www.id.ee/en/article/for-organisations-that-sign-large-quantities-of-documents-using-digidoc4-client/</string>
     <string name="additional_information">Additional information</string>
 
+    <string name="no_lock_found">No lock found with certificate key</string>
+
     <string name="signature_update_mobile_id_error_unknown">Unknown error occurred when signing with mobile-ID</string>
     <string name="signature_update_mobile_id_error_local_service_exception">Something went wrong, try again later</string>
     <string name="signature_update_mobile_id_error_incorrect_input_parameters">Incorrect mobile number and/or personal code, non-Estonian mobile numbers must be prefixed with the country code</string>

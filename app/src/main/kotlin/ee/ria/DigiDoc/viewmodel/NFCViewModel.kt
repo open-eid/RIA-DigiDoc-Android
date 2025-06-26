@@ -496,6 +496,8 @@ class NFCViewModel
                                         setErrorState(
                                             SessionStatusResponseProcessStatus.OCSP_INVALID_TIME_SLOT,
                                         )
+                                    message.contains("No lock found with certificate key") ->
+                                        showNoLockFoundError(ex)
 
                                     else -> showTechnicalError(ex)
                                 }
@@ -618,6 +620,11 @@ class NFCViewModel
         private fun showProxyError(e: Exception) {
             _errorState.postValue(Triple(R.string.main_settings_proxy_invalid_settings, null, null))
             errorLog(logTag, "Unable to sign with NFC - Unable to create proxy connection with host", e)
+        }
+
+        private fun showNoLockFoundError(e: Exception) {
+            _errorState.postValue(Triple(R.string.no_lock_found, null, null))
+            errorLog(logTag, "Unable to decrypt with NFC - No lock found with certificate key", e)
         }
 
         private fun showTechnicalError(e: Exception) {

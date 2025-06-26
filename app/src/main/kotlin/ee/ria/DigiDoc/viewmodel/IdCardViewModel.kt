@@ -227,6 +227,7 @@ class IdCardViewModel
                     message.contains("Failed to create connection with host") ->
                     showNetworkError(e)
                 message.contains("Failed to create proxy connection with host") -> showProxyError(e)
+                message.contains("No lock found with certificate key") -> showNoLockFoundError(e)
                 else -> showGeneralError(e)
             }
         }
@@ -297,6 +298,11 @@ class IdCardViewModel
 
         fun setShouldHandleError(value: Boolean) {
             _shouldHandleError.value = value
+        }
+
+        private fun showNoLockFoundError(e: Exception) {
+            _errorState.postValue(Triple(R.string.no_lock_found, null, null))
+            errorLog(logTag, "Unable to decrypt with ID-card - No lock found with certificate key", e)
         }
 
         fun resetSignStatus() {
