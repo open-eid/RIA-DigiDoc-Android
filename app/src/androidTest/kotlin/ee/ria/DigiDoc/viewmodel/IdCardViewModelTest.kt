@@ -29,8 +29,12 @@ import ee.ria.DigiDoc.smartcardreader.SmartCardReaderManager
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderStatus
 import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.yield
 import org.bouncycastle.asn1.x509.ExtendedKeyUsage
 import org.bouncycastle.asn1.x509.KeyUsage
 import org.bouncycastle.cert.X509CertificateHolder
@@ -815,5 +819,24 @@ class IdCardViewModelTest {
             verify(pinErrorStateObserver, atLeastOnce()).onChanged(null)
 
             viewModel.pinErrorState.removeObserver(pinErrorStateObserver)
+        }
+
+    @Test
+    fun idCardViewModel_resetShouldHandleError_success() =
+        runTest {
+            val emittedValues = mutableListOf<Boolean>()
+            val job =
+                launch {
+                    viewModel.shouldHandleError
+                        .take(2)
+                        .toList(emittedValues)
+                }
+
+            yield()
+            viewModel.setShouldHandleError(true)
+
+            job.join()
+
+            assertEquals(listOf(false, true), emittedValues)
         }
 }
