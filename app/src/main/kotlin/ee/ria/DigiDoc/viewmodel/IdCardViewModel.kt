@@ -27,6 +27,8 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.asFlow
@@ -69,6 +71,9 @@ class IdCardViewModel
 
         private val _pinErrorState = MutableLiveData<Triple<Int, String?, Int?>?>(null)
         val pinErrorState: LiveData<Triple<Int, String?, Int?>?> = _pinErrorState
+
+        private val _shouldHandleError = MutableStateFlow(false)
+        val shouldHandleError: StateFlow<Boolean> = _shouldHandleError
 
         private val _dialogError = MutableLiveData<String?>(null)
         val dialogError: LiveData<String?> = _dialogError
@@ -222,6 +227,7 @@ class IdCardViewModel
                     message.contains("Failed to create connection with host") ->
                     showNetworkError(e)
                 message.contains("Failed to create proxy connection with host") -> showProxyError(e)
+                message.contains("No lock found with certificate key") -> showNoLockFoundError(e)
                 else -> showGeneralError(e)
             }
         }
@@ -251,7 +257,9 @@ class IdCardViewModel
                     0 -> Triple(R.string.id_card_sign_pin_locked, e.type.name, null)
                     else -> Triple(R.string.id_card_sign_pin_wrong, e.type.name, null)
                 }
+            setShouldHandleError(pinRetryCount == 0)
             _pinErrorState.postValue(pinErrorMessage)
+            errorLog(logTag, "Unable to sign / decrypt with ID-card: ${e.message}", e)
         }
 
         private fun showErrorDialog(
@@ -286,6 +294,15 @@ class IdCardViewModel
         private fun showGeneralError(e: Exception) {
             _errorState.postValue(Triple(R.string.error_general_client, null, null))
             errorLog(logTag, "Unable to sign with ID-card: ${e.message}", e)
+        }
+
+        fun setShouldHandleError(value: Boolean) {
+            _shouldHandleError.value = value
+        }
+
+        private fun showNoLockFoundError(e: Exception) {
+            _errorState.postValue(Triple(R.string.no_lock_found, null, null))
+            errorLog(logTag, "Unable to decrypt with ID-card - No lock found with certificate key", e)
         }
 
         fun resetSignStatus() {
@@ -324,6 +341,10 @@ class IdCardViewModel
             _pinErrorState.postValue(null)
         }
 
+        fun resetShouldHandleError() {
+            _shouldHandleError.value = false
+        }
+
         private fun resetValues() {
             resetDialogErrorState()
             resetIdCardStatus()
@@ -332,5 +353,6 @@ class IdCardViewModel
             resetPINErrorState()
             resetSignStatus()
             resetSignedContainer()
+            resetShouldHandleError()
         }
     }

@@ -152,6 +152,9 @@ fun IdCardView(
             ""
         }
 
+    val idCardStatusReadyToSign = idCardData?.personalData != null && !isSigning && !isAuthenticating && !isDecrypting
+
+    val shouldHandleError by idCardViewModel.shouldHandleError.collectAsState()
     val showErrorDialog = rememberSaveable { mutableStateOf(false) }
     var isDataLoadingStarted by rememberSaveable { mutableStateOf(false) }
     var showLoadingIndicator by rememberSaveable { mutableStateOf(false) }
@@ -283,10 +286,14 @@ fun IdCardView(
                     pinCode.value = byteArrayOf()
 
                     isDataLoadingStarted = false
-                    showLoadingIndicator = false
+                    showLoadingIndicator = true
+                    // Navigating away dismisses the notification.
+                    // Waiting to show message before dismissing.
+                    delay(4000L)
                     idCardStatusMessage.value = idCardStatusInitialMessage
                     isValidToSign(false)
                     isValidToDecrypt(false)
+                    showLoadingIndicator = false
                     onError()
                 }
             }
@@ -306,7 +313,17 @@ fun IdCardView(
                         context.getString(
                             pinErrorState.first, pinErrorState.second, pinErrorState.third,
                         )
-                    onError()
+
+                    if (pinErrorText.isNotEmpty()) {
+                        showMessage(pinErrorText)
+                    }
+
+                    if (shouldHandleError) {
+                        // Navigating away dismisses the notification.
+                        // Waiting to show message before dismissing.
+                        delay(4000L)
+                        onError()
+                    }
                 }
             }
     }
@@ -601,7 +618,7 @@ fun IdCardView(
                 }
             }
 
-            if (idCardData?.personalData != null && !isSigning && !isAuthenticating && !isDecrypting) {
+            if (idCardStatusReadyToSign) {
                 Column(
                     modifier =
                         modifier

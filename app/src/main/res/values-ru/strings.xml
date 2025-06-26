@@ -267,6 +267,8 @@
     <string name="too_many_requests_url">https://www.id.ee/ru/artikkel/dlya-uchrezhdenij-v-kotoryh-v-bolshom-obeme-podpisyvayutsya-dokumenty-s-pomoshhyu-digidoc4-klienta/</string>
     <string name="additional_information">Дополнительная информация</string>
 
+    <string name="no_lock_found">Не найден адресат для ключа сертификата</string>
+
     <string name="signature_update_mobile_id_error_unknown">Неизвестная ошибка при подписании с помощю mobiil-ID</string>
     <string name="signature_update_mobile_id_error_local_service_exception">Что-то пошло не так, попробуйте позже</string>
     <string name="signature_update_mobile_id_error_incorrect_input_parameters">Неверный номер телефона и/или личный код, не эстонские номера телефонов должны начинаться с кода страны</string>
