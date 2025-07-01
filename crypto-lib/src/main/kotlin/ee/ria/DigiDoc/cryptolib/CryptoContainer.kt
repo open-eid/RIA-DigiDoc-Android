@@ -90,24 +90,14 @@ class CryptoContainer
         }
 
         fun getDataFiles(): List<File> =
-            try {
-                dataFiles
-                    ?.filterNotNull()
-                    ?.map { dataFile -> dataFile } ?: emptyList()
-            } catch (e: Exception) {
-                errorLog(LOG_TAG, "Unable to get container recipients", e)
-                emptyList()
-            }
+            dataFiles
+                ?.filterNotNull()
+                ?.map { dataFile -> dataFile } ?: emptyList()
 
         fun getRecipients(): List<Addressee> =
-            try {
-                recipients
-                    ?.filterNotNull()
-                    ?.map { recipient -> recipient } ?: emptyList()
-            } catch (e: Exception) {
-                errorLog(LOG_TAG, "Unable to get container recipients", e)
-                emptyList()
-            }
+            recipients
+                ?.filterNotNull()
+                ?.map { recipient -> recipient } ?: emptyList()
 
         fun hasRecipients(): Boolean = recipients?.isNotEmpty() == true
 
@@ -399,8 +389,10 @@ class CryptoContainer
                 } catch (exc: IOException) {
                     errorLog(LOG_TAG, "IO Exception: ${exc.message}", exc)
                     System.err.println("IO Exception: " + exc.message)
+                    throw CryptoException("IO Exception: ${exc.message}", exc)
                 } catch (exc: CDocException) {
                     errorLog(LOG_TAG, "CDoc Exception ${exc.code}: ${exc.message}", exc)
+                    throw CryptoException("CDoc Exception ${exc.code}: ${exc.message}", exc)
                 } finally {
                     cdocWriter.delete()
                 }
@@ -446,10 +438,7 @@ class CryptoContainer
 
                 var containerFileWithExtension = file
 
-                if ((!isFirstDataFileContainer) &&
-                    !file.path.endsWith(".$CDOC1_EXTENSION") &&
-                    !file.path.endsWith(".$CDOC2_EXTENSION")
-                ) {
+                if (!isFirstDataFileContainer) {
                     val defaultExtension =
                         if (cdoc2Settings.getUseEncryption()) {
                             CDOC2_EXTENSION
