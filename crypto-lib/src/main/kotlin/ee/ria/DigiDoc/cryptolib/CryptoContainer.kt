@@ -388,7 +388,6 @@ class CryptoContainer
                     }
                 } catch (exc: IOException) {
                     errorLog(LOG_TAG, "IO Exception: ${exc.message}", exc)
-                    System.err.println("IO Exception: " + exc.message)
                     throw CryptoException("IO Exception: ${exc.message}", exc)
                 } catch (exc: CDocException) {
                     errorLog(LOG_TAG, "CDoc Exception ${exc.code}: ${exc.message}", exc)
