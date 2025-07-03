@@ -14,7 +14,6 @@ import org.bouncycastle.asn1.x509.PolicyInformation
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import java.util.Date
-import java.util.Objects
 
 class Addressee(
     var data: ByteArray,
@@ -100,29 +99,6 @@ class Addressee(
         this.validTo = validTo
         this.data = pub
         this.concatKDFAlgorithmURI = concatKDFAlgorithmURI
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Addressee) return false
-
-        return data.contentEquals(other.data) &&
-            identifier == other.identifier &&
-            givenName == other.givenName &&
-            surname == other.surname &&
-            certType == other.certType &&
-            validTo == other.validTo
-    }
-
-    override fun hashCode(): Int {
-        return Objects.hash(
-            data.contentHashCode(),
-            identifier,
-            givenName,
-            surname,
-            certType,
-            validTo,
-        )
     }
 
     private companion object {
