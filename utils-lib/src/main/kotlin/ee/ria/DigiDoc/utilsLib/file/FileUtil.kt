@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.webkit.URLUtil
+import androidx.core.net.toUri
 import ee.ria.DigiDoc.common.Constant.ALLOWED_URL_CHARACTERS
 import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
 import ee.ria.DigiDoc.common.Constant.RESTRICTED_FILENAME_CHARACTERS_AND_RTL_CHARACTERS_AS_STRING
@@ -39,7 +40,6 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.SAXParserFactory
-import androidx.core.net.toUri
 
 object FileUtil {
     private val LOG_TAG = javaClass.simpleName
@@ -117,7 +117,7 @@ object FileUtil {
                 }
             }
         } else if (!isRawUrl(trimmed)) {
-            return normalizeUri(Uri.parse(trimmed)).toString()
+            return normalizeUri(trimmed.toUri()).toString()
         }
         return if (sb.toString().isNotEmpty()) {
             FilenameUtils.getName(
@@ -134,7 +134,7 @@ object FileUtil {
         return if (uri == null) {
             null
         } else {
-            Uri.parse(normalizeText(uri.toString()))
+            normalizeText(uri.toString()).toUri()
         }
     }
 

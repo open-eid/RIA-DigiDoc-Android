@@ -92,7 +92,7 @@ class CentralConfigurationServiceImplTest {
     }
 
     @Test
-    fun `fetchConfiguration returns response`() =
+    fun centralConfigurationServiceImpl_fetchConfiguration_returnsResponse() =
         runTest {
             val expected = "config-value"
             mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(expected))
@@ -103,7 +103,7 @@ class CentralConfigurationServiceImplTest {
         }
 
     @Test
-    fun `fetchPublicKey returns response`() =
+    fun centralConfigurationServiceImpl_fetchPublicKey_returnsResponse() =
         runTest {
             val expected = "public-key-value"
             mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(expected))
@@ -114,7 +114,7 @@ class CentralConfigurationServiceImplTest {
         }
 
     @Test
-    fun `fetchSignature returns response`() =
+    fun centralConfigurationServiceImpl_fetchSignature_returnsResponse() =
         runTest {
             val expected = "signature-value"
             mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(expected))
@@ -125,7 +125,7 @@ class CentralConfigurationServiceImplTest {
         }
 
     @Test
-    fun `setupProxy sets internal proxy config`() =
+    fun centralConfigurationServiceImpl_setupProxy_setsProxyConfig() =
         runTest {
             val proxy = ProxySetting.MANUAL_PROXY
             val manualProxy = ManualProxy("127.0.0.1", 8080, "user", "pass")
@@ -134,7 +134,7 @@ class CentralConfigurationServiceImplTest {
         }
 
     @Test
-    fun `constructHttpClient creates client with proxy`() {
+    fun centralConfigurationServiceImpl_constructHttpClient_createsClientWithProxy() {
         val service = CentralConfigurationServiceImpl(userAgent, property)
         val proxySetting = ProxySetting.MANUAL_PROXY
         val manualProxy = ManualProxy("localhost", 8888, "user", "pass")
@@ -146,7 +146,7 @@ class CentralConfigurationServiceImplTest {
     }
 
     @Test
-    fun `constructRetrofit creates valid Retrofit instance`() {
+    fun centralConfigurationServiceImpl_constructRetrofit_createsValidRetrofit() {
         val client = OkHttpClient.Builder().build()
         val retrofit = service.constructRetrofit("http://localhost:8080", client)
 
