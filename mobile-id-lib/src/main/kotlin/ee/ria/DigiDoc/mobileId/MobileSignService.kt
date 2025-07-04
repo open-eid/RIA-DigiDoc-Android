@@ -32,7 +32,7 @@ import ee.ria.DigiDoc.network.mid.rest.MIDRestServiceClient
 import ee.ria.DigiDoc.network.mid.rest.ServiceGenerator
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
-import ee.ria.DigiDoc.network.proxy.ProxyUtil
+import ee.ria.DigiDoc.network.utils.ProxyUtil
 import ee.ria.DigiDoc.network.utils.UserAgentUtil
 import ee.ria.DigiDoc.utilsLib.extensions.removeWhitespaces
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog

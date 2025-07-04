@@ -3,8 +3,7 @@
 package ee.ria.DigiDoc.configuration.utils
 
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
-import junit.framework.TestCase.assertFalse
-import junit.framework.TestCase.assertTrue
+import junit.framework.TestCase
 import org.junit.Test
 import java.io.IOException
 import java.util.Optional
@@ -30,7 +29,7 @@ class SignatureVerifierTest {
                                 FileUtil.readFileContentBytes(configSignatureStream)
                             val configSignaturePublicKey: String =
                                 FileUtil.readFileContent(configSignaturePublicKeyStream)
-                            assertTrue(
+                            TestCase.assertTrue(
                                 SignatureVerifier.verify(
                                     configSignature,
                                     configSignaturePublicKey,
@@ -40,7 +39,7 @@ class SignatureVerifierTest {
                         }
                 }
             }
-        } catch (e: IOException) {
+        } catch (_: IOException) {
             throw IllegalStateException("Unable to read resource")
         }
     }
@@ -65,7 +64,7 @@ class SignatureVerifierTest {
                                 FileUtil.readFileContentBytes(configSignatureStream)
                             val configSignaturePublicKey: String =
                                 FileUtil.readFileContent(configSignaturePublicKeyStream)
-                            assertFalse(
+                            TestCase.assertFalse(
                                 SignatureVerifier.verify(
                                     configSignature,
                                     configSignaturePublicKey,
@@ -75,7 +74,7 @@ class SignatureVerifierTest {
                         }
                 }
             }
-        } catch (e: IOException) {
+        } catch (_: IOException) {
             throw IllegalStateException("Unable to read resource")
         }
     }

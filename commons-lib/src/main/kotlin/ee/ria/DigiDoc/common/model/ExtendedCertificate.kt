@@ -1,4 +1,4 @@
-@file:Suppress("PackageName")
+@file:Suppress("PackageName", "ArrayInDataClass")
 
 package ee.ria.DigiDoc.common.model
 
@@ -35,29 +35,5 @@ data class ExtendedCertificate(
                 ellipticCurve,
             )
         }
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as ExtendedCertificate
-
-        if (ellipticCurve != other.ellipticCurve) return false
-        if (type != other.type) return false
-        if (!data.contentEquals(other.data)) return false
-        if (keyUsage != other.keyUsage) return false
-        if (extendedKeyUsage != other.extendedKeyUsage) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = ellipticCurve.hashCode()
-        result = 31 * result + type.hashCode()
-        result = 31 * result + data.contentHashCode()
-        result = 31 * result + keyUsage.hashCode()
-        result = 31 * result + extendedKeyUsage.hashCode()
-        return result
     }
 }

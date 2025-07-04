@@ -4,9 +4,7 @@ package ee.ria.DigiDoc.utilsLib.file
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.pdf.PdfRenderer
 import android.net.Uri
-import android.os.ParcelFileDescriptor
 import android.webkit.URLUtil
 import ee.ria.DigiDoc.common.Constant.ALLOWED_URL_CHARACTERS
 import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
@@ -36,13 +34,12 @@ import java.io.OutputStreamWriter
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
-import java.nio.file.Path
-import java.text.Normalizer
 import java.util.Objects
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.SAXParserFactory
+import androidx.core.net.toUri
 
 object FileUtil {
     private val LOG_TAG = javaClass.simpleName
@@ -155,41 +152,8 @@ object FileUtil {
         return sb.toString()
     }
 
-    fun normalizeString(text: String?): String {
-        return Normalizer.normalize(text, Normalizer.Form.NFD)
-    }
-
     fun normalizePath(filePath: String?): Uri {
-        return Uri.parse(FilenameUtils.normalize(filePath))
-    }
-
-    fun isPDF(file: File?): Boolean {
-        try {
-            ParcelFileDescriptor.open(
-                file,
-                ParcelFileDescriptor.MODE_READ_ONLY,
-            ).use { parcelFileDescriptor ->
-                // Try to render as PDF. Throws exception if not a PDF file.
-                PdfRenderer(parcelFileDescriptor)
-                return true
-            }
-        } catch (e: IOException) {
-            return false
-        }
-    }
-
-    fun renameFile(
-        path: Path,
-        fileNameWithExtension: String?,
-    ): Path {
-        return try {
-            Files.deleteIfExists(path.resolveSibling(fileNameWithExtension))
-            val newFilePath = path.resolveSibling(fileNameWithExtension)
-            Files.move(path, newFilePath)
-            newFilePath
-        } catch (e: IOException) {
-            path
-        }
+        return FilenameUtils.normalize(filePath).toUri()
     }
 
     fun logsExist(logsDirectory: File): Boolean {
@@ -294,18 +258,6 @@ object FileUtil {
             }
         } catch (e: IOException) {
             throw IllegalStateException("Failed to read content of cached file", e)
-        }
-    }
-
-    fun readFileContentBytes(filePath: String): ByteArray {
-        try {
-            FileInputStream(filePath).use { fileInputStream ->
-                return readFileContentBytes(
-                    fileInputStream,
-                )
-            }
-        } catch (e: IOException) {
-            throw IllegalStateException("Failed to read content of cached file '$filePath'", e)
         }
     }
 
@@ -448,10 +400,6 @@ object FileUtil {
         }
     }
 
-    fun getNameWithoutExtension(fileName: String): String? {
-        return FilenameUtils.getBaseName(fileName)
-    }
-
     fun getNameFromFileName(fileName: String): String? {
         return FilenameUtils.getName(fileName)
     }
@@ -510,7 +458,7 @@ object FileUtil {
             saxParser.parse(InputSource(inputStream), handler)
             inputStream.close()
             return document
-        } catch (ex: Exception) {
+        } catch (_: Exception) {
             return null
         }
     }

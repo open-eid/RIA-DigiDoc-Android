@@ -26,9 +26,9 @@ import ee.ria.DigiDoc.manager.ActivityManager
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxyConfig
 import ee.ria.DigiDoc.network.proxy.ProxySetting
-import ee.ria.DigiDoc.network.proxy.ProxyUtil
 import ee.ria.DigiDoc.network.siva.SivaSetting
 import ee.ria.DigiDoc.network.utils.NetworkUtil.constructClientBuilder
+import ee.ria.DigiDoc.network.utils.ProxyUtil
 import ee.ria.DigiDoc.network.utils.UserAgentUtil
 import ee.ria.DigiDoc.utils.Constant
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
@@ -59,7 +59,7 @@ import javax.inject.Inject
 class SharedSettingsViewModel
     @Inject
     constructor(
-        @ApplicationContext private val context: Context,
+        @param:ApplicationContext private val context: Context,
         private val contentResolver: ContentResolver,
         val dataStore: DataStore,
         private val initialization: Initialization,
