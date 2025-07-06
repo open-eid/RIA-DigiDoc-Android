@@ -277,7 +277,7 @@ fun EncryptNavigation(
                 delay(2000)
                 withContext(Main) {
                     navController.navigate(Route.Signing.route) {
-                        popUpTo(Route.Encrypt.route) {
+                        popUpTo(Route.Home.route) {
                             inclusive = false
                         }
                         launchSingleTop = true
