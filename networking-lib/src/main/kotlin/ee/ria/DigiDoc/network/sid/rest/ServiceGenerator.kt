@@ -7,7 +7,7 @@ import com.takisoft.preferencex.BuildConfig
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxyConfig
 import ee.ria.DigiDoc.network.proxy.ProxySetting
-import ee.ria.DigiDoc.network.proxy.ProxyUtil
+import ee.ria.DigiDoc.network.utils.ProxyUtil
 import ee.ria.DigiDoc.network.utils.isLoggingEnabled
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
@@ -105,7 +105,9 @@ class ServiceGeneratorImpl : ServiceGenerator {
         httpClientBuilder: OkHttpClient.Builder,
         context: Context,
     ) {
-        if (isLoggingEnabled(context) || BuildConfig.DEBUG) {
+        val isDebug = BuildConfig.BUILD_TYPE.contentEquals("debug")
+
+        if (isLoggingEnabled(context) || isDebug) {
             debugLog(logTag, "Adding logging interceptor to HTTP client")
             loggingInterceptor = HttpLoggingInterceptor()
             loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
@@ -115,7 +117,7 @@ class ServiceGeneratorImpl : ServiceGenerator {
             httpClientBuilder.addInterceptor(
                 Interceptor { chain: Interceptor.Chain ->
                     val request = chain.request()
-                    if (BuildConfig.DEBUG) {
+                    if (isDebug) {
                         debugLog(logTag, request.method + " " + request.url)
                         val headers = request.headers
                         debugLog(logTag, "Headers: " + arrayOf(headers).contentDeepToString())
@@ -141,7 +143,7 @@ class ServiceGeneratorImpl : ServiceGenerator {
         val uri: URI
         try {
             uri = URI(sidSignServiceUrl)
-        } catch (e: URISyntaxException) {
+        } catch (_: URISyntaxException) {
             debugLog(logTag, "Failed to convert URI from URL")
             return CertificatePinner.Builder().build()
         }

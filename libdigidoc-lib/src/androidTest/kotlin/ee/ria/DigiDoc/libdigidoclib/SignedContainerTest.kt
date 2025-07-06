@@ -32,6 +32,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -84,6 +85,7 @@ class SignedContainerTest {
     private lateinit var dataFile2: File
     private lateinit var dataFile3: File
     private lateinit var container: File
+    private lateinit var containerNoSignatures: File
     private lateinit var signedPdfDocument: File
 
     @Before
@@ -95,6 +97,10 @@ class SignedContainerTest {
         dataFile2 = createTempFileWithStringContent("dataFile2", "test content")
         dataFile3 = createTempFileWithStringContent("dataFile3", "test content")
         container = getResourceFileAsFile(context, "example.asice", ee.ria.DigiDoc.common.R.raw.example)
+        containerNoSignatures =
+            getResourceFileAsFile(
+                context, "example_no_signatures.asice", ee.ria.DigiDoc.common.R.raw.example_no_signatures,
+            )
         signedPdfDocument =
             getResourceFileAsFile(
                 context, "example_signed_pdf.pdf",
@@ -120,6 +126,14 @@ class SignedContainerTest {
             val result = signedContainer.rawContainer()
 
             assertNotNull(result)
+        }
+
+    @Test(expected = IOException::class)
+    fun signedContainer_rawContainer_exception() =
+        runTest {
+            val dataFiles = listOf(testFile)
+
+            openOrCreate(context, File("non:validpath.txt"), dataFiles, true)
         }
 
     @Test
@@ -154,6 +168,103 @@ class SignedContainerTest {
             val result = signedContainer.isExistingContainer()
 
             assertTrue(result)
+        }
+
+    @Test
+    fun signedContainer_isForceCreate_true() =
+        runTest {
+            val signedContainer =
+                openOrCreate(
+                    context = context,
+                    file = container,
+                    dataFiles = listOf(container),
+                    isSivaConfirmed = true,
+                    forceFirstDataFileContainer = true,
+                )
+
+            val result = signedContainer.getDataFiles().first()
+
+            assertEquals(container.name, result.fileName)
+        }
+
+    @Test
+    fun signedContainer_isLegacy_false() =
+        runTest {
+            val signedContainer = openOrCreate(context, container, listOf(container), true)
+
+            val result = signedContainer.isLegacy()
+
+            assertFalse(result)
+        }
+
+    @Test
+    fun signedContainer_isXades_false() =
+        runTest {
+            val signedContainer = openOrCreate(context, container, listOf(container), true)
+
+            val result = signedContainer.isXades()
+
+            assertFalse(result)
+        }
+
+    @Test
+    fun signedContainer_isXades_noSignaturesContainerReturnFalse() =
+        runTest {
+            val signedContainer = openOrCreate(context, containerNoSignatures, listOf(containerNoSignatures), true)
+
+            val result = signedContainer.isXades()
+
+            assertFalse(result)
+        }
+
+    @Test
+    fun signedContainer_isCades_false() =
+        runTest {
+            val signedContainer = openOrCreate(context, container, listOf(container), true)
+
+            val result = signedContainer.isCades()
+
+            assertFalse(result)
+        }
+
+    @Test
+    fun signedContainer_isCades_noSignaturesContainerReturnFalse() =
+        runTest {
+            val signedContainer = openOrCreate(context, containerNoSignatures, listOf(containerNoSignatures), true)
+
+            val result = signedContainer.isCades()
+
+            assertFalse(result)
+        }
+
+    @Test
+    fun signedContainer_isSigned_true() =
+        runTest {
+            val signedContainer = openOrCreate(context, container, listOf(container), true)
+
+            val result = signedContainer.isSigned()
+
+            assertTrue(result)
+        }
+
+    @Test
+    fun signedContainer_isSigned_false() =
+        runTest {
+            val signedContainer = openOrCreate(context, containerNoSignatures, listOf(containerNoSignatures), true)
+
+            val result = signedContainer.isSigned()
+
+            assertFalse(result)
+        }
+
+    @Test
+    fun signedContainer_getNestedTimestampedContainer_notNestedContainerReturnNull() =
+        runTest {
+            val signedContainer = openOrCreate(context, container, listOf(container), true)
+
+            val result = signedContainer.getNestedTimestampedContainer()
+
+            assertNull(result)
         }
 
     @Test

@@ -92,6 +92,8 @@ cdoc4j = { group = "org.open-eid.cdoc4j", name = "cdoc4j", version.ref = "cdoc4j
 unboundid-ldapsdk = { group = "com.unboundid", name = "unboundid-ldapsdk", version.ref = "unboundid-ldapsdk" }
 stax-api = { group = "javax.xml.stream", name = "stax-api", version.ref = "stax-api" }
 okhttp3 = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+okhttp3-tls= { group = "com.squareup.okhttp3", name = "okhttp-tls", version.ref = "okhttp" }
+okhttp3-mockwebserver= { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "okhttp" }
 okhttp3-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-converter-scalars = {group = "com.squareup.retrofit2", name = "converter-scalars", version.ref = "retrofit"}

@@ -37,6 +37,8 @@ android {
 dependencies {
 
     api(libs.okhttp3)
+    api(libs.okhttp3.tls)
+    api(libs.okhttp3.mockwebserver)
     api(libs.okhttp3.logging.interceptor)
     api(libs.retrofit)
     api(libs.retrofit.converter.scalars)

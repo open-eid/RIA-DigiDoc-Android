@@ -9,7 +9,7 @@ import ee.ria.DigiDoc.network.configuration.interceptors.UserAgentInterceptor
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxyConfig
 import ee.ria.DigiDoc.network.proxy.ProxySetting
-import ee.ria.DigiDoc.network.proxy.ProxyUtil
+import ee.ria.DigiDoc.network.utils.ProxyUtil
 import okhttp3.Authenticator
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
@@ -48,7 +48,7 @@ interface CentralConfigurationService {
 }
 
 @Singleton
-class CentralConfigurationServiceImpl
+open class CentralConfigurationServiceImpl
     @Inject
     constructor(
         private val userAgent: String,

@@ -17,7 +17,7 @@ import ee.ria.DigiDoc.cryptolib.exception.CryptoException
 import ee.ria.DigiDoc.cryptolib.exception.DataFilesEmptyException
 import ee.ria.DigiDoc.cryptolib.exception.RecipientsEmptyException
 import ee.ria.DigiDoc.idcard.Token
-import ee.ria.DigiDoc.network.proxy.ProxyUtil
+import ee.ria.DigiDoc.network.utils.ProxyUtil
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderException
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import ee.ria.DigiDoc.utilsLib.extensions.isCryptoContainer
@@ -162,7 +162,7 @@ class CryptoContainer
                 context: Context,
                 file: File?,
             ): CryptoContainer {
-                var dataFiles = ArrayList<File>()
+                val dataFiles = ArrayList<File>()
                 var recipients = ArrayList<Addressee>()
                 if (file?.extension == CDOC1_EXTENSION) {
                     val cdoc1Container = openCDOC1(context, file)
@@ -509,7 +509,7 @@ class CryptoContainer
                     dst: CertificateList?,
                     url: String?,
                 ): Long {
-                    var certs = configurationProvider?.certBundle ?: listOf()
+                    val certs = configurationProvider?.certBundle ?: listOf()
                     dst?.clear()
                     for (cert in certs) {
                         val certBytes = Base64.decode(cert, Base64.DEFAULT)
@@ -562,7 +562,7 @@ class CryptoContainer
                     algorithm: CryptoBackend.HashAlgorithm,
                     digest: ByteArray,
                 ): Long {
-                    return token.sign(dst, algorithm, digest, 0).toLong()
+                    return token.sign(dst, algorithm, digest, 0)
                 }
             }
         }

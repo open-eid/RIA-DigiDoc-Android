@@ -6,9 +6,9 @@ import android.content.Context
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxyConfig
 import ee.ria.DigiDoc.network.proxy.ProxySetting
-import ee.ria.DigiDoc.network.proxy.ProxyUtil.getManualProxySettings
-import ee.ria.DigiDoc.network.proxy.ProxyUtil.getProxy
-import ee.ria.DigiDoc.network.proxy.ProxyUtil.getProxySetting
+import ee.ria.DigiDoc.network.utils.ProxyUtil.getManualProxySettings
+import ee.ria.DigiDoc.network.utils.ProxyUtil.getProxy
+import ee.ria.DigiDoc.network.utils.ProxyUtil.getProxySetting
 import okhttp3.Authenticator
 import okhttp3.Credentials.basic
 import okhttp3.Interceptor

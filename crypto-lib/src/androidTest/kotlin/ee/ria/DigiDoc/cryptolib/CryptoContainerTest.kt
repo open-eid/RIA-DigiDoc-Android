@@ -173,6 +173,9 @@ class CryptoContainerTest {
     private lateinit var containerRIACDOC1: File
     private lateinit var containerRIACDOC2: File
 
+    private lateinit var preferences: SharedPreferences
+    private lateinit var resources: Resources
+
     private val authCert =
         "MIID4zCCA0SgAwIBAgIQENO9RJxIOHNfcdqN/UiQFzAKBggqhkjOPQQDBDBYMQswCQYDV" +
             "QQGEwJFRTEbMBkGA1UECgwSU0sgSUQgU29sdXRpb25zIEFTMRcwFQYDVQRhDA5OVFJFRS0xMDc0NzAxMzETM" +
@@ -222,6 +225,8 @@ class CryptoContainerTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         context = InstrumentationRegistry.getInstrumentation().targetContext
+        preferences = PreferenceManager.getDefaultSharedPreferences(context)
+        resources = context.resources
         recipientRepository =
             RecipientRepositoryImpl(
                 configurationRepository,
@@ -265,9 +270,6 @@ class CryptoContainerTest {
     @Test
     fun cryptoContainer_openOrCreate_createSuccess() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -290,9 +292,6 @@ class CryptoContainerTest {
     @Test
     fun cryptoContainer_openOrCreate_multipleFilesCreateSuccess() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -315,9 +314,6 @@ class CryptoContainerTest {
     @Test
     fun cryptoContainer_openOrCreate_forceCreateSuccess() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -342,9 +338,6 @@ class CryptoContainerTest {
     @Test
     fun cryptoContainer_openOrCreate_useCDOC2EncryptionTrueCreateSuccess() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -367,9 +360,6 @@ class CryptoContainerTest {
     @Test
     fun cryptoContainer_openOrCreate_openCDOC1Success() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -392,9 +382,6 @@ class CryptoContainerTest {
     @Test
     fun cryptoContainer_openOrCreate_openCDOC2Success() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -417,9 +404,6 @@ class CryptoContainerTest {
     @Test
     fun cryptoContainer_openOrCreate_openCDOC1WithEnterpriseAddresseeSuccess() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -442,9 +426,6 @@ class CryptoContainerTest {
     @Test
     fun cryptoContainer_openOrCreate_openCDOC2WithEnterpriseAddresseeSuccess() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -469,8 +450,6 @@ class CryptoContainerTest {
         runTest {
             val containerCDOC2 =
                 getResourceFileAsFile(context, "example_cdoc2.cdoc", ee.ria.DigiDoc.common.R.raw.example_cdoc2)
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
 
             preferences
                 .edit()
@@ -503,9 +482,6 @@ class CryptoContainerTest {
     @Test(expected = CryptoException::class)
     fun cryptoContainer_decrypt_authCertIsNullThrowsException() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -535,9 +511,6 @@ class CryptoContainerTest {
     @Test(expected = CryptoException::class)
     fun cryptoContainer_decrypt_authCertIsEmptyThrowsException() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -567,9 +540,6 @@ class CryptoContainerTest {
     @Test(expected = CDocException::class)
     fun cryptoContainer_decrypt_exception() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -599,9 +569,6 @@ class CryptoContainerTest {
     @Test()
     fun cryptoContainer_decrypt_offlineSuccess() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -636,9 +603,6 @@ class CryptoContainerTest {
     @Test(expected = CryptoException::class)
     fun cryptoContainer_decrypt_onlineFMKException() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences.edit {
                 putString(
                     resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_setting_key),
@@ -708,9 +672,6 @@ class CryptoContainerTest {
     @Test(expected = CryptoException::class)
     fun cryptoContainer_decrypt_onlineWithNetworkSettingsException() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences.edit {
                 putString(
                     resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_setting_key),
@@ -798,9 +759,6 @@ class CryptoContainerTest {
     @Test(expected = NullPointerException::class)
     fun cryptoContainer_decrypt_deriveECDH1Exception() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -829,9 +787,6 @@ class CryptoContainerTest {
     @Test(expected = CDocException::class)
     fun cryptoContainer_decrypt_CDOC1RSAException() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -866,9 +821,6 @@ class CryptoContainerTest {
     @Test(expected = NullPointerException::class)
     fun cryptoContainer_decrypt_decryptRSAException() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -896,9 +848,6 @@ class CryptoContainerTest {
     @Test
     fun cryptoContainer_encrypt_CDOC2OfflineSuccess() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -932,9 +881,6 @@ class CryptoContainerTest {
     @Test(expected = CryptoException::class)
     fun cryptoContainer_encrypt_CDOC2OnlineException() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -963,9 +909,6 @@ class CryptoContainerTest {
     @Test(expected = CryptoException::class)
     fun cryptoContainer_encrypt_CDOC2OnlineSuccess() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -1015,9 +958,6 @@ class CryptoContainerTest {
     @Test
     fun cryptoContainer_encrypt_CDOC1Success() =
         runBlocking {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -1044,9 +984,6 @@ class CryptoContainerTest {
     @Test(expected = DataFilesEmptyException::class)
     fun cryptoContainer_encrypt_dataFilesNullException() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -1066,9 +1003,6 @@ class CryptoContainerTest {
     @Test(expected = DataFilesEmptyException::class)
     fun cryptoContainer_encrypt_dataFilesEmptyException() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -1088,9 +1022,6 @@ class CryptoContainerTest {
     @Test(expected = RecipientsEmptyException::class)
     fun cryptoContainer_encrypt_recipientsNullException() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -1109,9 +1040,6 @@ class CryptoContainerTest {
     @Test(expected = RecipientsEmptyException::class)
     fun cryptoContainer_encrypt_recipientsEmptyException() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -1130,9 +1058,6 @@ class CryptoContainerTest {
     @Test(expected = CryptoException::class)
     fun cryptoContainer_encrypt_CDOC2OfflineException() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -1167,9 +1092,6 @@ class CryptoContainerTest {
     @Test()
     fun cryptoContainer_containerMimetype_success() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -1188,9 +1110,6 @@ class CryptoContainerTest {
     @Test()
     fun cryptoContainer_getName_success() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -1209,9 +1128,6 @@ class CryptoContainerTest {
     @Test()
     fun cryptoContainer_setName_success() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -1231,9 +1147,6 @@ class CryptoContainerTest {
     @Test()
     fun cryptoContainer_hasRecipients_success() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -1252,9 +1165,6 @@ class CryptoContainerTest {
     @Test()
     fun cryptoContainer_getDataFile_success() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -1280,9 +1190,6 @@ class CryptoContainerTest {
     @Test(expected = IllegalArgumentException::class)
     fun cryptoContainer_getDataFile_exception() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -1305,9 +1212,6 @@ class CryptoContainerTest {
     @Test()
     fun cryptoContainer_addDataFiles_success() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -1326,9 +1230,6 @@ class CryptoContainerTest {
     @Test()
     fun cryptoContainer_addRecipients_success() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -1347,9 +1248,6 @@ class CryptoContainerTest {
     @Test()
     fun cryptoContainer_removeDataFile_success() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -1369,9 +1267,6 @@ class CryptoContainerTest {
     @Test(expected = ContainerDataFilesEmptyException::class)
     fun cryptoContainer_removeDataFile_exception() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -1389,9 +1284,6 @@ class CryptoContainerTest {
     @Test()
     fun cryptoContainer_removeRecipient_success() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(
@@ -1412,9 +1304,6 @@ class CryptoContainerTest {
     @Test()
     fun cryptoContainer_removeRecipient_removeFromEmptyRecipients() =
         runTest {
-            val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val resources: Resources = context.resources
-
             preferences
                 .edit()
                 .putBoolean(

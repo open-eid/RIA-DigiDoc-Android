@@ -318,7 +318,11 @@ class SignedContainer
                     throw NoSuchElementException("No valid data files in the container")
                 }
 
-                container.save()
+                try {
+                    container.save()
+                } catch (e: Exception) {
+                    handleContainerException(context, e)
+                }
 
                 return SignedContainer(context, container, file, false)
             }

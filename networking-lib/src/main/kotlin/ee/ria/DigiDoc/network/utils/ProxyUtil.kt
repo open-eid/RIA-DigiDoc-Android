@@ -1,13 +1,16 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.network.proxy
+package ee.ria.DigiDoc.network.utils
 
 import android.content.Context
 import androidx.preference.PreferenceManager
 import ee.ria.DigiDoc.common.preferences.EncryptedPreferences
 import ee.ria.DigiDoc.network.R
+import ee.ria.DigiDoc.network.proxy.ManualProxy
+import ee.ria.DigiDoc.network.proxy.ProxyConfig
+import ee.ria.DigiDoc.network.proxy.ProxySetting
 import okhttp3.Authenticator
-import okhttp3.Credentials.basic
+import okhttp3.Credentials
 import okhttp3.Response
 import okhttp3.Route
 import org.apache.commons.lang3.math.NumberUtils
@@ -68,9 +71,9 @@ object ProxyUtil {
                                 return@Authenticator null
                             }
                             val credential =
-                                basic(
-                                    systemProxy.username ?: "",
-                                    systemProxy.password ?: "",
+                                Credentials.basic(
+                                    systemProxy.username,
+                                    systemProxy.password,
                                 )
                             response.request.newBuilder()
                                 .header("Proxy-Authorization", credential)
@@ -92,7 +95,7 @@ object ProxyUtil {
                                 manualProxySettings?.password.let { password ->
                                     if (username != null) {
                                         if (password != null) {
-                                            basic(
+                                            Credentials.basic(
                                                 username,
                                                 password,
                                             )
@@ -118,7 +121,7 @@ object ProxyUtil {
 
             null -> {}
         }
-        return ProxyConfig(null, Authenticator.NONE, null)
+        return ProxyConfig(null, Authenticator.Companion.NONE, null)
     }
 
     private fun getProxyConfig(
@@ -130,15 +133,15 @@ object ProxyUtil {
                 val proxy =
                     Proxy(
                         Proxy.Type.HTTP,
-                        manualProxy?.port?.let { InetSocketAddress(manualProxy.host, it) },
+                        manualProxy.port.let { InetSocketAddress(manualProxy.host, it) },
                     )
                 return@supplyAsync ProxyConfig(
                     proxy,
-                    authenticator ?: Authenticator.NONE,
+                    authenticator ?: Authenticator.Companion.NONE,
                     manualProxy,
                 )
             }
-            ProxyConfig(null, authenticator ?: Authenticator.NONE, null)
+            ProxyConfig(null, authenticator ?: Authenticator.Companion.NONE, null)
         }
     }
 
@@ -167,9 +170,9 @@ object ProxyUtil {
             try {
                 EncryptedPreferences.getEncryptedPreferences(context)
                     .getString(context.getString(R.string.main_settings_proxy_password_key), "") ?: ""
-            } catch (e: IOException) {
+            } catch (_: IOException) {
                 ""
-            } catch (e: GeneralSecurityException) {
+            } catch (_: GeneralSecurityException) {
                 ""
             }
         return ManualProxy(host, port, username, password)
