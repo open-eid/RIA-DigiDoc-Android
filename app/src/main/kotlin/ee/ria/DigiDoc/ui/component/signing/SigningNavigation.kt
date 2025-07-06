@@ -282,11 +282,6 @@ fun SigningNavigation(
         clickedDataFile.value = dataFile
     }
 
-    val onSignatureItemClick: (SignatureInterface) -> Unit = { signature ->
-        sharedSignatureViewModel.setSignature(signature)
-        navController.navigate(Route.SignerDetail.route)
-    }
-
     val onSignatureMoreClick: (SignatureInterface) -> Unit = { signature ->
         showSignatureBottomSheet.value = true
         clickedSignature.value = signature
@@ -309,7 +304,7 @@ fun SigningNavigation(
                 delay(2000)
                 withContext(Main) {
                     navController.navigate(Route.Encrypt.route) {
-                        popUpTo(Route.Signing.route) {
+                        popUpTo(Route.Home.route) {
                             inclusive = false
                         }
                         launchSingleTop = true
@@ -891,7 +886,7 @@ fun SigningNavigation(
                                                                             signaturesLoading,
                                                                             true,
                                                                             false,
-                                                                            onSignatureItemClick,
+                                                                            onSignatureMoreClick,
                                                                             onSignatureMoreClick,
                                                                         )
                                                                     }
@@ -920,7 +915,7 @@ fun SigningNavigation(
                                                                     ?.containerMimetype() == ASICS_MIMETYPE &&
                                                                 signatures.size == 1,
                                                             !timestamps.isNullOrEmpty() && isDdoc && isValid,
-                                                            onSignatureItemClick,
+                                                            onSignatureMoreClick,
                                                             onSignatureMoreClick,
                                                         )
                                                     }
