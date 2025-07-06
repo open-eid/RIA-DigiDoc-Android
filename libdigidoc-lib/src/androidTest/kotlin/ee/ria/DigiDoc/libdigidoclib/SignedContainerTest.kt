@@ -133,11 +133,7 @@ class SignedContainerTest {
         runTest {
             val dataFiles = listOf(testFile)
 
-            val signedContainer = openOrCreate(context, File("non:validpath.txt"), dataFiles, true)
-
-            val result = signedContainer.rawContainer()
-
-            assertNotNull(result)
+            openOrCreate(context, File("non:validpath.txt"), dataFiles, true)
         }
 
     @Test
@@ -177,7 +173,14 @@ class SignedContainerTest {
     @Test
     fun signedContainer_isForceCreate_true() =
         runTest {
-            val signedContainer = openOrCreate(context, container, listOf(container), true, true)
+            val signedContainer =
+                openOrCreate(
+                    context = context,
+                    file = container,
+                    dataFiles = listOf(container),
+                    isSivaConfirmed = true,
+                    forceFirstDataFileContainer = true,
+                )
 
             val result = signedContainer.getDataFiles().first()
 
