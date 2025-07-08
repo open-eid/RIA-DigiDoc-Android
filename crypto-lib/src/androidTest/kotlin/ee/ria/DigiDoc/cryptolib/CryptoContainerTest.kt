@@ -46,6 +46,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
@@ -788,6 +789,9 @@ class CryptoContainerTest {
     @Test(expected = CDocException::class)
     fun cryptoContainer_decrypt_CDOC1RSAException() =
         runTest {
+            val isTestEnabled = System.getenv("WITH_CRYTO_LIB_TESTS")?.toBoolean() == true
+            assumeTrue("Skipping test: WITH_CRYTO_LIB_TESTS not true", isTestEnabled)
+
             preferences
                 .edit()
                 .putBoolean(
@@ -955,6 +959,9 @@ class CryptoContainerTest {
     @Test
     fun cryptoContainer_encrypt_CDOC1Success() =
         runTest {
+            val isTestEnabled = System.getenv("WITH_CRYTO_LIB_TESTS")?.toBoolean() == true
+            assumeTrue("Skipping test: WITH_CRYTO_LIB_TESTS not true", isTestEnabled)
+
             preferences
                 .edit()
                 .putBoolean(
