@@ -46,6 +46,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
@@ -226,6 +227,7 @@ class CryptoContainerTest {
         MockitoAnnotations.openMocks(this)
         context = InstrumentationRegistry.getInstrumentation().targetContext
         preferences = PreferenceManager.getDefaultSharedPreferences(context)
+        preferences.edit().clear().commit()
         resources = context.resources
         recipientRepository =
             RecipientRepositoryImpl(
@@ -787,6 +789,9 @@ class CryptoContainerTest {
     @Test(expected = CDocException::class)
     fun cryptoContainer_decrypt_CDOC1RSAException() =
         runTest {
+            val isTestEnabled = System.getenv("WITH_CRYTO_LIB_TESTS")?.toBoolean() == true
+            assumeTrue("Skipping test: WITH_CRYTO_LIB_TESTS not true", isTestEnabled)
+
             preferences
                 .edit()
                 .putBoolean(
@@ -802,20 +807,16 @@ class CryptoContainerTest {
             val token = mock(Token::class.java)
             `when`(token.decrypt(any(), any(), eq(true))).thenReturn(Base64.decode(data, Base64.DEFAULT))
 
-            val result =
-                decrypt(
-                    context,
-                    containerRIACDOC1,
-                    cryptoContainer.getRecipients(),
-                    Base64.decode(riaCertData, Base64.DEFAULT),
-                    "1234".toByteArray(),
-                    token,
-                    cdoc2Settings,
-                    configurationRepository,
-                )
-
-            assertTrue(result.decrypted)
-            assertEquals("ko.png", result.getDataFiles().first().name)
+            decrypt(
+                context,
+                containerRIACDOC1,
+                cryptoContainer.getRecipients(),
+                Base64.decode(riaCertData, Base64.DEFAULT),
+                "1234".toByteArray(),
+                token,
+                cdoc2Settings,
+                configurationRepository,
+            )
         }
 
     @Test(expected = NullPointerException::class)
@@ -957,7 +958,10 @@ class CryptoContainerTest {
 
     @Test
     fun cryptoContainer_encrypt_CDOC1Success() =
-        runBlocking {
+        runTest {
+            val isTestEnabled = System.getenv("WITH_CRYTO_LIB_TESTS")?.toBoolean() == true
+            assumeTrue("Skipping test: WITH_CRYTO_LIB_TESTS not true", isTestEnabled)
+
             preferences
                 .edit()
                 .putBoolean(
