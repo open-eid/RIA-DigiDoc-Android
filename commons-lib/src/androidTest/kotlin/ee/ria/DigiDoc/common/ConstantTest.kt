@@ -18,7 +18,7 @@ class ConstantTest {
         assertEquals(40, Constant.SignatureRequest.MAX_DISPLAY_MESSAGE_BYTES)
         assertEquals(200, Constant.SignatureRequest.MAX_DISPLAY_MESSAGE_LENGTH)
         assertEquals("ENG", Constant.SignatureRequest.DEFAULT_LANGUAGE)
-        assertTrue(Constant.SignatureRequest.SUPPORTED_LANGUAGES.containsAll(setOf("ENG", "EST", "RUS", "LIT")))
+        assertTrue(Constant.SignatureRequest.SUPPORTED_LANGUAGES.containsAll(setOf("ENG", "EST", "LIT")))
         assertEquals("SHA256", Constant.SignatureRequest.DIGEST_TYPE)
         assertEquals("RIA DigiDoc", Constant.SignatureRequest.RELYING_PARTY_NAME)
         assertEquals("00000000-0000-0000-0000-000000000000", Constant.SignatureRequest.RELYING_PARTY_UUID)

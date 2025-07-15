@@ -17,7 +17,7 @@ object Constant {
         const val MAX_DISPLAY_MESSAGE_LENGTH: Int = 200
         const val DEFAULT_LANGUAGE = "ENG"
         val SUPPORTED_LANGUAGES: Set<String> =
-            setOf(DEFAULT_LANGUAGE, "EST", "RUS", "LIT")
+            setOf(DEFAULT_LANGUAGE, "EST", "LIT")
 
         const val DIGEST_TYPE = "SHA256"
 

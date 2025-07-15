@@ -1,12 +1,12 @@
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.idcardlib
+package ee.ria.DigiDoc.domain.service
 
 import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
-import ee.ria.DigiDoc.common.Constant.PEM_BEGIN_CERT
-import ee.ria.DigiDoc.common.Constant.PEM_END_CERT
+import ee.ria.DigiDoc.common.Constant
+import ee.ria.DigiDoc.common.R
 import ee.ria.DigiDoc.common.certificate.CertificateService
 import ee.ria.DigiDoc.common.model.EIDType
 import ee.ria.DigiDoc.common.model.ExtendedCertificate
@@ -18,7 +18,6 @@ import ee.ria.DigiDoc.configuration.properties.ConfigurationPropertiesImpl
 import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
-import ee.ria.DigiDoc.domain.service.IdCardServiceImpl
 import ee.ria.DigiDoc.idcard.CertificateType
 import ee.ria.DigiDoc.idcard.CodeType
 import ee.ria.DigiDoc.idcard.CodeVerificationException
@@ -35,17 +34,13 @@ import kotlinx.coroutines.runBlocking
 import org.bouncycastle.asn1.x509.ExtendedKeyUsage
 import org.bouncycastle.asn1.x509.KeyUsage
 import org.bouncycastle.cert.X509CertificateHolder
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import org.junit.Assert
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.anyBoolean
-import org.mockito.Mockito.doThrow
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
@@ -61,7 +56,7 @@ class IdCardServiceImplTest {
     private lateinit var containerWrapper: ContainerWrapper
     private lateinit var containerFile: File
 
-    private val token = mock(Token::class.java)
+    private val token = Mockito.mock(Token::class.java)
     private lateinit var existingContainer: SignedContainer
 
     private val cert =
@@ -130,48 +125,59 @@ class IdCardServiceImplTest {
     fun setUp() {
         runBlocking {
             context = InstrumentationRegistry.getInstrumentation().targetContext
-            certificateService = mock(CertificateService::class.java)
-            containerWrapper = mock(ContainerWrapper::class.java)
+            certificateService = Mockito.mock(CertificateService::class.java)
+            containerWrapper = Mockito.mock(ContainerWrapper::class.java)
             idCardService = IdCardServiceImpl(context, containerWrapper, certificateService)
 
             containerFile =
-                AssetFile.getResourceFileAsFile(
+                AssetFile.Companion.getResourceFileAsFile(
                     context,
                     "example.asice",
-                    ee.ria.DigiDoc.common.R.raw.example,
+                    R.raw.example,
                 )
 
             existingContainer =
-                SignedContainer.openOrCreate(context, containerFile, listOf(containerFile), true)
+                SignedContainer.Companion.openOrCreate(
+                    context,
+                    containerFile,
+                    listOf(containerFile),
+                    true,
+                )
         }
     }
 
     @Test
     fun idCardService_signContainer_success() {
-        val certPemString = (PEM_BEGIN_CERT + "\n" + cert + "\n" + PEM_END_CERT).trimIndent()
+        val certPemString = (Constant.PEM_BEGIN_CERT + "\n" + cert + "\n" + Constant.PEM_END_CERT).trimIndent()
 
         val testData =
             certPemString.let {
                 CertificateUtil.x509Certificate(it).encoded
             }
 
-        val mockPersonalData = mock(PersonalData::class.java)
-        val keyUsage = mock(KeyUsage::class.java)
-        val extendedKeyUsage = mock(ExtendedKeyUsage::class.java)
+        val mockPersonalData = Mockito.mock(PersonalData::class.java)
+        val keyUsage = Mockito.mock(KeyUsage::class.java)
+        val extendedKeyUsage = Mockito.mock(ExtendedKeyUsage::class.java)
 
-        `when`(token.personalData()).thenReturn(mockPersonalData)
+        Mockito.`when`(token.personalData()).thenReturn(mockPersonalData)
 
-        `when`(certificateService.parseCertificate(anyOrNull()))
-            .thenReturn(mock(X509CertificateHolder::class.java))
-        `when`(certificateService.extractEIDType(any()))
+        Mockito.`when`(certificateService.parseCertificate(anyOrNull()))
+            .thenReturn(Mockito.mock(X509CertificateHolder::class.java))
+        Mockito.`when`(certificateService.extractEIDType(any()))
             .thenReturn(EIDType.ID_CARD)
-        `when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
-        `when`(certificateService.extractExtendedKeyUsage(any())).thenReturn(extendedKeyUsage)
+        Mockito.`when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
+        Mockito.`when`(certificateService.extractExtendedKeyUsage(any())).thenReturn(extendedKeyUsage)
 
-        `when`(token.calculateSignature(anyOrNull(), anyOrNull(), anyBoolean())).thenReturn(testData)
+        Mockito.`when`(
+            token.calculateSignature(
+                anyOrNull(),
+                anyOrNull(),
+                ArgumentMatchers.anyBoolean(),
+            ),
+        ).thenReturn(testData)
 
-        `when`(token.certificate(CertificateType.AUTHENTICATION)).thenReturn(testData)
-        `when`(token.certificate(CertificateType.SIGNING)).thenReturn(testData)
+        Mockito.`when`(token.certificate(CertificateType.AUTHENTICATION)).thenReturn(testData)
+        Mockito.`when`(token.certificate(CertificateType.SIGNING)).thenReturn(testData)
 
         doNothing().`when`(
             containerWrapper,
@@ -186,36 +192,42 @@ class IdCardServiceImplTest {
                     null,
                 )
 
-            assertNotNull(signedContainer)
+            Assert.assertNotNull(signedContainer)
         }
     }
 
     @Test
     fun idCardService_signContainer_successWithRoleData() {
-        val certPemString = (PEM_BEGIN_CERT + "\n" + cert + "\n" + PEM_END_CERT).trimIndent()
+        val certPemString = (Constant.PEM_BEGIN_CERT + "\n" + cert + "\n" + Constant.PEM_END_CERT).trimIndent()
 
         val testData =
             certPemString.let {
                 CertificateUtil.x509Certificate(it).encoded
             }
 
-        val mockPersonalData = mock(PersonalData::class.java)
-        val keyUsage = mock(KeyUsage::class.java)
-        val extendedKeyUsage = mock(ExtendedKeyUsage::class.java)
+        val mockPersonalData = Mockito.mock(PersonalData::class.java)
+        val keyUsage = Mockito.mock(KeyUsage::class.java)
+        val extendedKeyUsage = Mockito.mock(ExtendedKeyUsage::class.java)
 
-        `when`(token.personalData()).thenReturn(mockPersonalData)
+        Mockito.`when`(token.personalData()).thenReturn(mockPersonalData)
 
-        `when`(certificateService.parseCertificate(anyOrNull()))
-            .thenReturn(mock(X509CertificateHolder::class.java))
-        `when`(certificateService.extractEIDType(any()))
+        Mockito.`when`(certificateService.parseCertificate(anyOrNull()))
+            .thenReturn(Mockito.mock(X509CertificateHolder::class.java))
+        Mockito.`when`(certificateService.extractEIDType(any()))
             .thenReturn(EIDType.ID_CARD)
-        `when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
-        `when`(certificateService.extractExtendedKeyUsage(any())).thenReturn(extendedKeyUsage)
+        Mockito.`when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
+        Mockito.`when`(certificateService.extractExtendedKeyUsage(any())).thenReturn(extendedKeyUsage)
 
-        `when`(token.calculateSignature(anyOrNull(), anyOrNull(), anyBoolean())).thenReturn(testData)
+        Mockito.`when`(
+            token.calculateSignature(
+                anyOrNull(),
+                anyOrNull(),
+                ArgumentMatchers.anyBoolean(),
+            ),
+        ).thenReturn(testData)
 
-        `when`(token.certificate(CertificateType.AUTHENTICATION)).thenReturn(testData)
-        `when`(token.certificate(CertificateType.SIGNING)).thenReturn(testData)
+        Mockito.`when`(token.certificate(CertificateType.AUTHENTICATION)).thenReturn(testData)
+        Mockito.`when`(token.certificate(CertificateType.SIGNING)).thenReturn(testData)
 
         doNothing().`when`(
             containerWrapper,
@@ -236,7 +248,7 @@ class IdCardServiceImplTest {
                     ),
                 )
 
-            assertNotNull(signedContainer)
+            Assert.assertNotNull(signedContainer)
         }
     }
 
@@ -245,46 +257,60 @@ class IdCardServiceImplTest {
         runBlocking {
             val testData = byteArrayOf(1, 2, 3)
 
-            val mockPersonalData = mock(PersonalData::class.java)
-            val keyUsage = mock(KeyUsage::class.java)
-            val extendedKeyUsage = mock(ExtendedKeyUsage::class.java)
+            val mockPersonalData = Mockito.mock(PersonalData::class.java)
+            val keyUsage = Mockito.mock(KeyUsage::class.java)
+            val extendedKeyUsage = Mockito.mock(ExtendedKeyUsage::class.java)
 
-            `when`(token.personalData()).thenReturn(mockPersonalData)
+            Mockito.`when`(token.personalData()).thenReturn(mockPersonalData)
 
-            `when`(certificateService.parseCertificate(anyOrNull()))
-                .thenReturn(mock(X509CertificateHolder::class.java))
-            `when`(certificateService.extractEIDType(any()))
+            Mockito.`when`(certificateService.parseCertificate(anyOrNull()))
+                .thenReturn(Mockito.mock(X509CertificateHolder::class.java))
+            Mockito.`when`(certificateService.extractEIDType(any()))
                 .thenReturn(EIDType.ID_CARD)
-            `when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
-            `when`(certificateService.extractExtendedKeyUsage(any())).thenReturn(extendedKeyUsage)
+            Mockito.`when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
+            Mockito.`when`(certificateService.extractExtendedKeyUsage(any()))
+                .thenReturn(extendedKeyUsage)
 
-            `when`(token.calculateSignature(anyOrNull(), anyOrNull(), anyBoolean())).thenReturn(testData)
+            Mockito.`when`(
+                token.calculateSignature(
+                    anyOrNull(),
+                    anyOrNull(),
+                    ArgumentMatchers.anyBoolean(),
+                ),
+            ).thenReturn(testData)
 
-            `when`(token.certificate(CertificateType.AUTHENTICATION)).thenReturn(testData)
-            `when`(token.certificate(CertificateType.SIGNING)).thenReturn(testData)
-            `when`(token.codeRetryCounter(CodeType.PIN1)).thenReturn(1)
-            `when`(token.codeRetryCounter(CodeType.PIN2)).thenReturn(2)
-            `when`(token.codeRetryCounter(CodeType.PUK)).thenReturn(3)
+            Mockito.`when`(token.certificate(CertificateType.AUTHENTICATION)).thenReturn(testData)
+            Mockito.`when`(token.certificate(CertificateType.SIGNING)).thenReturn(testData)
+            Mockito.`when`(token.codeRetryCounter(CodeType.PIN1)).thenReturn(1)
+            Mockito.`when`(token.codeRetryCounter(CodeType.PIN2)).thenReturn(2)
+            Mockito.`when`(token.codeRetryCounter(CodeType.PUK)).thenReturn(3)
 
             val result = idCardService.data(token)
 
-            assertEquals(token.personalData(), result.personalData)
-            assertEquals(
-                ExtendedCertificate.create(token.certificate(CertificateType.AUTHENTICATION), certificateService),
+            Assert.assertEquals(token.personalData(), result.personalData)
+            Assert.assertEquals(
+                ExtendedCertificate.Companion.create(
+                    token.certificate(CertificateType.AUTHENTICATION),
+                    certificateService,
+                ),
                 result.authCertificate,
             )
-            assertEquals(
-                ExtendedCertificate.create(token.certificate(CertificateType.SIGNING), certificateService),
+            Assert.assertEquals(
+                ExtendedCertificate.Companion.create(
+                    token.certificate(CertificateType.SIGNING),
+                    certificateService,
+                ),
                 result.signCertificate,
             )
-            assertEquals(1, result.pin1RetryCount)
-            assertEquals(2, result.pin2RetryCount)
-            assertEquals(3, result.pukRetryCount)
+            Assert.assertEquals(1, result.pin1RetryCount)
+            Assert.assertEquals(2, result.pin2RetryCount)
+            Assert.assertEquals(3, result.pukRetryCount)
         }
 
     @Test(expected = SmartCardReaderException::class)
     fun idCardService_data_throwExceptionWithPersonalData() {
-        `when`(token.personalData()).thenThrow(SmartCardReaderException("Cannot get personal data"))
+        Mockito.`when`(token.personalData())
+            .thenThrow(SmartCardReaderException("Cannot get personal data"))
 
         runBlocking {
             idCardService.data(token)
@@ -300,34 +326,41 @@ class IdCardServiceImplTest {
 
             val testData = byteArrayOf(1, 2, 3)
 
-            val mockPersonalData = mock(PersonalData::class.java)
-            val keyUsage = mock(KeyUsage::class.java)
-            val extendedKeyUsage = mock(ExtendedKeyUsage::class.java)
+            val mockPersonalData = Mockito.mock(PersonalData::class.java)
+            val keyUsage = Mockito.mock(KeyUsage::class.java)
+            val extendedKeyUsage = Mockito.mock(ExtendedKeyUsage::class.java)
 
-            `when`(token.personalData()).thenReturn(mockPersonalData)
+            Mockito.`when`(token.personalData()).thenReturn(mockPersonalData)
 
-            `when`(certificateService.parseCertificate(anyOrNull()))
-                .thenReturn(mock(X509CertificateHolder::class.java))
-            `when`(certificateService.extractEIDType(any()))
+            Mockito.`when`(certificateService.parseCertificate(anyOrNull()))
+                .thenReturn(Mockito.mock(X509CertificateHolder::class.java))
+            Mockito.`when`(certificateService.extractEIDType(any()))
                 .thenReturn(EIDType.ID_CARD)
-            `when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
-            `when`(certificateService.extractExtendedKeyUsage(any())).thenReturn(extendedKeyUsage)
+            Mockito.`when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
+            Mockito.`when`(certificateService.extractExtendedKeyUsage(any()))
+                .thenReturn(extendedKeyUsage)
 
-            `when`(token.calculateSignature(anyOrNull(), anyOrNull(), anyBoolean())).thenReturn(testData)
+            Mockito.`when`(
+                token.calculateSignature(
+                    anyOrNull(),
+                    anyOrNull(),
+                    ArgumentMatchers.anyBoolean(),
+                ),
+            ).thenReturn(testData)
 
-            `when`(token.certificate(CertificateType.AUTHENTICATION)).thenReturn(testData)
-            `when`(token.certificate(CertificateType.SIGNING)).thenReturn(testData)
-            `when`(token.codeRetryCounter(CodeType.PIN1)).thenReturn(1)
-            `when`(token.codeRetryCounter(CodeType.PIN2)).thenReturn(2)
-            `when`(token.codeRetryCounter(CodeType.PUK)).thenReturn(3)
+            Mockito.`when`(token.certificate(CertificateType.AUTHENTICATION)).thenReturn(testData)
+            Mockito.`when`(token.certificate(CertificateType.SIGNING)).thenReturn(testData)
+            Mockito.`when`(token.codeRetryCounter(CodeType.PIN1)).thenReturn(1)
+            Mockito.`when`(token.codeRetryCounter(CodeType.PIN2)).thenReturn(2)
+            Mockito.`when`(token.codeRetryCounter(CodeType.PUK)).thenReturn(3)
 
             doNothing().`when`(token).changeCode(codeType, currentPin, newPin)
 
             val result = idCardService.editPin(token, codeType, currentPin, newPin)
 
-            assertNotNull(result)
-            assertEquals(mockPersonalData, result.personalData)
-            verify(token).changeCode(codeType, currentPin, newPin)
+            Assert.assertNotNull(result)
+            Assert.assertEquals(mockPersonalData, result.personalData)
+            Mockito.verify(token).changeCode(codeType, currentPin, newPin)
         }
 
     @Test(expected = CodeVerificationException::class)
@@ -336,7 +369,7 @@ class IdCardServiceImplTest {
         val currentPin = byteArrayOf(1, 2, 3)
         val newPin = byteArrayOf(4, 5, 6)
 
-        doThrow(CodeVerificationException(CodeType.PIN1, 2))
+        Mockito.doThrow(CodeVerificationException(CodeType.PIN1, 2))
             .`when`(token)
             .changeCode(codeType, currentPin, newPin)
 
@@ -351,7 +384,7 @@ class IdCardServiceImplTest {
         val currentPin = byteArrayOf(1, 2, 3)
         val newPin = byteArrayOf(4, 5, 6)
 
-        doThrow(SmartCardReaderException("Reader error"))
+        Mockito.doThrow(SmartCardReaderException("Reader error"))
             .`when`(token)
             .changeCode(codeType, currentPin, newPin)
 
@@ -369,34 +402,41 @@ class IdCardServiceImplTest {
 
             val testData = byteArrayOf(1, 2, 3)
 
-            val mockPersonalData = mock(PersonalData::class.java)
-            val keyUsage = mock(KeyUsage::class.java)
-            val extendedKeyUsage = mock(ExtendedKeyUsage::class.java)
+            val mockPersonalData = Mockito.mock(PersonalData::class.java)
+            val keyUsage = Mockito.mock(KeyUsage::class.java)
+            val extendedKeyUsage = Mockito.mock(ExtendedKeyUsage::class.java)
 
-            `when`(token.personalData()).thenReturn(mockPersonalData)
+            Mockito.`when`(token.personalData()).thenReturn(mockPersonalData)
 
-            `when`(certificateService.parseCertificate(anyOrNull()))
-                .thenReturn(mock(X509CertificateHolder::class.java))
-            `when`(certificateService.extractEIDType(any()))
+            Mockito.`when`(certificateService.parseCertificate(anyOrNull()))
+                .thenReturn(Mockito.mock(X509CertificateHolder::class.java))
+            Mockito.`when`(certificateService.extractEIDType(any()))
                 .thenReturn(EIDType.ID_CARD)
-            `when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
-            `when`(certificateService.extractExtendedKeyUsage(any())).thenReturn(extendedKeyUsage)
+            Mockito.`when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
+            Mockito.`when`(certificateService.extractExtendedKeyUsage(any()))
+                .thenReturn(extendedKeyUsage)
 
-            `when`(token.calculateSignature(anyOrNull(), anyOrNull(), anyBoolean())).thenReturn(testData)
+            Mockito.`when`(
+                token.calculateSignature(
+                    anyOrNull(),
+                    anyOrNull(),
+                    ArgumentMatchers.anyBoolean(),
+                ),
+            ).thenReturn(testData)
 
-            `when`(token.certificate(CertificateType.AUTHENTICATION)).thenReturn(testData)
-            `when`(token.certificate(CertificateType.SIGNING)).thenReturn(testData)
-            `when`(token.codeRetryCounter(CodeType.PIN1)).thenReturn(1)
-            `when`(token.codeRetryCounter(CodeType.PIN2)).thenReturn(2)
-            `when`(token.codeRetryCounter(CodeType.PUK)).thenReturn(3)
+            Mockito.`when`(token.certificate(CertificateType.AUTHENTICATION)).thenReturn(testData)
+            Mockito.`when`(token.certificate(CertificateType.SIGNING)).thenReturn(testData)
+            Mockito.`when`(token.codeRetryCounter(CodeType.PIN1)).thenReturn(1)
+            Mockito.`when`(token.codeRetryCounter(CodeType.PIN2)).thenReturn(2)
+            Mockito.`when`(token.codeRetryCounter(CodeType.PUK)).thenReturn(3)
 
             doNothing().`when`(token).unblockAndChangeCode(currentPuk, codeType, newPin)
 
             val result = idCardService.unblockAndEditPin(token, codeType, currentPuk, newPin)
 
-            assertNotNull(result)
-            assertEquals(mockPersonalData, result.personalData)
-            verify(token).unblockAndChangeCode(currentPuk, codeType, newPin)
+            Assert.assertNotNull(result)
+            Assert.assertEquals(mockPersonalData, result.personalData)
+            Mockito.verify(token).unblockAndChangeCode(currentPuk, codeType, newPin)
         }
 
     @Test(expected = CodeVerificationException::class)
@@ -405,7 +445,7 @@ class IdCardServiceImplTest {
         val currentPuk = byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8)
         val newPin = byteArrayOf(4, 5, 6)
 
-        doThrow(CodeVerificationException(CodeType.PIN1, 2))
+        Mockito.doThrow(CodeVerificationException(CodeType.PIN1, 2))
             .`when`(token)
             .unblockAndChangeCode(currentPuk, codeType, newPin)
 
@@ -420,7 +460,7 @@ class IdCardServiceImplTest {
         val currentPuk = byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8)
         val newPin = byteArrayOf(4, 5, 6)
 
-        doThrow(SmartCardReaderException("Reader error"))
+        Mockito.doThrow(SmartCardReaderException("Reader error"))
             .`when`(token)
             .unblockAndChangeCode(currentPuk, codeType, newPin)
 
