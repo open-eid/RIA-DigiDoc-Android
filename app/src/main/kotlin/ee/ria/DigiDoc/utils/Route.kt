@@ -38,7 +38,7 @@ import ee.ria.DigiDoc.utils.Constant.Routes.SIGNING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNING_SERVICES_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.VALIDATION_SERVICES_SCREEN
 
-sealed class Route(val route: String) {
+open class Route(val route: String) {
     data object Init : Route(INIT_SCREEN)
 
     data object Home : Route(HOME_SCREEN)

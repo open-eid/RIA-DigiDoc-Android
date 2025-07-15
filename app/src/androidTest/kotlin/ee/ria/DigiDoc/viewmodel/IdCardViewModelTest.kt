@@ -16,6 +16,7 @@ import ee.ria.DigiDoc.common.model.ExtendedCertificate
 import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.cryptolib.CDOC2Settings
+import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.domain.model.IdCardData
 import ee.ria.DigiDoc.domain.service.IdCardService
 import ee.ria.DigiDoc.idcard.CodeType
@@ -762,6 +763,18 @@ class IdCardViewModelTest {
         }
 
     @Test
+    fun idCardViewModel_resetDecryptStatus_success() =
+        runTest {
+            val resetDecryptStatusObserver: Observer<Boolean?> = mock()
+            viewModel.decryptStatus.observeForever(resetDecryptStatusObserver)
+
+            viewModel.resetDecryptStatus()
+            verify(resetDecryptStatusObserver, atLeastOnce()).onChanged(null)
+
+            viewModel.decryptStatus.removeObserver(resetDecryptStatusObserver)
+        }
+
+    @Test
     fun idCardViewModel_resetErrorState_success() =
         runTest {
             val errorStateObserver: Observer<Triple<Int, String?, Int?>?> = mock()
@@ -798,6 +811,18 @@ class IdCardViewModelTest {
         }
 
     @Test
+    fun idCardViewModel_resetCryptoContainer_success() =
+        runTest {
+            val cryptoContainerObserver: Observer<CryptoContainer?> = mock()
+            viewModel.cryptoContainer.observeForever(cryptoContainerObserver)
+
+            viewModel.resetCryptoContainer()
+            verify(cryptoContainerObserver, atLeastOnce()).onChanged(null)
+
+            viewModel.cryptoContainer.removeObserver(cryptoContainerObserver)
+        }
+
+    @Test
     fun idCardViewModel_resetPersonalUserData_success() =
         runTest {
             val userDataObserver: Observer<IdCardData?> = mock()
@@ -823,6 +848,25 @@ class IdCardViewModelTest {
 
     @Test
     fun idCardViewModel_resetShouldHandleError_success() =
+        runTest {
+            val emittedValues = mutableListOf<Boolean>()
+            val job =
+                launch {
+                    viewModel.shouldHandleError
+                        .take(1)
+                        .toList(emittedValues)
+                }
+
+            yield()
+            viewModel.resetShouldHandleError()
+
+            job.join()
+
+            assertEquals(listOf(false), emittedValues)
+        }
+
+    @Test
+    fun idCardViewModel_setShouldHandleError_success() =
         runTest {
             val emittedValues = mutableListOf<Boolean>()
             val job =

@@ -3,6 +3,7 @@ import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 val appAbiFilters = "arm64-v8a;armeabi-v7a;x86_64"
 
 plugins {
+    jacoco
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.compose.compiler)
@@ -10,6 +11,59 @@ plugins {
     id("com.google.dagger.hilt.android")
     alias(libs.plugins.google.services)
     alias(libs.plugins.google.firebase.crashlytics)
+}
+
+tasks.register<JacocoReport>("jacocoFilteredReport") {
+    dependsOn("createDebugAndroidTestCoverageReport")
+
+    group = "Reporting"
+    description = "Generates filtered JaCoCo report excluding UI package and other noise"
+
+    val coverageFiles =
+        fileTree("$buildDir/outputs/code_coverage/debugAndroidTest/connected") {
+            include("**/coverage.ec")
+        }
+
+    val kotlinClasses =
+        fileTree("$buildDir/tmp/kotlin-classes/debug") {
+            exclude(
+                "**/ee/ria/DigiDoc/ui/**",
+                "**/ee/ria/DigiDoc/fragment/**",
+                "**/R.class",
+                "**/R$*.class",
+                "**/BuildConfig.*",
+                "**/Manifest*.*",
+                "**/*Test*.*",
+            )
+        }
+
+    val javaClasses =
+        fileTree("$buildDir/intermediates/javac/debug/compileDebugJavaWithJavac/classes") {
+            exclude(
+                "**/ee/ria/DigiDoc/ui/**",
+                "**/ee/ria/DigiDoc/fragment/**",
+                "**/R.class",
+                "**/R$*.class",
+                "**/BuildConfig.*",
+                "**/Manifest*.*",
+                "**/*Test*.*",
+            )
+        }
+
+    classDirectories.setFrom(files(kotlinClasses, javaClasses))
+    sourceDirectories.setFrom(files("src/main/java", "src/main/kotlin"))
+    executionData.setFrom(coverageFiles)
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
+    }
+
+    // Ignore if no coverage data is present (prevents failure on clean builds)
+    onlyIf {
+        coverageFiles.files.any { it.exists() }
+    }
 }
 
 android {

@@ -18,6 +18,7 @@ import ee.ria.DigiDoc.common.R.string.document_add_error_exists
 import ee.ria.DigiDoc.common.R.string.documents_add_error_exists
 import ee.ria.DigiDoc.common.R.string.empty_file_error
 import ee.ria.DigiDoc.common.exception.NoInternetConnectionException
+import ee.ria.DigiDoc.common.testfiles.asset.AssetFile.Companion.getResourceFileAsFile
 import ee.ria.DigiDoc.common.testfiles.file.TestFileUtil.Companion.createZipWithTextFile
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifierImpl
@@ -28,6 +29,9 @@ import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepositoryImp
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
+import ee.ria.DigiDoc.cryptolib.CDOC2Settings
+import ee.ria.DigiDoc.cryptolib.CryptoContainer
+import ee.ria.DigiDoc.cryptolib.init.CryptoInitialization
 import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.exceptions.EmptyFileException
@@ -70,6 +74,8 @@ class FileOpeningViewModelTest {
 
     private var context: Context = InstrumentationRegistry.getInstrumentation().targetContext
 
+    private lateinit var cdoc2Settings: CDOC2Settings
+
     @Mock
     lateinit var contentResolver: ContentResolver
 
@@ -81,6 +87,9 @@ class FileOpeningViewModelTest {
 
     @Mock
     lateinit var signedContainerObserver: Observer<SignedContainer?>
+
+    @Mock
+    lateinit var cryptoContainerObserver: Observer<CryptoContainer?>
 
     @Mock
     lateinit var filesAddedObserver: Observer<List<File>?>
@@ -121,6 +130,7 @@ class FileOpeningViewModelTest {
                         )
                     configurationRepository = ConfigurationRepositoryImpl(context, configurationLoader)
                     Initialization(configurationRepository).init(context)
+                    CryptoInitialization().init()
                 } catch (_: Exception) {
                 }
             }
@@ -130,12 +140,14 @@ class FileOpeningViewModelTest {
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
+        cdoc2Settings = CDOC2Settings(context)
         viewModel =
             FileOpeningViewModel(
                 context, contentResolver, fileOpeningRepository,
                 sivaRepository, mimeTypeResolver,
             )
         viewModel.signedContainer.observeForever(signedContainerObserver)
+        viewModel.cryptoContainer.observeForever(cryptoContainerObserver)
         viewModel.errorState.observeForever(errorStateObserver)
         viewModel.launchFilePicker.observeForever(launchFilePickerObserver)
         viewModel.filesAdded.observeForever(filesAddedObserver)
@@ -205,6 +217,109 @@ class FileOpeningViewModelTest {
 
             verify(filesAddedObserver, atLeastOnce()).onChanged(listOf(file))
             verify(signedContainerObserver, atLeastOnce()).onChanged(signedContainer)
+            verify(
+                errorStateObserver,
+                atLeastOnce(),
+            ).onChanged(Pair(documents_add_error_exists, anotherFile.name))
+        }
+
+    @Test
+    fun fileOpeningViewModel_handleCancelAsicsMimeType_success() =
+        runTest {
+            val uri: Uri = mock()
+            val uris = listOf(uri)
+            val file = createTempFileWithStringContent("test", content = "Test content")
+            val anotherFile = createTempFileWithStringContent("test2", content = "Another file")
+
+            val signedContainer =
+                runBlocking {
+                    SignedContainer.openOrCreate(context, file, listOf(file), true)
+                }
+
+            runBlocking {
+                SignedContainer.addDataFiles(context, signedContainer, listOf(anotherFile))
+            }
+
+            `when`(
+                fileOpeningRepository.uriToFile(context, contentResolver, uri),
+            )
+                .thenReturn(anotherFile)
+
+            `when`(
+                fileOpeningRepository.isFileSizeValid(anotherFile),
+            )
+                .thenReturn(true)
+
+            `when`(
+                fileOpeningRepository.isFileAlreadyInContainer(anotherFile, signedContainer),
+            )
+                .thenReturn(false)
+
+            `when`(
+                fileOpeningRepository.getValidFiles(any(), eq(signedContainer)),
+            )
+                .thenReturn(listOf(file))
+
+            viewModel.handleCancelAsicsMimeType(context, uris, signedContainer)
+            verify(filesAddedObserver, atLeastOnce()).onChanged(listOf(file))
+            verify(signedContainerObserver, atLeastOnce()).onChanged(signedContainer)
+            verify(
+                errorStateObserver,
+                atLeastOnce(),
+            ).onChanged(Pair(documents_add_error_exists, anotherFile.name))
+        }
+
+    @Test
+    fun fileOpeningViewModel_handleFilesWithExistingCryptoContainer_success() =
+        runTest {
+            val uri: Uri = mock()
+            val uris = listOf(uri)
+            val file = createTempFileWithStringContent("test", content = "Test content")
+            val anotherFile =
+                getResourceFileAsFile(
+                    context,
+                    "example_cdoc1.cdoc",
+                    ee.ria.DigiDoc.common.R.raw.example_cdoc1,
+                )
+
+            val signedContainer =
+                runBlocking {
+                    SignedContainer.openOrCreate(context, file, listOf(file), true)
+                }
+
+            val cryptoContainer =
+                runBlocking {
+                    CryptoContainer.openOrCreate(context, file, listOf(file), cdoc2Settings)
+                }
+
+            runBlocking {
+                SignedContainer.addDataFiles(context, signedContainer, listOf(anotherFile))
+            }
+
+            `when`(
+                fileOpeningRepository.uriToFile(context, contentResolver, uri),
+            )
+                .thenReturn(anotherFile)
+
+            `when`(
+                fileOpeningRepository.isFileSizeValid(anotherFile),
+            )
+                .thenReturn(true)
+
+            `when`(
+                fileOpeningRepository.isFileAlreadyInContainer(anotherFile, signedContainer),
+            )
+                .thenReturn(false)
+
+            `when`(
+                fileOpeningRepository.getValidFiles(any(), eq(signedContainer)),
+            )
+                .thenReturn(listOf(file))
+
+            viewModel.handleFiles(context, uris, signedContainer, cryptoContainer, true)
+
+            verify(filesAddedObserver, atLeastOnce()).onChanged(listOf(file))
+            verify(cryptoContainerObserver, atLeastOnce()).onChanged(cryptoContainer)
             verify(
                 errorStateObserver,
                 atLeastOnce(),
@@ -338,6 +453,49 @@ class FileOpeningViewModelTest {
 
             verify(filesAddedObserver, atLeastOnce()).onChanged(listOf(file))
             verify(signedContainerObserver, atLeastOnce()).onChanged(signedContainer)
+        }
+
+    @Test
+    fun fileOpeningViewModel_handleFiles_cryptoFileSuccess() =
+        runTest {
+            val uri: Uri = mock()
+            val uris = listOf(uri)
+            val file =
+                getResourceFileAsFile(
+                    context,
+                    "example_cdoc1.cdoc",
+                    ee.ria.DigiDoc.common.R.raw.example_cdoc1,
+                )
+            val isSivaConfirmed = true
+
+            val cryptoContainer =
+                runBlocking {
+                    CryptoContainer.openOrCreate(context, file, listOf(file), cdoc2Settings)
+                }
+
+            `when`(
+                fileOpeningRepository.uriToFile(context, contentResolver, uri),
+            )
+                .thenReturn(file)
+            `when`(
+                fileOpeningRepository.openOrCreateCryptoContainer(
+                    context,
+                    contentResolver,
+                    uris,
+                ),
+            )
+                .thenReturn(cryptoContainer)
+
+            viewModel.handleFiles(
+                context,
+                uris,
+                isSivaConfirmed = isSivaConfirmed,
+                forceFirstDataFileContainer = false,
+                isExternalFile = true,
+            )
+
+            verify(filesAddedObserver, atLeastOnce()).onChanged(listOf(file))
+            verify(cryptoContainerObserver, atLeastOnce()).onChanged(cryptoContainer)
         }
 
     @Test
@@ -595,7 +753,7 @@ class FileOpeningViewModelTest {
         runTest {
             val uris = listOf(mock(Uri::class.java), mock(Uri::class.java))
 
-            `when`(fileOpeningRepository.uriToFile(context, mock(ContentResolver::class.java), uris.first()))
+            `when`(fileOpeningRepository.uriToFile(any(), any(), any()))
                 .thenThrow(FileNotFoundException())
 
             val isSivaConfirmationNeeded = viewModel.isSivaConfirmationNeeded(uris)
@@ -623,7 +781,7 @@ class FileOpeningViewModelTest {
         runTest {
             val uris = listOf(mock(Uri::class.java), mock(Uri::class.java))
 
-            `when`(fileOpeningRepository.uriToFile(context, mock(ContentResolver::class.java), uris.first()))
+            `when`(fileOpeningRepository.uriToFile(any(), any(), any()))
                 .thenThrow(FileNotFoundException())
 
             val mimetype = viewModel.getFileMimetype(uris)
