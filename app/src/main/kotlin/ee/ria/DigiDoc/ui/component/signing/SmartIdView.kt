@@ -220,7 +220,8 @@ fun SmartIdView(
     }
 
     LaunchedEffect(smartIdViewModel.dialogError) {
-        smartIdViewModel.dialogError.asFlow()
+        smartIdViewModel.dialogError
+            .asFlow()
             .filterNotNull()
             .filterNot { it == 0 }
             .collect {
@@ -274,8 +275,7 @@ fun SmartIdView(
                             modifier
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("smartIdErrorContainer"),
+                                }.testTag("smartIdErrorContainer"),
                     ) {
                         HrefMessageDialog(
                             modifier = modifier,
@@ -316,11 +316,9 @@ fun SmartIdView(
                     detectTapGestures(onTap = {
                         focusManager.clearFocus()
                     })
-                }
-                .semantics {
+                }.semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("signatureUpdateSmartId"),
+                }.testTag("signatureUpdateSmartId"),
     ) {
         if (isAddingRoleAndAddress) {
             RoleDataView(modifier, sharedSettingsViewModel, onError)
@@ -395,8 +393,7 @@ fun SmartIdView(
                     modifier
                         .semantics {
                             testTagsAsResourceId = true
-                        }
-                        .testTag("smartIdViewContainer"),
+                        }.testTag("smartIdViewContainer"),
             ) {
                 Box(
                     modifier =
@@ -417,8 +414,7 @@ fun SmartIdView(
                                 .focusRequester(countryFocusRequester)
                                 .focusProperties {
                                     next = personalCodeFocusRequester
-                                }
-                                .fillMaxWidth()
+                                }.fillMaxWidth()
                                 .onGloballyPositioned { coordinates ->
                                     textFieldSize = coordinates.size.toSize()
                                 },
@@ -450,8 +446,7 @@ fun SmartIdView(
                                         },
                                         interactionSource = countryInteractionSource,
                                         indication = null,
-                                    )
-                                    .semantics {
+                                    ).semantics {
                                         contentDescription = "$countryTitleText $countryString"
                                     },
                         )
@@ -478,7 +473,7 @@ fun SmartIdView(
                                 OptionChooserDialog(
                                     modifier = modifier,
                                     title = R.string.choose_country_option,
-                                    choices = countryOptions.map { it.toString() },
+                                    choices = countryOptions.map { it },
                                     selectedChoice = selectedCountry,
                                     cancelButtonClick = {
                                         openOptionChooserDialog = false
@@ -531,12 +526,10 @@ fun SmartIdView(
                                 .focusRequester(personalCodeFocusRequester)
                                 .focusProperties {
                                     previous = countryFocusRequester
-                                }
-                                .weight(1f)
+                                }.weight(1f)
                                 .semantics(mergeDescendants = true) {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("smartIdPersonalCodeTextField"),
+                                }.testTag("smartIdPersonalCodeTextField"),
                         trailingIcon = {
                             if (!isTalkBackEnabled(context) && personalCode.text.isNotEmpty()) {
                                 IconButton(onClick = {
@@ -582,8 +575,7 @@ fun SmartIdView(
                                         .size(iconSizeXXS)
                                         .semantics {
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("smartIdPersonalCodeRemoveIconButton"),
+                                        }.testTag("smartIdPersonalCodeRemoveIconButton"),
                                 imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                 contentDescription = "$clearButtonText $buttonName",
                             )

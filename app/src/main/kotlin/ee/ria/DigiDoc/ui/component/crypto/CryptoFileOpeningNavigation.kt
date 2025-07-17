@@ -3,7 +3,6 @@
 package ee.ria.DigiDoc.ui.component.crypto
 
 import android.net.Uri
-import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,7 +24,8 @@ import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.CryptoFileOpeningViewModel
@@ -122,9 +122,9 @@ fun CryptoFileOpeningNavigation(
 
                 sharedContainerViewModel.setAddedFilesCount(files.size)
 
-                AccessibilityUtil.sendAccessibilityEvent(
+                sendAccessibilityEvent(
                     context,
-                    TYPE_ANNOUNCEMENT,
+                    getAccessibilityEventType(),
                     announcementText,
                 )
                 delay(1000)

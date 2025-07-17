@@ -38,8 +38,7 @@ fun RecentDocumentsFragment(
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("recentDocumentsFragment"),
+                }.testTag("recentDocumentsFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         RecentDocumentsScreen(

@@ -12,10 +12,9 @@ data class MobileSignatureResponse(
     @SerializedName("algorithm")
     var algorithm: String? = null,
 ) {
-    override fun toString(): String {
-        return "MobileSignatureResponse{" +
+    override fun toString(): String =
+        "MobileSignatureResponse{" +
             "value='" + value + '\'' +
             ", algorithm='" + algorithm + '\'' +
             '}'
-    }
 }

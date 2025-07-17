@@ -64,12 +64,10 @@ fun PrimaryOutlinedButton(
             modifier
                 .semantics(mergeDescendants = true) {
                     testTagsAsResourceId = true
-                }
-                .fillMaxWidth()
+                }.fillMaxWidth()
                 .padding(
                     horizontal = XSPadding,
-                )
-                .focusable(enabled = isFocusable),
+                ).focusable(enabled = isFocusable),
         shape = buttonRoundCornerShape,
         contentPadding = PaddingValues(zeroPadding),
         enabled = enabled,

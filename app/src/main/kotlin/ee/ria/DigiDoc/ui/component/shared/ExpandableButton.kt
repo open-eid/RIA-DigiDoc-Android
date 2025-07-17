@@ -60,8 +60,7 @@ fun ExpandableButton(
             modifier
                 .semantics {
                     this.contentDescription = "$contentDescription, $buttonName"
-                }
-                .clickable {
+                }.clickable {
                     isExpanded = !isExpanded
                 },
         ) {
@@ -96,8 +95,7 @@ fun ExpandableButton(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("signersCertificateTechnicalInformationButtonTitle"),
+                            }.testTag("signersCertificateTechnicalInformationButtonTitle"),
                     text = stringResource(id = title),
                     color = MaterialTheme.colorScheme.primary,
                 )
@@ -111,12 +109,10 @@ fun ExpandableButton(
                             .padding(
                                 horizontal = XSPadding,
                                 vertical = MPadding,
-                            )
-                            .focusable()
+                            ).focusable()
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("signersCertificateTechnicalInformationText"),
+                            }.testTag("signersCertificateTechnicalInformationText"),
                 )
             }
         }

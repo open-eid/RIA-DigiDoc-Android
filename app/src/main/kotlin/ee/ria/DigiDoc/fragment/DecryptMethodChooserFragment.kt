@@ -37,8 +37,7 @@ fun DecryptMethodChooserFragment(
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("decryptMethodChooserFragment"),
+                }.testTag("decryptMethodChooserFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         DecryptMethodChooserScreen(

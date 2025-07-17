@@ -35,8 +35,7 @@ fun AccessibilityFragment(
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("accessibilityFragment"),
+                }.testTag("accessibilityFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         AccessibilityScreen(

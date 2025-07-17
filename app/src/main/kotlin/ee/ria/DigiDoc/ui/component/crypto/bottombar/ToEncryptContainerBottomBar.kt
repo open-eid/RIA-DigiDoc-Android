@@ -60,8 +60,7 @@ fun ToEncryptContainerBottomBar(
                 .padding(vertical = XSPadding)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("encryptContainerBottomBar"),
+                }.testTag("encryptContainerBottomBar"),
         contentAlignment = Alignment.Center,
     ) {
         FlowRow(

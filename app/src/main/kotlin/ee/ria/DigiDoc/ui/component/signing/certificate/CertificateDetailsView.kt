@@ -104,8 +104,7 @@ fun CertificateDetailsView(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("certificateDetailsScreen"),
+                }.testTag("certificateDetailsScreen"),
         topBar = {
             TopBar(
                 modifier = modifier,
@@ -155,179 +154,179 @@ fun CertificateDetailsView(
                             certificateHolder.subjectPublicKeyInfo.algorithm.parameters
                         val sigAlgParams = certificate.sigAlgParams?.toString(UTF_8)?.trim()
 
-                        CertificateDetailItem().certificateDetailItems(
-                            subjectNameHeader = R.string.subject_name,
-                            issuerNameHeader = R.string.issuer_name,
-                            publicKeyInfoHeader = R.string.public_key,
-                            extensionsHeader = R.string.extensions,
-                            fingerprintsHeader = R.string.fingerprints,
-                            subjectCountryOrRegion =
-                                certificateDetailViewModel.getRDNValue(
-                                    certificateHolder.subject,
-                                    BCStyle.C,
-                                ),
-                            subjectOrganization =
-                                certificateDetailViewModel.getRDNValue(
-                                    certificateHolder.subject,
-                                    BCStyle.O,
-                                ),
-                            subjectOrganizationalUnit =
-                                certificateDetailViewModel.getRDNValue(
-                                    certificateHolder.subject,
-                                    BCStyle.OU,
-                                ),
-                            subjectCommonName =
-                                TextUtil.splitTextAndJoin(
-                                    text =
-                                        TextUtil.removeSlashes(
-                                            certificateDetailViewModel.getRDNValue(
-                                                certificateHolder.subject,
-                                                BCStyle.CN,
+                        CertificateDetailItem()
+                            .certificateDetailItems(
+                                subjectNameHeader = R.string.subject_name,
+                                issuerNameHeader = R.string.issuer_name,
+                                publicKeyInfoHeader = R.string.public_key,
+                                extensionsHeader = R.string.extensions,
+                                fingerprintsHeader = R.string.fingerprints,
+                                subjectCountryOrRegion =
+                                    certificateDetailViewModel.getRDNValue(
+                                        certificateHolder.subject,
+                                        BCStyle.C,
+                                    ),
+                                subjectOrganization =
+                                    certificateDetailViewModel.getRDNValue(
+                                        certificateHolder.subject,
+                                        BCStyle.O,
+                                    ),
+                                subjectOrganizationalUnit =
+                                    certificateDetailViewModel.getRDNValue(
+                                        certificateHolder.subject,
+                                        BCStyle.OU,
+                                    ),
+                                subjectCommonName =
+                                    TextUtil.splitTextAndJoin(
+                                        text =
+                                            TextUtil.removeSlashes(
+                                                certificateDetailViewModel.getRDNValue(
+                                                    certificateHolder.subject,
+                                                    BCStyle.CN,
+                                                ),
                                             ),
-                                        ),
-                                    delimiter = ",",
-                                    joinDelimiter = ", ",
-                                ),
-                            subjectSurname =
-                                certificateDetailViewModel.getRDNValue(
-                                    certificateHolder.subject,
-                                    BCStyle.SURNAME,
-                                ),
-                            subjectGivenName =
-                                certificateDetailViewModel.getRDNValue(
-                                    certificateHolder.subject,
-                                    BCStyle.GIVENNAME,
-                                ),
-                            subjectSerialNumber =
-                                certificateDetailViewModel.getRDNValue(
-                                    certificateHolder.subject,
-                                    BCStyle.SERIALNUMBER,
-                                ),
-                            issuerCountryOrRegion =
-                                certificateDetailViewModel.getRDNValue(
-                                    certificateHolder.issuer,
-                                    BCStyle.C,
-                                ),
-                            issuerOrganization =
-                                certificateDetailViewModel.getRDNValue(
-                                    certificateHolder.issuer,
-                                    BCStyle.O,
-                                ),
-                            issuerCommonName =
-                                TextUtil.splitTextAndJoin(
-                                    text =
-                                        TextUtil.removeSlashes(
-                                            certificateDetailViewModel.getRDNValue(
-                                                certificateHolder.issuer,
-                                                BCStyle.CN,
+                                        delimiter = ",",
+                                        joinDelimiter = ", ",
+                                    ),
+                                subjectSurname =
+                                    certificateDetailViewModel.getRDNValue(
+                                        certificateHolder.subject,
+                                        BCStyle.SURNAME,
+                                    ),
+                                subjectGivenName =
+                                    certificateDetailViewModel.getRDNValue(
+                                        certificateHolder.subject,
+                                        BCStyle.GIVENNAME,
+                                    ),
+                                subjectSerialNumber =
+                                    certificateDetailViewModel.getRDNValue(
+                                        certificateHolder.subject,
+                                        BCStyle.SERIALNUMBER,
+                                    ),
+                                issuerCountryOrRegion =
+                                    certificateDetailViewModel.getRDNValue(
+                                        certificateHolder.issuer,
+                                        BCStyle.C,
+                                    ),
+                                issuerOrganization =
+                                    certificateDetailViewModel.getRDNValue(
+                                        certificateHolder.issuer,
+                                        BCStyle.O,
+                                    ),
+                                issuerCommonName =
+                                    TextUtil.splitTextAndJoin(
+                                        text =
+                                            TextUtil.removeSlashes(
+                                                certificateDetailViewModel.getRDNValue(
+                                                    certificateHolder.issuer,
+                                                    BCStyle.CN,
+                                                ),
                                             ),
-                                        ),
-                                    delimiter = ",",
-                                    joinDelimiter = ", ",
-                                ),
-                            issuerEmailAddress =
-                                certificateDetailViewModel.getRDNValue(
-                                    certificateHolder.issuer,
-                                    BCStyle.EmailAddress,
-                                ),
-                            issuerOtherName =
-                                certificateDetailViewModel.getRDNValue(
-                                    certificateHolder.issuer,
-                                    BCStyle.ORGANIZATION_IDENTIFIER,
-                                ),
-                            issuerSerialNumber =
-                                certificateDetailViewModel.addLeadingZeroToHex(
-                                    certificate.serialNumber?.toString(16)?.formatHexString(),
-                                ),
-                            issuerVersion = certificate.version.toString(),
-                            issuerSignatureAlgorithm = "${certificate.sigAlgName} (${certificate.sigAlgOID})",
-                            issuerParameters =
-                                if (certificateDetailViewModel.isValidParametersData(
-                                        sigAlgParams ?: "",
-                                    )
-                                ) {
-                                    sigAlgParams
-                                } else {
-                                    "None"
-                                },
-                            issuerNotValidBefore = DateUtil.dateToCertificateFormat(certificate.notBefore),
-                            issuerNotValidAfter = DateUtil.dateToCertificateFormat(certificate.notAfter),
-                            publicKeyAlgorithm = certificate.publicKey.algorithm,
-                            publicKeyParameters =
-                                if (publicKeyParameters.toString() != "NULL") {
-                                    publicKeyParameters.toString()
-                                } else {
-                                    "None"
-                                },
-                            publicKeyKey = certificateDetailViewModel.getPublicKeyString(certificate.publicKey),
-                            publicKeyKeyUsage = certificateDetailViewModel.getKeyUsages(certificate.keyUsage),
-                            publicKeySignature = certificate.signature.hexString().uppercase(),
-                            extensions =
-                                certificateDetailViewModel.getExtensionsData(
-                                    certificateHolder,
-                                    certificate,
-                                ),
-                            fingerprintSha256 =
-                                certificateDetailViewModel.getCertificateSHA256Fingerprint(
-                                    certificate,
-                                ),
-                            fingerprintSha1 =
-                                certificateDetailViewModel.getCertificateSHA1Fingerprint(
-                                    certificate,
-                                ),
-                        ).forEach { certificateDetail ->
-                            when (certificateDetail) {
-                                is CertificateListItem.Certificate -> {
-                                    if (!certificateDetail.detailValue.isNullOrEmpty()) {
-                                        val detailKeyText =
-                                            if (certificateDetail.detailKey != 0) {
-                                                stringResource(id = certificateDetail.detailKey)
-                                            } else {
-                                                ""
-                                            }
-                                        SignatureDataItem(
-                                            modifier = modifier,
-                                            icon = 0,
-                                            testTag = certificateDetail.testTag,
-                                            detailKey = certificateDetail.detailKey,
-                                            detailValue = certificateDetail.detailValue,
-                                            contentDescription =
-                                                "$detailKeyText, ${certificateDetail.detailValue}".lowercase(),
-                                            formatForAccessibility = certificateDetail.formatForAccessibility,
+                                        delimiter = ",",
+                                        joinDelimiter = ", ",
+                                    ),
+                                issuerEmailAddress =
+                                    certificateDetailViewModel.getRDNValue(
+                                        certificateHolder.issuer,
+                                        BCStyle.EmailAddress,
+                                    ),
+                                issuerOtherName =
+                                    certificateDetailViewModel.getRDNValue(
+                                        certificateHolder.issuer,
+                                        BCStyle.ORGANIZATION_IDENTIFIER,
+                                    ),
+                                issuerSerialNumber =
+                                    certificateDetailViewModel.addLeadingZeroToHex(
+                                        certificate.serialNumber?.toString(16)?.formatHexString(),
+                                    ),
+                                issuerVersion = certificate.version.toString(),
+                                issuerSignatureAlgorithm = "${certificate.sigAlgName} (${certificate.sigAlgOID})",
+                                issuerParameters =
+                                    if (certificateDetailViewModel.isValidParametersData(
+                                            sigAlgParams ?: "",
                                         )
-                                        HorizontalDivider()
-                                    }
-                                }
-
-                                is CertificateListItem.TextItem -> {
-                                    Row(
-                                        modifier =
-                                            modifier
-                                                .padding(top = MPadding, bottom = SPadding)
-                                                .fillMaxWidth()
-                                                .semantics(mergeDescendants = true) {
-                                                    this.contentDescription =
-                                                        formatNumbers(certificateDetail.text).lowercase()
-                                                    heading()
-                                                }
-                                                .focusable()
-                                                .focusGroup()
-                                                .testTag(certificateDetail.testTag),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically,
                                     ) {
-                                        Text(
+                                        sigAlgParams
+                                    } else {
+                                        "None"
+                                    },
+                                issuerNotValidBefore = DateUtil.dateToCertificateFormat(certificate.notBefore),
+                                issuerNotValidAfter = DateUtil.dateToCertificateFormat(certificate.notAfter),
+                                publicKeyAlgorithm = certificate.publicKey.algorithm,
+                                publicKeyParameters =
+                                    if (publicKeyParameters.toString() != "NULL") {
+                                        publicKeyParameters.toString()
+                                    } else {
+                                        "None"
+                                    },
+                                publicKeyKey = certificateDetailViewModel.getPublicKeyString(certificate.publicKey),
+                                publicKeyKeyUsage = certificateDetailViewModel.getKeyUsages(certificate.keyUsage),
+                                publicKeySignature = certificate.signature.hexString().uppercase(),
+                                extensions =
+                                    certificateDetailViewModel.getExtensionsData(
+                                        certificateHolder,
+                                        certificate,
+                                    ),
+                                fingerprintSha256 =
+                                    certificateDetailViewModel.getCertificateSHA256Fingerprint(
+                                        certificate,
+                                    ),
+                                fingerprintSha1 =
+                                    certificateDetailViewModel.getCertificateSHA1Fingerprint(
+                                        certificate,
+                                    ),
+                            ).forEach { certificateDetail ->
+                                when (certificateDetail) {
+                                    is CertificateListItem.Certificate -> {
+                                        if (!certificateDetail.detailValue.isNullOrEmpty()) {
+                                            val detailKeyText =
+                                                if (certificateDetail.detailKey != 0) {
+                                                    stringResource(id = certificateDetail.detailKey)
+                                                } else {
+                                                    ""
+                                                }
+                                            SignatureDataItem(
+                                                modifier = modifier,
+                                                icon = 0,
+                                                testTag = certificateDetail.testTag,
+                                                detailKey = certificateDetail.detailKey,
+                                                detailValue = certificateDetail.detailValue,
+                                                contentDescription =
+                                                    "$detailKeyText, ${certificateDetail.detailValue}".lowercase(),
+                                                formatForAccessibility = certificateDetail.formatForAccessibility,
+                                            )
+                                            HorizontalDivider()
+                                        }
+                                    }
+
+                                    is CertificateListItem.TextItem -> {
+                                        Row(
                                             modifier =
                                                 modifier
-                                                    .notAccessible(),
-                                            text = certificateDetail.text,
-                                            style = MaterialTheme.typography.titleLarge,
-                                            fontWeight = FontWeight.Bold,
-                                        )
+                                                    .padding(top = MPadding, bottom = SPadding)
+                                                    .fillMaxWidth()
+                                                    .semantics(mergeDescendants = true) {
+                                                        this.contentDescription =
+                                                            formatNumbers(certificateDetail.text).lowercase()
+                                                        heading()
+                                                    }.focusable()
+                                                    .focusGroup()
+                                                    .testTag(certificateDetail.testTag),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically,
+                                        ) {
+                                            Text(
+                                                modifier =
+                                                    modifier
+                                                        .notAccessible(),
+                                                text = certificateDetail.text,
+                                                style = MaterialTheme.typography.titleLarge,
+                                                fontWeight = FontWeight.Bold,
+                                            )
+                                        }
                                     }
                                 }
                             }
-                        }
                         InvisibleElement(modifier = modifier)
                     }
                 }

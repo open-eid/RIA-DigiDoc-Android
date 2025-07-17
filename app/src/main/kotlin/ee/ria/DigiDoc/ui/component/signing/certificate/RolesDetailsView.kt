@@ -41,8 +41,7 @@ fun RolesDetailsView(
                 .padding(vertical = XSPadding)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("roleDetailsView"),
+                }.testTag("roleDetailsView"),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (signature != null) {

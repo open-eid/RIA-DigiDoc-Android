@@ -83,8 +83,7 @@ fun RecipientComponent(
                         .size(loadingBarSize)
                         .semantics {
                             this.contentDescription = recipientsLoadingContentDescription
-                        }
-                        .testTag("recipientsLoadingProgress"),
+                        }.testTag("recipientsLoadingProgress"),
             )
         }
     } else {
@@ -98,30 +97,32 @@ fun RecipientComponent(
                     }
                 val certTypeText = getRecipientCertTypeText(LocalContext.current, recipient.certType)
                 var certValidTo =
-                    recipient.validTo?.let {
-                        dateFormat.format(
-                            it,
-                        )
-                    }?.let {
-                        stringResource(
-                            R.string.crypto_cert_valid_to,
-                            it,
-                        )
-                    } ?: ""
-
-                val decryptionValidToText =
-                    if (isCDOC2Container) {
-                        certValidTo = ""
-                        recipient.validTo?.let {
+                    recipient.validTo
+                        ?.let {
                             dateFormat.format(
                                 it,
                             )
                         }?.let {
                             stringResource(
-                                R.string.crypto_decryption_valid_to,
+                                R.string.crypto_cert_valid_to,
                                 it,
                             )
                         } ?: ""
+
+                val decryptionValidToText =
+                    if (isCDOC2Container) {
+                        certValidTo = ""
+                        recipient.validTo
+                            ?.let {
+                                dateFormat.format(
+                                    it,
+                                )
+                            }?.let {
+                                stringResource(
+                                    R.string.crypto_decryption_valid_to,
+                                    it,
+                                )
+                            } ?: ""
                     } else {
                         ""
                     }
@@ -136,8 +137,7 @@ fun RecipientComponent(
                                     "$recipientText ${index + 1} ${formatNumbers(nameText)} " +
                                     "$certTypeText $decryptionValidToText"
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("recipientComponentContainer"),
+                            }.testTag("recipientComponentContainer"),
                     colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                     shape = buttonRoundedCornerShape,
                 ) {
@@ -175,8 +175,7 @@ fun RecipientComponent(
                                             .wrapContentHeight(align = Alignment.CenterVertically)
                                             .semantics {
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("recipientComponentIcon")
+                                            }.testTag("recipientComponentIcon")
                                             .notAccessible(),
                                 )
                             }
@@ -189,8 +188,7 @@ fun RecipientComponent(
                                         .weight(1f)
                                         .semantics(mergeDescendants = true) {
                                             testTagsAsResourceId = true
-                                        }
-                                        .focusGroup()
+                                        }.focusGroup()
                                         .notAccessible(),
                             ) {
                                 StyledNameText(
@@ -199,8 +197,7 @@ fun RecipientComponent(
                                             .focusable(false)
                                             .semantics {
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("recipientComponentName"),
+                                            }.testTag("recipientComponentName"),
                                     name = nameText,
                                     formatName = false,
                                 )
@@ -211,8 +208,7 @@ fun RecipientComponent(
                                             .focusable(false)
                                             .semantics {
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("recipientComponentCert"),
+                                            }.testTag("recipientComponentCert"),
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     style = MaterialTheme.typography.bodyMedium,
                                 )
@@ -234,8 +230,7 @@ fun RecipientComponent(
                                         modifier
                                             .semantics {
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("recipientComponentMoreOptionsIconButton"),
+                                            }.testTag("recipientComponentMoreOptionsIconButton"),
                                     imageVector = ImageVector.vectorResource(R.drawable.ic_more_vert),
                                     contentDescription = "$recipientText ${index + 1} ${stringResource(
                                         R.string.more_options,

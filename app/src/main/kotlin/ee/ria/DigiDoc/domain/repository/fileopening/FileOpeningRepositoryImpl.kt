@@ -28,25 +28,19 @@ class FileOpeningRepositoryImpl
         private val sivaService: SivaService,
         private val cdoc2Settings: CDOC2Settings,
     ) : FileOpeningRepository {
-        override suspend fun isFileSizeValid(file: File): Boolean {
-            return fileOpeningService.isFileSizeValid(file)
-        }
+        override suspend fun isFileSizeValid(file: File): Boolean = fileOpeningService.isFileSizeValid(file)
 
         @Throws(FileNotFoundException::class, SecurityException::class)
         override suspend fun uriToFile(
             context: Context,
             contentResolver: ContentResolver,
             uri: Uri,
-        ): File {
-            return fileOpeningService.uriToFile(context, contentResolver, uri)
-        }
+        ): File = fileOpeningService.uriToFile(context, contentResolver, uri)
 
         override suspend fun showFileChooser(
             fileChooser: ActivityResultLauncher<String>,
             contractType: String,
-        ) {
-            return fileChooser.launch(contractType)
-        }
+        ) = fileChooser.launch(contractType)
 
         @Throws(Exception::class)
         override suspend fun addFilesToContainer(
@@ -157,47 +151,39 @@ class FileOpeningRepositoryImpl
             }
         }
 
-        override fun isEmptyFileInList(files: List<File>): Boolean {
-            return ContainerUtil.isEmptyFileInList(files)
-        }
+        override fun isEmptyFileInList(files: List<File>): Boolean = ContainerUtil.isEmptyFileInList(files)
 
         override fun getValidFiles(
             files: List<File>,
             container: SignedContainer?,
-        ): List<File> {
-            return ContainerUtil.getFilesWithValidSize(files).filter { file ->
+        ): List<File> =
+            ContainerUtil.getFilesWithValidSize(files).filter { file ->
                 container == null || !isFileAlreadyInContainer(file, container)
             }
-        }
 
         override fun getValidFiles(
             files: List<File>,
             container: CryptoContainer?,
-        ): List<File> {
-            return ContainerUtil.getFilesWithValidSize(files).filter { file ->
+        ): List<File> =
+            ContainerUtil.getFilesWithValidSize(files).filter { file ->
                 container == null || !isFileAlreadyInContainer(file, container)
             }
-        }
 
-        override fun getFilesWithValidSize(files: List<File>): List<File> {
-            return ContainerUtil.getFilesWithValidSize(files)
-        }
+        override fun getFilesWithValidSize(files: List<File>): List<File> = ContainerUtil.getFilesWithValidSize(files)
 
         override fun isFileAlreadyInContainer(
             file: File,
             container: SignedContainer,
-        ): Boolean {
-            return container.rawContainer()?.dataFiles()?.any { it.fileName() == file.name }
+        ): Boolean =
+            container.rawContainer()?.dataFiles()?.any { it.fileName() == file.name }
                 ?: false
-        }
 
         override fun isFileAlreadyInContainer(
             file: File,
             container: CryptoContainer,
-        ): Boolean {
-            return container.dataFiles?.any { it?.name == file.name }
+        ): Boolean =
+            container.dataFiles?.any { it?.name == file.name }
                 ?: false
-        }
 
         override fun isSivaConfirmationNeeded(
             context: Context,

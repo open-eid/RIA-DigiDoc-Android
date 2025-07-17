@@ -41,7 +41,5 @@ class ConfigurationViewModel
             }
         }
 
-        fun getConfiguration(): ConfigurationProvider? {
-            return repository.getConfiguration()
-        }
+        fun getConfiguration(): ConfigurationProvider? = repository.getConfiguration()
     }

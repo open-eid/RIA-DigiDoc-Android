@@ -19,13 +19,12 @@ data class MobileCreateSignatureCertificateResponse(
     @SerializedName("error")
     var error: String? = null,
 ) {
-    override fun toString(): String {
-        return "MobileCreateSignatureCertificateResponse{" +
+    override fun toString(): String =
+        "MobileCreateSignatureCertificateResponse{" +
             "result=" + result +
             ", cert='" + cert + '\'' +
             ", time='" + time + '\'' +
             ", traceId='" + traceId + '\'' +
             ", error='" + error + '\'' +
             '}'
-    }
 }

@@ -475,7 +475,8 @@ class SharedSettingsViewModel
             saveProxySettings(false, manualProxySettings)
 
             val request: Request =
-                Request.Builder()
+                Request
+                    .Builder()
                     .url("https://id.eesti.ee/config.json")
                     .addHeader("Content-Type", "application/json")
                     .addHeader("User-Agent", UserAgentUtil.getUserAgent(context))
@@ -506,7 +507,8 @@ class SharedSettingsViewModel
                     }
                 } catch (e: IOException) {
                     val message = e.message
-                    if (message != null && (
+                    if (message != null &&
+                        (
                             message.contains("CONNECT: 403") ||
                                 message.contains("Failed to authenticate with proxy")
                         )

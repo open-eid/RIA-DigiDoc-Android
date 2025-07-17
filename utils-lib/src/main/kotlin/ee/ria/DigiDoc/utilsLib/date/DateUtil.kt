@@ -13,7 +13,10 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
-data class FormattedDateTime(val date: String, val time: String)
+data class FormattedDateTime(
+    val date: String,
+    val time: String,
+)
 
 object DateUtil {
     private val logTag = javaClass.simpleName
@@ -58,9 +61,7 @@ object DateUtil {
     }
 
     @Throws(ParseException::class)
-    fun stringToDate(dateString: String): Date? {
-        return dateTimeFormat.parse(dateString)
-    }
+    fun stringToDate(dateString: String): Date? = dateTimeFormat.parse(dateString)
 
     fun getFormattedDateTime(
         dateTimeString: String,
@@ -83,7 +84,7 @@ object DateUtil {
             }
             inputDateFormat.timeZone = TimeZone.getTimeZone("UTC")
             return inputDateFormat.parse(dateTimeString)?.let { outputDateFormat.format(it) } ?: ""
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             ""
         }
     }
@@ -99,8 +100,8 @@ object DateUtil {
     fun isBefore(
         dateString: String,
         format: String = "dd.MM.yyyy",
-    ): Boolean? {
-        return try {
+    ): Boolean? =
+        try {
             val formatter = DateTimeFormatter.ofPattern(format)
             val expiryDate = LocalDate.parse(dateString, formatter)
             val today = LocalDate.now()
@@ -109,5 +110,4 @@ object DateUtil {
             errorLog(logTag, "Unable to parse date $dateString", dtpe)
             null
         }
-    }
 }

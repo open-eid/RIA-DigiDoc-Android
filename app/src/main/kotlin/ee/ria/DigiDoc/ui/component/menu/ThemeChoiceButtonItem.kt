@@ -9,14 +9,14 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.domain.model.theme.ThemeSetting
 
 data class ThemeChoiceButtonItem(
-    @StringRes val label: Int = 0,
+    @param:StringRes val label: Int = 0,
     val setting: ThemeSetting = ThemeSetting.SYSTEM,
     val contentDescription: String = "",
     val testTag: String = "",
 ) {
     @Composable
-    fun radioItems(): List<ThemeChoiceButtonItem> {
-        return listOf(
+    fun radioItems(): List<ThemeChoiceButtonItem> =
+        listOf(
             ThemeChoiceButtonItem(
                 label = R.string.main_settings_theme_system,
                 setting = ThemeSetting.SYSTEM,
@@ -45,5 +45,4 @@ data class ThemeChoiceButtonItem(
                 testTag = "themeScreenDarkSetting",
             ),
         )
-    }
 }

@@ -410,7 +410,8 @@ class MobileSignServiceImpl
                             e,
                         )
                         return
-                    } else if (message != null && (
+                    } else if (message != null &&
+                        (
                             ProxyUtil.getProxySetting(context) !== ProxySetting.NO_PROXY &&
                                 message.contains("Failed to authenticate with proxy")
                         )
@@ -627,9 +628,8 @@ class MobileSignServiceImpl
             delay(millis)
         }
 
-        private fun isSessionStatusRequestComplete(state: MobileCreateSignatureProcessState): Boolean {
-            return state == MobileCreateSignatureProcessState.COMPLETE
-        }
+        private fun isSessionStatusRequestComplete(state: MobileCreateSignatureProcessState): Boolean =
+            state == MobileCreateSignatureProcessState.COMPLETE
 
         @Throws(SigningCancelledException::class)
         private fun checkSigningCancelled(signedContainer: SignedContainer) {

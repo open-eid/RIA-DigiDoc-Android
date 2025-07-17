@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.network.sid.dto.response
 
-import com.google.gson.Gson
 import ee.ria.DigiDoc.common.DetailMessageSource
 
 class ServiceFault : DetailMessageSource {
@@ -17,15 +16,5 @@ class ServiceFault : DetailMessageSource {
     constructor(status: SessionStatusResponseProcessStatus, detailMessage: String?) {
         this.status = status
         this.detailMessage = detailMessage
-    }
-
-    companion object {
-        fun toJson(fault: ServiceFault?): String {
-            return Gson().toJson(fault)
-        }
-
-        fun fromJson(json: String?): ServiceFault {
-            return Gson().fromJson(json, ServiceFault::class.java)
-        }
     }
 }

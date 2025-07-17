@@ -14,7 +14,7 @@ import javax.inject.Singleton
 class FileTypeSetup
     @Inject
     constructor(
-        @ApplicationContext private val context: Context,
+        @param:ApplicationContext private val context: Context,
     ) {
         fun initializeApplicationFileTypesAssociation(componentClassName: String) {
             val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)

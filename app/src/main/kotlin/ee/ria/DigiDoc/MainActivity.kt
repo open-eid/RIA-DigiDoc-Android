@@ -27,16 +27,18 @@ import ee.ria.DigiDoc.utils.locale.LocaleUtilImpl
 import ee.ria.DigiDoc.utils.secure.SecureUtil
 import ee.ria.DigiDoc.utilsLib.R.string.main_diagnostics_logging_key
 import ee.ria.DigiDoc.utilsLib.R.string.main_diagnostics_logging_running_key
-import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.getExternalFileUris
+import ee.ria.DigiDoc.utilsLib.file.FileUtil.getLogsDirectory
+import ee.ria.DigiDoc.utilsLib.locale.LocaleUtil.getLocale
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
 import kotlinx.coroutines.launch
-import java.util.Locale
 import java.util.logging.Logger
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
+class MainActivity :
+    ComponentActivity(),
+    DefaultLifecycleObserver {
     @Inject
     lateinit var librarySetup: LibrarySetup
 
@@ -95,8 +97,7 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
         val componentClassName = this.javaClass.name
 
         val externalFileUris = getExternalFileUris(intent)
-
-        val locale = dataStore.getLocale() ?: Locale("en")
+        val locale = dataStore.getLocale() ?: getLocale("en")
         localeUtil.updateLocale(applicationContext, locale)
 
         // Observe if activity needs to be recreated for changes to take effect (eg. Settings)
@@ -113,7 +114,7 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
             if (shouldResetLogging && !isDebug) {
                 activityManager.setShouldResetLogging(false)
                 loggingUtil.handleOneTimeLogging(this)
-                LoggingUtil.resetLogs(FileUtil.getLogsDirectory(this))
+                LoggingUtil.resetLogs(getLogsDirectory(this))
             }
         }
 
@@ -145,7 +146,7 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
         // Instantiating here manually, as "attachBaseContext" runs before Hilt
         val localeUtilImpl = LocaleUtilImpl()
         val language = localeUtilImpl.getPreferredLanguage(newBase)
-        val localizedContext = newBase?.let { localeUtilImpl.updateLocale(it, Locale(language)) }
+        val localizedContext = newBase?.let { localeUtilImpl.updateLocale(it, getLocale(language)) }
         super.attachBaseContext(localizedContext)
     }
 
@@ -159,11 +160,7 @@ class MainActivity : ComponentActivity(), DefaultLifecycleObserver {
         AppState.isAppInForeground = false
     }
 
-    private fun isSystemModeEnabled(dataStore: DataStore): Boolean {
-        return dataStore.getThemeSetting() == ThemeSetting.SYSTEM
-    }
+    private fun isSystemModeEnabled(dataStore: DataStore): Boolean = dataStore.getThemeSetting() == ThemeSetting.SYSTEM
 
-    private fun isDarkModeEnabled(dataStore: DataStore): Boolean {
-        return dataStore.getThemeSetting() == ThemeSetting.DARK
-    }
+    private fun isDarkModeEnabled(dataStore: DataStore): Boolean = dataStore.getThemeSetting() == ThemeSetting.DARK
 }

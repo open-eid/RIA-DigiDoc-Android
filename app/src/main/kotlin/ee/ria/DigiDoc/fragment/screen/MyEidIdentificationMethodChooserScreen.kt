@@ -155,8 +155,7 @@ fun MyEidIdentificationMethodChooserScreen(
                                         } else {
                                             "$identificationMethodText ${option.contentDescription}"
                                         }
-                                }
-                                .testTag(option.testTag),
+                                }.testTag(option.testTag),
                         selected = selectedOption == option.setting,
                         onClick = { selectedOption = option.setting },
                     )

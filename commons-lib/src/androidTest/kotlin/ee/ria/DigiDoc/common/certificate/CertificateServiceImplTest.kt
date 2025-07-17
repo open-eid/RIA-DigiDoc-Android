@@ -132,9 +132,10 @@ class CertificateServiceImplTest {
 
         val policyInformation = arrayOf(Mockito.mock(PolicyInformation::class.java))
         Mockito.`when`(certificatePolicies.policyInformation).thenReturn(policyInformation)
-        Mockito.`when`(
-            policyInformation.first().policyIdentifier,
-        ).thenReturn(ASN1ObjectIdentifier.tryFromID("1.3.6.1.4.1.10015.1.1"))
+        Mockito
+            .`when`(
+                policyInformation.first().policyIdentifier,
+            ).thenReturn(ASN1ObjectIdentifier.tryFromID("1.3.6.1.4.1.10015.1.1"))
 
         val result = certificateService.extractEIDType(certificateHolder)
 

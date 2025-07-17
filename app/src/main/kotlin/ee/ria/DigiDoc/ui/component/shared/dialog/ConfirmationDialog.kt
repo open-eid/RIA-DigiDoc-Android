@@ -41,8 +41,7 @@ fun ConfirmationDialog(
                 modifier
                     .semantics {
                         testTagsAsResourceId = true
-                    }
-                    .testTag("sivaConfirmationDialog"),
+                    }.testTag("sivaConfirmationDialog"),
             onDismissRequest = onDismiss,
             title = {},
             text = {
@@ -51,8 +50,7 @@ fun ConfirmationDialog(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("sivaConfirmationMessageDialog"),
+                            }.testTag("sivaConfirmationMessageDialog"),
                     text1 = text1,
                     text2 = text2,
                     linkText = linkText,
@@ -68,8 +66,7 @@ fun ConfirmationDialog(
                                 .semantics {
                                     this.contentDescription = "$cancelButton $buttonName"
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("confirmationDialogCancelButton"),
+                                }.testTag("confirmationDialogCancelButton"),
                         text = cancelButton,
                     )
                 }
@@ -82,8 +79,7 @@ fun ConfirmationDialog(
                                 .semantics {
                                     this.contentDescription = "$confirmButton $buttonName"
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("confirmationDialogConfirmButton"),
+                                }.testTag("confirmationDialogConfirmButton"),
                         text = confirmButton,
                     )
                 }

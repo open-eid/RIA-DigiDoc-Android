@@ -62,7 +62,8 @@ fun SignatureBottomSheet(
                 BottomSheetButton(
                     showButton =
                         !NO_REMOVE_SIGNATURE_BUTTON_FILE_MIMETYPES.contains(
-                            signedContainer?.getContainerFile()
+                            signedContainer
+                                ?.getContainerFile()
                                 ?.let { containerFile ->
                                     if (containerFile.exists()) {
                                         signingViewModel.getMimetype(containerFile)
@@ -74,7 +75,9 @@ fun SignatureBottomSheet(
                             !NO_REMOVE_SIGNATURE_BUTTON_FILE_EXTENSIONS.contains(
                                 FilenameUtils.getExtension(signedContainer?.getName()),
                             ) &&
-                            !isNestedContainer && !isXadesContainer && !isCadesContainer,
+                            !isNestedContainer &&
+                            !isXadesContainer &&
+                            !isCadesContainer,
                     icon = R.drawable.ic_m3_delete_48dp_wght400,
                     text = stringResource(R.string.signature_remove_button),
                     contentDescription = "${stringResource(

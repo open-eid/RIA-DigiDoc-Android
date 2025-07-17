@@ -117,7 +117,8 @@ fun HomeScreen(
         }
     }
 
-    if (openCrashDetectorDialog.value && !homeViewModel.isCrashSendingAlwaysEnabled() &&
+    if (openCrashDetectorDialog.value &&
+        !homeViewModel.isCrashSendingAlwaysEnabled() &&
         (homeViewModel.didAppCrashOnPreviousExecution() || hasUnsentReports.result)
     ) {
         CrashDialog(
@@ -156,8 +157,7 @@ fun HomeScreen(
                 .focusGroup()
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("homeScreen"),
+                }.testTag("homeScreen"),
         topBar = {
             TopBar(
                 modifier =
@@ -224,8 +224,7 @@ fun HomeScreen(
                     modifier
                         .semantics {
                             testTagsAsResourceId = true
-                        }
-                        .testTag("scrollView")
+                        }.testTag("scrollView")
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState()),
                 horizontalAlignment = CenterHorizontally,

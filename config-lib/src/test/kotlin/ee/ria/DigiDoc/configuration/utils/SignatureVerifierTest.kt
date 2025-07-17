@@ -12,7 +12,8 @@ class SignatureVerifierTest {
     @Test
     fun verifyValidSignature() {
         val classLoader =
-            Optional.ofNullable(javaClass.getClassLoader())
+            Optional
+                .ofNullable(javaClass.getClassLoader())
                 .orElseThrow {
                     IllegalStateException(
                         "Unable to get ClassLoader",
@@ -21,7 +22,8 @@ class SignatureVerifierTest {
         try {
             classLoader.getResourceAsStream("config.json").use { configJsonStream ->
                 classLoader.getResourceAsStream("config.rsa").use { configSignatureStream ->
-                    classLoader.getResourceAsStream("config.pub")
+                    classLoader
+                        .getResourceAsStream("config.pub")
                         .use { configSignaturePublicKeyStream ->
                             val configJson: String =
                                 FileUtil.readFileContent(configJsonStream)
@@ -47,7 +49,8 @@ class SignatureVerifierTest {
     @Test
     fun verifyInvalidSignature() {
         val classLoader =
-            Optional.ofNullable(javaClass.getClassLoader())
+            Optional
+                .ofNullable(javaClass.getClassLoader())
                 .orElseThrow {
                     IllegalStateException(
                         "Unable to get ClassLoader",
@@ -56,7 +59,8 @@ class SignatureVerifierTest {
         try {
             classLoader.getResourceAsStream("config.json").use { configJsonStream ->
                 classLoader.getResourceAsStream("config.rsa").use { configSignatureStream ->
-                    classLoader.getResourceAsStream("config.pub")
+                    classLoader
+                        .getResourceAsStream("config.pub")
                         .use { configSignaturePublicKeyStream ->
                             val configJson: String =
                                 FileUtil.readFileContent(configJsonStream)

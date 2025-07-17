@@ -91,8 +91,7 @@ class SmartSignServiceImpl
     constructor(
         private val serviceGenerator: ServiceGenerator,
         private val containerWrapper: ContainerWrapper,
-    ) :
-    SmartSignService {
+    ) : SmartSignService {
         private val logTag = javaClass.simpleName
 
         private lateinit var sidRestServiceClient: SIDRestServiceClient
@@ -228,7 +227,8 @@ class SmartSignServiceImpl
                         doSessionStatusRequestLoop(
                             signedContainer,
                             sidRestServiceClient.getCertificateV2(
-                                semanticsIdentifier, getCertificateRequest(request),
+                                semanticsIdentifier,
+                                getCertificateRequest(request),
                             ),
                             true,
                         )
@@ -286,7 +286,8 @@ class SmartSignServiceImpl
                             doSessionStatusRequestLoop(
                                 signedContainer,
                                 sidRestServiceClient.getCreateSignature(
-                                    sessionStatusResponse.result?.documentNumber, requestString,
+                                    sessionStatusResponse.result?.documentNumber,
+                                    requestString,
                                 ),
                                 false,
                             )

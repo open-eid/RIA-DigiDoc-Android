@@ -166,8 +166,7 @@ fun SignerDetailsView(
                 modifier
                     .semantics {
                         testTagsAsResourceId = true
-                    }
-                    .testTag("signatureDetailsScreen"),
+                    }.testTag("signatureDetailsScreen"),
             topBar = {
                 TopBar(
                     modifier = modifier,
@@ -204,8 +203,7 @@ fun SignerDetailsView(
                             .padding(SPadding)
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("signersCertificateContainer"),
+                            }.testTag("signersCertificateContainer"),
                 ) {
                     Row(
                         modifier =
@@ -214,8 +212,7 @@ fun SignerDetailsView(
                                 .focusable(true)
                                 .semantics(mergeDescendants = true) {
                                     testTagsAsResourceId = true
-                                }
-                                .focusGroup()
+                                }.focusGroup()
                                 .testTag("signatureDetailsSignatureRow"),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
@@ -229,8 +226,7 @@ fun SignerDetailsView(
                                     .focusable(false)
                                     .semantics {
                                         testTagsAsResourceId = true
-                                    }
-                                    .testTag("signatureUpdateListSignatureType")
+                                    }.testTag("signatureUpdateListSignatureType")
                                     .notAccessible(),
                         )
                         Spacer(modifier = modifier.width(SPadding))
@@ -252,8 +248,7 @@ fun SignerDetailsView(
                                         testTagsAsResourceId = true
                                         this.contentDescription =
                                             "${formatNumbers(nameText)}, $statusText"
-                                    }
-                                    .weight(1f)
+                                    }.weight(1f)
                                     .focusGroup(),
                         ) {
                             StyledNameText(
@@ -262,8 +257,7 @@ fun SignerDetailsView(
                                         .focusable(false)
                                         .semantics {
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("signatureDetailsSignatureName")
+                                        }.testTag("signatureDetailsSignatureName")
                                         .notAccessible(),
                                 nameText,
                             )
@@ -299,8 +293,7 @@ fun SignerDetailsView(
                                         .padding(
                                             horizontal = XSPadding,
                                             vertical = SPadding,
-                                        )
-                                        .testTag("signersCertificateErrorDetails"),
+                                        ).testTag("signersCertificateErrorDetails"),
                                 text = warningText,
                             )
 

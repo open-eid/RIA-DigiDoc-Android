@@ -17,8 +17,8 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import java.security.cert.X509Certificate
 
 data class SignerDetailItem(
-    @DrawableRes val icon: Int = R.drawable.ic_m3_expand_content_48dp_wght400,
-    @StringRes val label: Int = 0,
+    @param:DrawableRes val icon: Int = R.drawable.ic_m3_expand_content_48dp_wght400,
+    @param:StringRes val label: Int = 0,
     val value: String? = null,
     val certificate: X509Certificate? = null,
     val isLink: Boolean = false,
@@ -114,7 +114,8 @@ data class SignerDetailItem(
                 label = R.string.signed_file_count_label,
                 value =
                     sharedContainerViewModel.signedContainer.value
-                        ?.rawContainer()?.dataFiles()
+                        ?.rawContainer()
+                        ?.dataFiles()
                         ?.size
                         .toString(),
                 contentDescription =

@@ -3,7 +3,6 @@
 package ee.ria.DigiDoc.ui.component.menu
 
 import android.content.res.Configuration
-import android.view.accessibility.AccessibilityEvent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -24,9 +23,10 @@ import ee.ria.DigiDoc.ui.theme.BlueBackground
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
+import ee.ria.DigiDoc.utilsLib.locale.LocaleUtil.getLocale
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
-import java.util.Locale
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -46,11 +46,9 @@ fun LanguageChoiceButtonGroup(
                 .padding(
                     horizontal = SPadding,
                     vertical = MPadding,
-                )
-                .semantics {
+                ).semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("initScreenLocale"),
+                }.testTag("initScreenLocale"),
     ) {
         LanguageChoiceButtonItem().radioItems().forEachIndexed { _, languageItem ->
             LanguageButton(
@@ -63,12 +61,13 @@ fun LanguageChoiceButtonGroup(
                     id = R.string.menu_language,
                 )} ${languageItem.contentDescription}",
                 onClickItem = {
-                    val locale = Locale(languageItem.locale)
+                    val locale = getLocale(languageItem.locale)
+
                     sharedSettingsViewModel.dataStore.setLocale(locale)
                     sharedSettingsViewModel.recreateActivity()
-                    AccessibilityUtil.sendAccessibilityEvent(
+                    sendAccessibilityEvent(
                         context,
-                        AccessibilityEvent.TYPE_ANNOUNCEMENT,
+                        getAccessibilityEventType(),
                         languageChanged,
                     )
                     onClickAction()

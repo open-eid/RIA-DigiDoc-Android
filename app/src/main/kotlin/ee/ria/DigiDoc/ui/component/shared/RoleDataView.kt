@@ -111,8 +111,7 @@ fun RoleDataView(
                 .padding(vertical = SPadding)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("roleAndAddressViewContainer"),
+                }.testTag("roleAndAddressViewContainer"),
     ) {
         Text(
             text = stringResource(id = R.string.signature_update_signature_role_and_address_info_title),
@@ -123,8 +122,7 @@ fun RoleDataView(
                     .padding(vertical = SPadding)
                     .semantics {
                         heading()
-                    }
-                    .focusable(enabled = true)
+                    }.focusable(enabled = true)
                     .focusTarget()
                     .focusProperties { canFocus = true },
             textAlign = TextAlign.Start,
@@ -160,12 +158,10 @@ fun RoleDataView(
                         .focusRequester(roleFocusRequester)
                         .focusProperties {
                             next = cityFocusRequester
-                        }
-                        .weight(1f)
+                        }.weight(1f)
                         .semantics(mergeDescendants = true) {
                             testTagsAsResourceId = true
-                        }
-                        .testTag("roleAndAddressRoleTextField"),
+                        }.testTag("roleAndAddressRoleTextField"),
                 trailingIcon = {
                     if (!isTalkBackEnabled(context) && rolesAndResolutions.text.isNotEmpty()) {
                         IconButton(onClick = {
@@ -210,8 +206,7 @@ fun RoleDataView(
                                 .size(iconSizeXXS)
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("roleAndAddressRoleRemoveIconButton"),
+                                }.testTag("roleAndAddressRoleRemoveIconButton"),
                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                         contentDescription = "$clearButtonText $buttonName",
                     )
@@ -242,12 +237,10 @@ fun RoleDataView(
                         .focusProperties {
                             previous = roleFocusRequester
                             next = stateFocusRequester
-                        }
-                        .weight(1f)
+                        }.weight(1f)
                         .semantics(mergeDescendants = true) {
                             testTagsAsResourceId = true
-                        }
-                        .testTag("roleAndAddressCityTextField"),
+                        }.testTag("roleAndAddressCityTextField"),
                 trailingIcon = {
                     if (!isTalkBackEnabled(context) && city.text.isNotEmpty()) {
                         IconButton(onClick = {
@@ -292,8 +285,7 @@ fun RoleDataView(
                                 .size(iconSizeXXS)
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("roleAndAddressCityRemoveIconButton"),
+                                }.testTag("roleAndAddressCityRemoveIconButton"),
                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                         contentDescription = "$clearButtonText $buttonName",
                     )
@@ -324,12 +316,10 @@ fun RoleDataView(
                         .focusProperties {
                             previous = cityFocusRequester
                             next = countryFocusRequester
-                        }
-                        .weight(1f)
+                        }.weight(1f)
                         .semantics(mergeDescendants = true) {
                             testTagsAsResourceId = true
-                        }
-                        .testTag("roleAndAddressStateTextField"),
+                        }.testTag("roleAndAddressStateTextField"),
                 trailingIcon = {
                     if (!isTalkBackEnabled(context) && state.text.isNotEmpty()) {
                         IconButton(onClick = {
@@ -374,8 +364,7 @@ fun RoleDataView(
                                 .size(iconSizeXXS)
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("roleAndAddressStateRemoveIconButton"),
+                                }.testTag("roleAndAddressStateRemoveIconButton"),
                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                         contentDescription = "$clearButtonText $buttonName",
                     )
@@ -406,12 +395,10 @@ fun RoleDataView(
                         .focusProperties {
                             previous = stateFocusRequester
                             next = zipFocusRequester
-                        }
-                        .weight(1f)
+                        }.weight(1f)
                         .semantics(mergeDescendants = true) {
                             testTagsAsResourceId = true
-                        }
-                        .testTag("roleAndAddressCountryTextField"),
+                        }.testTag("roleAndAddressCountryTextField"),
                 trailingIcon = {
                     if (!isTalkBackEnabled(context) && country.text.isNotEmpty()) {
                         IconButton(onClick = {
@@ -456,8 +443,7 @@ fun RoleDataView(
                                 .size(iconSizeXXS)
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("roleAndAddressCountryRemoveIconButton"),
+                                }.testTag("roleAndAddressCountryRemoveIconButton"),
                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                         contentDescription = "$clearButtonText $buttonName",
                     )
@@ -487,12 +473,10 @@ fun RoleDataView(
                         .focusRequester(zipFocusRequester)
                         .focusProperties {
                             previous = countryFocusRequester
-                        }
-                        .weight(1f)
+                        }.weight(1f)
                         .semantics(mergeDescendants = true) {
                             testTagsAsResourceId = true
-                        }
-                        .testTag("roleAndAddressZipTextField"),
+                        }.testTag("roleAndAddressZipTextField"),
                 trailingIcon = {
                     if (!isTalkBackEnabled(context) && zip.text.isNotEmpty()) {
                         IconButton(onClick = {
@@ -537,8 +521,7 @@ fun RoleDataView(
                                 .size(iconSizeXXS)
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("roleAndAddressZipRemoveIconButton"),
+                                }.testTag("roleAndAddressZipRemoveIconButton"),
                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                         contentDescription = "$clearButtonText $buttonName",
                     )

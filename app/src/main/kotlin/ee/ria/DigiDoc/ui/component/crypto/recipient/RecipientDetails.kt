@@ -38,8 +38,7 @@ fun RecipientDetails(
                 .padding(vertical = XSPadding)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("signerDetailsView"),
+                }.testTag("signerDetailsView"),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         RecipientDetailItem()
@@ -48,8 +47,7 @@ fun RecipientDetails(
                 recipientFormattedName = recipientFormattedName,
                 recipientIssuerName = recipientIssuerName,
                 recipientConcatKDFAlgorithmURI = recipientConcatKDFAlgorithmURI,
-            )
-            .forEach { navigationItem ->
+            ).forEach { navigationItem ->
                 if (!navigationItem.value.isNullOrEmpty()) {
                     SignatureDataItem(
                         modifier = modifier,

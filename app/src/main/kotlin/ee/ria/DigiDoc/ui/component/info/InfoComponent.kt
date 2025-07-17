@@ -4,7 +4,6 @@ package ee.ria.DigiDoc.ui.component.info
 
 import android.content.Intent
 import android.content.res.Configuration
-import android.net.Uri
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,6 +31,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.net.toUri
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.DynamicText
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
@@ -58,8 +58,7 @@ fun InfoComponent(
                 .padding(vertical = XSPadding)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("mainAboutComponentView"),
+                }.testTag("mainAboutComponentView"),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -75,11 +74,9 @@ fun InfoComponent(
                     modifier
                         .padding(
                             horizontal = MPadding,
-                        )
-                        .semantics {
+                        ).semantics {
                             testTagsAsResourceId = true
-                        }
-                        .testTag("mainAboutComponentNameText"),
+                        }.testTag("mainAboutComponentNameText"),
                 text = stringResource(name),
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.bodyLarge,
@@ -90,11 +87,9 @@ fun InfoComponent(
                     modifier
                         .padding(
                             horizontal = MPadding,
-                        )
-                        .semantics {
+                        ).semantics {
                             testTagsAsResourceId = true
-                        }
-                        .testTag("mainAboutComponentLicenseNameText"),
+                        }.testTag("mainAboutComponentLicenseNameText"),
                 text = stringResource(licenseName),
                 textStyle =
                     TextStyle(
@@ -109,7 +104,7 @@ fun InfoComponent(
                 val browserIntent =
                     Intent(
                         Intent.ACTION_VIEW,
-                        Uri.parse(licenseUrlString),
+                        licenseUrlString.toUri(),
                     )
 
                 context.startActivity(browserIntent, null)
@@ -124,8 +119,7 @@ fun InfoComponent(
                         .size(iconSizeXXS)
                         .semantics {
                             testTagsAsResourceId = true
-                        }
-                        .testTag("mainAboutComponentLicenseUrlButton"),
+                        }.testTag("mainAboutComponentLicenseUrlButton"),
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_m3_open_in_new_48dp_wght400),
                 contentDescription = openButtonContentDescription,
             )

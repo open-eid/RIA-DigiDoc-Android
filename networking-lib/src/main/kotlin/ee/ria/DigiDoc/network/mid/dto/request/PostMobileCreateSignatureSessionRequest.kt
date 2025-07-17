@@ -15,8 +15,8 @@ class PostMobileCreateSignatureSessionRequest {
     var displayText: String? = null
     var displayTextFormat: String? = null
 
-    override fun toString(): String {
-        return "PostMobileCreateSignatureSessionRequest{" +
+    override fun toString(): String =
+        "PostMobileCreateSignatureSessionRequest{" +
             "relyingPartyName='" + relyingPartyName + '\'' +
             ", relyingPartyUUID='" + relyingPartyUUID + '\'' +
             ", phoneNumber='" + phoneNumber + '\'' +
@@ -27,5 +27,4 @@ class PostMobileCreateSignatureSessionRequest {
             ", displayText='" + displayText + '\'' +
             ", displayTextFormat='" + displayTextFormat + '\'' +
             '}'
-    }
 }

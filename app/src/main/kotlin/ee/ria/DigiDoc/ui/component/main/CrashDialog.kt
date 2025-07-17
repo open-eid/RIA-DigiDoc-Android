@@ -49,8 +49,7 @@ fun CrashDialog(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("crashReportDialog"),
+                }.testTag("crashReportDialog"),
         onDismissRequest = onDontSendClick,
     ) {
         Surface(

@@ -155,8 +155,7 @@ fun SignatureMethodScreen(
                                         } else {
                                             "$signingMethodText ${option.contentDescription}"
                                         }
-                                }
-                                .testTag(option.testTag),
+                                }.testTag(option.testTag),
                         selected = selectedOption == option.method,
                         onClick = { selectedOption = option.method },
                     )

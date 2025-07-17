@@ -6,7 +6,6 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.res.Configuration
-import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -94,7 +93,8 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
@@ -173,9 +173,9 @@ fun EncryptNavigation(
     val saveContainerMessage = stringResource(id = R.string.container_save)
     val dismissRemoveFileDialog = {
         closeRemoveFileDialog()
-        AccessibilityUtil.sendAccessibilityEvent(
+        sendAccessibilityEvent(
             context,
-            TYPE_ANNOUNCEMENT,
+            getAccessibilityEventType(),
             fileRemovalCancelled,
         )
     }
@@ -189,9 +189,9 @@ fun EncryptNavigation(
     val openEditContainerNameDialog = rememberSaveable { mutableStateOf(false) }
     val dismissEditContainerNameDialog = {
         openEditContainerNameDialog.value = false
-        AccessibilityUtil.sendAccessibilityEvent(
+        sendAccessibilityEvent(
             context,
-            TYPE_ANNOUNCEMENT,
+            getAccessibilityEventType(),
             containerNameChangeCancelled,
         )
     }
@@ -223,9 +223,9 @@ fun EncryptNavigation(
 
     val dismissRemoveRecipientDialog = {
         closeRecipientDialog()
-        AccessibilityUtil.sendAccessibilityEvent(
+        sendAccessibilityEvent(
             context,
-            TYPE_ANNOUNCEMENT,
+            getAccessibilityEventType(),
             recipientRemovalCancelled,
         )
     }
@@ -365,9 +365,9 @@ fun EncryptNavigation(
             if (isContainerEncrypted) {
                 withContext(Main) {
                     containerEncryptedSuccess.value = true
-                    AccessibilityUtil.sendAccessibilityEvent(
+                    sendAccessibilityEvent(
                         context,
-                        TYPE_ANNOUNCEMENT,
+                        getAccessibilityEventType(),
                         containerEncryptedSuccessText,
                     )
                     delay(2000)
@@ -399,7 +399,7 @@ fun EncryptNavigation(
             showRecipientsLoadingIndicator.value = false
             val newTime = System.currentTimeMillis()
             if (newTime >= (pastTime + 2 * 1000)) {
-                AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, recipientsLoaded)
+                sendAccessibilityEvent(context, getAccessibilityEventType(), recipientsLoaded)
             }
         }
     }
@@ -441,9 +441,9 @@ fun EncryptNavigation(
                 if (status == true) {
                     withContext(Main) {
                         containerDecryptedSuccess.value = true
-                        AccessibilityUtil.sendAccessibilityEvent(
+                        sendAccessibilityEvent(
                             context,
-                            TYPE_ANNOUNCEMENT,
+                            getAccessibilityEventType(),
                             containerDecryptedSuccessText,
                         )
                         containerDecryptedSuccess.value = false
@@ -461,9 +461,9 @@ fun EncryptNavigation(
                 if (status == true) {
                     withContext(Main) {
                         containerDecryptedSuccess.value = true
-                        AccessibilityUtil.sendAccessibilityEvent(
+                        sendAccessibilityEvent(
                             context,
-                            TYPE_ANNOUNCEMENT,
+                            getAccessibilityEventType(),
                             containerDecryptedSuccessText,
                         )
                         containerDecryptedSuccess.value = false
@@ -494,8 +494,7 @@ fun EncryptNavigation(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("encryptScreen"),
+                }.testTag("encryptScreen"),
         topBar = {
             TopBar(
                 modifier = modifier,
@@ -571,8 +570,7 @@ fun EncryptNavigation(
                     .focusGroup()
                     .semantics {
                         testTagsAsResourceId = true
-                    }
-                    .testTag("encryptContainer"),
+                    }.testTag("encryptContainer"),
         ) {
             var actionRecipient by remember { mutableStateOf<Addressee?>(null) }
 
@@ -613,11 +611,12 @@ fun EncryptNavigation(
                                     ex,
                                 )
                                 showLoadingScreen.value = false
-                                Toast.makeText(
-                                    context,
-                                    ex.localizedMessage,
-                                    Toast.LENGTH_LONG,
-                                ).show()
+                                Toast
+                                    .makeText(
+                                        context,
+                                        ex.localizedMessage,
+                                        Toast.LENGTH_LONG,
+                                    ).show()
                             }
                         }
                     }
@@ -698,8 +697,7 @@ fun EncryptNavigation(
                                         .semantics {
                                             heading()
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("encryptionTitle"),
+                                        }.testTag("encryptionTitle"),
                                 text = title,
                                 style = MaterialTheme.typography.headlineMedium,
                                 textAlign = TextAlign.Start,
@@ -732,10 +730,12 @@ fun EncryptNavigation(
                                     ),
                                 showRightActionButton =
                                     encryptViewModel.isDecryptButtonShown(
-                                        cryptoContainer, isNestedContainer,
+                                        cryptoContainer,
+                                        isNestedContainer,
                                     ) ||
                                         encryptViewModel.isEncryptButtonShown(
-                                            cryptoContainer, isNestedContainer,
+                                            cryptoContainer,
+                                            isNestedContainer,
                                         ),
                                 leftActionButtonName = R.string.sign_button,
                                 rightActionButtonName = rightActionButtonName,
@@ -777,8 +777,7 @@ fun EncryptNavigation(
                                                 .size(loadingBarSize)
                                                 .semantics {
                                                     this.contentDescription = dataFilesLoading
-                                                }
-                                                .testTag("dataFilesLoadingProgress"),
+                                                }.testTag("dataFilesLoadingProgress"),
                                     )
                                 }
                             }
@@ -793,8 +792,7 @@ fun EncryptNavigation(
                                                 .semantics {
                                                     heading()
                                                     testTagsAsResourceId = true
-                                                }
-                                                .testTag("encryptDocumentsTitle"),
+                                                }.testTag("encryptDocumentsTitle"),
                                         text = containerFilesDescription,
                                         style = MaterialTheme.typography.bodyMedium,
                                         textAlign = TextAlign.Start,
@@ -898,9 +896,9 @@ fun EncryptNavigation(
                                     )
                                 }
                                 openEditContainerNameDialog.value = false
-                                AccessibilityUtil.sendAccessibilityEvent(
+                                sendAccessibilityEvent(
                                     context,
-                                    TYPE_ANNOUNCEMENT,
+                                    getAccessibilityEventType(),
                                     containerNameChanged,
                                 )
                             },
@@ -963,7 +961,7 @@ fun EncryptNavigation(
                                     }
                                 }
                                 closeRemoveFileDialog()
-                                AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, fileRemoved)
+                                sendAccessibilityEvent(context, getAccessibilityEventType(), fileRemoved)
                             },
                         )
                         InvisibleElement(modifier = modifier)
@@ -1007,7 +1005,7 @@ fun EncryptNavigation(
                                     )
                                 }
                                 closeRecipientDialog()
-                                AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, recipientRemoved)
+                                sendAccessibilityEvent(context, getAccessibilityEventType(), recipientRemoved)
                             },
                         )
                         InvisibleElement(modifier = modifier)
@@ -1155,8 +1153,7 @@ private fun saveFile(
                     .putExtra(
                         Intent.EXTRA_TITLE,
                         sanitizeString(file?.name, ""),
-                    )
-                    .setType(mimetype)
+                    ).setType(mimetype)
                     .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION),
                 null,
             )

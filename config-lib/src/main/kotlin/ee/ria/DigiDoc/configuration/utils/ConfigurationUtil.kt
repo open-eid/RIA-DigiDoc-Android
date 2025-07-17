@@ -9,22 +9,20 @@ object ConfigurationUtil {
     fun isSerialNewerThanCached(
         cachedSerial: Int?,
         newSerial: Int,
-    ): Boolean {
-        return when {
+    ): Boolean =
+        when {
             cachedSerial == null -> true
             else -> {
                 newSerial > cachedSerial
             }
         }
-    }
 
     @OptIn(ExperimentalEncodingApi::class)
-    fun isBase64(encoded: String): Boolean {
-        return try {
+    fun isBase64(encoded: String): Boolean =
+        try {
             Base64.decode(encoded)
             true
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             false
         }
-    }
 }

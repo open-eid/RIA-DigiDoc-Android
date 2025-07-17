@@ -11,17 +11,15 @@ import java.time.LocalDate
 object PersonalCodeValidator {
     private val LOG_TAG = javaClass.simpleName
 
-    fun isPersonalCodeValid(personalCode: String): Boolean {
-        return (
-            isPersonalCodeLengthValid(personalCode) && isBirthDateValid(personalCode) &&
+    fun isPersonalCodeValid(personalCode: String): Boolean =
+        (
+            isPersonalCodeLengthValid(personalCode) &&
+                isBirthDateValid(personalCode) &&
                 isChecksumValid(personalCode)
         ) ||
             (isPersonalCodeLengthValid(personalCode) && isMobileIdTestCode(personalCode))
-    }
 
-    private fun isPersonalCodeNumeric(personalCode: String): Boolean {
-        return StringUtils.isNumeric(personalCode)
-    }
+    private fun isPersonalCodeNumeric(personalCode: String): Boolean = StringUtils.isNumeric(personalCode)
 
     private fun isBirthDateValid(personalCode: String): Boolean {
         if (!isPersonalCodeNumeric(personalCode)) {
@@ -74,9 +72,7 @@ object PersonalCodeValidator {
         return lastNumber == result
     }
 
-    private fun isPersonalCodeLengthValid(personalCode: String): Boolean {
-        return personalCode.length == 11
-    }
+    private fun isPersonalCodeLengthValid(personalCode: String): Boolean = personalCode.length == 11
 
     private fun isMobileIdTestCode(personalCode: String): Boolean {
         val testNumbers =

@@ -82,8 +82,7 @@ fun AccessibilityScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("accessibilityScreen"),
+                }.testTag("accessibilityScreen"),
         topBar = {
             TopBar(
                 modifier = modifier,
@@ -115,8 +114,7 @@ fun AccessibilityScreen(
                     modifier
                         .semantics {
                             testTagsAsResourceId = true
-                        }
-                        .testTag("scrollView")
+                        }.testTag("scrollView")
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.Start,
@@ -127,8 +125,7 @@ fun AccessibilityScreen(
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
-                            )
-                            .testTag("mainAccessibilityIntroduction"),
+                            ).testTag("mainAccessibilityIntroduction"),
                     text = stringResource(R.string.main_accessibility_introduction),
                 )
                 DynamicText(
@@ -137,8 +134,7 @@ fun AccessibilityScreen(
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
-                            )
-                            .testTag("mainAccessibilityLink"),
+                            ).testTag("mainAccessibilityLink"),
                     text = stringResource(R.string.main_accessibility_link),
                 )
                 DynamicText(
@@ -147,8 +143,7 @@ fun AccessibilityScreen(
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
-                            )
-                            .testTag("mainAccessibilityIntroduction2"),
+                            ).testTag("mainAccessibilityIntroduction2"),
                     text = stringResource(R.string.main_accessibility_introduction_2),
                 )
                 Text(
@@ -158,8 +153,7 @@ fun AccessibilityScreen(
                                 start = SPadding,
                                 top = MPadding,
                                 end = SPadding,
-                            )
-                            .semantics { heading() }
+                            ).semantics { heading() }
                             .testTag("mainAccessibilityIntroductionScreenReaderTitle"),
                     text = stringResource(id = R.string.main_accessibility_introduction_screen_reader_title),
                     textAlign = TextAlign.Start,
@@ -171,8 +165,7 @@ fun AccessibilityScreen(
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
-                            )
-                            .testTag("mainAccessibilityIntroductionScreenReaderIntroduction"),
+                            ).testTag("mainAccessibilityIntroductionScreenReaderIntroduction"),
                     text = stringResource(R.string.main_accessibility_introduction_screen_reader_introduction),
                 )
                 DynamicText(
@@ -181,8 +174,7 @@ fun AccessibilityScreen(
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
-                            )
-                            .testTag("mainAccessibilityIntroductionScreenReaderIntroduction2"),
+                            ).testTag("mainAccessibilityIntroductionScreenReaderIntroduction2"),
                     text = stringResource(R.string.main_accessibility_introduction_screen_reader_introduction_2),
                 )
                 DynamicText(
@@ -191,8 +183,7 @@ fun AccessibilityScreen(
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
-                            )
-                            .testTag("mainAccessibilityIntroductionScreenReaderIntroductionApps"),
+                            ).testTag("mainAccessibilityIntroductionScreenReaderIntroductionApps"),
                     text = stringResource(R.string.main_accessibility_introduction_screen_reader_introduction_apps),
                 )
                 DynamicText(
@@ -201,8 +192,7 @@ fun AccessibilityScreen(
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
-                            )
-                            .testTag("mainAccessibilityIntroductionScreenReaderIntroductionIos"),
+                            ).testTag("mainAccessibilityIntroductionScreenReaderIntroductionIos"),
                     text = stringResource(R.string.main_accessibility_introduction_screen_reader_introduction_ios),
                 )
                 DynamicText(
@@ -211,8 +201,7 @@ fun AccessibilityScreen(
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
-                            )
-                            .testTag("mainAccessibilityIntroductionScreenReaderIntroductionAndroid"),
+                            ).testTag("mainAccessibilityIntroductionScreenReaderIntroductionAndroid"),
                     text = stringResource(R.string.main_accessibility_introduction_screen_reader_introduction_android),
                 )
                 Text(
@@ -222,8 +211,7 @@ fun AccessibilityScreen(
                                 start = SPadding,
                                 top = MPadding,
                                 end = SPadding,
-                            )
-                            .semantics { heading() }
+                            ).semantics { heading() }
                             .testTag("mainAccessibilityIntroductionScreenMagnificationTitle"),
                     text = stringResource(id = R.string.main_accessibility_introduction_screen_magnification_title),
                     textAlign = TextAlign.Start,
@@ -235,8 +223,7 @@ fun AccessibilityScreen(
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
-                            )
-                            .testTag("mainAccessibilityIntroductionScreenMagnificationIntroduction"),
+                            ).testTag("mainAccessibilityIntroductionScreenMagnificationIntroduction"),
                     text = stringResource(R.string.main_accessibility_introduction_screen_magnification_introduction),
                 )
                 DynamicText(
@@ -245,8 +232,7 @@ fun AccessibilityScreen(
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
-                            )
-                            .testTag("mainAccessibilityIntroductionScreenMagnificationScreenTools"),
+                            ).testTag("mainAccessibilityIntroductionScreenMagnificationScreenTools"),
                     text = stringResource(R.string.main_accessibility_introduction_screen_magnification_screen_tools),
                 )
                 DynamicText(
@@ -255,8 +241,7 @@ fun AccessibilityScreen(
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
-                            )
-                            .testTag("mainAccessibilityIntroductionScreenMagnificationScreenToolsIos"),
+                            ).testTag("mainAccessibilityIntroductionScreenMagnificationScreenToolsIos"),
                     text =
                         stringResource(
                             R.string.main_accessibility_introduction_screen_magnification_screen_tools_ios,
@@ -268,8 +253,7 @@ fun AccessibilityScreen(
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
-                            )
-                            .testTag("mainAccessibilityIntroductionScreenMagnificationScreenToolsAndroid"),
+                            ).testTag("mainAccessibilityIntroductionScreenMagnificationScreenToolsAndroid"),
                     text =
                         stringResource(
                             R.string.main_accessibility_introduction_screen_magnification_screen_tools_android,
@@ -281,8 +265,7 @@ fun AccessibilityScreen(
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
-                            )
-                            .testTag("mainAccessibilityIntroductionScreenMagnificationTools"),
+                            ).testTag("mainAccessibilityIntroductionScreenMagnificationTools"),
                     text = stringResource(R.string.main_accessibility_introduction_screen_magnification_tools),
                 )
                 DynamicText(
@@ -291,8 +274,7 @@ fun AccessibilityScreen(
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
-                            )
-                            .testTag("mainAccessibilityIntroductionScreenMagnificationToolsIos"),
+                            ).testTag("mainAccessibilityIntroductionScreenMagnificationToolsIos"),
                     text = stringResource(R.string.main_accessibility_introduction_screen_magnification_tools_ios),
                 )
                 DynamicText(
@@ -301,8 +283,7 @@ fun AccessibilityScreen(
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
-                            )
-                            .testTag("mainAccessibilityIntroductionScreenMagnificationToolsAndroid"),
+                            ).testTag("mainAccessibilityIntroductionScreenMagnificationToolsAndroid"),
                     text = stringResource(R.string.main_accessibility_introduction_screen_magnification_tools_android),
                 )
                 InvisibleElement(modifier = modifier)

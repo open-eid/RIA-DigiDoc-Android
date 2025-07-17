@@ -97,8 +97,7 @@ fun ContainerNotificationsScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("containerNotificationsScreen"),
+                }.testTag("containerNotificationsScreen"),
         topBar = {
             TopBar(
                 modifier = modifier,
@@ -136,8 +135,7 @@ fun ContainerNotificationsScreen(
                         .padding(SPadding)
                         .semantics {
                             testTagsAsResourceId = true
-                        }
-                        .testTag("signersCertificateContainer"),
+                        }.testTag("signersCertificateContainer"),
             ) {
                 HorizontalDivider()
                 containerNotifications.forEach { type ->
@@ -149,8 +147,7 @@ fun ContainerNotificationsScreen(
                                 .focusable(true)
                                 .semantics(mergeDescendants = true) {
                                     testTagsAsResourceId = true
-                                }
-                                .focusGroup()
+                                }.focusGroup()
                                 .testTag("containerNotificationsScreenDataRow"),
                         horizontalArrangement = Arrangement.Start,
                         verticalAlignment = Alignment.CenterVertically,
@@ -164,8 +161,7 @@ fun ContainerNotificationsScreen(
                                     .focusable(false)
                                     .semantics {
                                         testTagsAsResourceId = true
-                                    }
-                                    .testTag("containerNotificationsScreenNotificationIcon")
+                                    }.testTag("containerNotificationsScreenNotificationIcon")
                                     .notAccessible(),
                         )
                         Spacer(modifier = modifier.width(SPadding))

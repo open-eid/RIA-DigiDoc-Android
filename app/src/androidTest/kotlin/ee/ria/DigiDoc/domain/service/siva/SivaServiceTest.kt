@@ -51,7 +51,8 @@ class SivaServiceTest {
             sivaService = SivaServiceImpl(mimeTypeResolver)
             signedPdfDocument =
                 AssetFile.getResourceFileAsFile(
-                    context, "example_signed_pdf.pdf",
+                    context,
+                    "example_signed_pdf.pdf",
                     ee.ria.DigiDoc.common.R.raw.example_signed_pdf,
                 )
 

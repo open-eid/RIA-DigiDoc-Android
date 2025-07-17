@@ -35,8 +35,7 @@ fun AdvancedSettingsFragment(
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("advancedSettingsFragment"),
+                }.testTag("advancedSettingsFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         AdvancedSettingsScreen(

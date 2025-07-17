@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.ui.component.myeid.pinandcertificate
 
-import android.view.accessibility.AccessibilityEvent
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
@@ -80,8 +79,9 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeM
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
@@ -127,13 +127,13 @@ fun MyEidPinScreen(
     val newPinState = remember { mutableStateOf(byteArrayOf()) }
     val newPinRepeatedState = remember { mutableStateOf(byteArrayOf()) }
 
-    var showCurrentPinField = rememberSaveable { mutableStateOf(true) }
-    var showNewPinField = rememberSaveable { mutableStateOf(false) }
-    var showNewRepeatPinField = rememberSaveable { mutableStateOf(false) }
+    val showCurrentPinField = rememberSaveable { mutableStateOf(true) }
+    val showNewPinField = rememberSaveable { mutableStateOf(false) }
+    val showNewRepeatPinField = rememberSaveable { mutableStateOf(false) }
 
-    var pinErrorText = rememberSaveable { mutableStateOf("") }
+    val pinErrorText = rememberSaveable { mutableStateOf("") }
 
-    var actionContinue = stringResource(R.string.action_continue)
+    val actionContinue = stringResource(R.string.action_continue)
 
     val clearButtonText = stringResource(R.string.clear_text)
     val buttonName = stringResource(id = R.string.button_name)
@@ -269,9 +269,9 @@ fun MyEidPinScreen(
 
     LaunchedEffect(pinErrorText.value) {
         if (isTalkBackEnabled(context) && pinErrorText.value.isNotEmpty()) {
-            AccessibilityUtil.sendAccessibilityEvent(
+            sendAccessibilityEvent(
                 context,
-                AccessibilityEvent.TYPE_ANNOUNCEMENT,
+                getAccessibilityEventType(),
                 pinErrorText.value.lowercase(),
             )
         }
@@ -397,8 +397,7 @@ fun MyEidPinScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("myEidPinScreen"),
+                }.testTag("myEidPinScreen"),
         topBar = {
             TopBar(
                 modifier = modifier,
@@ -577,8 +576,7 @@ fun MyEidPinScreen(
                     .focusGroup()
                     .semantics {
                         testTagsAsResourceId = true
-                    }
-                    .testTag("myEidPinContainer"),
+                    }.testTag("myEidPinContainer"),
         ) {
             Column(
                 modifier =
@@ -610,8 +608,7 @@ fun MyEidPinScreen(
                                     this.contentDescription = title.lowercase()
                                     traversalIndex = 1f
                                     testTagsAsResourceId = true
-                                }
-                                .focusable(enabled = true)
+                                }.focusable(enabled = true)
                                 .focusTarget()
                                 .focusProperties { canFocus = true }
                                 .testTag("myEidPinChangeTitle"),
@@ -650,8 +647,7 @@ fun MyEidPinScreen(
                                         .focusable(false)
                                         .semantics {
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("myEidPinCurrentPinCodeTitle")
+                                        }.testTag("myEidPinCurrentPinCodeTitle")
                                         .notAccessible(),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 style = MaterialTheme.typography.titleLarge,
@@ -672,8 +668,7 @@ fun MyEidPinScreen(
                                             .semantics {
                                                 traversalIndex = 3f
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("myEidCurrentPinTextField"),
+                                            }.testTag("myEidCurrentPinTextField"),
                                     pin = currentPinState,
                                     pinCodeLabel = pinCodeLabel,
                                     pinNumberFocusRequester = currentPinFocusRequester,
@@ -704,8 +699,7 @@ fun MyEidPinScreen(
                                                 .semantics {
                                                     traversalIndex = 4f
                                                     testTagsAsResourceId = true
-                                                }
-                                                .testTag("myEidCurrentPinRemoveButton"),
+                                                }.testTag("myEidCurrentPinRemoveButton"),
                                         onClick = {
                                             currentPinState.value = byteArrayOf()
                                             scope.launch(Main) {
@@ -722,8 +716,7 @@ fun MyEidPinScreen(
                                                     .size(iconSizeXXS)
                                                     .semantics {
                                                         testTagsAsResourceId = true
-                                                    }
-                                                    .testTag("idCardCurrentPinRemoveIconButton"),
+                                                    }.testTag("idCardCurrentPinRemoveIconButton"),
                                             imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                             contentDescription = "$clearButtonText $buttonName",
                                         )
@@ -740,8 +733,7 @@ fun MyEidPinScreen(
                                             this.contentDescription = pinLengthRequirementText.lowercase()
                                             traversalIndex = 2f
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("myEidCurrentPinDescriptionText"),
+                                        }.testTag("myEidCurrentPinDescriptionText"),
                                 text = pinLengthRequirementText,
                                 color =
                                     if (!isCurrentPinValid) {
@@ -761,8 +753,7 @@ fun MyEidPinScreen(
                                         .focusable(false)
                                         .semantics {
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("myEidNewPinCodeTitle")
+                                        }.testTag("myEidNewPinCodeTitle")
                                         .notAccessible(),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 style = MaterialTheme.typography.titleLarge,
@@ -783,8 +774,7 @@ fun MyEidPinScreen(
                                             .semantics {
                                                 traversalIndex = 7f
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("myEidNewPinTextField"),
+                                            }.testTag("myEidNewPinTextField"),
                                     pin = newPinState,
                                     pinCodeLabel = pinCodeLabel,
                                     pinNumberFocusRequester = newPinFocusRequester,
@@ -815,8 +805,7 @@ fun MyEidPinScreen(
                                                 .semantics {
                                                     traversalIndex = 8f
                                                     testTagsAsResourceId = true
-                                                }
-                                                .testTag("myEidNewPinRemoveButton"),
+                                                }.testTag("myEidNewPinRemoveButton"),
                                         onClick = {
                                             newPinState.value = byteArrayOf()
                                             scope.launch(Main) {
@@ -833,8 +822,7 @@ fun MyEidPinScreen(
                                                     .size(iconSizeXXS)
                                                     .semantics {
                                                         testTagsAsResourceId = true
-                                                    }
-                                                    .testTag("idCardNewPinRemoveIconButton"),
+                                                    }.testTag("idCardNewPinRemoveIconButton"),
                                             imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                             contentDescription = "$clearButtonText $buttonName",
                                         )
@@ -855,8 +843,7 @@ fun MyEidPinScreen(
                                                 "$pinDifferentRequirementText $pinLengthRequirementText"
                                             traversalIndex = 5f
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("myEidNewPinDescriptionText"),
+                                        }.testTag("myEidNewPinDescriptionText"),
                                 text = "$pinDifferentRequirementText $pinLengthRequirementText",
                                 color =
                                     if (!isNewPinValid) {
@@ -878,8 +865,7 @@ fun MyEidPinScreen(
                                             .semantics {
                                                 traversalIndex = 6f
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("myEidNewPinErrorText"),
+                                            }.testTag("myEidNewPinErrorText"),
                                     text = pinErrorText.value,
                                     color = Red500,
                                     style = MaterialTheme.typography.bodySmall,
@@ -902,8 +888,7 @@ fun MyEidPinScreen(
                                         .focusable(false)
                                         .semantics {
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("myEidNewPinRepeatCodeTitle")
+                                        }.testTag("myEidNewPinRepeatCodeTitle")
                                         .notAccessible(),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 style = MaterialTheme.typography.titleLarge,
@@ -924,8 +909,7 @@ fun MyEidPinScreen(
                                             .semantics {
                                                 traversalIndex = 11f
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("myEidNewPinRepeatedTextField"),
+                                            }.testTag("myEidNewPinRepeatedTextField"),
                                     pin = newPinRepeatedState,
                                     pinCodeLabel = pinCodeLabel,
                                     pinNumberFocusRequester = newPinRepeatedFocusRequester,
@@ -943,8 +927,7 @@ fun MyEidPinScreen(
                                                 .semantics {
                                                     traversalIndex = 12f
                                                     testTagsAsResourceId = true
-                                                }
-                                                .testTag("myEidNewPinRepeatedRemoveButton"),
+                                                }.testTag("myEidNewPinRepeatedRemoveButton"),
                                         onClick = {
                                             newPinRepeatedState.value = byteArrayOf()
                                             scope.launch(Main) {
@@ -961,8 +944,7 @@ fun MyEidPinScreen(
                                                     .size(iconSizeXXS)
                                                     .semantics {
                                                         testTagsAsResourceId = true
-                                                    }
-                                                    .testTag("idCardNewPinRepeatedRemoveIconButton"),
+                                                    }.testTag("idCardNewPinRepeatedRemoveIconButton"),
                                             imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                             contentDescription = "$clearButtonText $buttonName",
                                         )
@@ -983,8 +965,7 @@ fun MyEidPinScreen(
                                                 "$pinDifferentRequirementText $pinLengthRequirementText".lowercase()
                                             traversalIndex = 9f
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("myEidNewPinRepeatDescriptionText"),
+                                        }.testTag("myEidNewPinRepeatDescriptionText"),
                                 text = "$pinDifferentRequirementText $pinLengthRequirementText",
                                 color =
                                     if (!isNewRepeatedPinValid) {
@@ -1006,8 +987,7 @@ fun MyEidPinScreen(
                                             .semantics {
                                                 traversalIndex = 10f
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("myEidNewPinErrorText"),
+                                            }.testTag("myEidNewPinErrorText"),
                                     text = pinErrorText.value,
                                     color = Red500,
                                     style = MaterialTheme.typography.bodySmall,

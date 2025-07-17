@@ -61,8 +61,8 @@ class RESTServiceFault : DetailMessageSource {
         this.error = error
     }
 
-    override fun toString(): String {
-        return "RESTServiceFault{" +
+    override fun toString(): String =
+        "RESTServiceFault{" +
             "httpStatus=" + httpStatus +
             ", state=" + state +
             ", status=" + status +
@@ -71,5 +71,4 @@ class RESTServiceFault : DetailMessageSource {
             ", traceId='" + traceId + '\'' +
             ", error='" + error + '\'' +
             '}'
-    }
 }

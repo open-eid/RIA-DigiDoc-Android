@@ -37,7 +37,7 @@ import javax.inject.Inject
 class SharedContainerViewModel
     @Inject
     constructor(
-        @ApplicationContext private val context: Context,
+        @param:ApplicationContext private val context: Context,
         private val contentResolver: ContentResolver,
     ) : ViewModel() {
         private val _signedContainer = MutableLiveData<SignedContainer?>()
@@ -174,8 +174,8 @@ class SharedContainerViewModel
         fun getCryptoContainerDataFile(
             cryptoContainer: CryptoContainer?,
             dataFile: File,
-        ): File? {
-            return cryptoContainer?.getDataFile(
+        ): File? =
+            cryptoContainer?.getDataFile(
                 dataFile,
                 cryptoContainer.file?.let {
                     ContainerUtil.getContainerDataFilesDir(
@@ -184,7 +184,6 @@ class SharedContainerViewModel
                     )
                 },
             )
-        }
 
         @Throws(Exception::class)
         suspend fun removeCryptoContainerDataFile(
@@ -212,8 +211,8 @@ class SharedContainerViewModel
         fun getContainerDataFile(
             signedContainer: SignedContainer?,
             dataFile: DataFileInterface,
-        ): File? {
-            return signedContainer?.getDataFile(
+        ): File? =
+            signedContainer?.getDataFile(
                 dataFile,
                 signedContainer.getContainerFile()?.let {
                     ContainerUtil.getContainerDataFilesDir(
@@ -222,7 +221,6 @@ class SharedContainerViewModel
                     )
                 },
             )
-        }
 
         @Throws(Exception::class)
         suspend fun removeContainerDataFile(
@@ -243,7 +241,8 @@ class SharedContainerViewModel
             FileInputStream(documentFile).use { inputStream ->
                 activityResult.data?.data?.let {
                     contentResolver
-                        .openOutputStream(it).use { outputStream ->
+                        .openOutputStream(it)
+                        .use { outputStream ->
                             if (outputStream != null) {
                                 ByteStreams.copy(inputStream, outputStream)
                             }

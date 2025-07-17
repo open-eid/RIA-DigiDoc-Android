@@ -22,8 +22,8 @@ data class MobileCreateSignatureSessionStatusResponse(
     @SerializedName("error")
     var error: String? = null,
 ) {
-    override fun toString(): String {
-        return "MobileCreateSignatureSessionStatusResponse{" +
+    override fun toString(): String =
+        "MobileCreateSignatureSessionStatusResponse{" +
             "state=" + state +
             ", result=" + result +
             ", signature=" + signature +
@@ -32,5 +32,4 @@ data class MobileCreateSignatureSessionStatusResponse(
             ", traceId='" + traceId + '\'' +
             ", error='" + error + '\'' +
             '}'
-    }
 }

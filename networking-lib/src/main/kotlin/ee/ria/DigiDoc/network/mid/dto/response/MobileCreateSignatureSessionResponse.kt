@@ -16,12 +16,11 @@ data class MobileCreateSignatureSessionResponse(
     @SerializedName("error")
     var error: String? = null,
 ) {
-    override fun toString(): String {
-        return "MobileCreateSignatureSessionResponse{" +
+    override fun toString(): String =
+        "MobileCreateSignatureSessionResponse{" +
             "sessionID='" + sessionID + '\'' +
             ", traceId='" + traceId + '\'' +
             ", time='" + time + '\'' +
             ", error='" + error + '\'' +
             '}'
-    }
 }

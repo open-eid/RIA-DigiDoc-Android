@@ -83,8 +83,7 @@ fun SigningServicesSettingsScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("advancedSettingsScreen"),
+                }.testTag("advancedSettingsScreen"),
         topBar = {
             TopBar(
                 modifier = modifier,
@@ -113,8 +112,7 @@ fun SigningServicesSettingsScreen(
                     .verticalScroll(rememberScrollState())
                     .semantics {
                         testTagsAsResourceId = true
-                    }
-                    .testTag("scrollView"),
+                    }.testTag("scrollView"),
         ) {
             TabView(
                 modifier = modifier,

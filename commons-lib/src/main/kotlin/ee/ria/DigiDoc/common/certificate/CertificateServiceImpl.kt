@@ -18,9 +18,7 @@ import javax.inject.Singleton
 class CertificateServiceImpl
     @Inject
     constructor() : CertificateService {
-        override fun parseCertificate(data: ByteArray): X509CertificateHolder {
-            return X509CertificateHolder(data)
-        }
+        override fun parseCertificate(data: ByteArray): X509CertificateHolder = X509CertificateHolder(data)
 
         override fun extractEIDType(certificate: X509CertificateHolder): EIDType {
             val extensions = certificate.extensions
@@ -45,7 +43,11 @@ class CertificateServiceImpl
 
         override fun extractFriendlyName(certificate: X509CertificateHolder): String {
             val rdNs = certificate.subject.getRDNs(ASN1ObjectIdentifier.getInstance(BCStyle.CN))
-            val commonName = rdNs[0].first.value.toString().trim { it <= ' ' }
+            val commonName =
+                rdNs[0]
+                    .first.value
+                    .toString()
+                    .trim { it <= ' ' }
 
             val rdSNNs = certificate.subject.getRDNs(ASN1ObjectIdentifier.getInstance(BCStyle.SURNAME))
             val rdGNNs = certificate.subject.getRDNs(ASN1ObjectIdentifier.getInstance(BCStyle.GIVENNAME))
@@ -57,17 +59,22 @@ class CertificateServiceImpl
                 if (rdSERIALNs.isEmpty()) {
                     ""
                 } else {
-                    rdSERIALNs[0].first.value.toString()
+                    rdSERIALNs[0]
+                        .first.value
+                        .toString()
                         .trim { it <= ' ' }
                 }
-            if (serialNR.length > 6 && (
+            if (serialNR.length > 6 &&
+                (
                     types.contains(
                         serialNR.substring(
                             0,
                             3,
                         ),
-                    ) || serialNR[2] == ':'
-                ) && serialNR[5] == '-'
+                    ) ||
+                        serialNR[2] == ':'
+                ) &&
+                serialNR[5] == '-'
             ) {
                 serialNR = serialNR.substring(6)
             }
@@ -75,7 +82,9 @@ class CertificateServiceImpl
             return if (rdSNNs.isEmpty() || rdGNNs.isEmpty()) {
                 commonName
             } else {
-                rdSNNs[0].first.value.toString()
+                rdSNNs[0]
+                    .first.value
+                    .toString()
                     .trim { it <= ' ' } + "," +
                     rdGNNs[0]
                         .first.value

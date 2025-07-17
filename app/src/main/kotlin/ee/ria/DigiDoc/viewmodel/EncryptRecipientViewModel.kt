@@ -34,7 +34,7 @@ import javax.inject.Inject
 class EncryptRecipientViewModel
     @Inject
     constructor(
-        @ApplicationContext private val context: Context,
+        @param:ApplicationContext private val context: Context,
         private val mimeTypeResolver: MimeTypeResolver,
         private val recipientRepository: RecipientRepository,
         private val cdoc2Settings: CDOC2Settings,
@@ -104,9 +104,7 @@ class EncryptRecipientViewModel
                     initialValue = _recipientList.value,
                 )
 
-        fun getRecipientList(): List<Addressee> {
-            return listOf<Addressee>()
-        }
+        fun getRecipientList(): List<Addressee> = listOf<Addressee>()
 
         fun getContainerRecipientList(sharedContainerViewModel: SharedContainerViewModel): List<Addressee> {
             val cryptoContainer = sharedContainerViewModel.cryptoContainer.value

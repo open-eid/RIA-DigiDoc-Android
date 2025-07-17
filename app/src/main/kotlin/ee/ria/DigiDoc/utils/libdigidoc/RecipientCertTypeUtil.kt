@@ -10,8 +10,8 @@ object RecipientCertTypeUtil {
     fun getRecipientCertTypeText(
         context: Context,
         certType: CertType,
-    ): String {
-        return when (certType) {
+    ): String =
+        when (certType) {
             CertType.UnknownType -> context.getString(R.string.crypto_container_cert_type_unknown_type)
             CertType.IDCardType -> context.getString(R.string.crypto_container_cert_type_id_card_type)
             CertType.DigiIDType -> context.getString(R.string.crypto_container_cert_type_digi_id_type)
@@ -20,5 +20,4 @@ object RecipientCertTypeUtil {
             CertType.SmartIDType -> context.getString(R.string.crypto_container_cert_type_smart_id_type)
             CertType.ESealType -> context.getString(R.string.crypto_container_cert_type_e_seal_type)
         }
-    }
 }

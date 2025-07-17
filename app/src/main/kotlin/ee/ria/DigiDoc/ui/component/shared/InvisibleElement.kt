@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.invisibleToUser
+import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import ee.ria.DigiDoc.R.string.last_invisible_element_name
@@ -28,9 +28,8 @@ fun InvisibleElement(modifier: Modifier = Modifier) {
                 .alpha(0.01f)
                 .focusable(false)
                 .semantics {
-                    invisibleToUser()
+                    hideFromAccessibility()
                     testTagsAsResourceId = true
-                }
-                .testTag("lastInvisibleElement"),
+                }.testTag("lastInvisibleElement"),
     )
 }

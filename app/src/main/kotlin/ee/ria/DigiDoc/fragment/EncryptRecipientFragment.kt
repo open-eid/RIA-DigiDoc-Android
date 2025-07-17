@@ -39,8 +39,7 @@ fun EncryptRecipientFragment(
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("encryptRecipientFragment"),
+                }.testTag("encryptRecipientFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         EncryptRecipientScreen(

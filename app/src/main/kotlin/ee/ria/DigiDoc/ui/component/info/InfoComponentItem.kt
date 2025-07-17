@@ -7,13 +7,13 @@ import androidx.compose.runtime.Composable
 import ee.ria.DigiDoc.R
 
 data class InfoComponentItem(
-    @StringRes val name: Int = 0,
-    @StringRes val licenseName: Int = 0,
-    @StringRes val licenseUrl: Int = 0,
+    @param:StringRes val name: Int = 0,
+    @param:StringRes val licenseName: Int = 0,
+    @param:StringRes val licenseUrl: Int = 0,
 ) {
     @Composable
-    fun componentItems(): List<InfoComponentItem> {
-        return listOf(
+    fun componentItems(): List<InfoComponentItem> =
+        listOf(
             InfoComponentItem(
                 name = R.string.main_about_libdigidocpp_title,
                 licenseName = R.string.main_about_lgpl_2_1_license_title,
@@ -175,5 +175,4 @@ data class InfoComponentItem(
                 licenseUrl = R.string.main_about_apache_2_license_txt_url,
             ),
         )
-    }
 }

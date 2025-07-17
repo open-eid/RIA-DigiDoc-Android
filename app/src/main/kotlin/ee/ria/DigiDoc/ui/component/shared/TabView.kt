@@ -37,8 +37,7 @@ fun TabView(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag(testTag)
+                }.testTag(testTag)
                 .fillMaxSize(),
     ) {
         TabRow(

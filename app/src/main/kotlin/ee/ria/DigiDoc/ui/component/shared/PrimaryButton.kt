@@ -60,8 +60,7 @@ fun PrimaryButton(
             modifier
                 .semantics(mergeDescendants = true) {
                     testTagsAsResourceId = true
-                }
-                .fillMaxWidth()
+                }.fillMaxWidth()
                 .focusable(enabled = isFocusable),
         shape = RoundedCornerShape(buttonCornerShapeSize),
         contentPadding = PaddingValues(zeroPadding),

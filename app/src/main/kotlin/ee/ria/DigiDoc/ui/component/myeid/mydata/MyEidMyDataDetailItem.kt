@@ -10,7 +10,7 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumb
 
 data class MyEidMyDataDetailItem(
     val showTagBadge: Boolean = false,
-    @StringRes val label: Int = 0,
+    @param:StringRes val label: Int = 0,
     val value: String? = null,
     val contentDescription: String = "",
     val testTag: String = "",

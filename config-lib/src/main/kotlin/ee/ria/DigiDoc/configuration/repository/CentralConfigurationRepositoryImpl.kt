@@ -14,23 +14,15 @@ class CentralConfigurationRepositoryImpl
     constructor(
         private val configurationService: CentralConfigurationService,
     ) : CentralConfigurationRepository {
-        override suspend fun fetchConfiguration(): String {
-            return configurationService.fetchConfiguration()
-        }
+        override suspend fun fetchConfiguration(): String = configurationService.fetchConfiguration()
 
-        override suspend fun fetchPublicKey(): String {
-            return configurationService.fetchPublicKey()
-        }
+        override suspend fun fetchPublicKey(): String = configurationService.fetchPublicKey()
 
         @Throws(Exception::class)
-        override suspend fun fetchSignature(): String {
-            return configurationService.fetchSignature()
-        }
+        override suspend fun fetchSignature(): String = configurationService.fetchSignature()
 
         override suspend fun setupProxy(
             proxySetting: ProxySetting?,
             manualProxy: ManualProxy,
-        ) {
-            return configurationService.setupProxy(proxySetting, manualProxy)
-        }
+        ) = configurationService.setupProxy(proxySetting, manualProxy)
     }

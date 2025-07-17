@@ -2,4 +2,6 @@
 
 package ee.ria.DigiDoc.libdigidoclib.exceptions
 
-class SigningCancelledException(message: String) : Exception(message)
+class SigningCancelledException(
+    message: String,
+) : Exception(message)

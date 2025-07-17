@@ -88,16 +88,15 @@ class NFCViewModel
         val dialogError: LiveData<Int> = _dialogError
 
         private val dialogMessages: ImmutableMap<SessionStatusResponseProcessStatus, Int> =
-            ImmutableMap.builder<SessionStatusResponseProcessStatus, Int>()
+            ImmutableMap
+                .builder<SessionStatusResponseProcessStatus, Int>()
                 .put(
                     SessionStatusResponseProcessStatus.TOO_MANY_REQUESTS,
                     R.string.too_many_requests_message,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.OCSP_INVALID_TIME_SLOT,
                     R.string.invalid_time_slot_message,
-                )
-                .build()
+                ).build()
 
         fun resetErrorState() {
             _errorState.postValue(null)
@@ -123,34 +122,28 @@ class NFCViewModel
             _shouldResetPIN.postValue(false)
         }
 
-        fun shouldShowCANNumberError(canNumber: String?): Boolean {
-            return (
+        fun shouldShowCANNumberError(canNumber: String?): Boolean =
+            (
                 !canNumber.isNullOrEmpty() &&
                     !isCANLengthValid(canNumber)
             )
-        }
 
         fun shouldShowPINCodeError(
             pinCode: ByteArray?,
             codeType: CodeType,
-        ): Boolean {
-            return (pinCode != null && pinCode.isNotEmpty() && !isPINLengthValid(pinCode, codeType))
-        }
+        ): Boolean = (pinCode != null && pinCode.isNotEmpty() && !isPINLengthValid(pinCode, codeType))
 
         private fun isPINLengthValid(
             pinCode: ByteArray,
             codeType: CodeType,
-        ): Boolean {
-            return when (codeType) {
+        ): Boolean =
+            when (codeType) {
                 CodeType.PIN1 -> pinCode.size in PIN1_MIN_LENGTH..PIN_MAX_LENGTH
                 CodeType.PIN2 -> pinCode.size in PIN2_MIN_LENGTH..PIN_MAX_LENGTH
                 CodeType.PUK -> pinCode.size > PUK_MIN_LENGTH
             }
-        }
 
-        fun isCANLengthValid(canNumber: String): Boolean {
-            return canNumber.length == CAN_LENGTH
-        }
+        fun isCANLengthValid(canNumber: String): Boolean = canNumber.length == CAN_LENGTH
 
         fun positiveButtonEnabled(
             canNumber: String?,
@@ -164,9 +157,7 @@ class NFCViewModel
             return false
         }
 
-        fun getNFCStatus(activity: Activity): NfcStatus {
-            return nfcSmartCardReaderManager.detectNfcStatus(activity)
-        }
+        fun getNFCStatus(activity: Activity): NfcStatus = nfcSmartCardReaderManager.detectNfcStatus(activity)
 
         private fun resetValues() {
             _errorState.postValue(null)

@@ -36,7 +36,8 @@ class SivaServiceImpl
             val mimetype = mimeTypeResolver.mimeType(file)
 
             return SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(mimetype) &&
-                !file.isXades(context) || (PDF_MIMETYPE == mimetype && file.isSignedPDF(context)) ||
+                !file.isXades(context) ||
+                (PDF_MIMETYPE == mimetype && file.isSignedPDF(context)) ||
                 file.isCades(context)
         }
 
@@ -44,7 +45,8 @@ class SivaServiceImpl
             signedContainer: SignedContainer,
             isSivaConfirmed: Boolean,
         ): Boolean =
-            isSivaConfirmed && signedContainer.getDataFiles().size == 1 &&
+            isSivaConfirmed &&
+                signedContainer.getDataFiles().size == 1 &&
                 signedContainer.containerMimetype().equals(ASICS_MIMETYPE) &&
                 signedContainer.getSignatures().first().profile == "TimeStampToken"
 

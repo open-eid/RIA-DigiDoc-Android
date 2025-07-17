@@ -3,7 +3,6 @@
 package ee.ria.DigiDoc.ui.component.signing
 
 import android.content.res.Configuration
-import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -45,7 +44,8 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXL
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.NFCViewModel
 import kotlinx.coroutines.delay
@@ -91,9 +91,9 @@ fun NFCSignatureUpdateContainer(
     LaunchedEffect(Unit, nfcDialogText) {
         if (nfcDialogText.isNotEmpty()) {
             delay(500)
-            AccessibilityUtil.sendAccessibilityEvent(
+            sendAccessibilityEvent(
                 context,
-                TYPE_ANNOUNCEMENT,
+                getAccessibilityEventType(),
                 nfcDialogText,
             )
         }
@@ -107,8 +107,7 @@ fun NFCSignatureUpdateContainer(
                 .padding(vertical = LPadding)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("signatureUpdateNFCContainer"),
+                }.testTag("signatureUpdateNFCContainer"),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

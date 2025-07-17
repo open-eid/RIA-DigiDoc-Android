@@ -60,90 +60,73 @@ class MobileIdViewModel
         val dialogError: LiveData<Int> = _dialogError
 
         private val faults: ImmutableMap<MobileCertificateResultType, Int> =
-            ImmutableMap.builder<MobileCertificateResultType, Int>()
+            ImmutableMap
+                .builder<MobileCertificateResultType, Int>()
                 .put(
                     MobileCertificateResultType.NOT_FOUND,
                     R.string.signature_update_mobile_id_error_not_mobile_id_user,
-                )
-                .put(
+                ).put(
                     MobileCertificateResultType.NOT_ACTIVE,
                     R.string.signature_update_mobile_id_error_not_mobile_id_user,
-                )
-                .build()
+                ).build()
 
         private val messages: ImmutableMap<MobileCreateSignatureProcessStatus, Int> =
-            ImmutableMap.builder<MobileCreateSignatureProcessStatus, Int>()
+            ImmutableMap
+                .builder<MobileCreateSignatureProcessStatus, Int>()
                 .put(
                     MobileCreateSignatureProcessStatus.OK,
                     R.string.signature_update_mobile_id_status_request_ok,
-                )
-                .put(
+                ).put(
                     MobileCreateSignatureProcessStatus.TIMEOUT,
                     R.string.signature_update_mobile_id_status_expired_transaction,
-                )
-                .put(
+                ).put(
                     MobileCreateSignatureProcessStatus.NOT_MID_CLIENT,
                     R.string.signature_update_mobile_id_status_expired_transaction,
-                )
-                .put(
+                ).put(
                     MobileCreateSignatureProcessStatus.USER_CANCELLED,
                     R.string.signature_update_mobile_id_status_user_cancel,
-                )
-                .put(
+                ).put(
                     MobileCreateSignatureProcessStatus.SIGNATURE_HASH_MISMATCH,
                     R.string.signature_update_mobile_id_status_signature_hash_mismatch,
-                )
-                .put(
+                ).put(
                     MobileCreateSignatureProcessStatus.DELIVERY_ERROR,
                     R.string.signature_update_mobile_id_status_delivery_error,
-                )
-                .put(
+                ).put(
                     MobileCreateSignatureProcessStatus.PHONE_ABSENT,
                     R.string.signature_update_mobile_id_status_phone_absent,
-                )
-                .put(
+                ).put(
                     MobileCreateSignatureProcessStatus.SIM_ERROR,
                     R.string.signature_update_mobile_id_status_sim_error,
-                )
-                .put(
+                ).put(
                     MobileCreateSignatureProcessStatus.TOO_MANY_REQUESTS,
                     R.string.too_many_requests_message,
-                )
-                .put(
+                ).put(
                     MobileCreateSignatureProcessStatus.EXCEEDED_UNSUCCESSFUL_REQUESTS,
                     R.string.signature_update_signature_error_message_exceeded_unsuccessful_requests,
-                )
-                .put(
+                ).put(
                     MobileCreateSignatureProcessStatus.INVALID_ACCESS_RIGHTS,
                     R.string.signature_update_mobile_id_error_message_access_rights,
-                )
-                .put(
+                ).put(
                     MobileCreateSignatureProcessStatus.OCSP_INVALID_TIME_SLOT,
                     R.string.invalid_time_slot_message,
-                )
-                .put(
+                ).put(
                     MobileCreateSignatureProcessStatus.CERTIFICATE_REVOKED,
                     R.string.signature_update_signature_error_message_certificate_revoked,
-                )
-                .put(
+                ).put(
                     MobileCreateSignatureProcessStatus.GENERAL_ERROR,
                     R.string.error_general_client,
-                )
-                .put(MobileCreateSignatureProcessStatus.NO_RESPONSE, R.string.no_internet_connection)
+                ).put(MobileCreateSignatureProcessStatus.NO_RESPONSE, R.string.no_internet_connection)
                 .put(
                     MobileCreateSignatureProcessStatus.INVALID_COUNTRY_CODE,
                     R.string.signature_update_mobile_id_status_no_country_code,
-                )
-                .put(MobileCreateSignatureProcessStatus.INVALID_SSL_HANDSHAKE, R.string.invalid_ssl_handshake)
+                ).put(MobileCreateSignatureProcessStatus.INVALID_SSL_HANDSHAKE, R.string.invalid_ssl_handshake)
                 .put(
                     MobileCreateSignatureProcessStatus.TECHNICAL_ERROR,
                     R.string.signature_update_mobile_id_error_technical_error,
-                )
-                .put(
+                ).put(
                     MobileCreateSignatureProcessStatus.INVALID_PROXY_SETTINGS,
                     R.string.main_settings_proxy_invalid_settings,
-                )
-                .build()
+                ).build()
 
         fun resetDialogErrorState() {
             _dialogError.postValue(0)
@@ -332,12 +315,11 @@ class MobileIdViewModel
             }
         }
 
-        fun isPersonalCodeValid(personalCode: String?): Boolean {
-            return !(
+        fun isPersonalCodeValid(personalCode: String?): Boolean =
+            !(
                 !personalCode.isNullOrEmpty() &&
                     !PersonalCodeValidator.isPersonalCodeValid(personalCode)
             )
-        }
 
         fun isPhoneNumberValid(phoneNumber: String?): Boolean {
             if (!phoneNumber.isNullOrEmpty()) {
@@ -357,17 +339,16 @@ class MobileIdViewModel
             personalCode: String?,
         ): Boolean {
             if (phoneNumber != null && personalCode != null) {
-                return isCountryCodeCorrect(phoneNumber.toString()) &&
-                    isPhoneNumberCorrect(phoneNumber.toString()) &&
-                    PersonalCodeValidator.isPersonalCodeValid(personalCode.toString())
+                return isCountryCodeCorrect(phoneNumber) &&
+                    isPhoneNumberCorrect(phoneNumber) &&
+                    PersonalCodeValidator.isPersonalCodeValid(personalCode)
             }
             return false
         }
 
-        fun isCountryCodeMissing(phoneNumber: String): Boolean {
-            return phoneNumber.length in 4..<MINIMUM_PHONE_NUMBER_LENGTH &&
+        fun isCountryCodeMissing(phoneNumber: String): Boolean =
+            phoneNumber.length in 4..<MINIMUM_PHONE_NUMBER_LENGTH &&
                 !isCountryCodeCorrect(phoneNumber)
-        }
 
         fun isCountryCodeCorrect(phoneNumber: String): Boolean {
             for (allowedCountryCode in ALLOWED_PHONE_NUMBER_COUNTRY_CODES) {
@@ -378,7 +359,5 @@ class MobileIdViewModel
             return false
         }
 
-        fun isPhoneNumberCorrect(phoneNumber: String): Boolean {
-            return phoneNumber.length >= MINIMUM_PHONE_NUMBER_LENGTH
-        }
+        fun isPhoneNumberCorrect(phoneNumber: String): Boolean = phoneNumber.length >= MINIMUM_PHONE_NUMBER_LENGTH
     }

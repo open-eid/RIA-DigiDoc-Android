@@ -37,8 +37,7 @@ fun SignatureMethodFragment(
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("signatureFragment"),
+                }.testTag("signatureFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         SignatureMethodScreen(

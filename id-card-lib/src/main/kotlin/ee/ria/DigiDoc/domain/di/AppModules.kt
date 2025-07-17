@@ -45,9 +45,7 @@ class AppModules {
 
     @Provides
     @Singleton
-    fun provideAcsUsbSmartCardReader(usbManager: UsbManager): AcsUsbSmartCardReader {
-        return AcsUsbSmartCardReader(usbManager)
-    }
+    fun provideAcsUsbSmartCardReader(usbManager: UsbManager): AcsUsbSmartCardReader = AcsUsbSmartCardReader(usbManager)
 
     @Provides
     @Singleton

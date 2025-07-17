@@ -12,13 +12,13 @@ import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer.Companion.openOrCreate
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
+import ee.ria.DigiDoc.utilsLib.locale.LocaleUtil.getLocale
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.BeforeClass
 import org.junit.Test
 import org.mockito.Mockito
-import java.util.Locale
 
 class MobileCreateSignatureRequestHelperTest {
     companion object {
@@ -95,7 +95,7 @@ class MobileCreateSignatureRequestHelperTest {
             val uuid = ""
             val proxyUrl = "proxyUrl"
             val skUrl = "skUrl"
-            val locale = Locale("zz")
+            val locale = getLocale("zz")
             val personalCode = "1234567890"
             val phoneNo = "1234567890"
             val displayMessage = "displayMessage"
@@ -130,7 +130,7 @@ class MobileCreateSignatureRequestHelperTest {
             val uuid = "uuid"
             val proxyUrl = "proxyUrl"
             val skUrl = "skUrl"
-            val locale = Locale("lt")
+            val locale = getLocale("ru")
             val personalCode = "1234567890"
             val phoneNo = "1234567890"
             val displayMessage = "displayMessage"

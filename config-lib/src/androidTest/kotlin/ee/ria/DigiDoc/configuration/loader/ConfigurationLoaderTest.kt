@@ -82,7 +82,8 @@ class ConfigurationLoaderTest {
             ConfigurationLoaderImpl(
                 Gson(),
                 centralConfigurationRepository,
-                configurationProperty, ConfigurationPropertiesImpl(),
+                configurationProperty,
+                ConfigurationPropertiesImpl(),
                 configurationSignatureVerifier,
             )
         configurationProperties = mock(ConfigurationProperties::class.java)
@@ -175,7 +176,8 @@ class ConfigurationLoaderTest {
             `when`(centralConfigurationRepository.fetchPublicKey()).thenReturn(centralPublicKey)
             `when`(centralConfigurationRepository.fetchSignature()).thenReturn(centralSignature)
 
-            doNothing().`when`(configurationSignatureVerifier)
+            doNothing()
+                .`when`(configurationSignatureVerifier)
                 .verifyConfigurationSignature(centralConfig, centralPublicKey, Base64.decode(centralSignature))
 
             `when`(configurationProperties.getConfigurationProperties(context)).thenReturn(
@@ -216,7 +218,8 @@ class ConfigurationLoaderTest {
             `when`(centralConfigurationRepository.fetchPublicKey()).thenReturn(centralPublicKey)
             `when`(centralConfigurationRepository.fetchSignature()).thenReturn(centralSignature)
 
-            doNothing().`when`(configurationSignatureVerifier)
+            doNothing()
+                .`when`(configurationSignatureVerifier)
                 .verifyConfigurationSignature(centralConfig, centralPublicKey, Base64.decode(centralSignature))
 
             `when`(configurationProperties.getConfigurationProperties(context)).thenReturn(
@@ -256,7 +259,8 @@ class ConfigurationLoaderTest {
             `when`(centralConfigurationRepository.fetchPublicKey()).thenReturn(centralPublicKey)
             `when`(centralConfigurationRepository.fetchSignature()).thenReturn(centralSignature)
 
-            doNothing().`when`(configurationSignatureVerifier)
+            doNothing()
+                .`when`(configurationSignatureVerifier)
                 .verifyConfigurationSignature(centralConfig, centralPublicKey, Base64.decode(centralSignature))
 
             val configurationData =
@@ -324,8 +328,8 @@ class ConfigurationLoaderTest {
             assertFalse(result)
         }
 
-    private fun mockConfigurationProvider(): ConfigurationProvider {
-        return ConfigurationProvider(
+    private fun mockConfigurationProvider(): ConfigurationProvider =
+        ConfigurationProvider(
             metaInf =
                 ConfigurationProvider.MetaInf(
                     url = "https://www.example.com",
@@ -401,5 +405,4 @@ class ConfigurationLoaderTest {
             cdoc2UseKeyServer = false,
             cdoc2DefaultKeyServer = "00000000-0000-0000-0000-000000000000",
         )
-    }
 }

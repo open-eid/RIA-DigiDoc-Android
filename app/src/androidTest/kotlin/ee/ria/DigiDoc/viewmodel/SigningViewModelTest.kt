@@ -118,7 +118,10 @@ class SigningViewModelTest {
         mimeTypeResolver = MimeTypeResolverImpl(mimeTypeCache)
         viewModel =
             SigningViewModel(
-                sivaRepository, mimeTypeResolver, fileOpeningRepository, contentResolver,
+                sivaRepository,
+                mimeTypeResolver,
+                fileOpeningRepository,
+                contentResolver,
             )
         viewModel.shouldResetSignedContainer.observeForever(shouldResetSignedContainerObserver)
         sharedContainerViewModel =

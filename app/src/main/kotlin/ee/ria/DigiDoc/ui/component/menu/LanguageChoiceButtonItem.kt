@@ -12,15 +12,15 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.utils.Language
 
 data class LanguageChoiceButtonItem(
-    @StringRes val label: Int = 0,
+    @param:StringRes val label: Int = 0,
     val icon: ImageVector = Icons.Filled.Home,
     val locale: String = "",
     val contentDescription: String = "",
     val testTag: String = "",
 ) {
     @Composable
-    fun radioItems(): List<LanguageChoiceButtonItem> {
-        return listOf(
+    fun radioItems(): List<LanguageChoiceButtonItem> =
+        listOf(
             LanguageChoiceButtonItem(
                 label = R.string.init_lang_locale_et,
                 locale = Language.Estonian.locale,
@@ -40,5 +40,4 @@ data class LanguageChoiceButtonItem(
                 testTag = "languageScreenLocaleEn",
             ),
         )
-    }
 }

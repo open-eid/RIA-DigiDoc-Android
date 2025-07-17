@@ -8,6 +8,7 @@ import android.content.res.Resources
 import androidx.preference.PreferenceManager
 import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.common.Constant.KEY_LOCALE
+import ee.ria.DigiDoc.utilsLib.locale.LocaleUtil.getLocale
 import junit.framework.TestCase.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -65,7 +66,8 @@ class LocaleUtilTest {
 
     @Test
     fun localeUtil_updateLocale_success() {
-        val newLocale = Locale("et")
+        val newLocale = getLocale("et")
+
         `when`(mockContext.createConfigurationContext(any())).thenReturn(mockContext)
 
         val result = localeUtil.updateLocale(mockContext, newLocale)

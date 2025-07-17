@@ -46,14 +46,10 @@ class ConfigModules {
 
     @Provides
     @Singleton
-    fun provideConfigurationProperties(): ConfigurationProperties {
-        return ConfigurationPropertiesImpl()
-    }
+    fun provideConfigurationProperties(): ConfigurationProperties = ConfigurationPropertiesImpl()
 
     @Provides
-    fun provideConfigurationSignatureVerifier(): ConfigurationSignatureVerifier {
-        return ConfigurationSignatureVerifierImpl()
-    }
+    fun provideConfigurationSignatureVerifier(): ConfigurationSignatureVerifier = ConfigurationSignatureVerifierImpl()
 
     @Provides
     fun provideConfigurationRepository(
@@ -64,21 +60,15 @@ class ConfigModules {
     @Provides
     fun provideCentralConfigurationRepository(
         centralConfigurationService: CentralConfigurationService,
-    ): CentralConfigurationRepository {
-        return CentralConfigurationRepositoryImpl(centralConfigurationService)
-    }
+    ): CentralConfigurationRepository = CentralConfigurationRepositoryImpl(centralConfigurationService)
 
     @Provides
     fun provideCentralConfigurationService(
         userAgent: String,
         configurationProperty: ConfigurationProperty,
-    ): CentralConfigurationService {
-        return CentralConfigurationServiceImpl(userAgent, configurationProperty)
-    }
+    ): CentralConfigurationService = CentralConfigurationServiceImpl(userAgent, configurationProperty)
 
     @Singleton
     @Provides
-    fun provideConfigurationProperty(): ConfigurationProperty {
-        return ConfigurationProperty()
-    }
+    fun provideConfigurationProperty(): ConfigurationProperty = ConfigurationProperty()
 }

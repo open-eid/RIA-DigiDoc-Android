@@ -241,23 +241,33 @@ class CryptoContainerTest {
 
         containerCDOC1 =
             getResourceFileAsFile(
-                context, "example_cdoc1.cdoc", ee.ria.DigiDoc.common.R.raw.example_cdoc1,
+                context,
+                "example_cdoc1.cdoc",
+                ee.ria.DigiDoc.common.R.raw.example_cdoc1,
             )
         containerCDOC2 =
             getResourceFileAsFile(
-                context, "example_cdoc2.cdoc2", ee.ria.DigiDoc.common.R.raw.example_cdoc2,
+                context,
+                "example_cdoc2.cdoc2",
+                ee.ria.DigiDoc.common.R.raw.example_cdoc2,
             )
         containerCDOC2Network =
             getResourceFileAsFile(
-                context, "example_network.cdoc2", ee.ria.DigiDoc.common.R.raw.example_network,
+                context,
+                "example_network.cdoc2",
+                ee.ria.DigiDoc.common.R.raw.example_network,
             )
         containerRIACDOC1 =
             getResourceFileAsFile(
-                context, "example_ria_cdoc1.cdoc", ee.ria.DigiDoc.common.R.raw.example_ria_cdoc1,
+                context,
+                "example_ria_cdoc1.cdoc",
+                ee.ria.DigiDoc.common.R.raw.example_ria_cdoc1,
             )
         containerRIACDOC2 =
             getResourceFileAsFile(
-                context, "example_ria_cdoc2.cdoc2", ee.ria.DigiDoc.common.R.raw.example_ria_cdoc2,
+                context,
+                "example_ria_cdoc2.cdoc2",
+                ee.ria.DigiDoc.common.R.raw.example_ria_cdoc2,
             )
     }
 
@@ -277,8 +287,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     false,
-                )
-                .apply()
+                ).apply()
 
             val dataFiles = listOf(testFile)
 
@@ -299,8 +308,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     false,
-                )
-                .apply()
+                ).apply()
 
             val dataFiles = listOf(dataFile1, dataFile2, dataFile3)
 
@@ -321,8 +329,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     false,
-                )
-                .apply()
+                ).apply()
 
             val dataFiles = listOf(containerCDOC1)
 
@@ -345,8 +352,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val dataFiles = listOf(testFile)
 
@@ -367,8 +373,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     false,
-                )
-                .apply()
+                ).apply()
 
             val dataFiles = listOf(containerCDOC1)
 
@@ -389,8 +394,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val dataFiles = listOf(containerCDOC2)
 
@@ -411,8 +415,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     false,
-                )
-                .apply()
+                ).apply()
 
             val dataFiles = listOf(containerRIACDOC1)
 
@@ -433,8 +436,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val dataFiles = listOf(containerRIACDOC2)
 
@@ -458,8 +460,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     false,
-                )
-                .apply()
+                ).apply()
 
             val dataFiles = listOf(containerCDOC2)
 
@@ -489,8 +490,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val dataFiles = listOf(containerCDOC2)
             val cdoc2Settings = CDOC2Settings(context)
@@ -518,8 +518,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val dataFiles = listOf(containerCDOC2)
             val cdoc2Settings = CDOC2Settings(context)
@@ -547,8 +546,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val dataFiles = listOf(containerCDOC2)
             val cdoc2Settings = CDOC2Settings(context)
@@ -576,8 +574,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val dataFiles = listOf(containerCDOC2)
             val cdoc2Settings = CDOC2Settings(context)
@@ -617,32 +614,28 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             preferences
                 .edit()
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_online_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             preferences
                 .edit()
                 .putString(
                     resources.getString(R.string.crypto_settings_use_cdoc2_fetch_url),
                     "https://cdoc2.id.ee:8444",
-                )
-                .apply()
+                ).apply()
 
             preferences
                 .edit()
                 .putString(
                     resources.getString(R.string.crypto_settings_use_cdoc2_fetch_url),
                     "https://cdoc2.id.ee:8443",
-                )
-                .apply()
+                ).apply()
 
             val dataFiles = listOf(containerCDOC2Network)
             val cdoc2Settings = CDOC2Settings(context)
@@ -696,40 +689,35 @@ class CryptoContainerTest {
                 .putString(
                     resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_crypto_cert_key),
                     cryptoCertName,
-                )
-                .apply()
+                ).apply()
 
             preferences
                 .edit()
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             preferences
                 .edit()
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_online_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             preferences
                 .edit()
                 .putString(
                     resources.getString(R.string.crypto_settings_use_cdoc2_fetch_url),
                     "https://cdoc2.id.ee:8444",
-                )
-                .apply()
+                ).apply()
 
             preferences
                 .edit()
                 .putString(
                     resources.getString(R.string.crypto_settings_use_cdoc2_fetch_url),
                     "https://cdoc2.id.ee:8443",
-                )
-                .apply()
+                ).apply()
 
             val dataFiles = listOf(containerCDOC2Network)
             val cdoc2Settings = CDOC2Settings(context)
@@ -766,8 +754,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val dataFiles = listOf(containerCDOC2)
             val cdoc2Settings = CDOC2Settings(context)
@@ -797,8 +784,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     false,
-                )
-                .apply()
+                ).apply()
 
             val dataFiles = listOf(containerRIACDOC1)
             val cdoc2Settings = CDOC2Settings(context)
@@ -827,8 +813,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     false,
-                )
-                .apply()
+                ).apply()
 
             val dataFiles = listOf(containerRIACDOC1)
             val cdoc2Settings = CDOC2Settings(context)
@@ -854,16 +839,14 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_online_encryption),
                     false,
-                )
-                .apply()
+                ).apply()
 
             preferences
                 .edit()
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
             val recipient = Addressee(Base64.decode(authCert, Base64.DEFAULT))
@@ -887,16 +870,14 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             preferences
                 .edit()
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_online_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
             val recipient = Addressee(Base64.decode(authCert, Base64.DEFAULT))
@@ -915,32 +896,28 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             preferences
                 .edit()
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_online_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             preferences
                 .edit()
                 .putString(
                     resources.getString(R.string.crypto_settings_use_cdoc2_fetch_url),
                     "https://cdoc2.id.ee:8444",
-                )
-                .apply()
+                ).apply()
 
             preferences
                 .edit()
                 .putString(
                     resources.getString(R.string.crypto_settings_use_cdoc2_fetch_url),
                     "https://cdoc2.id.ee:8443",
-                )
-                .apply()
+                ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
             val recipient = Addressee(Base64.decode(authCert, Base64.DEFAULT))
@@ -967,8 +944,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     false,
-                )
-                .apply()
+                ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
             val recipient = Addressee(Base64.decode(authCert, Base64.DEFAULT))
@@ -993,8 +969,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
             val recipient = Addressee(Base64.decode(authCert, Base64.DEFAULT))
@@ -1012,8 +987,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
             val recipient = Addressee(Base64.decode(authCert, Base64.DEFAULT))
@@ -1031,8 +1005,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
 
@@ -1049,8 +1022,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
 
@@ -1067,8 +1039,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
 
@@ -1101,8 +1072,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
 
@@ -1119,8 +1089,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
 
@@ -1137,8 +1106,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
 
@@ -1156,8 +1124,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
 
@@ -1174,8 +1141,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     false,
-                )
-                .apply()
+                ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
 
@@ -1199,8 +1165,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     false,
-                )
-                .apply()
+                ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
 
@@ -1221,8 +1186,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
             val dataFiles = listOf(testFile)
@@ -1239,8 +1203,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
             val dataFiles = listOf(testFile)
@@ -1257,8 +1220,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
             val dataFiles = listOf(testFile)
@@ -1276,8 +1238,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
             val dataFiles = listOf(testFile)
@@ -1293,8 +1254,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
             val dataFiles = listOf(testFile)
@@ -1313,8 +1273,7 @@ class CryptoContainerTest {
                 .putBoolean(
                     resources.getString(R.string.crypto_settings_use_cdoc2_encryption),
                     true,
-                )
-                .apply()
+                ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
             val dataFiles = listOf(testFile)

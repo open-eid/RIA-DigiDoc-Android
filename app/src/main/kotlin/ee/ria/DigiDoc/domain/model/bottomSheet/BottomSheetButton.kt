@@ -7,10 +7,10 @@ import ee.ria.DigiDoc.R
 
 data class BottomSheetButton(
     val showButton: Boolean = true,
-    @DrawableRes val icon: Int,
+    @param:DrawableRes val icon: Int,
     val text: String,
     val isExtraActionButtonShown: Boolean = false,
-    @DrawableRes val extraActionIcon: Int = R.drawable.ic_m3_arrow_right_48dp_wght400,
+    @param:DrawableRes val extraActionIcon: Int = R.drawable.ic_m3_arrow_right_48dp_wght400,
     val contentDescription: String = "",
     val onClick: () -> Unit,
 )

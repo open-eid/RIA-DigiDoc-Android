@@ -43,23 +43,27 @@ class CentralConfigurationServiceImplTest {
 
         // Create a self-signed certificate for localhost
         val localhostCert =
-            HeldCertificate.Builder()
+            HeldCertificate
+                .Builder()
                 .commonName("localhost")
                 .addSubjectAlternativeName("localhost")
                 .build()
 
         val serverCertificates =
-            HandshakeCertificates.Builder()
+            HandshakeCertificates
+                .Builder()
                 .heldCertificate(localhostCert)
                 .build()
 
         val clientCertificates =
-            HandshakeCertificates.Builder()
+            HandshakeCertificates
+                .Builder()
                 .addTrustedCertificate(localhostCert.certificate)
                 .build()
 
         secureClient =
-            OkHttpClient.Builder()
+            OkHttpClient
+                .Builder()
                 .sslSocketFactory(clientCertificates.sslSocketFactory(), clientCertificates.trustManager)
                 .hostnameVerifier { _, _ -> true } // Accept "localhost" for testing
                 .build()

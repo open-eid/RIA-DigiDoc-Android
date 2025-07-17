@@ -32,8 +32,7 @@ fun DiagnosticsText(
             modifier
                 .semantics {
                     contentDescription = text1.lowercase() + " " + text2.lowercase()
-                }
-                .padding(
+                }.padding(
                     start = screenViewLargePadding,
                     top = screenViewSmallPadding,
                     end = screenViewLargePadding,

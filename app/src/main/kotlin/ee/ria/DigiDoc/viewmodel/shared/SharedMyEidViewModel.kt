@@ -96,20 +96,17 @@ class SharedMyEidViewModel
             currentPin: ByteArray,
             newPin: ByteArray,
             personalCode: String,
-        ): Boolean {
-            return isPinCodeLengthValid(codeType, newPin) &&
+        ): Boolean =
+            isPinCodeLengthValid(codeType, newPin) &&
                 !pinCodesMatch(currentPin, newPin) &&
                 !isNewPinPartOfPersonalCode(newPin, personalCode) &&
                 !isNewPinPartOfBirthDate(newPin, personalCode) &&
                 !isPinCodeTooEasy(newPin)
-        }
 
         fun pinCodesMatch(
             first: ByteArray,
             second: ByteArray,
-        ): Boolean {
-            return first.contentEquals(second)
-        }
+        ): Boolean = first.contentEquals(second)
 
         fun isNewPinPartOfPersonalCode(
             newPin: ByteArray,
@@ -203,8 +200,8 @@ class SharedMyEidViewModel
         fun isPinCodeLengthValid(
             codeType: CodeType,
             pinCode: ByteArray,
-        ): Boolean {
-            return when (codeType) {
+        ): Boolean =
+            when (codeType) {
                 CodeType.PIN1 ->
                     pinCode.size in
                         Constant.MyEID.PIN1_MINIMUM_LENGTH..Constant.MyEID.PIN_MAXIMUM_LENGTH
@@ -215,15 +212,13 @@ class SharedMyEidViewModel
                     pinCode.size in
                         Constant.MyEID.PUK_MINIMUM_LENGTH..Constant.MyEID.PIN_MAXIMUM_LENGTH
             }
-        }
 
-        fun getPinCodeMinimumLength(codeType: CodeType): Int {
-            return when (codeType) {
+        fun getPinCodeMinimumLength(codeType: CodeType): Int =
+            when (codeType) {
                 CodeType.PIN1 -> Constant.MyEID.PIN1_MINIMUM_LENGTH
                 CodeType.PIN2 -> Constant.MyEID.PIN2_MINIMUM_LENGTH
                 CodeType.PUK -> Constant.MyEID.PUK_MINIMUM_LENGTH
             }
-        }
 
         fun setScreenContent(pinVariant: PinChangeVariant) {
             _pinScreenContent.value =
@@ -325,10 +320,15 @@ class SharedMyEidViewModel
             if (x509Certificate == null) {
                 return ""
             }
-            return DateUtil.formattedDateTime(
-                x509Certificate.notAfter.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().toString(),
-                SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()),
-            ).date
+            return DateUtil
+                .formattedDateTime(
+                    x509Certificate.notAfter
+                        .toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate()
+                        .toString(),
+                    SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()),
+                ).date
         }
 
         fun getToken(

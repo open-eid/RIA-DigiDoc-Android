@@ -95,8 +95,7 @@ fun SignatureDataItem(
                     } else {
                         this.contentDescription = contentDescriptionText
                     }
-                }
-                .let {
+                }.let {
                     if (isLink) {
                         it.clickable(enabled = true, onClick = { uriHandler.openUri(detailValue) })
                     } else if (isWithCertificate) {
@@ -121,8 +120,7 @@ fun SignatureDataItem(
                         .focusable(false)
                         .semantics {
                             testTagsAsResourceId = true
-                        }
-                        .testTag(testTag + "Title")
+                        }.testTag(testTag + "Title")
                         .notAccessible(),
                 color = MaterialTheme.colorScheme.onSecondary,
                 textAlign = TextAlign.Start,
@@ -150,8 +148,7 @@ fun SignatureDataItem(
                         .focusable(false)
                         .semantics {
                             testTagsAsResourceId = true
-                        }
-                        .testTag(testTag + "Button")
+                        }.testTag(testTag + "Button")
                         .notAccessible(),
             )
         }

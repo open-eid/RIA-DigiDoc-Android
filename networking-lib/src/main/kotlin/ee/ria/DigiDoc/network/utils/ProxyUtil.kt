@@ -75,7 +75,8 @@ object ProxyUtil {
                                     systemProxy.username,
                                     systemProxy.password,
                                 )
-                            response.request.newBuilder()
+                            response.request
+                                .newBuilder()
                                 .header("Proxy-Authorization", credential)
                                 .header("Authorization", credential)
                                 .build()
@@ -108,7 +109,8 @@ object ProxyUtil {
                                 }
                             }
                         if (credential != null) {
-                            response.request.newBuilder()
+                            response.request
+                                .newBuilder()
                                 .header("Proxy-Authorization", credential)
                                 .header("Authorization", credential)
                                 .build()
@@ -168,7 +170,8 @@ object ProxyUtil {
                 ?: ""
         val password: String =
             try {
-                EncryptedPreferences.getEncryptedPreferences(context)
+                EncryptedPreferences
+                    .getEncryptedPreferences(context)
                     .getString(context.getString(R.string.main_settings_proxy_password_key), "") ?: ""
             } catch (_: IOException) {
                 ""
@@ -178,8 +181,7 @@ object ProxyUtil {
         return ManualProxy(host, port, username, password)
     }
 
-    private fun hasRetried(response: Response): Boolean {
-        return !response.isSuccessful &&
+    private fun hasRetried(response: Response): Boolean =
+        !response.isSuccessful &&
             response.request.header("Proxy-Authorization") != null
-    }
 }

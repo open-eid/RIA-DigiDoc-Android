@@ -9,7 +9,9 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.libdigidocpp.Signature
 import java.io.IOException
 
-class SignatureWrapper(signature: Signature) : SignatureInterface {
+class SignatureWrapper(
+    signature: Signature,
+) : SignatureInterface {
     private val logTag = javaClass.simpleName
 
     override val id: String = signature.id()
@@ -75,7 +77,8 @@ class SignatureWrapper(signature: Signature) : SignatureInterface {
         var commonName: String?
         try {
             commonName =
-                Certificate.create(signature.signingCertificate().encoded, CertificateServiceImpl())
+                Certificate
+                    .create(signature.signingCertificate().encoded, CertificateServiceImpl())
                     .friendlyName
         } catch (e: IOException) {
             errorLog(logTag, "Can't parse certificate to get CN", e)

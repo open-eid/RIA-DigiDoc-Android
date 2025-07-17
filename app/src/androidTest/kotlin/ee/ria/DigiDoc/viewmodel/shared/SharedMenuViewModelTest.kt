@@ -7,6 +7,7 @@ import android.speech.tts.Voice
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import ee.ria.DigiDoc.domain.model.tts.TextToSpeechWrapper
+import ee.ria.DigiDoc.utilsLib.locale.LocaleUtil.getLocale
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertFalse
@@ -55,7 +56,8 @@ class SharedMenuViewModelTest {
         runTest {
             val mockTtsWrapper: TextToSpeechWrapper = mock()
 
-            val estonianLocale = Locale("et", "ET")
+            val estonianLocale = getLocale("et", "ET")
+
             val mockTextToSpeech = mock(TextToSpeech::class.java)
             val mockTextToSpeechVoice = mock(Voice::class.java)
             `when`(mockTtsWrapper.initializeSuspend()).thenReturn(true)
@@ -77,7 +79,8 @@ class SharedMenuViewModelTest {
         runTest {
             val mockTtsWrapper: TextToSpeechWrapper = mock()
 
-            val englishLocale = Locale("en", "US")
+            val englishLocale = getLocale("en", "US")
+
             val mockTextToSpeech = mock(TextToSpeech::class.java)
             val mockTextToSpeechVoice = mock(Voice::class.java)
             `when`(mockTtsWrapper.initializeSuspend()).thenReturn(true)

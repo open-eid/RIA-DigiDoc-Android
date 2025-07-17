@@ -4,7 +4,9 @@ package ee.ria.DigiDoc.libdigidoclib.domain.model
 
 import ee.ria.libdigidocpp.Signature
 
-class ValidatorWrapper(validator: Signature.Validator) : ValidatorInterface {
+class ValidatorWrapper(
+    validator: Signature.Validator,
+) : ValidatorInterface {
     override val diagnostics: String = validator.diagnostics()
 
     override val status: ValidatorInterface.Status =

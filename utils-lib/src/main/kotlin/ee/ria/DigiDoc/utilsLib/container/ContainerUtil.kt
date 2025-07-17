@@ -105,8 +105,8 @@ object ContainerUtil {
         return file
     }
 
-    private suspend fun increaseCounterIfExists(file: File): File {
-        return withContext(Dispatchers.IO) {
+    private suspend fun increaseCounterIfExists(file: File): File =
+        withContext(Dispatchers.IO) {
             var updatedFile = file
             val directory = file.getParentFile()
             val name: String? = FileUtil.sanitizeString(file.nameWithoutExtension, "")
@@ -118,7 +118,6 @@ object ContainerUtil {
             }
             updatedFile
         }
-    }
 
     @Throws(IOException::class)
     suspend fun getCacheFile(
@@ -224,8 +223,7 @@ object ContainerUtil {
             allContainerFiles
                 .filter { file ->
                     FilenameUtils.isExtension(file.name, ALL_CONTAINER_EXTENSIONS)
-                }
-                .sortedWith(FILE_MODIFIED_DATE_COMPARATOR)
+                }.sortedWith(FILE_MODIFIED_DATE_COMPARATOR)
                 .take(10)
                 .toList()
 
@@ -250,9 +248,7 @@ object ContainerUtil {
         return dir
     }
 
-    fun removeExtensionFromContainerFilename(filename: String): String {
-        return FilenameUtils.removeExtension(filename)
-    }
+    fun removeExtensionFromContainerFilename(filename: String): String = FilenameUtils.removeExtension(filename)
 
     fun addExtensionToContainerFilename(filename: String): String {
         val normalizedFilename = FileUtil.normalizePath(filename).path

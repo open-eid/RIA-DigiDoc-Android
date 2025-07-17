@@ -56,7 +56,8 @@ class ServiceGeneratorImpl : ServiceGenerator {
         manualProxySettings: ManualProxy,
     ): SIDRestServiceClient {
         debugLog(logTag, "Creating new retrofit instance")
-        return Retrofit.Builder()
+        return Retrofit
+            .Builder()
             .baseUrl("$sidSignServiceUrl")
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
@@ -68,8 +69,7 @@ class ServiceGeneratorImpl : ServiceGenerator {
                     proxySetting,
                     manualProxySettings,
                 ),
-            )
-            .build()
+            ).build()
             .create(SIDRestServiceClient::class.java)
     }
 
@@ -86,12 +86,12 @@ class ServiceGeneratorImpl : ServiceGenerator {
         val proxyConfig: ProxyConfig = ProxyUtil.getProxy(proxySetting, manualProxySettings)
 
         val httpClientBuilder: OkHttpClient.Builder =
-            OkHttpClient.Builder()
+            OkHttpClient
+                .Builder()
                 .proxy(if (proxySetting === ProxySetting.NO_PROXY) Proxy.NO_PROXY else proxyConfig.proxy())
                 .proxyAuthenticator(
                     if (proxySetting === ProxySetting.NO_PROXY) Authenticator.NONE else proxyConfig.authenticator(),
-                )
-                .connectTimeout(120, TimeUnit.SECONDS)
+                ).connectTimeout(120, TimeUnit.SECONDS)
                 .readTimeout(120, TimeUnit.SECONDS)
                 .writeTimeout(120, TimeUnit.SECONDS)
                 .pingInterval(3, TimeUnit.SECONDS)
@@ -166,7 +166,8 @@ class ServiceGeneratorImpl : ServiceGenerator {
             errorLog(logTag, "Failed to convert to Certificate object", e)
             throw e
         }
-        return CertificatePinner.Builder()
+        return CertificatePinner
+            .Builder()
             .add(uri.host, *sha256Certificates.filterNotNull().toTypedArray())
             .build()
     }

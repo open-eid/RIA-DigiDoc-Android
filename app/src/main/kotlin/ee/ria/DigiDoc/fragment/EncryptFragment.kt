@@ -39,8 +39,7 @@ fun EncryptFragment(
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("encryptFragment"),
+                }.testTag("encryptFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         EncryptScreen(

@@ -151,7 +151,8 @@ class RecipientRepositoryImpl
                     SimplePagedResultsControl.PAGED_RESULTS_OID,
                 )
                 val releaseControl = SimplePagedResultsControl.get(searchResult)
-                if (releaseControl != null && releaseControl.moreResultsToReturn() &&
+                if (releaseControl != null &&
+                    releaseControl.moreResultsToReturn() &&
                     searchResult.entryCount < maximumNumberOfResults
                 ) {
                     extraResponseCookie = releaseControl.cookie
@@ -170,34 +171,25 @@ class RecipientRepositoryImpl
             return SSLUtil().createSSLSocketFactory()
         }
 
-        private fun isSuitableKeyAndNotMobileId(certificate: ExtendedCertificate): Boolean {
-            return (hasKeyEnciphermentUsage(certificate) || hasKeyAgreementUsage(certificate)) &&
+        private fun isSuitableKeyAndNotMobileId(certificate: ExtendedCertificate): Boolean =
+            (hasKeyEnciphermentUsage(certificate) || hasKeyAgreementUsage(certificate)) &&
                 !isServerAuthKeyPurpose(certificate) &&
                 (!isESealType(certificate) || !isTlsClientAuthKeyPurpose(certificate)) &&
                 !isMobileIdType(certificate)
-        }
 
-        private fun isTlsClientAuthKeyPurpose(certificate: ExtendedCertificate): Boolean {
-            return certificate.extendedKeyUsage.hasKeyPurposeId(KeyPurposeId.id_kp_clientAuth)
-        }
+        private fun isTlsClientAuthKeyPurpose(certificate: ExtendedCertificate): Boolean =
+            certificate.extendedKeyUsage.hasKeyPurposeId(KeyPurposeId.id_kp_clientAuth)
 
-        private fun hasKeyAgreementUsage(certificate: ExtendedCertificate): Boolean {
-            return certificate.keyUsage.hasUsages(KeyUsage.keyAgreement)
-        }
+        private fun hasKeyAgreementUsage(certificate: ExtendedCertificate): Boolean =
+            certificate.keyUsage.hasUsages(KeyUsage.keyAgreement)
 
-        private fun hasKeyEnciphermentUsage(certificate: ExtendedCertificate): Boolean {
-            return certificate.keyUsage.hasUsages(KeyUsage.keyEncipherment)
-        }
+        private fun hasKeyEnciphermentUsage(certificate: ExtendedCertificate): Boolean =
+            certificate.keyUsage.hasUsages(KeyUsage.keyEncipherment)
 
-        private fun isServerAuthKeyPurpose(certificate: ExtendedCertificate): Boolean {
-            return certificate.extendedKeyUsage.hasKeyPurposeId(KeyPurposeId.id_kp_serverAuth)
-        }
+        private fun isServerAuthKeyPurpose(certificate: ExtendedCertificate): Boolean =
+            certificate.extendedKeyUsage.hasKeyPurposeId(KeyPurposeId.id_kp_serverAuth)
 
-        private fun isMobileIdType(certificate: ExtendedCertificate): Boolean {
-            return certificate.type == EIDType.MOBILE_ID
-        }
+        private fun isMobileIdType(certificate: ExtendedCertificate): Boolean = certificate.type == EIDType.MOBILE_ID
 
-        private fun isESealType(certificate: ExtendedCertificate): Boolean {
-            return certificate.type == EIDType.E_SEAL
-        }
+        private fun isESealType(certificate: ExtendedCertificate): Boolean = certificate.type == EIDType.E_SEAL
     }

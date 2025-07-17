@@ -8,12 +8,11 @@ data class PostMobileCreateSignatureCertificateRequest(
     var phoneNumber: String? = null,
     var nationalIdentityNumber: String? = null,
 ) {
-    override fun toString(): String {
-        return "GetMobileCertificateRequest{" +
+    override fun toString(): String =
+        "GetMobileCertificateRequest{" +
             "relyingPartyName='" + relyingPartyName + '\'' +
             ", relyingPartyUUID='" + relyingPartyUUID + '\'' +
             ", phoneNumber='" + phoneNumber + '\'' +
             ", nationalIdentityNumber='" + nationalIdentityNumber + '\'' +
             '}'
-    }
 }

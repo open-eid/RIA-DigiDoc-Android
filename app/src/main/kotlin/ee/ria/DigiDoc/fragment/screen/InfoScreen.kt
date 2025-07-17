@@ -4,7 +4,6 @@ package ee.ria.DigiDoc.fragment.screen
 
 import android.content.Intent
 import android.content.res.Configuration
-import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -53,6 +52,7 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
@@ -122,8 +122,7 @@ fun InfoScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("infoScreen"),
+                }.testTag("infoScreen"),
         topBar = {
             TopBar(
                 modifier = modifier,
@@ -157,8 +156,7 @@ fun InfoScreen(
                         .fillMaxWidth()
                         .semantics {
                             testTagsAsResourceId = true
-                        }
-                        .testTag("scrollView"),
+                        }.testTag("scrollView"),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Row(
@@ -245,13 +243,11 @@ fun InfoScreen(
                                         shape = buttonRoundCornerShape,
                                         ambientColor = MaterialTheme.colorScheme.primary,
                                         spotColor = MaterialTheme.colorScheme.primary,
-                                    )
-                                    .clip(buttonRoundCornerShape)
+                                    ).clip(buttonRoundCornerShape)
                                     .semantics {
                                         contentDescription = helpButtonContentDescriptionText
                                         testTagsAsResourceId = true
-                                    }
-                                    .testTag("mainInfoHelpButton"),
+                                    }.testTag("mainInfoHelpButton"),
                             colors =
                                 ButtonDefaults.elevatedButtonColors(
                                     containerColor = MaterialTheme.colorScheme.primary,
@@ -267,7 +263,7 @@ fun InfoScreen(
                                 val browserIntent =
                                     Intent(
                                         Intent.ACTION_VIEW,
-                                        Uri.parse(context.getString(R.string.main_home_menu_help_url)),
+                                        context.getString(R.string.main_home_menu_help_url).toUri(),
                                     )
 
                                 context.startActivity(browserIntent, null)
@@ -299,8 +295,7 @@ fun InfoScreen(
                                 top = MPadding,
                                 end = SPadding,
                                 bottom = SPadding,
-                            )
-                            .semantics { heading() },
+                            ).semantics { heading() },
                     text =
                         String.format(
                             stringResource(id = R.string.main_about_licenses_title),

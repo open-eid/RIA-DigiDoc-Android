@@ -9,7 +9,7 @@ import ee.ria.DigiDoc.R
 
 sealed class CertificateListItem {
     data class Certificate(
-        @StringRes val detailKey: Int = 0,
+        @param:StringRes val detailKey: Int = 0,
         val detailValue: String? = null,
         val testTag: String = "",
         val contentDescription: String = "",

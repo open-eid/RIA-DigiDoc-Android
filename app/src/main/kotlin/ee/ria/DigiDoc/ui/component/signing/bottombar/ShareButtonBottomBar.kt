@@ -66,8 +66,7 @@ fun ShareButtonBottomBar(
                 .navigationBarsPadding()
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("signedContainerContainer"),
+                }.testTag("signedContainerContainer"),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.End,
     ) {
@@ -80,13 +79,11 @@ fun ShareButtonBottomBar(
                         shape = RoundedCornerShape(MSCornerRadius),
                         ambientColor = MaterialTheme.colorScheme.onSurface,
                         spotColor = MaterialTheme.colorScheme.onSurface,
-                    )
-                    .clip(buttonRoundedCornerShape)
+                    ).clip(buttonRoundedCornerShape)
                     .semantics {
                         contentDescription = shareButtonContentDescriptionText
                         testTagsAsResourceId = true
-                    }
-                    .testTag("signedContainerShareButton"),
+                    }.testTag("signedContainerShareButton"),
             colors =
                 ButtonDefaults.elevatedButtonColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,

@@ -47,8 +47,7 @@ fun InitFragment(
                 .background(BlueBackground)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("initFragment"),
+                }.testTag("initFragment"),
         color = BlueBackground,
     ) {
         InitScreen(

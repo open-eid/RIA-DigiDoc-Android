@@ -26,6 +26,7 @@ import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.network.siva.SivaSetting
 import ee.ria.DigiDoc.utils.Constant.Defaults.DEFAULT_UUID_VALUE
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
+import ee.ria.DigiDoc.utilsLib.locale.LocaleUtil.getLocale
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.libdigidocpp.digidoc
@@ -36,7 +37,9 @@ import javax.inject.Inject
 
 class DataStore
     @Inject
-    constructor(private var context: Context) {
+    constructor(
+        private var context: Context,
+    ) {
         private val logTag = javaClass.simpleName
 
         private var preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
@@ -97,12 +100,11 @@ class DataStore
             errorLog(logTag, "Unable to save CAN")
         }
 
-        fun getPhoneNo(): String {
-            return preferences.getString(
+        fun getPhoneNo(): String =
+            preferences.getString(
                 resources.getString(R.string.main_settings_phone_no_key),
                 "372",
             ) ?: "372"
-        }
 
         fun setPhoneNo(phoneNo: String) {
             preferences.edit {
@@ -110,12 +112,11 @@ class DataStore
             }
         }
 
-        fun getPersonalCode(): String {
-            return preferences.getString(
+        fun getPersonalCode(): String =
+            preferences.getString(
                 resources.getString(R.string.main_settings_personal_code_key),
                 "",
             ) ?: ""
-        }
 
         fun setPersonalCode(personalCode: String) {
             preferences.edit {
@@ -126,12 +127,11 @@ class DataStore
             }
         }
 
-        fun getSidPersonalCode(): String {
-            return preferences.getString(
+        fun getSidPersonalCode(): String =
+            preferences.getString(
                 resources.getString(R.string.main_settings_sid_personal_code_key),
                 "",
             ) ?: ""
-        }
 
         fun setSidPersonalCode(personalCode: String) {
             preferences.edit {
@@ -142,12 +142,11 @@ class DataStore
             }
         }
 
-        fun getCountry(): Int {
-            return preferences.getInt(
+        fun getCountry(): Int =
+            preferences.getInt(
                 resources.getString(R.string.main_settings_smartid_country_key),
                 0,
             )
-        }
 
         fun setCountry(country: Int) {
             preferences.edit {
@@ -158,11 +157,11 @@ class DataStore
             }
         }
 
-        fun getSettingsUUID(): String {
-            return preferences.getString(
-                resources.getString(R.string.main_settings_uuid_key), DEFAULT_UUID_VALUE,
+        fun getSettingsUUID(): String =
+            preferences.getString(
+                resources.getString(R.string.main_settings_uuid_key),
+                DEFAULT_UUID_VALUE,
             ) ?: DEFAULT_UUID_VALUE
-        }
 
         fun setSettingsUUID(uuid: String) {
             preferences.edit {
@@ -170,13 +169,12 @@ class DataStore
             }
         }
 
-        fun getSettingsTSAUrl(): String {
-            return preferences.getString(
+        fun getSettingsTSAUrl(): String =
+            preferences.getString(
                 resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_tsa_url_key),
                 "",
             )
                 ?: ""
-        }
 
         fun setSettingsTSAUrl(tsaUrl: String) {
             preferences.edit {
@@ -187,12 +185,11 @@ class DataStore
             }
         }
 
-        fun getIsLogFileGenerationEnabled(): Boolean {
-            return preferences.getBoolean(
+        fun getIsLogFileGenerationEnabled(): Boolean =
+            preferences.getBoolean(
                 resources.getString(ee.ria.DigiDoc.network.R.string.main_diagnostics_logging_key),
                 false,
             )
-        }
 
         fun setIsLogFileGenerationEnabled(isEnabled: Boolean) {
             preferences.edit {
@@ -203,12 +200,11 @@ class DataStore
             }
         }
 
-        fun getIsLogFileGenerationRunning(): Boolean {
-            return preferences.getBoolean(
+        fun getIsLogFileGenerationRunning(): Boolean =
+            preferences.getBoolean(
                 resources.getString(ee.ria.DigiDoc.network.R.string.main_diagnostics_logging_running_key),
                 false,
             )
-        }
 
         fun setIsLogFileGenerationRunning(isRunning: Boolean) {
             preferences.edit {
@@ -219,15 +215,14 @@ class DataStore
             }
         }
 
-        fun getSettingsSivaUrl(): String {
-            return preferences.getString(
+        fun getSettingsSivaUrl(): String =
+            preferences.getString(
                 resources.getString(
                     ee.ria.DigiDoc.network.R.string.main_settings_siva_url_key,
                 ),
                 "",
             )
                 ?: ""
-        }
 
         fun setSettingsSivaUrl(sivaUrl: String) {
             preferences.edit {
@@ -240,15 +235,14 @@ class DataStore
             }
         }
 
-        fun getSettingsSivaCertName(): String {
-            return preferences.getString(
+        fun getSettingsSivaCertName(): String =
+            preferences.getString(
                 resources.getString(
                     ee.ria.DigiDoc.network.R.string.main_settings_siva_cert_key,
                 ),
                 "",
             )
                 ?: ""
-        }
 
         fun setSettingsSivaCertName(cert: String?) {
             preferences.edit {
@@ -328,12 +322,11 @@ class DataStore
             }
         }
 
-        fun getUseEncryption(): Boolean {
-            return preferences.getBoolean(
+        fun getUseEncryption(): Boolean =
+            preferences.getBoolean(
                 resources.getString(ee.ria.DigiDoc.cryptolib.R.string.crypto_settings_use_cdoc2_encryption),
                 false,
             )
-        }
 
         fun setUseEncryption(useEncryption: Boolean) {
             preferences.edit {
@@ -344,12 +337,11 @@ class DataStore
             }
         }
 
-        fun getUseOnlineEncryption(defaultValue: Boolean): Boolean {
-            return preferences.getBoolean(
+        fun getUseOnlineEncryption(defaultValue: Boolean): Boolean =
+            preferences.getBoolean(
                 resources.getString(ee.ria.DigiDoc.cryptolib.R.string.crypto_settings_use_cdoc2_online_encryption),
                 defaultValue,
             )
-        }
 
         fun setUseOnlineEncryption(useOnlineEncryption: Boolean) {
             preferences.edit {
@@ -360,12 +352,11 @@ class DataStore
             }
         }
 
-        fun getCDOC2SelectedService(defaultValue: String): String {
-            return preferences.getString(
+        fun getCDOC2SelectedService(defaultValue: String): String =
+            preferences.getString(
                 resources.getString(ee.ria.DigiDoc.cryptolib.R.string.crypto_settings_use_cdoc2_selected_service),
                 defaultValue,
             ) ?: defaultValue
-        }
 
         fun setCDOC2SelectedService(selectedService: String) {
             preferences.edit {
@@ -376,12 +367,11 @@ class DataStore
             }
         }
 
-        fun getCDOC2UUID(defaultValue: String): String {
-            return preferences.getString(
+        fun getCDOC2UUID(defaultValue: String): String =
+            preferences.getString(
                 resources.getString(ee.ria.DigiDoc.cryptolib.R.string.crypto_settings_use_cdoc2_uuid),
                 defaultValue,
             ) ?: defaultValue
-        }
 
         fun setCDOC2UUID(uuid: String) {
             preferences.edit {
@@ -389,12 +379,11 @@ class DataStore
             }
         }
 
-        fun getCDOC2PostURL(defaultValue: String): String {
-            return preferences.getString(
+        fun getCDOC2PostURL(defaultValue: String): String =
+            preferences.getString(
                 resources.getString(ee.ria.DigiDoc.cryptolib.R.string.crypto_settings_use_cdoc2_post_url),
                 defaultValue,
             ) ?: defaultValue
-        }
 
         fun setCDOC2PostURL(postUrl: String) {
             preferences.edit {
@@ -405,12 +394,11 @@ class DataStore
             }
         }
 
-        fun getCDOC2FetchURL(defaultValue: String): String {
-            return preferences.getString(
+        fun getCDOC2FetchURL(defaultValue: String): String =
+            preferences.getString(
                 resources.getString(ee.ria.DigiDoc.cryptolib.R.string.crypto_settings_use_cdoc2_fetch_url),
                 defaultValue,
             ) ?: defaultValue
-        }
 
         fun setCDOC2FetchURL(fetchUrl: String) {
             preferences.edit {
@@ -436,12 +424,11 @@ class DataStore
             return CDOCSetting.CDOC1
         }
 
-        fun getSettingsAskRoleAndAddress(): Boolean {
-            return preferences.getBoolean(
+        fun getSettingsAskRoleAndAddress(): Boolean =
+            preferences.getBoolean(
                 resources.getString(R.string.main_settings_ask_role_and_address_key),
                 false,
             )
-        }
 
         fun setSettingsAskRoleAndAddress(isRoleAskingEnabled: Boolean) {
             preferences.edit {
@@ -452,12 +439,11 @@ class DataStore
             }
         }
 
-        fun getRoles(): String {
-            return preferences.getString(
+        fun getRoles(): String =
+            preferences.getString(
                 resources.getString(R.string.main_settings_role_key),
                 "",
             ) ?: ""
-        }
 
         fun setRoles(roles: String?) {
             preferences.edit {
@@ -468,12 +454,11 @@ class DataStore
             }
         }
 
-        fun getRoleCity(): String {
-            return preferences.getString(
+        fun getRoleCity(): String =
+            preferences.getString(
                 resources.getString(R.string.main_settings_city_key),
                 "",
             ) ?: ""
-        }
 
         fun setRoleCity(city: String?) {
             preferences.edit {
@@ -484,12 +469,11 @@ class DataStore
             }
         }
 
-        fun getRoleState(): String {
-            return preferences.getString(
+        fun getRoleState(): String =
+            preferences.getString(
                 resources.getString(R.string.main_settings_county_key),
                 "",
             ) ?: ""
-        }
 
         fun setRoleState(state: String?) {
             preferences.edit {
@@ -500,12 +484,11 @@ class DataStore
             }
         }
 
-        fun getRoleCountry(): String {
-            return preferences.getString(
+        fun getRoleCountry(): String =
+            preferences.getString(
                 resources.getString(R.string.main_settings_country_key),
                 "",
             ) ?: ""
-        }
 
         fun setRoleCountry(country: String?) {
             preferences.edit {
@@ -516,12 +499,11 @@ class DataStore
             }
         }
 
-        fun getRoleZip(): String {
-            return preferences.getString(
+        fun getRoleZip(): String =
+            preferences.getString(
                 resources.getString(R.string.main_settings_postal_code_key),
                 "",
             ) ?: ""
-        }
 
         fun setRoleZip(zip: String?) {
             preferences.edit {
@@ -541,13 +523,12 @@ class DataStore
             }
         }
 
-        fun getTSACertName(): String {
-            return preferences.getString(
+        fun getTSACertName(): String =
+            preferences.getString(
                 resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_tsa_cert_key),
                 "",
             )
                 ?: ""
-        }
 
         fun setCryptoCertName(cert: String?) {
             preferences.edit {
@@ -558,13 +539,12 @@ class DataStore
             }
         }
 
-        fun getCryptoCertName(): String {
-            return preferences.getString(
+        fun getCryptoCertName(): String =
+            preferences.getString(
                 resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_crypto_cert_key),
                 "",
             )
                 ?: ""
-        }
 
         fun setIsTsaCertificateViewVisible(isVisible: Boolean) {
             preferences.edit {
@@ -572,19 +552,17 @@ class DataStore
             }
         }
 
-        fun getIsTsaCertificateViewVisible(): Boolean {
-            return preferences.getBoolean(
+        fun getIsTsaCertificateViewVisible(): Boolean =
+            preferences.getBoolean(
                 resources.getString(R.string.main_settings_tsa_cert_view),
                 false,
             )
-        }
 
-        fun getSettingsOpenAllFileTypes(): Boolean {
-            return preferences.getBoolean(
+        fun getSettingsOpenAllFileTypes(): Boolean =
+            preferences.getBoolean(
                 resources.getString(R.string.main_settings_open_all_filetypes_key),
                 true,
             )
-        }
 
         fun setSettingsOpenAllFileTypes(isEnabled: Boolean) {
             preferences.edit {
@@ -595,12 +573,11 @@ class DataStore
             }
         }
 
-        fun getSettingsAllowScreenshots(): Boolean {
-            return preferences.getBoolean(
+        fun getSettingsAllowScreenshots(): Boolean =
+            preferences.getBoolean(
                 resources.getString(R.string.main_settings_allow_screenshots_key),
                 false,
             )
-        }
 
         fun setSettingsAllowScreenshots(isEnabled: Boolean) {
             preferences.edit {
@@ -647,13 +624,12 @@ class DataStore
             }
         }
 
-        fun getProxyHost(): String {
-            return preferences.getString(
+        fun getProxyHost(): String =
+            preferences.getString(
                 resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_host_key),
                 "",
             )
                 ?: ""
-        }
 
         fun setProxyPort(port: Int) {
             preferences.edit {
@@ -664,12 +640,11 @@ class DataStore
             }
         }
 
-        fun getProxyPort(): Int {
-            return preferences.getInt(
+        fun getProxyPort(): Int =
+            preferences.getInt(
                 resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_port_key),
                 80,
             )
-        }
 
         fun isValidPortNumber(portNumber: String): Boolean {
             try {
@@ -690,12 +665,11 @@ class DataStore
             }
         }
 
-        fun getProxyUsername(): String {
-            return preferences.getString(
+        fun getProxyUsername(): String =
+            preferences.getString(
                 resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_username_key),
                 "",
             ) ?: ""
-        }
 
         fun setProxyPassword(password: String) {
             getEncryptedPreferences(context)?.edit {
@@ -722,7 +696,7 @@ class DataStore
         fun getLocale(): Locale? {
             val locale = preferences.getString(KEY_LOCALE, null)
             if (locale != null) {
-                return Locale(locale)
+                return getLocale(locale)
             }
             return null
         }
@@ -735,61 +709,53 @@ class DataStore
             }
         }
 
-        fun getLibdigidocppVersion(): String {
-            return digidoc.version()
-        }
+        fun getLibdigidocppVersion(): String = digidoc.version()
 
-        fun getManualProxySettings(): ManualProxy {
-            return ManualProxy(
+        fun getManualProxySettings(): ManualProxy =
+            ManualProxy(
                 getProxyHost(),
                 getProxyPort(),
                 getProxyUsername(),
                 getProxyPassword(),
             )
-        }
 
-        fun getIsCrashSendingAlwaysEnabled(): Boolean {
-            return preferences.getBoolean(IS_CRASH_SENDING_ALWAYS_ENABLED, false)
-        }
+        fun getIsCrashSendingAlwaysEnabled(): Boolean = preferences.getBoolean(IS_CRASH_SENDING_ALWAYS_ENABLED, false)
 
         fun setIsCrashSendingAlwaysEnabled(isEnabled: Boolean) {
             preferences.edit { putBoolean(IS_CRASH_SENDING_ALWAYS_ENABLED, isEnabled) }
         }
 
-        fun getThemeSetting(): ThemeSetting {
-            return ThemeSetting.fromMode(
+        fun getThemeSetting(): ThemeSetting =
+            ThemeSetting.fromMode(
                 preferences.getString(THEME_SETTING, ThemeSetting.SYSTEM.mode) ?: ThemeSetting.SYSTEM.mode,
             )
-        }
 
         fun setThemeSetting(themeSetting: ThemeSetting) {
             preferences.edit { putString(THEME_SETTING, themeSetting.mode) }
         }
 
-        fun getDecryptMethodSetting(): DecryptMethodSetting {
-            return DecryptMethodSetting.fromMethod(
+        fun getDecryptMethodSetting(): DecryptMethodSetting =
+            DecryptMethodSetting.fromMethod(
                 preferences.getString(DECRYPT_METHOD_SETTING, DecryptMethodSetting.NFC.methodName)
                     ?: DecryptMethodSetting.NFC.methodName,
             )
-        }
 
         fun setDecryptMethodSetting(decryptMethodSetting: DecryptMethodSetting) {
             preferences.edit { putString(DECRYPT_METHOD_SETTING, decryptMethodSetting.methodName) }
         }
 
-        fun getIdentificationMethodSetting(): MyEidIdentificationMethodSetting {
-            return MyEidIdentificationMethodSetting.fromMethod(
+        fun getIdentificationMethodSetting(): MyEidIdentificationMethodSetting =
+            MyEidIdentificationMethodSetting.fromMethod(
                 preferences.getString(IDENTIFICATION_METHOD_SETTING, MyEidIdentificationMethodSetting.NFC.methodName)
                     ?: MyEidIdentificationMethodSetting.NFC.methodName,
             )
-        }
 
         fun setIdentificationMethodSetting(myEidIdentificationMethodSetting: MyEidIdentificationMethodSetting) {
             preferences.edit { putString(IDENTIFICATION_METHOD_SETTING, myEidIdentificationMethodSetting.methodName) }
         }
 
-        private fun getEncryptedPreferences(context: Context): SharedPreferences? {
-            return try {
+        private fun getEncryptedPreferences(context: Context): SharedPreferences? =
+            try {
                 EncryptedPreferences.getEncryptedPreferences(context)
             } catch (e: GeneralSecurityException) {
                 errorLog(logTag, "Unable to get encrypted preferences", e)
@@ -800,5 +766,4 @@ class DataStore
                 showMessage(context, R.string.error_general_client)
                 null
             }
-        }
     }

@@ -33,8 +33,7 @@ fun CryptoNextBottomBar(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("cryptoBottomBar"),
+                }.testTag("cryptoBottomBar"),
     ) {
         if (isNoRecipientContainer) {
             NoRecipientContainerBottomBar(

@@ -15,7 +15,7 @@ import javax.inject.Singleton
 class MimeTypeCacheImpl
     @Inject
     constructor(
-        @ApplicationContext private val context: Context,
+        @param:ApplicationContext private val context: Context,
     ) : MimeTypeCache {
         private val cache = mutableMapOf<String, MimeTypeCacheEntry>()
 

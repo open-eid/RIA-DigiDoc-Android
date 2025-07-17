@@ -205,8 +205,7 @@ fun SignatureInputScreen(
                                 .notAccessible()
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("signatureInputMethodTitle"),
+                                }.testTag("signatureInputMethodTitle"),
                         color = MaterialTheme.colorScheme.onSecondary,
                         textAlign = TextAlign.Start,
                         style = MaterialTheme.typography.labelLarge,
@@ -231,8 +230,7 @@ fun SignatureInputScreen(
                                     .semantics {
                                         contentDescription = "$signatureMethodText $chosenMethodNameText"
                                         testTagsAsResourceId = true
-                                    }
-                                    .testTag("signatureInputMethodChosen"),
+                                    }.testTag("signatureInputMethodChosen"),
                             text = chosenMethodNameText,
                             color = MaterialTheme.colorScheme.onSurface,
                             textAlign = TextAlign.Start,
@@ -438,8 +436,7 @@ fun SignatureInputScreen(
                             .semantics {
                                 traversalIndex = 99f
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("signatureInputSignButton"),
+                            }.testTag("signatureInputSignButton"),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 ) {
                     Text(

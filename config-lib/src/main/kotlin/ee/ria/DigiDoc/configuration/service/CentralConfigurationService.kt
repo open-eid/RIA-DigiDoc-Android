@@ -104,17 +104,16 @@ open class CentralConfigurationServiceImpl
         ): OkHttpClient {
             val proxyConfig: ProxyConfig = ProxyUtil.getProxy(proxySetting, manualProxySettings)
 
-            return OkHttpClient.Builder()
+            return OkHttpClient
+                .Builder()
                 .proxy(if (proxySetting === ProxySetting.NO_PROXY) Proxy.NO_PROXY else proxyConfig.proxy())
                 .proxyAuthenticator(
                     if (proxySetting === ProxySetting.NO_PROXY) Authenticator.NONE else proxyConfig.authenticator(),
-                )
-                .addInterceptor(
+                ).addInterceptor(
                     HttpLoggingInterceptor().apply {
                         level = HttpLoggingInterceptor.Level.BODY
                     },
-                )
-                .addInterceptor(UserAgentInterceptor(userAgent))
+                ).addInterceptor(UserAgentInterceptor(userAgent))
                 .addInterceptor(NetworkInterceptor())
                 .hostnameVerifier(OkHostnameVerifier)
                 .connectTimeout(defaultTimeout, TimeUnit.SECONDS)
@@ -128,12 +127,12 @@ open class CentralConfigurationServiceImpl
         override fun constructRetrofit(
             baseUrl: String,
             constructHttpClient: OkHttpClient,
-        ): Retrofit {
-            return Retrofit.Builder()
+        ): Retrofit =
+            Retrofit
+                .Builder()
                 .baseUrl("$baseUrl/")
                 .client(constructHttpClient)
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
-        }
     }

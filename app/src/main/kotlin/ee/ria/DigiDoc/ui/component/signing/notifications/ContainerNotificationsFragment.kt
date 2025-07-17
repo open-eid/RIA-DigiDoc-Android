@@ -36,8 +36,7 @@ fun ContainerNotificationsFragment(
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("containerNotificationsFragment"),
+                }.testTag("containerNotificationsFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         ContainerNotificationsScreen(

@@ -57,12 +57,12 @@ class LibrarySetup
                 if (e !is AlreadyInitializedException) {
                     errorLog(logTag, "Unable to initialize libdigidocpp", e)
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            context,
-                            R.string.libdigidocpp_initialization_failed,
-                            Toast.LENGTH_LONG,
-                        )
-                            .show()
+                        Toast
+                            .makeText(
+                                context,
+                                R.string.libdigidocpp_initialization_failed,
+                                Toast.LENGTH_LONG,
+                            ).show()
                     }
                 }
             }

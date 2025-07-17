@@ -18,9 +18,7 @@ class ConfigurationRepositoryImpl
         private val context: Context,
         private val configurationLoader: ConfigurationLoader,
     ) : ConfigurationRepository {
-        override fun getConfiguration(): ConfigurationProvider? {
-            return configurationLoader.getConfigurationFlow().value
-        }
+        override fun getConfiguration(): ConfigurationProvider? = configurationLoader.getConfigurationFlow().value
 
         @Throws(Exception::class)
         override suspend fun getCentralConfiguration(
@@ -32,7 +30,8 @@ class ConfigurationRepositoryImpl
         }
 
         override suspend fun observeConfigurationUpdates(onUpdate: (ConfigurationProvider) -> Unit) {
-            configurationLoader.getConfigurationFlow()
+            configurationLoader
+                .getConfigurationFlow()
                 .filterNotNull()
                 .collect { config ->
                     onUpdate(config)

@@ -130,13 +130,12 @@ object FileUtil {
         }
     }
 
-    fun normalizeUri(uri: Uri?): Uri? {
-        return if (uri == null) {
+    fun normalizeUri(uri: Uri?): Uri? =
+        if (uri == null) {
             null
         } else {
             normalizeText(uri.toString()).toUri()
         }
-    }
 
     fun normalizeText(text: String): String {
         val sb = StringBuilder(text.length)
@@ -152,9 +151,7 @@ object FileUtil {
         return sb.toString()
     }
 
-    fun normalizePath(filePath: String?): Uri {
-        return FilenameUtils.normalize(filePath).toUri()
-    }
+    fun normalizePath(filePath: String?): Uri = FilenameUtils.normalize(filePath).toUri()
 
     fun logsExist(logsDirectory: File): Boolean {
         if (logsDirectory.exists()) {
@@ -205,9 +202,7 @@ object FileUtil {
         throw FileNotFoundException("Could not combine log files. Cannot find logs.")
     }
 
-    fun getLogsDirectory(context: Context): File {
-        return File(context.filesDir.toString(), "logs")
-    }
+    fun getLogsDirectory(context: Context): File = File(context.filesDir.toString(), "logs")
 
     fun getCertFile(
         context: Context,
@@ -226,13 +221,12 @@ object FileUtil {
         return null
     }
 
-    private fun isRawUrl(url: String?): Boolean {
-        return if (url.isNullOrEmpty()) {
+    private fun isRawUrl(url: String?): Boolean =
+        if (url.isNullOrEmpty()) {
             false
         } else {
             url.startsWith("raw:")
         }
-    }
 
     fun readFileContent(filePath: String): String {
         try {
@@ -329,9 +323,7 @@ object FileUtil {
         }
     }
 
-    fun fileExists(filePath: String?): Boolean {
-        return filePath?.let { File(it).exists() } ?: false
-    }
+    fun fileExists(filePath: String?): Boolean = filePath?.let { File(it).exists() } ?: false
 
     fun removeFile(filePath: String) {
         val fileToDelete = File(FilenameUtils.normalize(filePath))
@@ -400,9 +392,7 @@ object FileUtil {
         }
     }
 
-    fun getNameFromFileName(fileName: String): String? {
-        return FilenameUtils.getName(fileName)
-    }
+    fun getNameFromFileName(fileName: String): String? = FilenameUtils.getName(fileName)
 
     fun parseXMLFile(file: File): Document? {
         try {

@@ -175,10 +175,15 @@ class Initialization
                 }
             } else {
                 initProxy(
-                    context, proxyHostPreferenceKey, "",
-                    proxyPortPreferenceKey, 80,
-                    proxyUsernamePreferenceKey, "",
-                    proxyPasswordPreferenceKey, "",
+                    context,
+                    proxyHostPreferenceKey,
+                    "",
+                    proxyPortPreferenceKey,
+                    80,
+                    proxyUsernamePreferenceKey,
+                    "",
+                    proxyPasswordPreferenceKey,
+                    "",
                 )
             }
 
@@ -247,7 +252,8 @@ class Initialization
                 }
             }
             setLibdigidocppLogLevel(isLoggingEnabled)
-            DigiDocConf.instance()
+            DigiDocConf
+                .instance()
                 .setLogFile(File(logDirectory, "libdigidocpp.log").absolutePath)
         }
 
@@ -319,8 +325,11 @@ class Initialization
 
             tsCertChangeListener =
                 TsCertChangeListener(
-                    context, preferenceKey, defaultValue,
-                    tsaUrlPreferenceKey, defaultTsaUrl,
+                    context,
+                    preferenceKey,
+                    defaultValue,
+                    tsaUrlPreferenceKey,
+                    defaultTsaUrl,
                 )
             preferences.registerOnSharedPreferenceChangeListener(tsCertChangeListener)
             (tsCertChangeListener as TsCertChangeListener).onSharedPreferenceChanged(
@@ -437,8 +446,7 @@ class Initialization
         private class TsaUrlChangeListener(
             private val preferenceKey: String,
             private val defaultValue: String,
-        ) :
-            OnSharedPreferenceChangeListener {
+        ) : OnSharedPreferenceChangeListener {
             override fun onSharedPreferenceChanged(
                 sharedPreferences: SharedPreferences,
                 key: String?,
@@ -489,8 +497,7 @@ class Initialization
         private class SivaUrlChangeListener(
             private val preferenceKey: String,
             private val defaultValue: String,
-        ) :
-            OnSharedPreferenceChangeListener {
+        ) : OnSharedPreferenceChangeListener {
             override fun onSharedPreferenceChanged(
                 sharedPreferences: SharedPreferences,
                 key: String?,
@@ -498,7 +505,8 @@ class Initialization
                 if (TextUtils.equals(key, preferenceKey)) {
                     val value = sharedPreferences.getString(key, defaultValue)
                     if (value != null) {
-                        DigiDocConf.instance()
+                        DigiDocConf
+                            .instance()
                             .setVerifyServiceUri(value.ifEmpty { defaultValue })
                     }
                 }
@@ -509,8 +517,7 @@ class Initialization
             private val context: Context,
             private val preferenceKey: String,
             private val defaultValues: List<String>,
-        ) :
-            OnSharedPreferenceChangeListener {
+        ) : OnSharedPreferenceChangeListener {
             override fun onSharedPreferenceChanged(
                 sharedPreferences: SharedPreferences,
                 key: String?,
@@ -556,12 +563,19 @@ class Initialization
             ) {
                 DigiDocConf.instance().setTSCert(ByteArray(0)) // Clear existing TS certificates list
                 for (tsCert in certBundle) {
-                    DigiDocConf.instance().addTSCert(org.bouncycastle.util.encoders.Base64.decode(tsCert))
+                    DigiDocConf.instance().addTSCert(
+                        org.bouncycastle.util.encoders.Base64
+                            .decode(tsCert),
+                    )
                 }
 
                 if (customTsCert != null) {
-                    DigiDocConf.instance()
-                        .addTSCert(org.bouncycastle.util.encoders.Base64.decode(customTsCert))
+                    DigiDocConf
+                        .instance()
+                        .addTSCert(
+                            org.bouncycastle.util.encoders.Base64
+                                .decode(customTsCert),
+                        )
                 }
             }
 
@@ -573,7 +587,8 @@ class Initialization
                 try {
                     DigiDocConf.instance().setVerifyServiceCert(ByteArray(0))
                     if (!customSivaCert.isNullOrEmpty()) {
-                        DigiDocConf.instance()
+                        DigiDocConf
+                            .instance()
                             .addVerifyServiceCert(
                                 org.bouncycastle.util.encoders.Base64.decode(
                                     customSivaCert,
@@ -581,18 +596,22 @@ class Initialization
                             )
                     }
                     for (cert in certBundle) {
-                        DigiDocConf.instance()
-                            .addVerifyServiceCert(org.bouncycastle.util.encoders.Base64.decode(cert))
+                        DigiDocConf
+                            .instance()
+                            .addVerifyServiceCert(
+                                org.bouncycastle.util.encoders.Base64
+                                    .decode(cert),
+                            )
                     }
                 } catch (e: Exception) {
                     errorLog("Libdigidoc-Initialization", "Error adding custom SiVa certificate", e)
                     CoroutineScope(Main).launch {
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.libdigidocpp_custom_siva_cert_error),
-                            Toast.LENGTH_LONG,
-                        )
-                            .show()
+                        Toast
+                            .makeText(
+                                context,
+                                context.getString(R.string.libdigidocpp_custom_siva_cert_error),
+                                Toast.LENGTH_LONG,
+                            ).show()
                     }
                 }
             }

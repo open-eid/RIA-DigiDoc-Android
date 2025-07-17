@@ -196,8 +196,7 @@ fun MyEidScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("myEidScreen"),
+                }.testTag("myEidScreen"),
         topBar = {
             TopBar(
                 modifier = modifier,
@@ -233,8 +232,7 @@ fun MyEidScreen(
                     .focusGroup()
                     .semantics {
                         testTagsAsResourceId = true
-                    }
-                    .testTag("myEidContainer"),
+                    }.testTag("myEidContainer"),
         ) {
             Column(
                 modifier =
@@ -264,9 +262,10 @@ fun MyEidScreen(
                                 dateOfBirth =
                                     if (!personalData?.personalCode().isNullOrEmpty()) {
                                         formattedDateTime(
-                                            DateOfBirthUtil.parseDateOfBirth(
-                                                personalData.personalCode().orEmpty(),
-                                            ).toString(),
+                                            DateOfBirthUtil
+                                                .parseDateOfBirth(
+                                                    personalData.personalCode().orEmpty(),
+                                                ).toString(),
                                             SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()),
                                         ).date
                                     } else {
@@ -444,15 +443,13 @@ fun MyEidScreen(
                                                     .fillMaxWidth()
                                                     .clickable(enabled = !isPukBlocked) {
                                                         showPukDialog.value = true
-                                                    }
-                                                    .semantics {
+                                                    }.semantics {
                                                         this.role = Role.Button
                                                         this.contentDescription =
                                                             "$changePukText. $changePukSubtitleText. $buttonName"
                                                                 .lowercase()
                                                         testTagsAsResourceId = true
-                                                    }
-                                                    .testTag("myEidPukChangeButton"),
+                                                    }.testTag("myEidPukChangeButton"),
                                             horizontalArrangement = Arrangement.SpaceBetween,
                                             verticalAlignment = Alignment.CenterVertically,
                                         ) {

@@ -26,8 +26,7 @@ fun EncryptBottomBar(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("encryptBottomBar"),
+                }.testTag("encryptBottomBar"),
     ) {
         EncryptButtonBottomBar(
             modifier = modifier,

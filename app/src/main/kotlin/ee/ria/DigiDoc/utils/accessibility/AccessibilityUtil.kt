@@ -3,11 +3,21 @@
 package ee.ria.DigiDoc.utils.accessibility
 
 import android.content.Context
+import android.os.Build
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
+import android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED
 import android.view.accessibility.AccessibilityManager
 
 class AccessibilityUtil {
     companion object {
+        fun getAccessibilityEventType(): Int =
+            if (Build.VERSION.SDK_INT >= 34) {
+                TYPE_VIEW_ACCESSIBILITY_FOCUSED
+            } else {
+                TYPE_ANNOUNCEMENT
+            }
+
         fun sendAccessibilityEvent(
             context: Context,
             eventType: Int,
@@ -22,13 +32,12 @@ class AccessibilityUtil {
             }
         }
 
-        fun isTalkBackEnabled(context: Context): Boolean {
-            return (
+        fun isTalkBackEnabled(context: Context): Boolean =
+            (
                 context.getSystemService(
                     Context.ACCESSIBILITY_SERVICE,
                 ) as AccessibilityManager
             ).isTouchExplorationEnabled
-        }
 
         fun formatNumbers(input: String): String {
             val regex = Regex("\\d+|\\D+")
@@ -49,8 +58,6 @@ class AccessibilityUtil {
             return noInvisibleElement.chunked(1).joinToString("\u200B")
         }
 
-        fun removeInvisibleElement(text: String): String {
-            return text.replace("\u200B", "")
-        }
+        fun removeInvisibleElement(text: String): String = text.replace("\u200B", "")
     }
 }

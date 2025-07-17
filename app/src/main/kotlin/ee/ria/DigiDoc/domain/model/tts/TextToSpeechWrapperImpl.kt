@@ -15,7 +15,7 @@ import javax.inject.Singleton
 class TextToSpeechWrapperImpl
     @Inject
     constructor(
-        @ApplicationContext private val context: Context,
+        @param:ApplicationContext private val context: Context,
     ) : TextToSpeechWrapper {
         private var textToSpeech: TextToSpeech? = null
 

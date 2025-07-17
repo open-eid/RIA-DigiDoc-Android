@@ -39,8 +39,7 @@ fun ValidationServicesSettingsFragment(
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("validationServicesSettingsFragment"),
+                }.testTag("validationServicesSettingsFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         ValidationServicesSettingsScreen(

@@ -15,8 +15,7 @@ object TextUtil {
                     !StringUtils.isBlank(
                         s,
                     )
-                }
-                .collect(Collectors.toList())
+                }.collect(Collectors.toList())
         }
         return emptyList()
     }

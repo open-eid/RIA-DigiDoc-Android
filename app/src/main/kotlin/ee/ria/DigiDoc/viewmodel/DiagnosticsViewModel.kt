@@ -5,7 +5,6 @@ package ee.ria.DigiDoc.viewmodel
 import android.content.ContentResolver
 import android.content.Context
 import android.os.Build
-import android.view.accessibility.AccessibilityEvent
 import androidx.activity.result.ActivityResult
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -22,7 +21,8 @@ import ee.ria.DigiDoc.configuration.utils.TSLUtil
 import ee.ria.DigiDoc.domain.model.settings.CDOCSetting
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.utils.Constant.Defaults.DEFAULT_UUID_VALUE
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
@@ -48,7 +48,7 @@ import javax.inject.Inject
 class DiagnosticsViewModel
     @Inject
     constructor(
-        @ApplicationContext private val context: Context,
+        @param:ApplicationContext private val context: Context,
         val dataStore: DataStore,
         private val configurationLoader: ConfigurationLoader,
         private val configurationRepository: ConfigurationRepository,
@@ -80,9 +80,9 @@ class DiagnosticsViewModel
                                 } else {
                                     R.string.configuration_is_already_up_to_date
                                 }
-                            AccessibilityUtil.sendAccessibilityEvent(
+                            sendAccessibilityEvent(
                                 context,
-                                AccessibilityEvent.TYPE_ANNOUNCEMENT,
+                                getAccessibilityEventType(),
                                 context.getString(messageResId),
                             )
                         }
@@ -185,7 +185,8 @@ class DiagnosticsViewModel
             FileInputStream(documentFile).use { inputStream ->
                 activityResult.data?.data?.let {
                     contentResolver
-                        .openOutputStream(it).use { outputStream ->
+                        .openOutputStream(it)
+                        .use { outputStream ->
                             if (outputStream != null) {
                                 ByteStreams.copy(inputStream, outputStream)
                             }
@@ -239,13 +240,9 @@ class DiagnosticsViewModel
             }
         }
 
-        fun getAppVersion(): String {
-            return BuildConfig.VERSION_NAME
-        }
+        fun getAppVersion(): String = BuildConfig.VERSION_NAME
 
-        fun getAppVersionCode(): Int {
-            return BuildConfig.VERSION_CODE
-        }
+        fun getAppVersionCode(): Int = BuildConfig.VERSION_CODE
 
         @Throws(XmlPullParserException::class, IOException::class)
         private fun getTSLFileVersion(

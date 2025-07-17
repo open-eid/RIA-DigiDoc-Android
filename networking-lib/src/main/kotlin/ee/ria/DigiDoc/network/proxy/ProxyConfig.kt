@@ -10,15 +10,9 @@ class ProxyConfig(
     private val authenticator: Authenticator,
     private val manualProxy: ManualProxy?,
 ) {
-    fun proxy(): Proxy? {
-        return proxy
-    }
+    fun proxy(): Proxy? = proxy
 
-    fun authenticator(): Authenticator {
-        return authenticator
-    }
+    fun authenticator(): Authenticator = authenticator
 
-    fun manualProxy(): ManualProxy? {
-        return manualProxy
-    }
+    fun manualProxy(): ManualProxy? = manualProxy
 }

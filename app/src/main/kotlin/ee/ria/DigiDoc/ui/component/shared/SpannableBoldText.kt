@@ -30,8 +30,7 @@ fun SpannableBoldText(
             modifier
                 .semantics(mergeDescendants = true) {
                     testTagsAsResourceId = true
-                }
-                .focusGroup(),
+                }.focusGroup(),
     ) {
         Text(
             modifier =

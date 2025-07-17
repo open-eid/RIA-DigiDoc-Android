@@ -11,7 +11,9 @@ import javax.inject.Singleton
 @Singleton
 class SecureUtil
     @Inject
-    constructor(val dataStore: DataStore) {
+    constructor(
+        val dataStore: DataStore,
+    ) {
         fun markAsSecure(activity: Activity?) {
             if (activity == null) {
                 return
@@ -27,7 +29,5 @@ class SecureUtil
             }
         }
 
-        private fun shouldMarkAsSecure(): Boolean {
-            return !dataStore.getSettingsAllowScreenshots()
-        }
+        private fun shouldMarkAsSecure(): Boolean = !dataStore.getSettingsAllowScreenshots()
     }

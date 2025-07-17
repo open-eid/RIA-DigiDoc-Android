@@ -31,15 +31,13 @@ class LoggingUtilsTest {
             .putBoolean(
                 resources.getString(ee.ria.DigiDoc.network.R.string.main_diagnostics_logging_key),
                 true,
-            )
-            .apply()
+            ).apply()
         preferences
             .edit()
             .putBoolean(
                 resources.getString(ee.ria.DigiDoc.network.R.string.main_diagnostics_logging_running_key),
                 true,
-            )
-            .apply()
+            ).apply()
 
         val result = isLoggingEnabled(context)
 
@@ -53,15 +51,13 @@ class LoggingUtilsTest {
             .putBoolean(
                 resources.getString(ee.ria.DigiDoc.network.R.string.main_diagnostics_logging_key),
                 true,
-            )
-            .apply()
+            ).apply()
         preferences
             .edit()
             .putBoolean(
                 resources.getString(ee.ria.DigiDoc.network.R.string.main_diagnostics_logging_running_key),
                 false,
-            )
-            .apply()
+            ).apply()
 
         val result = isLoggingEnabled(context)
 
@@ -75,15 +71,13 @@ class LoggingUtilsTest {
             .putBoolean(
                 resources.getString(ee.ria.DigiDoc.network.R.string.main_diagnostics_logging_key),
                 false,
-            )
-            .apply()
+            ).apply()
         preferences
             .edit()
             .putBoolean(
                 resources.getString(ee.ria.DigiDoc.network.R.string.main_diagnostics_logging_running_key),
                 true,
-            )
-            .apply()
+            ).apply()
 
         val result = isLoggingEnabled(context)
 
@@ -97,15 +91,13 @@ class LoggingUtilsTest {
             .putBoolean(
                 resources.getString(ee.ria.DigiDoc.network.R.string.main_diagnostics_logging_key),
                 false,
-            )
-            .apply()
+            ).apply()
         preferences
             .edit()
             .putBoolean(
                 resources.getString(ee.ria.DigiDoc.network.R.string.main_diagnostics_logging_running_key),
                 false,
-            )
-            .apply()
+            ).apply()
 
         val result = isLoggingEnabled(context)
 

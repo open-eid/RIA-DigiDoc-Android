@@ -14,8 +14,8 @@ data class MobileCreateSignatureRequest(
     var displayText: String?,
     var displayTextFormat: String?,
 ) {
-    override fun toString(): String {
-        return "MobileCreateSignatureRequest{" +
+    override fun toString(): String =
+        "MobileCreateSignatureRequest{" +
             "relyingPartyName='" + relyingPartyName + '\'' +
             ", relyingPartyUUID='" + relyingPartyUUID + '\'' +
             ", phoneNumber='" + phoneNumber + '\'' +
@@ -26,5 +26,4 @@ data class MobileCreateSignatureRequest(
             ", displayText='" + displayText + '\'' +
             ", displayTextFormat='" + displayTextFormat + '\'' +
             '}'
-    }
 }

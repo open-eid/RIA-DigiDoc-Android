@@ -98,8 +98,8 @@ fun createAnnotatedStringWithLinks(
     linkUrl: String,
     linkColor: Color,
     showLinkOnOneLine: Boolean,
-): AnnotatedString {
-    return buildAnnotatedString {
+): AnnotatedString =
+    buildAnnotatedString {
         if (showLinkOnOneLine) {
             append("$text1 ")
         } else {
@@ -120,4 +120,3 @@ fun createAnnotatedStringWithLinks(
 
         append("\n$text2")
     }
-}
