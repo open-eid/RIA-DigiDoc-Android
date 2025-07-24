@@ -24,6 +24,7 @@ package ee.ria.DigiDoc.ui.component.signing
 import android.content.res.Configuration
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -50,6 +51,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
@@ -62,12 +66,10 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.LPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXL
+import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.NFCViewModel
-import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -77,44 +79,21 @@ fun NFCSignatureUpdateContainer(
     onError: () -> Unit = {},
 ) {
     val context = LocalContext.current
-    val focusRequester = remember { FocusRequester() }
 
-    val nfcDialogDefaultText = stringResource(id = R.string.signature_update_nfc_hold)
-    var nfcDialogText by remember { mutableStateOf(nfcDialogDefaultText) }
-
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
+    val defaultMessage = stringResource(id = R.string.signature_update_nfc_hold)
+    var message by remember { mutableStateOf(defaultMessage) }
 
     LaunchedEffect(nfcViewModel.message) {
-        nfcViewModel.message.asFlow().collect { message ->
-            message?.let {
-                nfcDialogText = context.getString(message)
-            }
+        nfcViewModel.message.asFlow().collect { messageRes ->
+            messageRes?.let { message = context.getString(it) }
         }
     }
 
     LaunchedEffect(nfcViewModel.errorState) {
         nfcViewModel.errorState.asFlow().collect { error ->
-            error?.let {
-                context.getString(
-                    error.first,
-                    error.second,
-                    error.third,
-                )
+            if (error != null) {
                 onError()
             }
-        }
-    }
-
-    LaunchedEffect(Unit, nfcDialogText) {
-        if (nfcDialogText.isNotEmpty()) {
-            delay(500)
-            sendAccessibilityEvent(
-                context,
-                getAccessibilityEventType(),
-                nfcDialogText,
-            )
         }
     }
 
@@ -130,47 +109,90 @@ fun NFCSignatureUpdateContainer(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Row(
-            modifier =
-                modifier
-                    .fillMaxWidth()
-                    .padding(vertical = MPadding)
-                    .notAccessible(),
-            horizontalArrangement = Arrangement.spacedBy(MPadding),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                modifier =
-                    modifier
-                        .size(iconSizeXXL)
-                        .notAccessible(),
-                imageVector = ImageVector.vectorResource(R.drawable.ic_m3_phonelink_ring_48dp_wght400),
-                contentDescription = null,
-            )
-            Icon(
-                modifier =
-                    modifier
-                        .size(iconSizeXXL)
-                        .notAccessible(),
-                imageVector = ImageVector.vectorResource(R.drawable.ic_m3_id_card_48dp_wght400),
-                contentDescription = null,
-            )
-        }
+        NfcProcessIcons()
+        NfcStatusMessage(message = message)
+    }
+}
+
+@Composable
+private fun NfcProcessIcons() {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = MPadding)
+                .notAccessible(),
+        horizontalArrangement = Arrangement.spacedBy(MPadding),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        NfcProcessIcon(R.drawable.ic_m3_phonelink_ring_48dp_wght400)
+        NfcProcessIcon(R.drawable.ic_m3_id_card_48dp_wght400)
+    }
+}
+
+@Composable
+private fun NfcProcessIcon(drawableRes: Int) {
+    Icon(
+        modifier =
+            Modifier
+                .size(iconSizeXXL)
+                .notAccessible(),
+        imageVector = ImageVector.vectorResource(drawableRes),
+        contentDescription = null,
+    )
+}
+
+@Composable
+private fun NfcStatusMessage(message: String) {
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
+    Box(
+        contentAlignment = Alignment.Center,
+    ) {
         Text(
-            text = nfcDialogText,
+            text = message,
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontWeight = FontWeight.Normal,
             modifier =
-                modifier
+                Modifier
                     .wrapContentSize()
                     .focusRequester(focusRequester)
                     .focusable()
                     .padding(SPadding)
                     .testTag("nfcDialogText"),
         )
+        NfcStatusAnnouncer(message = message)
     }
+}
+
+@Composable
+private fun NfcStatusAnnouncer(message: String) {
+    var announcement by remember { mutableStateOf("") }
+    var isInitialMessage by remember { mutableStateOf(true) }
+
+    LaunchedEffect(message) {
+        if (isInitialMessage) {
+            isInitialMessage = false
+        } else {
+            announcement = message
+        }
+    }
+
+    Box(
+        modifier =
+            Modifier
+                .size(invisibleElementHeight)
+                .semantics {
+                    liveRegion = LiveRegionMode.Assertive
+                    contentDescription = announcement
+                },
+    )
 }
 
 @Preview(showBackground = true)

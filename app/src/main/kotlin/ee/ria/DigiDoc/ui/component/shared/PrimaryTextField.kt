@@ -55,9 +55,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -111,7 +113,12 @@ fun PrimaryTextField(
     val clearButtonText = stringResource(R.string.clear_text)
     val buttonName = stringResource(R.string.button_name)
 
-    Column(modifier = modifier) {
+    Column(
+        modifier =
+            modifier.semantics {
+                isTraversalGroup = true
+            },
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Start,
@@ -228,7 +235,14 @@ fun PrimaryTextField(
                     Modifier
                         .padding(vertical = XSPadding)
                         .testTag(descriptionTestTag)
-                        .notAccessible(),
+                        .then(
+                            // Accessibility - read description before focusing on TextField
+                            if (enabled) {
+                                Modifier.semantics { traversalIndex = -1f }
+                            } else {
+                                Modifier.notAccessible()
+                            },
+                        ),
                 color = MaterialTheme.colorScheme.onSecondary,
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.labelMedium,

@@ -495,7 +495,7 @@
 
     <!-- Main About -->
     <string name="main_about_1_logo_text">Eesti tuleviku heaks</string>
-    <string name="main_about_2_logo_text">Euroopa Liit Euroopa Regionaalarengu Fond</string>
+    <string name="main_about_2_logo_text">Kaasrahastanud Euroopa Liit</string>
     <string name="main_about_digidoc_and_el_logos">Projekti on toetatud Euroopa Liidu Regionaalarengu Fondist</string>
     <string name="main_about_ria_digidoc_title">RIA DigiDoc</string>
     <string name="main_about_version_title">versioon %1$s</string>
@@ -658,4 +658,27 @@
     <!-- Voice Control -->
     <string name="signing_container_name_update_button_voice">Muuda</string>
 
+    <!-- Web eID for Mobile -->
+    <string name="web_eid_authenticate">Autentimine</string>
+    <string name="web_eid_auth_title">Autentimine ID-kaardiga</string>
+    <string name="web_eid_auth_no_payload">Autentimispäringut ei saadetud</string>
+    <string name="web_eid_auth_consent_text">Autentides nõustun oma nime ja isikukoodi edastamisega teenusepakkujale.</string>
+    <string name="web_eid_auth_request_from">Autentimispäring:</string>
+    <string name="web_eid_details_forwarded">Edastatavad andmed:</string>
+    <string name="web_eid_details">Andmed:</string>
+    <string name="web_eid_name_personal_identification_code">NIMI, ISIKUKOOD</string>
+    <string name="web_eid_remember_me_message">Järgmisel kasutamisel on andmeväljad eeltäidetud.</string>
+    <string name="web_eid_get_certificate">Kinnita</string>
+    <string name="web_eid_certificate_title">Vali sertifikaat</string>
+    <string name="web_eid_certificate_consent_text">Sertifikaati valides nõustun oma nime ja isikukoodi edastamisega teenusepakkujale.</string>
+    <string name="web_eid_signature_consent_text">PIN2 koodi sisestamisega annad omakäelise digiallkirja.</string>
+    <string name="web_eid_sign_title">Allkirjasta ID-kaardiga</string>
+    <string name="web_eid_cert_request_from">Sertifikaadipäring:</string>
+    <string name="web_eid_sign_request_from">Allkirjastamispäring:</string>
+    <string name="web_eid_cancel">Tühista</string>
+    <string name="web_eid_invalid_request_error">Vigane Web eID päring</string>
+    <string name="web_eid_request_error">Päringu viga</string>
+    <string name="web_eid_invalid_auth_request_error">Vigane autentimispäring</string>
+    <string name="signature_update_nfc_detection_timeout">Kaarti ei tuvastatud. Palun alusta uuesti.</string>
+    <string name="web_eid_signing_card_mismatch">Valitud ID-kaart ei vasta nõutud isikule. Palun kasuta õiget ID-kaarti.</string>
 </resources>
