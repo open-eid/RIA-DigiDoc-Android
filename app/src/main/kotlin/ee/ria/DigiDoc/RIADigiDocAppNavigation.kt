@@ -67,9 +67,10 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>, webEidUri: Uri? = null) {
 
     sharedContainerViewModel.setExternalFileUris(externalFileUris)
 
-    var startDestination = Route.Init.route
-    if (sharedSettingsViewModel.dataStore.getLocale() != null) {
-        startDestination = Route.Home.route
+    val startDestination = when {
+        webEidUri != null -> Route.WebEidScreen.route
+        sharedSettingsViewModel.dataStore.getLocale() != null -> Route.Home.route
+        else -> Route.Init.route
     }
 
     NavHost(
