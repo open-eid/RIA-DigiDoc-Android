@@ -48,6 +48,7 @@ object Constant {
         const val MYEID_IDENTIFICATION_METHOD_SCREEN = "myeid_identification_method_route"
         const val MYEID_SCREEN = "myeid_screen_route"
         const val MYEID_PIN_SCREEN = "myeid_pin_screen_route"
+        const val WEB_EID_SCREEN = "web_eid_screen_route"
     }
 
     object Defaults {
