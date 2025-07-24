@@ -89,6 +89,7 @@ fun TopBar(
     @DrawableRes extraButtonIcon: Int = R.drawable.ic_m3_notifications_48dp_wght400,
     @StringRes extraButtonIconContentDescription: Int = R.string.notifications,
     showRightSideIcons: Boolean = true,
+    showNavigationIcon: Boolean = true,
     onLeftButtonClick: () -> Unit = {},
     onRightPrimaryButtonClick: (() -> Unit)? = null,
     onRightSecondaryButtonClick: () -> Unit = {},
@@ -141,27 +142,29 @@ fun TopBar(
                 titleContentColor = MaterialTheme.colorScheme.onSurface,
             ),
         navigationIcon = {
-            IconButton(
-                modifier = modifier.testTag("toolBarLeftButton"),
-                onClick = {
-                    // Add debounce to prevent rapid navigation clicks
-                    debounceJob?.cancel()
-                    debounceJob =
-                        coroutineScope.launch {
-                            onLeftButtonClick()
-                        }
-                },
-            ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(id = leftIcon),
-                    contentDescription = stringResource(id = leftIconContentDescription),
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier =
-                        modifier
-                            .size(iconSizeXXS)
-                            .focusable(false)
-                            .testTag("leftNavigationButton"),
-                )
+            if (showNavigationIcon) {
+                IconButton(
+                    modifier = modifier.testTag("toolBarLeftButton"),
+                    onClick = {
+                        // Add debounce to prevent rapid navigation clicks
+                        debounceJob?.cancel()
+                        debounceJob =
+                            coroutineScope.launch {
+                                onLeftButtonClick()
+                            }
+                    },
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = leftIcon),
+                        contentDescription = stringResource(id = leftIconContentDescription),
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier =
+                            modifier
+                                .size(iconSizeXXS)
+                                .focusable(false)
+                                .testTag("leftNavigationButton"),
+                    )
+                }
             }
         },
         title = {

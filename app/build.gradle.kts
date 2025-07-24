@@ -104,6 +104,7 @@ android {
             signingConfig = signingConfigs.getByName("debug")
             matchingFallbacks.add("debug")
             manifestPlaceholders["usesCleartextTraffic"] = "true"
+            buildConfigField("String", "APP_LINKS_HOST", "\"id-test.eesti.ee\"")
             isMinifyEnabled = false
             isShrinkResources = false
             proguardFiles(
@@ -122,6 +123,7 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             manifestPlaceholders["usesCleartextTraffic"] = "false"
+            buildConfigField("String", "APP_LINKS_HOST", "\"id.eesti.ee\"")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -216,6 +218,7 @@ dependencies {
     implementation(project(":utils-lib"))
     implementation(project(":commons-lib"))
     implementation(project(":id-card-lib"))
+    implementation(project(":web-eid-lib"))
 
     androidTestImplementation(project(":commons-lib:test-files"))
 }

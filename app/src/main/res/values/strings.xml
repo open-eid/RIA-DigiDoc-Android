@@ -336,7 +336,7 @@
     <string name="signature_update_nfc_technical_error">Technical error</string>
     <string name="signature_update_nfc_wrong_can">Wrong CAN number</string>
     <string name="signature_update_nfc_hold">Hold your phone near the ID-card</string>
-    <string name="signature_update_nfc_detected">Authenticating with ID-card</string>
+    <string name="signature_update_nfc_detected">Establishing connection with ID-card</string>
 
     <string name="sign_button">Sign</string>
     <string name="next_button">Next</string>
@@ -497,7 +497,7 @@
 
     <!-- Main About -->
     <string name="main_about_1_logo_text">Eesti tuleviku heaks</string>
-    <string name="main_about_2_logo_text">Euroopa Liit Euroopa Regionaalarengu Fond</string>
+    <string name="main_about_2_logo_text">Kaasrahastanud Euroopa Liit</string>
     <string name="main_about_digidoc_and_el_logos">The project is supported by the European Regional Development Fund</string>
     <string name="main_about_ria_digidoc_title">RIA DigiDoc</string>
     <string name="main_about_version_title">version %1$s</string>
@@ -660,4 +660,27 @@
     <!-- Voice Control -->
     <string name="signing_container_name_update_button_voice">Edit</string>
 
+    <!-- Web eID for Mobile -->
+    <string name="web_eid_authenticate">Authenticate</string>
+    <string name="web_eid_auth_title">Authenticate with ID-card</string>
+    <string name="web_eid_auth_no_payload">No auth payload received.</string>
+    <string name="web_eid_auth_consent_text">By authenticating, I agree to the transfer of my name and personal identification code to the service provider.</string>
+    <string name="web_eid_auth_request_from">Authentication request from:</string>
+    <string name="web_eid_details_forwarded">Details forwarded:</string>
+    <string name="web_eid_details">Details:</string>
+    <string name="web_eid_name_personal_identification_code">NAME, PERSONAL IDENTIFICATION CODE</string>
+    <string name="web_eid_remember_me_message">The entered data will be filled the next time you authenticate.</string>
+    <string name="web_eid_get_certificate">Confirm</string>
+    <string name="web_eid_certificate_title">Select a certificate</string>
+    <string name="web_eid_certificate_consent_text">By choosing the certificate, I agree to the transfer of my name and personal identification code to the service provider.</string>
+    <string name="web_eid_signature_consent_text">By entering your PIN2, you give a handwritten-equivalent digital signature.</string>
+    <string name="web_eid_sign_title">Sign with ID-card</string>
+    <string name="web_eid_cert_request_from">Certificate request from:</string>
+    <string name="web_eid_sign_request_from">Signing request from:</string>
+    <string name="web_eid_cancel">Cancel</string>
+    <string name="web_eid_invalid_request_error">Invalid Web eID request</string>
+    <string name="web_eid_request_error">Request error</string>
+    <string name="web_eid_invalid_auth_request_error">Invalid authentication request</string>
+    <string name="signature_update_nfc_detection_timeout">Card not detected. Please start again.</string>
+    <string name="web_eid_signing_card_mismatch">The selected ID card does not match the required person. Please use the correct ID card.</string>
 </resources>

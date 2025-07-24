@@ -27,4 +27,5 @@ enum class IdentityAction(
     SIGN("SIGN"),
     AUTH("AUTH"),
     DECRYPT("DECRYPT"),
+    CERTIFICATE("CERTIFICATE"),
 }
