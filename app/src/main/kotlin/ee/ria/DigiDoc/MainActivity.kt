@@ -96,7 +96,13 @@ class MainActivity :
 
         val componentClassName = this.javaClass.name
 
-        val externalFileUris = getExternalFileUris(intent)
+        val webEidUri = intent?.data?.takeIf { it.scheme == "web-eid-mobile" }
+
+        val externalFileUris = if (webEidUri != null) {
+            listOf()
+        } else {
+            getExternalFileUris(intent)
+        }
         val locale = dataStore.getLocale() ?: getLocale("en")
         localeUtil.updateLocale(applicationContext, locale)
 
@@ -137,7 +143,10 @@ class MainActivity :
         }
         setContent {
             RIADigiDocTheme(darkTheme = useDarkMode) {
-                RIADigiDocAppScreen(externalFileUris)
+                RIADigiDocAppScreen(
+                    externalFileUris = externalFileUris,
+                    webEidUri = webEidUri
+                )
             }
         }
     }
