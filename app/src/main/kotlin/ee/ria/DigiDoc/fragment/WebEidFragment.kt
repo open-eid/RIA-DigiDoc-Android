@@ -3,11 +3,13 @@
 package ee.ria.DigiDoc.fragment
 
 import android.content.res.Configuration
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -26,8 +28,14 @@ import ee.ria.DigiDoc.viewmodel.WebEidViewModel
 fun WebEidFragment(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    webEidUri: Uri?,
     viewModel: WebEidViewModel = hiltViewModel(),
 ) {
+    LaunchedEffect(webEidUri) {
+        println("DEBUG: WebEidFragment got URI = $webEidUri")
+        webEidUri?.let { viewModel.handleAuth(it) }
+    }
+
     Surface(
         modifier =
             modifier
@@ -52,6 +60,7 @@ fun WebEidFragmentPreview() {
     RIADigiDocTheme {
         WebEidFragment(
             navController = rememberNavController(),
+            webEidUri = null
         )
     }
 }
