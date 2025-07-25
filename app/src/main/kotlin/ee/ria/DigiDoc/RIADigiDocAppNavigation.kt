@@ -41,6 +41,7 @@ import ee.ria.DigiDoc.fragment.SigningFragment
 import ee.ria.DigiDoc.fragment.SigningServicesSettingsFragment
 import ee.ria.DigiDoc.fragment.ThemeChooserFragment
 import ee.ria.DigiDoc.fragment.ValidationServicesSettingsFragment
+import ee.ria.DigiDoc.fragment.WebEidFragment
 import ee.ria.DigiDoc.ui.component.crypto.recipient.RecipientDetailsView
 import ee.ria.DigiDoc.ui.component.signing.certificate.CertificateDetailsView
 import ee.ria.DigiDoc.ui.component.signing.certificate.SignerDetailsView
@@ -356,6 +357,12 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>, webEidUri: Uri? = null) {
                 navController = navController,
                 sharedMenuViewModel = sharedMenuViewModel,
                 sharedMyEidViewModel = sharedMyEidViewModel,
+            )
+        }
+        composable(route = Route.WebEidScreen.route) {
+            WebEidFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
             )
         }
     }
