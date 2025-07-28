@@ -126,6 +126,13 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun homeViewModel_getDataStore_success() {
+        val result = viewModel.dataStore
+
+        assertEquals(dataStore, result)
+    }
+
+    @Test
     fun homeViewModel_isCrashSendingAlwaysEnabled_successWithTrue() {
         dataStore.setIsCrashSendingAlwaysEnabled(true)
 

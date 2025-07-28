@@ -33,6 +33,7 @@ import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -207,8 +208,22 @@ class DiagnosticsViewModelTest {
         viewModel.updatedConfiguration = MutableLiveData(null)
 
         val result = viewModel.getTsaUrl()
-
         assertEquals("", result)
+    }
+
+    @Test
+    fun diagnosticsViewModel_getDataStore_success() {
+        val actualDataStore = viewModel.dataStore
+
+        assertEquals(dataStore, actualDataStore)
+    }
+
+    @Test
+    fun diagnosticsViewModel_getUpdatedConfiguration_success() {
+        viewModel.updatedConfiguration = MutableLiveData(null)
+        val actualUpdatedConfiguration = viewModel.updatedConfiguration
+
+        assertNull(actualUpdatedConfiguration.value)
     }
 
     @Test
@@ -266,6 +281,19 @@ class DiagnosticsViewModelTest {
 
         assertEquals(File(logFolder.path, diagnosticsLogsFilePath).path, resultFile.path)
         assertTrue(resultFile.exists())
+
+        viewModel.resetLogs(context)
+
+        // Verify that the logs directory is cleared
+        val logDirectory = FileUtil.getLogsDirectory(context)
+        assertTrue(logDirectory.exists())
+        assertTrue(logDirectory.listFiles()?.isEmpty() ?: true)
+    }
+
+    @Test(expected = FileNotFoundException::class)
+    fun diagnosticsViewModel_createLogFile_exception() {
+        viewModel.resetLogs(context)
+        viewModel.createLogFile(context)
     }
 
     @Test

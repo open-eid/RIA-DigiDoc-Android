@@ -31,6 +31,13 @@ class SecureUtilTest {
     }
 
     @Test
+    fun secureUtilTest_markAsSecure_activityIsNullReturn() {
+        secureUtil.markAsSecure(null)
+
+        // No exception should be thrown, and nothing should happen
+    }
+
+    @Test
     fun secureUtilTest_markAsSecure_successMarkAsSecure() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val scenario = ActivityScenario.launch(MainActivity::class.java)

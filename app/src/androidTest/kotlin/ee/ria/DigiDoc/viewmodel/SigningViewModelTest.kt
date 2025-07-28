@@ -51,6 +51,7 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -361,6 +362,60 @@ class SigningViewModelTest {
         }
 
     @Test
+    fun signingViewModel_openCryptoContainer_signedContainerSuccess() =
+        runTest {
+            val isSivaConfirmed = true
+            val file =
+                getResourceFileAsFile(
+                    context,
+                    "example.asice",
+                    R.raw.example,
+                )
+
+            val signedContainer = SignedContainer.openOrCreate(context, file, listOf(file), isSivaConfirmed)
+
+            viewModel.openCryptoContainer(
+                context,
+                signedContainer,
+                sharedContainerViewModel,
+            )
+
+            verify(fileOpeningRepository).openOrCreateCryptoContainer(
+                any(),
+                any(),
+                any(),
+                any(),
+            )
+        }
+
+    @Test
+    fun signingViewModel_openCryptoContainer_unsignedContainerSuccess() =
+        runTest {
+            val isSivaConfirmed = true
+            val file =
+                getResourceFileAsFile(
+                    context,
+                    "example_no_signatures.asice",
+                    R.raw.example_no_signatures,
+                )
+
+            val signedContainer = SignedContainer.openOrCreate(context, file, listOf(file), isSivaConfirmed)
+
+            viewModel.openCryptoContainer(
+                context,
+                signedContainer,
+                sharedContainerViewModel,
+            )
+
+            verify(fileOpeningRepository).openOrCreateCryptoContainer(
+                any(),
+                any(),
+                any(),
+                any(),
+            )
+        }
+
+    @Test
     fun signingViewModel_openNestedContainer_success() =
         runTest {
             val isSivaConfirmed = true
@@ -408,7 +463,6 @@ class SigningViewModelTest {
             `when`(sivaRepository.getTimestampedContainer(context, signedContainer)).thenReturn(timestampedContainer)
 
             val tsContainer = viewModel.getTimestampedContainer(context, signedContainer, true)
-
             assertNotNull(tsContainer)
         }
 

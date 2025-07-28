@@ -44,6 +44,34 @@ class SignatureStatusUtilTest {
     }
 
     @Test
+    fun signatureStatusUtilTest_getTimestampStatusText_success() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+
+        assertEquals(
+            context.getString(R.string.signing_container_timestamp_status_valid),
+            SignatureStatusUtil.getTimestampStatusText(context, ValidatorInterface.Status.Valid),
+        )
+        assertEquals(
+            "${context.getString(R.string.signing_container_timestamp_status_valid)} " +
+                context.getString(R.string.signing_container_signature_status_warning),
+            SignatureStatusUtil.getTimestampStatusText(context, ValidatorInterface.Status.Warning),
+        )
+        assertEquals(
+            "${context.getString(R.string.signing_container_timestamp_status_valid)} " +
+                context.getString(R.string.signing_container_signature_status_non_qscd),
+            SignatureStatusUtil.getTimestampStatusText(context, ValidatorInterface.Status.NonQSCD),
+        )
+        assertEquals(
+            context.getString(R.string.signing_container_timestamp_status_invalid),
+            SignatureStatusUtil.getTimestampStatusText(context, ValidatorInterface.Status.Invalid),
+        )
+        assertEquals(
+            context.getString(R.string.signing_container_timestamp_status_unknown),
+            SignatureStatusUtil.getTimestampStatusText(context, ValidatorInterface.Status.Unknown),
+        )
+    }
+
+    @Test
     fun signatureStatusUtilTest_isDdocSignatureValid_returnTrueWhenSignatureDateIsBeforeReferenceDate() {
         val signature = mock(SignatureInterface::class.java)
         `when`(signature.trustedSigningTime).thenReturn("2018-06-30T23:59:59Z")
