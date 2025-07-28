@@ -9,7 +9,6 @@ class ConstantTest {
     @Test
     fun constantTest_Languages_success() {
         assertEquals("et", Constant.Languages.ESTONIAN_LANGUAGE)
-        assertEquals("ru", Constant.Languages.RUSSIAN_LANGUAGE)
         assertEquals("en", Constant.Languages.ENGLISH_LANGUAGE)
     }
 
