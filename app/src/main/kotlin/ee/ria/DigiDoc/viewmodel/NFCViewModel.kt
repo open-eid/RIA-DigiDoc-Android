@@ -275,9 +275,6 @@ class NFCViewModel
                                 }
                             } catch (ex: SmartCardReaderException) {
                                 _signStatus.postValue(false)
-//                                CoroutineScope(IO).launch {
-//                                    removePendingSignature(container)
-//                                }
 
                                 if (ex.message?.contains("TagLostException") == true) {
                                     _errorState.postValue(Triple(R.string.signature_update_nfc_tag_lost, null, null))
