@@ -135,4 +135,10 @@
     <string name="fingerprints">Fingerprints</string>
     <string name="sha_256">SHA-256</string>
     <string name="sha_1">SHA-1</string>
+
+    <!-- Web eID for Mobile -->
+    <string name="web_eid_auth_label_challenge">Challenge</string>
+    <string name="web_eid_auth_label_login_uri">Login URI</string>
+    <string name="web_eid_auth_label_get_signing_cert">Get Signing Cert</string>
+    <string name="web_eid_auth_no_payload">No auth payload received.</string>
 </resources>
