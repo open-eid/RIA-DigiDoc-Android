@@ -4,7 +4,6 @@ package ee.ria.DigiDoc.utils
 
 import ee.ria.DigiDoc.utils.Constant.Languages.ENGLISH_LANGUAGE
 import ee.ria.DigiDoc.utils.Constant.Languages.ESTONIAN_LANGUAGE
-import ee.ria.DigiDoc.utils.Constant.Languages.RUSSIAN_LANGUAGE
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -13,6 +12,5 @@ class LanguageTest {
     fun testLanguages() {
         assertEquals(ENGLISH_LANGUAGE, Language.English.locale)
         assertEquals(ESTONIAN_LANGUAGE, Language.Estonian.locale)
-        assertEquals(RUSSIAN_LANGUAGE, Language.Russian.locale)
     }
 }

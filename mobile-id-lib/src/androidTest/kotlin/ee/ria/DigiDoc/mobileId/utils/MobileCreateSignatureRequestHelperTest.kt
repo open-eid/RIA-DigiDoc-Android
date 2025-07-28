@@ -130,7 +130,7 @@ class MobileCreateSignatureRequestHelperTest {
             val uuid = "uuid"
             val proxyUrl = "proxyUrl"
             val skUrl = "skUrl"
-            val locale = getLocale("ru")
+            val locale = getLocale("lt")
             val personalCode = "1234567890"
             val phoneNo = "1234567890"
             val displayMessage = "displayMessage"
