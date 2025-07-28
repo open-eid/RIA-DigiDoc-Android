@@ -17,14 +17,13 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun CryptoScreen(navController: NavController) {
+fun CryptoScreen() {
     Column(
         modifier =
             Modifier
@@ -32,8 +31,7 @@ fun CryptoScreen(navController: NavController) {
                 .padding(screenViewLargePadding)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("cryptoScreen"),
+                }.testTag("cryptoScreen"),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -51,6 +49,6 @@ fun CryptoScreen(navController: NavController) {
 fun CryptoScreenPreview() {
     val navController = rememberNavController()
     RIADigiDocTheme {
-        CryptoScreen(navController)
+        CryptoScreen()
     }
 }

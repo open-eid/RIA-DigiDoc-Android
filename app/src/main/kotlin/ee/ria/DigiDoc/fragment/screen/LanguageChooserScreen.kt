@@ -37,9 +37,9 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Language
+import ee.ria.DigiDoc.utilsLib.locale.LocaleUtil.getLocale
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
-import java.util.Locale
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -49,9 +49,8 @@ fun LanguageChooserScreen(
     sharedSettingsViewModel: SharedSettingsViewModel,
     sharedMenuViewModel: SharedMenuViewModel,
 ) {
-    val context = LocalContext.current
+    LocalContext.current
     val languageText = stringResource(id = R.string.menu_language)
-    val languageChanged = stringResource(id = R.string.language_changed)
     val languageSelected = stringResource(id = R.string.menu_language_selected)
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
     var currentLanguage by remember { mutableStateOf(sharedSettingsViewModel.dataStore.getLocale()) }
@@ -62,8 +61,7 @@ fun LanguageChooserScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("languageChooserScreen"),
+                }.testTag("languageChooserScreen"),
         topBar = {
             TopBar(
                 modifier = modifier,
@@ -129,7 +127,7 @@ private fun setLanguageSetting(
     sharedSettingsViewModel: SharedSettingsViewModel,
     chosenLocale: String,
 ) {
-    val locale = Locale(chosenLocale)
+    val locale = getLocale(chosenLocale)
     sharedSettingsViewModel.dataStore.setLocale(locale)
     sharedSettingsViewModel.recreateActivity()
 }

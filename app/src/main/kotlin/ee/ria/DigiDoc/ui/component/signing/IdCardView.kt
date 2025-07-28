@@ -177,7 +177,7 @@ fun IdCardView(
         }
 
     val pinText = stringResource(R.string.id_card_identity_pin, pinType)
-    var pinCode = remember { mutableStateOf(byteArrayOf()) }
+    val pinCode = remember { mutableStateOf(byteArrayOf()) }
 
     var roleDataRequest: RoleData? by remember { mutableStateOf(null) }
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
@@ -244,7 +244,8 @@ fun IdCardView(
     }
 
     LaunchedEffect(idCardViewModel.signStatus) {
-        idCardViewModel.signStatus.asFlow()
+        idCardViewModel.signStatus
+            .asFlow()
             .filterNotNull()
             .collect { signStatus ->
                 sharedContainerViewModel.setSignedIDCardStatus(signStatus)
@@ -256,7 +257,8 @@ fun IdCardView(
     }
 
     LaunchedEffect(idCardViewModel.decryptStatus) {
-        idCardViewModel.decryptStatus.asFlow()
+        idCardViewModel.decryptStatus
+            .asFlow()
             .filterNotNull()
             .collect { decryptStatus ->
                 sharedContainerViewModel.setDecryptIDCardStatus(decryptStatus)
@@ -268,7 +270,8 @@ fun IdCardView(
     }
 
     LaunchedEffect(idCardViewModel.errorState) {
-        idCardViewModel.errorState.asFlow()
+        idCardViewModel.errorState
+            .asFlow()
             .filterNotNull()
             .collect { errorState ->
                 withContext(IO) {
@@ -279,7 +282,9 @@ fun IdCardView(
                     if (errorState.first != 0) {
                         errorText =
                             context.getString(
-                                errorState.first, errorState.second, errorState.third,
+                                errorState.first,
+                                errorState.second,
+                                errorState.third,
                             )
                     }
 
@@ -300,7 +305,8 @@ fun IdCardView(
     }
 
     LaunchedEffect(idCardViewModel.pinErrorState) {
-        idCardViewModel.pinErrorState.asFlow()
+        idCardViewModel.pinErrorState
+            .asFlow()
             .filterNotNull()
             .collect { pinErrorState ->
                 withContext(IO) {
@@ -311,7 +317,9 @@ fun IdCardView(
                     pinCode.value = byteArrayOf()
                     pinErrorText =
                         context.getString(
-                            pinErrorState.first, pinErrorState.second, pinErrorState.third,
+                            pinErrorState.first,
+                            pinErrorState.second,
+                            pinErrorState.third,
                         )
 
                     if (pinErrorText.isNotEmpty()) {
@@ -329,7 +337,8 @@ fun IdCardView(
     }
 
     LaunchedEffect(idCardViewModel.dialogError) {
-        idCardViewModel.dialogError.asFlow()
+        idCardViewModel.dialogError
+            .asFlow()
             .filterNotNull()
             .collect {
                 withContext(Main) {
@@ -343,7 +352,8 @@ fun IdCardView(
     }
 
     LaunchedEffect(idCardViewModel.signedContainer) {
-        idCardViewModel.signedContainer.asFlow()
+        idCardViewModel.signedContainer
+            .asFlow()
             .filterNotNull()
             .collect { signedContainer ->
                 sharedContainerViewModel.setSignedContainer(signedContainer)
@@ -353,7 +363,8 @@ fun IdCardView(
     }
 
     LaunchedEffect(idCardViewModel.cryptoContainer) {
-        idCardViewModel.cryptoContainer.asFlow()
+        idCardViewModel.cryptoContainer
+            .asFlow()
             .filterNotNull()
             .collect { cryptoContainer ->
                 sharedContainerViewModel.setCryptoContainer(cryptoContainer, true)
@@ -433,8 +444,7 @@ fun IdCardView(
                             modifier
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("idCardErrorContainer"),
+                                }.testTag("idCardErrorContainer"),
                     ) {
                         HrefMessageDialog(
                             modifier = modifier,
@@ -475,11 +485,9 @@ fun IdCardView(
                     detectTapGestures(onTap = {
                         focusManager.clearFocus()
                     })
-                }
-                .semantics {
+                }.semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("signatureUpdateIdCard"),
+                }.testTag("signatureUpdateIdCard"),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (isAddingRoleAndAddress) {
@@ -626,8 +634,7 @@ fun IdCardView(
                             .padding(top = SPadding)
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("signatureUpdateIdCardContainer"),
+                            }.testTag("signatureUpdateIdCardContainer"),
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.spacedBy(SPadding),
                 ) {
@@ -640,8 +647,7 @@ fun IdCardView(
                                 .semantics {
                                     traversalIndex = 1f
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("idCardReadyToSignMessage"),
+                                }.testTag("idCardReadyToSignMessage"),
                         text = idCardStatusReadyToSignMessage,
                         textAlign = TextAlign.Start,
                         style = MaterialTheme.typography.labelLarge,
@@ -664,8 +670,7 @@ fun IdCardView(
                                     traversalIndex = 2f
                                     testTagsAsResourceId = true
                                     contentDescription = formatNumbers(nameText)
-                                }
-                                .testTag("idCardSignerNameText"),
+                                }.testTag("idCardSignerNameText"),
                         nameText,
                     )
 
@@ -675,8 +680,7 @@ fun IdCardView(
                                 .fillMaxWidth()
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("idCardContainer"),
+                                }.testTag("idCardContainer"),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(LPadding),
                     ) {
@@ -696,8 +700,7 @@ fun IdCardView(
                                         .semantics {
                                             traversalIndex = 3f
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("idCardPinTextField"),
+                                        }.testTag("idCardPinTextField"),
                                 pin = pinCode,
                                 pinCodeLabel = pinText,
                                 pinNumberFocusRequester = pinCodeFocusRequester,
@@ -715,8 +718,7 @@ fun IdCardView(
                                             .semantics {
                                                 traversalIndex = 4f
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("idCardPinRemoveButton"),
+                                            }.testTag("idCardPinRemoveButton"),
                                     onClick = {
                                         pinCode.value = byteArrayOf()
                                         scope.launch(Main) {
@@ -733,8 +735,7 @@ fun IdCardView(
                                                 .size(iconSizeXXS)
                                                 .semantics {
                                                     testTagsAsResourceId = true
-                                                }
-                                                .testTag("idCardPinRemoveIconButton"),
+                                                }.testTag("idCardPinRemoveIconButton"),
                                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                         contentDescription = "$clearButtonText $buttonName",
                                     )

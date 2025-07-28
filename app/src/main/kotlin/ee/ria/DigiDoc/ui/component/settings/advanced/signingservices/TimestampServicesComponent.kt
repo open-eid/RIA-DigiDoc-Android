@@ -99,7 +99,7 @@ fun TimestampServicesComponent(
     val setSettingsTsaUrl = sharedSettingsViewModel.dataStore::setSettingsTSAUrl
     val setTsaSetting = sharedSettingsViewModel.dataStore::setTsaSetting
     val defaultTsaServiceUrl = configuration?.tsaUrl ?: getSettingsTsaUrl()
-    var settingsTsaServiceChoice = remember { mutableStateOf(getTsaSetting().name) }
+    val settingsTsaServiceChoice = remember { mutableStateOf(getTsaSetting().name) }
     var settingsTsaServiceUrl by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
             TextFieldValue(
@@ -301,8 +301,7 @@ fun TimestampServicesComponent(
                                     .fillMaxWidth()
                                     .semantics {
                                         testTagsAsResourceId = true
-                                    }
-                                    .testTag("timestampServicesComponentTextField"),
+                                    }.testTag("timestampServicesComponentTextField"),
                             trailingIcon = {
                                 if (!isTalkBackEnabled(context) && settingsTsaServiceUrl.text.isNotEmpty()) {
                                     IconButton(onClick = {
@@ -342,8 +341,7 @@ fun TimestampServicesComponent(
                                         modifier
                                             .semantics {
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("timestampServicesRemoveIconButton"),
+                                            }.testTag("timestampServicesRemoveIconButton"),
                                     imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                     contentDescription = "$clearButtonText $buttonName",
                                 )
@@ -412,8 +410,7 @@ fun TimestampServicesComponent(
                                                 contentDescription =
                                                     "$showCertificateButtonText $buttonName"
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("timestampServicesShowCertificateActionButton"),
+                                            }.testTag("timestampServicesShowCertificateActionButton"),
                                     text = showCertificateButtonText,
                                     color = MaterialTheme.colorScheme.primary,
                                 )
@@ -430,8 +427,7 @@ fun TimestampServicesComponent(
                                             contentDescription =
                                                 "$addCertificateButtonText $buttonName"
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("timestampServicesAddCertificateActionButton"),
+                                        }.testTag("timestampServicesAddCertificateActionButton"),
                                 text = addCertificateButtonText,
                                 color = MaterialTheme.colorScheme.primary,
                             )

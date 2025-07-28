@@ -8,13 +8,13 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.utils.Route
 
 data class AdvancedSettingComponentItem(
-    @StringRes val name: Int = 0,
+    @param:StringRes val name: Int = 0,
     val testTag: String = "",
     val route: Route = Route.Settings,
 ) {
     @Composable
-    fun componentItems(): List<AdvancedSettingComponentItem> {
-        return listOf(
+    fun componentItems(): List<AdvancedSettingComponentItem> =
+        listOf(
             AdvancedSettingComponentItem(
                 name = R.string.main_settings_signing_services_title,
                 testTag = "advancedSettingSigningServices",
@@ -36,5 +36,4 @@ data class AdvancedSettingComponentItem(
                 route = Route.ProxyServicesScreen,
             ),
         )
-    }
 }

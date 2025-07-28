@@ -70,8 +70,7 @@ fun MyEidMyDataItem(
                 .semantics(mergeDescendants = true) {
                     this.contentDescription = contentDescription ?: ""
                     testTagsAsResourceId = true
-                }
-                .testTag("$testTag-container"),
+                }.testTag("$testTag-container"),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -89,8 +88,7 @@ fun MyEidMyDataItem(
                         .focusable(false)
                         .semantics {
                             testTagsAsResourceId = true
-                        }
-                        .testTag("$testTag-key"),
+                        }.testTag("$testTag-key"),
                 color = MaterialTheme.colorScheme.onSecondary,
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.labelMedium,
@@ -102,8 +100,7 @@ fun MyEidMyDataItem(
                         .focusable(false)
                         .semantics {
                             testTagsAsResourceId = true
-                        }
-                        .testTag("$testTag-value"),
+                        }.testTag("$testTag-value"),
                 textAlign = TextAlign.Start,
             )
         }

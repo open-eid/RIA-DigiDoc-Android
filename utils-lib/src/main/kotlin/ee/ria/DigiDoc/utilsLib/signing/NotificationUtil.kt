@@ -39,11 +39,11 @@ object NotificationUtil {
         val notification =
             context?.let {
                 if (notificationChannel != null) {
-                    NotificationCompat.Builder(
-                        it,
-                        notificationChannel,
-                    )
-                        .setSmallIcon(smallIcon)
+                    NotificationCompat
+                        .Builder(
+                            it,
+                            notificationChannel,
+                        ).setSmallIcon(smallIcon)
                         .setContentTitle(title)
                         .setContentText(text)
                         .setPriority(priority)

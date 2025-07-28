@@ -237,7 +237,8 @@ fun MobileIdView(
     }
 
     LaunchedEffect(mobileIdViewModel.dialogError) {
-        mobileIdViewModel.dialogError.asFlow()
+        mobileIdViewModel.dialogError
+            .asFlow()
             .filterNotNull()
             .filterNot { it == 0 }
             .collect {
@@ -290,8 +291,7 @@ fun MobileIdView(
                             modifier
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("mobileIdErrorContainer"),
+                                }.testTag("mobileIdErrorContainer"),
                     ) {
                         HrefMessageDialog(
                             modifier = modifier,
@@ -332,11 +332,9 @@ fun MobileIdView(
                     detectTapGestures(onTap = {
                         focusManager.clearFocus()
                     })
-                }
-                .semantics {
+                }.semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("signatureUpdateMobileId"),
+                }.testTag("signatureUpdateMobileId"),
     ) {
         if (isAddingRoleAndAddress) {
             RoleDataView(modifier, sharedSettingsViewModel, onError)
@@ -409,8 +407,7 @@ fun MobileIdView(
                     modifier
                         .semantics {
                             testTagsAsResourceId = true
-                        }
-                        .testTag("mobileIdViewContainer"),
+                        }.testTag("mobileIdViewContainer"),
             ) {
                 Row(
                     modifier =
@@ -462,12 +459,10 @@ fun MobileIdView(
                                 .focusRequester(phoneNumberFocusRequester)
                                 .focusProperties {
                                     next = personalCodeFocusRequester
-                                }
-                                .weight(1f)
+                                }.weight(1f)
                                 .semantics(mergeDescendants = true) {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("signatureUpdateMobileIdPhoneNo"),
+                                }.testTag("signatureUpdateMobileIdPhoneNo"),
                         shape = RectangleShape,
                         trailingIcon = {
                             if (!isTalkBackEnabled(context) && countryCodeAndPhone.text.isNotEmpty()) {
@@ -516,8 +511,7 @@ fun MobileIdView(
                                         .size(iconSizeXXS)
                                         .semantics {
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("smartIdCountryCodeAndPhoneNumberRemoveIconButton"),
+                                        }.testTag("smartIdCountryCodeAndPhoneNumberRemoveIconButton"),
                                 imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                 contentDescription = "$clearButtonText $buttonName",
                             )
@@ -527,7 +521,8 @@ fun MobileIdView(
                 if (countryCodeAndPhoneErrorText.isNotEmpty()) {
                     Text(
                         modifier =
-                            modifier.fillMaxWidth()
+                            modifier
+                                .fillMaxWidth()
                                 .focusable(enabled = true)
                                 .semantics { contentDescription = countryCodeAndPhoneErrorText }
                                 .testTag("mobileIdPhoneNoErrorText"),
@@ -573,12 +568,10 @@ fun MobileIdView(
                                 .focusRequester(personalCodeFocusRequester)
                                 .focusProperties {
                                     previous = phoneNumberFocusRequester
-                                }
-                                .weight(1f)
+                                }.weight(1f)
                                 .semantics(mergeDescendants = true) {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("signatureUpdateMobileIdPersonalCode"),
+                                }.testTag("signatureUpdateMobileIdPersonalCode"),
                         trailingIcon = {
                             if (!isTalkBackEnabled(context) && personalCode.text.isNotEmpty()) {
                                 IconButton(onClick = {
@@ -629,8 +622,7 @@ fun MobileIdView(
                                         .size(iconSizeXXS)
                                         .semantics {
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("smartIdPersonalCodeRemoveIconButton"),
+                                        }.testTag("smartIdPersonalCodeRemoveIconButton"),
                                 imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                 contentDescription = "$clearButtonText $buttonName",
                             )
@@ -640,7 +632,8 @@ fun MobileIdView(
                 if (personalCodeErrorText.isNotEmpty()) {
                     Text(
                         modifier =
-                            modifier.fillMaxWidth()
+                            modifier
+                                .fillMaxWidth()
                                 .focusable(enabled = true)
                                 .semantics { contentDescription = personalCodeErrorText }
                                 .testTag("signatureUpdateMobileIdPersonalCodeErrorText"),

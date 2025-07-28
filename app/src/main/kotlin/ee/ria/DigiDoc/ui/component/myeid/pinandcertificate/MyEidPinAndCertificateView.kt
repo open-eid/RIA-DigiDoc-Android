@@ -67,8 +67,7 @@ fun MyEidPinAndCertificateView(
                 .fillMaxSize()
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("myEidPinAndCertificateView"),
+                }.testTag("myEidPinAndCertificateView"),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Card(
@@ -100,8 +99,7 @@ fun MyEidPinAndCertificateView(
                             .wrapContentHeight(align = Alignment.CenterVertically)
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("myEidPinAndCertificateIcon")
+                            }.testTag("myEidPinAndCertificateIcon")
                             .notAccessible(),
                 )
 
@@ -113,8 +111,7 @@ fun MyEidPinAndCertificateView(
                             .semantics(mergeDescendants = true) {
                                 this.contentDescription = "$title. $subtitle".lowercase()
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("myEidCertificateTitle"),
+                            }.testTag("myEidCertificateTitle"),
                 ) {
                     Text(
                         modifier = modifier.notAccessible(),
@@ -148,8 +145,7 @@ fun MyEidPinAndCertificateView(
                                 .weight(1f)
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("myEidPinAndCertificateForgotPinButton"),
+                                }.testTag("myEidPinAndCertificateForgotPinButton"),
                         colors =
                             ButtonDefaults.buttonColors(
                                 containerColor = Color.Transparent,
@@ -164,8 +160,7 @@ fun MyEidPinAndCertificateView(
                                     .semantics {
                                         this.contentDescription = forgotPinText.lowercase()
                                         testTagsAsResourceId = true
-                                    }
-                                    .testTag("myEidForgotPinButtonText"),
+                                    }.testTag("myEidForgotPinButtonText"),
                             text = forgotPinText,
                             style = MaterialTheme.typography.labelLarge,
                             textAlign = TextAlign.Center,
@@ -192,8 +187,7 @@ fun MyEidPinAndCertificateView(
                                     .semantics {
                                         this.contentDescription = changePinText.lowercase()
                                         testTagsAsResourceId = true
-                                    }
-                                    .testTag("myEidPinAndCertificateChangePinButton"),
+                                    }.testTag("myEidPinAndCertificateChangePinButton"),
                             text = changePinText,
                             style = MaterialTheme.typography.labelLarge,
                         )

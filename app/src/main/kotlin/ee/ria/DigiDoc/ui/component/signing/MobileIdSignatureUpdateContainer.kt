@@ -3,7 +3,6 @@
 package ee.ria.DigiDoc.ui.component.signing
 
 import android.content.res.Configuration
-import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -42,6 +41,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXL
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.MobileIdViewModel
 
@@ -77,13 +77,13 @@ fun MobileIdSignatureUpdateContainer(
         if (challengeText.isNotEmpty()) {
             AccessibilityUtil.sendAccessibilityEvent(
                 context,
-                TYPE_ANNOUNCEMENT,
+                getAccessibilityEventType(),
                 "$controlCode ${formatNumbers(challengeText)}",
             )
         } else {
             AccessibilityUtil.sendAccessibilityEvent(
                 context,
-                TYPE_ANNOUNCEMENT,
+                getAccessibilityEventType(),
                 controlCodeLoadingText,
             )
         }
@@ -96,8 +96,7 @@ fun MobileIdSignatureUpdateContainer(
                 .padding(vertical = LPadding)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("signatureUpdateMobileIdContainer"),
+                }.testTag("signatureUpdateMobileIdContainer"),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(LPadding),
     ) {
@@ -138,8 +137,7 @@ fun MobileIdSignatureUpdateContainer(
                         }
                         this.contentDescription =
                             "$controlCode ${formatNumbers(challengeText)}"
-                    }
-                    .testTag("signatureUpdateMobileIdChallenge"),
+                    }.testTag("signatureUpdateMobileIdChallenge"),
         )
     }
 }

@@ -27,8 +27,7 @@ fun RootFragment(modifier: Modifier = Modifier) {
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("rootFragment"),
+                }.testTag("rootFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         RootScreen(

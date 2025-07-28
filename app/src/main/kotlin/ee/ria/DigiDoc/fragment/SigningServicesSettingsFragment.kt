@@ -39,8 +39,7 @@ fun SigningServicesSettingsFragment(
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("signingServicesSettingsFragment"),
+                }.testTag("signingServicesSettingsFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         SigningServicesSettingsScreen(

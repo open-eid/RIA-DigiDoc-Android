@@ -109,13 +109,11 @@ fun EditValueDialog(
                 modifier
                     .padding(
                         vertical = SPadding,
-                    )
-                    .fillMaxWidth()
+                    ).fillMaxWidth()
                     .semantics {
                         heading()
                         testTagsAsResourceId = true
-                    }
-                    .testTag("editValueTitle"),
+                    }.testTag("editValueTitle"),
             text = title,
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
@@ -140,8 +138,7 @@ fun EditValueDialog(
                             testTagsAsResourceId = true
                             testTag = "editValueDialogTextField"
                             contentDescription = "$title ${formatNumbers(editValue.text)}"
-                        }
-                        .testTag("editValueTextField"),
+                        }.testTag("editValueTextField"),
                 value = editValue,
                 onValueChange = { newValue ->
                     onEditValueChange(newValue.copy(selection = TextRange(newValue.text.length)))
@@ -186,8 +183,7 @@ fun EditValueDialog(
                             modifier
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("editValueRemoveIconButton"),
+                                }.testTag("editValueRemoveIconButton"),
                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                         contentDescription = "${stringResource(R.string.clear_text)} $buttonName",
                     )

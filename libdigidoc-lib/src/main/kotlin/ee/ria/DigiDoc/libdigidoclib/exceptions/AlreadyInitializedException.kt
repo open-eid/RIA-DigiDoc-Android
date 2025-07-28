@@ -2,4 +2,6 @@
 
 package ee.ria.DigiDoc.libdigidoclib.exceptions
 
-class AlreadyInitializedException(message: String) : Exception(message)
+class AlreadyInitializedException(
+    message: String,
+) : Exception(message)

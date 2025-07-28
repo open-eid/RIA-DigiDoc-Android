@@ -20,8 +20,8 @@ class IdCardDataCreator {
             pin1RetryCount: Int = 3,
             pin2RetryCount: Int = 3,
             pukRetryCount: Int = 3,
-        ): IdCardData {
-            return IdCardData(
+        ): IdCardData =
+            IdCardData(
                 type = type,
                 personalData = personalData,
                 authCertificate = authCertificate,
@@ -30,16 +30,14 @@ class IdCardDataCreator {
                 pin2RetryCount = pin2RetryCount,
                 pukRetryCount = pukRetryCount,
             )
-        }
 
-        private fun createMockExtendedCertificate(): ExtendedCertificate {
-            return ExtendedCertificate(
+        private fun createMockExtendedCertificate(): ExtendedCertificate =
+            ExtendedCertificate(
                 type = EIDType.ID_CARD,
                 data = byteArrayOf(0x01, 0x02, 0x03),
                 keyUsage = mock(KeyUsage::class.java),
                 extendedKeyUsage = mock(ExtendedKeyUsage::class.java),
                 ellipticCurve = true,
             )
-        }
     }
 }

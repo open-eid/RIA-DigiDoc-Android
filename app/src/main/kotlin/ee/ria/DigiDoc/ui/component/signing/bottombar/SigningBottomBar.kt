@@ -29,8 +29,7 @@ fun SigningBottomBar(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("signingBottomBar"),
+                }.testTag("signingBottomBar"),
     ) {
         if (isUnsignedContainer) {
             UnSignedContainerBottomBar(

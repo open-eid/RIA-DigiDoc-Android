@@ -40,8 +40,10 @@ class ContainerWrapperImpl : ContainerWrapper {
                 roleData != null && signedContainer != null -> {
                     signer.setSignerRoles(StringVector(removeEmptyStrings(roleData.roles)))
                     signer.setSignatureProductionPlace(
-                        roleData.city, roleData.state,
-                        roleData.zip, roleData.country,
+                        roleData.city,
+                        roleData.state,
+                        roleData.zip,
+                        roleData.country,
                     )
                     signedContainer.rawContainer()?.prepareSignature(
                         signer,

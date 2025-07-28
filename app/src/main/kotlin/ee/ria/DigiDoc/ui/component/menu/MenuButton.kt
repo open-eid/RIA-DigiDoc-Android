@@ -54,8 +54,7 @@ fun MenuButton(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag(testTag)
+                }.testTag(testTag)
                 .wrapContentHeight(Alignment.CenterVertically)
                 .padding(vertical = XSPadding),
         colors =
@@ -85,8 +84,7 @@ fun MenuButton(
                             start.linkTo(parent.start)
                             top.linkTo(parent.top)
                             bottom.linkTo(parent.bottom)
-                        }
-                        .padding(horizontal = MSPadding)
+                        }.padding(horizontal = MSPadding)
                         .size(iconSizeXXS),
                 imageVector = ImageVector.vectorResource(id = buttonIcon),
                 contentDescription = null,
@@ -99,8 +97,7 @@ fun MenuButton(
                         .wrapContentHeight(align = Alignment.CenterVertically)
                         .semantics {
                             this.contentDescription = contentDescription
-                        }
-                        .constrainAs(menuButtonText) {
+                        }.constrainAs(menuButtonText) {
                             start.linkTo(menuButtonIcon.end)
                             top.linkTo(parent.top)
                             bottom.linkTo(parent.bottom)
@@ -117,8 +114,7 @@ fun MenuButton(
                             end.linkTo(parent.end)
                             top.linkTo(parent.top)
                             bottom.linkTo(parent.bottom)
-                        }
-                        .padding(horizontal = MSPadding)
+                        }.padding(horizontal = MSPadding)
                         .size(iconSizeXXS),
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_m3_arrow_right_48dp_wght400),
                 contentDescription = null,

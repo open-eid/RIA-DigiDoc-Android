@@ -53,8 +53,7 @@ fun OpenMenuBottomSheet(
                     Modifier
                         .semantics {
                             testTagsAsResourceId = true
-                        }
-                        .testTag(testTag)
+                        }.testTag(testTag)
                         .fillMaxWidth()
                         .padding(SPadding),
             ) {

@@ -54,8 +54,7 @@ fun CancelAndOkButtonRow(
                     modifier
                         .semantics {
                             testTagsAsResourceId = true
-                        }
-                        .testTag(okButtonTestTag),
+                        }.testTag(okButtonTestTag),
             ) {
                 Text(
                     modifier =
@@ -73,8 +72,7 @@ fun CancelAndOkButtonRow(
                 modifier
                     .semantics {
                         testTagsAsResourceId = true
-                    }
-                    .testTag(cancelButtonTestTag),
+                    }.testTag(cancelButtonTestTag),
         ) {
             Text(
                 modifier = modifier.semantics { contentDescription = okButtonContentDescription },

@@ -52,18 +52,21 @@ class SignedContainer
         private val timestamps: List<SignatureInterface>? = emptyList(),
     ) : ee.ria.DigiDoc.common.container.Container {
         suspend fun getDataFiles(): List<DataFileInterface> {
-            return CoroutineScope(IO).async {
-                val wrappedDataFile =
-                    container?.dataFiles()
-                        ?.mapNotNull { DataFileWrapper(it) } ?: emptyList()
-                return@async wrappedDataFile
-            }.await()
+            return CoroutineScope(IO)
+                .async {
+                    val wrappedDataFile =
+                        container
+                            ?.dataFiles()
+                            ?.mapNotNull { DataFileWrapper(it) } ?: emptyList()
+                    return@async wrappedDataFile
+                }.await()
         }
 
         @Throws(Exception::class)
         suspend fun getNestedTimestampedContainer(): SignedContainer? {
             if ((containerMimetype().equals(ASICS_MIMETYPE, ignoreCase = true) && getDataFiles().size == 1) ||
-                isCades() && !isXades()
+                isCades() &&
+                !isXades()
             ) {
                 val dataFile = container?.dataFiles()?.firstOrNull()
                 val containerRawFile = containerFile
@@ -91,7 +94,8 @@ class SignedContainer
         suspend fun getSignatures(thread: CoroutineContext = IO): List<SignatureInterface> =
             withContext(thread) {
                 try {
-                    container?.signatures()
+                    container
+                        ?.signatures()
                         ?.filterNotNull()
                         ?.mapNotNull { signature ->
                             try {
@@ -199,13 +203,17 @@ class SignedContainer
 
         fun isXades(): Boolean =
             containerMimetype().equals(ASICS_MIMETYPE, true) &&
-                container?.signatures()?.stream()
+                container
+                    ?.signatures()
+                    ?.stream()
                     ?.anyMatch { signature: Signature? ->
                         signature?.profile()?.lowercase()?.contains("bes") ?: false
                     } ?: false
 
         fun isCades(): Boolean =
-            container?.signatures()?.stream()
+            container
+                ?.signatures()
+                ?.stream()
                 ?.anyMatch { signature: Signature? ->
                     signature?.profile()?.lowercase()?.contains("cades") ?: false
                 } ?: false

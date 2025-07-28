@@ -14,7 +14,5 @@ class FileAlreadyExistsException(
             fileName,
         )
 
-    fun getFileName(): String {
-        return fileName
-    }
+    fun getFileName(): String = fileName
 }

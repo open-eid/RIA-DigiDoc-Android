@@ -51,8 +51,7 @@ fun Document(
                 .fillMaxWidth()
                 .semantics {
                     this.contentDescription = "$documentTitle ${formatNumbers(name).lowercase()}"
-                }
-                .focusable(true)
+                }.focusable(true)
                 .clickable(onClick = onItemClick)
                 .testTag("recentDocumentsItem"),
     ) {
@@ -83,8 +82,7 @@ fun Document(
                         start.linkTo(folderIcon.end)
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
-                    }
-                    .focusable(false)
+                    }.focusable(false)
                     .testTag("recentDocumentsItemName"),
             text = name,
             maxLines = 4,
@@ -99,8 +97,7 @@ fun Document(
                         end.linkTo(parent.end)
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
-                    }
-                    .testTag("recentDocumentsItemRemoveButton"),
+                    }.testTag("recentDocumentsItemRemoveButton"),
             onClick = onRemoveButtonClick,
             content = {
                 Icon(

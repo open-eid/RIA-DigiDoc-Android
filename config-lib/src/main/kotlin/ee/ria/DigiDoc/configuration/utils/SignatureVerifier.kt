@@ -33,8 +33,8 @@ object SignatureVerifier {
         return verifySignature(signature, publicKey, signedContent)
     }
 
-    private fun convertPublicKeyInfoToPublicKey(publicKeyInfo: SubjectPublicKeyInfo): PublicKey {
-        return try {
+    private fun convertPublicKeyInfoToPublicKey(publicKeyInfo: SubjectPublicKeyInfo): PublicKey =
+        try {
             val keyParams: RSAKeyParameters =
                 PublicKeyFactory.createKey(publicKeyInfo) as RSAKeyParameters
             val publicKeySpec = RSAPublicKeySpec(keyParams.modulus, keyParams.exponent)
@@ -59,7 +59,6 @@ object SignatureVerifier {
                 e,
             )
         }
-    }
 
     private fun parsePublicKeyInfo(PKCS1PublicKeyPEM: String): SubjectPublicKeyInfo {
         try {
@@ -74,8 +73,8 @@ object SignatureVerifier {
         signatureBytes: ByteArray,
         publicKey: PublicKey,
         signedContent: String,
-    ): Boolean {
-        return try {
+    ): Boolean =
+        try {
             val signature = Signature.getInstance("SHA512withRSA")
             signature.initVerify(publicKey)
             signature.update(signedContent.toByteArray(StandardCharsets.UTF_8))
@@ -90,5 +89,4 @@ object SignatureVerifier {
             errorLog(LOG_TAG, "Signature verification failed", e)
             throw IllegalStateException("Failed to verify signature", e)
         }
-    }
 }

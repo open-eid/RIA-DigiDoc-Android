@@ -376,8 +376,8 @@ class MobileSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(midRestServiceClient).getCertificate(
+            ).whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
@@ -478,8 +478,8 @@ class MobileSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(midRestServiceClient).getCertificate(
+            ).whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
@@ -564,8 +564,8 @@ class MobileSignServiceImplTest {
                         null,
                     ),
                 ),
-            )
-                .whenever(midRestServiceClient).getCertificate(
+            ).whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
@@ -598,12 +598,14 @@ class MobileSignServiceImplTest {
             )
             val call = mock(Call::class.java)
             doReturn(call)
-                .whenever(midRestServiceClient).getCertificate(
+                .whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
             doThrow(UnknownHostException())
-                .whenever(call).execute()
+                .whenever(call)
+                .execute()
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
@@ -634,12 +636,14 @@ class MobileSignServiceImplTest {
             )
             val call = mock(Call::class.java)
             doReturn(call)
-                .whenever(midRestServiceClient).getCertificate(
+                .whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
             doThrow(SSLPeerUnverifiedException(""))
-                .whenever(call).execute()
+                .whenever(call)
+                .execute()
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
@@ -678,8 +682,8 @@ class MobileSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(midRestServiceClient).getCertificate(
+            ).whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
@@ -751,12 +755,14 @@ class MobileSignServiceImplTest {
 
             val call = mock(Call::class.java)
             doReturn(call)
-                .whenever(midRestServiceClient).getCertificate(
+                .whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
             doThrow(IllegalStateException("Too Many Requests"))
-                .whenever(call).execute()
+                .whenever(call)
+                .execute()
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
@@ -788,12 +794,14 @@ class MobileSignServiceImplTest {
 
             val call = mock(Call::class.java)
             doReturn(call)
-                .whenever(midRestServiceClient).getCertificate(
+                .whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
             doThrow(IllegalStateException("OCSP response not in valid time slot"))
-                .whenever(call).execute()
+                .whenever(call)
+                .execute()
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
@@ -825,12 +833,14 @@ class MobileSignServiceImplTest {
 
             val call = mock(Call::class.java)
             doReturn(call)
-                .whenever(midRestServiceClient).getCertificate(
+                .whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
             doThrow(IllegalStateException("Certificate status: revoked"))
-                .whenever(call).execute()
+                .whenever(call)
+                .execute()
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
@@ -862,12 +872,14 @@ class MobileSignServiceImplTest {
 
             val call = mock(Call::class.java)
             doReturn(call)
-                .whenever(midRestServiceClient).getCertificate(
+                .whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
             doThrow(IllegalStateException("Failed to connect"))
-                .whenever(call).execute()
+                .whenever(call)
+                .execute()
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
@@ -899,12 +911,14 @@ class MobileSignServiceImplTest {
 
             val call = mock(Call::class.java)
             doReturn(call)
-                .whenever(midRestServiceClient).getCertificate(
+                .whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
             doThrow(IllegalStateException("Failed to create ssl connection with host"))
-                .whenever(call).execute()
+                .whenever(call)
+                .execute()
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
@@ -936,12 +950,14 @@ class MobileSignServiceImplTest {
 
             val call = mock(Call::class.java)
             doReturn(call)
-                .whenever(midRestServiceClient).getCertificate(
+                .whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
             doThrow(IllegalStateException())
-                .whenever(call).execute()
+                .whenever(call)
+                .execute()
 
             mobileSignServiceImpl.processMobileIdRequest(
                 context = context,
@@ -979,8 +995,8 @@ class MobileSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(midRestServiceClient).getCertificate(
+            ).whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
@@ -1021,8 +1037,8 @@ class MobileSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(midRestServiceClient).getCertificate(
+            ).whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
@@ -1111,8 +1127,8 @@ class MobileSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(midRestServiceClient).getCertificate(
+            ).whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
@@ -1191,8 +1207,8 @@ class MobileSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(midRestServiceClient).getCertificate(
+            ).whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
@@ -1274,8 +1290,8 @@ class MobileSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(midRestServiceClient).getCertificate(
+            ).whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
@@ -1354,8 +1370,8 @@ class MobileSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(midRestServiceClient).getCertificate(
+            ).whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
@@ -1433,8 +1449,8 @@ class MobileSignServiceImplTest {
                 Calls.response(
                     mockResponse,
                 ),
-            )
-                .whenever(midRestServiceClient).getCertificate(
+            ).whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
@@ -1474,8 +1490,8 @@ class MobileSignServiceImplTest {
                 Calls.response(
                     mockResponse,
                 ),
-            )
-                .whenever(midRestServiceClient).getCertificate(
+            ).whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
@@ -1518,8 +1534,8 @@ class MobileSignServiceImplTest {
                 Calls.response(
                     mockResponse,
                 ),
-            )
-                .whenever(midRestServiceClient).getCertificate(
+            ).whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
@@ -1559,8 +1575,8 @@ class MobileSignServiceImplTest {
                 Calls.response(
                     mockResponse,
                 ),
-            )
-                .whenever(midRestServiceClient).getCertificate(
+            ).whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
@@ -1601,8 +1617,8 @@ class MobileSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(midRestServiceClient).getCertificate(
+            ).whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
@@ -1663,8 +1679,8 @@ class MobileSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(midRestServiceClient).getCertificate(
+            ).whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
@@ -1728,8 +1744,8 @@ class MobileSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(midRestServiceClient).getCertificate(
+            ).whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
@@ -1790,8 +1806,8 @@ class MobileSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(midRestServiceClient).getCertificate(
+            ).whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 
@@ -1852,8 +1868,8 @@ class MobileSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(midRestServiceClient).getCertificate(
+            ).whenever(midRestServiceClient)
+                .getCertificate(
                     body = getMobileCertificateRequest,
                 )
 

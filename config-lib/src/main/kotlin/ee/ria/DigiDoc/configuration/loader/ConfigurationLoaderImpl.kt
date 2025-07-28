@@ -196,7 +196,7 @@ class ConfigurationLoaderImpl
         override suspend fun loadCentralConfiguration(
             context: Context,
             proxySetting: ProxySetting?,
-            manualProxy: ManualProxy,
+            proxy: ManualProxy,
         ) {
             val cachedSignature =
                 ConfigurationCache.getCachedFile(context, CACHED_CONFIG_RSA)
@@ -205,7 +205,7 @@ class ConfigurationLoaderImpl
 
             loadConfigurationProperty(context)
 
-            centralConfigurationRepository.setupProxy(proxySetting, manualProxy)
+            centralConfigurationRepository.setupProxy(proxySetting, proxy)
 
             val centralSignature =
                 Base64.decode(
@@ -265,7 +265,9 @@ class ConfigurationLoaderImpl
 
         override suspend fun shouldCheckForUpdates(context: Context): Boolean {
             val lastExecutionDate =
-                configurationProperties.getConfigurationLastCheckDate(context)?.toInstant()
+                configurationProperties
+                    .getConfigurationLastCheckDate(context)
+                    ?.toInstant()
                     ?.atZone(ZoneId.systemDefault())
                     ?.toLocalDateTime()
 

@@ -191,17 +191,15 @@ class CertificateDetailViewModel
             return false
         }
 
-        private fun wrapText(text: String): String {
-            return WordUtils.wrap(text, 40, "\n${indentText("")}", true)
-        }
+        private fun wrapText(text: String): String = WordUtils.wrap(text, 40, "\n${indentText("")}", true)
 
         private fun indentText(
             text: String,
             padding: Int = 4,
         ): String = " ".repeat(padding) + text
 
-        private fun getIDOrURIString(extensionValue: String): String {
-            return when {
+        private fun getIDOrURIString(extensionValue: String): String =
+            when {
                 URLUtil.isValidUrl(extensionValue) -> {
                     "URI: ${wrapText(extensionValue)}"
                 }
@@ -217,10 +215,9 @@ class CertificateDetailViewModel
                     }
                 }
             }
-        }
 
-        private fun getKeyUsageDescription(keyUsageNum: Int): String {
-            return when (keyUsageNum) {
+        private fun getKeyUsageDescription(keyUsageNum: Int): String =
+            when (keyUsageNum) {
                 0 -> "Digital Signature"
                 1 -> "Non-Repudiation"
                 2 -> "Key Encipherment"
@@ -232,7 +229,6 @@ class CertificateDetailViewModel
                 8 -> "Decipher Only"
                 else -> ""
             }
-        }
 
         private fun getExtensionFields(): Map<String, String> {
             val extensionFields: MutableMap<String, String> = HashMap()

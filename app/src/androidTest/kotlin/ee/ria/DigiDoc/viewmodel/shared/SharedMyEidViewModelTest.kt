@@ -555,10 +555,16 @@ class SharedMyEidViewModelTest {
         val notAfter = viewModel.getNotAfter(cert)
 
         val formattedNotAfterDate =
-            DateUtil.formattedDateTime(
-                cert?.notAfter?.toInstant()?.atZone(ZoneId.systemDefault())?.toLocalDate().toString(),
-                SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()),
-            ).date
+            DateUtil
+                .formattedDateTime(
+                    cert
+                        ?.notAfter
+                        ?.toInstant()
+                        ?.atZone(ZoneId.systemDefault())
+                        ?.toLocalDate()
+                        .toString(),
+                    SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()),
+                ).date
 
         assertEquals(formattedNotAfterDate, notAfter)
     }

@@ -10,9 +10,10 @@ import com.google.gson.stream.JsonReader
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import java.io.StringReader
 
-class Parser(configuration: String?) {
-    @Suppress("PropertyName")
-    private val LOG_TAG = javaClass.simpleName
+class Parser(
+    configuration: String?,
+) {
+    private val logTag = javaClass.simpleName
     private val configurationJson: JsonObject
 
     init {
@@ -21,13 +22,10 @@ class Parser(configuration: String?) {
             JsonReader(
                 StringReader(configuration),
             )
-        reader.isLenient = true
         configurationJson = gson.fromJson(reader, JsonObject::class.java)
     }
 
-    fun parseStringValue(vararg parameterNames: String): String {
-        return parseValue(*parameterNames) as String
-    }
+    fun parseStringValue(vararg parameterNames: String): String = parseValue(*parameterNames) as String
 
     fun parseStringValues(vararg parameterNames: String): List<String> {
         val jsonValues: JsonArray = parseValue(*parameterNames) as JsonArray
@@ -39,18 +37,16 @@ class Parser(configuration: String?) {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun parseStringValuesToMap(vararg parameterNames: String): Map<String, String> {
-        return parseValue(*parameterNames) as Map<String, String>
-    }
+    fun parseStringValuesToMap(vararg parameterNames: String): Map<String, String> =
+        parseValue(*parameterNames) as Map<String, String>
 
-    fun parseIntValue(vararg parameterNames: String): Int {
-        return try {
+    fun parseIntValue(vararg parameterNames: String): Int =
+        try {
             (parseValue(*parameterNames) as String).toInt()
         } catch (nfe: NumberFormatException) {
-            errorLog(LOG_TAG, "Unable to parse value", nfe)
+            errorLog(logTag, "Unable to parse value", nfe)
             throw IllegalArgumentException("Unable to parse value")
         }
-    }
 
     private fun parseValue(vararg parameterNames: String): Any {
         var jsonObject: JsonObject = configurationJson

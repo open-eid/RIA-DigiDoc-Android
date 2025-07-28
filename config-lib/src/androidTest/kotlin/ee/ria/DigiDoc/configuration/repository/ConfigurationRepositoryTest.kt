@@ -115,8 +115,8 @@ class ConfigurationRepositoryTest {
             job.cancel()
         }
 
-    private fun mockConfigurationProvider(): ConfigurationProvider {
-        return ConfigurationProvider(
+    private fun mockConfigurationProvider(): ConfigurationProvider =
+        ConfigurationProvider(
             metaInf =
                 ConfigurationProvider.MetaInf(
                     url = "https://www.example.com",
@@ -192,5 +192,4 @@ class ConfigurationRepositoryTest {
             cdoc2UseKeyServer = false,
             cdoc2DefaultKeyServer = "00000000-0000-0000-0000-000000000000",
         )
-    }
 }

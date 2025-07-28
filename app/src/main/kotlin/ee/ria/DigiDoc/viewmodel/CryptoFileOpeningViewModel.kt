@@ -32,7 +32,7 @@ import javax.inject.Inject
 class CryptoFileOpeningViewModel
     @Inject
     constructor(
-        @ApplicationContext private val context: Context,
+        @param:ApplicationContext private val context: Context,
         private val contentResolver: ContentResolver,
         private val fileOpeningRepository: FileOpeningRepository,
     ) : ViewModel() {
@@ -117,7 +117,8 @@ class CryptoFileOpeningViewModel
                         fileOpeningRepository.getValidFiles(files, existingSignedContainer)
 
                     val filesAlreadyInContainer: List<File> =
-                        files.stream()
+                        files
+                            .stream()
                             .filter { file -> !validFiles.contains(file) }
                             .collect(Collectors.toList())
 

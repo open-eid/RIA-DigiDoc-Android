@@ -23,7 +23,8 @@ object NetworkUtil {
 
     fun constructClientBuilder(context: Context?): OkHttpClient.Builder {
         val builder: OkHttpClient.Builder =
-            OkHttpClient.Builder()
+            OkHttpClient
+                .Builder()
                 .hostnameVerifier(OkHostnameVerifier)
                 .connectTimeout(DEFAULT_TIMEOUT.toLong(), TimeUnit.SECONDS)
                 .readTimeout(DEFAULT_TIMEOUT.toLong(), TimeUnit.SECONDS)
@@ -35,7 +36,8 @@ object NetworkUtil {
             val manualProxy: ManualProxy = getManualProxySettings(context)
             val proxyConfig: ProxyConfig = getProxy(proxySetting, manualProxy)
 
-            builder.proxy(if (proxySetting === ProxySetting.NO_PROXY) Proxy.NO_PROXY else proxyConfig.proxy())
+            builder
+                .proxy(if (proxySetting === ProxySetting.NO_PROXY) Proxy.NO_PROXY else proxyConfig.proxy())
                 .proxyAuthenticator(
                     if (proxySetting === ProxySetting.NO_PROXY) Authenticator.NONE else proxyConfig.authenticator(),
                 )
@@ -46,7 +48,8 @@ object NetworkUtil {
                     val credential =
                         basic(manualProxy.username, manualProxy.password)
                     val requestBuilder: Request.Builder =
-                        originalRequest.newBuilder()
+                        originalRequest
+                            .newBuilder()
                             .addHeader("Proxy-Authorization", credential)
                             .addHeader("Authorization", credential)
 

@@ -50,9 +50,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class AppModules {
     @Provides
-    fun provideContentResolver(application: Application): ContentResolver {
-        return application.contentResolver
-    }
+    fun provideContentResolver(application: Application): ContentResolver = application.contentResolver
 
     @Provides
     fun provideDataStore(
@@ -99,34 +97,25 @@ class AppModules {
 
     @Provides
     @Singleton
-    fun provideInitialization(configurationRepository: ConfigurationRepository): Initialization {
-        return Initialization(configurationRepository)
-    }
+    fun provideInitialization(configurationRepository: ConfigurationRepository): Initialization =
+        Initialization(configurationRepository)
 
     @Provides
     @Singleton
-    fun provideCryptoInitialization(): CryptoInitialization {
-        return CryptoInitialization()
-    }
+    fun provideCryptoInitialization(): CryptoInitialization = CryptoInitialization()
 
     @Provides
-    fun provideBuildVersionProvider(): BuildVersionProvider {
-        return BuildVersionProviderImpl()
-    }
+    fun provideBuildVersionProvider(): BuildVersionProvider = BuildVersionProviderImpl()
 
     @Provides
     fun provideUserAgent(
         @ApplicationContext context: Context,
         buildVersionProvider: BuildVersionProvider,
-    ): String {
-        return UserAgentUtil.getUserAgent(context, buildVersionProvider)
-    }
+    ): String = UserAgentUtil.getUserAgent(context, buildVersionProvider)
 
     @Provides
     @Singleton
-    fun provideActivityManager(): ActivityManager {
-        return ActivityManagerImpl()
-    }
+    fun provideActivityManager(): ActivityManager = ActivityManagerImpl()
 
     @Provides
     fun provideGson(): Gson = Gson()
@@ -150,13 +139,9 @@ class AppModules {
     @Provides
     fun provideTextToSpeechWrapper(
         @ApplicationContext context: Context,
-    ): TextToSpeechWrapper {
-        return TextToSpeechWrapperImpl(context)
-    }
+    ): TextToSpeechWrapper = TextToSpeechWrapperImpl(context)
 
     @Provides
     @Singleton
-    fun provideLocaleUtil(): LocaleUtil {
-        return LocaleUtilImpl()
-    }
+    fun provideLocaleUtil(): LocaleUtil = LocaleUtilImpl()
 }

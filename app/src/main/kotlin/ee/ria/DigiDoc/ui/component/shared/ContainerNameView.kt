@@ -88,8 +88,7 @@ fun ContainerNameView(
                 .semantics {
                     this.contentDescription = "$containerTitleText $name"
                     testTagsAsResourceId = true
-                }
-                .testTag("containerNameContainer"),
+                }.testTag("containerNameContainer"),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest),
         shape = buttonRoundedCornerShape,
     ) {
@@ -125,8 +124,7 @@ fun ContainerNameView(
                                 .wrapContentHeight(align = Alignment.CenterVertically)
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("containerNameIcon")
+                                }.testTag("containerNameIcon")
                                 .notAccessible(),
                     )
                 }
@@ -149,8 +147,7 @@ fun ContainerNameView(
                                 .semantics {
                                     this.contentDescription = "$containerTitleText $name"
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("signedContainerName"),
+                                }.testTag("signedContainerName"),
                         text = name,
                         maxLines = 4,
                         textColor = MaterialTheme.colorScheme.onSurface.toArgb(),
@@ -168,8 +165,7 @@ fun ContainerNameView(
                             modifier
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("containerNameMoreOptionsIcon"),
+                                }.testTag("containerNameMoreOptionsIcon"),
                         imageVector = ImageVector.vectorResource(R.drawable.ic_more_vert),
                         contentDescription = "${stringResource(R.string.more_options)} $buttonName",
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -194,8 +190,7 @@ fun ContainerNameView(
                                             contentDescription =
                                                 "$leftActionButtonContentDescriptionText $buttonName"
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("containerNameLeftActionButton"),
+                                        }.testTag("containerNameLeftActionButton"),
                                 text = stringResource(leftActionButtonName),
                                 color = MaterialTheme.colorScheme.primary,
                             )
@@ -210,8 +205,7 @@ fun ContainerNameView(
                                             contentDescription =
                                                 "$rightActionButtonContentDescriptionText $buttonName"
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("containerNameRightActionButton"),
+                                        }.testTag("containerNameRightActionButton"),
                                 text = stringResource(rightActionButtonName),
                                 color = MaterialTheme.colorScheme.primary,
                             )

@@ -53,7 +53,8 @@ object SmartCreateSignatureRequestHelper {
                         java.lang.String.format(
                             "%s %s",
                             displayMessage,
-                            container.getContainerFile()
+                            container
+                                .getContainerFile()
                                 ?.let { it1 -> FileUtil.getSignDocumentFileName(it1) },
                         ),
                         MAX_DISPLAY_MESSAGE_LENGTH,

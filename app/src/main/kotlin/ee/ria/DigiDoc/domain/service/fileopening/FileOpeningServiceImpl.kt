@@ -21,14 +21,13 @@ import javax.inject.Singleton
 class FileOpeningServiceImpl : FileOpeningService {
     private val logTag = javaClass.simpleName
 
-    override suspend fun isFileSizeValid(file: File): Boolean {
-        return try {
+    override suspend fun isFileSizeValid(file: File): Boolean =
+        try {
             file.exists() && file.isFile && file.length() > 0
         } catch (e: Exception) {
             errorLog(logTag, "Unable to check file size", e)
             false
         }
-    }
 
     @Throws(FileNotFoundException::class, SecurityException::class)
     override suspend fun uriToFile(
@@ -53,19 +52,21 @@ class FileOpeningServiceImpl : FileOpeningService {
 
         cursor?.use {
             if (it.moveToFirst() && !it.isNull(0)) {
-                displayName = it.getString(0)?.let { name ->
-                    sanitizeString(name, "")?.trim()?.let {
-                        if (it.isEmpty() || it.startsWith(".")) {
-                            "$DEFAULT_FILENAME$it"
-                        } else if (it.endsWith(".")) {
-                            DEFAULT_FILENAME
-                        } else {
-                            it
+                displayName = it
+                    .getString(0)
+                    ?.let { name ->
+                        sanitizeString(name, "")?.trim()?.let {
+                            if (it.isEmpty() || it.startsWith(".")) {
+                                "$DEFAULT_FILENAME$it"
+                            } else if (it.endsWith(".")) {
+                                DEFAULT_FILENAME
+                            } else {
+                                it
+                            }
                         }
-                    }
-                }?.let { sanitized ->
-                    getNameFromFileName(sanitized)
-                } ?: DEFAULT_FILENAME
+                    }?.let { sanitized ->
+                        getNameFromFileName(sanitized)
+                    } ?: DEFAULT_FILENAME
             }
         }
 

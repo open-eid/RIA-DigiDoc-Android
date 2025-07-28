@@ -181,7 +181,7 @@ fun NFCView(
     val pinNumberFocusRequester = remember { FocusRequester() }
     val canNumberWithInvisibleSpaces = TextFieldValue(addInvisibleElement(canNumber.text))
 
-    var pinCode = remember { mutableStateOf(byteArrayOf()) }
+    val pinCode = remember { mutableStateOf(byteArrayOf()) }
 
     val pinType =
         if (identityAction == IdentityAction.SIGN) {
@@ -261,7 +261,9 @@ fun NFCView(
                     if (errorState.first != 0) {
                         errorText =
                             context.getString(
-                                errorState.first, errorState.second, errorState.third,
+                                errorState.first,
+                                errorState.second,
+                                errorState.third,
                             )
                     }
 
@@ -294,7 +296,8 @@ fun NFCView(
 
     LaunchedEffect(nfcViewModel.dialogError) {
         pinCode.value.fill(0)
-        nfcViewModel.dialogError.asFlow()
+        nfcViewModel.dialogError
+            .asFlow()
             .filterNotNull()
             .filterNot { it == 0 }
             .collect {
@@ -372,8 +375,7 @@ fun NFCView(
                             modifier
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("smartIdErrorContainer"),
+                                }.testTag("smartIdErrorContainer"),
                     ) {
                         HrefMessageDialog(
                             modifier = modifier,
@@ -414,11 +416,9 @@ fun NFCView(
                     detectTapGestures(onTap = {
                         focusManager.clearFocus()
                     })
-                }
-                .semantics {
+                }.semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("signatureUpdateNFC"),
+                }.testTag("signatureUpdateNFC"),
     ) {
         if (isAddingRoleAndAddress) {
             RoleDataView(modifier, sharedSettingsViewModel)
@@ -461,8 +461,7 @@ fun NFCView(
                             .semantics {
                                 heading()
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("signatureUpdateNFCNotFoundMessage"),
+                            }.testTag("signatureUpdateNFCNotFoundMessage"),
                     textAlign = TextAlign.Center,
                 )
             } else {
@@ -574,8 +573,7 @@ fun NFCView(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("nfcViewContainer"),
+                            }.testTag("nfcViewContainer"),
                 ) {
                     Row(
                         modifier =
@@ -626,13 +624,11 @@ fun NFCView(
                                         } else {
                                             modifier
                                         },
-                                    )
-                                    .weight(1f)
+                                    ).weight(1f)
                                     .semantics(mergeDescendants = true) {
                                         testTagsAsResourceId = true
                                         contentDescription = canNumberLocationText
-                                    }
-                                    .testTag("signatureUpdateNFCCAN"),
+                                    }.testTag("signatureUpdateNFCCAN"),
                             trailingIcon = {
                                 if (!isTalkBackEnabled(context) && canNumber.text.isNotEmpty()) {
                                     IconButton(onClick = {
@@ -687,8 +683,7 @@ fun NFCView(
                                             .size(iconSizeXXS)
                                             .semantics {
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("nfcCanNumberRemoveIconButton"),
+                                            }.testTag("nfcCanNumberRemoveIconButton"),
                                     imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                     contentDescription = "$clearButtonText $buttonName",
                                 )
@@ -715,8 +710,7 @@ fun NFCView(
                                     .semantics {
                                         contentDescription = canNumberErrorText
                                         testTagsAsResourceId = true
-                                    }
-                                    .testTag("nfcCANErrorText"),
+                                    }.testTag("nfcCANErrorText"),
                             text = canNumberErrorText,
                             color = Red500,
                         )
@@ -758,8 +752,7 @@ fun NFCView(
                                         .weight(1f)
                                         .semantics {
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("nfcPinTextField"),
+                                        }.testTag("nfcPinTextField"),
                                 pin = pinCode,
                                 pinCodeLabel = pinCodeLabel,
                                 pinNumberFocusRequester = pinNumberFocusRequester,
@@ -781,8 +774,7 @@ fun NFCView(
                                             .semantics {
                                                 traversalIndex = 9f
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("nfcPinRemoveButton"),
+                                            }.testTag("nfcPinRemoveButton"),
                                     onClick = {
                                         pinCode.value = byteArrayOf()
                                         scope.launch(Main) {
@@ -799,8 +791,7 @@ fun NFCView(
                                                 .size(iconSizeXXS)
                                                 .semantics {
                                                     testTagsAsResourceId = true
-                                                }
-                                                .testTag("nfcPinRemoveIconButton"),
+                                                }.testTag("nfcPinRemoveIconButton"),
                                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                         contentDescription = "$clearButtonText $buttonName",
                                     )
@@ -818,8 +809,7 @@ fun NFCView(
                                         .semantics {
                                             contentDescription = pinCodeErrorText
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("nfcPinErrorText"),
+                                        }.testTag("nfcPinErrorText"),
                                 text = pinCodeErrorText,
                                 color = MaterialTheme.colorScheme.error,
                                 style = MaterialTheme.typography.bodySmall,

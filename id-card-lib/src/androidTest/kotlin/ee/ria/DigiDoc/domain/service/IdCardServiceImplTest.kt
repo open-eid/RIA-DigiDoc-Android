@@ -179,9 +179,10 @@ class IdCardServiceImplTest {
         Mockito.`when`(token.certificate(CertificateType.AUTHENTICATION)).thenReturn(testData)
         Mockito.`when`(token.certificate(CertificateType.SIGNING)).thenReturn(testData)
 
-        doNothing().`when`(
-            containerWrapper,
-        ).finalizeSignature(any<ExternalSigner>(), eq(existingContainer), eq(testData))
+        doNothing()
+            .`when`(
+                containerWrapper,
+            ).finalizeSignature(any<ExternalSigner>(), eq(existingContainer), eq(testData))
 
         runBlocking {
             val signedContainer =
@@ -229,9 +230,10 @@ class IdCardServiceImplTest {
         Mockito.`when`(token.certificate(CertificateType.AUTHENTICATION)).thenReturn(testData)
         Mockito.`when`(token.certificate(CertificateType.SIGNING)).thenReturn(testData)
 
-        doNothing().`when`(
-            containerWrapper,
-        ).finalizeSignature(any<ExternalSigner>(), eq(existingContainer), eq(testData))
+        doNothing()
+            .`when`(
+                containerWrapper,
+            ).finalizeSignature(any<ExternalSigner>(), eq(existingContainer), eq(testData))
 
         runBlocking {
             val signedContainer =

@@ -34,15 +34,12 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Properties
 import java.util.concurrent.TimeUnit
 
 object FetchAndPackageDefaultConfigurationTask {
-    @Suppress("PropertyName")
-    private val LOG_TAG = javaClass.simpleName
+    private val logTag = javaClass.simpleName
     private var properties = Properties()
     private var buildVariant: String? = null
     private val defaultTimeout = 5L
@@ -61,7 +58,8 @@ object FetchAndPackageDefaultConfigurationTask {
         val configurationServiceUrl = determineCentralConfigurationServiceUrl(args)
 
         val okHttpClient =
-            OkHttpClient.Builder()
+            OkHttpClient
+                .Builder()
                 .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
                 .addInterceptor(UserAgentInterceptor("Jenkins"))
                 .addInterceptor(NetworkInterceptor())
@@ -73,7 +71,8 @@ object FetchAndPackageDefaultConfigurationTask {
                 .build()
 
         val retrofit =
-            Retrofit.Builder()
+            Retrofit
+                .Builder()
                 .baseUrl("$configurationServiceUrl/")
                 .client(okHttpClient)
                 .addConverterFactory(ScalarsConverterFactory.create())
@@ -115,8 +114,7 @@ object FetchAndPackageDefaultConfigurationTask {
             val userDir = System.getProperty("user.dir") ?: throw IllegalStateException("User directory is not set")
             FileInputStream(
                 "$userDir/src/main/resources/$DEFAULT_CONFIGURATION_PROPERTIES_FILE_NAME",
-            ).use {
-                    propsInputStream ->
+            ).use { propsInputStream ->
                 properties.load(propsInputStream)
             }
         } catch (e: IOException) {
@@ -127,51 +125,26 @@ object FetchAndPackageDefaultConfigurationTask {
         }
     }
 
-    private fun determineCentralConfigurationServiceUrl(args: Array<String>): String {
-        return if (args.isNotEmpty()) {
+    private fun determineCentralConfigurationServiceUrl(args: Array<String>): String =
+        if (args.isNotEmpty()) {
             args[0]
         } else {
             properties.getProperty(CENTRAL_CONF_SERVICE_URL_NAME)
         }
-    }
 
-    private fun determineConfigurationUpdateInterval(args: Array<String>): Int {
-        return try {
+    private fun determineConfigurationUpdateInterval(args: Array<String>): Int =
+        try {
             if (args.size > 1) {
                 args[1].toInt()
             } else {
-                properties.getProperty(CONFIGURATION_UPDATE_INTERVAL_PROPERTY)
+                properties
+                    .getProperty(CONFIGURATION_UPDATE_INTERVAL_PROPERTY)
                     .toInt()
             }
         } catch (nfe: NumberFormatException) {
-            errorLog(LOG_TAG, "Unable to determine configuration update interval", nfe)
+            errorLog(logTag, "Unable to determine configuration update interval", nfe)
             DEFAULT_UPDATE_INTERVAL
         }
-    }
-
-    private fun determineConfigurationVersionSerial(args: Array<String>): Int {
-        return try {
-            if (args.size > 2) {
-                args[2].toInt()
-            } else {
-                properties.getProperty(CONFIGURATION_VERSION_SERIAL_PROPERTY)
-                    .toInt()
-            }
-        } catch (nfe: NumberFormatException) {
-            errorLog(LOG_TAG, "Unable to determine configuration version serial", nfe)
-            0
-        }
-    }
-
-    private fun determineConfigurationDownloadDate(args: Array<String>): LocalDateTime {
-        val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")
-
-        return if (args.size > 3) {
-            LocalDateTime.parse(args[3], formatter)
-        } else {
-            LocalDateTime.parse(properties.getProperty(CONFIGURATION_DOWNLOAD_DATE_PROPERTY), formatter)
-        }
-    }
 
     private fun assertConfigurationLoaded(confData: ConfigurationData) {
         check(

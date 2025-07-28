@@ -50,8 +50,7 @@ fun HomeFragment(
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("homeFragment"),
+                }.testTag("homeFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         HomeScreen(

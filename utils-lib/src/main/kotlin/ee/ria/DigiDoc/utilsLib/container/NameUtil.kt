@@ -52,10 +52,10 @@ object NameUtil {
             .joinToString(", ")
     }
 
-    private fun capitalizeName(name: String): String {
-        return name.lowercase()
+    private fun capitalizeName(name: String): String =
+        name
+            .lowercase()
             .replace(Regex("([\\p{L}\\d])([\\p{L}\\d]*)")) { matchResult ->
                 matchResult.groupValues[1].uppercase() + matchResult.groupValues[2]
             }
-    }
 }

@@ -13,7 +13,5 @@ import ee.ria.DigiDoc.common.certificate.CertificateServiceImpl
 @InstallIn(SingletonComponent::class)
 class AppModules {
     @Provides
-    fun provideCertificateService(): CertificateService {
-        return CertificateServiceImpl()
-    }
+    fun provideCertificateService(): CertificateService = CertificateServiceImpl()
 }

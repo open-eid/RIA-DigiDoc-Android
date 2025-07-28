@@ -60,8 +60,7 @@ fun EncryptButtonBottomBar(
                 .navigationBarsPadding()
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("encryptContainerContainer"),
+                }.testTag("encryptContainerContainer"),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.End,
     ) {

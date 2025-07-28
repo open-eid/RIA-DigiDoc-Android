@@ -13,8 +13,8 @@ import ee.ria.DigiDoc.utilsLib.extensions.x509Certificate
 import java.security.cert.X509Certificate
 
 data class RecipientDetailItem(
-    @DrawableRes val icon: Int = R.drawable.ic_m3_expand_content_48dp_wght400,
-    @StringRes val label: Int = 0,
+    @param:DrawableRes val icon: Int = R.drawable.ic_m3_expand_content_48dp_wght400,
+    @param:StringRes val label: Int = 0,
     val value: String? = null,
     val certificate: X509Certificate? = null,
     val isLink: Boolean = false,

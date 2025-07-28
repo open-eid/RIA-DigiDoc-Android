@@ -13,8 +13,8 @@ object SignatureStatusUtil {
     fun getSignatureStatusText(
         context: Context,
         status: ValidatorInterface.Status,
-    ): String {
-        return when (status) {
+    ): String =
+        when (status) {
             ValidatorInterface.Status.Valid -> context.getString(R.string.signing_container_signature_status_valid)
             ValidatorInterface.Status.Warning ->
                 "${context.getString(R.string.signing_container_signature_status_valid)} " +
@@ -25,13 +25,12 @@ object SignatureStatusUtil {
             ValidatorInterface.Status.Invalid -> context.getString(R.string.signing_container_signature_status_invalid)
             else -> context.getString(R.string.signing_container_signature_status_unknown)
         }
-    }
 
     fun getTimestampStatusText(
         context: Context,
         status: ValidatorInterface.Status,
-    ): String {
-        return when (status) {
+    ): String =
+        when (status) {
             ValidatorInterface.Status.Valid -> context.getString(R.string.signing_container_timestamp_status_valid)
             ValidatorInterface.Status.Warning ->
                 "${context.getString(R.string.signing_container_timestamp_status_valid)} " +
@@ -42,7 +41,6 @@ object SignatureStatusUtil {
             ValidatorInterface.Status.Invalid -> context.getString(R.string.signing_container_timestamp_status_invalid)
             else -> context.getString(R.string.signing_container_timestamp_status_unknown)
         }
-    }
 
     fun isDdocSignatureValid(signature: SignatureInterface): Boolean {
         val inputDate = ZonedDateTime.parse(signature.trustedSigningTime)

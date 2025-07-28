@@ -37,8 +37,7 @@ fun MyEidPinFragment(
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("myEidPinFragment"),
+                }.testTag("myEidPinFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         MyEidPinScreen(

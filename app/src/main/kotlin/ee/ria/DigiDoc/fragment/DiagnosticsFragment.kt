@@ -37,8 +37,7 @@ fun DiagnosticsFragment(
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("diagnosticsFragment"),
+                }.testTag("diagnosticsFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         DiagnosticsScreen(

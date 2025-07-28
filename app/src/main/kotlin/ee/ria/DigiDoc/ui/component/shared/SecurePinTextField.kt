@@ -60,14 +60,12 @@ fun SecurePinTextField(
                 .focusRequester(pinNumberFocusRequester)
                 .focusProperties {
                     previous = previousFocusRequester
-                }
-                .zIndex(1f)
+                }.zIndex(1f)
                 .focusable()
                 .semantics {
                     traversalIndex = 1f
                     testTagsAsResourceId = true
-                }
-                .testTag("pinTextField"),
+                }.testTag("pinTextField"),
         onValueChange = { newValue ->
             val digitsOnly = newValue.filter { it.isDigit() }
             if (digitsOnly.isEmpty()) {
@@ -95,8 +93,7 @@ fun SecurePinTextField(
                                 .size(iconSizeXXS)
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("pinRemoveButtonIcon"),
+                                }.testTag("pinRemoveButtonIcon"),
                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                         contentDescription = trailingIconContentDescription,
                     )

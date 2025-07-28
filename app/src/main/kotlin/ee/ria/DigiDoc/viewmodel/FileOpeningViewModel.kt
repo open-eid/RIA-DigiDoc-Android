@@ -38,7 +38,7 @@ import javax.inject.Inject
 class FileOpeningViewModel
     @Inject
     constructor(
-        @ApplicationContext private val context: Context,
+        @param:ApplicationContext private val context: Context,
         private val contentResolver: ContentResolver,
         private val fileOpeningRepository: FileOpeningRepository,
         private val sivaRepository: SivaRepository,
@@ -147,7 +147,8 @@ class FileOpeningViewModel
                         fileOpeningRepository.getValidFiles(files, existingSignedContainer)
 
                     val filesAlreadyInContainer: List<File> =
-                        files.stream()
+                        files
+                            .stream()
                             .filter { file -> !validFiles.contains(file) }
                             .collect(Collectors.toList())
 
@@ -207,7 +208,8 @@ class FileOpeningViewModel
                                 signedContainer,
                                 isSivaConfirmed,
                             ) ||
-                            signedContainer.isCades() && !signedContainer.isXades()
+                            signedContainer.isCades() &&
+                            !signedContainer.isXades()
                         ) {
                             val nestedTimestampedContainer =
                                 sivaRepository.getTimestampedContainer(

@@ -37,9 +37,7 @@ object FileUtils {
         return schemaDir
     }
 
-    fun getSchemaPath(context: Context): String {
-        return getSchemaDir(context).absolutePath
-    }
+    fun getSchemaPath(context: Context): String = getSchemaDir(context).absolutePath
 
     @Throws(IOException::class, NotFoundException::class)
     fun initSchema(context: Context) {
@@ -69,12 +67,11 @@ object FileUtils {
     private fun isChild(
         parent: File,
         potentialChild: File,
-    ): Boolean {
-        return runCatching {
+    ): Boolean =
+        runCatching {
             require(potentialChild.toPath().normalize().startsWith(parent.toPath())) {
                 "Invalid path: ${potentialChild.canonicalPath}"
             }
             true
         }.getOrElse { false }
-    }
 }

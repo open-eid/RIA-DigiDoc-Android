@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.domain.model.tts.TextToSpeechWrapper
+import ee.ria.DigiDoc.utilsLib.locale.LocaleUtil.getLocale
 import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
@@ -52,13 +53,14 @@ class SharedMenuViewModel
                 val isESTLanguageAvailable =
                     isTextToSpeechLanguageAvailable(
                         textToSpeech.availableLanguages,
-                        setOf(Locale("est", "EST"), Locale("et", "ET")),
+                        setOf(getLocale("est", "EST"), getLocale("et", "ET")),
                     )
                 if (textToSpeechVoice != null) {
                     val textToSpeechLocale = textToSpeechVoice.locale
                     if (textToSpeechLocale != null) {
                         val textToSpeechLanguage = textToSpeechLocale.language
-                        if (appLanguage == "et" && (
+                        if (appLanguage == "et" &&
+                            (
                                 isESTLanguageAvailable ||
                                     (textToSpeechLanguage == "et" || textToSpeechLanguage == "est")
                             )
@@ -74,9 +76,7 @@ class SharedMenuViewModel
         private fun isTextToSpeechLanguageAvailable(
             availableLocales: Set<Locale>?,
             locales: Set<Locale>,
-        ): Boolean {
-            return availableLocales?.any { al -> locales.any { lo -> al.language == lo.language } } == true
-        }
+        ): Boolean = availableLocales?.any { al -> locales.any { lo -> al.language == lo.language } } == true
 
         override fun onCleared() {
             super.onCleared()

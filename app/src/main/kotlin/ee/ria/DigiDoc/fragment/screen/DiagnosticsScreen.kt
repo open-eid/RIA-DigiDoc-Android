@@ -7,7 +7,6 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
-import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -66,7 +65,8 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
@@ -116,7 +116,7 @@ fun DiagnosticsScreen(
         enableOneTimeLogGeneration = false
         diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(false)
         closeRestartConfirmationDialog()
-        AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, settingValueChangeCancelled)
+        sendAccessibilityEvent(context, getAccessibilityEventType(), settingValueChangeCancelled)
     }
     val saveFileLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -139,7 +139,7 @@ fun DiagnosticsScreen(
                 diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(false)
                 diagnosticsViewModel.dataStore.setIsLogFileGenerationRunning(false)
                 diagnosticsViewModel.resetLogs(context)
-                AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, settingValueChanged)
+                sendAccessibilityEvent(context, getAccessibilityEventType(), settingValueChanged)
                 sharedSettingsViewModel.recreateActivity(true)
             }
         }
@@ -164,8 +164,7 @@ fun DiagnosticsScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("diagnosticsScreen"),
+                }.testTag("diagnosticsScreen"),
         topBar = {
             TopBar(
                 modifier = modifier,
@@ -205,8 +204,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("configurationUpdateButton"),
+                            }.testTag("configurationUpdateButton"),
                     contentDescription =
                         stringResource(
                             id = R.string.main_diagnostics_configuration_check_for_update_button,
@@ -216,7 +214,7 @@ fun DiagnosticsScreen(
                         CoroutineScope(Dispatchers.IO).launch {
                             try {
                                 diagnosticsViewModel.updateConfiguration(context)
-                            } catch (e: Exception) {
+                            } catch (_: Exception) {
                                 withContext(Main) {
                                     showMessage(context, R.string.no_internet_connection)
                                 }
@@ -229,8 +227,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("configurationSaveButton"),
+                            }.testTag("configurationSaveButton"),
                     contentDescription =
                         stringResource(
                             id = R.string.main_diagnostics_configuration_save_diagnostics_button,
@@ -249,13 +246,12 @@ fun DiagnosticsScreen(
                                         .putExtra(
                                             Intent.EXTRA_TITLE,
                                             sanitizeString(diagnosticsFile.name, ""),
-                                        )
-                                        .setType("text/plain")
+                                        ).setType("text/plain")
                                         .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION),
                                     null,
                                 )
                             saveFileLauncher.launch(saveIntent)
-                        } catch (e: ActivityNotFoundException) {
+                        } catch (_: ActivityNotFoundException) {
                             // no Activity to handle this kind of files
                         }
                     },
@@ -271,8 +267,7 @@ fun DiagnosticsScreen(
                             .padding(XSPadding)
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsLogging"),
+                            }.testTag("mainDiagnosticsLogging"),
                     checked = enableOneTimeLogGeneration,
                     onCheckedChange = {
                         if (!enableOneTimeLogGeneration) {
@@ -282,9 +277,9 @@ fun DiagnosticsScreen(
                             diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(false)
                             diagnosticsViewModel.dataStore.setIsLogFileGenerationRunning(false)
                             diagnosticsViewModel.resetLogs(context)
-                            AccessibilityUtil.sendAccessibilityEvent(
+                            sendAccessibilityEvent(
                                 context,
-                                TYPE_ANNOUNCEMENT,
+                                getAccessibilityEventType(),
                                 settingValueChanged,
                             )
                             sharedSettingsViewModel.recreateActivity(true)
@@ -299,8 +294,7 @@ fun DiagnosticsScreen(
                             modifier
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("mainDiagnosticsSaveLoggingButton"),
+                                }.testTag("mainDiagnosticsSaveLoggingButton"),
                         contentDescription =
                             stringResource(
                                 id = R.string.main_diagnostics_save_log,
@@ -318,13 +312,12 @@ fun DiagnosticsScreen(
                                             .putExtra(
                                                 Intent.EXTRA_TITLE,
                                                 sanitizeString(logFile.name, ""),
-                                            )
-                                            .setType("text/x-log")
+                                            ).setType("text/x-log")
                                             .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION),
                                         null,
                                     )
                                 saveLogFileLauncher.launch(saveIntent)
-                            } catch (e: ActivityNotFoundException) {
+                            } catch (_: ActivityNotFoundException) {
                                 // no Activity to handle this kind of files
                             }
                         },
@@ -336,8 +329,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsApplicationVersion"),
+                            }.testTag("mainDiagnosticsApplicationVersion"),
                     stringResource(id = R.string.main_diagnostics_application_version_title),
                     "${BuildConfig.VERSION_NAME}.${BuildConfig.VERSION_CODE}",
                 )
@@ -353,8 +345,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsAndroidVersion"),
+                            }.testTag("mainDiagnosticsAndroidVersion"),
                     stringResource(id = R.string.main_diagnostics_operating_system_title),
                     "Android " + Build.VERSION.RELEASE,
                 )
@@ -381,8 +372,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsLibdigidocppVersion"),
+                            }.testTag("mainDiagnosticsLibdigidocppVersion"),
                     stringResource(id = R.string.main_diagnostics_libdigidocpp_title),
                     libdigidocppVersion.value,
                 )
@@ -403,8 +393,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsConfigUrl"),
+                            }.testTag("mainDiagnosticsConfigUrl"),
                     stringResource(id = R.string.main_diagnostics_config_url_title),
                     currentConfiguration?.metaInf?.url ?: "",
                 )
@@ -413,8 +402,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsTslUrl"),
+                            }.testTag("mainDiagnosticsTslUrl"),
                     stringResource(id = R.string.main_diagnostics_tsl_url_title),
                     currentConfiguration?.tslUrl ?: "",
                 )
@@ -423,8 +411,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsSivaUrl"),
+                            }.testTag("mainDiagnosticsSivaUrl"),
                     stringResource(id = R.string.main_diagnostics_siva_url_title),
                     diagnosticsViewModel.getSivaUrl(),
                 )
@@ -433,8 +420,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsTsaUrl"),
+                            }.testTag("mainDiagnosticsTsaUrl"),
                     stringResource(id = R.string.main_diagnostics_tsa_url_title),
                     diagnosticsViewModel.getTsaUrl(),
                 )
@@ -443,8 +429,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsLdapPersonUrl"),
+                            }.testTag("mainDiagnosticsLdapPersonUrl"),
                     stringResource(id = R.string.main_diagnostics_ldap_person_url_title),
                     currentConfiguration?.ldapPersonUrl ?: "",
                 )
@@ -453,8 +438,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsLdapCorpUrl"),
+                            }.testTag("mainDiagnosticsLdapCorpUrl"),
                     stringResource(id = R.string.main_diagnostics_ldap_corp_url_title),
                     currentConfiguration?.ldapCorpUrl ?: "",
                 )
@@ -463,8 +447,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsMobileIDUrl"),
+                            }.testTag("mainDiagnosticsMobileIDUrl"),
                     stringResource(id = R.string.main_diagnostics_mid_proxy_url_title),
                     currentConfiguration?.midRestUrl ?: "",
                 )
@@ -473,8 +456,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsMobileIDSKUrl"),
+                            }.testTag("mainDiagnosticsMobileIDSKUrl"),
                     stringResource(id = R.string.main_diagnostics_mid_sk_url_title),
                     currentConfiguration?.midSkRestUrl ?: "",
                 )
@@ -483,8 +465,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsSmartIDUrlV2"),
+                            }.testTag("mainDiagnosticsSmartIDUrlV2"),
                     stringResource(id = R.string.main_diagnostics_sid_v2_proxy_url_title),
                     currentConfiguration?.sidV2RestUrl ?: "",
                 )
@@ -493,8 +474,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsSmartIDSKUrlV2"),
+                            }.testTag("mainDiagnosticsSmartIDSKUrlV2"),
                     stringResource(id = R.string.main_diagnostics_sid_v2_sk_url_title),
                     currentConfiguration?.sidV2SkRestUrl ?: "",
                 )
@@ -503,8 +483,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsRpUuid"),
+                            }.testTag("mainDiagnosticsRpUuid"),
                     stringResource(id = R.string.main_diagnostics_rpuuid_title),
                     stringResource(diagnosticsViewModel.getRpUuid()),
                 )
@@ -518,8 +497,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsCdoc2Default"),
+                            }.testTag("mainDiagnosticsCdoc2Default"),
                     stringResource(id = R.string.main_diagnostics_cdoc2_default_title),
                     diagnosticsViewModel.isCdoc2DefaultSettingsUsed().toString(),
                 )
@@ -528,8 +506,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsCdoc2UseKeyserver"),
+                            }.testTag("mainDiagnosticsCdoc2UseKeyserver"),
                     stringResource(id = R.string.main_diagnostics_cdoc2_use_keyserver_title),
                     currentConfiguration?.cdoc2UseKeyServer.toString(),
                 )
@@ -538,8 +515,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsCdoc2DefaultKeyserver"),
+                            }.testTag("mainDiagnosticsCdoc2DefaultKeyserver"),
                     stringResource(id = R.string.main_diagnostics_cdoc2_default_keyserver_title),
                     currentConfiguration?.cdoc2DefaultKeyServer ?: "",
                 )
@@ -583,8 +559,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsCentralConfigurationDate"),
+                            }.testTag("mainDiagnosticsCentralConfigurationDate"),
                     stringResource(id = R.string.main_diagnostics_date_title),
                     currentConfiguration?.metaInf?.date ?: "",
                 )
@@ -593,8 +568,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsCentralConfigurationSerial"),
+                            }.testTag("mainDiagnosticsCentralConfigurationSerial"),
                     stringResource(id = R.string.main_diagnostics_serial_title),
                     currentConfiguration?.metaInf?.serial.toString(),
                 )
@@ -603,8 +577,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsCentralConfigurationUrl"),
+                            }.testTag("mainDiagnosticsCentralConfigurationUrl"),
                     stringResource(id = R.string.main_diagnostics_url_title),
                     currentConfiguration?.metaInf?.url ?: "",
                 )
@@ -613,8 +586,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsCentralConfigurationVersion"),
+                            }.testTag("mainDiagnosticsCentralConfigurationVersion"),
                     stringResource(id = R.string.main_diagnostics_version_title),
                     currentConfiguration?.metaInf?.version.toString(),
                 )
@@ -623,8 +595,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsCentralConfigurationUpdateDate"),
+                            }.testTag("mainDiagnosticsCentralConfigurationUpdateDate"),
                     stringResource(id = R.string.main_diagnostics_configuration_update_date),
                     diagnosticsViewModel.getConfigurationDate(currentConfiguration?.configurationUpdateDate),
                 )
@@ -633,8 +604,7 @@ fun DiagnosticsScreen(
                         modifier
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("mainDiagnosticsCentralConfigurationLastCheck"),
+                            }.testTag("mainDiagnosticsCentralConfigurationLastCheck"),
                     stringResource(id = R.string.main_diagnostics_configuration_last_check_date),
                     diagnosticsViewModel.getConfigurationDate(currentConfiguration?.configurationLastUpdateCheckDate),
                 )
@@ -654,8 +624,7 @@ fun DiagnosticsScreen(
                                 .background(MaterialTheme.colorScheme.surface)
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("mainDiagnosticsRestartConfirmationDialog"),
+                                }.testTag("mainDiagnosticsRestartConfirmationDialog"),
                         onDismissRequest = dismissRestartConfirmationDialog,
                     ) {
                         Surface(
@@ -670,8 +639,7 @@ fun DiagnosticsScreen(
                                     modifier
                                         .semantics {
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("diagnosticsActivateLoggingContainer"),
+                                        }.testTag("diagnosticsActivateLoggingContainer"),
                             ) {
                                 HrefMessageDialog(
                                     text1 = R.string.main_diagnostics_restart_message,
@@ -690,9 +658,9 @@ fun DiagnosticsScreen(
                                             true,
                                         )
                                         closeRestartConfirmationDialog()
-                                        AccessibilityUtil.sendAccessibilityEvent(
+                                        sendAccessibilityEvent(
                                             context,
-                                            TYPE_ANNOUNCEMENT,
+                                            getAccessibilityEventType(),
                                             settingValueChanged,
                                         )
                                         sharedSettingsViewModel.recreateActivity(true)

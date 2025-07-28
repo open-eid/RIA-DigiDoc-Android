@@ -58,14 +58,13 @@ fun BottomSheet(
                         .padding(SPadding)
                         .semantics {
                             testTagsAsResourceId = true
-                        }
-                        .testTag("bottomSheetContainer"),
+                        }.testTag("bottomSheetContainer"),
             ) {
                 buttons.forEach {
-                        (
-                            showButton, icon, text, isExtraActionButtonShown,
-                            extraActionIcon, contentDescription, action,
-                        ),
+                    (
+                        showButton, icon, text, isExtraActionButtonShown,
+                        extraActionIcon, contentDescription, action,
+                    ),
                     ->
                     if (showButton) {
                         Row(
@@ -76,8 +75,7 @@ fun BottomSheet(
                                     .clickable {
                                         action()
                                         onDismiss()
-                                    }
-                                    .padding(XSPadding),
+                                    }.padding(XSPadding),
                             horizontalArrangement = Arrangement.Start,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
@@ -91,8 +89,7 @@ fun BottomSheet(
                                         .wrapContentHeight(align = Alignment.CenterVertically)
                                         .semantics {
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("bottomSheetIcon")
+                                        }.testTag("bottomSheetIcon")
                                         .notAccessible(),
                             )
                             Spacer(modifier = modifier.width(XSPadding))
@@ -102,8 +99,7 @@ fun BottomSheet(
                                         .semantics {
                                             this.contentDescription = contentDescription
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("bottomSheetText"),
+                                        }.testTag("bottomSheetText"),
                                 text = text,
                                 color = MaterialTheme.colorScheme.onSurface,
                             )
@@ -120,8 +116,7 @@ fun BottomSheet(
                                             .wrapContentHeight(align = Alignment.CenterVertically)
                                             .semantics {
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("bottomSheetExtraIcon")
+                                            }.testTag("bottomSheetExtraIcon")
                                             .notAccessible(),
                                 )
                             }

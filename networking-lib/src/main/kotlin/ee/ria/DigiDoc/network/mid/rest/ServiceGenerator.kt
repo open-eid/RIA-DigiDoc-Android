@@ -65,7 +65,8 @@ class ServiceGeneratorImpl : ServiceGenerator {
         manualProxySettings: ManualProxy,
     ): MIDRestServiceClient {
         debugLog(logTag, "Creating new retrofit instance")
-        return Retrofit.Builder()
+        return Retrofit
+            .Builder()
             .baseUrl("$midSignServiceUrl/")
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
@@ -79,8 +80,7 @@ class ServiceGeneratorImpl : ServiceGenerator {
                     proxySetting,
                     manualProxySettings,
                 ),
-            )
-            .build()
+            ).build()
             .create(MIDRestServiceClient::class.java)
     }
 
@@ -99,12 +99,12 @@ class ServiceGeneratorImpl : ServiceGenerator {
         val proxyConfig: ProxyConfig = ProxyUtil.getProxy(proxySetting, manualProxySettings)
 
         val httpClientBuilder: OkHttpClient.Builder =
-            OkHttpClient.Builder()
+            OkHttpClient
+                .Builder()
                 .proxy(if (proxySetting === ProxySetting.NO_PROXY) Proxy.NO_PROXY else proxyConfig.proxy())
                 .proxyAuthenticator(
                     if (proxySetting === ProxySetting.NO_PROXY) Authenticator.NONE else proxyConfig.authenticator(),
-                )
-                .connectTimeout(120, TimeUnit.SECONDS)
+                ).connectTimeout(120, TimeUnit.SECONDS)
                 .readTimeout(120, TimeUnit.SECONDS)
                 .writeTimeout(120, TimeUnit.SECONDS)
                 .pingInterval(3, TimeUnit.SECONDS)
@@ -181,7 +181,8 @@ class ServiceGeneratorImpl : ServiceGenerator {
             }
 
             val certificatePinner: CertificatePinner.Builder =
-                CertificatePinner.Builder()
+                CertificatePinner
+                    .Builder()
                     .add(uri.host, *sha256Certificates.filterNotNull().toTypedArray())
 
             return certificatePinner.build()

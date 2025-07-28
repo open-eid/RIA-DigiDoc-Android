@@ -3,7 +3,6 @@
 package ee.ria.DigiDoc.ui.component.signing
 
 import android.content.res.Configuration
-import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -40,8 +39,9 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.LPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXL
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.SmartIdViewModel
 
@@ -75,15 +75,15 @@ fun SmartIdSignatureUpdateContainer(
 
     LaunchedEffect(Unit, challengeText) {
         if (challengeText.isNotEmpty()) {
-            AccessibilityUtil.sendAccessibilityEvent(
+            sendAccessibilityEvent(
                 context,
-                TYPE_ANNOUNCEMENT,
+                getAccessibilityEventType(),
                 "$controlCode ${formatNumbers(challengeText)}",
             )
         } else {
-            AccessibilityUtil.sendAccessibilityEvent(
+            sendAccessibilityEvent(
                 context,
-                TYPE_ANNOUNCEMENT,
+                getAccessibilityEventType(),
                 controlCodeLoadingText,
             )
         }
@@ -96,8 +96,7 @@ fun SmartIdSignatureUpdateContainer(
                 .padding(vertical = LPadding)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("signatureUpdateSmartIdContainer"),
+                }.testTag("signatureUpdateSmartIdContainer"),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(LPadding),
     ) {
@@ -138,8 +137,7 @@ fun SmartIdSignatureUpdateContainer(
                         }
                         this.contentDescription =
                             "$controlCode ${formatNumbers(challengeText)}"
-                    }
-                    .testTag("signatureUpdateSmartIdChallenge"),
+                    }.testTag("signatureUpdateSmartIdChallenge"),
         )
     }
 }

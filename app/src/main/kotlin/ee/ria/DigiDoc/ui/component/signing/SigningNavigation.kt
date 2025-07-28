@@ -6,7 +6,6 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.res.Configuration
-import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -101,7 +100,8 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
@@ -197,9 +197,9 @@ fun SigningNavigation(
     val saveContainerMessage = stringResource(id = R.string.container_save)
     val dismissRemoveFileDialog = {
         closeRemoveFileDialog()
-        AccessibilityUtil.sendAccessibilityEvent(
+        sendAccessibilityEvent(
             context,
-            TYPE_ANNOUNCEMENT,
+            getAccessibilityEventType(),
             fileRemovalCancelled,
         )
     }
@@ -213,9 +213,9 @@ fun SigningNavigation(
     val openEditContainerNameDialog = rememberSaveable { mutableStateOf(false) }
     val dismissEditContainerNameDialog = {
         openEditContainerNameDialog.value = false
-        AccessibilityUtil.sendAccessibilityEvent(
+        sendAccessibilityEvent(
             context,
-            TYPE_ANNOUNCEMENT,
+            getAccessibilityEventType(),
             containerNameChangeCancelled,
         )
     }
@@ -240,9 +240,9 @@ fun SigningNavigation(
 
     val dismissRemoveSignatureDialog = {
         closeSignatureDialog()
-        AccessibilityUtil.sendAccessibilityEvent(
+        sendAccessibilityEvent(
             context,
-            TYPE_ANNOUNCEMENT,
+            getAccessibilityEventType(),
             signatureRemovalCancelled,
         )
     }
@@ -254,7 +254,7 @@ fun SigningNavigation(
     }
     val cancelButtonClick = {
         dismissDialog()
-        AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signingCancelled)
+        sendAccessibilityEvent(context, getAccessibilityEventType(), signingCancelled)
     }
 
     var signatures by remember { mutableStateOf<List<SignatureInterface>>(emptyList()) }
@@ -386,7 +386,7 @@ fun SigningNavigation(
                     withContext(Main) {
                         selectedSignedContainerTabIndex.intValue = 1
                         signatureAddedSuccess.value = true
-                        AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signatureAddedSuccessText)
+                        sendAccessibilityEvent(context, getAccessibilityEventType(), signatureAddedSuccessText)
                         delay(3000)
                         signatureAddedSuccess.value = false
                         sharedContainerViewModel.setSignedMidStatus(null)
@@ -404,7 +404,7 @@ fun SigningNavigation(
                     withContext(Main) {
                         signatureAddedSuccess.value = true
                         selectedSignedContainerTabIndex.intValue = 1
-                        AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signatureAddedSuccessText)
+                        sendAccessibilityEvent(context, getAccessibilityEventType(), signatureAddedSuccessText)
                         delay(5000)
                         signatureAddedSuccess.value = false
                         sharedContainerViewModel.setSignedSidStatus(null)
@@ -422,7 +422,7 @@ fun SigningNavigation(
                     withContext(Main) {
                         signatureAddedSuccess.value = true
                         selectedSignedContainerTabIndex.intValue = 1
-                        AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signatureAddedSuccessText)
+                        sendAccessibilityEvent(context, getAccessibilityEventType(), signatureAddedSuccessText)
                         delay(5000)
                         signatureAddedSuccess.value = false
                         sharedContainerViewModel.setSignedNFCStatus(null)
@@ -440,7 +440,7 @@ fun SigningNavigation(
                     withContext(Main) {
                         signatureAddedSuccess.value = true
                         selectedSignedContainerTabIndex.intValue = 1
-                        AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signatureAddedSuccessText)
+                        sendAccessibilityEvent(context, getAccessibilityEventType(), signatureAddedSuccessText)
                         delay(5000)
                         signatureAddedSuccess.value = false
                         sharedContainerViewModel.setSignedIDCardStatus(null)
@@ -468,18 +468,20 @@ fun SigningNavigation(
                     listOfNotNull(
                         ContainerNotificationType.XadesFile.takeIf { isXadesContainer },
                         ContainerNotificationType.CadesFile.takeIf { isCadesContainer },
-                        ContainerNotificationType.UnknownSignatures(
-                            unknownSignaturesCount,
-                        ).takeIf { unknownSignaturesCount > 0 },
-                        ContainerNotificationType.InvalidSignatures(
-                            invalidSignaturesCount,
-                        ).takeIf { invalidSignaturesCount > 0 },
+                        ContainerNotificationType
+                            .UnknownSignatures(
+                                unknownSignaturesCount,
+                            ).takeIf { unknownSignaturesCount > 0 },
+                        ContainerNotificationType
+                            .InvalidSignatures(
+                                invalidSignaturesCount,
+                            ).takeIf { invalidSignaturesCount > 0 },
                     ),
                 )
             }
             val newTime = System.currentTimeMillis()
             if (newTime >= (pastTime + 2 * 1000)) {
-                AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signaturesLoaded)
+                sendAccessibilityEvent(context, getAccessibilityEventType(), signaturesLoaded)
             }
         }
     }
@@ -503,9 +505,9 @@ fun SigningNavigation(
 
                 delay(1000)
                 isSignaturesCountLoaded = true
-                AccessibilityUtil.sendAccessibilityEvent(
+                sendAccessibilityEvent(
                     context,
-                    TYPE_ANNOUNCEMENT,
+                    getAccessibilityEventType(),
                     announcementText,
                 )
             }
@@ -581,14 +583,14 @@ fun SigningNavigation(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("signingScreen"),
+                }.testTag("signingScreen"),
         topBar = {
             TopBar(
                 modifier = modifier,
                 sharedMenuViewModel = sharedMenuViewModel,
                 title =
-                    signedContainer?.takeIf { it.isSigned() }
+                    signedContainer
+                        ?.takeIf { it.isSigned() }
                         ?.let { R.string.signing_container_documents_title },
                 leftIcon = R.drawable.ic_m3_close_48dp_wght400,
                 leftIconContentDescription = R.string.signing_close_container_title,
@@ -659,8 +661,7 @@ fun SigningNavigation(
                     .focusGroup()
                     .semantics {
                         testTagsAsResourceId = true
-                    }
-                    .testTag("signingContainer"),
+                    }.testTag("signingContainer"),
         ) {
             var actionSignature by remember { mutableStateOf<SignatureInterface?>(null) }
 
@@ -699,11 +700,12 @@ fun SigningNavigation(
                                     ex,
                                 )
                                 showLoadingScreen.value = false
-                                Toast.makeText(
-                                    context,
-                                    ex.localizedMessage,
-                                    Toast.LENGTH_LONG,
-                                ).show()
+                                Toast
+                                    .makeText(
+                                        context,
+                                        ex.localizedMessage,
+                                        Toast.LENGTH_LONG,
+                                    ).show()
                             }
                         }
                     }
@@ -770,8 +772,7 @@ fun SigningNavigation(
                                             .semantics {
                                                 heading()
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("signingTitle"),
+                                            }.testTag("signingTitle"),
                                     text = stringResource(R.string.signature_update_title),
                                     style = MaterialTheme.typography.headlineMedium,
                                     textAlign = TextAlign.Start,
@@ -825,8 +826,7 @@ fun SigningNavigation(
                                                 .size(loadingBarSize)
                                                 .semantics {
                                                     this.contentDescription = dataFilesLoading
-                                                }
-                                                .testTag("dataFilesLoadingProgress"),
+                                                }.testTag("dataFilesLoadingProgress"),
                                     )
                                 }
                             }
@@ -841,8 +841,7 @@ fun SigningNavigation(
                                                 .semantics {
                                                     heading()
                                                     testTagsAsResourceId = true
-                                                }
-                                                .testTag("signingDocumentsTitle"),
+                                                }.testTag("signingDocumentsTitle"),
                                         text = stringResource(R.string.signing_documents_title),
                                         style = MaterialTheme.typography.bodyMedium,
                                         textAlign = TextAlign.Start,
@@ -875,7 +874,8 @@ fun SigningNavigation(
                                                         )
                                                     ) {
                                                         signedContainer?.let { container ->
-                                                            container.getTimestamps()
+                                                            container
+                                                                .getTimestamps()
                                                                 ?.let { timestamps ->
                                                                     Row {
                                                                         SignatureComponent(
@@ -974,9 +974,9 @@ fun SigningNavigation(
                                     )
                                 }
                                 openEditContainerNameDialog.value = false
-                                AccessibilityUtil.sendAccessibilityEvent(
+                                sendAccessibilityEvent(
                                     context,
-                                    TYPE_ANNOUNCEMENT,
+                                    getAccessibilityEventType(),
                                     containerNameChanged,
                                 )
                             },
@@ -1036,7 +1036,7 @@ fun SigningNavigation(
                                     }
                                 }
                                 closeRemoveFileDialog()
-                                AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, fileRemoved)
+                                sendAccessibilityEvent(context, getAccessibilityEventType(), fileRemoved)
                             },
                         )
                         InvisibleElement(modifier = modifier)
@@ -1080,7 +1080,7 @@ fun SigningNavigation(
                                     )
                                 }
                                 closeSignatureDialog()
-                                AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, signatureRemoved)
+                                sendAccessibilityEvent(context, getAccessibilityEventType(), signatureRemoved)
                             },
                         )
                         InvisibleElement(modifier = modifier)
@@ -1246,8 +1246,7 @@ private fun saveFile(
                     .putExtra(
                         Intent.EXTRA_TITLE,
                         sanitizeString(file?.name, ""),
-                    )
-                    .setType(mimetype)
+                    ).setType(mimetype)
                     .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION),
                 null,
             )

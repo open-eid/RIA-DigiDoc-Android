@@ -47,36 +47,30 @@ class EncryptViewModel
             _shouldResetCryptoContainer.postValue(true)
         }
 
-        fun isEncryptedContainer(cryptoContainer: CryptoContainer?): Boolean {
-            return cryptoContainer?.encrypted == true
-        }
+        fun isEncryptedContainer(cryptoContainer: CryptoContainer?): Boolean = cryptoContainer?.encrypted == true
 
-        fun isDecryptedContainer(cryptoContainer: CryptoContainer?): Boolean {
-            return cryptoContainer?.decrypted == true
-        }
+        fun isDecryptedContainer(cryptoContainer: CryptoContainer?): Boolean = cryptoContainer?.decrypted == true
 
-        fun isEmptyFileInContainer(cryptoContainer: CryptoContainer?): Boolean {
-            return cryptoContainer?.dataFiles?.any { (it?.length() ?: 0L) == 0L } == true
-        }
+        fun isEmptyFileInContainer(cryptoContainer: CryptoContainer?): Boolean =
+            cryptoContainer?.dataFiles?.any {
+                (it?.length() ?: 0L) == 0L
+            } == true
 
-        fun isContainerWithoutRecipients(cryptoContainer: CryptoContainer?): Boolean {
-            return cryptoContainer?.hasRecipients() == false
-        }
+        fun isContainerWithoutRecipients(cryptoContainer: CryptoContainer?): Boolean =
+            cryptoContainer?.hasRecipients() == false
 
-        fun isCDOC1Container(cryptoContainer: CryptoContainer?): Boolean {
-            return cryptoContainer?.file?.extension == CDOC1_EXTENSION
-        }
+        fun isCDOC1Container(cryptoContainer: CryptoContainer?): Boolean =
+            cryptoContainer?.file?.extension == CDOC1_EXTENSION
 
-        fun isDataFilesInContainer(cryptoContainer: CryptoContainer?): Boolean {
-            return cryptoContainer?.dataFiles?.isEmpty() == false
-        }
+        fun isDataFilesInContainer(cryptoContainer: CryptoContainer?): Boolean =
+            cryptoContainer?.dataFiles?.isEmpty() == false
 
-        fun shouldShowDataFiles(cryptoContainer: CryptoContainer?): Boolean {
-            return (
+        fun shouldShowDataFiles(cryptoContainer: CryptoContainer?): Boolean =
+            (
                 (isEncryptedContainer(cryptoContainer) && isCDOC1Container(cryptoContainer)) ||
                     !isEncryptedContainer(cryptoContainer)
-            ) && isDataFilesInContainer(cryptoContainer)
-        }
+            ) &&
+                isDataFilesInContainer(cryptoContainer)
 
         fun isSignButtonShown(
             cryptoContainer: CryptoContainer?,
@@ -105,10 +99,9 @@ class EncryptViewModel
         fun isShareButtonShown(cryptoContainer: CryptoContainer?): Boolean =
             isEncryptedContainer(cryptoContainer) || isDecryptedContainer(cryptoContainer)
 
-        fun isContainerUnlocked(cryptoContainer: CryptoContainer?): Boolean {
-            return !isEncryptedContainer(cryptoContainer) &&
+        fun isContainerUnlocked(cryptoContainer: CryptoContainer?): Boolean =
+            !isEncryptedContainer(cryptoContainer) &&
                 !isContainerWithoutRecipients(cryptoContainer)
-        }
 
         fun getViewIntent(
             context: Context,

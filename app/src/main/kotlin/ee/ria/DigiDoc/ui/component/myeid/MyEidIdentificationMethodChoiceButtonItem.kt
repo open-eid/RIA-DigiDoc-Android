@@ -9,14 +9,14 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.domain.model.myeid.MyEidIdentificationMethodSetting
 
 data class MyEidIdentificationMethodChoiceButtonItem(
-    @StringRes val label: Int = 0,
+    @param:StringRes val label: Int = 0,
     val setting: MyEidIdentificationMethodSetting = MyEidIdentificationMethodSetting.NFC,
     val contentDescription: String = "",
     val testTag: String = "",
 ) {
     @Composable
-    fun radioItems(): List<MyEidIdentificationMethodChoiceButtonItem> {
-        return listOf(
+    fun radioItems(): List<MyEidIdentificationMethodChoiceButtonItem> =
+        listOf(
             MyEidIdentificationMethodChoiceButtonItem(
                 label = R.string.signature_update_signature_add_method_nfc,
                 setting = MyEidIdentificationMethodSetting.NFC,
@@ -36,5 +36,4 @@ data class MyEidIdentificationMethodChoiceButtonItem(
                 testTag = "identificationMethodIdCardSetting",
             ),
         )
-    }
 }

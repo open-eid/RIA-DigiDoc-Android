@@ -7,15 +7,13 @@ import ee.ria.DigiDoc.R
 
 enum class DecryptMethodSetting(
     val methodName: String,
-    @StringRes val label: Int,
+    @param:StringRes val label: Int,
 ) {
     NFC("NFC", R.string.signature_update_signature_add_method_nfc),
     ID_CARD("IDCard", R.string.signature_update_signature_add_method_id_card),
     ;
 
     companion object {
-        fun fromMethod(mode: String): DecryptMethodSetting {
-            return entries.find { it.methodName == mode } ?: NFC
-        }
+        fun fromMethod(mode: String): DecryptMethodSetting = entries.find { it.methodName == mode } ?: NFC
     }
 }

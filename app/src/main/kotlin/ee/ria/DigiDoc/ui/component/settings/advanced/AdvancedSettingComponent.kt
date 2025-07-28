@@ -44,8 +44,7 @@ fun AdvancedSettingComponent(
                 .padding(vertical = SPadding)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag(testTag),
+                }.testTag(testTag),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(

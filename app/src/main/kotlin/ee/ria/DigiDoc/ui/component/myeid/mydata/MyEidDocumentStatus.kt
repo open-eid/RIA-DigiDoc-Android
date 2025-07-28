@@ -11,10 +11,9 @@ enum class MyEidDocumentStatus {
     UNKNOWN,
 }
 
-fun MyEidDocumentStatus.getLocalized(context: Context): String {
-    return when (this) {
+fun MyEidDocumentStatus.getLocalized(context: Context): String =
+    when (this) {
         MyEidDocumentStatus.VALID -> context.getString(R.string.myeid_status_valid)
         MyEidDocumentStatus.EXPIRED -> context.getString(R.string.myeid_status_expired)
         MyEidDocumentStatus.UNKNOWN -> context.getString(R.string.myeid_status_unknown)
     }
-}

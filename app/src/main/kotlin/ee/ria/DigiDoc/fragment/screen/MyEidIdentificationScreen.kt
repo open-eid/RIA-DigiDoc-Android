@@ -181,8 +181,7 @@ fun MyEidIdentificationScreen(
                         .semantics {
                             heading()
                             testTagsAsResourceId = true
-                        }
-                        .testTag("myEidIdentificationTitle"),
+                        }.testTag("myEidIdentificationTitle"),
                 text = stringResource(R.string.myeid_identification_title),
                 color = MaterialTheme.colorScheme.onBackground,
                 style = MaterialTheme.typography.headlineMedium,
@@ -225,8 +224,7 @@ fun MyEidIdentificationScreen(
                                 navController.navigate(
                                     Route.MyEidIdentificationMethodScreen.route,
                                 )
-                            }
-                            .then(
+                            }.then(
                                 if (isAuthenticating || isIdCardProcessStarted && isTalkBackEnabled(context)) {
                                     modifier.notAccessible()
                                 } else {
@@ -242,8 +240,7 @@ fun MyEidIdentificationScreen(
                                 .semantics {
                                     contentDescription = "$identificationMethodText $chosenMethodNameText"
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("myEidChosenMethodNameTitle"),
+                                }.testTag("myEidChosenMethodNameTitle"),
                         text = chosenMethodNameText,
                         color = MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Start,
@@ -350,7 +347,8 @@ fun MyEidIdentificationScreen(
                     )
             }
 
-            if (!isAuthenticating && chosenMethod != MyEidIdentificationMethodSetting.ID_CARD &&
+            if (!isAuthenticating &&
+                chosenMethod != MyEidIdentificationMethodSetting.ID_CARD &&
                 (chosenMethod != MyEidIdentificationMethodSetting.NFC || nfcSupported)
             ) {
                 SettingsSwitchItem(

@@ -41,8 +41,7 @@ fun SignerDetails(
                 .padding(vertical = XSPadding)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("signerDetailsView"),
+                }.testTag("signerDetailsView"),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         SignerDetailItem()
@@ -54,8 +53,7 @@ fun SignerDetails(
                 tsSubjectName = tsSubjectName,
                 ocspSubjectName = ocspSubjectName,
                 sharedContainerViewModel = sharedContainerViewModel,
-            )
-            .forEach { navigationItem ->
+            ).forEach { navigationItem ->
                 if (!navigationItem.value.isNullOrEmpty()) {
                     SignatureDataItem(
                         modifier = modifier,

@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.ui.component.shared
 
-import android.view.accessibility.AccessibilityEvent
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,7 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -50,14 +50,13 @@ fun RadioButtonItem(
                     .semantics {
                         testTagsAsResourceId = true
                         this.contentDescription = contentDescription
-                    }
-                    .testTag(testTag),
+                    }.testTag(testTag),
             selected = isSelected,
             onClick = {
                 onSelect()
-                AccessibilityUtil.sendAccessibilityEvent(
+                sendAccessibilityEvent(
                     context,
-                    AccessibilityEvent.TYPE_ANNOUNCEMENT,
+                    getAccessibilityEventType(),
                     changedText,
                 )
             },

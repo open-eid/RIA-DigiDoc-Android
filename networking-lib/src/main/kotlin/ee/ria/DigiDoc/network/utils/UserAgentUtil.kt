@@ -30,9 +30,7 @@ object UserAgentUtil {
     fun getUserAgent(
         context: Context?,
         buildVersionProvider: BuildVersionProvider = BuildVersionProviderImpl(),
-    ): String {
-        return getUserAgent(context, SendDiagnostics.None, buildVersionProvider)
-    }
+    ): String = getUserAgent(context, SendDiagnostics.None, buildVersionProvider)
 
     fun getUserAgent(
         context: Context?,
@@ -50,7 +48,8 @@ object UserAgentUtil {
             initializingMessage.append(" Lang: ").append(Locale.getDefault().language)
 
             if (sendDiagnostics == SendDiagnostics.Devices && deviceProductNames.isNotEmpty()) {
-                initializingMessage.append(" Devices: ")
+                initializingMessage
+                    .append(" Devices: ")
                     .append(TextUtils.join(", ", deviceProductNames))
             }
             if (sendDiagnostics == SendDiagnostics.NFC) {
@@ -72,7 +71,8 @@ object UserAgentUtil {
                     deviceNameFilters
                         .stream()
                         .anyMatch { charSequence: String ->
-                            Objects.requireNonNull<String?>(value.productName)
+                            Objects
+                                .requireNonNull<String?>(value.productName)
                                 .contains(
                                     charSequence,
                                 )
@@ -84,8 +84,7 @@ object UserAgentUtil {
                                     charSequence,
                                 )
                             }
-                }
-                .collect(
+                }.collect(
                     Collectors.toMap<Map.Entry<String, UsbDevice>, String, UsbDevice>(
                         { (key, _) -> key },
                         { (_, value) -> value },
@@ -100,7 +99,8 @@ object UserAgentUtil {
     ): StringBuilder {
         val versionName = StringBuilder()
         try {
-            versionName.append(getPackageInfo(context, buildVersionProvider).versionName)
+            versionName
+                .append(getPackageInfo(context, buildVersionProvider).versionName)
                 .append(".")
                 .append(getPackageInfo(context, buildVersionProvider).longVersionCode)
         } catch (e: PackageManager.NameNotFoundException) {
@@ -114,13 +114,12 @@ object UserAgentUtil {
     private fun getPackageInfo(
         context: Context,
         buildVersionProvider: BuildVersionProvider,
-    ): PackageInfo {
-        return if (buildVersionProvider.getSDKInt() >= Build.VERSION_CODES.TIRAMISU) {
+    ): PackageInfo =
+        if (buildVersionProvider.getSDKInt() >= Build.VERSION_CODES.TIRAMISU) {
             context.packageManager
                 .getPackageInfo(context.packageName, PackageManager.PackageInfoFlags.of(0))
         } else {
             context.packageManager
                 .getPackageInfo(context.packageName, 0)
         }
-    }
 }

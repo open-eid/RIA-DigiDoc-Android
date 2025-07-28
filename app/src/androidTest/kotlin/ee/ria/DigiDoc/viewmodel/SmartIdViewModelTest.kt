@@ -231,7 +231,14 @@ class SmartIdViewModelTest {
                 eq(
                     context,
                 ),
-                any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any(),
+                any<SignedContainer>(),
+                any(),
+                eq(null),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
             )
             verify(errorStateObserver, atLeastOnce()).onChanged("Some error occurred")
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
@@ -287,7 +294,14 @@ class SmartIdViewModelTest {
                 eq(
                     context,
                 ),
-                any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any(),
+                any<SignedContainer>(),
+                any(),
+                eq(null),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
             )
             verify(errorStateObserver, atLeastOnce()).onChanged(null)
             verify(signedContainerObserver, atLeastOnce()).onChanged(any<SignedContainer>())
@@ -339,7 +353,14 @@ class SmartIdViewModelTest {
                 eq(
                     context,
                 ),
-                any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any(),
+                any<SignedContainer>(),
+                any(),
+                eq(null),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
             )
             verify(errorStateObserver, atLeastOnce()).onChanged(context.getString(R.string.no_internet_connection))
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
@@ -393,7 +414,14 @@ class SmartIdViewModelTest {
                 eq(
                     context,
                 ),
-                any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any(),
+                any<SignedContainer>(),
+                any(),
+                eq(null),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
             )
             verify(
                 dialogErrorObserver,
@@ -450,7 +478,14 @@ class SmartIdViewModelTest {
                 eq(
                     context,
                 ),
-                any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any(),
+                any<SignedContainer>(),
+                any(),
+                eq(null),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
             )
             verify(
                 dialogErrorObserver,
@@ -505,7 +540,14 @@ class SmartIdViewModelTest {
                 eq(
                     context,
                 ),
-                any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any(),
+                any<SignedContainer>(),
+                any(),
+                eq(null),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
             )
             verify(
                 errorStateObserver,
@@ -560,7 +602,14 @@ class SmartIdViewModelTest {
                 eq(
                     context,
                 ),
-                any<SignedContainer>(), any(), eq(null), any(), any(), any(), any(), any(),
+                any<SignedContainer>(),
+                any(),
+                eq(null),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
             )
             verify(
                 errorStateObserver,

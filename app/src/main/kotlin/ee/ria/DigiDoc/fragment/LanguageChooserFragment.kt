@@ -37,8 +37,7 @@ fun LanguageChooserFragment(
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("languageChooserFragment"),
+                }.testTag("languageChooserFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         LanguageChooserScreen(

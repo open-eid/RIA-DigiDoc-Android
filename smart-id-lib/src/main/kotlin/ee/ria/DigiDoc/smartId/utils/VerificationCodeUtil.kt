@@ -12,10 +12,13 @@ object VerificationCodeUtil {
         val codeDigest = hash?.let { MessageDigest.getInstance("SHA-256").digest(it) }
         val code =
             (
-                codeDigest?.let {
-                    ByteBuffer.wrap(it).getShort((codeDigest.size) - 2)
-                        .toInt()
-                }?.and(0xffff)
+                codeDigest
+                    ?.let {
+                        ByteBuffer
+                            .wrap(it)
+                            .getShort((codeDigest.size) - 2)
+                            .toInt()
+                    }?.and(0xffff)
             ).toString()
         val paddedCode = "0000$code"
         return paddedCode.substring(code.length)

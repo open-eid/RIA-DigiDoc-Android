@@ -50,18 +50,15 @@ class SigningViewModel
             _shouldResetSignedContainer.postValue(true)
         }
 
-        fun isExistingContainerNoSignatures(signedContainer: SignedContainer?): Boolean {
-            return isContainerWithoutSignatures(signedContainer) &&
+        fun isExistingContainerNoSignatures(signedContainer: SignedContainer?): Boolean =
+            isContainerWithoutSignatures(signedContainer) &&
                 signedContainer?.isExistingContainer() == true
-        }
 
-        fun isExistingContainer(signedContainer: SignedContainer?): Boolean {
-            return signedContainer?.isExistingContainer() == true
-        }
+        fun isExistingContainer(signedContainer: SignedContainer?): Boolean =
+            signedContainer?.isExistingContainer() == true
 
-        fun isContainerWithoutSignatures(signedContainer: SignedContainer?): Boolean {
-            return signedContainer?.isSigned() == false
-        }
+        fun isContainerWithoutSignatures(signedContainer: SignedContainer?): Boolean =
+            signedContainer?.isSigned() == false
 
         fun isContainerWithTimestamps(signedContainer: SignedContainer?): Boolean =
             signedContainer?.getTimestamps()?.isNotEmpty() == true
@@ -85,7 +82,9 @@ class SigningViewModel
                             .lowercase(Locale.getDefault()),
                     )
                 ) &&
-                !isNestedContainer && !isXadesContainer && !isCadesContainer
+                !isNestedContainer &&
+                !isXadesContainer &&
+                !isCadesContainer
 
         fun isEncryptButtonShown(
             signedContainer: SignedContainer?,
@@ -107,11 +106,12 @@ class SigningViewModel
             ) &&
                 !isNestedContainer
 
-        fun isRoleEmpty(signature: SignatureInterface): Boolean {
-            return signature.signerRoles.isEmpty() && signature.city.isEmpty() &&
+        fun isRoleEmpty(signature: SignatureInterface): Boolean =
+            signature.signerRoles.isEmpty() &&
+                signature.city.isEmpty() &&
                 signature.stateOrProvince.isEmpty() &&
-                signature.countryName.isEmpty() && signature.postalCode.isEmpty()
-        }
+                signature.countryName.isEmpty() &&
+                signature.postalCode.isEmpty()
 
         @Throws(Exception::class)
         suspend fun openCryptoContainer(
@@ -218,8 +218,7 @@ class SigningViewModel
         suspend fun isTimestampedContainer(
             signedContainer: SignedContainer,
             isSivaConfirmed: Boolean,
-        ): Boolean {
-            return sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed) &&
+        ): Boolean =
+            sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed) &&
                 !signedContainer.isXades()
-        }
     }

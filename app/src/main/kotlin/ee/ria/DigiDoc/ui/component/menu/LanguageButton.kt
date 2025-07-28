@@ -59,8 +59,7 @@ fun LanguageButton(
                 .wrapContentHeight()
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag(testTag),
+                }.testTag(testTag),
         shape = RectangleShape,
         onClick = onClickItem,
         colors =
@@ -94,8 +93,7 @@ fun LanguageButton(
                         .wrapContentHeight(align = Alignment.CenterVertically)
                         .semantics {
                             this.contentDescription = contentDescription
-                        }
-                        .constrainAs(languageButtonText) {
+                        }.constrainAs(languageButtonText) {
                             start.linkTo(parent.start)
                             top.linkTo(parent.top)
                             bottom.linkTo(parent.bottom)

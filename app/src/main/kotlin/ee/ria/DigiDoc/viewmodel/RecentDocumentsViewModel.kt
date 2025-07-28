@@ -37,7 +37,7 @@ import javax.inject.Inject
 class RecentDocumentsViewModel
     @Inject
     constructor(
-        @ApplicationContext private val context: Context,
+        @param:ApplicationContext private val context: Context,
         private val sivaRepository: SivaRepository,
         private val mimeTypeResolver: MimeTypeResolver,
         private val cdoc2Settings: CDOC2Settings,
@@ -82,13 +82,10 @@ class RecentDocumentsViewModel
         }
 
         @Throws(Exception::class)
-        suspend fun openCryptoDocument(document: File): CryptoContainer {
-            return CryptoContainer.openOrCreate(context, document, listOf(document), cdoc2Settings)
-        }
+        suspend fun openCryptoDocument(document: File): CryptoContainer =
+            CryptoContainer.openOrCreate(context, document, listOf(document), cdoc2Settings)
 
-        fun getRecentDocumentList(): List<File> {
-            return ContainerUtil.findRecentContainerFiles(context)
-        }
+        fun getRecentDocumentList(): List<File> = ContainerUtil.findRecentContainerFiles(context)
 
         suspend fun handleDocument(
             document: File,
@@ -121,7 +118,8 @@ class RecentDocumentsViewModel
 
             withContext(Main) {
                 val exceptionMessage = ex.message ?: ""
-                if (ex is IOException && exceptionMessage.isNotEmpty() &&
+                if (ex is IOException &&
+                    exceptionMessage.isNotEmpty() &&
                     exceptionMessage.contains("Online validation disabled")
                 ) {
                     errorMessage = null

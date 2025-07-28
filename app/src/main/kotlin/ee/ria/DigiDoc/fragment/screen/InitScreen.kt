@@ -46,8 +46,7 @@ fun InitScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("initScreen")
+                }.testTag("initScreen")
                 .systemBarsPadding()
                 .fillMaxWidth(),
     ) {

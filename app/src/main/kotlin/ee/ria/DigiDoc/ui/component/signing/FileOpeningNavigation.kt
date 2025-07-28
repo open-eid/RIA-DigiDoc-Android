@@ -3,7 +3,6 @@
 package ee.ria.DigiDoc.ui.component.signing
 
 import android.net.Uri
-import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,7 +27,8 @@ import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.FileOpeningViewModel
@@ -184,7 +184,7 @@ fun FileOpeningNavigation(
     LaunchedEffect(fileOpeningViewModel.filesAdded) {
         fileOpeningViewModel.filesAdded.asFlow().collect { files ->
             if (!files.isNullOrEmpty()) {
-                var announcementText =
+                val announcementText =
                     when (files.size) {
                         1 -> fileAddedText
                         else -> filesAddedText
@@ -192,9 +192,9 @@ fun FileOpeningNavigation(
 
                 sharedContainerViewModel.setAddedFilesCount(files.size)
 
-                AccessibilityUtil.sendAccessibilityEvent(
+                sendAccessibilityEvent(
                     context,
-                    TYPE_ANNOUNCEMENT,
+                    getAccessibilityEventType(),
                     announcementText,
                 )
                 fileOpeningViewModel.resetFilesAdded()

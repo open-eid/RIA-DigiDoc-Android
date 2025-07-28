@@ -39,8 +39,7 @@ fun DecryptFragment(
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("decryptFragment"),
+                }.testTag("decryptFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         DecryptScreen(

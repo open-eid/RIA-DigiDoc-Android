@@ -12,15 +12,15 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.domain.model.methods.SigningMethod
 
 data class SignatureAddRadioItem(
-    @StringRes val label: Int = 0,
+    @param:StringRes val label: Int = 0,
     val icon: ImageVector = Icons.Filled.Home,
     val method: SigningMethod = SigningMethod.NFC,
     val contentDescription: String = "",
     val testTag: String = "",
 ) {
     @Composable
-    fun radioItems(): List<SignatureAddRadioItem> {
-        return listOf(
+    fun radioItems(): List<SignatureAddRadioItem> =
+        listOf(
             SignatureAddRadioItem(
                 label = R.string.signature_update_signature_add_method_nfc,
                 method = SigningMethod.NFC,
@@ -58,5 +58,4 @@ data class SignatureAddRadioItem(
                 testTag = "signatureUpdateSignatureAddMethodSmartId",
             ),
         )
-    }
 }

@@ -65,8 +65,7 @@ fun NoRecipientContainerBottomBar(
                 .padding(vertical = XSPadding)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("noRecipientCryptoContainerBottomBar"),
+                }.testTag("noRecipientCryptoContainerBottomBar"),
         contentAlignment = Alignment.Center,
     ) {
         FlowRow(

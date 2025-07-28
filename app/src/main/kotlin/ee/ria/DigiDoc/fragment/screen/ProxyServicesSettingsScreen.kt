@@ -83,7 +83,6 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBack
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
-import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.Dispatchers.Main
@@ -97,7 +96,6 @@ fun ProxyServicesSettingsScreen(
     modifier: Modifier = Modifier,
     sharedSettingsViewModel: SharedSettingsViewModel,
     sharedMenuViewModel: SharedMenuViewModel,
-    sharedCertificateViewModel: SharedCertificateViewModel,
     navController: NavHostController,
 ) {
     val context = LocalContext.current
@@ -130,7 +128,7 @@ fun ProxyServicesSettingsScreen(
     val getProxyUsername = sharedSettingsViewModel.dataStore::getProxyUsername
     val getProxyPassword = sharedSettingsViewModel.dataStore::getProxyPassword
 
-    var settingsProxyChoice = remember { mutableStateOf(getProxySetting().name) }
+    val settingsProxyChoice = remember { mutableStateOf(getProxySetting().name) }
 
     var proxyHost by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
@@ -218,8 +216,7 @@ fun ProxyServicesSettingsScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("proxyServicesSettingsScreen"),
+                }.testTag("proxyServicesSettingsScreen"),
         topBar = {
             TopBar(
                 modifier = modifier,
@@ -416,8 +413,7 @@ fun ProxyServicesSettingsScreen(
                                         .fillMaxWidth()
                                         .semantics {
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("proxyServicesHostTextField"),
+                                        }.testTag("proxyServicesHostTextField"),
                                 trailingIcon = {
                                     if (!isTalkBackEnabled(context) && proxyHost.text.isNotEmpty()) {
                                         IconButton(onClick = {
@@ -457,8 +453,7 @@ fun ProxyServicesSettingsScreen(
                                             modifier
                                                 .semantics {
                                                     testTagsAsResourceId = true
-                                                }
-                                                .testTag("proxyServicesHostRemoveIconButton"),
+                                                }.testTag("proxyServicesHostRemoveIconButton"),
                                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                         contentDescription = "$clearButtonText $buttonName",
                                     )
@@ -494,8 +489,7 @@ fun ProxyServicesSettingsScreen(
                                         .fillMaxWidth()
                                         .semantics {
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("proxyServicesPortTextField"),
+                                        }.testTag("proxyServicesPortTextField"),
                                 trailingIcon = {
                                     if (!isTalkBackEnabled(context) && proxyPort.text.isNotEmpty()) {
                                         IconButton(onClick = {
@@ -535,8 +529,7 @@ fun ProxyServicesSettingsScreen(
                                             modifier
                                                 .semantics {
                                                     testTagsAsResourceId = true
-                                                }
-                                                .testTag("proxyServicesPortRemoveIconButton"),
+                                                }.testTag("proxyServicesPortRemoveIconButton"),
                                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                         contentDescription = "$clearButtonText $buttonName",
                                     )
@@ -546,7 +539,8 @@ fun ProxyServicesSettingsScreen(
                         if (proxyPortErrorText.isNotEmpty()) {
                             Text(
                                 modifier =
-                                    modifier.fillMaxWidth()
+                                    modifier
+                                        .fillMaxWidth()
                                         .focusable(enabled = true)
                                         .semantics { contentDescription = proxyPortErrorText }
                                         .testTag("proxyServicesPortErrorText"),
@@ -581,8 +575,7 @@ fun ProxyServicesSettingsScreen(
                                         .fillMaxWidth()
                                         .semantics {
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("proxyServicesUsernameTextField"),
+                                        }.testTag("proxyServicesUsernameTextField"),
                                 trailingIcon = {
                                     if (!isTalkBackEnabled(context) && proxyUsername.text.isNotEmpty()) {
                                         IconButton(onClick = {
@@ -622,8 +615,7 @@ fun ProxyServicesSettingsScreen(
                                             modifier
                                                 .semantics {
                                                     testTagsAsResourceId = true
-                                                }
-                                                .testTag("proxyServicesUsernameRemoveIconButton"),
+                                                }.testTag("proxyServicesUsernameRemoveIconButton"),
                                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                         contentDescription = "$clearButtonText $buttonName",
                                     )
@@ -657,8 +649,7 @@ fun ProxyServicesSettingsScreen(
                                         .fillMaxWidth()
                                         .semantics {
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("proxyServicesPasswordTextField"),
+                                        }.testTag("proxyServicesPasswordTextField"),
                                 trailingIcon = {
                                     val image =
                                         if (passwordVisible) {
@@ -714,8 +705,7 @@ fun ProxyServicesSettingsScreen(
                                             modifier
                                                 .semantics {
                                                     testTagsAsResourceId = true
-                                                }
-                                                .testTag("proxyServicesPasswordRemoveIconButton"),
+                                                }.testTag("proxyServicesPasswordRemoveIconButton"),
                                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                         contentDescription = "$clearButtonText $buttonName",
                                     )
@@ -751,8 +741,7 @@ fun ProxyServicesSettingsScreen(
                                     contentDescription =
                                         "${proxyCheckConnectionText.lowercase()} $buttonName"
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("mainSettingsProxyServicesCheckInternetConnectionButton"),
+                                }.testTag("mainSettingsProxyServicesCheckInternetConnectionButton"),
                         text = proxyCheckConnectionText,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,

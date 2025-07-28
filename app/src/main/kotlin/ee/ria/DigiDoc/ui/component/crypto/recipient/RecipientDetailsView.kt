@@ -95,8 +95,7 @@ fun RecipientDetailsView(
                 modifier
                     .semantics {
                         testTagsAsResourceId = true
-                    }
-                    .testTag("recipientDetailsScreen"),
+                    }.testTag("recipientDetailsScreen"),
             topBar = {
                 TopBar(
                     modifier = modifier,
@@ -133,8 +132,7 @@ fun RecipientDetailsView(
                             .padding(SPadding)
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("recipientCertificateContainer"),
+                            }.testTag("recipientCertificateContainer"),
                 ) {
                     RecipientDetails(
                         modifier = modifier,

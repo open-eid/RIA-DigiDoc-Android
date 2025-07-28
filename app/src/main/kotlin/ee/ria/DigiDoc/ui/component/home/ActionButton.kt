@@ -100,8 +100,7 @@ fun ActionButton(
                         .wrapContentHeight()
                         .semantics {
                             testTagsAsResourceId = true
-                        }
-                        .testTag(testTag),
+                        }.testTag(testTag),
                 shape = buttonRoundedCornerShape,
                 onClick = onClickItem,
                 colors =
@@ -131,8 +130,7 @@ fun ActionButton(
                                     start.linkTo(parent.start)
                                     top.linkTo(parent.top)
                                     bottom.linkTo(parent.bottom)
-                                }
-                                .wrapContentHeight()
+                                }.wrapContentHeight()
                                 .padding(XSPadding),
                     ) {
                         Box(
@@ -189,8 +187,7 @@ fun ActionButton(
                                     .focusable(false)
                                     .semantics {
                                         this.contentDescription = contentDescription
-                                    }
-                                    .testTag("actionButtonDescription"),
+                                    }.testTag("actionButtonDescription"),
                             text = description,
                             maxLines = 4,
                             textColor = MaterialTheme.colorScheme.onSurface.toArgb(),

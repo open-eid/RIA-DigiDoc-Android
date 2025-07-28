@@ -343,8 +343,8 @@ class SmartSignServiceImplTest {
 
             doReturn(
                 call,
-            )
-                .whenever(sidRestServiceClient).getCertificateV2(
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
@@ -384,8 +384,8 @@ class SmartSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(sidRestServiceClient).getCertificateV2(
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
@@ -414,8 +414,8 @@ class SmartSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(sidRestServiceClient).getSessionStatus("sessionID", 5000)
+            ).whenever(sidRestServiceClient)
+                .getSessionStatus("sessionID", 5000)
 
             whenever(
                 containerWrapper.prepareSignature(
@@ -466,16 +466,19 @@ class SmartSignServiceImplTest {
 
             val call = mock(Call::class.java)
             doReturn(call)
-                .whenever(sidRestServiceClient).getCertificateV2(
+                .whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
 
             doReturn(call)
-                .whenever(call).clone()
+                .whenever(call)
+                .clone()
 
             doThrow(UnknownHostException())
-                .whenever(call).execute()
+                .whenever(call)
+                .execute()
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
@@ -505,16 +508,19 @@ class SmartSignServiceImplTest {
 
             val call = mock(Call::class.java)
             doReturn(call)
-                .whenever(sidRestServiceClient).getCertificateV2(
+                .whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
 
             doReturn(call)
-                .whenever(call).clone()
+                .whenever(call)
+                .clone()
 
             doThrow(SSLPeerUnverifiedException(""))
-                .whenever(call).execute()
+                .whenever(call)
+                .execute()
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
@@ -544,16 +550,19 @@ class SmartSignServiceImplTest {
 
             val call = mock(Call::class.java)
             doReturn(call)
-                .whenever(sidRestServiceClient).getCertificateV2(
+                .whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
 
             doReturn(call)
-                .whenever(call).clone()
+                .whenever(call)
+                .clone()
 
             doThrow(IOException(""))
-                .whenever(call).execute()
+                .whenever(call)
+                .execute()
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
@@ -589,8 +598,8 @@ class SmartSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(sidRestServiceClient).getCertificateV2(
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
@@ -619,8 +628,8 @@ class SmartSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(sidRestServiceClient).getSessionStatus("sessionID", 5000)
+            ).whenever(sidRestServiceClient)
+                .getSessionStatus("sessionID", 5000)
 
             whenever(
                 containerWrapper.prepareSignature(
@@ -659,13 +668,15 @@ class SmartSignServiceImplTest {
 
             val call = mock(Call::class.java)
             doReturn(call)
-                .whenever(sidRestServiceClient).getCertificateV2(
+                .whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
 
             doThrow(IllegalStateException("Too Many Requests"))
-                .whenever(call).clone()
+                .whenever(call)
+                .clone()
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
@@ -695,13 +706,15 @@ class SmartSignServiceImplTest {
 
             val call = mock(Call::class.java)
             doReturn(call)
-                .whenever(sidRestServiceClient).getCertificateV2(
+                .whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
 
             doThrow(IllegalStateException("OCSP response not in valid time slot"))
-                .whenever(call).clone()
+                .whenever(call)
+                .clone()
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
@@ -731,13 +744,15 @@ class SmartSignServiceImplTest {
 
             val call = mock(Call::class.java)
             doReturn(call)
-                .whenever(sidRestServiceClient).getCertificateV2(
+                .whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
 
             doThrow(IllegalStateException("Certificate status: revoked"))
-                .whenever(call).clone()
+                .whenever(call)
+                .clone()
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
@@ -767,13 +782,15 @@ class SmartSignServiceImplTest {
 
             val call = mock(Call::class.java)
             doReturn(call)
-                .whenever(sidRestServiceClient).getCertificateV2(
+                .whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
 
             doThrow(IllegalStateException("Failed to connect"))
-                .whenever(call).clone()
+                .whenever(call)
+                .clone()
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
@@ -803,13 +820,15 @@ class SmartSignServiceImplTest {
 
             val call = mock(Call::class.java)
             doReturn(call)
-                .whenever(sidRestServiceClient).getCertificateV2(
+                .whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
 
             doThrow(IllegalStateException("Failed to create ssl connection with host"))
-                .whenever(call).clone()
+                .whenever(call)
+                .clone()
 
             smartSignServiceImpl.processSmartIdRequest(
                 context = context,
@@ -845,8 +864,8 @@ class SmartSignServiceImplTest {
                 Calls.response(
                     mockResponse,
                 ),
-            )
-                .whenever(sidRestServiceClient).getCertificateV2(
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
@@ -885,8 +904,8 @@ class SmartSignServiceImplTest {
                 Calls.response(
                     mockResponse,
                 ),
-            )
-                .whenever(sidRestServiceClient).getCertificateV2(
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
@@ -925,8 +944,8 @@ class SmartSignServiceImplTest {
                 Calls.response(
                     mockResponse,
                 ),
-            )
-                .whenever(sidRestServiceClient).getCertificateV2(
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
@@ -965,8 +984,8 @@ class SmartSignServiceImplTest {
                 Calls.response(
                     mockResponse,
                 ),
-            )
-                .whenever(sidRestServiceClient).getCertificateV2(
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
@@ -1005,8 +1024,8 @@ class SmartSignServiceImplTest {
                 Calls.response(
                     mockResponse,
                 ),
-            )
-                .whenever(sidRestServiceClient).getCertificateV2(
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
@@ -1045,8 +1064,8 @@ class SmartSignServiceImplTest {
                 Calls.response(
                     mockResponse,
                 ),
-            )
-                .whenever(sidRestServiceClient).getCertificateV2(
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
@@ -1088,8 +1107,8 @@ class SmartSignServiceImplTest {
                 Calls.response(
                     mockResponse,
                 ),
-            )
-                .whenever(sidRestServiceClient).getCertificateV2(
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
@@ -1128,8 +1147,8 @@ class SmartSignServiceImplTest {
                 Calls.response(
                     mockResponse,
                 ),
-            )
-                .whenever(sidRestServiceClient).getCertificateV2(
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
@@ -1168,8 +1187,8 @@ class SmartSignServiceImplTest {
                 Calls.response(
                     mockResponse,
                 ),
-            )
-                .whenever(sidRestServiceClient).getCertificateV2(
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
@@ -1208,8 +1227,8 @@ class SmartSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(sidRestServiceClient).getCertificateV2(
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
@@ -1238,8 +1257,8 @@ class SmartSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(sidRestServiceClient).getSessionStatus("sessionID", 5000)
+            ).whenever(sidRestServiceClient)
+                .getSessionStatus("sessionID", 5000)
 
             whenever(
                 containerWrapper.prepareSignature(
@@ -1293,8 +1312,8 @@ class SmartSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(sidRestServiceClient).getCertificateV2(
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
@@ -1323,8 +1342,8 @@ class SmartSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(sidRestServiceClient).getSessionStatus("sessionID", 5000)
+            ).whenever(sidRestServiceClient)
+                .getSessionStatus("sessionID", 5000)
 
             whenever(
                 containerWrapper.prepareSignature(
@@ -1378,8 +1397,8 @@ class SmartSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(sidRestServiceClient).getCertificateV2(
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
@@ -1390,8 +1409,8 @@ class SmartSignServiceImplTest {
                         null,
                     ),
                 ),
-            )
-                .whenever(sidRestServiceClient).getSessionStatus("sessionID", 5000)
+            ).whenever(sidRestServiceClient)
+                .getSessionStatus("sessionID", 5000)
 
             whenever(
                 containerWrapper.prepareSignature(
@@ -1445,8 +1464,8 @@ class SmartSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(sidRestServiceClient).getCertificateV2(
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
@@ -1483,8 +1502,8 @@ class SmartSignServiceImplTest {
                         null,
                     ),
                 ),
-            )
-                .whenever(sidRestServiceClient).getCertificateV2(
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
@@ -1524,8 +1543,8 @@ class SmartSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(sidRestServiceClient).getCertificateV2(
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
                     semanticsIdentifier = "PNOEE-60001019906",
                     body = getSmartCertificateRequest,
                 )
@@ -1554,8 +1573,8 @@ class SmartSignServiceImplTest {
                         ),
                     ),
                 ),
-            )
-                .whenever(sidRestServiceClient).getSessionStatus("sessionID", 5000)
+            ).whenever(sidRestServiceClient)
+                .getSessionStatus("sessionID", 5000)
 
             whenever(
                 containerWrapper.prepareSignature(

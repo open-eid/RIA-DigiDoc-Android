@@ -8,11 +8,4 @@ enum class IdentityAction(
     SIGN("SIGN"),
     AUTH("AUTH"),
     DECRYPT("DECRYPT"),
-    ;
-
-    companion object {
-        fun fromName(mode: String): IdentityAction {
-            return IdentityAction.entries.find { it.useCaseName == mode } ?: SIGN
-        }
-    }
 }

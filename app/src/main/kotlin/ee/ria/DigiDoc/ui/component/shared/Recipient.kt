@@ -75,16 +75,17 @@ fun Recipient(
         }
     val certTypeText = getRecipientCertTypeText(LocalContext.current, recipient.certType)
     val certValidTo =
-        recipient.validTo?.let {
-            dateFormat.format(
-                it,
-            )
-        }?.let {
-            stringResource(
-                R.string.crypto_cert_valid_to,
-                it,
-            )
-        } ?: ""
+        recipient.validTo
+            ?.let {
+                dateFormat.format(
+                    it,
+                )
+            }?.let {
+                stringResource(
+                    R.string.crypto_cert_valid_to,
+                    it,
+                )
+            } ?: ""
 
     val iconRes =
         if (recipient.surname.isNullOrEmpty() && recipient.givenName.isNullOrEmpty()) {
@@ -101,8 +102,7 @@ fun Recipient(
                     this.contentDescription =
                         "$recipientText ${formatNumbers(nameText)} $certTypeText"
                     testTagsAsResourceId = true
-                }
-                .testTag("recipientItemContainer"),
+                }.testTag("recipientItemContainer"),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         shape = buttonRoundedCornerShape,
     ) {
@@ -133,8 +133,7 @@ fun Recipient(
                                 .wrapContentHeight(align = Alignment.CenterVertically)
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("recipientItemIcon")
+                                }.testTag("recipientItemIcon")
                                 .notAccessible(),
                     )
                 }
@@ -147,8 +146,7 @@ fun Recipient(
                             .weight(1f)
                             .semantics(mergeDescendants = true) {
                                 testTagsAsResourceId = true
-                            }
-                            .focusGroup()
+                            }.focusGroup()
                             .notAccessible(),
                 ) {
                     StyledNameText(
@@ -157,8 +155,7 @@ fun Recipient(
                                 .focusable(false)
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("recipientItemName"),
+                                }.testTag("recipientItemName"),
                         name = nameText,
                         formatName = false,
                     )
@@ -169,8 +166,7 @@ fun Recipient(
                                 .focusable(false)
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("recipientItemCert"),
+                                }.testTag("recipientItemCert"),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodyMedium,
                     )
@@ -182,8 +178,7 @@ fun Recipient(
                                 modifier
                                     .semantics {
                                         testTagsAsResourceId = true
-                                    }
-                                    .testTag("recipientItemMoreOptionsIconButton"),
+                                    }.testTag("recipientItemMoreOptionsIconButton"),
                             imageVector = ImageVector.vectorResource(R.drawable.ic_more_vert),
                             contentDescription = "$recipientText ${
                                 stringResource(

@@ -9,14 +9,14 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.domain.model.crypto.DecryptMethodSetting
 
 data class DecryptMethodChoiceButtonItem(
-    @StringRes val label: Int = 0,
+    @param:StringRes val label: Int = 0,
     val setting: DecryptMethodSetting = DecryptMethodSetting.NFC,
     val contentDescription: String = "",
     val testTag: String = "",
 ) {
     @Composable
-    fun radioItems(): List<DecryptMethodChoiceButtonItem> {
-        return listOf(
+    fun radioItems(): List<DecryptMethodChoiceButtonItem> =
+        listOf(
             DecryptMethodChoiceButtonItem(
                 label = R.string.signature_update_signature_add_method_nfc,
                 setting = DecryptMethodSetting.NFC,
@@ -36,5 +36,4 @@ data class DecryptMethodChoiceButtonItem(
                 testTag = "decryptMethodIdCardSetting",
             ),
         )
-    }
 }

@@ -55,7 +55,8 @@ fun MiddleEllipsizeMultilineText(
                         textView.text =
                             TextUtils.ellipsize(
                                 textView.text,
-                                textView.paint, (textView.width * (maxLines / 1.5)).toFloat(),
+                                textView.paint,
+                                (textView.width * (maxLines / 1.5)).toFloat(),
                                 TextUtils.TruncateAt.MIDDLE,
                             )
                     }

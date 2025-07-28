@@ -82,8 +82,7 @@ fun OptionChooserDialog(
                     .semantics {
                         heading()
                         testTagsAsResourceId = true
-                    }
-                    .testTag("optionChooserTitle"),
+                    }.testTag("optionChooserTitle"),
             text = stringResource(title),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Start,
@@ -131,8 +130,7 @@ fun OptionChooserDialog(
                                                 choices[index].lowercase(),
                                             )
                                         }
-                                }
-                                .testTag("optionChooser$index"),
+                                }.testTag("optionChooser$index"),
                         selected = selectedOption == choices[index],
                         onClick = {
                             currentChoice = index

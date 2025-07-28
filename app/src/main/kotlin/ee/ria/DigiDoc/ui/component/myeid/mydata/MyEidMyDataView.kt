@@ -44,8 +44,7 @@ fun MyEidMyDataView(
                 dateOfBirth = dateOfBirth,
                 documentNumber = documentNumber,
                 validTo = validTo,
-            )
-            .forEach { navigationItem ->
+            ).forEach { navigationItem ->
                 if (!navigationItem.value.isNullOrEmpty()) {
                     MyEidMyDataItem(
                         modifier = modifier,

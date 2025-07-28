@@ -102,10 +102,11 @@ class Addressee(
     }
 
     private companion object {
-        private fun extractCNFromCertificate(cert: ByteArray): String {
-            return try {
+        private fun extractCNFromCertificate(cert: ByteArray): String =
+            try {
                 val certificate =
-                    CertificateFactory.getInstance("X.509")
+                    CertificateFactory
+                        .getInstance("X.509")
                         .generateCertificate(cert.inputStream()) as X509Certificate
                 val principal = certificate.subjectX500Principal
 
@@ -115,21 +116,22 @@ class Addressee(
 
                 if (cnAttributes.isNotEmpty()) {
                     // Get all CN values and join them with commas (like the Swift version)
-                    cnAttributes.flatMap { rdn ->
-                        rdn.typesAndValues.map { IETFUtils.valueToString(it.value) }
-                    }.joinToString(",")
+                    cnAttributes
+                        .flatMap { rdn ->
+                            rdn.typesAndValues.map { IETFUtils.valueToString(it.value) }
+                        }.joinToString(",")
                 } else {
                     ""
                 }
             } catch (_: Exception) {
                 ""
             }
-        }
 
-        private fun extractSerialNumberFromCertificate(cert: ByteArray): String {
-            return try {
+        private fun extractSerialNumberFromCertificate(cert: ByteArray): String =
+            try {
                 val certificate =
-                    CertificateFactory.getInstance("X.509")
+                    CertificateFactory
+                        .getInstance("X.509")
                         .generateCertificate(cert.inputStream()) as X509Certificate
                 val principal = certificate.subjectX500Principal
 
@@ -139,21 +141,22 @@ class Addressee(
 
                 if (serialNumberAttributes.isNotEmpty()) {
                     // Get all Serial number values and join them with commas
-                    serialNumberAttributes.flatMap { rdn ->
-                        rdn.typesAndValues.map { IETFUtils.valueToString(it.value) }
-                    }.joinToString(",")
+                    serialNumberAttributes
+                        .flatMap { rdn ->
+                            rdn.typesAndValues.map { IETFUtils.valueToString(it.value) }
+                        }.joinToString(",")
                 } else {
                     ""
                 }
             } catch (_: Exception) {
                 ""
             }
-        }
 
         private fun extractCertTypeFromCertificate(cert: ByteArray): CertType {
             return try {
                 val certificate =
-                    CertificateFactory.getInstance("X.509")
+                    CertificateFactory
+                        .getInstance("X.509")
                         .generateCertificate(cert.inputStream()) as X509Certificate
 
                 val extensionValue = certificate.getExtensionValue(Extension.certificatePolicies.id)
@@ -194,15 +197,15 @@ class Addressee(
             }
         }
 
-        private fun extractValidToFromCertificate(cert: ByteArray): Date? {
-            return try {
+        private fun extractValidToFromCertificate(cert: ByteArray): Date? =
+            try {
                 val certificate =
-                    CertificateFactory.getInstance("X.509")
+                    CertificateFactory
+                        .getInstance("X.509")
                         .generateCertificate(cert.inputStream()) as X509Certificate
                 certificate.notAfter
             } catch (_: Exception) {
                 null
             }
-        }
     }
 }

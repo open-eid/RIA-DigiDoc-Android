@@ -3,7 +3,6 @@
 package ee.ria.DigiDoc.ui.component.shared
 
 import android.content.Intent
-import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.focusable
@@ -43,6 +42,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.core.net.toUri
 import androidx.lifecycle.asFlow
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
@@ -85,7 +85,7 @@ fun TopBar(
             val browserIntent =
                 Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse(context.getString(R.string.main_home_menu_help_url)),
+                    context.getString(R.string.main_home_menu_help_url).toUri(),
                 )
 
             context.startActivity(browserIntent, null)
@@ -114,8 +114,7 @@ fun TopBar(
                 .semantics {
                     isTraversalGroup = true
                     testTagsAsResourceId = true
-                }
-                .testTag("toolbar"),
+                }.testTag("toolbar"),
         colors =
             TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.surface,

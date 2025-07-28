@@ -197,7 +197,12 @@ class SharedContainerViewModelTest {
 
             viewModel.removeSignature(signedContainer, signature)
 
-            assertEquals(1, viewModel.signedContainer.value?.getSignatures()?.size)
+            assertEquals(
+                1,
+                viewModel.signedContainer.value
+                    ?.getSignatures()
+                    ?.size,
+            )
         }
 
     @Test
@@ -217,7 +222,12 @@ class SharedContainerViewModelTest {
 
             viewModel.removeSignature(signedContainer, null)
 
-            assertEquals(signedContainer.getSignatures().size, viewModel.signedContainer.value?.getSignatures()?.size)
+            assertEquals(
+                signedContainer.getSignatures().size,
+                viewModel.signedContainer.value
+                    ?.getSignatures()
+                    ?.size,
+            )
         }
 
     @Test
@@ -260,7 +270,12 @@ class SharedContainerViewModelTest {
 
             viewModel.removeContainerDataFile(signedContainer, dataFile)
 
-            assertEquals(1, viewModel.signedContainer.value?.getDataFiles()?.size)
+            assertEquals(
+                1,
+                viewModel.signedContainer.value
+                    ?.getDataFiles()
+                    ?.size,
+            )
         }
 
     @Test(expected = ContainerDataFilesEmptyException::class)
@@ -288,7 +303,12 @@ class SharedContainerViewModelTest {
 
             viewModel.removeContainerDataFile(signedContainer, null)
 
-            assertEquals(signedContainer.getDataFiles().size, viewModel.signedContainer.value?.getDataFiles()?.size)
+            assertEquals(
+                signedContainer.getDataFiles().size,
+                viewModel.signedContainer.value
+                    ?.getDataFiles()
+                    ?.size,
+            )
         }
 
     @Test

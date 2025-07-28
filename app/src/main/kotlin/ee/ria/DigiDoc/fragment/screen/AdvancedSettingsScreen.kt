@@ -125,8 +125,7 @@ fun AdvancedSettingsScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("advancedSettingsScreen"),
+                }.testTag("advancedSettingsScreen"),
         topBar = {
             TopBar(
                 modifier = modifier,
@@ -156,8 +155,7 @@ fun AdvancedSettingsScreen(
                     .verticalScroll(rememberScrollState())
                     .semantics {
                         testTagsAsResourceId = true
-                    }
-                    .testTag("scrollView"),
+                    }.testTag("scrollView"),
         ) {
             Text(
                 modifier =
@@ -322,8 +320,7 @@ fun AdvancedSettingsScreen(
                                     contentDescription =
                                         "$defaultSettingsButtonText $buttonName"
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("mainSettingsRestoreDefaultSettingsButton"),
+                                }.testTag("mainSettingsRestoreDefaultSettingsButton"),
                         text = defaultSettingsButtonText,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,

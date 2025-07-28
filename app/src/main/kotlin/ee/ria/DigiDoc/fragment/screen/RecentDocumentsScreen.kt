@@ -3,7 +3,6 @@
 package ee.ria.DigiDoc.fragment.screen
 
 import android.content.res.Configuration
-import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -75,7 +74,8 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
@@ -164,7 +164,7 @@ fun RecentDocumentsScreen(
     }
     val dismissRemoveDocumentDialog = {
         closeDocumentDialog()
-        AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, documentRemovalCancelled)
+        sendAccessibilityEvent(context, getAccessibilityEventType(), documentRemovalCancelled)
     }
 
     val listState = rememberLazyListState()
@@ -214,8 +214,7 @@ fun RecentDocumentsScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("recentDocumentsScreen"),
+                }.testTag("recentDocumentsScreen"),
         topBar = {
             if (!expanded) {
                 TopBar(
@@ -362,8 +361,10 @@ fun RecentDocumentsScreen(
                                                         recentDocumentsViewModel.getMimetype(
                                                             document,
                                                         ),
-                                                    ) || document.isCades(context)
-                                                ) && !document.isXades(context)
+                                                    ) ||
+                                                        document.isCades(context)
+                                                ) &&
+                                                !document.isXades(context)
                                             ) {
                                                 showSivaDialog.value = true
                                             } else {
@@ -469,8 +470,10 @@ fun RecentDocumentsScreen(
                                                         recentDocumentsViewModel.getMimetype(
                                                             document,
                                                         ),
-                                                    ) || document.isCades(context)
-                                                ) && !document.isXades(context)
+                                                    ) ||
+                                                        document.isCades(context)
+                                                ) &&
+                                                !document.isXades(context)
                                             ) {
                                                 showSivaDialog.value = true
                                             } else {
@@ -553,7 +556,7 @@ fun RecentDocumentsScreen(
                     recentDocumentList.value = recentDocumentsViewModel.getRecentDocumentList()
                     dismissSearch()
                     closeDocumentDialog()
-                    AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, documentRemoved)
+                    sendAccessibilityEvent(context, getAccessibilityEventType(), documentRemoved)
                 },
             )
         }

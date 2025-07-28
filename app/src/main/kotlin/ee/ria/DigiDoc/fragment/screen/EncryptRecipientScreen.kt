@@ -3,7 +3,6 @@
 package ee.ria.DigiDoc.fragment.screen
 
 import android.content.res.Configuration
-import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -77,7 +76,8 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
@@ -153,7 +153,7 @@ fun EncryptRecipientScreen(
     }
     val dismissRemoveRecipientDialog = {
         closeRecipientDialog()
-        AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, recipientRemovalCancelled)
+        sendAccessibilityEvent(context, getAccessibilityEventType(), recipientRemovalCancelled)
     }
 
     val listState = rememberLazyListState()
@@ -175,9 +175,9 @@ fun EncryptRecipientScreen(
                     containerRecipientList.value =
                         encryptRecipientViewModel
                             .getContainerRecipientList(sharedContainerViewModel)
-                    AccessibilityUtil.sendAccessibilityEvent(
+                    sendAccessibilityEvent(
                         context,
-                        TYPE_ANNOUNCEMENT,
+                        getAccessibilityEventType(),
                         recipientAddedSuccessText,
                     )
                     encryptRecipientViewModel.handleIsRecipientAdded(false)
@@ -191,9 +191,9 @@ fun EncryptRecipientScreen(
             if (isContainerEncrypted) {
                 withContext(Main) {
                     containerEncryptedSuccess.value = true
-                    AccessibilityUtil.sendAccessibilityEvent(
+                    sendAccessibilityEvent(
                         context,
-                        TYPE_ANNOUNCEMENT,
+                        getAccessibilityEventType(),
                         containerEncryptedSuccessText,
                     )
                     delay(2000)
@@ -257,8 +257,7 @@ fun EncryptRecipientScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("encryptRecipientsScreen"),
+                }.testTag("encryptRecipientsScreen"),
         topBar = {
             if (!expanded) {
                 TopBar(
@@ -462,8 +461,7 @@ fun EncryptRecipientScreen(
                                         .semantics {
                                             heading()
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("encryptRecentlyAddedRecipientsListTitle"),
+                                        }.testTag("encryptRecentlyAddedRecipientsListTitle"),
                                 text = stringResource(R.string.crypto_container_latest_recipients_title),
                                 style = MaterialTheme.typography.bodyMedium,
                                 textAlign = TextAlign.Start,
@@ -512,8 +510,7 @@ fun EncryptRecipientScreen(
                                     .semantics {
                                         heading()
                                         testTagsAsResourceId = true
-                                    }
-                                    .testTag("encryptRecipientsDescription"),
+                                    }.testTag("encryptRecipientsDescription"),
                             text = stringResource(R.string.crypto_recipients_description),
                             textAlign = TextAlign.Start,
                         )
@@ -528,8 +525,7 @@ fun EncryptRecipientScreen(
                                         .semantics {
                                             heading()
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("encryptRecipientsListTitle"),
+                                        }.testTag("encryptRecipientsListTitle"),
                                 text = stringResource(R.string.crypto_container_added_recipients_title),
                                 style = MaterialTheme.typography.bodyMedium,
                                 textAlign = TextAlign.Start,
@@ -587,7 +583,7 @@ fun EncryptRecipientScreen(
                     }
 
                     closeRecipientDialog()
-                    AccessibilityUtil.sendAccessibilityEvent(context, TYPE_ANNOUNCEMENT, recipientRemoved)
+                    sendAccessibilityEvent(context, getAccessibilityEventType(), recipientRemoved)
                 },
             )
         }

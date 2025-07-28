@@ -41,8 +41,7 @@ fun MyEidIdentificationFragment(
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("identificationFragment"),
+                }.testTag("identificationFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         MyEidIdentificationScreen(

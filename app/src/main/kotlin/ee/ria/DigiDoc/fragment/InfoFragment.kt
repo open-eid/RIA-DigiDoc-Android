@@ -35,8 +35,7 @@ fun InfoFragment(
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("infoFragment"),
+                }.testTag("infoFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         InfoScreen(

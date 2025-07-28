@@ -62,7 +62,8 @@ class ConfigurationPropertiesImpl
             val updateDatePropertyName = CONFIGURATION_UPDATE_DATE_PROPERTY_NAME
             val sharedPreferences = context.getSharedPreferences(CONFIGURATION_PREFERENCES, Context.MODE_PRIVATE)
             if (sharedPreferences.contains(updateDatePropertyName)) {
-                return sharedPreferences.getString(updateDatePropertyName, null)
+                return sharedPreferences
+                    .getString(updateDatePropertyName, null)
                     ?.let { DateUtil.stringToDate(it) }
             }
             return null
@@ -91,7 +92,8 @@ class ConfigurationPropertiesImpl
                 CONFIGURATION_LAST_UPDATE_CHECK_DATE_PROPERTY_NAME
             val sharedPreferences = context.getSharedPreferences(CONFIGURATION_PREFERENCES, Context.MODE_PRIVATE)
             if (sharedPreferences.contains(lastUpdateDateCheckDatePropertyName)) {
-                return sharedPreferences.getString(lastUpdateDateCheckDatePropertyName, null)
+                return sharedPreferences
+                    .getString(lastUpdateDateCheckDatePropertyName, null)
                     ?.let { DateUtil.stringToDate(it) }
             }
             return null

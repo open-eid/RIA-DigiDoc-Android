@@ -91,7 +91,7 @@ fun MobileIdAndSmartIdServicesComponent(
     val setSettingsUuid = sharedSettingsViewModel.dataStore::setSettingsUUID
     val setUuidSetting = sharedSettingsViewModel.dataStore::setUuidSetting
     val defaultUuid = getSettingsUUID()
-    var settingsUuidChoice = remember { mutableStateOf(getUuidSetting().name) }
+    val settingsUuidChoice = remember { mutableStateOf(getUuidSetting().name) }
     var settingsUuid by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
             TextFieldValue(
@@ -260,8 +260,7 @@ fun MobileIdAndSmartIdServicesComponent(
                                     .fillMaxWidth()
                                     .semantics {
                                         testTagsAsResourceId = true
-                                    }
-                                    .testTag("mobileIdAndSmartIdServicesComponentTextField"),
+                                    }.testTag("mobileIdAndSmartIdServicesComponentTextField"),
                             trailingIcon = {
                                 val image =
                                     if (passwordVisible) {
@@ -317,8 +316,7 @@ fun MobileIdAndSmartIdServicesComponent(
                                         modifier
                                             .semantics {
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("proxyServicesUsernameRemoveIconButton"),
+                                            }.testTag("proxyServicesUsernameRemoveIconButton"),
                                     imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                     contentDescription = "$clearButtonText $buttonName",
                                 )

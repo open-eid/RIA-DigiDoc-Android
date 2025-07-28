@@ -81,12 +81,14 @@ fun File.mimeType(context: Context): String {
         mimetypeFile?.let {
             return readFileAsString(it).also { _ -> deleteFilesInFolder(tempContainerFiles) }.trim()
         }
-    } catch (ze: ZipException) {
+    } catch (_: ZipException) {
         if (extension == DDOC_EXTENSION && parseXMLFile(this)?.let { isDdoc(it) } == true) {
             return DDOC_MIMETYPE
         }
 
-        return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+        return MimeTypeMap
+            .getSingleton()
+            .getMimeTypeFromExtension(extension)
             ?.takeIf { it.isNotEmpty() } ?: DEFAULT_MIME_TYPE
     }
 

@@ -87,8 +87,7 @@ fun SignatureComponent(
                         .size(loadingBarSize)
                         .semantics {
                             this.contentDescription = signaturesLoadingContentDescription
-                        }
-                        .testTag("signaturesLoadingProgress"),
+                        }.testTag("signaturesLoadingProgress"),
             )
         }
     } else {
@@ -131,8 +130,7 @@ fun SignatureComponent(
                                         " $statusText, $signedTime, $roleAndAddress: $roles"
                                 }
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("signatureComponentContainer"),
+                            }.testTag("signatureComponentContainer"),
                     colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                     shape = buttonRoundedCornerShape,
                 ) {
@@ -170,8 +168,7 @@ fun SignatureComponent(
                                             .wrapContentHeight(align = Alignment.CenterVertically)
                                             .semantics {
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("signatureComponentIcon-$iconTestTagSuffix")
+                                            }.testTag("signatureComponentIcon-$iconTestTagSuffix")
                                             .notAccessible(),
                                 )
                             }
@@ -184,8 +181,7 @@ fun SignatureComponent(
                                         .weight(1f)
                                         .semantics(mergeDescendants = true) {
                                             testTagsAsResourceId = true
-                                        }
-                                        .focusGroup()
+                                        }.focusGroup()
                                         .notAccessible(),
                             ) {
                                 StyledNameText(
@@ -194,8 +190,7 @@ fun SignatureComponent(
                                             .focusable(false)
                                             .semantics {
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("signatureComponentSignatureName"),
+                                            }.testTag("signatureComponentSignatureName"),
                                     name = nameText,
                                     allCaps = isTimestamped || showNameAsAllCaps,
                                 )
@@ -206,8 +201,7 @@ fun SignatureComponent(
                                             .focusable(false)
                                             .semantics {
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("signatureComponentSignatureCreatedAt"),
+                                            }.testTag("signatureComponentSignatureCreatedAt"),
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     style = MaterialTheme.typography.bodyMedium,
                                 )
@@ -230,8 +224,7 @@ fun SignatureComponent(
                                                 .focusable(false)
                                                 .semantics {
                                                     testTagsAsResourceId = true
-                                                }
-                                                .testTag("signatureComponentSignatureRole"),
+                                                }.testTag("signatureComponentSignatureRole"),
                                     )
                                 }
                             }
@@ -242,8 +235,7 @@ fun SignatureComponent(
                                         modifier
                                             .semantics {
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("signatureComponentMoreOptionsIconButton"),
+                                            }.testTag("signatureComponentMoreOptionsIconButton"),
                                     imageVector = ImageVector.vectorResource(R.drawable.ic_more_vert),
                                     contentDescription = "$signatureText ${index + 1} ${stringResource(
                                         R.string.more_options,

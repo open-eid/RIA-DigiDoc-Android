@@ -39,8 +39,7 @@ fun ProxyServicesSettingsFragment(
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("proxyServicesSettingsFragment"),
+                }.testTag("proxyServicesSettingsFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         ProxyServicesSettingsScreen(
@@ -48,7 +47,6 @@ fun ProxyServicesSettingsFragment(
             modifier = modifier,
             sharedSettingsViewModel = sharedSettingsViewModel,
             sharedMenuViewModel = sharedMenuViewModel,
-            sharedCertificateViewModel = sharedCertificateViewModel,
         )
     }
 }

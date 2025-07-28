@@ -70,8 +70,7 @@ fun DataFileItem(
                         .semantics {
                             this.contentDescription = "$fileDescription ${index + 1} ${dataFile.fileName} $buttonName"
                             testTagsAsResourceId = true
-                        }
-                        .testTag("dataFileItemContainer"),
+                        }.testTag("dataFileItemContainer"),
                 colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                 shape = buttonRoundedCornerShape,
             ) {
@@ -106,8 +105,7 @@ fun DataFileItem(
                                         .wrapContentHeight(align = Alignment.CenterVertically)
                                         .semantics {
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("dataFileItemIcon")
+                                        }.testTag("dataFileItemIcon")
                                         .notAccessible(),
                             )
                         }
@@ -125,8 +123,7 @@ fun DataFileItem(
                                             this.contentDescription =
                                                 "$fileDescription ${index + 1} ${dataFile.fileName}"
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("dataFileItemName"),
+                                        }.testTag("dataFileItemName"),
                                 text = dataFile.fileName,
                                 maxLines = 4,
                                 textColor = MaterialTheme.colorScheme.onSurface.toArgb(),
@@ -144,8 +141,7 @@ fun DataFileItem(
                                     modifier
                                         .semantics {
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("dataFileItemMoreOptionsIconButton"),
+                                        }.testTag("dataFileItemMoreOptionsIconButton"),
                                 imageVector = ImageVector.vectorResource(R.drawable.ic_more_vert),
                                 contentDescription = "$fileDescription ${index + 1} ${stringResource(
                                     R.string.more_options,

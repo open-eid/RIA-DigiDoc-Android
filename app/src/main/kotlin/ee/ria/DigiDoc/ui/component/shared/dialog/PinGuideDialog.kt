@@ -56,8 +56,7 @@ fun PinGuideDialog(
                 modifier
                     .semantics {
                         testTagsAsResourceId = true
-                    }
-                    .testTag("pinGuideDialogDialog"),
+                    }.testTag("pinGuideDialogDialog"),
             onDismissRequest = {
                 showDialog.value = false
             },

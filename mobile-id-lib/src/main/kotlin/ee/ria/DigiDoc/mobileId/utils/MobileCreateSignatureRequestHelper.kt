@@ -53,8 +53,8 @@ object MobileCreateSignatureRequestHelper {
     private fun getDisplayText(
         displayMessage: String?,
         language: String,
-    ): String {
-        return MessageUtil.escape(
+    ): String =
+        MessageUtil.escape(
             displayMessage?.let {
                 MessageUtil.trimDisplayMessageIfNotWithinSizeLimit(
                     it,
@@ -63,7 +63,6 @@ object MobileCreateSignatureRequestHelper {
                 )
             },
         )
-    }
 
     private fun getLanguage(locale: Locale?): String {
         if (locale == null) {

@@ -31,18 +31,17 @@ object MessageUtil {
         return displayMessage
     }
 
-    fun escape(text: String?): String {
-        return StringEscapeUtils.escapeJava(text)
-    }
+    fun escape(text: String?): String = StringEscapeUtils.escapeJava(text)
 
-    private fun unEscape(text: String?): String {
-        return StringEscapeUtils.unescapeJava(text)
-    }
+    private fun unEscape(text: String?): String = StringEscapeUtils.unescapeJava(text)
 
     fun toJsonString(`object`: Any?): String {
         val gson: Gson =
-            Gson().newBuilder().disableHtmlEscaping()
-                .disableInnerClassSerialization().create()
+            Gson()
+                .newBuilder()
+                .disableHtmlEscaping()
+                .disableInnerClassSerialization()
+                .create()
         return unEscape(gson.toJson(`object`))
     }
 }

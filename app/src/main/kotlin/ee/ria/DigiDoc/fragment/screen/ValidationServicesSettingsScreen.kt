@@ -119,7 +119,7 @@ fun ValidationServicesSettingsScreen(
     val setSettingsSivaUrl = sharedSettingsViewModel.dataStore::setSettingsSivaUrl
     val setSivaSetting = sharedSettingsViewModel.dataStore::setSivaSetting
     val defaultSivaServiceUrl = configuration?.sivaUrl ?: getSettingsSivaUrl()
-    var settingsSivaServiceChoice = remember { mutableStateOf(getSivaSetting().name) }
+    val settingsSivaServiceChoice = remember { mutableStateOf(getSivaSetting().name) }
     var settingsSivaServiceUrl by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
             TextFieldValue(
@@ -200,8 +200,7 @@ fun ValidationServicesSettingsScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("validationServicesSettingsScreen"),
+                }.testTag("validationServicesSettingsScreen"),
         topBar = {
             TopBar(
                 modifier = modifier,
@@ -364,8 +363,7 @@ fun ValidationServicesSettingsScreen(
                                         .fillMaxWidth()
                                         .semantics {
                                             testTagsAsResourceId = true
-                                        }
-                                        .testTag("validationServicesComponentTextField"),
+                                        }.testTag("validationServicesComponentTextField"),
                                 trailingIcon = {
                                     if (!isTalkBackEnabled(context) && settingsSivaServiceUrl.text.isNotEmpty()) {
                                         IconButton(onClick = {
@@ -405,8 +403,7 @@ fun ValidationServicesSettingsScreen(
                                             modifier
                                                 .semantics {
                                                     testTagsAsResourceId = true
-                                                }
-                                                .testTag("validationServicesRemoveIconButton"),
+                                                }.testTag("validationServicesRemoveIconButton"),
                                         imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                         contentDescription = "$clearButtonText $buttonName",
                                     )
@@ -475,8 +472,7 @@ fun ValidationServicesSettingsScreen(
                                                     contentDescription =
                                                         "$showCertificateButtonText $buttonName"
                                                     testTagsAsResourceId = true
-                                                }
-                                                .testTag("validationServicesShowCertificateActionButton"),
+                                                }.testTag("validationServicesShowCertificateActionButton"),
                                         text = showCertificateButtonText,
                                         color = MaterialTheme.colorScheme.primary,
                                     )
@@ -493,8 +489,7 @@ fun ValidationServicesSettingsScreen(
                                                 contentDescription =
                                                     "$addCertificateButtonText $buttonName"
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("validationServicesAddCertificateActionButton"),
+                                            }.testTag("validationServicesAddCertificateActionButton"),
                                     text = addCertificateButtonText,
                                     color = MaterialTheme.colorScheme.primary,
                                 )

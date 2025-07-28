@@ -7,7 +7,7 @@ import ee.ria.DigiDoc.R
 
 enum class SigningMethod(
     val methodName: String,
-    @StringRes val label: Int,
+    @param:StringRes val label: Int,
 ) {
     NFC("NFC", R.string.signature_update_signature_add_method_nfc),
     ID_CARD("IDCard", R.string.signature_update_signature_add_method_id_card),

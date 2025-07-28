@@ -62,8 +62,7 @@ fun SettingsSwitchItem(
                     .semantics {
                         testTagsAsResourceId = true
                         this.contentDescription = contentDescription
-                    }
-                    .testTag(testTag),
+                    }.testTag(testTag),
             checked = checked,
             onCheckedChange = onCheckedChange,
         )

@@ -143,8 +143,11 @@ class FileOpeningViewModelTest {
         cdoc2Settings = CDOC2Settings(context)
         viewModel =
             FileOpeningViewModel(
-                context, contentResolver, fileOpeningRepository,
-                sivaRepository, mimeTypeResolver,
+                context,
+                contentResolver,
+                fileOpeningRepository,
+                sivaRepository,
+                mimeTypeResolver,
             )
         viewModel.signedContainer.observeForever(signedContainerObserver)
         viewModel.cryptoContainer.observeForever(cryptoContainerObserver)
@@ -195,23 +198,19 @@ class FileOpeningViewModelTest {
 
             `when`(
                 fileOpeningRepository.uriToFile(context, contentResolver, uri),
-            )
-                .thenReturn(anotherFile)
+            ).thenReturn(anotherFile)
 
             `when`(
                 fileOpeningRepository.isFileSizeValid(anotherFile),
-            )
-                .thenReturn(true)
+            ).thenReturn(true)
 
             `when`(
                 fileOpeningRepository.isFileAlreadyInContainer(anotherFile, signedContainer),
-            )
-                .thenReturn(false)
+            ).thenReturn(false)
 
             `when`(
                 fileOpeningRepository.getValidFiles(any(), eq(signedContainer)),
-            )
-                .thenReturn(listOf(file))
+            ).thenReturn(listOf(file))
 
             viewModel.handleFiles(context, uris, signedContainer, null, true)
 
@@ -342,8 +341,7 @@ class FileOpeningViewModelTest {
 
             `when`(
                 fileOpeningRepository.isFileSizeValid(uriToFile),
-            )
-                .thenReturn(true)
+            ).thenReturn(true)
 
             `when`(
                 fileOpeningRepository.addFilesToContainer(
@@ -351,8 +349,7 @@ class FileOpeningViewModelTest {
                     any<SignedContainer>(),
                     any(),
                 ),
-            )
-                .thenThrow(exception)
+            ).thenThrow(exception)
             viewModel.handleFiles(context, uris, existingSignedContainer, isSivaConfirmed = isSivaConfirmed)
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(existingSignedContainer)
@@ -374,8 +371,7 @@ class FileOpeningViewModelTest {
 
             `when`(
                 fileOpeningRepository.isFileSizeValid(uriToFile),
-            )
-                .thenReturn(false)
+            ).thenReturn(false)
 
             viewModel.handleFiles(context, uris, existingSignedContainer, isSivaConfirmed = isSivaConfirmed)
 
@@ -397,18 +393,15 @@ class FileOpeningViewModelTest {
 
             `when`(
                 fileOpeningRepository.uriToFile(context, contentResolver, uri),
-            )
-                .thenReturn(anotherFile)
+            ).thenReturn(anotherFile)
 
             `when`(
                 fileOpeningRepository.isFileSizeValid(anotherFile),
-            )
-                .thenReturn(true)
+            ).thenReturn(true)
 
             `when`(
                 fileOpeningRepository.isFileAlreadyInContainer(anotherFile, existingSignedContainer),
-            )
-                .thenReturn(true)
+            ).thenReturn(true)
 
             viewModel.handleFiles(context, uris, existingSignedContainer, isSivaConfirmed = isSivaConfirmed)
 
@@ -435,8 +428,7 @@ class FileOpeningViewModelTest {
 
             `when`(
                 fileOpeningRepository.uriToFile(context, contentResolver, uri),
-            )
-                .thenReturn(file)
+            ).thenReturn(file)
             `when`(
                 fileOpeningRepository.openOrCreateContainer(
                     context,
@@ -444,8 +436,7 @@ class FileOpeningViewModelTest {
                     uris,
                     isSivaConfirmed,
                 ),
-            )
-                .thenReturn(signedContainer)
+            ).thenReturn(signedContainer)
 
             `when`(sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed)).thenReturn(false)
 
@@ -543,8 +534,7 @@ class FileOpeningViewModelTest {
                     uris,
                     isSivaConfirmed,
                 ),
-            )
-                .thenReturn(signedContainer)
+            ).thenReturn(signedContainer)
 
             `when`(sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed)).thenReturn(false)
 
@@ -574,8 +564,7 @@ class FileOpeningViewModelTest {
                     uris,
                     isSivaConfirmed,
                 ),
-            )
-                .thenReturn(signedContainer)
+            ).thenReturn(signedContainer)
 
             `when`(sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed)).thenReturn(false)
 
@@ -610,8 +599,7 @@ class FileOpeningViewModelTest {
                     uris,
                     isSivaConfirmed,
                 ),
-            )
-                .thenThrow(exception)
+            ).thenThrow(exception)
 
             viewModel.handleFiles(context, uris, null, isSivaConfirmed = isSivaConfirmed)
 

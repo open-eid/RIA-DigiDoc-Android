@@ -73,8 +73,7 @@ fun CryptoDataFilesLocked(modifier: Modifier = Modifier) {
                             .wrapContentHeight(align = Alignment.CenterVertically)
                             .semantics {
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("dataFileItemIconEncrypted")
+                            }.testTag("dataFileItemIconEncrypted")
                             .notAccessible(),
                 )
             }
@@ -91,8 +90,7 @@ fun CryptoDataFilesLocked(modifier: Modifier = Modifier) {
                             .semantics {
                                 this.contentDescription = textDescription
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("dataFileItemEncrypted"),
+                            }.testTag("dataFileItemEncrypted"),
                     text = textDescription,
                 )
             }

@@ -65,8 +65,7 @@ fun UnSignedContainerBottomBar(
                 .padding(vertical = XSPadding)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("unsignedContainerContainer"),
+                }.testTag("unsignedContainerContainer"),
         contentAlignment = Alignment.Center,
     ) {
         FlowRow(

@@ -72,13 +72,13 @@ fun MessageDialog(
                 Text(
                     text = title,
                     modifier =
-                        modifier.weight(1f)
+                        modifier
+                            .weight(1f)
                             .semantics {
                                 heading()
                                 this.contentDescription = title.lowercase()
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("messageDialogTitleText"),
+                            }.testTag("messageDialogTitleText"),
                 )
 
                 IconButton(
@@ -91,8 +91,7 @@ fun MessageDialog(
                                 .size(iconSizeXXS)
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("messageDialogCancelIconButton"),
+                                }.testTag("messageDialogCancelIconButton"),
                         imageVector = ImageVector.vectorResource(id = R.drawable.ic_m3_close_48dp_wght400),
                         contentDescription = "${stringResource(R.string.cancel_button)} $buttonName",
                     )
@@ -107,8 +106,7 @@ fun MessageDialog(
                         .semantics {
                             this.contentDescription = message.lowercase()
                             testTagsAsResourceId = true
-                        }
-                        .verticalScroll(rememberScrollState())
+                        }.verticalScroll(rememberScrollState())
                         .testTag("messageDialogMessageText"),
                 text = message,
             )
@@ -123,8 +121,7 @@ fun MessageDialog(
                                 .size(iconSizeXXS)
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("messageDialogDismissButton"),
+                                }.testTag("messageDialogDismissButton"),
                         imageVector = dismissIconResource,
                         contentDescription = "$dismissButtonContentDescription $buttonName",
                     )
@@ -135,8 +132,7 @@ fun MessageDialog(
                             .semantics {
                                 this.contentDescription = dismissButtonText.lowercase()
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("messageDialogDismissButtonText"),
+                            }.testTag("messageDialogDismissButtonText"),
                     text = dismissButtonText,
                     color = MaterialTheme.colorScheme.primary,
                 )
@@ -152,8 +148,7 @@ fun MessageDialog(
                                 .size(iconSizeXXS)
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }
-                                .testTag("messageDialogConfirmButton"),
+                                }.testTag("messageDialogConfirmButton"),
                         imageVector = confirmIconResource,
                         contentDescription = "$confirmButtonContentDescription $buttonName",
                     )
@@ -164,8 +159,7 @@ fun MessageDialog(
                             .semantics {
                                 this.contentDescription = confirmButtonText.lowercase()
                                 testTagsAsResourceId = true
-                            }
-                            .testTag("messageDialogConfirmButtonText"),
+                            }.testTag("messageDialogConfirmButtonText"),
                     text = confirmButtonText,
                     color = MaterialTheme.colorScheme.primary,
                 )

@@ -37,8 +37,7 @@ fun ThemeChooserFragment(
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("themeChooserFragment"),
+                }.testTag("themeChooserFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         ThemeChooserScreen(

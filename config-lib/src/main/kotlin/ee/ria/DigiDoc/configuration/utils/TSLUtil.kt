@@ -46,23 +46,23 @@ object TSLUtil {
         }
     }
 
-    private fun isXMLFile(filename: String): Boolean {
-        return filename.endsWith(".xml")
-    }
+    private fun isXMLFile(filename: String): Boolean = filename.endsWith(".xml")
 
+    @Suppress("SameParameterValue")
     private fun shouldCopyTSL(
         context: Context,
         sourcePath: String,
         fileName: String,
-        destionationDir: String,
+        destinationDir: String,
     ): Boolean {
-        if (!FileUtil.fileExists(File(destionationDir, fileName).path)) {
+        if (!FileUtil.fileExists(File(destinationDir, fileName).path)) {
             return true
         } else {
             try {
-                context.assets.open(File(sourcePath, fileName).path)
+                context.assets
+                    .open(File(sourcePath, fileName).path)
                     .use { assetsTSLInputStream ->
-                        FileInputStream(File(destionationDir, fileName))
+                        FileInputStream(File(destinationDir, fileName))
                             .use { cachedTSLInputStream ->
                                 val assetsTslVersion: Int =
                                     readSequenceNumber(assetsTSLInputStream)
@@ -79,11 +79,12 @@ object TSLUtil {
         }
     }
 
+    @Suppress("SameParameterValue")
     private fun copyTSLFromAssets(
         context: Context,
         sourcePath: String,
         fileName: String,
-        destionationDir: String,
+        destinationDir: String,
     ) {
         try {
             BufferedReader(
@@ -92,7 +93,7 @@ object TSLUtil {
                     StandardCharsets.UTF_8,
                 ),
             ).use { reader ->
-                FileUtil.writeToFile(reader, destionationDir, fileName)
+                FileUtil.writeToFile(reader, destinationDir, fileName)
             }
         } catch (ioe: IOException) {
             errorLog(logTag, "Failed to copy file: $fileName from assets", ioe)

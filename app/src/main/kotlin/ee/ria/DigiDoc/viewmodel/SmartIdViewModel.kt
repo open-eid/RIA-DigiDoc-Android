@@ -68,115 +68,92 @@ class SmartIdViewModel
         val dialogError: LiveData<Int> = _dialogError
 
         private val countries: ImmutableMap<Int, String> =
-            ImmutableMap.builder<Int, String>()
+            ImmutableMap
+                .builder<Int, String>()
                 .put(0, "EE")
                 .put(1, "LT")
                 .put(2, "LV")
                 .build()
 
         private val messages: ImmutableMap<SessionStatusResponseProcessStatus, Int> =
-            ImmutableMap.builder<SessionStatusResponseProcessStatus, Int>()
+            ImmutableMap
+                .builder<SessionStatusResponseProcessStatus, Int>()
                 .put(
                     SessionStatusResponseProcessStatus.OK,
                     R.string.signature_update_mobile_id_status_request_ok,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.TIMEOUT,
                     R.string.signature_update_smart_id_error_message_account_not_found_or_timeout,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.USER_REFUSED,
                     R.string.signature_update_mobile_id_status_user_cancel,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.DOCUMENT_UNUSABLE,
                     R.string.signature_update_smart_id_status_document_unusable,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.WRONG_VC,
                     R.string.signature_update_smart_id_status_wrong_vc,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.USER_REFUSED_DISPLAYTEXTANDPIN,
                     R.string.signature_update_mobile_id_status_user_cancel,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.USER_REFUSED_VC_CHOICE,
                     R.string.signature_update_mobile_id_status_user_cancel,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.USER_REFUSED_CONFIRMATIONMESSAGE,
                     R.string.signature_update_mobile_id_status_user_cancel,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.USER_REFUSED_CONFIRMATIONMESSAGE_WITH_VC_CHOICE,
                     R.string.signature_update_mobile_id_status_user_cancel,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.USER_REFUSED_CERT_CHOICE,
                     R.string.signature_update_mobile_id_status_user_cancel,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.ACCOUNT_NOT_FOUND,
                     R.string.signature_update_smart_id_error_message_account_not_found_or_timeout,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.SESSION_NOT_FOUND,
                     R.string.signature_update_smart_id_error_message_session_not_found,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.MISSING_SESSIONID,
                     R.string.error_general_client,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.TOO_MANY_REQUESTS,
                     R.string.too_many_requests_message,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.EXCEEDED_UNSUCCESSFUL_REQUESTS,
                     R.string.signature_update_signature_error_message_exceeded_unsuccessful_requests,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.OCSP_INVALID_TIME_SLOT,
                     R.string.invalid_time_slot_message,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.CERTIFICATE_REVOKED,
                     R.string.signature_update_signature_error_message_certificate_revoked,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.NOT_QUALIFIED,
                     R.string.signature_update_smart_id_error_message_not_qualified,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.INVALID_ACCESS_RIGHTS,
                     R.string.signature_update_smart_id_error_message_access_rights,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.OLD_API,
                     R.string.signature_update_smart_id_error_message_old_api,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.UNDER_MAINTENANCE,
                     R.string.signature_update_smart_id_error_message_under_maintenance,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.GENERAL_ERROR,
                     R.string.error_general_client,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.NO_RESPONSE,
                     R.string.no_internet_connection,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.INVALID_SSL_HANDSHAKE,
                     R.string.invalid_ssl_handshake,
-                )
-                .put(
+                ).put(
                     SessionStatusResponseProcessStatus.TECHNICAL_ERROR,
                     R.string.signature_update_smart_id_error_technical_error,
-                )
-                .build()
+                ).build()
 
         fun resetDialogErrorState() {
             _dialogError.postValue(0)
@@ -396,12 +373,11 @@ class SmartIdViewModel
             return false
         }
 
-        fun isPersonalCodeValid(personalCode: String?): Boolean {
-            return !(
+        fun isPersonalCodeValid(personalCode: String?): Boolean =
+            !(
                 !personalCode.isNullOrEmpty() &&
                     !PersonalCodeValidator.isPersonalCodeValid(personalCode)
             )
-        }
 
         @Throws(NumberFormatException::class)
         private fun sendNotification(

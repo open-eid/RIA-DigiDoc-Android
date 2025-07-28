@@ -99,11 +99,14 @@ class SignedContainerTest {
         container = getResourceFileAsFile(context, "example.asice", ee.ria.DigiDoc.common.R.raw.example)
         containerNoSignatures =
             getResourceFileAsFile(
-                context, "example_no_signatures.asice", ee.ria.DigiDoc.common.R.raw.example_no_signatures,
+                context,
+                "example_no_signatures.asice",
+                ee.ria.DigiDoc.common.R.raw.example_no_signatures,
             )
         signedPdfDocument =
             getResourceFileAsFile(
-                context, "example_signed_pdf.pdf",
+                context,
+                "example_signed_pdf.pdf",
                 ee.ria.DigiDoc.common.R.raw.example_signed_pdf,
             )
     }
@@ -532,7 +535,13 @@ class SignedContainerTest {
             assertEquals("Maakond", signedContainer.getSignatures().first().stateOrProvince)
             assertEquals("12345", signedContainer.getSignatures().first().postalCode)
             assertEquals("EE", signedContainer.getSignatures().first().countryName)
-            assertEquals(1, signedContainer.getSignatures().first().signerRoles.size)
+            assertEquals(
+                1,
+                signedContainer
+                    .getSignatures()
+                    .first()
+                    .signerRoles.size,
+            )
             assertEquals("Roll", signedContainer.getSignatures().first().signerRoles[0])
             assertEquals("2022-03-21T12:03:23Z", signedContainer.getSignatures().first().ocspProducedAt)
             assertEquals("2022-03-21T12:03:22Z", signedContainer.getSignatures().first().timeStampTime)
@@ -560,8 +569,20 @@ class SignedContainerTest {
         runTest {
             val signedContainer = openOrCreate(context, container, listOf(container), true)
 
-            assertEquals(ValidatorInterface.Status.Unknown, signedContainer.getSignatures().first().validator.status)
-            assertNotSame("", signedContainer.getSignatures().first().validator.diagnostics)
+            assertEquals(
+                ValidatorInterface.Status.Unknown,
+                signedContainer
+                    .getSignatures()
+                    .first()
+                    .validator.status,
+            )
+            assertNotSame(
+                "",
+                signedContainer
+                    .getSignatures()
+                    .first()
+                    .validator.diagnostics,
+            )
         }
 
     @Test

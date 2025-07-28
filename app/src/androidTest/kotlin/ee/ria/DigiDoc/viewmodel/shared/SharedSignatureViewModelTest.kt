@@ -14,6 +14,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
 
+@Suppress("UNCHECKED_CAST")
 class SharedSignatureViewModelTest {
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()

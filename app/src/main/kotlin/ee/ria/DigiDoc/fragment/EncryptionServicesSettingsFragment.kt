@@ -39,8 +39,7 @@ fun EncryptionServicesSettingsFragment(
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("encryptionServicesSettingsFragment"),
+                }.testTag("encryptionServicesSettingsFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         EncryptionServicesSettingsScreen(

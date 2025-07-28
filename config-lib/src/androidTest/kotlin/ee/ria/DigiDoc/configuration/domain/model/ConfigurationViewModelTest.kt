@@ -91,8 +91,8 @@ class ConfigurationViewModelTest {
                 .onChanged(configurationProvider)
         }
 
-    private fun createMockConfigurationProvider(): ConfigurationProvider {
-        return ConfigurationProvider(
+    private fun createMockConfigurationProvider(): ConfigurationProvider =
+        ConfigurationProvider(
             ConfigurationProvider.MetaInf("url", "date", 1, 1),
             "sivaUrl",
             mapOf(
@@ -119,5 +119,4 @@ class ConfigurationViewModelTest {
             Date(),
             Date(),
         )
-    }
 }

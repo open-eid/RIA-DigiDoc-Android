@@ -407,8 +407,8 @@ class CryptoContainer
                 recipients: List<Addressee?>?,
                 decrypted: Boolean,
                 encrypted: Boolean,
-            ): CryptoContainer {
-                return CryptoContainer(
+            ): CryptoContainer =
+                CryptoContainer(
                     context,
                     file,
                     dataFiles?.let { ArrayList(it) },
@@ -416,7 +416,6 @@ class CryptoContainer
                     decrypted,
                     encrypted,
                 )
-            }
 
             @Throws(Exception::class)
             suspend fun openOrCreate(
@@ -487,17 +486,18 @@ class CryptoContainer
                 }
             }
 
-            private class CryptoLibConf(private val cdoc2Settings: CDOC2Settings) : Configuration() {
+            private class CryptoLibConf(
+                private val cdoc2Settings: CDOC2Settings,
+            ) : Configuration() {
                 override fun getValue(
                     domain: String?,
                     param: String?,
-                ): String {
-                    return when (param) {
+                ): String =
+                    when (param) {
                         KEYSERVER_FETCH_URL -> cdoc2Settings.getCDOC2FetchURL()
                         KEYSERVER_SEND_URL -> cdoc2Settings.getCDOC2PostURL()
                         else -> ""
                     }
-                }
             }
 
             private open class Network(
@@ -517,7 +517,9 @@ class CryptoContainer
                     }
                     val certFromSettings = cdoc2Settings.getCDOC2Cert()
                     if (certFromSettings != null) {
-                        val certBytes = org.bouncycastle.util.encoders.Base64.decode(certFromSettings)
+                        val certBytes =
+                            org.bouncycastle.util.encoders.Base64
+                                .decode(certFromSettings)
                         dst?.addCertificate(certBytes)
                     }
 
@@ -561,9 +563,7 @@ class CryptoContainer
                     dst: DataBuffer,
                     algorithm: CryptoBackend.HashAlgorithm,
                     digest: ByteArray,
-                ): Long {
-                    return token.sign(dst, algorithm, digest, 0)
-                }
+                ): Long = token.sign(dst, algorithm, digest, 0)
             }
         }
     }

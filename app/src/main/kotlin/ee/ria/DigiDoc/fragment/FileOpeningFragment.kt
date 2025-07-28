@@ -35,8 +35,7 @@ fun FileOpeningFragment(
                 .background(MaterialTheme.colorScheme.background)
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("fileOpeningFragment"),
+                }.testTag("fileOpeningFragment"),
         color = MaterialTheme.colorScheme.background,
     ) {
         FileOpeningScreen(

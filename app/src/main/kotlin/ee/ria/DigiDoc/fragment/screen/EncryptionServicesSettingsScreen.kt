@@ -153,7 +153,7 @@ fun EncryptionServicesSettingsScreen(
     val useKeyTransfer = rememberSaveable { mutableStateOf(getUseOnlineEncryption(cdoc2UseKeyServerDefault)) }
     val useDefaultKeyTransferServer = rememberSaveable { mutableStateOf(true) }
 
-    var settingsCdocServiceChoice = remember { mutableStateOf(getCdocSetting().name) }
+    val settingsCdocServiceChoice = remember { mutableStateOf(getCdocSetting().name) }
 
     val cdoc2Conf = configuration?.cdoc2Conf ?: emptyMap()
 
@@ -171,7 +171,7 @@ fun EncryptionServicesSettingsScreen(
     val settingsCDOC2FetchURL = rememberSaveable { mutableStateOf(getCDOC2FetchURL(selectedCdoc2Conf.fetch)) }
     val settingsCDOC2PostURL = rememberSaveable { mutableStateOf(getCDOC2PostURL(selectedCdoc2Conf.post)) }
 
-    var settingsCdocNameChoice = rememberSaveable { mutableStateOf(selectedCdoc2Conf.name) }
+    val settingsCdocNameChoice = rememberSaveable { mutableStateOf(selectedCdoc2Conf.name) }
 
     val keyTransferText = stringResource(R.string.option_key_transfer)
     val manualKeyTransferText = stringResource(R.string.option_manual_key_transfer)
@@ -187,7 +187,7 @@ fun EncryptionServicesSettingsScreen(
     val nameChoices = arrayListOf<String>()
 
     var index = 0
-    var settingsCdocNameChoiceInt = rememberSaveable { mutableIntStateOf(0) }
+    val settingsCdocNameChoiceInt = rememberSaveable { mutableIntStateOf(0) }
 
     for ((_, value) in cdoc2Conf) {
         nameChoices.add(value.name)
@@ -366,8 +366,7 @@ fun EncryptionServicesSettingsScreen(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                }
-                .testTag("encryptionServicesScreen"),
+                }.testTag("encryptionServicesScreen"),
         topBar = {
             TopBar(
                 modifier = modifier,
@@ -559,8 +558,7 @@ fun EncryptionServicesSettingsScreen(
                                                     },
                                                     interactionSource = interactionSource,
                                                     indication = null,
-                                                )
-                                                .semantics {
+                                                ).semantics {
                                                     contentDescription = serverLabel
                                                 },
                                     )
@@ -635,8 +633,7 @@ fun EncryptionServicesSettingsScreen(
                                             .fillMaxWidth()
                                             .semantics {
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("encryptionServicesUuidTextField"),
+                                            }.testTag("encryptionServicesUuidTextField"),
                                     trailingIcon = {
                                         if (!isTalkBackEnabled(context) && uuidText.text.isNotEmpty()) {
                                             IconButton(onClick = {
@@ -676,8 +673,7 @@ fun EncryptionServicesSettingsScreen(
                                                 modifier
                                                     .semantics {
                                                         testTagsAsResourceId = true
-                                                    }
-                                                    .testTag("encryptionServicesUuidRemoveIconButton"),
+                                                    }.testTag("encryptionServicesUuidRemoveIconButton"),
                                             imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                             contentDescription = "$clearButtonText $buttonName",
                                         )
@@ -715,8 +711,7 @@ fun EncryptionServicesSettingsScreen(
                                             .fillMaxWidth()
                                             .semantics {
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("encryptionServicesFetchUrlTextField"),
+                                            }.testTag("encryptionServicesFetchUrlTextField"),
                                     trailingIcon = {
                                         if (!isTalkBackEnabled(context) && fetchUrlText.text.isNotEmpty()) {
                                             IconButton(onClick = {
@@ -756,8 +751,7 @@ fun EncryptionServicesSettingsScreen(
                                                 modifier
                                                     .semantics {
                                                         testTagsAsResourceId = true
-                                                    }
-                                                    .testTag("encryptionServicesFetchUrlRemoveIconButton"),
+                                                    }.testTag("encryptionServicesFetchUrlRemoveIconButton"),
                                             imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                             contentDescription = "$clearButtonText $buttonName",
                                         )
@@ -794,8 +788,7 @@ fun EncryptionServicesSettingsScreen(
                                             .fillMaxWidth()
                                             .semantics {
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("encryptionServicesPostUrlTextField"),
+                                            }.testTag("encryptionServicesPostUrlTextField"),
                                     trailingIcon = {
                                         if (!isTalkBackEnabled(context) && postUrlText.text.isNotEmpty()) {
                                             IconButton(onClick = {
@@ -835,8 +828,7 @@ fun EncryptionServicesSettingsScreen(
                                                 modifier
                                                     .semantics {
                                                         testTagsAsResourceId = true
-                                                    }
-                                                    .testTag("encryptionServicesPostUrlRemoveIconButton"),
+                                                    }.testTag("encryptionServicesPostUrlRemoveIconButton"),
                                             imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                             contentDescription = "$clearButtonText $buttonName",
                                         )
@@ -908,8 +900,7 @@ fun EncryptionServicesSettingsScreen(
                                                             contentDescription =
                                                                 "$showCertificateButtonText $buttonName"
                                                             testTagsAsResourceId = true
-                                                        }
-                                                        .testTag("encryptionServicesShowCertificateActionButton"),
+                                                        }.testTag("encryptionServicesShowCertificateActionButton"),
                                                 text = showCertificateButtonText,
                                                 color = MaterialTheme.colorScheme.primary,
                                             )
@@ -926,8 +917,7 @@ fun EncryptionServicesSettingsScreen(
                                                         contentDescription =
                                                             "$addCertificateButtonText $buttonName"
                                                         testTagsAsResourceId = true
-                                                    }
-                                                    .testTag("encryptionServicesAddCertificateActionButton"),
+                                                    }.testTag("encryptionServicesAddCertificateActionButton"),
                                             text = addCertificateButtonText,
                                             color = MaterialTheme.colorScheme.primary,
                                         )
