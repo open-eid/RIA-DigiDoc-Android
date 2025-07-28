@@ -40,6 +40,7 @@ import ee.ria.DigiDoc.fragment.SigningFragment
 import ee.ria.DigiDoc.fragment.SigningServicesSettingsFragment
 import ee.ria.DigiDoc.fragment.ThemeChooserFragment
 import ee.ria.DigiDoc.fragment.ValidationServicesSettingsFragment
+import ee.ria.DigiDoc.fragment.WebEidFragment
 import ee.ria.DigiDoc.ui.component.crypto.recipient.RecipientDetailsView
 import ee.ria.DigiDoc.ui.component.signing.certificate.CertificateDetailsView
 import ee.ria.DigiDoc.ui.component.signing.certificate.SignerDetailsView
@@ -55,7 +56,7 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
 
 @Composable
-fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
+fun RIADigiDocAppScreen(externalFileUris: List<Uri>, webEidUri: Uri? = null) {
     val navController = rememberNavController()
     val sharedMenuViewModel: SharedMenuViewModel = hiltViewModel()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
@@ -67,9 +68,10 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
 
     sharedContainerViewModel.setExternalFileUris(externalFileUris)
 
-    var startDestination = Route.Init.route
-    if (sharedSettingsViewModel.dataStore.getLocale() != null) {
-        startDestination = Route.Home.route
+    val startDestination = when {
+        webEidUri != null -> Route.WebEidScreen.route
+        sharedSettingsViewModel.dataStore.getLocale() != null -> Route.Home.route
+        else -> Route.Init.route
     }
 
     NavHost(
@@ -337,6 +339,13 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
                 sharedMyEidViewModel = sharedMyEidViewModel,
             )
         }
+        composable(route = Route.WebEidScreen.route) {
+            WebEidFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                webEidUri = webEidUri,
+            )
+        }
     }
 }
 
@@ -345,6 +354,7 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
 @Composable
 fun RIADigiDocAppScreenPreview() {
     RIADigiDocTheme {
-        RIADigiDocAppScreen(listOf())
+        RIADigiDocAppScreen(listOf(),
+        webEidUri = null)
     }
 }
