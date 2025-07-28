@@ -35,6 +35,7 @@ constructor() : ViewModel() {
                 getSigningCertificate = getSigningCertificate
             )
         } catch (e: Exception) {
+            println("Failed to authenticate: ${e.message}")
             _authPayload.value = null
         }
     }
