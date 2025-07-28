@@ -6,7 +6,6 @@ object Constant {
     // ee.ria.DigiDoc.utils.Locale
     object Languages {
         const val ESTONIAN_LANGUAGE = "et"
-        const val RUSSIAN_LANGUAGE = "ru"
         const val ENGLISH_LANGUAGE = "en"
     }
 

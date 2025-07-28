@@ -3,7 +3,6 @@
 package ee.ria.DigiDoc.mobileId.utils
 
 import androidx.test.platform.app.InstrumentationRegistry
-import ee.ria.DigiDoc.common.Constant.SignatureRequest.ALTERNATIVE_DISPLAY_TEXT_FORMAT
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.DEFAULT_LANGUAGE
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.DIGEST_TYPE
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.DISPLAY_TEXT_FORMAT
@@ -131,7 +130,7 @@ class MobileCreateSignatureRequestHelperTest {
             val uuid = "uuid"
             val proxyUrl = "proxyUrl"
             val skUrl = "skUrl"
-            val locale = Locale("ru")
+            val locale = Locale("lt")
             val personalCode = "1234567890"
             val phoneNo = "1234567890"
             val displayMessage = "displayMessage"
@@ -155,8 +154,8 @@ class MobileCreateSignatureRequestHelperTest {
             assertEquals(personalCode, request.nationalIdentityNumber)
             assertEquals(null, request.containerPath)
             assertEquals(DIGEST_TYPE, request.hashType)
-            assertEquals("RUS", request.language)
+            assertEquals("LIT", request.language)
             assertEquals(displayMessage, request.displayText)
-            assertEquals(ALTERNATIVE_DISPLAY_TEXT_FORMAT, request.displayTextFormat)
+            assertEquals(DISPLAY_TEXT_FORMAT, request.displayTextFormat)
         }
 }

@@ -31,15 +31,6 @@ data class LanguageChoiceButtonItem(
                 testTag = "languageScreenLocaleEt",
             ),
             LanguageChoiceButtonItem(
-                label = R.string.init_lang_locale_ru,
-                locale = Language.Russian.locale,
-                contentDescription =
-                    stringResource(
-                        id = R.string.init_lang_locale_ru,
-                    ).lowercase(),
-                testTag = "languageScreenLocaleRu",
-            ),
-            LanguageChoiceButtonItem(
                 label = R.string.init_lang_locale_en,
                 locale = Language.English.locale,
                 contentDescription =
