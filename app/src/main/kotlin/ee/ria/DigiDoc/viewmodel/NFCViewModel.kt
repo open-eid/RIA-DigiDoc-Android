@@ -42,7 +42,6 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.libdigidocpp.ExternalSigner
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -159,7 +158,7 @@ class NFCViewModel
             codeType: CodeType,
         ): Boolean {
             if (canNumber != null && pinCode != null) {
-                return isCANLengthValid(canNumber.toString()) &&
+                return isCANLengthValid(canNumber) &&
                     isPINLengthValid(pinCode, codeType)
             }
             return false
@@ -276,9 +275,6 @@ class NFCViewModel
                                 }
                             } catch (ex: SmartCardReaderException) {
                                 _signStatus.postValue(false)
-                                CoroutineScope(IO).launch {
-                                    removePendingSignature(container)
-                                }
 
                                 if (ex.message?.contains("TagLostException") == true) {
                                     _errorState.postValue(Triple(R.string.signature_update_nfc_tag_lost, null, null))
@@ -402,7 +398,7 @@ class NFCViewModel
                                     logTag,
                                     "Auth certificate: " + Base64.toBase64String(authCert),
                                 )
-                                var decryptedContainer =
+                                val decryptedContainer =
                                     CryptoContainer.decrypt(
                                         context,
                                         container.file,
