@@ -29,7 +29,7 @@ import ee.ria.DigiDoc.viewmodel.WebEidViewModel
 @Composable
 fun WebEidScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController,
+    // navController: NavHostController, // navController is not yet used; reserved for navigation after auth completes
     viewModel: WebEidViewModel,
 ) {
     val auth = viewModel.authPayload.collectAsState().value
@@ -63,7 +63,7 @@ fun WebEidScreen(
 fun WebEidScreenPreview() {
     RIADigiDocTheme {
         WebEidScreen(
-            navController = rememberNavController(),
+            // navController = rememberNavController(),
             viewModel = hiltViewModel(),
         )
     }
