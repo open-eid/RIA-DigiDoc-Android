@@ -31,18 +31,6 @@ class WebEidAuthParserTest {
         parser = WebEidAuthParser()
     }
 
-    private fun createAuthUri(challenge: String, loginUri: String, getCert: Boolean): String {
-        val json = """
-            {
-              "challenge": "$challenge",
-              "login_uri": "$loginUri",
-              "get_signing_certificate": $getCert
-            }
-        """.trimIndent()
-        val encoded = Base64.getEncoder().encodeToString(json.toByteArray())
-        return "web-eid://auth#$encoded"
-    }
-
     @Test
     fun parseAuthUri_httpsOriginIsValid() {
         val loginUri = "https://rp.example.com/auth/eid/login"
@@ -81,5 +69,17 @@ class WebEidAuthParserTest {
         val result = parser.parseAuthUri(uri)
 
         assertEquals("", result.origin)
+    }
+
+    private fun createAuthUri(challenge: String, loginUri: String, getCert: Boolean): String {
+        val json = """
+            {
+              "challenge": "$challenge",
+              "login_uri": "$loginUri",
+              "get_signing_certificate": $getCert
+            }
+        """.trimIndent()
+        val encoded = Base64.getEncoder().encodeToString(json.toByteArray())
+        return "web-eid://auth#$encoded"
     }
 }
