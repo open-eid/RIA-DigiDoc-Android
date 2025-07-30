@@ -34,10 +34,18 @@ android {
         }
     }
 
+    signingConfigs {
+        getByName("debug") {
+            val assetsDir = project.projectDir.resolve("src/main/assets")
+            storeFile = file(assetsDir.resolve("keystore/debug.keystore"))
+        }
+    }
+
     buildTypes {
         debug {
             isDebuggable = true
             applicationIdSuffix = ".debug"
+            signingConfig = signingConfigs.getByName("debug")
             matchingFallbacks.add("debug")
             manifestPlaceholders["usesCleartextTraffic"] = "true"
             isMinifyEnabled = false
