@@ -89,6 +89,12 @@ class WebEidAuthParser @Inject constructor() {
     private fun parseOriginFromLoginUri(loginUri: String): String {
         return try {
             val parsed = URI(loginUri)
+
+            if (parsed.scheme.isNullOrBlank() || parsed.host.isNullOrBlank()) {
+                errorLog(logTag, "Invalid login_uri: missing scheme or host — $loginUri")
+                return ""
+            }
+
             val portPart = if (parsed.port != -1) ":${parsed.port}" else ""
             "${parsed.scheme}://${parsed.host}$portPart"
         } catch (e: Exception) {

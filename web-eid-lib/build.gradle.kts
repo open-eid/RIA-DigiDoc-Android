@@ -53,6 +53,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.arch.core.testing)
 
     implementation(project(":libdigidoc-lib"))
     implementation(project(":networking-lib"))
