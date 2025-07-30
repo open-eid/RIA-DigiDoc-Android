@@ -1,4 +1,4 @@
-package com.example.web_eid_lib
+package ee.ria.DigiDoc.webEid
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

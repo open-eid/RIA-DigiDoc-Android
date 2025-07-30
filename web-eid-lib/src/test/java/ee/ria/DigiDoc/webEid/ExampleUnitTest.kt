@@ -1,4 +1,4 @@
-package com.example.web_eid_lib
+package ee.ria.DigiDoc.webEid
 
 import org.junit.Test
 
