@@ -45,9 +45,14 @@ class WebEidAuthParserImpl @Inject constructor() : WebEidAuthParser {
     }
 
     private fun decodeUriFragment(uri: Uri): JSONObject {
-        val fragment = uri.fragment ?: throw IllegalArgumentException("No fragment in URI")
-        val decoded = String(Base64.getDecoder().decode(fragment))
-        return JSONObject(decoded)
+        try {
+            val fragment = uri.fragment ?: throw IllegalArgumentException("No fragment in URI")
+            val decoded = String(Base64.getDecoder().decode(fragment))
+            return JSONObject(decoded)
+        } catch (e: Exception) {
+            errorLog(logTag, "Failed to decode or parse URI fragment: ${uri.fragment}", e)
+            throw IllegalArgumentException("Invalid URI fragment format", e)
+        }
     }
 
     private fun validateHttpsScheme(loginUri: String) {
@@ -55,9 +60,11 @@ class WebEidAuthParserImpl @Inject constructor() : WebEidAuthParser {
             val parsed = URI(loginUri)
             if (!parsed.scheme.equals("https", ignoreCase = true)) {
                 errorLog(logTag, "Invalid scheme in login_uri: $loginUri — must be HTTPS")
+                throw IllegalArgumentException("Invalid scheme: login_uri must use HTTPS")
             }
         } catch (e: Exception) {
             errorLog(logTag, "Invalid login_uri format: $loginUri", e)
+            throw IllegalArgumentException("Invalid login_uri format", e)
         }
     }
 
@@ -73,6 +80,7 @@ class WebEidAuthParserImpl @Inject constructor() : WebEidAuthParser {
                     logTag,
                     "Origin mismatch: expected $origin but login_uri points to host ${parsedLogin.host}"
                 )
+                throw IllegalArgumentException("Origin mismatch: expected $origin")
             }
 
             if (parsedLogin.userInfo != null) {
@@ -80,11 +88,16 @@ class WebEidAuthParserImpl @Inject constructor() : WebEidAuthParser {
                     logTag,
                     "Login URI contains userinfo (possible phishing attempt): $loginUri"
                 )
+                throw IllegalArgumentException("Login URI contains userinfo (possible phishing attempt)")
             }
+        } catch (e: IllegalArgumentException) {
+            throw e
         } catch (e: Exception) {
             errorLog(logTag, "Failed to validate origin correctness for $loginUri", e)
+            throw IllegalArgumentException("Invalid origin in login_uri", e)
         }
     }
+
 
     private fun parseOriginFromLoginUri(loginUri: String): String {
         return try {

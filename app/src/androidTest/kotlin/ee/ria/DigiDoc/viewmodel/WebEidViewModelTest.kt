@@ -3,79 +3,64 @@
 package ee.ria.DigiDoc.viewmodel
 
 import android.net.Uri
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import ee.ria.DigiDoc.webEid.WebEidAuthService
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
+import org.mockito.MockitoAnnotations
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(AndroidJUnit4::class)
 class WebEidViewModelTest {
+
+    @get:Rule
+    val instantExecutorRule = InstantTaskExecutorRule()
+
+    @Mock
+    private lateinit var authService: WebEidAuthService
 
     private lateinit var viewModel: WebEidViewModel
 
     @Before
-    fun setUp() {
-        viewModel = WebEidViewModel()
+    fun setup() {
+        MockitoAnnotations.openMocks(this)
+
+        // Default StateFlows for mock
+        `when`(authService.authRequest).thenReturn(MutableStateFlow(null))
+        `when`(authService.signRequest).thenReturn(MutableStateFlow(null))
+        `when`(authService.errorState).thenReturn(MutableStateFlow(null))
+
+        viewModel = WebEidViewModel(authService)
     }
 
     @Test
-    fun handleAuth_validUri_setsAuthPayload() = runTest {
-        val json = """
-            {
-              "challenge": "abc123",
-              "login_uri": "https://example.com/auth/login",
-              "get_signing_certificate": true
-            }
-        """.trimIndent()
-
-        val encoded = java.util.Base64.getEncoder().encodeToString(json.toByteArray())
-        val uri = Uri.parse("web-eid-mobile://auth#$encoded")
+    fun handleAuth_callsParseAuthUri() {
+        val uri = Uri.parse("web-eid-mobile://auth#dummyData")
 
         viewModel.handleAuth(uri)
 
-        val result = viewModel.authPayload.value
-        assertEquals("abc123", result?.challenge)
-        assertEquals("https://example.com/auth/login", result?.loginUri)
-        assertEquals(true, result?.getSigningCertificate)
+        verify(authService).parseAuthUri(uri)
     }
 
     @Test
-    fun handleAuth_missingFragment_setsNullPayload() = runTest {
-        val uri = Uri.parse("web-eid-mobile://auth")
+    fun handleSign_callsParseSignUri() {
+        val uri = Uri.parse("web-eid-mobile://sign#dummyData")
 
-        viewModel.handleAuth(uri)
+        viewModel.handleSign(uri)
 
-        assertNull(viewModel.authPayload.value)
+        verify(authService).parseSignUri(uri)
     }
 
     @Test
-    fun handleAuth_invalidBase64_setsNullPayload() = runTest {
-        val uri = Uri.parse("web-eid-mobile://auth#invalid-base64!!")
+    fun reset_callsResetValues() {
+        viewModel.reset()
 
-        viewModel.handleAuth(uri)
-
-        assertNull(viewModel.authPayload.value)
-    }
-
-    @Test
-    fun handleAuth_missingOptionalField_defaultsToFalse() = runTest {
-        val json = """
-            {
-              "challenge": "xyz456",
-              "login_uri": "https://rp.example.com/login"
-            }
-        """.trimIndent()
-
-        val encoded = java.util.Base64.getEncoder().encodeToString(json.toByteArray())
-        val uri = Uri.parse("web-eid-mobile://auth#$encoded")
-
-        viewModel.handleAuth(uri)
-
-        val result = viewModel.authPayload.value
-        assertEquals("xyz456", result?.challenge)
-        assertEquals("https://rp.example.com/login", result?.loginUri)
-        assertEquals(false, result?.getSigningCertificate)
+        verify(authService).resetValues()
     }
 }
