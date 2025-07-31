@@ -7,6 +7,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthParser
+import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthParserImpl
 import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthRequest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -28,7 +29,7 @@ class WebEidAuthParserTest {
     @Before
     fun setup() {
         context = InstrumentationRegistry.getInstrumentation().targetContext
-        parser = WebEidAuthParser()
+        parser = WebEidAuthParserImpl()
     }
 
     @Test
