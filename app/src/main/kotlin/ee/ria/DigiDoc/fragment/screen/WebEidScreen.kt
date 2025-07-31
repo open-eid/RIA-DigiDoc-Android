@@ -38,6 +38,7 @@ fun WebEidScreen(
     val challengeLabel = stringResource(id = R.string.web_eid_auth_label_challenge)
     val loginUriLabel = stringResource(id = R.string.web_eid_auth_label_login_uri)
     val getCertLabel = stringResource(id = R.string.web_eid_auth_label_get_signing_cert)
+    val originLabel = stringResource(id = R.string.web_eid_auth_label_origin)
     val noAuthLabel = stringResource(id = R.string.web_eid_auth_no_payload)
 
     Surface(
@@ -55,6 +56,7 @@ fun WebEidScreen(
                     Text("$challengeLabel: ${auth.challenge}")
                     Text("$loginUriLabel: ${auth.loginUri}")
                     Text("$getCertLabel: ${auth.getSigningCertificate}")
+                    Text("$originLabel: ${auth.origin}")
                 }
             } else {
                 Text(noAuthLabel)
