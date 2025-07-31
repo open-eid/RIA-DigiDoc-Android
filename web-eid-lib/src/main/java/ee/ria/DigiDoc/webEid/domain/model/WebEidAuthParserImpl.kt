@@ -60,8 +60,10 @@ class WebEidAuthParserImpl @Inject constructor() : WebEidAuthParser {
             val parsed = URI(loginUri)
             if (!parsed.scheme.equals("https", ignoreCase = true)) {
                 errorLog(logTag, "Invalid scheme in login_uri: $loginUri — must be HTTPS")
-                throw IllegalArgumentException("Invalid scheme: login_uri must use HTTPS")
+                throw IllegalArgumentException("login_uri must use HTTPS")
             }
+        } catch (e: IllegalArgumentException) {
+            throw e
         } catch (e: Exception) {
             errorLog(logTag, "Invalid login_uri format: $loginUri", e)
             throw IllegalArgumentException("Invalid login_uri format", e)
