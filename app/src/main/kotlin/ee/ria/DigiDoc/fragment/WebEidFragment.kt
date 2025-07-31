@@ -33,7 +33,13 @@ fun WebEidFragment(
 ) {
     LaunchedEffect(webEidUri) {
         println("DEBUG: WebEidFragment got URI = $webEidUri")
-        webEidUri?.let { viewModel.handleAuth(it) }
+        webEidUri?.let {
+            when (it.host) {
+                "auth" -> viewModel.handleAuth(it)
+                "sign" -> viewModel.handleSign(it)
+                else -> println("DEBUG: Unknown Web eID URI host: ${it.host}")
+            }
+        }
     }
 
     Surface(
