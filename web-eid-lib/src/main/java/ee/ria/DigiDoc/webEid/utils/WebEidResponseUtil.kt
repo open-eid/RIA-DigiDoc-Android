@@ -10,7 +10,11 @@ data class WebEidError(val code: String, val message: String)
 
 object WebEidResponseUtil {
 
-    fun createErrorRedirect(loginUri: String, code: String, message: String): String {
+    fun createErrorRedirect(
+        loginUri: String,
+        code: String = WebEidErrorCodes.UNKNOWN,
+        message: String = WebEidErrorCodes.UNKNOWN_MESSAGE
+    ): String {
         val errorJson = JSONObject()
             .put("code", code)
             .put("message", message)

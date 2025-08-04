@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.webEid.domain.model
 import android.net.Uri
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.webEid.utils.WebEidError
+import ee.ria.DigiDoc.webEid.utils.WebEidErrorCodes
 import ee.ria.DigiDoc.webEid.utils.WebEidResponseUtil
 import org.json.JSONObject
 import java.net.URI
@@ -24,11 +25,7 @@ class WebEidAuthParserImpl @Inject constructor() : WebEidAuthParser {
         } catch (e: Exception) {
             errorLog(logTag, "Error in auth flow", e)
             val err = mapExceptionToError(e)
-            WebEidResponseUtil.createErrorRedirect(
-                loginUri = extractLoginUriSafe(uri),
-                code = err.code,
-                message = err.message
-            )
+            WebEidResponseUtil.createErrorRedirect(extractLoginUriSafe(uri), err.code, err.message)
         }
     }
 
@@ -137,6 +134,7 @@ class WebEidAuthParserImpl @Inject constructor() : WebEidAuthParser {
             val json = decodeUriFragment(uri)
             json.optString("login_uri", "")
         } catch (e: Exception) {
+            errorLog(logTag, "Failed to safely extract login_uri from URI: $uri", e)
             ""
         }
     }
@@ -144,12 +142,12 @@ class WebEidAuthParserImpl @Inject constructor() : WebEidAuthParser {
     private fun mapExceptionToError(e: Exception): WebEidError {
         return when (e) {
             is IllegalArgumentException -> WebEidError(
-                code = "ERR_WEBEID_INVALID_REQUEST",
-                message = e.message ?: "Invalid authentication request"
+                code = WebEidErrorCodes.INVALID_REQUEST,
+                message = e.message ?: WebEidErrorCodes.INVALID_REQUEST_MESSAGE
             )
             else -> WebEidError(
-                code = "ERR_WEBEID_UNKNOWN",
-                message = "Unexpected error occurred"
+                code = WebEidErrorCodes.UNKNOWN,
+                message = WebEidErrorCodes.UNKNOWN_MESSAGE
             )
         }
     }
