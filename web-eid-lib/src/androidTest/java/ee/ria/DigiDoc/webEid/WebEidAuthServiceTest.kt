@@ -96,6 +96,36 @@ class WebEidAuthServiceTest {
         assert(service.errorState.value != null)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun parseAuthUri_validUri_setsRedirectUriToSuccess() = runTest {
+        val uri = createAuthUri(
+            challenge = "abc123",
+            loginUri = "https://rp.example.com/auth/eid/login",
+            getCert = false
+        )
+
+        service.parseAuthUri(uri)
+
+        val redirect = service.redirectUri.value
+        assert(redirect != null)
+        val decodedFragment = String(Base64.getUrlDecoder().decode(Uri.parse(redirect).fragment))
+        assert(decodedFragment.contains("mock-web-eid-auth-token"))
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun parseAuthUri_invalidUri_setsRedirectUriToError() = runTest {
+        val badUri = Uri.parse("web-eid://auth#not-base64!!!")
+
+        service.parseAuthUri(badUri)
+
+        val redirect = service.redirectUri.value
+        assert(redirect != null)
+        val decodedFragment = String(Base64.getUrlDecoder().decode(Uri.parse(redirect).fragment))
+        assert(decodedFragment.contains("ERR_WEBEID_INVALID_REQUEST"))
+    }
+
     @Suppress("SameParameterValue")
     private fun createAuthUri(challenge: String, loginUri: String, getCert: Boolean): Uri {
         val json = """

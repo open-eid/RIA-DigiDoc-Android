@@ -1,3 +1,5 @@
+@file:Suppress("PackageName")
+
 package ee.ria.DigiDoc.webEid
 
 import android.net.Uri
@@ -13,7 +15,7 @@ import javax.inject.Singleton
 
 @Singleton
 class WebEidAuthServiceImpl @Inject constructor(
-    private val parser: WebEidAuthParser
+    private val parserImpl: WebEidAuthParser
 ) : WebEidAuthService {
 
     private val logTag = javaClass.simpleName
@@ -27,15 +29,21 @@ class WebEidAuthServiceImpl @Inject constructor(
     private val _errorState = MutableStateFlow<String?>(null)
     override val errorState: StateFlow<String?> = _errorState.asStateFlow()
 
+    private val _redirectUri = MutableStateFlow<String?>(null)
+    override val redirectUri: StateFlow<String?> = _redirectUri.asStateFlow()
+
     override fun resetValues() {
         _authRequest.value = null
         _signRequest.value = null
         _errorState.value = null
+        _redirectUri.value = null
     }
 
     override fun parseAuthUri(uri: Uri) {
         try {
-            _authRequest.value = parser.parseAuthUri(uri)
+            val resultRedirect = parserImpl.handleAuthFlow(uri)
+            _redirectUri.value = resultRedirect
+            _authRequest.value = parserImpl.parseAuthUri(uri)
         } catch (e: IllegalArgumentException) {
             errorLog(logTag, "Validation failed in parseAuthUri", e)
             _errorState.value = e.message
@@ -47,7 +55,7 @@ class WebEidAuthServiceImpl @Inject constructor(
 
     override fun parseSignUri(uri: Uri) {
         try {
-            _signRequest.value = parser.parseSignUri(uri)
+            _signRequest.value = parserImpl.parseSignUri(uri)
         } catch (e: IllegalArgumentException) {
             errorLog(logTag, "Validation failed in parseSignUri", e)
             _errorState.value = e.message

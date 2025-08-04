@@ -19,6 +19,7 @@ class WebEidViewModel @Inject constructor(
     val authPayload: StateFlow<WebEidAuthRequest?> = authService.authRequest
     val signPayload: StateFlow<WebEidSignRequest?> = authService.signRequest
     val errorState: StateFlow<String?> = authService.errorState
+    val redirectUri: StateFlow<String?> = authService.redirectUri
 
     fun handleAuth(uri: Uri) {
         authService.parseAuthUri(uri)
