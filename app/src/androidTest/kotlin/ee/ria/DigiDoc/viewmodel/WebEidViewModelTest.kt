@@ -4,7 +4,7 @@ package ee.ria.DigiDoc.viewmodel
 
 import android.net.Uri
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.mockito.junit.MockitoJUnitRunner
 import ee.ria.DigiDoc.webEid.WebEidAuthService
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
@@ -16,7 +16,7 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(MockitoJUnitRunner::class)
 class WebEidViewModelTest {
 
     @get:Rule
@@ -31,7 +31,6 @@ class WebEidViewModelTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
 
-        // Default StateFlows for mock
         `when`(authService.authRequest).thenReturn(MutableStateFlow(null))
         `when`(authService.signRequest).thenReturn(MutableStateFlow(null))
         `when`(authService.errorState).thenReturn(MutableStateFlow(null))
@@ -62,5 +61,27 @@ class WebEidViewModelTest {
         viewModel.reset()
 
         verify(authService).resetValues()
+    }
+
+    @Test
+    fun redirectUri_isExposedFromAuthService() {
+        val redirectFlow = MutableStateFlow("https://example.com#encodedPayload")
+        `when`(authService.redirectUri).thenReturn(redirectFlow)
+
+        val viewModelWithRedirect = WebEidViewModel(authService)
+
+        assert(viewModelWithRedirect.redirectUri.value == "https://example.com#encodedPayload")
+    }
+
+    @Test
+    fun redirectUri_updatesWhenServiceUpdates() {
+        val redirectFlow = MutableStateFlow<String?>(null)
+        `when`(authService.redirectUri).thenReturn(redirectFlow)
+
+        val viewModelWithRedirect = WebEidViewModel(authService)
+
+        redirectFlow.value = "https://example.com#updatedPayload"
+
+        assert(viewModelWithRedirect.redirectUri.value == "https://example.com#updatedPayload")
     }
 }

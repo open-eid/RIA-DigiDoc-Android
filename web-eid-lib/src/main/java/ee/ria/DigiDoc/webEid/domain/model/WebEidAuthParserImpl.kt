@@ -4,6 +4,9 @@ package ee.ria.DigiDoc.webEid.domain.model
 
 import android.net.Uri
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
+import ee.ria.DigiDoc.webEid.utils.WebEidError
+import ee.ria.DigiDoc.webEid.utils.WebEidErrorCodes
+import ee.ria.DigiDoc.webEid.utils.WebEidResponseUtil
 import org.json.JSONObject
 import java.net.URI
 import java.util.Base64
@@ -14,6 +17,17 @@ import javax.inject.Singleton
 class WebEidAuthParserImpl @Inject constructor() : WebEidAuthParser {
 
     private val logTag = javaClass.simpleName
+
+    override fun handleAuthFlow(uri: Uri): String {
+        return try {
+            val request = parseAuthUri(uri)
+            WebEidResponseUtil.createSuccessRedirect(request.loginUri)
+        } catch (e: Exception) {
+            errorLog(logTag, "Error in auth flow", e)
+            val err = mapExceptionToError(e)
+            WebEidResponseUtil.createErrorRedirect(extractLoginUriSafe(uri), err.code, err.message)
+        }
+    }
 
     override fun parseAuthUri(uri: Uri): WebEidAuthRequest {
         val json = decodeUriFragment(uri)
@@ -100,7 +114,6 @@ class WebEidAuthParserImpl @Inject constructor() : WebEidAuthParser {
         }
     }
 
-
     private fun parseOriginFromLoginUri(loginUri: String): String {
         return try {
             val parsed = URI(loginUri)
@@ -113,6 +126,29 @@ class WebEidAuthParserImpl @Inject constructor() : WebEidAuthParser {
         } catch (e: Exception) {
             errorLog(logTag, "Failed to parse origin from login_uri: $loginUri", e)
             ""
+        }
+    }
+
+    private fun extractLoginUriSafe(uri: Uri): String {
+        return try {
+            val json = decodeUriFragment(uri)
+            json.optString("login_uri", "")
+        } catch (e: Exception) {
+            errorLog(logTag, "Failed to safely extract login_uri from URI: $uri", e)
+            ""
+        }
+    }
+
+    private fun mapExceptionToError(e: Exception): WebEidError {
+        return when (e) {
+            is IllegalArgumentException -> WebEidError(
+                code = WebEidErrorCodes.INVALID_REQUEST,
+                message = e.message ?: WebEidErrorCodes.INVALID_REQUEST_MESSAGE
+            )
+            else -> WebEidError(
+                code = WebEidErrorCodes.UNKNOWN,
+                message = WebEidErrorCodes.UNKNOWN_MESSAGE
+            )
         }
     }
 }
