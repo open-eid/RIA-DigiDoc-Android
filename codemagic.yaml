@@ -27,7 +27,7 @@ workflows:
       vars:
         PACKAGE_NAME: "ee.ria.DigiDoc"
       android_signing:
-        - RIA DigiDoc (MOPP)
+        - RIA DigiDoc (debug) (MOPP)
     inputs:
       defaultCentralConfigurationUrl_input:
         description: Default Central Configuration URL
@@ -67,13 +67,10 @@ workflows:
           DEBUG_KEYSTORE_PATH="app/src/main/assets/keystore/debug.keystore"
 
           mkdir -p "$(dirname "$DEBUG_KEYSTORE_PATH")"
+          
+          cp $CM_KEYSTORE_PATH $DEBUG_KEYSTORE_PATH &>/dev/null
     
-          # Generate debug keystore
-          keytool -genkeypair -v -keystore "$DEBUG_KEYSTORE_PATH" -storepass $DEBUG_KEYSTORE_PASS -keypass $DEBUG_KEYSTORE_PASS \
-          -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 \
-          -dname "CN=Debug,O=Debug,C=EE"
-    
-          echo "Debug keystore created at $DEBUG_KEYSTORE_PATH"
+          echo "Debug keystore setup at $DEBUG_KEYSTORE_PATH"
       - name: "Setup config and TSL files"
         script: |
           CONFIG_DIR=config-lib/src/main/assets/config
