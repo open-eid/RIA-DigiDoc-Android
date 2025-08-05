@@ -100,6 +100,7 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.removeInvi
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.NFCViewModel
+import ee.ria.DigiDoc.viewmodel.WebEidViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.Dispatchers.IO
@@ -136,6 +137,7 @@ fun NFCView(
     cancelAction: (() -> Unit) -> Unit = {},
     cancelDecryptAction: (() -> Unit) -> Unit = {},
     isAuthenticated: (Boolean, IdCardData) -> Unit,
+    webEidViewModel: WebEidViewModel? = null,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -205,6 +207,11 @@ fun NFCView(
         } else {
             CodeType.PIN1
         }
+
+    val webEidAuth = webEidViewModel?.authPayload?.collectAsState()?.value
+    val challengeBytes = remember(webEidAuth) {
+        webEidAuth?.challenge?.let { org.bouncycastle.util.encoders.Base64.decode(it) } ?: byteArrayOf()
+    }
 
     BackHandler {
         nfcViewModel.handleBackButton()
@@ -313,10 +320,20 @@ fun NFCView(
     LaunchedEffect(Unit, isAuthenticating) {
         if (isAuthenticating) {
             saveFormParams()
-            nfcViewModel.loadPersonalData(
-                activity,
-                canNumber.text,
-            )
+            if (webEidAuth != null) {
+                nfcViewModel.performNFCWebEidAuthWorkRequest(
+                    activity = activity,
+                    context = context,
+                    canNumber = canNumber.text,
+                    pin1Code = pinCode.value,
+                    challengeToSign = challengeBytes
+                )
+            } else {
+                nfcViewModel.loadPersonalData(
+                    activity,
+                    canNumber.text,
+                )
+            }
         }
     }
 

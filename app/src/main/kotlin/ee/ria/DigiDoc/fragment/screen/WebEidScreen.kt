@@ -11,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -33,12 +34,13 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 fun WebEidScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    viewModel: WebEidViewModel,
+    viewModel: WebEidViewModel = hiltViewModel(),
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
     sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
 ) {
     val noAuthLabel = stringResource(id = R.string.web_eid_auth_no_payload)
     val activity = LocalActivity.current as Activity
+    val authPayload = viewModel.authPayload.collectAsState().value
 
     Surface(
         modifier =
@@ -55,24 +57,27 @@ fun WebEidScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(noAuthLabel)
-
-            NFCView(
-                activity = activity,
-                identityAction = IdentityAction.AUTH,
-                isSigning = false,
-                isDecrypting = false,
-                isAuthenticating = true,
-                onError = {},
-                onSuccess = {},
-                sharedSettingsViewModel = sharedSettingsViewModel,
-                sharedContainerViewModel = sharedContainerViewModel,
-                isSupported = {},
-                isValidToSign = {},
-                isValidToDecrypt = {},
-                isValidToAuthenticate = {},
-                isAuthenticated = { _, _ -> }
-            )
+            if (authPayload != null) {
+                NFCView(
+                    activity = activity,
+                    identityAction = IdentityAction.AUTH,
+                    isSigning = false,
+                    isDecrypting = false,
+                    isAuthenticating = true,
+                    onError = {},
+                    onSuccess = {},
+                    sharedSettingsViewModel = sharedSettingsViewModel,
+                    sharedContainerViewModel = sharedContainerViewModel,
+                    isSupported = {},
+                    isValidToSign = {},
+                    isValidToDecrypt = {},
+                    isValidToAuthenticate = {},
+                    isAuthenticated = { _, _ -> },
+                    webEidViewModel = viewModel
+                )
+            } else {
+                Text(noAuthLabel)
+            }
         }
     }
 }
@@ -84,7 +89,7 @@ fun WebEidScreenPreview() {
     RIADigiDocTheme {
         WebEidScreen(
             navController = rememberNavController(),
-            viewModel = hiltViewModel(),
+            viewModel = hiltViewModel()
         )
     }
 }
