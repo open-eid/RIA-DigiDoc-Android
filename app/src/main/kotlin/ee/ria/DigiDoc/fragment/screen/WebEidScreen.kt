@@ -2,18 +2,15 @@
 
 package ee.ria.DigiDoc.fragment.screen
 
+import android.app.Activity
 import android.content.res.Configuration
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -25,21 +22,23 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.domain.model.IdentityAction
+import ee.ria.DigiDoc.ui.component.signing.NFCView
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.viewmodel.WebEidViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 
 @Composable
 fun WebEidScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController, // TODO navController is not yet used; reserved for navigation after auth completes
+    navController: NavHostController,
     viewModel: WebEidViewModel,
+    sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
+    sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
 ) {
-    val auth = viewModel.authPayload.collectAsState().value
-    val challengeLabel = stringResource(id = R.string.web_eid_auth_label_challenge)
-    val loginUriLabel = stringResource(id = R.string.web_eid_auth_label_login_uri)
-    val getCertLabel = stringResource(id = R.string.web_eid_auth_label_get_signing_cert)
-    val originLabel = stringResource(id = R.string.web_eid_auth_label_origin)
     val noAuthLabel = stringResource(id = R.string.web_eid_auth_no_payload)
+    val activity = LocalActivity.current as Activity
 
     Surface(
         modifier =
@@ -50,12 +49,30 @@ fun WebEidScreen(
                 .testTag("webEidScreen"),
         color = MaterialTheme.colorScheme.background,
     ) {
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(noAuthLabel)
+
+            NFCView(
+                activity = activity,
+                identityAction = IdentityAction.AUTH,
+                isSigning = false,
+                isDecrypting = false,
+                isAuthenticating = true,
+                onError = {},
+                onSuccess = {},
+                sharedSettingsViewModel = sharedSettingsViewModel,
+                sharedContainerViewModel = sharedContainerViewModel,
+                isSupported = {},
+                isValidToSign = {},
+                isValidToDecrypt = {},
+                isValidToAuthenticate = {},
+                isAuthenticated = { _, _ -> }
+            )
         }
     }
 }
