@@ -35,6 +35,7 @@ import ee.ria.cdoc.CryptoBackend
 import ee.ria.cdoc.DataBuffer
 import ee.ria.cdoc.FileInfo
 import ee.ria.cdoc.ILogger
+import ee.ria.cdoc.IStreamSource
 import ee.ria.cdoc.Lock
 import ee.ria.cdoc.NetworkBackend
 import ee.ria.cdoc.Recipient
@@ -264,7 +265,10 @@ class CryptoContainer
                 val network = CryptoLibNetworkBackend(cdoc2Settings, configurationProvider, context, authCert, token)
                 val dataFiles = ArrayList<File>()
 
-                val cdocReader = CDocReader.createReader(file?.path, conf, token, network)
+                val src = IStreamSource(FileInputStream(file))
+                val cdocReader = CDocReader.createReader(src, false, conf, token, network)
+
+                debugLog(LOG_TAG, "Reader created: (version ${cdocReader.version})")
                 val idx = cdocReader.getLockForCert(authCert)
 
                 if (idx < 0) {

@@ -162,7 +162,7 @@ class IdCardViewModel
                         logTag,
                         "Auth certificate: " + Base64.toBase64String(authCert),
                     )
-                    var decryptedContainer =
+                    val decryptedContainer =
                         CryptoContainer.decrypt(
                             context,
                             container.file,
