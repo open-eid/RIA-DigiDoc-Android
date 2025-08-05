@@ -50,17 +50,12 @@ fun WebEidScreen(
                 .testTag("webEidScreen"),
         color = MaterialTheme.colorScheme.background,
     ) {
-        Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            if (auth != null) {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("$challengeLabel: ${auth.challenge}")
-                    Text("$loginUriLabel: ${auth.loginUri}")
-                    Text("$getCertLabel: ${auth.getSigningCertificate}")
-                    Text("$originLabel: ${auth.origin}")
-                }
-            } else {
-                Text(noAuthLabel)
-            }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Text(noAuthLabel)
         }
     }
 }
