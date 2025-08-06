@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.ui.component.signing
 
 import android.app.Activity
 import android.content.res.Configuration
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
@@ -550,7 +551,34 @@ fun NFCView(
                 }
 
                 LaunchedEffect(Unit, isValid) {
+                    Log.d("WEBEID_DEBUG", "LaunchedEffect triggered with isValid=$isValid")
+
                     if (isValid) {
+                        Log.d("WEBEID_DEBUG", "isValid == true, checking webEidAuth...")
+
+                        webEidAuth?.let {
+                            Log.d("WEBEID_DEBUG", "webEidAuth is not null, preparing to call performNFCWebEidAuthWorkRequest()")
+                            signAction {
+                                Log.d("WEBEID_DEBUG", "signAction for WebEID started")
+                                saveFormParams()
+                                Log.d("WEBEID_DEBUG", "Form params saved, launching NFC WebEID auth coroutine")
+                                scope.launch(IO) {
+                                    Log.d("WEBEID_DEBUG", "Coroutine started for performNFCWebEidAuthWorkRequest")
+                                    try {
+                                        nfcViewModel.performNFCWebEidAuthWorkRequest(
+                                            activity = activity,
+                                            context = context,
+                                            canNumber = canNumber.text,
+                                            pin1Code = pinCode.value,
+                                            origin = originString,
+                                            challenge = challengeString
+                                        )
+                                    } catch (e: Exception) {
+                                        Log.e("WEBEID_DEBUG", "Error calling performNFCWebEidAuthWorkRequest", e)
+                                    }
+                                }
+                            }
+                        } ?: Log.d("WEBEID_DEBUG", "webEidAuth is null, skipping WebEID NFC call")
                         signAction {
                             saveFormParams()
                             var roleDataRequest: RoleData? = null

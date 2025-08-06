@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.viewmodel
 import android.app.Activity
 import android.content.Context
 import android.content.pm.ActivityInfo
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -604,6 +605,7 @@ class NFCViewModel
             val pinType = context.getString(R.string.signature_id_card_pin1)
             activity.requestedOrientation = activity.resources.configuration.orientation
             resetValues()
+            Log.d("NFCViewModel", "performNFCWebEidAuthWorkRequest() called")
 
             withContext(Main) {
                 _message.postValue(R.string.signature_update_nfc_hold)

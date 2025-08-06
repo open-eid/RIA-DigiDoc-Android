@@ -33,8 +33,10 @@ class WebEidAuthParserImpl @Inject constructor() : WebEidAuthParser {
         val json = decodeUriFragment(uri)
 
         val challenge = json.getString("challenge")
-        val loginUri = json.getString("login_uri")
+        val loginUriEncoded = json.getString("login_uri")
         val getSigningCertificate = json.optBoolean("get_signing_certificate", false)
+
+        val loginUri = java.net.URLDecoder.decode(loginUriEncoded, java.nio.charset.StandardCharsets.UTF_8.name())
 
         validateHttpsScheme(loginUri)
         val origin = parseOriginFromLoginUri(loginUri)

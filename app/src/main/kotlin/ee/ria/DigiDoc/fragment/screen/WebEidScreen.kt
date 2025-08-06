@@ -63,7 +63,7 @@ fun WebEidScreen(
                     identityAction = IdentityAction.AUTH,
                     isSigning = false,
                     isDecrypting = false,
-                    isAuthenticating = true,
+                    isAuthenticating = false,
                     onError = {},
                     onSuccess = {},
                     sharedSettingsViewModel = sharedSettingsViewModel,
