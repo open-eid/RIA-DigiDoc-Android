@@ -81,6 +81,7 @@ fun TopBar(
     val context = LocalContext.current
     var onRightPrimaryButtonClick = onRightPrimaryButtonClick
     if (onRightPrimaryButtonClick == null) {
+        @Suppress("AssignedValueIsNeverRead")
         onRightPrimaryButtonClick = {
             val browserIntent =
                 Intent(
@@ -128,7 +129,6 @@ fun TopBar(
                     debounceJob?.cancel()
                     debounceJob =
                         coroutineScope.launch {
-                            delay(1)
                             onLeftButtonClick()
                         }
                 },
@@ -185,7 +185,6 @@ fun TopBar(
                             debounceJob?.cancel()
                             debounceJob =
                                 coroutineScope.launch {
-                                    delay(1000)
                                     onExtraButtonClick()
                                 }
                         },
@@ -222,7 +221,6 @@ fun TopBar(
                         debounceJob?.cancel()
                         debounceJob =
                             coroutineScope.launch {
-                                delay(1000)
                                 onRightPrimaryButtonClick()
                             }
                     },
@@ -261,7 +259,6 @@ fun TopBar(
                         debounceJob?.cancel()
                         debounceJob =
                             coroutineScope.launch {
-                                delay(1000)
                                 onRightSecondaryButtonClick()
                             }
                     },

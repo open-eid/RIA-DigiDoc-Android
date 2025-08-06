@@ -241,23 +241,19 @@ class FileOpeningViewModelTest {
 
             `when`(
                 fileOpeningRepository.uriToFile(context, contentResolver, uri),
-            )
-                .thenReturn(anotherFile)
+            ).thenReturn(anotherFile)
 
             `when`(
                 fileOpeningRepository.isFileSizeValid(anotherFile),
-            )
-                .thenReturn(true)
+            ).thenReturn(true)
 
             `when`(
                 fileOpeningRepository.isFileAlreadyInContainer(anotherFile, signedContainer),
-            )
-                .thenReturn(false)
+            ).thenReturn(false)
 
             `when`(
                 fileOpeningRepository.getValidFiles(any(), eq(signedContainer)),
-            )
-                .thenReturn(listOf(file))
+            ).thenReturn(listOf(file))
 
             viewModel.handleCancelAsicsMimeType(context, uris, signedContainer)
             verify(filesAddedObserver, atLeastOnce()).onChanged(listOf(file))
@@ -297,23 +293,19 @@ class FileOpeningViewModelTest {
 
             `when`(
                 fileOpeningRepository.uriToFile(context, contentResolver, uri),
-            )
-                .thenReturn(anotherFile)
+            ).thenReturn(anotherFile)
 
             `when`(
                 fileOpeningRepository.isFileSizeValid(anotherFile),
-            )
-                .thenReturn(true)
+            ).thenReturn(true)
 
             `when`(
                 fileOpeningRepository.isFileAlreadyInContainer(anotherFile, signedContainer),
-            )
-                .thenReturn(false)
+            ).thenReturn(false)
 
             `when`(
                 fileOpeningRepository.getValidFiles(any(), eq(signedContainer)),
-            )
-                .thenReturn(listOf(file))
+            ).thenReturn(listOf(file))
 
             viewModel.handleFiles(context, uris, signedContainer, cryptoContainer, true)
 
@@ -466,16 +458,14 @@ class FileOpeningViewModelTest {
 
             `when`(
                 fileOpeningRepository.uriToFile(context, contentResolver, uri),
-            )
-                .thenReturn(file)
+            ).thenReturn(file)
             `when`(
                 fileOpeningRepository.openOrCreateCryptoContainer(
                     context,
                     contentResolver,
                     uris,
                 ),
-            )
-                .thenReturn(cryptoContainer)
+            ).thenReturn(cryptoContainer)
 
             viewModel.handleFiles(
                 context,
