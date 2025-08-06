@@ -37,4 +37,13 @@ interface IdCardService {
         currentPuk: ByteArray,
         newPin: ByteArray,
     ): IdCardData
+
+    @Throws(Exception::class)
+    suspend fun authenticate(
+        token: Token,
+        pin1: ByteArray,
+        origin: String,
+        challenge: String
+    ): Pair<ByteArray, ByteArray>
+
 }

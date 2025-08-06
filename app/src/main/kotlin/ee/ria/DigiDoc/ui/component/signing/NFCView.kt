@@ -99,6 +99,7 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBack
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.removeInvisibleElement
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.viewmodel.NFCViewModel
 import ee.ria.DigiDoc.viewmodel.WebEidViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
@@ -110,6 +111,8 @@ import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.bouncycastle.util.encoders.Base64
+import org.json.JSONObject
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -209,9 +212,8 @@ fun NFCView(
         }
 
     val webEidAuth = webEidViewModel?.authPayload?.collectAsState()?.value
-    val challengeBytes = remember(webEidAuth) {
-        webEidAuth?.challenge?.let { org.bouncycastle.util.encoders.Base64.decode(it) } ?: byteArrayOf()
-    }
+    val originString = webEidAuth?.origin ?: ""
+    val challengeString = webEidAuth?.challenge ?: ""
 
     BackHandler {
         nfcViewModel.handleBackButton()
@@ -299,6 +301,45 @@ fun NFCView(
         }
     }
 
+    LaunchedEffect(nfcViewModel.webEidAuthResult) {
+        nfcViewModel.webEidAuthResult.asFlow().collect { result ->
+            result?.let { (authCert, signature) ->
+
+                val certPublicKey = java.security.cert.CertificateFactory
+                    .getInstance("X.509")
+                    .generateCertificate(authCert.inputStream())
+                    .publicKey
+
+                val algorithm = when (certPublicKey) {
+                    is java.security.interfaces.RSAPublicKey -> "RS256"
+                    is java.security.interfaces.ECPublicKey -> "ES384"
+                    else -> "RS256"
+                }
+
+                val tokenJson = JSONObject().apply {
+                    put("algorithm", algorithm)
+                    put("unverifiedCertificate", Base64.toBase64String(authCert))
+                    put("unverifiedSigningCertificate", Base64.toBase64String(authCert))
+                    put("supportedSignatureAlgorithms", listOf(
+                        mapOf(
+                            "cryptoAlgorithm" to "RSA",
+                            "hashFunction" to "SHA-256",
+                            "paddingScheme" to "PKCS1.5"
+                        )
+                    ))
+                    put("issuerApp", "https://web-eid.eu/web-eid-mobile-app/releases/v1.0.0")
+                    put("signature", Base64.toBase64String(signature))
+                    put("format", "web-eid:1.1")
+                }
+
+                // TODO: send tokenJson.toString() to backend or pass to WebEidViewModel
+
+                nfcViewModel.resetWebEidAuthResult()
+                onSuccess()
+            }
+        }
+    }
+
     LaunchedEffect(nfcViewModel.dialogError) {
         pinCode.value.fill(0)
         nfcViewModel.dialogError.asFlow()
@@ -326,7 +367,8 @@ fun NFCView(
                     context = context,
                     canNumber = canNumber.text,
                     pin1Code = pinCode.value,
-                    challengeToSign = challengeBytes
+                    origin = originString,
+                    challenge = challengeString
                 )
             } else {
                 nfcViewModel.loadPersonalData(

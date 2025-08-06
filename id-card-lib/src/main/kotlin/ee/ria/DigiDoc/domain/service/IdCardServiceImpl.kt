@@ -129,4 +129,44 @@ class IdCardServiceImpl
             )
             return signedContainer
         }
+
+        @Throws(Exception::class)
+        override suspend fun authenticate(
+            token: Token,
+            pin1: ByteArray,
+            origin: String,
+            challenge: String
+        ): Pair<ByteArray, ByteArray> = withContext(Main) {
+            val authCert = token.certificate(CertificateType.AUTHENTICATION)
+
+            val cert = java.security.cert.CertificateFactory
+                .getInstance("X.509")
+                .generateCertificate(authCert.inputStream())
+            val publicKey = cert.publicKey
+
+            val hashAlg = when (publicKey) {
+                is java.security.interfaces.RSAPublicKey -> when (publicKey.modulus.bitLength()) {
+                    2048 -> "SHA-256"
+                    3072 -> "SHA-384"
+                    4096 -> "SHA-512"
+                    else -> throw IllegalArgumentException("Unsupported RSA key length")
+                }
+                is java.security.interfaces.ECPublicKey -> when (publicKey.params.curve.field.fieldSize) {
+                    256 -> "SHA-256"
+                    384 -> "SHA-384"
+                    521 -> "SHA-512"
+                    else -> throw IllegalArgumentException("Unsupported EC key length")
+                }
+                else -> throw IllegalArgumentException("Unsupported key type")
+            }
+
+            val md = java.security.MessageDigest.getInstance(hashAlg)
+            val originHash = md.digest(origin.toByteArray(Charsets.UTF_8))
+            val challengeHash = md.digest(challenge.toByteArray(Charsets.UTF_8))
+            val signedData = originHash + challengeHash
+
+            val signature = token.authenticate(pin1, signedData)
+
+            return@withContext authCert to signature
+        }
     }
