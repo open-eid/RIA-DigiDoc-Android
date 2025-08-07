@@ -184,7 +184,8 @@ class SmartIdViewModel
             val res = messages[status]
 
             if (res == R.string.too_many_requests_message ||
-                res == R.string.invalid_time_slot_message
+                res == R.string.invalid_time_slot_message ||
+                res == R.string.signature_update_smart_id_error_message_access_rights
             ) {
                 _dialogError.postValue(res)
             } else {
@@ -378,6 +379,73 @@ class SmartIdViewModel
                 !personalCode.isNullOrEmpty() &&
                     !PersonalCodeValidator.isPersonalCodeValid(personalCode)
             )
+
+        // Format Latvian personal code
+        fun formatLatvianPersonalCode(
+            input: String,
+            originalCursorPosition: Int,
+            previousText: String,
+        ): Pair<String, Int> {
+            val dashPosition = 6
+
+            val digitsOnly = input.replace("-", "")
+            val previousDigitsOnly = previousText.replace("-", "")
+
+            val wasDashManuallyDeleted =
+                previousText.contains('-') &&
+                    !input.contains('-') &&
+                    digitsOnly.length == previousDigitsOnly.length
+
+            if (wasDashManuallyDeleted) {
+                return Pair(input, minOf(originalCursorPosition, input.length))
+            }
+
+            val dashCount = input.count { it == '-' }
+            if (dashCount > 1) {
+                val firstDashIndex = input.indexOf('-')
+                val cleanedInput =
+                    input.substring(0, firstDashIndex + 1) +
+                        input.substring(firstDashIndex + 1).replace("-", "")
+                return Pair(cleanedInput, minOf(originalCursorPosition, cleanedInput.length))
+            }
+
+            val hasDash = input.contains('-')
+            val dashIndex = input.indexOf('-')
+
+            if (hasDash && dashIndex != dashPosition) {
+                val formatted =
+                    when {
+                        digitsOnly.length <= dashPosition -> digitsOnly
+                        else -> "${digitsOnly.take(dashPosition)}-${digitsOnly.drop(dashPosition)}"
+                    }
+
+                val adjustedCursor =
+                    when {
+                        originalCursorPosition <= dashIndex -> originalCursorPosition
+                        else -> originalCursorPosition - 1 + if (formatted.contains('-')) 1 else 0
+                    }
+
+                return Pair(formatted, minOf(adjustedCursor, formatted.length))
+            }
+
+            val formattedText =
+                when {
+                    hasDash -> input
+                    digitsOnly.length <= dashPosition -> digitsOnly
+                    else -> "${digitsOnly.take(dashPosition)}-${digitsOnly.drop(dashPosition)}"
+                }
+
+            val cursorPosition =
+                when {
+                    !hasDash && formattedText.contains('-') && originalCursorPosition > dashPosition ->
+                        originalCursorPosition +
+                            1
+                    originalCursorPosition == dashPosition + 1 && formattedText.contains('-') -> dashPosition + 1
+                    else -> minOf(originalCursorPosition, formattedText.length)
+                }
+
+            return Pair(formattedText, cursorPosition)
+        }
 
         @Throws(NumberFormatException::class)
         private fun sendNotification(

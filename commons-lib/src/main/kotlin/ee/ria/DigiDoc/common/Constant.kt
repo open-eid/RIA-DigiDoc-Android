@@ -139,6 +139,7 @@ object Constant {
         setOf("asice", "sce", "bdoc", "edoc")
 
     const val MAXIMUM_PERSONAL_CODE_LENGTH: Int = 11
+    const val MAXIMUM_LATVIAN_PERSONAL_CODE_LENGTH: Int = 12
 
     // Country code (3 numbers) + phone number (7 or more numbers)
     const val MINIMUM_PHONE_NUMBER_LENGTH = 10

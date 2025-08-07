@@ -243,7 +243,8 @@
     <string name="signature_update_smart_id_error_message_under_maintenance">Smart-ID teenuses esinevad tehnilised tõrked. Palun proovi mõne aja pärast uuesti.</string>
     <string name="signature_update_smart_id_error_message_account_not_found_or_timeout">Sinu Smart-ID toiming aegus või kontot ei leitud</string>
     <string name="signature_update_smart_id_error_message_session_not_found">Sessiooni ei leitud</string>
-    <string name="signature_update_smart_id_error_message_access_rights">Ümbriku allkirjastamine ebaõnnestus. Kontrolli Smart-ID teenuse ligipääsu seadeid. https://www.id.ee/artikkel/asutustele-kus-allkirjastatakse-digidoc4-kliendi-kaudu-suuremates-kogustes-dokumente/</string>
+    <string name="signature_update_smart_id_error_message_access_rights">Ümbriku allkirjastamine ebaõnnestus. Kontrolli Smart-ID teenuse ligipääsu seadeid.</string>
+    <string name="signature_update_smart_id_error_message_access_rights_url">https://www.id.ee/artikkel/asutustele-kus-allkirjastatakse-digidoc4-kliendi-kaudu-suuremates-kogustes-dokumente/</string>
     <string name="signature_update_smart_id_error_technical_error">Päringu saatmine ebaõnnestus. Smart-ID teenuses esinevad tehnilised tõrked. Palun proovige mõne aja pärast uuesti.</string>
 
     <string name="id_card_status_initial_message">Ühenda kaardilugeja nutiseadmega ja sisesta ID-kaart lugejasse.</string>

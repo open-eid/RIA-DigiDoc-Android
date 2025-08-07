@@ -249,6 +249,9 @@ fun SmartIdView(
         } else if (dialogError == R.string.invalid_time_slot_message) {
             linkText = R.string.additional_information
             linkUrl = R.string.invalid_time_slot_url
+        } else if (dialogError == R.string.signature_update_smart_id_error_message_access_rights) {
+            linkText = R.string.additional_information
+            linkUrl = R.string.signature_update_smart_id_error_message_access_rights_url
         }
         Box(modifier = modifier.fillMaxSize()) {
             onError()
@@ -479,6 +482,9 @@ fun SmartIdView(
                                         openOptionChooserDialog = false
                                     },
                                     okButtonClick = { selectedId ->
+                                        if (selectedCountry != selectedId) {
+                                            personalCode = TextFieldValue("")
+                                        }
                                         selectedCountry = selectedId
                                         countryString = countryOptions[selectedId]
                                         openOptionChooserDialog = false
@@ -512,13 +518,52 @@ fun SmartIdView(
                                 )
                             },
                         singleLine = true,
-                        onValueChange = {
+                        onValueChange = { newValue ->
                             if (!isTalkBackEnabled(context)) {
-                                personalCode = it.copy(selection = TextRange(it.text.length))
+                                val rawText = newValue.text
+                                val cursorPosition = newValue.selection.start
+
+                                // Check if selected country is Latvia
+                                if (selectedCountry == 2) {
+                                    val allowedChars = rawText.filter { char -> char.isDigit() || char == '-' }
+
+                                    if (allowedChars != personalCode.text) {
+                                        val (formattedText, cursorPosition) =
+                                            smartIdViewModel
+                                                .formatLatvianPersonalCode(
+                                                    allowedChars,
+                                                    cursorPosition,
+                                                    personalCode.text,
+                                                )
+
+                                        personalCode =
+                                            TextFieldValue(
+                                                text = formattedText,
+                                                selection = TextRange(cursorPosition),
+                                            )
+                                    } else {
+                                        personalCode =
+                                            TextFieldValue(
+                                                text = allowedChars,
+                                                selection = TextRange(minOf(cursorPosition, allowedChars.length)),
+                                            )
+                                    }
+                                } else {
+                                    val cleaned = rawText.filter { char -> char.isDigit() }
+                                    val newCursorPosition = minOf(cursorPosition, cleaned.length)
+
+                                    personalCode =
+                                        TextFieldValue(
+                                            text = cleaned,
+                                            selection = TextRange(newCursorPosition),
+                                        )
+                                }
                             } else {
-                                val noInvisibleElement = TextFieldValue(removeInvisibleElement(it.text))
+                                val noInvisibleElement = TextFieldValue(removeInvisibleElement(newValue.text))
                                 personalCode =
-                                    noInvisibleElement.copy(selection = TextRange(noInvisibleElement.text.length))
+                                    noInvisibleElement.copy(
+                                        selection = TextRange(noInvisibleElement.text.length),
+                                    )
                             }
                         },
                         modifier =
@@ -542,6 +587,9 @@ fun SmartIdView(
                                 }
                             }
                         },
+                        placeholder = {
+                            if (selectedCountry == 2) Text("123456-78901")
+                        },
                         colors =
                             OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -550,7 +598,7 @@ fun SmartIdView(
                         keyboardOptions =
                             KeyboardOptions.Default.copy(
                                 imeAction = ImeAction.Done,
-                                keyboardType = KeyboardType.Number,
+                                keyboardType = KeyboardType.Ascii,
                             ),
                         isError = !smartIdViewModel.isPersonalCodeValid(personalCode.text),
                     )
