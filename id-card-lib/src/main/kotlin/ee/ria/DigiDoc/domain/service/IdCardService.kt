@@ -39,7 +39,7 @@ interface IdCardService {
     ): IdCardData
 
     @Throws(Exception::class)
-    suspend fun authenticate(
+    fun authenticate(
         token: Token,
         pin1: ByteArray,
         origin: String,

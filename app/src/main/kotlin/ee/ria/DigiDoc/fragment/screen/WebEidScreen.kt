@@ -15,6 +15,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -44,6 +49,11 @@ fun WebEidScreen(
     val noAuthLabel = stringResource(id = R.string.web_eid_auth_no_payload)
     val activity = LocalActivity.current as Activity
     val authPayload = viewModel.authPayload.collectAsState().value
+    var isWebEidAuthenticating by rememberSaveable { mutableStateOf(false) }
+    var webEidAuthenticateAction by remember { mutableStateOf<() -> Unit>({}) }
+    var cancelWebEidAuthenticateAction by remember { mutableStateOf<() -> Unit>({}) }
+    var isValidToWebEidAuthenticate by remember { mutableStateOf(false) }
+    var nfcSupported by remember { mutableStateOf(false) }
 
     Surface(
         modifier =
@@ -67,15 +77,31 @@ fun WebEidScreen(
                     identityAction = IdentityAction.AUTH,
                     isSigning = false,
                     isDecrypting = false,
-                    isAuthenticating = false,
-                    onError = {},
-                    onSuccess = {},
+                    isWebEidAuthenticating = isWebEidAuthenticating,
+                    onError = {
+                        isWebEidAuthenticating = false
+                        cancelWebEidAuthenticateAction()
+                    },
+                    onSuccess = {
+                        isWebEidAuthenticating = false
+                        navController.navigateUp()
+                    },
                     sharedSettingsViewModel = sharedSettingsViewModel,
                     sharedContainerViewModel = sharedContainerViewModel,
-                    isSupported = {},
+                    isSupported = { supported ->
+                        nfcSupported = supported
+                    },
+                    isValidToWebEidAuthenticate = { isValid ->
+                        isValidToWebEidAuthenticate = isValid
+                    },
+                    authenticateWebEidAction = { action ->
+                        webEidAuthenticateAction = action
+                    },
+                    cancelWebEidAuthenticateAction = { action ->
+                        cancelWebEidAuthenticateAction = action
+                    },
                     isValidToSign = {},
                     isValidToDecrypt = {},
-                    isValidToAuthenticate = {},
                     isAuthenticated = { _, _ -> },
                     webEidViewModel = viewModel,
                 )

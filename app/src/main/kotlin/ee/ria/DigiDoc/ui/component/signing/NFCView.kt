@@ -123,7 +123,8 @@ fun NFCView(
     identityAction: IdentityAction,
     isSigning: Boolean = false,
     isDecrypting: Boolean = false,
-    isAuthenticating: Boolean,
+    isAuthenticating: Boolean = false,
+    isWebEidAuthenticating: Boolean = false,
     onError: () -> Unit = {},
     onSuccess: () -> Unit = {},
     isAddingRoleAndAddress: Boolean = false,
@@ -134,12 +135,15 @@ fun NFCView(
     isSupported: (Boolean) -> Unit = {},
     isValidToSign: (Boolean) -> Unit = {},
     isValidToDecrypt: (Boolean) -> Unit = {},
+    isValidToWebEidAuthenticate: (Boolean) -> Unit = {},
     showPinField: Boolean = true,
-    isValidToAuthenticate: (Boolean) -> Unit,
+    isValidToAuthenticate: (Boolean) -> Unit = {},
     signAction: (() -> Unit) -> Unit = {},
     decryptAction: (() -> Unit) -> Unit = {},
     cancelAction: (() -> Unit) -> Unit = {},
     cancelDecryptAction: (() -> Unit) -> Unit = {},
+    authenticateWebEidAction: (() -> Unit) -> Unit = {},
+    cancelWebEidAuthenticateAction: (() -> Unit) -> Unit = {},
     isAuthenticated: (Boolean, IdCardData) -> Unit,
     webEidViewModel: WebEidViewModel? = null,
 ) {
@@ -222,16 +226,9 @@ fun NFCView(
                 focusManager.clearFocus(force = true)
                 if (nfcViewModel.positiveButtonEnabled(canNumber.text, pinCode.value, codeType)) {
                     webEidAuth?.let {
-                        scope.launch(IO) {
-                            nfcViewModel.performNFCWebEidAuthWorkRequest(
-                                activity = activity,
-                                context = context,
-                                canNumber = canNumber.text,
-                                pin1Code = pinCode.value,
-                                origin = it.origin,
-                                challenge = it.challenge,
-                            )
-                        }
+                        // TODO: handle WebEID authentication
+//                        isWebEidAuthenticating = true
+//                        authenticateWebEidAction()
                     }
                 }
             },
@@ -509,7 +506,7 @@ fun NFCView(
     ) {
         if (isAddingRoleAndAddress) {
             RoleDataView(modifier, sharedSettingsViewModel)
-        } else if (isPerformingWebEidNfcAuth) {
+        } else if (isSigning || isWebEidAuthenticating || isAuthenticating || isDecrypting) {
             NFCSignatureUpdateContainer(
                 nfcViewModel = nfcViewModel,
                 onError = onError,
@@ -592,13 +589,14 @@ fun NFCView(
                     if (isValid) {
                         Log.d("WEBEID_DEBUG", "isValid == true, checking webEidAuth...")
 
+                        // TODO: handle WebEID authentication
                         webEidAuth?.let {
                             Log.d(
                                 "WEBEID_DEBUG",
                                 "webEidAuth is not null, " +
                                     "preparing to call performNFCWebEidAuthWorkRequest()",
                             )
-                            signAction {
+                            signAction { // TODO: handle WebEID authentication
                                 Log.d("WEBEID_DEBUG", "signAction for WebEID started")
                                 saveFormParams()
                                 Log.d("WEBEID_DEBUG", "Form params saved, launching NFC WebEID auth coroutine")
@@ -668,6 +666,19 @@ fun NFCView(
                                     container = cryptoContainer,
                                     pin1Code = pinCode.value,
                                     canNumber = canNumber.text,
+                                )
+                            }
+                        }
+                        authenticateWebEidAction {
+                            saveFormParams()
+                            scope.launch(IO) {
+                                nfcViewModel.performNFCWebEidAuthWorkRequest(
+                                    activity = activity,
+                                    context = context,
+                                    canNumber = canNumber.text,
+                                    pin1Code = pinCode.value,
+                                    origin = originString,
+                                    challenge = challengeString,
                                 )
                             }
                         }

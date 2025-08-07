@@ -625,14 +625,12 @@ class NFCViewModel
                             card.tunnel(canNumber)
 
                             val (authCert, signatureArray) =
-                                runBlocking {
-                                    idCardService.authenticate(
-                                        token = card,
-                                        pin1 = pin1Code,
-                                        origin = origin,
-                                        challenge = challenge,
-                                    )
-                                }
+                                idCardService.authenticate(
+                                    token = card,
+                                    pin1 = pin1Code,
+                                    origin = origin,
+                                    challenge = challenge,
+                                )
 
                             if (pin1Code.isNotEmpty()) {
                                 Arrays.fill(pin1Code, 0.toByte())
