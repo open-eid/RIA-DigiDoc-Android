@@ -600,7 +600,7 @@ class NFCViewModel
             canNumber: String,
             pin1Code: ByteArray,
             origin: String,
-            challenge: String
+            challenge: String,
         ) {
             val pinType = context.getString(R.string.signature_id_card_pin1)
             activity.requestedOrientation = activity.resources.configuration.orientation
@@ -624,14 +624,15 @@ class NFCViewModel
                             val card = TokenWithPace.create(nfcReader)
                             card.tunnel(canNumber)
 
-                            val (authCert, signatureArray) = runBlocking {
-                                idCardService.authenticate(
-                                    token = card,
-                                    pin1 = pin1Code,
-                                    origin = origin,
-                                    challenge = challenge
-                                )
-                            }
+                            val (authCert, signatureArray) =
+                                runBlocking {
+                                    idCardService.authenticate(
+                                        token = card,
+                                        pin1 = pin1Code,
+                                        origin = origin,
+                                        challenge = challenge,
+                                    )
+                                }
 
                             if (pin1Code.isNotEmpty()) {
                                 Arrays.fill(pin1Code, 0.toByte())
@@ -643,7 +644,6 @@ class NFCViewModel
                                 _shouldResetPIN.postValue(true)
                                 _webEidAuthResult.postValue(Pair(authCert, signatureArray))
                             }
-
                         } catch (ex: SmartCardReaderException) {
                             _decryptStatus.postValue(false)
 
@@ -703,7 +703,7 @@ class NFCViewModel
 
                             when {
                                 message.contains("Failed to connect") ||
-                                        message.contains("Failed to create connection with host") ->
+                                    message.contains("Failed to create connection with host") ->
                                     showNetworkError(ex)
 
                                 message.contains(

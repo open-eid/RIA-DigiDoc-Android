@@ -43,7 +43,6 @@ interface IdCardService {
         token: Token,
         pin1: ByteArray,
         origin: String,
-        challenge: String
+        challenge: String,
     ): Pair<ByteArray, ByteArray>
-
 }

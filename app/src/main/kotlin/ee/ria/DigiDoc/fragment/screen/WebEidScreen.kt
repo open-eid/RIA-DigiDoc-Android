@@ -6,7 +6,10 @@ import android.app.Activity
 import android.content.res.Configuration
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -36,7 +39,7 @@ fun WebEidScreen(
     navController: NavHostController,
     viewModel: WebEidViewModel = hiltViewModel(),
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
-    sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
+    sharedContainerViewModel: SharedContainerViewModel = hiltViewModel(),
 ) {
     val noAuthLabel = stringResource(id = R.string.web_eid_auth_no_payload)
     val activity = LocalActivity.current as Activity
@@ -52,10 +55,11 @@ fun WebEidScreen(
         color = MaterialTheme.colorScheme.background,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             if (authPayload != null) {
                 NFCView(
@@ -73,7 +77,7 @@ fun WebEidScreen(
                     isValidToDecrypt = {},
                     isValidToAuthenticate = {},
                     isAuthenticated = { _, _ -> },
-                    webEidViewModel = viewModel
+                    webEidViewModel = viewModel,
                 )
             } else {
                 Text(noAuthLabel)
@@ -89,7 +93,7 @@ fun WebEidScreenPreview() {
     RIADigiDocTheme {
         WebEidScreen(
             navController = rememberNavController(),
-            viewModel = hiltViewModel()
+            viewModel = hiltViewModel(),
         )
     }
 }

@@ -4,7 +4,6 @@ package ee.ria.DigiDoc.viewmodel
 
 import android.net.Uri
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import org.mockito.junit.MockitoJUnitRunner
 import ee.ria.DigiDoc.webEid.WebEidAuthService
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
@@ -15,10 +14,10 @@ import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
 class WebEidViewModelTest {
-
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
 

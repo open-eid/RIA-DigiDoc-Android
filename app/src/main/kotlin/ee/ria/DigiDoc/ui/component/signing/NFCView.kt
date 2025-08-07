@@ -216,26 +216,26 @@ fun NFCView(
     val originString = webEidAuth?.origin ?: ""
     val challengeString = webEidAuth?.challenge ?: ""
     var isPerformingWebEidNfcAuth by remember { mutableStateOf(false) }
-    val keyboardActions = KeyboardActions(
-        onDone = {
-            focusManager.clearFocus(force = true)
-            if (nfcViewModel.positiveButtonEnabled(canNumber.text, pinCode.value, codeType)) {
-                webEidAuth?.let {
-                    scope.launch(IO) {
-                        nfcViewModel.performNFCWebEidAuthWorkRequest(
-                            activity = activity,
-                            context = context,
-                            canNumber = canNumber.text,
-                            pin1Code = pinCode.value,
-                            origin = it.origin,
-                            challenge = it.challenge
-                        )
+    val keyboardActions =
+        KeyboardActions(
+            onDone = {
+                focusManager.clearFocus(force = true)
+                if (nfcViewModel.positiveButtonEnabled(canNumber.text, pinCode.value, codeType)) {
+                    webEidAuth?.let {
+                        scope.launch(IO) {
+                            nfcViewModel.performNFCWebEidAuthWorkRequest(
+                                activity = activity,
+                                context = context,
+                                canNumber = canNumber.text,
+                                pin1Code = pinCode.value,
+                                origin = it.origin,
+                                challenge = it.challenge,
+                            )
+                        }
                     }
                 }
-            }
-        }
-    )
-
+            },
+        )
 
     BackHandler {
         nfcViewModel.handleBackButton()
@@ -327,32 +327,38 @@ fun NFCView(
         nfcViewModel.webEidAuthResult.asFlow().collect { result ->
             result?.let { (authCert, signature) ->
 
-                val certPublicKey = java.security.cert.CertificateFactory
-                    .getInstance("X.509")
-                    .generateCertificate(authCert.inputStream())
-                    .publicKey
+                val certPublicKey =
+                    java.security.cert.CertificateFactory
+                        .getInstance("X.509")
+                        .generateCertificate(authCert.inputStream())
+                        .publicKey
 
-                val algorithm = when (certPublicKey) {
-                    is java.security.interfaces.RSAPublicKey -> "RS256"
-                    is java.security.interfaces.ECPublicKey -> "ES384"
-                    else -> "RS256"
-                }
+                val algorithm =
+                    when (certPublicKey) {
+                        is java.security.interfaces.RSAPublicKey -> "RS256"
+                        is java.security.interfaces.ECPublicKey -> "ES384"
+                        else -> "RS256"
+                    }
 
-                val tokenJson = JSONObject().apply {
-                    put("algorithm", algorithm)
-                    put("unverifiedCertificate", Base64.toBase64String(authCert))
-                    put("unverifiedSigningCertificate", Base64.toBase64String(authCert))
-                    put("supportedSignatureAlgorithms", listOf(
-                        mapOf(
-                            "cryptoAlgorithm" to "RSA",
-                            "hashFunction" to "SHA-256",
-                            "paddingScheme" to "PKCS1.5"
+                val tokenJson =
+                    JSONObject().apply {
+                        put("algorithm", algorithm)
+                        put("unverifiedCertificate", Base64.toBase64String(authCert))
+                        put("unverifiedSigningCertificate", Base64.toBase64String(authCert))
+                        put(
+                            "supportedSignatureAlgorithms",
+                            listOf(
+                                mapOf(
+                                    "cryptoAlgorithm" to "RSA",
+                                    "hashFunction" to "SHA-256",
+                                    "paddingScheme" to "PKCS1.5",
+                                ),
+                            ),
                         )
-                    ))
-                    put("issuerApp", "https://web-eid.eu/web-eid-mobile-app/releases/v1.0.0")
-                    put("signature", Base64.toBase64String(signature))
-                    put("format", "web-eid:1.1")
-                }
+                        put("issuerApp", "https://web-eid.eu/web-eid-mobile-app/releases/v1.0.0")
+                        put("signature", Base64.toBase64String(signature))
+                        put("format", "web-eid:1.1")
+                    }
 
                 // TODO: send tokenJson.toString() to backend or pass to WebEidViewModel
 
@@ -390,7 +396,7 @@ fun NFCView(
                     canNumber = canNumber.text,
                     pin1Code = pinCode.value,
                     origin = originString,
-                    challenge = challengeString
+                    challenge = challengeString,
                 )
             } else {
                 nfcViewModel.loadPersonalData(
@@ -587,7 +593,11 @@ fun NFCView(
                         Log.d("WEBEID_DEBUG", "isValid == true, checking webEidAuth...")
 
                         webEidAuth?.let {
-                            Log.d("WEBEID_DEBUG", "webEidAuth is not null, preparing to call performNFCWebEidAuthWorkRequest()")
+                            Log.d(
+                                "WEBEID_DEBUG",
+                                "webEidAuth is not null, " +
+                                    "preparing to call performNFCWebEidAuthWorkRequest()",
+                            )
                             signAction {
                                 Log.d("WEBEID_DEBUG", "signAction for WebEID started")
                                 saveFormParams()
@@ -603,7 +613,7 @@ fun NFCView(
                                             canNumber = canNumber.text,
                                             pin1Code = pinCode.value,
                                             origin = originString,
-                                            challenge = challengeString
+                                            challenge = challengeString,
                                         )
                                     } catch (e: Exception) {
                                         Log.e("WEBEID_DEBUG", "Error calling performNFCWebEidAuthWorkRequest", e)

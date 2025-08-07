@@ -13,7 +13,6 @@ import java.util.Base64
 
 @RunWith(AndroidJUnit4::class)
 class WebEidResponseUtilTest {
-
     @Test
     fun createErrorRedirect_withCustomCodeAndMessage_encodesCorrectly() {
         val loginUri = "https://rp.example.com/auth/eid/login"

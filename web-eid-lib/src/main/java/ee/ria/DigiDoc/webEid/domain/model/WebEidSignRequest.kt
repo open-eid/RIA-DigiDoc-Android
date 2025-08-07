@@ -6,5 +6,5 @@ data class WebEidSignRequest(
     val responseUri: String,
     val signCertificate: String,
     val hash: String,
-    val hashFunction: String
+    val hashFunction: String,
 )

@@ -14,6 +14,8 @@ interface WebEidAuthService {
     val redirectUri: StateFlow<String?>
 
     fun resetValues()
+
     fun parseAuthUri(uri: Uri)
+
     fun parseSignUri(uri: Uri)
 }

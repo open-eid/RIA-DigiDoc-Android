@@ -66,7 +66,7 @@ fun WebEidFragmentPreview() {
     RIADigiDocTheme {
         WebEidFragment(
             navController = rememberNavController(),
-            webEidUri = null
+            webEidUri = null,
         )
     }
 }
