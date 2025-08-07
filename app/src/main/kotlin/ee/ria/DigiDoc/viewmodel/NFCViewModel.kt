@@ -166,7 +166,7 @@ class NFCViewModel
             codeType: CodeType,
         ): Boolean {
             if (canNumber != null && pinCode != null) {
-                return isCANLengthValid(canNumber.toString()) &&
+                return isCANLengthValid(canNumber) &&
                     isPINLengthValid(pinCode, codeType)
             }
             return false
@@ -409,7 +409,7 @@ class NFCViewModel
                                     logTag,
                                     "Auth certificate: " + Base64.toBase64String(authCert),
                                 )
-                                var decryptedContainer =
+                                val decryptedContainer =
                                     CryptoContainer.decrypt(
                                         context,
                                         container.file,
