@@ -9,7 +9,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -108,6 +110,23 @@ fun WebEidScreen(
             } else {
                 Text(noAuthLabel)
             }
+
+            if (!isWebEidAuthenticating && nfcSupported) {
+                Button(
+                    onClick = {
+                        isWebEidAuthenticating = true
+                        webEidAuthenticateAction()
+                    },
+                    enabled = isValidToWebEidAuthenticate,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = stringResource(R.string.web_eid_authenticate),
+                        color = MaterialTheme.colorScheme.surface
+                    )
+                }
+            }
+
         }
     }
 }

@@ -219,20 +219,6 @@ fun NFCView(
     val webEidAuth = webEidViewModel?.authPayload?.collectAsState()?.value
     val originString = webEidAuth?.origin ?: ""
     val challengeString = webEidAuth?.challenge ?: ""
-    var isPerformingWebEidNfcAuth by remember { mutableStateOf(false) }
-    val keyboardActions =
-        KeyboardActions(
-            onDone = {
-                focusManager.clearFocus(force = true)
-                if (nfcViewModel.positiveButtonEnabled(canNumber.text, pinCode.value, codeType)) {
-                    webEidAuth?.let {
-                        // TODO: handle WebEID authentication
-//                        isWebEidAuthenticating = true
-//                        authenticateWebEidAction()
-                    }
-                }
-            },
-        )
 
     BackHandler {
         nfcViewModel.handleBackButton()
@@ -584,43 +570,7 @@ fun NFCView(
                 }
 
                 LaunchedEffect(Unit, isValid) {
-                    Log.d("WEBEID_DEBUG", "LaunchedEffect triggered with isValid=$isValid")
-
                     if (isValid) {
-                        Log.d("WEBEID_DEBUG", "isValid == true, checking webEidAuth...")
-
-                        // TODO: handle WebEID authentication
-                        webEidAuth?.let {
-                            Log.d(
-                                "WEBEID_DEBUG",
-                                "webEidAuth is not null, " +
-                                    "preparing to call performNFCWebEidAuthWorkRequest()",
-                            )
-                            signAction { // TODO: handle WebEID authentication
-                                Log.d("WEBEID_DEBUG", "signAction for WebEID started")
-                                saveFormParams()
-                                Log.d("WEBEID_DEBUG", "Form params saved, launching NFC WebEID auth coroutine")
-                                scope.launch(IO) {
-                                    Log.d("WEBEID_DEBUG", "Coroutine started for performNFCWebEidAuthWorkRequest")
-                                    try {
-                                        isPerformingWebEidNfcAuth = true
-                                        Log.d("WEBEID_DEBUG", "Calling performNFCWebEidAuthWorkRequest")
-                                        nfcViewModel.performNFCWebEidAuthWorkRequest(
-                                            activity = activity,
-                                            context = context,
-                                            canNumber = canNumber.text,
-                                            pin1Code = pinCode.value,
-                                            origin = originString,
-                                            challenge = challengeString,
-                                        )
-                                    } catch (e: Exception) {
-                                        Log.e("WEBEID_DEBUG", "Error calling performNFCWebEidAuthWorkRequest", e)
-                                    } finally {
-                                        isPerformingWebEidNfcAuth = false
-                                    }
-                                }
-                            }
-                        } ?: Log.d("WEBEID_DEBUG", "webEidAuth is null, skipping WebEID NFC call")
                         signAction {
                             saveFormParams()
                             var roleDataRequest: RoleData? = null
@@ -913,7 +863,6 @@ fun NFCView(
                                             pinCode.value,
                                             codeType,
                                         ),
-                                keyboardActions = keyboardActions,
                             )
                             if (isTalkBackEnabled(context) && pinCode.value.isNotEmpty()) {
                                 IconButton(

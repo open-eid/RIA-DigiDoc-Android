@@ -144,4 +144,5 @@
     <string name="web_eid_auth_label_get_signing_cert">Get Signing Cert</string>
     <string name="web_eid_auth_label_origin">Origin</string>
     <string name="web_eid_auth_no_payload">No auth payload received.</string>
+    <string name="web_eid_authenticate">Authenticate</string>
 </resources>
