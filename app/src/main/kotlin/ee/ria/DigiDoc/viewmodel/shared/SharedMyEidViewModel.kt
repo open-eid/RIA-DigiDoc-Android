@@ -6,6 +6,7 @@ import android.app.Activity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant
@@ -27,7 +28,6 @@ import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager
 import ee.ria.DigiDoc.ui.component.myeid.pinandcertificate.PinChangeContent
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -76,7 +76,7 @@ class SharedMyEidViewModel
         val identificationMethod: LiveData<MyEidIdentificationMethodSetting?> = _identificationMethod
 
         init {
-            CoroutineScope(Main).launch {
+            viewModelScope.launch(Main) {
                 smartCardReaderManager.status().asFlow().distinctUntilChanged().collect { status ->
                     _idCardStatus.postValue(status)
                 }
