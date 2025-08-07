@@ -51,18 +51,21 @@ fun MainMenuBottomSheet(
     if (isBottomSheetVisible.value) {
         val firstButtonClick =
             firstButtonClick ?: {
+                isBottomSheetVisible.value = false
                 navController.navigate(
                     Route.Info.route,
                 )
             }
         val secondButtonClick =
             secondButtonClick ?: {
+                isBottomSheetVisible.value = false
                 navController.navigate(
                     Route.Accessibility.route,
                 )
             }
         val thirdButtonClick =
             thirdButtonClick ?: {
+                isBottomSheetVisible.value = false
                 navController.navigate(
                     Route.Diagnostics.route,
                 )
