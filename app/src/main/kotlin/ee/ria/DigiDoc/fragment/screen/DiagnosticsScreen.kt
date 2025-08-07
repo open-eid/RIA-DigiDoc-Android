@@ -632,7 +632,8 @@ fun DiagnosticsScreen(
                                 modifier
                                     .padding(SPadding)
                                     .wrapContentHeight()
-                                    .wrapContentWidth(),
+                                    .wrapContentWidth()
+                                    .verticalScroll(rememberScrollState()),
                         ) {
                             Column(
                                 modifier =

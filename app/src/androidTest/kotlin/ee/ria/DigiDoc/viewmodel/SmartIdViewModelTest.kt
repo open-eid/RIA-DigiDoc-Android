@@ -35,6 +35,7 @@ import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -692,37 +693,107 @@ class SmartIdViewModelTest {
         }
 
     @Test
-    fun mobileIdViewModel_isPersonalCodeValid_true() =
+    fun smartIdViewModel_isPersonalCodeValid_true() =
         runTest {
             val result = viewModel.isPersonalCodeValid("38207253718")
             assertTrue(result)
         }
 
     @Test
-    fun mobileIdViewModel_isPersonalCodeValid_hashIsInvalidReturnFalse() =
+    fun smartIdViewModel_isPersonalCodeValid_hashIsInvalidReturnFalse() =
         runTest {
             val result = viewModel.isPersonalCodeValid("38308263913")
             assertFalse(result)
         }
 
     @Test
-    fun mobileIdViewModel_isPersonalCodeValid_lengthIsLessThan11DigitsReturnFalse() =
+    fun smartIdViewModel_isPersonalCodeValid_lengthIsLessThan11DigitsReturnFalse() =
         runTest {
             val result = viewModel.isPersonalCodeValid("3830826391")
             assertFalse(result)
         }
 
     @Test
-    fun mobileIdViewModel_isPersonalCodeValid_isNullReturnTrue() =
+    fun smartIdViewModel_isPersonalCodeValid_isNullReturnTrue() =
         runTest {
             val result = viewModel.isPersonalCodeValid(null)
             assertTrue(result)
         }
 
     @Test
-    fun mobileIdViewModel_isPersonalCodeValid_isEmptyReturnTrue() =
+    fun smartIdViewModel_isPersonalCodeValid_isEmptyReturnTrue() =
         runTest {
             val result = viewModel.isPersonalCodeValid("")
             assertTrue(result)
         }
+
+    @Test
+    fun smartIdViewModel_formatLatvianPersonalCode_dashManuallyDeleted() {
+        val input = "01010112345"
+        val previous = "010101-12345"
+        val cursor = 7
+        val result = viewModel.formatLatvianPersonalCode(input, cursor, previous)
+
+        assertEquals(Pair("01010112345", 7), result)
+    }
+
+    @Test
+    fun smartIdViewModel_formatLatvianPersonalCode_removeMultipleDashes() {
+        val input = "010101--12345"
+        val previous = "010101-12345"
+        val cursor = 10
+        val result = viewModel.formatLatvianPersonalCode(input, cursor, previous)
+
+        assertEquals(Pair("010101-12345", 10), result)
+    }
+
+    @Test
+    fun smartIdViewModel_formatLatvianPersonalCode_dashCorrectedWhenInWrongPosition() {
+        val input = "01010-112345"
+        val previous = "01010112345"
+        val cursor = 7
+        val result = viewModel.formatLatvianPersonalCode(input, cursor, previous)
+
+        assertEquals(Pair("010101-12345", 7), result)
+    }
+
+    @Test
+    fun smartIdViewModel_formatLatvianPersonalCode_formattedCorrectly() {
+        val input = "010101-12345"
+        val previous = "010101-12345"
+        val cursor = 10
+        val result = viewModel.formatLatvianPersonalCode(input, cursor, previous)
+
+        assertEquals(Pair("010101-12345", 10), result)
+    }
+
+    @Test
+    fun smartIdViewModel_formatLatvianPersonalCode_noDashWhenLessThanSixDigits() {
+        val input = "01010"
+        val previous = "0101"
+        val cursor = 5
+        val result = viewModel.formatLatvianPersonalCode(input, cursor, previous)
+
+        assertEquals("No dash should be added yet", Pair("01010", 5), result)
+    }
+
+    @Test
+    fun smartIdViewModel_formatLatvianPersonalCode_dashAddedAfterSixthDigit() {
+        val input = "01010112345"
+        val previous = "0101011234"
+        val cursor = 7
+        val result = viewModel.formatLatvianPersonalCode(input, cursor, previous)
+
+        assertEquals(Pair("010101-12345", 8), result)
+    }
+
+    @Test
+    fun smartIdViewModel_formatLatvianPersonalCode_dashRemovedWhenOnlyDashInserted() {
+        val input = "-"
+        val previous = ""
+        val cursor = 1
+        val result = viewModel.formatLatvianPersonalCode(input, cursor, previous)
+
+        assertEquals(Pair("", 0), result)
+    }
 }
