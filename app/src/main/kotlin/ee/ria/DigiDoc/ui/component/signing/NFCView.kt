@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
@@ -214,6 +215,27 @@ fun NFCView(
     val webEidAuth = webEidViewModel?.authPayload?.collectAsState()?.value
     val originString = webEidAuth?.origin ?: ""
     val challengeString = webEidAuth?.challenge ?: ""
+    var isPerformingWebEidNfcAuth by remember { mutableStateOf(false) }
+    val keyboardActions = KeyboardActions(
+        onDone = {
+            focusManager.clearFocus(force = true)
+            if (nfcViewModel.positiveButtonEnabled(canNumber.text, pinCode.value, codeType)) {
+                webEidAuth?.let {
+                    scope.launch(IO) {
+                        nfcViewModel.performNFCWebEidAuthWorkRequest(
+                            activity = activity,
+                            context = context,
+                            canNumber = canNumber.text,
+                            pin1Code = pinCode.value,
+                            origin = it.origin,
+                            challenge = it.challenge
+                        )
+                    }
+                }
+            }
+        }
+    )
+
 
     BackHandler {
         nfcViewModel.handleBackButton()
@@ -481,7 +503,7 @@ fun NFCView(
     ) {
         if (isAddingRoleAndAddress) {
             RoleDataView(modifier, sharedSettingsViewModel)
-        } else if (isSigning || isAuthenticating || isDecrypting) {
+        } else if (isPerformingWebEidNfcAuth) {
             NFCSignatureUpdateContainer(
                 nfcViewModel = nfcViewModel,
                 onError = onError,
@@ -550,6 +572,14 @@ fun NFCView(
                     isValidToAuthenticate(isValidForAuthenticating)
                 }
 
+                LaunchedEffect(canNumber.text) {
+                    webEidViewModel?.setCanNumber(canNumber.text)
+                }
+
+                LaunchedEffect(pinCode.value) {
+                    webEidViewModel?.setPin1Code(pinCode.value)
+                }
+
                 LaunchedEffect(Unit, isValid) {
                     Log.d("WEBEID_DEBUG", "LaunchedEffect triggered with isValid=$isValid")
 
@@ -565,6 +595,8 @@ fun NFCView(
                                 scope.launch(IO) {
                                     Log.d("WEBEID_DEBUG", "Coroutine started for performNFCWebEidAuthWorkRequest")
                                     try {
+                                        isPerformingWebEidNfcAuth = true
+                                        Log.d("WEBEID_DEBUG", "Calling performNFCWebEidAuthWorkRequest")
                                         nfcViewModel.performNFCWebEidAuthWorkRequest(
                                             activity = activity,
                                             context = context,
@@ -575,6 +607,8 @@ fun NFCView(
                                         )
                                     } catch (e: Exception) {
                                         Log.e("WEBEID_DEBUG", "Error calling performNFCWebEidAuthWorkRequest", e)
+                                    } finally {
+                                        isPerformingWebEidNfcAuth = false
                                     }
                                 }
                             }
@@ -858,6 +892,7 @@ fun NFCView(
                                             pinCode.value,
                                             codeType,
                                         ),
+                                keyboardActions = keyboardActions,
                             )
                             if (isTalkBackEnabled(context) && pinCode.value.isNotEmpty()) {
                                 IconButton(
