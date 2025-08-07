@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.utilsLib.validator
 
+import ee.ria.DigiDoc.common.Constant.MAXIMUM_LATVIAN_PERSONAL_CODE_LENGTH
 import ee.ria.DigiDoc.utilsLib.date.DateOfBirthUtil.parseDateOfBirth
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import org.apache.commons.lang3.StringUtils
@@ -17,7 +18,16 @@ object PersonalCodeValidator {
                 isBirthDateValid(personalCode) &&
                 isChecksumValid(personalCode)
         ) ||
-            (isPersonalCodeLengthValid(personalCode) && isMobileIdTestCode(personalCode))
+            (isPersonalCodeLengthValid(personalCode) && isMobileIdTestCode(personalCode)) ||
+            isLatvianPersonalCodeValid(personalCode)
+
+    private fun isLatvianPersonalCodeValid(personalCode: String): Boolean {
+        val regex = "^\\d{6}-\\d{5}$"
+
+        return personalCode.isNotEmpty() &&
+            personalCode.length == MAXIMUM_LATVIAN_PERSONAL_CODE_LENGTH &&
+            personalCode.matches(regex.toRegex())
+    }
 
     private fun isPersonalCodeNumeric(personalCode: String): Boolean = StringUtils.isNumeric(personalCode)
 
@@ -29,8 +39,11 @@ object PersonalCodeValidator {
         try {
             val dateOfBirth: LocalDate = parseDateOfBirth(personalCode)
             return dateOfBirth.isBefore(LocalDate.now())
-        } catch (e: DateTimeException) {
-            errorLog(LOG_TAG, "Invalid personal code birth of date", e)
+        } catch (dte: DateTimeException) {
+            errorLog(LOG_TAG, "Invalid personal code birth of date", dte)
+            return false
+        } catch (iae: IllegalArgumentException) {
+            errorLog(LOG_TAG, "Invalid personal code", iae)
             return false
         }
     }

@@ -3,6 +3,9 @@
 package ee.ria.DigiDoc.ui.component.shared.dialog
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -45,18 +48,24 @@ fun ConfirmationDialog(
             onDismissRequest = onDismiss,
             title = {},
             text = {
-                HrefMessageDialog(
+                Column(
                     modifier =
                         modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("sivaConfirmationMessageDialog"),
-                    text1 = text1,
-                    text2 = text2,
-                    linkText = linkText,
-                    linkUrl = linkUrl,
-                    showLinkOnOneLine = true,
-                )
+                            .verticalScroll(rememberScrollState()),
+                ) {
+                    HrefMessageDialog(
+                        modifier =
+                            modifier
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }.testTag("sivaConfirmationMessageDialog"),
+                        text1 = text1,
+                        text2 = text2,
+                        linkText = linkText,
+                        linkUrl = linkUrl,
+                        showLinkOnOneLine = true,
+                    )
+                }
             },
             dismissButton = {
                 TextButton(onDismiss) {

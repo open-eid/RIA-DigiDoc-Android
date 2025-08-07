@@ -29,8 +29,14 @@ import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager
 import ee.ria.DigiDoc.ui.component.myeid.pinandcertificate.PinChangeContent
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
 import io.reactivex.rxjava3.core.Observable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.bouncycastle.util.encoders.Hex
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -51,12 +57,15 @@ import java.time.DateTimeException
 import java.time.ZoneId
 import java.util.Locale
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class SharedMyEidViewModelTest {
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
 
     @get:Rule
     val activityRule = ActivityScenarioRule(MainActivity::class.java)
+
+    private val testDispatcher = UnconfinedTestDispatcher()
 
     lateinit var context: Context
 
@@ -102,6 +111,7 @@ class SharedMyEidViewModelTest {
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
+        Dispatchers.setMain(testDispatcher)
 
         context = InstrumentationRegistry.getInstrumentation().targetContext
 
@@ -124,6 +134,11 @@ class SharedMyEidViewModelTest {
         viewModel.identificationMethod.observeForever(identificationMethodObserver)
         viewModel.idCardStatus.observeForever(idCardStatusObserver)
         viewModel.errorState.observeForever(errorStateObserver)
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test
