@@ -59,6 +59,13 @@ workflows:
         type: boolean
         default: false
     scripts:
+      - name: Parameters
+        script: |
+          echo Default Central Configuration URL: ${{ inputs.defaultCentralConfigurationUrl_input }}
+          echo Default Central Configuration Update Interval: ${{ inputs.defaultCentralConfigurationUpdateInterval_input }}
+          echo Default Central Configuration TSL URL: ${{ inputs.defaultCentralConfigurationTslUrl_input }}
+          echo "TSL member lists: ${{ inputs.memberTsl_input }}"
+          echo Run tests?: ${{ inputs.enableTests_input }}
       - *set_android_sdk_location
       - *get_app_version
       - *get_google_services_json
