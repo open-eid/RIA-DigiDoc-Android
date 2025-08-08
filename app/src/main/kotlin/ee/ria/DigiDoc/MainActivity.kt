@@ -98,11 +98,12 @@ class MainActivity :
 
         val webEidUri = intent?.data?.takeIf { it.scheme == "web-eid-mobile" }
 
-        val externalFileUris = if (webEidUri != null) {
-            listOf()
-        } else {
-            getExternalFileUris(intent)
-        }
+        val externalFileUris =
+            if (webEidUri != null) {
+                listOf()
+            } else {
+                getExternalFileUris(intent)
+            }
         val locale = dataStore.getLocale() ?: getLocale("en")
         localeUtil.updateLocale(applicationContext, locale)
 

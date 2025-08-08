@@ -6,5 +6,5 @@ data class WebEidAuthRequest(
     val challenge: String,
     val loginUri: String,
     val getSigningCertificate: Boolean,
-    val origin: String
+    val origin: String,
 )

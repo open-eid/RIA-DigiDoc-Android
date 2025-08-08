@@ -14,12 +14,9 @@ import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthParserImpl
 @Module
 @InstallIn(SingletonComponent::class)
 class AppModules {
-
     @Provides
     fun provideWebEidAuthParser(): WebEidAuthParser = WebEidAuthParserImpl()
 
     @Provides
-    fun provideWebEidAuthService(
-        parser: WebEidAuthParser
-    ): WebEidAuthService = WebEidAuthServiceImpl(parser)
+    fun provideWebEidAuthService(parser: WebEidAuthParser): WebEidAuthService = WebEidAuthServiceImpl(parser)
 }
