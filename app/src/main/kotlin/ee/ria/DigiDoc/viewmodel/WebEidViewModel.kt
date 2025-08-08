@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.viewmodel
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
 import ee.ria.DigiDoc.webEid.WebEidAuthService
 import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthRequest
 import ee.ria.DigiDoc.webEid.domain.model.WebEidSignRequest
@@ -41,6 +42,6 @@ class WebEidViewModel
             val token = authService.buildAuthToken(cert, signature)
 
             // TODO: send tokenJson.toString() to backend or pass to WebEidViewModel
-            println("DEBUG: Web EID token = $token")
+            LoggingUtil.debugLog("WebEidViewModel", "Web EID token = $token")
         }
     }
