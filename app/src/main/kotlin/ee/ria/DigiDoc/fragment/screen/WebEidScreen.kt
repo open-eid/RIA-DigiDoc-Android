@@ -5,40 +5,50 @@ package ee.ria.DigiDoc.fragment.screen
 import android.app.Activity
 import android.content.res.Configuration
 import androidx.activity.compose.LocalActivity
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.domain.model.IdentityAction
+import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
+import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.signing.NFCView
+import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.viewmodel.WebEidViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun WebEidScreen(
@@ -47,6 +57,7 @@ fun WebEidScreen(
     viewModel: WebEidViewModel = hiltViewModel(),
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
     sharedContainerViewModel: SharedContainerViewModel = hiltViewModel(),
+    sharedMenuViewModel: SharedMenuViewModel,
 ) {
     val noAuthLabel = stringResource(id = R.string.web_eid_auth_no_payload)
     val activity = LocalActivity.current as Activity
@@ -57,22 +68,72 @@ fun WebEidScreen(
     var isValidToWebEidAuthenticate by remember { mutableStateOf(false) }
     var nfcSupported by remember { mutableStateOf(false) }
 
-    Surface(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .semantics { testTagsAsResourceId = true }
-                .testTag("webEidScreen"),
-        color = MaterialTheme.colorScheme.background,
-    ) {
+    val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
+    val snackBarHostState = remember { SnackbarHostState() }
+    val snackBarScope = rememberCoroutineScope()
+    val messages by SnackBarManager.messages.collectAsState(emptyList())
+
+    LaunchedEffect(messages) {
+        messages.forEach { message ->
+            snackBarScope.launch {
+                snackBarHostState.showSnackbar(message)
+            }
+            SnackBarManager.removeMessage(message)
+        }
+    }
+
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                modifier = modifier.padding(vertical = SPadding),
+                hostState = snackBarHostState,
+            )
+        },
+        topBar = {
+            TopBar(
+                modifier = modifier,
+                sharedMenuViewModel = sharedMenuViewModel,
+                title = null,
+                leftIconContentDescription =
+                    if (isWebEidAuthenticating) {
+                        R.string.signing_cancel
+                    } else {
+                        R.string.back
+                    },
+                onLeftButtonClick = {
+                    if (isWebEidAuthenticating) {
+                        cancelWebEidAuthenticateAction()
+                        isWebEidAuthenticating = false
+                    } else {
+                        navController.navigateUp()
+                    }
+                },
+                onRightSecondaryButtonClick = {
+                    isSettingsMenuBottomSheetVisible.value = true
+                },
+            )
+        },
+    ) { paddingValues ->
+        SettingsMenuBottomSheet(
+            navController = navController,
+            isBottomSheetVisible = isSettingsMenuBottomSheetVisible,
+        )
+
         Column(
             modifier =
-                Modifier
+                modifier
                     .fillMaxSize()
-                    .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                    .padding(paddingValues)
+                    .padding(SPadding)
+                    .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(MSPadding),
         ) {
+            Text(
+                text = "Test webeidscreen",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = modifier.semantics { heading() },
+            )
             if (authPayload != null) {
                 NFCView(
                     activity = activity,
@@ -138,7 +199,9 @@ fun WebEidScreenPreview() {
     RIADigiDocTheme {
         WebEidScreen(
             navController = rememberNavController(),
-            viewModel = hiltViewModel(),
+            sharedMenuViewModel = hiltViewModel(),
+            sharedSettingsViewModel = hiltViewModel(),
+            sharedContainerViewModel = hiltViewModel(),
         )
     }
 }

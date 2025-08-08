@@ -22,6 +22,9 @@ import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.fragment.screen.WebEidScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.viewmodel.WebEidViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -30,6 +33,9 @@ fun WebEidFragment(
     navController: NavHostController,
     webEidUri: Uri?,
     viewModel: WebEidViewModel = hiltViewModel(),
+    sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
+    sharedContainerViewModel: SharedContainerViewModel = hiltViewModel(),
+    sharedMenuViewModel: SharedMenuViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(webEidUri) {
         println("DEBUG: WebEidFragment got URI = $webEidUri")
@@ -55,6 +61,9 @@ fun WebEidFragment(
             modifier = modifier,
             navController = navController,
             viewModel = viewModel,
+            sharedSettingsViewModel = sharedSettingsViewModel,
+            sharedContainerViewModel = sharedContainerViewModel,
+            sharedMenuViewModel = sharedMenuViewModel,
         )
     }
 }

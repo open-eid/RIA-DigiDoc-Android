@@ -4,7 +4,6 @@ package ee.ria.DigiDoc.ui.component.signing
 
 import android.app.Activity
 import android.content.res.Configuration
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
@@ -24,7 +23,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
@@ -372,21 +370,10 @@ fun NFCView(
     LaunchedEffect(Unit, isAuthenticating) {
         if (isAuthenticating) {
             saveFormParams()
-            if (webEidAuth != null) {
-                nfcViewModel.performNFCWebEidAuthWorkRequest(
-                    activity = activity,
-                    context = context,
-                    canNumber = canNumber.text,
-                    pin1Code = pinCode.value,
-                    origin = originString,
-                    challenge = challengeString,
-                )
-            } else {
-                nfcViewModel.loadPersonalData(
-                    activity,
-                    canNumber.text,
-                )
-            }
+            nfcViewModel.loadPersonalData(
+                activity,
+                canNumber.text,
+            )
         }
     }
 
@@ -551,6 +538,7 @@ fun NFCView(
                 LaunchedEffect(isValid) {
                     isValidToSign(isValid)
                     isValidToDecrypt(isValid)
+                    isValidToWebEidAuthenticate(isValid)
                 }
 
                 LaunchedEffect(Unit, rememberMe) {
@@ -559,14 +547,6 @@ fun NFCView(
 
                 LaunchedEffect(isValidForAuthenticating) {
                     isValidToAuthenticate(isValidForAuthenticating)
-                }
-
-                LaunchedEffect(canNumber.text) {
-                    webEidViewModel?.setCanNumber(canNumber.text)
-                }
-
-                LaunchedEffect(pinCode.value) {
-                    webEidViewModel?.setPin1Code(pinCode.value)
                 }
 
                 LaunchedEffect(Unit, isValid) {
