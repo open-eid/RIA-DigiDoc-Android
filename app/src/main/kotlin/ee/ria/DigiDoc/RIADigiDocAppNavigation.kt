@@ -56,7 +56,10 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
 
 @Composable
-fun RIADigiDocAppScreen(externalFileUris: List<Uri>, webEidUri: Uri? = null) {
+fun RIADigiDocAppScreen(
+    externalFileUris: List<Uri>,
+    webEidUri: Uri? = null,
+) {
     val navController = rememberNavController()
     val sharedMenuViewModel: SharedMenuViewModel = hiltViewModel()
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
@@ -68,11 +71,12 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>, webEidUri: Uri? = null) {
 
     sharedContainerViewModel.setExternalFileUris(externalFileUris)
 
-    val startDestination = when {
-        webEidUri != null -> Route.WebEidScreen.route
-        sharedSettingsViewModel.dataStore.getLocale() != null -> Route.Home.route
-        else -> Route.Init.route
-    }
+    val startDestination =
+        when {
+            webEidUri != null -> Route.WebEidScreen.route
+            sharedSettingsViewModel.dataStore.getLocale() != null -> Route.Home.route
+            else -> Route.Init.route
+        }
 
     NavHost(
         navController = navController,
@@ -354,7 +358,9 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>, webEidUri: Uri? = null) {
 @Composable
 fun RIADigiDocAppScreenPreview() {
     RIADigiDocTheme {
-        RIADigiDocAppScreen(listOf(),
-        webEidUri = null)
+        RIADigiDocAppScreen(
+            listOf(),
+            webEidUri = null,
+        )
     }
 }
