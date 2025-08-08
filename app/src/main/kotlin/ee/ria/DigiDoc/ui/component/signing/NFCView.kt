@@ -622,6 +622,10 @@ fun NFCView(
                             nfcViewModel.handleBackButton()
                             nfcViewModel.cancelNFCDecryptWorkRequest()
                         }
+                        cancelWebEidAuthenticateAction {
+                            nfcViewModel.handleBackButton()
+                            nfcViewModel.cancelWebEidAuthWorkRequest()
+                        }
                     }
                 }
 

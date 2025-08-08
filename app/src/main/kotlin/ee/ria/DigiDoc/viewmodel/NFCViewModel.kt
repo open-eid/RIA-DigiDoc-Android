@@ -213,6 +213,10 @@ class NFCViewModel
             nfcSmartCardReaderManager.disableNfcReaderMode()
         }
 
+        fun cancelWebEidAuthWorkRequest() {
+            nfcSmartCardReaderManager.disableNfcReaderMode()
+        }
+
         suspend fun checkNFCStatus(nfcStatus: NfcStatus) {
             withContext(Main) {
                 _nfcStatus.postValue(nfcStatus)
