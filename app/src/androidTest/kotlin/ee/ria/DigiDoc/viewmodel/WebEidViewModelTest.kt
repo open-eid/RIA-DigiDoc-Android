@@ -83,4 +83,14 @@ class WebEidViewModelTest {
 
         assert(viewModelWithRedirect.redirectUri.value == "https://example.com#updatedPayload")
     }
+
+    @Test
+    fun handleWebEidAuthResult_callsBuildAuthToken() {
+        val cert = byteArrayOf(1, 2, 3)
+        val signature = byteArrayOf(4, 5, 6)
+
+        viewModel.handleWebEidAuthResult(cert, signature)
+
+        verify(authService).buildAuthToken(cert, signature)
+    }
 }
