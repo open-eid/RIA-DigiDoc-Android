@@ -10,6 +10,7 @@ import ee.ria.DigiDoc.webEid.domain.model.WebEidSignRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import org.json.JSONObject
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -65,4 +66,9 @@ class WebEidAuthServiceImpl
                 _errorState.value = e.message
             }
         }
+
+        override fun buildAuthToken(certBytes: ByteArray, signature: ByteArray): JSONObject {
+            return parserImpl.buildAuthToken(certBytes, signature)
+        }
+
     }

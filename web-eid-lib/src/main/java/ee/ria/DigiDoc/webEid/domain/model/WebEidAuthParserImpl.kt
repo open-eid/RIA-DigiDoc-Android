@@ -9,6 +9,8 @@ import ee.ria.DigiDoc.webEid.utils.WebEidErrorCodes
 import ee.ria.DigiDoc.webEid.utils.WebEidResponseUtil
 import org.json.JSONObject
 import java.net.URI
+import java.security.cert.CertificateFactory
+import java.security.cert.X509Certificate
 import java.util.Base64
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -157,6 +159,37 @@ class WebEidAuthParserImpl
                         code = WebEidErrorCodes.UNKNOWN,
                         message = WebEidErrorCodes.UNKNOWN_MESSAGE,
                     )
+            }
+        }
+
+        override fun buildAuthToken(certBytes: ByteArray, signature: ByteArray): JSONObject {
+            val cert = CertificateFactory.getInstance("X.509")
+                .generateCertificate(certBytes.inputStream()) as X509Certificate
+
+            val publicKey = cert.publicKey
+            val algorithm = when (publicKey) {
+                is java.security.interfaces.RSAPublicKey -> "RS256"
+                is java.security.interfaces.ECPublicKey -> "ES384"
+                else -> "RS256"
+            }
+
+            return JSONObject().apply {
+                put("algorithm", algorithm)
+                put("unverifiedCertificate", Base64.getEncoder().encodeToString(certBytes))
+                put("unverifiedSigningCertificate", Base64.getEncoder().encodeToString(certBytes))
+                put(
+                    "supportedSignatureAlgorithms",
+                    listOf(
+                        mapOf(
+                            "cryptoAlgorithm" to "RSA",
+                            "hashFunction" to "SHA-256",
+                            "paddingScheme" to "PKCS1.5",
+                        ),
+                    ),
+                )
+                put("issuerApp", "https://web-eid.eu/web-eid-mobile-app/releases/v1.0.0")
+                put("signature", Base64.getEncoder().encodeToString(signature))
+                put("format", "web-eid:1.1")
             }
         }
     }
