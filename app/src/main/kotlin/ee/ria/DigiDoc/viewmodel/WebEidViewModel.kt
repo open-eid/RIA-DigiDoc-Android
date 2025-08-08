@@ -34,7 +34,10 @@ class WebEidViewModel
             authService.resetValues()
         }
 
-        fun handleWebEidAuthResult(cert: ByteArray, signature: ByteArray) {
+        fun handleWebEidAuthResult(
+            cert: ByteArray,
+            signature: ByteArray,
+        ) {
             val token = authService.buildAuthToken(cert, signature)
 
             // TODO: send tokenJson.toString() to backend or pass to WebEidViewModel

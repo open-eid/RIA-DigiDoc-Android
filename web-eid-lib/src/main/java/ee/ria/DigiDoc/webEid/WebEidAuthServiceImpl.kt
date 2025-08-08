@@ -67,8 +67,10 @@ class WebEidAuthServiceImpl
             }
         }
 
-        override fun buildAuthToken(certBytes: ByteArray, signature: ByteArray): JSONObject {
+        override fun buildAuthToken(
+            certBytes: ByteArray,
+            signature: ByteArray,
+        ): JSONObject {
             return parserImpl.buildAuthToken(certBytes, signature)
         }
-
     }

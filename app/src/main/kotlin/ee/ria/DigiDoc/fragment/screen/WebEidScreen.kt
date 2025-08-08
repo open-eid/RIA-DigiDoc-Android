@@ -132,7 +132,7 @@ fun WebEidScreen(
                 text = stringResource(R.string.web_eid_auth_title),
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.semantics { heading() }
+                modifier = Modifier.semantics { heading() },
             )
             if (authPayload != null) {
                 NFCView(
@@ -179,15 +179,14 @@ fun WebEidScreen(
                         webEidAuthenticateAction()
                     },
                     enabled = isValidToWebEidAuthenticate,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(
                         text = stringResource(R.string.web_eid_authenticate),
-                        color = MaterialTheme.colorScheme.surface
+                        color = MaterialTheme.colorScheme.surface,
                     )
                 }
             }
-
         }
     }
 }

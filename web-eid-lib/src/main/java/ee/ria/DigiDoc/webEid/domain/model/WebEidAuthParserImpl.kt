@@ -162,16 +162,21 @@ class WebEidAuthParserImpl
             }
         }
 
-        override fun buildAuthToken(certBytes: ByteArray, signature: ByteArray): JSONObject {
-            val cert = CertificateFactory.getInstance("X.509")
-                .generateCertificate(certBytes.inputStream()) as X509Certificate
+        override fun buildAuthToken(
+            certBytes: ByteArray,
+            signature: ByteArray,
+        ): JSONObject {
+            val cert =
+                CertificateFactory.getInstance("X.509")
+                    .generateCertificate(certBytes.inputStream()) as X509Certificate
 
             val publicKey = cert.publicKey
-            val algorithm = when (publicKey) {
-                is java.security.interfaces.RSAPublicKey -> "RS256"
-                is java.security.interfaces.ECPublicKey -> "ES384"
-                else -> "RS256"
-            }
+            val algorithm =
+                when (publicKey) {
+                    is java.security.interfaces.RSAPublicKey -> "RS256"
+                    is java.security.interfaces.ECPublicKey -> "ES384"
+                    else -> "RS256"
+                }
 
             return JSONObject().apply {
                 put("algorithm", algorithm)

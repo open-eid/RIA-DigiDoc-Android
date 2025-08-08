@@ -38,7 +38,6 @@ fun WebEidFragment(
     sharedMenuViewModel: SharedMenuViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(webEidUri) {
-        println("DEBUG: WebEidFragment got URI = $webEidUri")
         webEidUri?.let {
             when (it.host) {
                 "auth" -> viewModel.handleAuth(it)
