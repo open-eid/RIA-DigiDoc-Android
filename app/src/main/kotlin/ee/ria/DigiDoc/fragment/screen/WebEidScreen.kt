@@ -129,10 +129,10 @@ fun WebEidScreen(
             verticalArrangement = Arrangement.spacedBy(MSPadding),
         ) {
             Text(
-                text = "Test webeidscreen",
+                text = stringResource(R.string.web_eid_auth_title),
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onBackground,
-                modifier = modifier.semantics { heading() },
+                modifier = Modifier.semantics { heading() }
             )
             if (authPayload != null) {
                 NFCView(
