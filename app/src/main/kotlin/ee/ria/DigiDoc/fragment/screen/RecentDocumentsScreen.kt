@@ -58,6 +58,9 @@ import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
 import ee.ria.DigiDoc.common.Constant.SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES
+import ee.ria.DigiDoc.common.model.FileOpeningMethod
+import ee.ria.DigiDoc.cryptolib.CryptoContainer
+import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.shared.Document
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
@@ -84,7 +87,6 @@ import ee.ria.DigiDoc.utilsLib.extensions.isXades
 import ee.ria.DigiDoc.viewmodel.RecentDocumentsViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -96,10 +98,10 @@ import java.io.File
 fun RecentDocumentsScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    isFromEncrypt: Boolean = false,
     sharedMenuViewModel: SharedMenuViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
     recentDocumentsViewModel: RecentDocumentsViewModel = hiltViewModel(),
+    fileOpeningMethod: FileOpeningMethod,
 ) {
     val logTag = "RecentDocumentsScreen"
 
@@ -107,6 +109,7 @@ fun RecentDocumentsScreen(
 
     val snackBarHostState = remember { SnackbarHostState() }
     val snackBarScope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope()
 
     val messages by SnackBarManager.messages.collectAsState(emptyList())
 
@@ -122,7 +125,7 @@ fun RecentDocumentsScreen(
         if (document == null) {
             showLoading.value = false
         } else {
-            CoroutineScope(IO).launch {
+            scope.launch(IO) {
                 try {
                     val documentMimeType = recentDocumentsViewModel.getMimetype(document)
 
@@ -144,7 +147,7 @@ fun RecentDocumentsScreen(
     val recentDocumentList =
         remember {
             mutableStateOf(
-                recentDocumentsViewModel.getRecentDocumentList(),
+                recentDocumentsViewModel.getRecentDocumentList(fileOpeningMethod),
             )
         }
     var actionDocument by remember { mutableStateOf<File?>(null) }
@@ -339,48 +342,44 @@ fun RecentDocumentsScreen(
                             Document(
                                 name = document.name,
                                 onItemClick = {
-                                    CoroutineScope(IO).launch {
+                                    scope.launch(IO) {
                                         selectedDocument.value = document
-                                        if (isFromEncrypt) {
-                                            val signedContainer =
-                                                recentDocumentsViewModel.openCryptoDocument(
-                                                    document,
-                                                )
-                                            sharedContainerViewModel.setCryptoContainer(
-                                                signedContainer,
-                                            )
-
-                                            withContext(Main) {
-                                                navController.navigate(
-                                                    Route.Encrypt.route,
-                                                )
-                                            }
+                                        if ((
+                                                SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(
+                                                    recentDocumentsViewModel.getMimetype(document),
+                                                ) ||
+                                                    document.isCades(context)
+                                            ) &&
+                                            !document.isXades(context)
+                                        ) {
+                                            showSivaDialog.value = true
                                         } else {
-                                            if ((
-                                                    SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(
-                                                        recentDocumentsViewModel.getMimetype(
-                                                            document,
-                                                        ),
-                                                    ) ||
-                                                        document.isCades(context)
-                                                ) &&
-                                                !document.isXades(context)
-                                            ) {
-                                                showSivaDialog.value = true
-                                            } else {
-                                                showSivaDialog.value = false
-                                                val signedContainer =
-                                                    recentDocumentsViewModel.openDocument(
-                                                        document,
-                                                        true,
-                                                    )
+                                            showSivaDialog.value = false
+
+                                            val container =
+                                                recentDocumentsViewModel.openDocument(
+                                                    document,
+                                                    true,
+                                                )
+
+                                            if (container is SignedContainer) {
                                                 sharedContainerViewModel.setSignedContainer(
-                                                    signedContainer,
+                                                    container,
                                                 )
 
                                                 withContext(Main) {
                                                     navController.navigate(
                                                         Route.Signing.route,
+                                                    )
+                                                }
+                                            } else if (container is CryptoContainer) {
+                                                sharedContainerViewModel.setCryptoContainer(
+                                                    container,
+                                                )
+
+                                                withContext(Main) {
+                                                    navController.navigate(
+                                                        Route.Encrypt.route,
                                                     )
                                                 }
                                             }
@@ -448,48 +447,44 @@ fun RecentDocumentsScreen(
                             Document(
                                 name = document.name,
                                 onItemClick = {
-                                    CoroutineScope(IO).launch {
+                                    scope.launch(IO) {
                                         selectedDocument.value = document
-                                        if (isFromEncrypt) {
-                                            val signedContainer =
-                                                recentDocumentsViewModel.openCryptoDocument(
-                                                    document,
-                                                )
-                                            sharedContainerViewModel.setCryptoContainer(
-                                                signedContainer,
-                                            )
-
-                                            withContext(Main) {
-                                                navController.navigate(
-                                                    Route.Encrypt.route,
-                                                )
-                                            }
+                                        if ((
+                                                SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(
+                                                    recentDocumentsViewModel.getMimetype(document),
+                                                ) ||
+                                                    document.isCades(context)
+                                            ) &&
+                                            !document.isXades(context)
+                                        ) {
+                                            showSivaDialog.value = true
                                         } else {
-                                            if ((
-                                                    SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(
-                                                        recentDocumentsViewModel.getMimetype(
-                                                            document,
-                                                        ),
-                                                    ) ||
-                                                        document.isCades(context)
-                                                ) &&
-                                                !document.isXades(context)
-                                            ) {
-                                                showSivaDialog.value = true
-                                            } else {
-                                                showSivaDialog.value = false
-                                                val signedContainer =
-                                                    recentDocumentsViewModel.openDocument(
-                                                        document,
-                                                        true,
-                                                    )
+                                            showSivaDialog.value = false
+
+                                            val container =
+                                                recentDocumentsViewModel.openDocument(
+                                                    document,
+                                                    true,
+                                                )
+
+                                            if (container is SignedContainer) {
                                                 sharedContainerViewModel.setSignedContainer(
-                                                    signedContainer,
+                                                    container,
                                                 )
 
                                                 withContext(Main) {
                                                     navController.navigate(
                                                         Route.Signing.route,
+                                                    )
+                                                }
+                                            } else if (container is CryptoContainer) {
+                                                sharedContainerViewModel.setCryptoContainer(
+                                                    container,
+                                                )
+
+                                                withContext(Main) {
+                                                    navController.navigate(
+                                                        Route.Encrypt.route,
                                                     )
                                                 }
                                             }
@@ -553,7 +548,7 @@ fun RecentDocumentsScreen(
                 onDismissButton = dismissRemoveDocumentDialog,
                 onConfirmButton = {
                     actionDocument?.delete()
-                    recentDocumentList.value = recentDocumentsViewModel.getRecentDocumentList()
+                    recentDocumentList.value = recentDocumentsViewModel.getRecentDocumentList(fileOpeningMethod)
                     dismissSearch()
                     closeDocumentDialog()
                     sendAccessibilityEvent(context, getAccessibilityEventType(), documentRemoved)
@@ -582,6 +577,7 @@ fun RecentDocumentsScreenPreview() {
             sharedMenuViewModel = hiltViewModel(),
             sharedContainerViewModel = hiltViewModel(),
             navController = rememberNavController(),
+            fileOpeningMethod = FileOpeningMethod.ALL,
         )
     }
 }

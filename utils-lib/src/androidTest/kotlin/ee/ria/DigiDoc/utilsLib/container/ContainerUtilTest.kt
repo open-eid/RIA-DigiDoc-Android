@@ -4,8 +4,10 @@ package ee.ria.DigiDoc.utilsLib.container
 
 import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
+import ee.ria.DigiDoc.common.Constant.ASICE_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
 import ee.ria.DigiDoc.common.Constant.DIR_SIGNATURE_CONTAINERS
+import ee.ria.DigiDoc.common.testfiles.file.TestFileUtil.Companion.createZipWithTextFile
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -21,6 +23,9 @@ import org.mockito.MockitoAnnotations
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileWriter
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import kotlin.io.path.deleteIfExists
 
 @ExperimentalCoroutinesApi
 class ContainerUtilTest {
@@ -91,13 +96,19 @@ class ContainerUtilTest {
         val dir = ContainerUtil.signatureContainersDir(mockContext)
         dir.delete()
 
-        val testContainer = File.createTempFile("testFile", ".asice", ContainerUtil.signatureContainersDir(mockContext))
+        val mockContainer = createZipWithTextFile(ASICE_MIMETYPE)
+        val movedContainer =
+            Files.move(
+                mockContainer.toPath(),
+                File(ContainerUtil.signatureContainersDir(mockContext), "testFile.asice").toPath(),
+                StandardCopyOption.REPLACE_EXISTING,
+            )
         val file = ContainerUtil.findRecentContainerFiles(mockContext)
 
         assertTrue(file.isNotEmpty())
 
         testFile.delete()
-        testContainer.delete()
+        movedContainer.deleteIfExists()
         dir.delete()
     }
 

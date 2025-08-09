@@ -13,6 +13,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import ee.ria.DigiDoc.common.model.FileOpeningMethod
 import ee.ria.DigiDoc.fragment.AccessibilityFragment
 import ee.ria.DigiDoc.fragment.AdvancedSettingsFragment
 import ee.ria.DigiDoc.fragment.CryptoFileOpeningFragment
@@ -206,15 +207,25 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
                 navController = navController,
                 sharedMenuViewModel = sharedMenuViewModel,
                 sharedContainerViewModel = sharedContainerViewModel,
+                fileOpeningMethod = FileOpeningMethod.ALL,
+            )
+        }
+        composable(route = Route.RecentDocumentsFromSigning.route) {
+            RecentDocumentsFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
+                sharedContainerViewModel = sharedContainerViewModel,
+                fileOpeningMethod = FileOpeningMethod.SIGNING,
             )
         }
         composable(route = Route.RecentDocumentsFromEncrypt.route) {
             RecentDocumentsFragment(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
-                isFromEncrypt = true,
                 sharedMenuViewModel = sharedMenuViewModel,
                 sharedContainerViewModel = sharedContainerViewModel,
+                fileOpeningMethod = FileOpeningMethod.CRYPTO,
             )
         }
         composable(route = Route.Settings.route) {
@@ -276,11 +287,20 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
                 sharedMenuViewModel = sharedMenuViewModel,
             )
         }
-        composable(route = Route.FileChoosing.route) {
+        composable(route = Route.AllFilesChoosing.route) {
             FileOpeningFragment(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 sharedContainerViewModel = sharedContainerViewModel,
+                fileOpeningMethod = FileOpeningMethod.ALL,
+            )
+        }
+        composable(route = Route.SigningFileChoosing.route) {
+            FileOpeningFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedContainerViewModel = sharedContainerViewModel,
+                fileOpeningMethod = FileOpeningMethod.SIGNING,
             )
         }
         composable(route = Route.CryptoFileChoosing.route) {

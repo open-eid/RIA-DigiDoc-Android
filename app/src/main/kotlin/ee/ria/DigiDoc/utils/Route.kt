@@ -3,6 +3,7 @@
 package ee.ria.DigiDoc.utils
 
 import ee.ria.DigiDoc.utils.Constant.Routes.ACCESSIBILITY_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.ALL_FILE_CHOOSING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.CERTIFICATE_DETAIL_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.CONTAINER_NOTIFICATIONS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.CRYPTO_FILE_CHOOSING_SCREEN
@@ -14,7 +15,6 @@ import ee.ria.DigiDoc.utils.Constant.Routes.EID_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ENCRYPTION_SERVICES_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ENCRYPT_RECIPIENT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ENCRYPT_SCREEN
-import ee.ria.DigiDoc.utils.Constant.Routes.FILE_CHOOSING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.HOME_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.INFO_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.INIT_SCREEN
@@ -25,6 +25,7 @@ import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.PROXY_SERVICES_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.RECENT_DOCUMENTS_FROM_ENCRYPT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.RECENT_DOCUMENTS_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.RECENT_DOCUMENTS_SCREEN_FROM_SIGNING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.RECIPIENT_DETAIL_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ROOT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_LANGUAGE_CHOOSER_SCREEN
@@ -34,6 +35,7 @@ import ee.ria.DigiDoc.utils.Constant.Routes.SIGNATURE_INPUT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNATURE_METHOD_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNATURE_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNER_DETAIL_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.SIGNING_FILE_CHOOSING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNING_SERVICES_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.VALIDATION_SERVICES_SCREEN
@@ -51,7 +53,9 @@ sealed class Route(
 
     data object EID : Route(EID_SCREEN)
 
-    data object FileChoosing : Route(FILE_CHOOSING_SCREEN)
+    data object AllFilesChoosing : Route(ALL_FILE_CHOOSING_SCREEN)
+
+    data object SigningFileChoosing : Route(SIGNING_FILE_CHOOSING_SCREEN)
 
     data object CryptoFileChoosing : Route(CRYPTO_FILE_CHOOSING_SCREEN)
 
@@ -76,6 +80,8 @@ sealed class Route(
     data object RecipientDetail : Route(RECIPIENT_DETAIL_SCREEN)
 
     data object RecentDocuments : Route(RECENT_DOCUMENTS_SCREEN)
+
+    data object RecentDocumentsFromSigning : Route(RECENT_DOCUMENTS_SCREEN_FROM_SIGNING_SCREEN)
 
     data object RecentDocumentsFromEncrypt : Route(RECENT_DOCUMENTS_FROM_ENCRYPT_SCREEN)
 

@@ -127,7 +127,7 @@ class RecentDocumentsViewModelTest {
     }
 
     @Test
-    fun recentDocumentsViewModel_openDocument_success() =
+    fun recentDocumentsViewModel_openSignatureDocument_success() =
         runBlocking {
             val container =
                 AssetFile.getResourceFileAsFile(
@@ -138,13 +138,13 @@ class RecentDocumentsViewModelTest {
 
             `when`(sivaRepository.isTimestampedContainer(anyOrNull(), anyBoolean())).thenReturn(false)
 
-            val result = viewModel.openDocument(container, true)
+            val result = viewModel.openSignatureDocument(container, true)
 
             assertEquals(result.getDataFiles().size, 1)
         }
 
     @Test
-    fun recentDocumentsViewModel_openDocument_successWithTimestampedContainer(): Unit =
+    fun recentDocumentsViewModel_openSignatureDocument_successWithTimestampedContainer(): Unit =
         runBlocking {
             val tempFile = File.createTempFile("testFile", "asics", ContainerUtil.signatureContainersDir(context))
             tempFile.writeText("test content")
@@ -152,7 +152,7 @@ class RecentDocumentsViewModelTest {
 
             `when`(sivaRepository.isTimestampedContainer(anyOrNull(), anyBoolean())).thenReturn(true)
 
-            viewModel.openDocument(tempFile, true)
+            viewModel.openSignatureDocument(tempFile, true)
 
             verify(sivaRepository).getTimestampedContainer(anyOrNull(), anyOrNull())
         }

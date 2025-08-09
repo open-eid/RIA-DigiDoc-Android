@@ -9,6 +9,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import ee.ria.DigiDoc.common.model.FileOpeningMethod
 import ee.ria.DigiDoc.ui.component.signing.FileOpeningNavigation
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
@@ -18,11 +19,13 @@ fun FileOpeningScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     sharedContainerViewModel: SharedContainerViewModel,
+    fileOpeningMethod: FileOpeningMethod,
 ) {
     FileOpeningNavigation(
         modifier = modifier,
         navController = navController,
         sharedContainerViewModel = sharedContainerViewModel,
+        fileOpeningMethod = fileOpeningMethod,
     )
 }
 
@@ -34,6 +37,7 @@ fun FileOpeningScreenPreview() {
         FileOpeningScreen(
             navController = rememberNavController(),
             sharedContainerViewModel = hiltViewModel(),
+            fileOpeningMethod = FileOpeningMethod.ALL,
         )
     }
 }

@@ -138,7 +138,7 @@ fun ActionButton(
                                 Modifier
                                     .wrapContentHeight()
                                     .background(
-                                        color = MaterialTheme.colorScheme.primary,
+                                        color = MaterialTheme.colorScheme.primaryContainer,
                                         shape = CircleShape,
                                     ),
                         ) {

@@ -108,6 +108,7 @@ object Constant {
     const val DATA_FILE_DIR = "%s-data-files"
     const val DIR_SIGNATURE_CONTAINERS = "signed_containers"
     const val DIR_CRYPTO_CONTAINERS = "crypto_containers"
+    const val DIR_CRYPTO_CONTAINERS_UNENCRYPTED = "crypto_containers_unencrypted"
     const val DIR_EXTERNALLY_OPENED_FILES = "external_files"
     const val DEFAULT_CONTAINER_EXTENSION = "asice"
 

@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import ee.ria.DigiDoc.common.model.FileOpeningMethod
 import ee.ria.DigiDoc.fragment.screen.FileOpeningScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
@@ -27,6 +28,7 @@ fun FileOpeningFragment(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     sharedContainerViewModel: SharedContainerViewModel,
+    fileOpeningMethod: FileOpeningMethod,
 ) {
     Surface(
         modifier =
@@ -42,6 +44,7 @@ fun FileOpeningFragment(
             navController = navController,
             modifier = modifier,
             sharedContainerViewModel = sharedContainerViewModel,
+            fileOpeningMethod = fileOpeningMethod,
         )
     }
 }
@@ -54,6 +57,7 @@ fun FileOpeningFragmentPreview() {
         FileOpeningFragment(
             navController = rememberNavController(),
             sharedContainerViewModel = hiltViewModel(),
+            fileOpeningMethod = FileOpeningMethod.ALL,
         )
     }
 }

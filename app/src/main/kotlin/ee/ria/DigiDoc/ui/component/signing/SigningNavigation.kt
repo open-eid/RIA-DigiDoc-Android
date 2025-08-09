@@ -641,7 +641,7 @@ fun SigningNavigation(
                 },
                 onAddMoreFiles = {
                     navController.navigate(
-                        Route.FileChoosing.route,
+                        Route.SigningFileChoosing.route,
                     )
                 },
                 isUnsignedContainer = !isNestedContainer && signedContainer?.isSigned() == false,
