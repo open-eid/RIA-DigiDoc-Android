@@ -12,15 +12,18 @@ import android.net.Uri
 import android.os.Parcelable
 import androidx.core.content.FileProvider
 import ee.ria.DigiDoc.common.Constant.ALL_CONTAINER_EXTENSIONS
+import ee.ria.DigiDoc.common.Constant.CONTAINER_EXTENSIONS
+import ee.ria.DigiDoc.common.Constant.CRYPTO_CONTAINER_EXTENSIONS
 import ee.ria.DigiDoc.common.Constant.DATA_FILE_DIR
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
 import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
 import ee.ria.DigiDoc.common.Constant.DIR_CRYPTO_CONTAINERS
 import ee.ria.DigiDoc.common.Constant.DIR_SIGNATURE_CONTAINERS
+import ee.ria.DigiDoc.common.model.FileOpeningMethod
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.getFileInDirectory
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
 import org.w3c.dom.Document
@@ -106,9 +109,9 @@ object ContainerUtil {
     }
 
     private suspend fun increaseCounterIfExists(file: File): File =
-        withContext(Dispatchers.IO) {
+        withContext(IO) {
             var updatedFile = file
-            val directory = file.getParentFile()
+            val directory = file.parentFile
             val name: String? = FileUtil.sanitizeString(file.nameWithoutExtension, "")
             val ext: String = file.extension.lowercase()
             var i = 1
@@ -213,21 +216,33 @@ object ContainerUtil {
         return validFiles
     }
 
-    fun findRecentContainerFiles(context: Context): List<File> {
-        val signatureContainerFiles = signatureContainersDir(context).listFiles() ?: emptyArray<File>()
-        val cryptoContainerFiles = cryptoContainersDir(context).listFiles() ?: emptyArray<File>()
+    fun findRecentContainerFiles(
+        context: Context,
+        fileOpeningMethod: FileOpeningMethod = FileOpeningMethod.ALL,
+    ): List<File> {
+        val signatureFiles = signatureContainersDir(context).listFiles().orEmpty()
+        val cryptoFiles = cryptoContainersDir(context).listFiles().orEmpty()
 
-        val allContainerFiles = signatureContainerFiles + cryptoContainerFiles
+        val containerFiles =
+            when (fileOpeningMethod) {
+                FileOpeningMethod.ALL -> {
+                    signatureFiles.filter { it.extension in CONTAINER_EXTENSIONS } +
+                        cryptoFiles.filter { it.extension in CRYPTO_CONTAINER_EXTENSIONS }
+                }
+                FileOpeningMethod.SIGNING -> {
+                    signatureFiles.filter { it.extension in CONTAINER_EXTENSIONS }
+                }
+                FileOpeningMethod.CRYPTO -> {
+                    cryptoFiles.filter { it.extension in CRYPTO_CONTAINER_EXTENSIONS }
+                }
+            }
 
-        val fileList =
-            allContainerFiles
-                .filter { file ->
-                    FilenameUtils.isExtension(file.name, ALL_CONTAINER_EXTENSIONS)
-                }.sortedWith(FILE_MODIFIED_DATE_COMPARATOR)
-                .take(10)
-                .toList()
-
-        return fileList
+        return containerFiles
+            .asSequence()
+            .filter { it.isFile && it.length() > 0 }
+            .sortedWith(FILE_MODIFIED_DATE_COMPARATOR)
+            .take(10)
+            .toList()
     }
 
     fun signatureContainersDir(context: Context): File {

@@ -12,13 +12,16 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
+import ee.ria.DigiDoc.common.container.Container
 import ee.ria.DigiDoc.common.exception.NoInternetConnectionException
+import ee.ria.DigiDoc.common.model.FileOpeningMethod
 import ee.ria.DigiDoc.cryptolib.CDOC2Settings
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import ee.ria.DigiDoc.utilsLib.extensions.isCades
+import ee.ria.DigiDoc.utilsLib.extensions.isCryptoContainer
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
@@ -70,6 +73,17 @@ class RecentDocumentsViewModel
         suspend fun openDocument(
             document: File,
             isSivaConfirmed: Boolean,
+        ): Container =
+            if (!document.isCryptoContainer()) {
+                openSignatureDocument(document, isSivaConfirmed)
+            } else {
+                openCryptoDocument(document)
+            }
+
+        @Throws(Exception::class)
+        suspend fun openSignatureDocument(
+            document: File,
+            isSivaConfirmed: Boolean,
         ): SignedContainer {
             val signedContainer = SignedContainer.openOrCreate(context, document, listOf(document), isSivaConfirmed)
             if (sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed) &&
@@ -85,7 +99,8 @@ class RecentDocumentsViewModel
         suspend fun openCryptoDocument(document: File): CryptoContainer =
             CryptoContainer.openOrCreate(context, document, listOf(document), cdoc2Settings)
 
-        fun getRecentDocumentList(): List<File> = ContainerUtil.findRecentContainerFiles(context)
+        fun getRecentDocumentList(fileOpeningMethod: FileOpeningMethod = FileOpeningMethod.ALL): List<File> =
+            ContainerUtil.findRecentContainerFiles(context, fileOpeningMethod)
 
         suspend fun handleDocument(
             document: File,
@@ -97,7 +112,7 @@ class RecentDocumentsViewModel
             val isAsicsOrConfirmedDdoc = mimeType == ASICS_MIMETYPE || (mimeType == DDOC_MIMETYPE && confirmed)
 
             if (isAsicsOrConfirmedDdoc || isCades) {
-                val signedContainer = openDocument(document, confirmed)
+                val signedContainer = openSignatureDocument(document, confirmed)
                 sharedContainerViewModel.setSignedContainer(signedContainer)
 
                 handleSendToSigningViewWithSiva(true)

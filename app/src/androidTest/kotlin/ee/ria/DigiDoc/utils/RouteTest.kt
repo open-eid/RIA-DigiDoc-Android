@@ -3,6 +3,7 @@
 package ee.ria.DigiDoc.utils
 
 import ee.ria.DigiDoc.utils.Constant.Routes.ACCESSIBILITY_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.ALL_FILE_CHOOSING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.CERTIFICATE_DETAIL_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.CONTAINER_NOTIFICATIONS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.CRYPTO_FILE_CHOOSING_SCREEN
@@ -14,7 +15,6 @@ import ee.ria.DigiDoc.utils.Constant.Routes.EID_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ENCRYPTION_SERVICES_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ENCRYPT_RECIPIENT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ENCRYPT_SCREEN
-import ee.ria.DigiDoc.utils.Constant.Routes.FILE_CHOOSING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.HOME_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.INFO_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.INIT_SCREEN
@@ -25,6 +25,7 @@ import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.PROXY_SERVICES_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.RECENT_DOCUMENTS_FROM_ENCRYPT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.RECENT_DOCUMENTS_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.RECENT_DOCUMENTS_SCREEN_FROM_SIGNING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.RECIPIENT_DETAIL_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ROOT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_LANGUAGE_CHOOSER_SCREEN
@@ -34,6 +35,7 @@ import ee.ria.DigiDoc.utils.Constant.Routes.SIGNATURE_INPUT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNATURE_METHOD_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNATURE_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNER_DETAIL_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.SIGNING_FILE_CHOOSING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SIGNING_SERVICES_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.VALIDATION_SERVICES_SCREEN
@@ -48,7 +50,8 @@ class RouteTest {
         assertEquals(SIGNATURE_SCREEN, Route.Signature.route)
         assertEquals(CRYPTO_SCREEN, Route.Crypto.route)
         assertEquals(EID_SCREEN, Route.EID.route)
-        assertEquals(FILE_CHOOSING_SCREEN, Route.FileChoosing.route)
+        assertEquals(ALL_FILE_CHOOSING_SCREEN, Route.AllFilesChoosing.route)
+        assertEquals(SIGNING_FILE_CHOOSING_SCREEN, Route.SigningFileChoosing.route)
         assertEquals(CRYPTO_FILE_CHOOSING_SCREEN, Route.CryptoFileChoosing.route)
         assertEquals(SIGNING_SCREEN, Route.Signing.route)
         assertEquals(ENCRYPT_SCREEN, Route.Encrypt.route)
@@ -61,6 +64,7 @@ class RouteTest {
         assertEquals(CERTIFICATE_DETAIL_SCREEN, Route.CertificateDetail.route)
         assertEquals(RECIPIENT_DETAIL_SCREEN, Route.RecipientDetail.route)
         assertEquals(RECENT_DOCUMENTS_SCREEN, Route.RecentDocuments.route)
+        assertEquals(RECENT_DOCUMENTS_SCREEN_FROM_SIGNING_SCREEN, Route.RecentDocumentsFromSigning.route)
         assertEquals(RECENT_DOCUMENTS_FROM_ENCRYPT_SCREEN, Route.RecentDocumentsFromEncrypt.route)
         assertEquals(SETTINGS_SCREEN, Route.Settings.route)
         assertEquals(SETTINGS_LANGUAGE_CHOOSER_SCREEN, Route.SettingsLanguageChooser.route)

@@ -85,9 +85,10 @@ fun HomeScreen(
     val isMainMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
     val isOpenMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
+    val isOpenMenuBottomFromSigning = rememberSaveable { mutableStateOf(false) }
     val isOpenMenuBottomFromEncrypt = rememberSaveable { mutableStateOf(false) }
 
-    var openMenuAddFileNavigateTo = Route.FileChoosing.route
+    val openMenuAddFileNavigateTo = remember { mutableStateOf(Route.SigningFileChoosing.route) }
 
     val snackBarHostState = remember { SnackbarHostState() }
     val snackBarScope = rememberCoroutineScope()
@@ -195,20 +196,19 @@ fun HomeScreen(
             firstButtonClick = {
                 isOpenMenuBottomSheetVisible.value = false
                 navController.navigate(
-                    openMenuAddFileNavigateTo,
+                    openMenuAddFileNavigateTo.value,
                 )
             },
             secondButtonClick = {
                 isOpenMenuBottomSheetVisible.value = false
-                if (isOpenMenuBottomFromEncrypt.value == true) {
-                    navController.navigate(
-                        Route.RecentDocumentsFromEncrypt.route,
-                    )
-                } else {
-                    navController.navigate(
-                        Route.RecentDocuments.route,
-                    )
-                }
+                val recentDocumentsRoute =
+                    when {
+                        isOpenMenuBottomFromSigning.value -> Route.RecentDocumentsFromSigning.route
+                        isOpenMenuBottomFromEncrypt.value -> Route.RecentDocumentsFromEncrypt.route
+                        else -> Route.RecentDocuments.route
+                    }
+
+                navController.navigate(recentDocumentsRoute)
             },
         )
 
@@ -298,8 +298,9 @@ fun HomeScreen(
                                 stringResource(id = R.string.main_home_open_document_title) + " " +
                                     stringResource(id = R.string.main_home_open_document_description),
                             onClickItem = {
-                                openMenuAddFileNavigateTo = Route.FileChoosing.route
+                                openMenuAddFileNavigateTo.value = Route.AllFilesChoosing.route
                                 isOpenMenuBottomSheetVisible.value = true
+                                isOpenMenuBottomFromSigning.value = false
                                 isOpenMenuBottomFromEncrypt.value = false
                             },
                             testTag = "homeOpenDocumentButton",
@@ -313,8 +314,9 @@ fun HomeScreen(
                                 stringResource(id = R.string.main_home_signature_title) + " " +
                                     stringResource(id = R.string.main_home_signature_description),
                             onClickItem = {
-                                openMenuAddFileNavigateTo = Route.FileChoosing.route
+                                openMenuAddFileNavigateTo.value = Route.SigningFileChoosing.route
                                 isOpenMenuBottomSheetVisible.value = true
+                                isOpenMenuBottomFromSigning.value = true
                                 isOpenMenuBottomFromEncrypt.value = false
                             },
                             testTag = "homeSignatureButton",
@@ -328,8 +330,9 @@ fun HomeScreen(
                                 stringResource(id = R.string.main_home_crypto_title) + " " +
                                     stringResource(id = R.string.main_home_crypto_description),
                             onClickItem = {
-                                openMenuAddFileNavigateTo = Route.CryptoFileChoosing.route
+                                openMenuAddFileNavigateTo.value = Route.CryptoFileChoosing.route
                                 isOpenMenuBottomSheetVisible.value = true
+                                isOpenMenuBottomFromSigning.value = false
                                 isOpenMenuBottomFromEncrypt.value = true
                             },
                             testTag = "homeCryptoButton",

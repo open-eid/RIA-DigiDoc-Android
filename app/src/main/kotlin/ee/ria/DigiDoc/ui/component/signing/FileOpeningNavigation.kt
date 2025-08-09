@@ -24,6 +24,7 @@ import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
+import ee.ria.DigiDoc.common.model.FileOpeningMethod
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
 import ee.ria.DigiDoc.utils.Route
@@ -43,6 +44,7 @@ import kotlinx.coroutines.withContext
 fun FileOpeningNavigation(
     navController: NavHostController,
     modifier: Modifier = Modifier,
+    fileOpeningMethod: FileOpeningMethod,
     fileOpeningViewModel: FileOpeningViewModel = hiltViewModel(),
     sharedContainerViewModel: SharedContainerViewModel,
 ) {
@@ -77,6 +79,7 @@ fun FileOpeningNavigation(
                 true,
                 false,
                 isExternalFile,
+                fileOpeningMethod,
             )
             fileUris = emptyList()
         }

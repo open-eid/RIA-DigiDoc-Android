@@ -59,7 +59,7 @@ object FileUtil {
             throw IOException(
                 "Invalid path: " +
                     withContext(Dispatchers.IO) {
-                        file.getCanonicalPath()
+                        file.canonicalPath
                     },
             )
         }

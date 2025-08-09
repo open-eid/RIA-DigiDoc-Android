@@ -17,6 +17,7 @@ import ee.ria.DigiDoc.common.Constant.CONTAINER_MIME_TYPE
 import ee.ria.DigiDoc.common.R.string.documents_add_error_exists
 import ee.ria.DigiDoc.common.R.string.empty_file_error
 import ee.ria.DigiDoc.common.exception.NoInternetConnectionException
+import ee.ria.DigiDoc.common.model.FileOpeningMethod
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
@@ -123,6 +124,7 @@ class FileOpeningViewModel
             isSivaConfirmed: Boolean,
             forceFirstDataFileContainer: Boolean = false,
             isExternalFile: Boolean = false,
+            fileOpeningMethod: FileOpeningMethod,
         ) {
             if (existingSignedContainer != null) {
                 try {
@@ -185,7 +187,7 @@ class FileOpeningViewModel
                             uris.size == 1 && file.isCryptoContainer()
                         } == true
 
-                    if (isExternalFile && isCdoc) {
+                    if ((fileOpeningMethod == FileOpeningMethod.ALL || isExternalFile) && isCdoc) {
                         val cryptoContainer =
                             fileOpeningRepository.openOrCreateCryptoContainer(
                                 context,
@@ -285,7 +287,7 @@ class FileOpeningViewModel
             fileUris: List<Uri>,
             signedContainer: SignedContainer?,
         ) {
-            handleFiles(context, fileUris, signedContainer, null, false)
+            handleFiles(context, fileUris, signedContainer, null, false, fileOpeningMethod = FileOpeningMethod.ALL)
         }
 
         fun resetExternalFileState(sharedContainerViewModel: SharedContainerViewModel) {

@@ -31,7 +31,7 @@ fun InitFragment(
 ) {
     LaunchedEffect(Unit) {
         if (externalFileUris.isNotEmpty()) {
-            navController.navigate(Route.FileChoosing.route) {
+            navController.navigate(Route.SigningFileChoosing.route) {
                 popUpTo(Route.Home.route) {
                     inclusive = false
                 }

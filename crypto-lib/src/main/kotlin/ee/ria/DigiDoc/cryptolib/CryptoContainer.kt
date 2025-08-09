@@ -453,7 +453,11 @@ class CryptoContainer
                             FilenameUtils.removeExtension(file.path) + ".$defaultExtension",
                         )
 
-                    file.copyTo(containerFileWithExtension, true)
+                    containerFileWithExtension.parentFile?.mkdirs()
+
+                    if (!containerFileWithExtension.exists()) {
+                        containerFileWithExtension.createNewFile()
+                    }
                 }
 
                 return if (!forceCreate && dataFiles.size == 1 && isFirstDataFileContainer) {

@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import ee.ria.DigiDoc.common.model.FileOpeningMethod
 import ee.ria.DigiDoc.fragment.screen.RecentDocumentsScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
@@ -27,9 +28,9 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 fun RecentDocumentsFragment(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    isFromEncrypt: Boolean = false,
     sharedMenuViewModel: SharedMenuViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
+    fileOpeningMethod: FileOpeningMethod,
 ) {
     Surface(
         modifier =
@@ -44,9 +45,9 @@ fun RecentDocumentsFragment(
         RecentDocumentsScreen(
             modifier = modifier,
             navController = navController,
-            isFromEncrypt = isFromEncrypt,
             sharedMenuViewModel = sharedMenuViewModel,
             sharedContainerViewModel = sharedContainerViewModel,
+            fileOpeningMethod = fileOpeningMethod,
         )
     }
 }
@@ -60,6 +61,7 @@ fun RecentDocumentsFragmentPreview() {
             navController = rememberNavController(),
             sharedMenuViewModel = hiltViewModel(),
             sharedContainerViewModel = hiltViewModel(),
+            fileOpeningMethod = FileOpeningMethod.ALL,
         )
     }
 }
