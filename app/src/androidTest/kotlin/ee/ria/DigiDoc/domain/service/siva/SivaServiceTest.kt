@@ -151,7 +151,7 @@ class SivaServiceTest {
     fun sivaService_isTimestampedContainer_returnFalse() =
         runTest {
             val signedContainer = SignedContainer.openOrCreate(context, containerFile, listOf(containerFile), true)
-            val isSivaConfirmationNeeded = sivaService.isTimestampedContainer(signedContainer, true)
+            val isSivaConfirmationNeeded = sivaService.isTimestampedContainer(signedContainer)
             assertFalse(isSivaConfirmationNeeded)
         }
 
@@ -159,7 +159,7 @@ class SivaServiceTest {
     fun sivaService_isTimestampedContainer_returnFalseForMultipleFiles() =
         runTest {
             val signedContainer = SignedContainer.openOrCreate(context, containerFile, listOf(containerFile), true)
-            val isSivaConfirmationNeeded = sivaService.isTimestampedContainer(signedContainer, true)
+            val isSivaConfirmationNeeded = sivaService.isTimestampedContainer(signedContainer)
             assertFalse(isSivaConfirmationNeeded)
         }
 
@@ -167,7 +167,7 @@ class SivaServiceTest {
     fun sivaService_isTimestampedContainer_returnFalseIfSivaNotConfirmed() =
         runTest {
             val signedContainer = SignedContainer.openOrCreate(context, containerFile, listOf(containerFile), true)
-            val isSivaConfirmationNeeded = sivaService.isTimestampedContainer(signedContainer, false)
+            val isSivaConfirmationNeeded = sivaService.isTimestampedContainer(signedContainer)
             assertFalse(isSivaConfirmationNeeded)
         }
 }

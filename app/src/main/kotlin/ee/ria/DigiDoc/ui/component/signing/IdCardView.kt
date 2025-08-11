@@ -68,6 +68,7 @@ import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN2_MIN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN_MAX_LENGTH
 import ee.ria.DigiDoc.domain.model.IdCardData
 import ee.ria.DigiDoc.domain.model.IdentityAction
+import ee.ria.DigiDoc.idcard.CodeType
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderStatus
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
@@ -86,6 +87,7 @@ import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
+import ee.ria.DigiDoc.utils.pin.PinCodeUtil.shouldShowPINCodeError
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatName
 import ee.ria.DigiDoc.viewmodel.IdCardViewModel
@@ -162,8 +164,15 @@ fun IdCardView(
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
     val cryptoContainer by sharedContainerViewModel.cryptoContainer.asFlow().collectAsState(null)
 
-    val pinType =
+    val codeType =
         if (identityAction == IdentityAction.SIGN) {
+            CodeType.PIN2
+        } else {
+            CodeType.PIN1
+        }
+
+    val pinTypeMessage =
+        if (codeType == CodeType.PIN2) {
             stringResource(id = R.string.signature_id_card_pin2)
         } else {
             stringResource(id = R.string.signature_id_card_pin1)
@@ -176,13 +185,33 @@ fun IdCardView(
             PIN1_MIN_LENGTH
         }
 
-    val pinText = stringResource(R.string.id_card_identity_pin, pinType)
+    val pinText = stringResource(R.string.id_card_identity_pin, pinTypeMessage)
     val pinCode = remember { mutableStateOf(byteArrayOf()) }
 
     var roleDataRequest: RoleData? by remember { mutableStateOf(null) }
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
     var errorText by remember { mutableStateOf("") }
     var pinErrorText by remember { mutableStateOf("") }
+    val pinCodeTextEdited = rememberSaveable { mutableStateOf(false) }
+    val pinCodeLengthErrorText =
+        if (pinCodeTextEdited.value && pinCode.value.isNotEmpty()) {
+            if (shouldShowPINCodeError(
+                    pinCode.value,
+                    codeType,
+                )
+            ) {
+                String.format(
+                    stringResource(id = R.string.id_card_sign_pin_invalid_length),
+                    pinTypeMessage,
+                    pinMinLength,
+                    PIN_MAX_LENGTH.toString(),
+                )
+            } else {
+                ""
+            }
+        } else {
+            ""
+        }
     val focusManager = LocalFocusManager.current
     val statusMessageFocusRequester = remember { FocusRequester() }
     val readyToSignFocusRequester = remember { FocusRequester() }
@@ -682,7 +711,7 @@ fun IdCardView(
                                     testTagsAsResourceId = true
                                 }.testTag("idCardContainer"),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(LPadding),
+                        verticalArrangement = Arrangement.spacedBy(MSPadding),
                     ) {
                         Row(
                             modifier =
@@ -705,9 +734,14 @@ fun IdCardView(
                                 pinCodeLabel = pinText,
                                 pinNumberFocusRequester = pinCodeFocusRequester,
                                 previousFocusRequester = readyToSignFocusRequester,
-                                pinCodeTextEdited = null,
+                                pinCodeTextEdited = pinCodeTextEdited,
                                 trailingIconContentDescription = "$clearButtonText $buttonName",
-                                isError = pinErrorText.isNotEmpty(),
+                                isError =
+                                    pinCodeTextEdited.value &&
+                                        shouldShowPINCodeError(
+                                            pinCode.value,
+                                            codeType,
+                                        ),
                             )
                             if (isTalkBackEnabled(context) && pinCode.value.isNotEmpty()) {
                                 IconButton(
@@ -743,17 +777,18 @@ fun IdCardView(
                             }
                         }
 
-                        if (pinErrorText.isNotEmpty()) {
+                        if (pinCodeLengthErrorText.isNotEmpty()) {
                             Text(
                                 modifier =
                                     modifier
+                                        .padding(bottom = MSPadding)
                                         .fillMaxWidth()
                                         .focusable(true)
-                                        .semantics { contentDescription = pinErrorText }
+                                        .semantics { contentDescription = pinCodeLengthErrorText }
                                         .testTag("idCardPinError"),
-                                text = pinErrorText,
+                                text = pinCodeLengthErrorText,
                                 textAlign = TextAlign.Start,
-                                style = MaterialTheme.typography.bodyLarge,
+                                style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.error,
                             )
                         }

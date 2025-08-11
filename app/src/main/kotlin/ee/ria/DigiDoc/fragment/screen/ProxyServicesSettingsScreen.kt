@@ -77,7 +77,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.LPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSBorder
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
-import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
@@ -545,7 +544,7 @@ fun ProxyServicesSettingsScreen(
                                         .semantics { contentDescription = proxyPortErrorText }
                                         .testTag("proxyServicesPortErrorText"),
                                 text = proxyPortErrorText,
-                                color = Red500,
+                                color = MaterialTheme.colorScheme.errorContainer,
                             )
                         }
 

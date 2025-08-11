@@ -120,9 +120,8 @@ class EncryptViewModel
         suspend fun getTimestampedContainer(
             context: Context,
             signedContainer: SignedContainer,
-            isSivaConfirmed: Boolean,
         ): SignedContainer {
-            if (sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed) &&
+            if (sivaRepository.isTimestampedContainer(signedContainer) &&
                 !signedContainer.isXades()
             ) {
                 return sivaRepository.getTimestampedContainer(context, signedContainer)

@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.ui.component.signing
 
+import android.content.res.Configuration
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -11,13 +12,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.ui.component.shared.TagBadge
 import ee.ria.DigiDoc.ui.theme.Green_2_50
 import ee.ria.DigiDoc.ui.theme.Green_2_700
+import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.Red50
 import ee.ria.DigiDoc.ui.theme.Red800
-import ee.ria.DigiDoc.ui.theme.Yellow800
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -35,7 +37,12 @@ fun ColoredSignedStatusText(
 
     val tagBackgroundColor = if (isSignatureValidOrWarning) Green_2_50 else Red50
     val tagContentColor = if (isSignatureValidOrWarning) Green_2_700 else Red800
-    val additionalTextColor = if (status == ValidatorInterface.Status.Valid) Red800 else Yellow800
+    val additionalTextColor =
+        if (status == ValidatorInterface.Status.Valid) {
+            Red800
+        } else {
+            MaterialTheme.colorScheme.onErrorContainer
+        }
 
     FlowRow(
         modifier = modifier,
@@ -63,5 +70,18 @@ fun ColoredSignedStatusText(
                 style = TextStyle(fontSize = MaterialTheme.typography.bodyMedium.fontSize),
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun ColoredSignedStatusTextPreview() {
+    RIADigiDocTheme {
+        ColoredSignedStatusText(
+            text = "Allkiri on kehtiv",
+            status = ValidatorInterface.Status.Valid,
+            modifier = Modifier,
+        )
     }
 }

@@ -454,7 +454,7 @@ fun SigningNavigation(
         signedContainer?.let {
             val pastTime = System.currentTimeMillis()
             showSignaturesLoadingIndicator.value = true
-            signatures = it.getSignatures()
+            signatures = it.getSignatures(Main)
             showSignaturesLoadingIndicator.value = false
             withContext(Main) {
                 val signatureCounts = signedContainer?.getSignaturesStatusCount()
@@ -1141,6 +1141,7 @@ fun SigningNavigation(
                 modifier = modifier,
                 showSheet = showSignatureBottomSheet,
                 clickedSignature = clickedSignature,
+                isTimestamp = isTimestampedContainer,
                 signedContainer = signedContainer,
                 signingViewModel = signingViewModel,
                 sharedSignatureViewModel = sharedSignatureViewModel,

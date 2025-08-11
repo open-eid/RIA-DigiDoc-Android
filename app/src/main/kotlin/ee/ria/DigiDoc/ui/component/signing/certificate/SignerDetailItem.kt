@@ -21,6 +21,7 @@ data class SignerDetailItem(
     @param:StringRes val label: Int = 0,
     val value: String? = null,
     val certificate: X509Certificate? = null,
+    val isTimestamp: Boolean = false,
     val isLink: Boolean = false,
     val contentDescription: String = "",
     val formatForAccessibility: Boolean = false,
@@ -30,6 +31,7 @@ data class SignerDetailItem(
     fun signersDetailItems(
         sharedContainerViewModel: SharedContainerViewModel,
         signature: SignatureInterface,
+        isTimestamp: Boolean,
         signerIssuerName: String?,
         tsIssuerName: String?,
         ocspIssuerName: String?,
@@ -53,7 +55,12 @@ data class SignerDetailItem(
             ),
             SignerDetailItem(
                 label = R.string.signers_certificate_label,
-                value = NameUtil.formatName(signature.signedBy),
+                value =
+                    if (isTimestamp) {
+                        NameUtil.formatName(signature.signedBy).uppercase()
+                    } else {
+                        NameUtil.formatName(signature.signedBy)
+                    },
                 certificate = signature.signingCertificateDer.x509Certificate(),
                 contentDescription =
                     if (value != null) {

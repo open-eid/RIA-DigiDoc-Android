@@ -12,10 +12,7 @@ interface SivaService {
         files: List<File>,
     ): Boolean
 
-    suspend fun isTimestampedContainer(
-        signedContainer: SignedContainer,
-        isSivaConfirmed: Boolean,
-    ): Boolean
+    suspend fun isTimestampedContainer(signedContainer: SignedContainer): Boolean
 
     suspend fun getTimestampedContainer(
         context: Context,

@@ -56,7 +56,6 @@ import ee.ria.DigiDoc.ui.component.shared.TabView
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.shared.dialog.PinGuideDialog
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
-import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utilsLib.date.DateUtil.formattedDateTime
@@ -356,7 +355,7 @@ fun MyEidScreen(
                                                         R.string.myeid_pin_blocked_with_unblock_message,
                                                         CodeType.PIN1,
                                                     ),
-                                                color = Red500,
+                                                color = MaterialTheme.colorScheme.error,
                                                 style = MaterialTheme.typography.bodySmall,
                                             )
                                         }
@@ -422,7 +421,7 @@ fun MyEidScreen(
                                                         R.string.myeid_pin_blocked_with_unblock_message,
                                                         CodeType.PIN2,
                                                     ),
-                                                color = Red500,
+                                                color = MaterialTheme.colorScheme.error,
                                                 style = MaterialTheme.typography.bodySmall,
                                             )
                                         }
@@ -479,7 +478,7 @@ fun MyEidScreen(
                                                             .focusable(true)
                                                             .testTag("myEidBlockedPukDescriptionText"),
                                                     text = stringResource(R.string.myeid_puk_blocked),
-                                                    color = Red500,
+                                                    color = MaterialTheme.colorScheme.error,
                                                     style = MaterialTheme.typography.bodySmall,
                                                 )
                                             }

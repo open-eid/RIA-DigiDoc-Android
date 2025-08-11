@@ -86,7 +86,7 @@ class RecentDocumentsViewModel
             isSivaConfirmed: Boolean,
         ): SignedContainer {
             val signedContainer = SignedContainer.openOrCreate(context, document, listOf(document), isSivaConfirmed)
-            if (sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed) &&
+            if (sivaRepository.isTimestampedContainer(signedContainer) &&
                 !signedContainer.isXades()
             ) {
                 return sivaRepository.getTimestampedContainer(context, signedContainer)

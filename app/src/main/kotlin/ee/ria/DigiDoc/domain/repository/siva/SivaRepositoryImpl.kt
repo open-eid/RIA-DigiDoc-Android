@@ -20,10 +20,8 @@ class SivaRepositoryImpl
             files: List<File>,
         ): Boolean = sivaService.isSivaConfirmationNeeded(context, files)
 
-        override suspend fun isTimestampedContainer(
-            signedContainer: SignedContainer,
-            isSivaConfirmed: Boolean,
-        ): Boolean = sivaService.isTimestampedContainer(signedContainer, isSivaConfirmed)
+        override suspend fun isTimestampedContainer(signedContainer: SignedContainer): Boolean =
+            sivaService.isTimestampedContainer(signedContainer)
 
         override suspend fun getTimestampedContainer(
             context: Context,
