@@ -206,9 +206,9 @@ class FileOpeningViewModel
                                 forceFirstDataFileContainer,
                             )
 
-                        if (sivaRepository.isTimestampedContainer(
+                        if (isSivaConfirmed &&
+                            sivaRepository.isTimestampedContainer(
                                 signedContainer,
-                                isSivaConfirmed,
                             ) ||
                             signedContainer.isCades() &&
                             !signedContainer.isXades()

@@ -16,11 +16,18 @@ class SharedSignatureViewModel
         private val _signature = MutableLiveData<SignatureInterface?>()
         val signature: LiveData<SignatureInterface?> = _signature
 
+        private val _isTimestamp = MutableLiveData(false)
+        val isTimestamp: LiveData<Boolean> = _isTimestamp
+
         fun setSignature(signature: SignatureInterface) {
             _signature.postValue(signature)
         }
 
         fun resetSignature() {
             _signature.postValue(null)
+        }
+
+        fun setIsTimestamp(isTimestamp: Boolean) {
+            _isTimestamp.postValue(isTimestamp)
         }
     }

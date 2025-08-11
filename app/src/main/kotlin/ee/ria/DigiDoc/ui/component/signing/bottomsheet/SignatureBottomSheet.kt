@@ -26,6 +26,7 @@ fun SignatureBottomSheet(
     modifier: Modifier,
     showSheet: MutableState<Boolean>,
     clickedSignature: MutableState<SignatureInterface?>,
+    isTimestamp: Boolean,
     signedContainer: SignedContainer?,
     signingViewModel: SigningViewModel,
     sharedSignatureViewModel: SharedSignatureViewModel,
@@ -55,6 +56,7 @@ fun SignatureBottomSheet(
                     onClick = {
                         clickedSignature.value?.let { signature ->
                             sharedSignatureViewModel.setSignature(signature)
+                            sharedSignatureViewModel.setIsTimestamp(isTimestamp)
                             navController.navigate(Route.SignerDetail.route)
                         }
                     },

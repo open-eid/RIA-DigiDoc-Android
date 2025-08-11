@@ -219,6 +219,6 @@ class SigningViewModel
             signedContainer: SignedContainer,
             isSivaConfirmed: Boolean,
         ): Boolean =
-            sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed) &&
+            sivaRepository.isTimestampedContainer(signedContainer) &&
                 !signedContainer.isXades()
     }

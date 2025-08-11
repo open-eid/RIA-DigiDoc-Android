@@ -12,6 +12,7 @@ import ee.ria.DigiDoc.utilsLib.extensions.isSignedPDF
 import ee.ria.DigiDoc.utilsLib.extensions.isXades
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
+import kotlinx.coroutines.Dispatchers.Main
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -41,14 +42,10 @@ class SivaServiceImpl
                 file.isCades(context)
         }
 
-        override suspend fun isTimestampedContainer(
-            signedContainer: SignedContainer,
-            isSivaConfirmed: Boolean,
-        ): Boolean =
-            isSivaConfirmed &&
-                signedContainer.getDataFiles().size == 1 &&
+        override suspend fun isTimestampedContainer(signedContainer: SignedContainer): Boolean =
+            signedContainer.getDataFiles().size == 1 &&
                 signedContainer.containerMimetype().equals(ASICS_MIMETYPE) &&
-                signedContainer.getSignatures().first().profile == "TimeStampToken"
+                signedContainer.getSignatures(Main).first().profile == "TimeStampToken"
 
         override suspend fun getTimestampedContainer(
             context: Context,
@@ -61,7 +58,7 @@ class SivaServiceImpl
                     nestedContainer?.rawContainer(),
                     parentContainer.getContainerFile(),
                     parentContainer.isExistingContainer(),
-                    parentContainer.getSignatures(),
+                    parentContainer.getSignatures(Main),
                 )
             } catch (ex: Exception) {
                 errorLog(logTag, "Unable to open timestamped container", ex)

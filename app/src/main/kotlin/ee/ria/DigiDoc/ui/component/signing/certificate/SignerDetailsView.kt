@@ -96,6 +96,7 @@ fun SignerDetailsView(
     val signature = sharedSignatureViewModel.signature.value
     var signatureStatus = signature?.validator?.status
     val diagnosticsInfo = signature?.validator?.diagnostics ?: ""
+    val isTimestamp = sharedSignatureViewModel.isTimestamp.value ?: false
 
     val timestamps = sharedContainerViewModel.signedContainer.value?.getTimestamps()
     val firstTimestamp = timestamps?.firstOrNull()
@@ -218,7 +219,12 @@ fun SignerDetailsView(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_icon_signature),
+                            imageVector =
+                                if (isTimestamp) {
+                                    ImageVector.vectorResource(R.drawable.ic_m3_approval_48dp_wght400)
+                                } else {
+                                    ImageVector.vectorResource(R.drawable.ic_icon_signature)
+                                },
                             contentDescription = null,
                             modifier =
                                 modifier
@@ -260,6 +266,7 @@ fun SignerDetailsView(
                                         }.testTag("signatureDetailsSignatureName")
                                         .notAccessible(),
                                 nameText,
+                                allCaps = isTimestamp,
                             )
                             ColoredSignedStatusText(
                                 text = statusText,
@@ -332,6 +339,7 @@ fun SignerDetailsView(
                                 SignerDetails(
                                     modifier = modifier,
                                     signature = signature,
+                                    isTimestamp = isTimestamp,
                                     signersIssuerName = signersIssuerName,
                                     tsIssuerName = tsIssuerName,
                                     ocspIssuerName = ocspIssuerName,

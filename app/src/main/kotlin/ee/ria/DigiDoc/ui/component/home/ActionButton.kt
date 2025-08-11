@@ -77,7 +77,7 @@ fun ActionButton(
                     .matchParentSize()
                     .offset(y = buttonShadowElevation)
                     .background(
-                        color = MaterialTheme.colorScheme.surfaceContainer,
+                        color = MaterialTheme.colorScheme.primaryContainer,
                         shape = RoundedCornerShape(MSCornerRadius),
                     ),
         )

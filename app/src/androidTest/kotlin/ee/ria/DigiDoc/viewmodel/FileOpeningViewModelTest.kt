@@ -456,7 +456,7 @@ class FileOpeningViewModelTest {
                 ),
             ).thenReturn(signedContainer)
 
-            `when`(sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed)).thenReturn(false)
+            `when`(sivaRepository.isTimestampedContainer(signedContainer)).thenReturn(false)
 
             viewModel.handleFiles(
                 context,
@@ -528,7 +528,7 @@ class FileOpeningViewModelTest {
             `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, isSivaConfirmed))
                 .thenReturn(signedContainer)
 
-            `when`(sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed)).thenReturn(false)
+            `when`(sivaRepository.isTimestampedContainer(signedContainer)).thenReturn(false)
 
             viewModel.handleFiles(
                 context,
@@ -564,7 +564,7 @@ class FileOpeningViewModelTest {
                 ),
             ).thenReturn(signedContainer)
 
-            `when`(sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed)).thenReturn(false)
+            `when`(sivaRepository.isTimestampedContainer(signedContainer)).thenReturn(false)
 
             viewModel.handleFiles(
                 context,
@@ -599,7 +599,7 @@ class FileOpeningViewModelTest {
                 ),
             ).thenReturn(signedContainer)
 
-            `when`(sivaRepository.isTimestampedContainer(signedContainer, isSivaConfirmed)).thenReturn(false)
+            `when`(sivaRepository.isTimestampedContainer(signedContainer)).thenReturn(false)
 
             viewModel.handleFiles(
                 context,

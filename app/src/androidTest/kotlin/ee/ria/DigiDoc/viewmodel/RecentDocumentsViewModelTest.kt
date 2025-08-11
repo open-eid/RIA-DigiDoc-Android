@@ -136,7 +136,7 @@ class RecentDocumentsViewModelTest {
                     ee.ria.DigiDoc.common.R.raw.example,
                 )
 
-            `when`(sivaRepository.isTimestampedContainer(anyOrNull(), anyBoolean())).thenReturn(false)
+            `when`(sivaRepository.isTimestampedContainer(anyOrNull())).thenReturn(false)
 
             val result = viewModel.openSignatureDocument(container, true)
 
@@ -150,7 +150,7 @@ class RecentDocumentsViewModelTest {
             tempFile.writeText("test content")
             tempFile.deleteOnExit()
 
-            `when`(sivaRepository.isTimestampedContainer(anyOrNull(), anyBoolean())).thenReturn(true)
+            `when`(sivaRepository.isTimestampedContainer(anyOrNull())).thenReturn(true)
 
             viewModel.openSignatureDocument(tempFile, true)
 

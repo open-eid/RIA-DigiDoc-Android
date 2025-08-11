@@ -25,6 +25,7 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 fun SignerDetails(
     modifier: Modifier = Modifier,
     signature: SignatureInterface,
+    isTimestamp: Boolean,
     signersIssuerName: String,
     tsIssuerName: String,
     ocspIssuerName: String,
@@ -47,6 +48,7 @@ fun SignerDetails(
         SignerDetailItem()
             .signersDetailItems(
                 signature = signature,
+                isTimestamp = isTimestamp,
                 signerIssuerName = signersIssuerName,
                 tsIssuerName = tsIssuerName,
                 ocspIssuerName = ocspIssuerName,

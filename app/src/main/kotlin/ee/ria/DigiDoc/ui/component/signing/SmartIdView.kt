@@ -82,11 +82,11 @@ import ee.ria.DigiDoc.ui.component.shared.RoleDataView
 import ee.ria.DigiDoc.ui.component.shared.dialog.OptionChooserDialog
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.addInvisibleElement
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
@@ -639,12 +639,15 @@ fun SmartIdView(
                     Text(
                         modifier =
                             modifier
+                                .padding(top = XSPadding)
+                                .padding(bottom = MSPadding)
                                 .fillMaxWidth()
                                 .focusable(true)
                                 .semantics { contentDescription = personalCodeErrorText }
                                 .testTag("smartIdPersonalCodeErrorText"),
                         text = personalCodeErrorText,
-                        color = Red500,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
                     )
                 }
             }

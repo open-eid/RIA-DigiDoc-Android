@@ -77,7 +77,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeM
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
-import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
@@ -737,7 +736,7 @@ fun MyEidPinScreen(
                                 text = pinLengthRequirementText,
                                 color =
                                     if (!isCurrentPinValid) {
-                                        Red500
+                                        MaterialTheme.colorScheme.error
                                     } else {
                                         MaterialTheme.colorScheme.onSurfaceVariant
                                     },
@@ -847,7 +846,7 @@ fun MyEidPinScreen(
                                 text = "$pinDifferentRequirementText $pinLengthRequirementText",
                                 color =
                                     if (!isNewPinValid) {
-                                        Red500
+                                        MaterialTheme.colorScheme.error
                                     } else {
                                         MaterialTheme.colorScheme.onSurfaceVariant
                                     },
@@ -867,7 +866,7 @@ fun MyEidPinScreen(
                                                 testTagsAsResourceId = true
                                             }.testTag("myEidNewPinErrorText"),
                                     text = pinErrorText.value,
-                                    color = Red500,
+                                    color = MaterialTheme.colorScheme.error,
                                     style = MaterialTheme.typography.bodySmall,
                                 )
                             }
@@ -969,7 +968,7 @@ fun MyEidPinScreen(
                                 text = "$pinDifferentRequirementText $pinLengthRequirementText",
                                 color =
                                     if (!isNewRepeatedPinValid) {
-                                        Red500
+                                        MaterialTheme.colorScheme.error
                                     } else {
                                         MaterialTheme.colorScheme.onSurfaceVariant
                                     },
@@ -989,7 +988,7 @@ fun MyEidPinScreen(
                                                 testTagsAsResourceId = true
                                             }.testTag("myEidNewPinErrorText"),
                                     text = pinErrorText.value,
-                                    color = Red500,
+                                    color = MaterialTheme.colorScheme.error,
                                     style = MaterialTheme.typography.bodySmall,
                                 )
                             }

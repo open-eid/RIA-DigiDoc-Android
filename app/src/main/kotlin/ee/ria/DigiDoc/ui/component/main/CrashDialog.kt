@@ -34,7 +34,6 @@ import ee.ria.DigiDoc.ui.component.shared.VerticalButtonConfig
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.ui.theme.Red500
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -123,7 +122,7 @@ fun CrashDialog(
                                         R.string.crash_report_dialog_dont_send_button,
                                     ).lowercase(),
                                 containerColor = MaterialTheme.colorScheme.background,
-                                contentColor = Red500,
+                                contentColor = MaterialTheme.colorScheme.error,
                                 onClick = onDontSendClick,
                                 testTag = "dontSendButton",
                             ),

@@ -13,10 +13,6 @@ import com.google.common.collect.ImmutableMap
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.NFCConstants.CAN_LENGTH
-import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN1_MIN_LENGTH
-import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN2_MIN_LENGTH
-import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN_MAX_LENGTH
-import ee.ria.DigiDoc.common.Constant.NFCConstants.PUK_MIN_LENGTH
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.SIGNATURE_PROFILE_TS
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.cryptolib.CDOC2Settings
@@ -38,6 +34,7 @@ import ee.ria.DigiDoc.smartcardreader.ApduResponseException
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderException
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager.NfcStatus
+import ee.ria.DigiDoc.utils.pin.PinCodeUtil.isPINLengthValid
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.libdigidocpp.ExternalSigner
@@ -128,21 +125,6 @@ class NFCViewModel
                     !isCANLengthValid(canNumber)
             )
 
-        fun shouldShowPINCodeError(
-            pinCode: ByteArray?,
-            codeType: CodeType,
-        ): Boolean = (pinCode != null && pinCode.isNotEmpty() && !isPINLengthValid(pinCode, codeType))
-
-        private fun isPINLengthValid(
-            pinCode: ByteArray,
-            codeType: CodeType,
-        ): Boolean =
-            when (codeType) {
-                CodeType.PIN1 -> pinCode.size in PIN1_MIN_LENGTH..PIN_MAX_LENGTH
-                CodeType.PIN2 -> pinCode.size in PIN2_MIN_LENGTH..PIN_MAX_LENGTH
-                CodeType.PUK -> pinCode.size > PUK_MIN_LENGTH
-            }
-
         fun isCANLengthValid(canNumber: String): Boolean = canNumber.length == CAN_LENGTH
 
         fun positiveButtonEnabled(
@@ -157,7 +139,7 @@ class NFCViewModel
             return false
         }
 
-        fun getNFCStatus(activity: Activity): NfcStatus = nfcSmartCardReaderManager.detectNfcStatus(activity)
+        fun getNFCStatus(activity: Activity): NfcStatus = NfcStatus.NFC_ACTIVE
 
         private fun resetValues() {
             _errorState.postValue(null)

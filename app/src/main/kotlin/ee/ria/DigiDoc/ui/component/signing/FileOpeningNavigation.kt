@@ -164,7 +164,7 @@ fun FileOpeningNavigation(
                     if (errorState.first != 0) {
                         errorText = errorState
                     }
-                    delay(1000)
+                    delay(4000)
                     if (signedContainer == null) {
                         navController.popBackStack()
                     }

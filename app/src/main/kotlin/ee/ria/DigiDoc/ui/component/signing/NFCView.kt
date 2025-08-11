@@ -88,16 +88,17 @@ import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
 import ee.ria.DigiDoc.ui.component.shared.SecurePinTextField
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
+import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.addInvisibleElement
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.removeInvisibleElement
 import ee.ria.DigiDoc.utils.extensions.notAccessible
+import ee.ria.DigiDoc.utils.pin.PinCodeUtil.shouldShowPINCodeError
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.NFCViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
@@ -704,7 +705,9 @@ fun NFCView(
                     if (canNumberErrorText.isNotEmpty()) {
                         Text(
                             modifier =
-                                Modifier
+                                modifier
+                                    .padding(top = XSPadding)
+                                    .padding(bottom = MSPadding)
                                     .fillMaxWidth()
                                     .focusable(enabled = true)
                                     .semantics {
@@ -712,17 +715,17 @@ fun NFCView(
                                         testTagsAsResourceId = true
                                     }.testTag("nfcCANErrorText"),
                             text = canNumberErrorText,
-                            color = Red500,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
                         )
                     }
                     val pinCodeTextEdited = rememberSaveable { mutableStateOf(false) }
                     val pinCodeErrorText =
                         if (pinCodeTextEdited.value && pinCode.value.isNotEmpty()) {
-                            if (nfcViewModel
-                                    .shouldShowPINCodeError(
-                                        pinCode.value,
-                                        codeType,
-                                    )
+                            if (shouldShowPINCodeError(
+                                    pinCode.value,
+                                    codeType,
+                                )
                             ) {
                                 String.format(
                                     stringResource(id = R.string.id_card_sign_pin_invalid_length),
@@ -761,7 +764,7 @@ fun NFCView(
                                 trailingIconContentDescription = "$clearButtonText $buttonName",
                                 isError =
                                     pinCodeTextEdited.value &&
-                                        nfcViewModel.shouldShowPINCodeError(
+                                        shouldShowPINCodeError(
                                             pinCode.value,
                                             codeType,
                                         ),
