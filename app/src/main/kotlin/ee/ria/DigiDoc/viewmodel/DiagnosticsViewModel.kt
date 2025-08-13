@@ -127,11 +127,17 @@ class DiagnosticsViewModel
             return uuid
         }
 
-        fun isCdoc2DefaultSettingsUsed(): Boolean {
-            val isCdoc2Setting = dataStore.getCdocSetting() == CDOCSetting.CDOC2
-            val cdoc2UseKeyServer = updatedConfiguration.value?.cdoc2UseKeyServer
-            return isCdoc2Setting &&
-                cdoc2UseKeyServer?.equals(dataStore.getUseOnlineEncryption(cdoc2UseKeyServer)) != false
+        fun isCdoc2Selected(): Boolean = dataStore.getCdocSetting() == CDOCSetting.CDOC2
+
+        fun isCdoc2KeyServerUsed(): Boolean {
+            val isCdoc2Setting = isCdoc2Selected()
+            val cdoc2UseKeyServer = updatedConfiguration.value?.cdoc2UseKeyServer ?: false
+            return isCdoc2Setting && dataStore.getUseOnlineEncryption(cdoc2UseKeyServer)
+        }
+
+        fun getCdoc2KeyServerUUID(): String {
+            val defaultKeyServer = updatedConfiguration.value?.cdoc2DefaultKeyServer ?: DEFAULT_UUID_VALUE
+            return dataStore.getCDOC2UUID(defaultKeyServer)
         }
 
         fun getTslCacheData(context: Context): List<String> {
@@ -336,7 +342,7 @@ class DiagnosticsViewModel
                     appendLine(
                         "${context.getString(
                             R.string.main_diagnostics_cdoc2_default_title,
-                        )} ${isCdoc2DefaultSettingsUsed()}",
+                        )} ${isCdoc2Selected()}",
                     )
                     appendLine(
                         "${context.getString(

@@ -27,6 +27,7 @@ import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
+import ee.ria.DigiDoc.utils.Constant.Defaults.DEFAULT_UUID_VALUE
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
@@ -348,23 +349,56 @@ class DiagnosticsViewModelTest {
     }
 
     @Test
-    fun diagnosticsViewModel_isCdoc2DefaultSettingsUsed_returnTrue() {
+    fun diagnosticsViewModel_isCdoc2Selected_returnTrue() {
         dataStore.setCdocSetting(CDOCSetting.CDOC2)
         viewModel.updatedConfiguration = MutableLiveData(configurationProvider)
 
-        val result = viewModel.isCdoc2DefaultSettingsUsed()
+        val isCdoc2Selected = viewModel.isCdoc2Selected()
 
-        assertTrue(result)
+        assertTrue(isCdoc2Selected)
     }
 
     @Test
-    fun diagnosticsViewModel_isCdoc2DefaultSettingsUsed_returnFalse() {
+    fun diagnosticsViewModel_isCdoc2Selected_returnFalse() {
         dataStore.setCdocSetting(CDOCSetting.CDOC1)
         viewModel.updatedConfiguration = MutableLiveData(configurationProvider)
 
-        val result = viewModel.isCdoc2DefaultSettingsUsed()
+        val isCdoc2Selected = viewModel.isCdoc2Selected()
 
-        assertFalse(result)
+        assertFalse(isCdoc2Selected)
+    }
+
+    @Test
+    fun diagnosticsViewModel_isCdoc2KeyServerUsed_returnTrue() {
+        dataStore.setCdocSetting(CDOCSetting.CDOC2)
+        dataStore.setUseOnlineEncryption(true)
+        viewModel.updatedConfiguration = MutableLiveData(configurationProvider)
+
+        val isCdoc2KeyServerUsed = viewModel.isCdoc2KeyServerUsed()
+
+        assertTrue(isCdoc2KeyServerUsed)
+    }
+
+    @Test
+    fun diagnosticsViewModel_isCdoc2KeyServerUsed_returnFalse() {
+        dataStore.setCdocSetting(CDOCSetting.CDOC2)
+        dataStore.setUseOnlineEncryption(false)
+        viewModel.updatedConfiguration = MutableLiveData(configurationProvider)
+
+        val isCdoc2KeyServerUsed = viewModel.isCdoc2KeyServerUsed()
+
+        assertFalse(isCdoc2KeyServerUsed)
+    }
+
+    @Test
+    fun diagnosticsViewModel_getCdoc2KeyServerUUID_returnCorrectUUID() {
+        dataStore.setCdocSetting(CDOCSetting.CDOC2)
+        dataStore.setCDOC2UUID(DEFAULT_UUID_VALUE)
+        viewModel.updatedConfiguration = MutableLiveData(configurationProvider)
+
+        val cdoc2KeyServerUUID = viewModel.getCdoc2KeyServerUUID()
+
+        assertEquals(DEFAULT_UUID_VALUE, cdoc2KeyServerUUID)
     }
 
     private fun createTempFileWithStringContent(
