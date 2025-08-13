@@ -25,11 +25,4 @@ interface WebEidAuthService {
         signature: ByteArray,
         challenge: String,
     ): JSONObject
-
-    fun sendAuthTokenToBackend(
-        token: JSONObject,
-        loginUri: String,
-        onSuccess: () -> Unit,
-        onError: (Throwable) -> Unit,
-    )
 }

@@ -19,7 +19,6 @@ import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
-import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 
 @RunWith(MockitoJUnitRunner::class)
@@ -110,7 +109,8 @@ class WebEidViewModelTest {
         viewModel.handleWebEidAuthResult(cert, signature, activity)
 
         verify(authService).buildAuthToken(cert, signature, challenge)
-        verify(authService).sendAuthTokenToBackend(eq(token), eq(loginUri), any(), any())
+        verify(activity).startActivity(any())
+        verify(activity).finish()
     }
 
     @Test
@@ -131,7 +131,7 @@ class WebEidViewModelTest {
         viewModel.handleWebEidAuthResult(cert, signature, activity)
 
         verify(authService, never()).buildAuthToken(any(), any(), any())
-        verify(authService, never()).sendAuthTokenToBackend(any(), any(), any(), any())
+        verify(activity, never()).startActivity(any())
     }
 
     @Test
@@ -152,6 +152,6 @@ class WebEidViewModelTest {
         viewModel.handleWebEidAuthResult(cert, signature, activity)
 
         verify(authService, never()).buildAuthToken(any(), any(), any())
-        verify(authService, never()).sendAuthTokenToBackend(any(), any(), any(), any())
+        verify(activity, never()).startActivity(any())
     }
 }
