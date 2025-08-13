@@ -158,11 +158,14 @@ class WebEidAuthServiceTest {
     fun buildAuthToken_withValidInputs_returnsValidJson() {
         val certBytes = Base64.getDecoder().decode(cert)
         val signature = byteArrayOf(1, 2, 3, 4, 5)
+        val challenge = "abc123"
 
-        val token = service.buildAuthToken(certBytes, signature)
+        val token = service.buildAuthToken(certBytes, signature, challenge)
 
         assertEquals("web-eid:1.1", token.getString("format"))
+        assertEquals(challenge, token.getString("challenge"))
         assert(token.getString("unverifiedCertificate").isNotBlank())
+        assert(token.getString("unverifiedSigningCertificate").isNotBlank())
         assert(token.getString("signature").isNotBlank())
         assert(token.has("algorithm"))
         assert(token.has("supportedSignatureAlgorithms"))

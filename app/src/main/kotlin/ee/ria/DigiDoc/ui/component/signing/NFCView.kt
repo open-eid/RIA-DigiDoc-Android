@@ -308,7 +308,7 @@ fun NFCView(
     LaunchedEffect(nfcViewModel.webEidAuthResult) {
         nfcViewModel.webEidAuthResult.asFlow().collect { result ->
             result?.let { (authCert, signature) ->
-                webEidViewModel?.handleWebEidAuthResult(authCert, signature)
+                webEidViewModel?.handleWebEidAuthResult(authCert, signature, activity)
                 nfcViewModel.resetWebEidAuthResult()
                 onSuccess()
             }

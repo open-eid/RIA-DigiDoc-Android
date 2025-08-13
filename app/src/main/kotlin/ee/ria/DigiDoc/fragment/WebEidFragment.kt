@@ -21,7 +21,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.fragment.screen.WebEidScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.viewmodel.WebEidViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
@@ -43,7 +43,7 @@ fun WebEidFragment(
             when (it.host) {
                 "auth" -> viewModel.handleAuth(it)
                 "sign" -> viewModel.handleSign(it)
-                else -> LoggingUtil.debugLog("WebEidFragment", "Unknown Web eID URI host: ${it.host}")
+                else -> debugLog("WebEidFragment", "Unknown Web eID URI host: ${it.host}")
             }
         }
     }
