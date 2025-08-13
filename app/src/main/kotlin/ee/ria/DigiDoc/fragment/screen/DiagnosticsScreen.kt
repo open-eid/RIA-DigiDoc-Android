@@ -499,7 +499,7 @@ fun DiagnosticsScreen(
                                 testTagsAsResourceId = true
                             }.testTag("mainDiagnosticsCdoc2Default"),
                     stringResource(id = R.string.main_diagnostics_cdoc2_default_title),
-                    diagnosticsViewModel.isCdoc2DefaultSettingsUsed().toString(),
+                    diagnosticsViewModel.isCdoc2Selected().toString(),
                 )
                 DiagnosticsText(
                     modifier =
@@ -508,7 +508,7 @@ fun DiagnosticsScreen(
                                 testTagsAsResourceId = true
                             }.testTag("mainDiagnosticsCdoc2UseKeyserver"),
                     stringResource(id = R.string.main_diagnostics_cdoc2_use_keyserver_title),
-                    currentConfiguration?.cdoc2UseKeyServer.toString(),
+                    diagnosticsViewModel.isCdoc2KeyServerUsed().toString(),
                 )
                 DiagnosticsText(
                     modifier =
@@ -517,7 +517,7 @@ fun DiagnosticsScreen(
                                 testTagsAsResourceId = true
                             }.testTag("mainDiagnosticsCdoc2DefaultKeyserver"),
                     stringResource(id = R.string.main_diagnostics_cdoc2_default_keyserver_title),
-                    currentConfiguration?.cdoc2DefaultKeyServer ?: "",
+                    diagnosticsViewModel.getCdoc2KeyServerUUID(),
                 )
                 HorizontalDivider(
                     modifier =
