@@ -3,7 +3,10 @@
 package ee.ria.DigiDoc.viewmodel
 
 import android.app.Activity
+import android.content.Intent
 import android.net.Uri
+import android.util.Base64
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
@@ -12,6 +15,7 @@ import ee.ria.DigiDoc.webEid.WebEidAuthService
 import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthRequest
 import ee.ria.DigiDoc.webEid.domain.model.WebEidSignRequest
 import kotlinx.coroutines.flow.StateFlow
+import org.json.JSONObject
 import javax.inject.Inject
 
 @HiltViewModel
@@ -57,18 +61,24 @@ class WebEidViewModel
 
             val token = authService.buildAuthToken(cert, signature, challenge)
 
-            debugLog("WebEidViewModel", "Sending token to loginUri: $loginUri")
+            try {
+                val payload = JSONObject().put("auth-token", token)
+                val encoded =
+                    Base64.encodeToString(
+                        payload.toString().toByteArray(Charsets.UTF_8),
+                        Base64.NO_WRAP,
+                    )
+                val browserUri = "$loginUri#$encoded"
 
-            authService.sendAuthTokenToBackend(
-                token,
-                loginUri,
-                onSuccess = {
-                    debugLog("WebEidViewModel", "Authentication success")
-                    activity.finish()
-                },
-                onError = {
-                    errorLog("WebEidViewModel", "Authentication failed", it)
-                },
-            )
+                debugLog("WebEidViewModel", "Opening browser with loginUri: $browserUri")
+                val intent =
+                    Intent(Intent.ACTION_VIEW, browserUri.toUri()).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    }
+                activity.startActivity(intent)
+                activity.finish()
+            } catch (e: Exception) {
+                errorLog("WebEidViewModel", "Failed to open browser with token", e)
+            }
         }
     }
