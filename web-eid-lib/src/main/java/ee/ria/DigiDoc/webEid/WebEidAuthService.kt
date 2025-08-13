@@ -23,5 +23,13 @@ interface WebEidAuthService {
     fun buildAuthToken(
         certBytes: ByteArray,
         signature: ByteArray,
+        challenge: String,
     ): JSONObject
+
+    fun sendAuthTokenToBackend(
+        token: JSONObject,
+        loginUri: String,
+        onSuccess: () -> Unit,
+        onError: (Throwable) -> Unit,
+    )
 }

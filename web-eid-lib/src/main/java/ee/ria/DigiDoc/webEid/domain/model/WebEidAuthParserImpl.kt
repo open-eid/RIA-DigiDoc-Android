@@ -7,6 +7,7 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.webEid.utils.WebEidError
 import ee.ria.DigiDoc.webEid.utils.WebEidErrorCodes
 import ee.ria.DigiDoc.webEid.utils.WebEidResponseUtil
+import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URI
 import java.security.cert.CertificateFactory
@@ -165,6 +166,7 @@ class WebEidAuthParserImpl
         override fun buildAuthToken(
             certBytes: ByteArray,
             signature: ByteArray,
+            challenge: String,
         ): JSONObject {
             val cert =
                 CertificateFactory.getInstance("X.509")
@@ -178,23 +180,26 @@ class WebEidAuthParserImpl
                     else -> "RS256"
                 }
 
+            val supportedSignatureAlgorithms =
+                JSONArray().apply {
+                    put(
+                        JSONObject().apply {
+                            put("cryptoAlgorithm", "RSA")
+                            put("hashFunction", "SHA-256")
+                            put("paddingScheme", "PKCS1.5")
+                        },
+                    )
+                }
+
             return JSONObject().apply {
                 put("algorithm", algorithm)
                 put("unverifiedCertificate", Base64.getEncoder().encodeToString(certBytes))
                 put("unverifiedSigningCertificate", Base64.getEncoder().encodeToString(certBytes))
-                put(
-                    "supportedSignatureAlgorithms",
-                    listOf(
-                        mapOf(
-                            "cryptoAlgorithm" to "RSA",
-                            "hashFunction" to "SHA-256",
-                            "paddingScheme" to "PKCS1.5",
-                        ),
-                    ),
-                )
+                put("supportedSignatureAlgorithms", supportedSignatureAlgorithms)
                 put("issuerApp", "https://web-eid.eu/web-eid-mobile-app/releases/v1.0.0")
                 put("signature", Base64.getEncoder().encodeToString(signature))
                 put("format", "web-eid:1.1")
+                put("challenge", challenge)
             }
         }
     }

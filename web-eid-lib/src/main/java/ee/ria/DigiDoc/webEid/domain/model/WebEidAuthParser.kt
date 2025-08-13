@@ -15,5 +15,6 @@ interface WebEidAuthParser {
     fun buildAuthToken(
         certBytes: ByteArray,
         signature: ByteArray,
+        challenge: String,
     ): JSONObject
 }
