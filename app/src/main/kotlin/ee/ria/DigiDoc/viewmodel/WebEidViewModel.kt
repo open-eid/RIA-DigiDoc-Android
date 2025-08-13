@@ -6,7 +6,8 @@ import android.app.Activity
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.webEid.WebEidAuthService
 import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthRequest
 import ee.ria.DigiDoc.webEid.domain.model.WebEidSignRequest
@@ -45,28 +46,28 @@ class WebEidViewModel
             val loginUri = authPayload.value?.loginUri
 
             if (challenge.isNullOrBlank()) {
-                LoggingUtil.errorLog("WebEidViewModel", "Missing challenge in auth payload")
+                errorLog("WebEidViewModel", "Missing challenge in auth payload")
                 return
             }
 
             if (loginUri.isNullOrBlank()) {
-                LoggingUtil.errorLog("WebEidViewModel", "Missing login_uri in auth payload")
+                errorLog("WebEidViewModel", "Missing login_uri in auth payload")
                 return
             }
 
             val token = authService.buildAuthToken(cert, signature, challenge)
 
-            LoggingUtil.debugLog("WebEidViewModel", "Sending token to loginUri: $loginUri")
+            debugLog("WebEidViewModel", "Sending token to loginUri: $loginUri")
 
             authService.sendAuthTokenToBackend(
                 token,
                 loginUri,
                 onSuccess = {
-                    LoggingUtil.debugLog("WebEidViewModel", "Authentication success")
+                    debugLog("WebEidViewModel", "Authentication success")
                     activity.finish()
                 },
                 onError = {
-                    LoggingUtil.errorLog("WebEidViewModel", "Authentication failed", it)
+                    errorLog("WebEidViewModel", "Authentication failed", it)
                 },
             )
         }

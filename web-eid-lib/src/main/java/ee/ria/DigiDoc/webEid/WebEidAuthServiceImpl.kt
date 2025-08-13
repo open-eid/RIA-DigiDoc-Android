@@ -3,7 +3,7 @@
 package ee.ria.DigiDoc.webEid
 
 import android.net.Uri
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthParser
 import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthRequest
@@ -101,7 +101,7 @@ class WebEidAuthServiceImpl
                 try {
                     val response = client.newCall(request).execute()
                     if (response.isSuccessful) {
-                        LoggingUtil.debugLog("WebEidAuthService", "Token POST success")
+                        debugLog("WebEidAuthService", "Token POST success")
                         onSuccess()
                     } else {
                         errorLog("WebEidAuthService", "Token POST failed: ${response.code}")
