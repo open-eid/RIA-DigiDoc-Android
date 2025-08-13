@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.viewmodel
 
+import android.app.Activity
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -38,10 +39,35 @@ class WebEidViewModel
         fun handleWebEidAuthResult(
             cert: ByteArray,
             signature: ByteArray,
+            activity: Activity,
         ) {
-            val token = authService.buildAuthToken(cert, signature)
+            val challenge = authPayload.value?.challenge
+            val loginUri = authPayload.value?.loginUri
 
-            // TODO: send tokenJson.toString() to backend or pass to WebEidViewModel
-            LoggingUtil.debugLog("WebEidViewModel", "Web EID token = $token")
+            if (challenge.isNullOrBlank()) {
+                LoggingUtil.errorLog("WebEidViewModel", "Missing challenge in auth payload")
+                return
+            }
+
+            if (loginUri.isNullOrBlank()) {
+                LoggingUtil.errorLog("WebEidViewModel", "Missing login_uri in auth payload")
+                return
+            }
+
+            val token = authService.buildAuthToken(cert, signature, challenge)
+
+            LoggingUtil.debugLog("WebEidViewModel", "Sending token to loginUri: $loginUri")
+
+            authService.sendAuthTokenToBackend(
+                token,
+                loginUri,
+                onSuccess = {
+                    LoggingUtil.debugLog("WebEidViewModel", "Authentication success")
+                    activity.finish()
+                },
+                onError = {
+                    LoggingUtil.errorLog("WebEidViewModel", "Authentication failed", it)
+                },
+            )
         }
     }

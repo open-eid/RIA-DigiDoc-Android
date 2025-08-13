@@ -3,6 +3,7 @@
 package ee.ria.DigiDoc.webEid
 
 import android.net.Uri
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthParser
 import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthRequest
@@ -10,6 +11,8 @@ import ee.ria.DigiDoc.webEid.domain.model.WebEidSignRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -70,7 +73,44 @@ class WebEidAuthServiceImpl
         override fun buildAuthToken(
             certBytes: ByteArray,
             signature: ByteArray,
+            challenge: String,
         ): JSONObject {
-            return parserImpl.buildAuthToken(certBytes, signature)
+            return parserImpl.buildAuthToken(certBytes, signature, challenge)
+        }
+
+        override fun sendAuthTokenToBackend(
+            token: JSONObject,
+            loginUri: String,
+            onSuccess: () -> Unit,
+            onError: (Throwable) -> Unit,
+        ) {
+            val requestBody =
+                JSONObject(mapOf("auth-token" to token))
+                    .toString()
+                    .toRequestBody("application/json".toMediaTypeOrNull())
+
+            val request =
+                okhttp3.Request.Builder()
+                    .url(loginUri)
+                    .post(requestBody)
+                    .build()
+
+            val client = okhttp3.OkHttpClient()
+
+            Thread {
+                try {
+                    val response = client.newCall(request).execute()
+                    if (response.isSuccessful) {
+                        LoggingUtil.debugLog("WebEidAuthService", "Token POST success")
+                        onSuccess()
+                    } else {
+                        errorLog("WebEidAuthService", "Token POST failed: ${response.code}")
+                        onError(Exception("HTTP ${response.code}"))
+                    }
+                } catch (e: Exception) {
+                    errorLog("WebEidAuthService", "Token POST failed", e)
+                    onError(e)
+                }
+            }.start()
         }
     }
