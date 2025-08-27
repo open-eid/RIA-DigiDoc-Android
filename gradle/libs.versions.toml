@@ -7,7 +7,7 @@ versionName = "3.0.0"
 
 agp = "8.11.1"
 algp = "8.11.1"
-kotlin = "2.2.0"
+kotlin = "2.2.10"
 coreKtx = "1.17.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
@@ -18,16 +18,13 @@ navigationCompose = "2.9.3"
 constraintlayoutCompose = "1.1.1"
 composeBom = "2025.08.00"
 coreSplashscreen = "1.0.1"
-jlleitschuhKtlint = "13.0.0"
-dagger = "2.57"
+jlleitschuhKtlint = "13.1.0"
+dagger = "2.57.1"
 hilt = "1.2.0"
 appcompat = "1.7.1"
 material = "1.12.0"
-jetbrainsKotlinJvm = "2.2.0"
-mockito-core = "5.18.0"
-mockito-android = "5.18.0"
+mockito = "5.19.0"
 mockito-kotlin = "6.0.0"
-byte-buddy = "1.14.6"
 kotlinx-coroutines-test = "1.10.2"
 gson = "2.13.1"
 jackson-databind = "2.19.2"
@@ -52,6 +49,10 @@ cdoc4j = "1.5"
 stax-api = "1.0-2"
 unboundid-ldapsdk = "7.0.3"
 
+# Override Byte Buddy version to avoid issues with Android builds
+#noinspection NewerVersionAvailable
+byte-buddy = "1.14.6"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -75,8 +76,8 @@ google-dagger-hilt-android-compile = { group = "com.google.dagger", name = "hilt
 androidx-hilt = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito-core" }
-mockito-android = { group = "org.mockito", name = "mockito-android", version.ref = "mockito-android" }
+mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+mockito-android = { group = "org.mockito", name = "mockito-android", version.ref = "mockito" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockito-kotlin" }
 byte-buddy = { group = "net.bytebuddy", name = "byte-buddy-android", version.ref = "byte-buddy" }
 retrofit-mock = { group = "com.squareup.retrofit2", name = "retrofit-mock", version.ref = "retrofit" }
@@ -114,6 +115,6 @@ jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "k
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 jlleitschuhKtlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "jlleitschuhKtlint" }
 googleDagger = {id = "com.google.dagger.hilt.android", version.ref = "dagger"}
-jetbrainsKotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
+jetbrainsKotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 google-firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlytics" }
