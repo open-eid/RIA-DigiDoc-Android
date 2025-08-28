@@ -472,7 +472,9 @@
     <!-- Main Accessibility -->
     <string name="main_accessibility_title">Ligipääsetavuse info</string>
 
-    <string name="main_accessibility_link">Rohkem infot leiab <a href="https://www.id.ee/ligipaasetavuse-teatis/">ligipääsetavuse teatisest</a>.</string>
+    <string name="main_accessibility_link_text">Rohkem infot leiab  </string>
+    <string name="main_accessibility_link_url">https://www.id.ee/ligipaasetavuse-teatis/</string>
+    <string name="main_accessibility_link_tag">ligipääsetavuse teatisest</string>
     <string name="main_accessibility_introduction">RIA DigiDoc on ehitatud nii, et see vastaks WCAG 2.1 AA juurdepääsetavuse suunistele. See tähendab, et RIA DigiDoc rakenduse arendamisel on kasutatud põhimõtteid, et see oleks kasutatav ilma nägemisvõimeta, piiratud nägemisvõimega, piiratud liikumisvõime või jõuga jms.</string>
     <string name="main_accessibility_introduction_2">Juurdepääsetavust on võimalik parandada oma nutiseadmesse sisseehitatud abivahendeid kasutades. Alljärgnevalt ülevaade põhilistest abivahenditest.</string>
     <string name="main_accessibility_introduction_screen_reader_title">Ekraanilugeja</string>

@@ -31,16 +31,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.shared.DynamicText
+import ee.ria.DigiDoc.ui.component.shared.HrefDynamicText
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.TopBar
+import ee.ria.DigiDoc.ui.theme.Dimensions.LINE_HEIGHT
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
@@ -128,14 +133,25 @@ fun AccessibilityScreen(
                             ).testTag("mainAccessibilityIntroduction"),
                     text = stringResource(R.string.main_accessibility_introduction),
                 )
-                DynamicText(
+                HrefDynamicText(
                     modifier =
                         modifier
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
                             ).testTag("mainAccessibilityLink"),
-                    text = stringResource(R.string.main_accessibility_link),
+                    text1 = stringResource(R.string.main_accessibility_link_text),
+                    text2 = ".",
+                    linkText = stringResource(R.string.main_accessibility_link_tag),
+                    linkUrl = stringResource(R.string.main_accessibility_link_url),
+                    showLinkOnOneLine = true,
+                    textStyle =
+                        TextStyle(
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                            textAlign = TextAlign.Start,
+                            lineHeight = TextUnit(LINE_HEIGHT, TextUnitType.Sp),
+                        ),
                 )
                 DynamicText(
                     modifier =
