@@ -74,18 +74,22 @@ fun DynamicText(
                 .then(pressIndicator)
                 .semantics(mergeDescendants = true) {
                     testTagsAsResourceId = true
-                }.let {
+                }.testTag("dynamicTextMessage")
+                .let {
                     val urlInText =
                         annotatedStringWithLinks
-                            .getStringAnnotations(tag = "URL", start = 0, end = annotatedStringWithLinks.length)
-                            .firstOrNull()
+                            .getStringAnnotations(
+                                tag = "URL",
+                                start = 0,
+                                end = annotatedStringWithLinks.length,
+                            ).firstOrNull()
                             ?.item
                     if (!urlInText.isNullOrEmpty()) {
                         it.clickable(enabled = true, onClick = { uriHandler.openUri(urlInText) })
                     } else {
                         it
                     }
-                }.testTag("dynamicTextMessage"),
+                },
         text = annotatedStringWithLinks,
         style = textStyle,
     )

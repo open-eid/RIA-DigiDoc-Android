@@ -123,9 +123,7 @@ class IdCardViewModel
                     }
 
                 val signedContainerResult: SignedContainer =
-                    withContext(IO) {
-                        idCardService.signContainer(token, signedContainer, pin2Code, roleData)
-                    }
+                    idCardService.signContainer(token, signedContainer, pin2Code, roleData)
 
                 if (pin2Code.isNotEmpty()) {
                     Arrays.fill(pin2Code, 0.toByte())

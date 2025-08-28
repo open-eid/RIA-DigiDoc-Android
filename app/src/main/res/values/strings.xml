@@ -472,7 +472,9 @@
     <!-- Main Accessibility -->
     <string name="main_accessibility_title">Accessibility</string>
 
-    <string name="main_accessibility_link">More information can be found on here: https://www.id.ee/ligipaasetavuse-teatis/</string>
+    <string name="main_accessibility_link_text">More information can be found on </string>
+    <string name="main_accessibility_link_url">https://www.id.ee/ligipaasetavuse-teatis/</string>
+    <string name="main_accessibility_link_tag">here</string>
     <string name="main_accessibility_introduction">RIA DigiDoc is designed to comply with the WCAG 2.1 AA accessibility guidelines. This means that the RIA DigiDoc application has been developed using the principles that the application should be usable by the blind and people with visual, mobility, and strength impairments.</string>
     <string name="main_accessibility_introduction_2">Accessibility can be improved by using built-in assistive tools on your smart device. You can find an overview of the main assistive tools below.</string>
     <string name="main_accessibility_introduction_screen_reader_title">Screen reader</string>

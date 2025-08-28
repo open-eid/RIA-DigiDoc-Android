@@ -5,6 +5,7 @@ package ee.ria.DigiDoc.ui.component.shared
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
@@ -16,7 +17,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
@@ -57,7 +60,7 @@ fun HrefDynamicText(
 
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
     val pressIndicator =
-        modifier.pointerInput(onClick) {
+        Modifier.pointerInput(onClick) {
             detectTapGestures { pos ->
                 layoutResult.value?.let { layoutResult ->
                     onClick(layoutResult.getOffsetForPosition(pos))
@@ -65,11 +68,15 @@ fun HrefDynamicText(
             }
         }
 
+    val windowInfo = LocalWindowInfo.current
+    val containerHeight = with(LocalDensity.current) { windowInfo.containerSize.height.toDp() }
+
     BasicText(
         modifier =
             modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
+                .heightIn(max = containerHeight / 2)
                 .verticalScroll(rememberScrollState())
                 .testTag("hrefDynamicText")
                 .then(pressIndicator)
@@ -118,5 +125,9 @@ fun createAnnotatedStringWithLinks(
         }
         pop()
 
-        append("\n$text2")
+        if (showLinkOnOneLine) {
+            append("$text2")
+        } else {
+            append("\n$text2")
+        }
     }
