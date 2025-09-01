@@ -21,7 +21,8 @@ interface WebEidAuthService {
     fun parseSignUri(uri: Uri)
 
     fun buildAuthToken(
-        certBytes: ByteArray,
+        authCert: ByteArray,
+        signingCert: ByteArray,
         signature: ByteArray,
         challenge: String,
     ): JSONObject

@@ -13,7 +13,8 @@ interface WebEidAuthParser {
     fun handleAuthFlow(uri: Uri): String
 
     fun buildAuthToken(
-        certBytes: ByteArray,
+        authCert: ByteArray,
+        signingCert: ByteArray,
         signature: ByteArray,
         challenge: String,
     ): JSONObject

@@ -20,6 +20,7 @@ import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
 class WebEidViewModelTest {
@@ -86,29 +87,29 @@ class WebEidViewModelTest {
     @Test
     fun handleWebEidAuthResult_callsBuildAuthToken_whenPayloadValid() {
         val cert = byteArrayOf(1, 2, 3)
+        val signingCert = byteArrayOf(9, 9, 9)
         val signature = byteArrayOf(4, 5, 6)
         val challenge = "test-challenge"
         val loginUri = "https://example.com/login"
-        val getSigningCertificate = true
         val origin = "https://example.com"
 
         val authRequest =
             WebEidAuthRequest(
                 challenge = challenge,
                 loginUri = loginUri,
-                getSigningCertificate = getSigningCertificate,
+                getSigningCertificate = true,
                 origin = origin,
             )
-        `when`(authService.authRequest).thenReturn(MutableStateFlow(authRequest))
+        whenever(authService.authRequest).thenReturn(MutableStateFlow(authRequest))
 
         val token = JSONObject().put("mock", "token")
-        `when`(authService.buildAuthToken(cert, signature, challenge)).thenReturn(token)
+        whenever(authService.buildAuthToken(cert, signingCert, signature, challenge)).thenReturn(token)
 
         viewModel = WebEidViewModel(authService)
 
-        viewModel.handleWebEidAuthResult(cert, signature, activity)
+        viewModel.handleWebEidAuthResult(cert, signingCert, signature, activity)
 
-        verify(authService).buildAuthToken(cert, signature, challenge)
+        verify(authService).buildAuthToken(cert, signingCert, signature, challenge)
         verify(activity).startActivity(any())
         verify(activity).finish()
     }
@@ -116,6 +117,7 @@ class WebEidViewModelTest {
     @Test
     fun handleWebEidAuthResult_doesNothing_whenChallengeMissing() {
         val cert = byteArrayOf(1)
+        val signingCert = byteArrayOf(9)
         val signature = byteArrayOf(2)
 
         val authRequest =
@@ -125,18 +127,19 @@ class WebEidViewModelTest {
                 getSigningCertificate = true,
                 origin = "https://example.com",
             )
-        `when`(authService.authRequest).thenReturn(MutableStateFlow(authRequest))
+        whenever(authService.authRequest).thenReturn(MutableStateFlow(authRequest))
 
         viewModel = WebEidViewModel(authService)
-        viewModel.handleWebEidAuthResult(cert, signature, activity)
+        viewModel.handleWebEidAuthResult(cert, signingCert, signature, activity)
 
-        verify(authService, never()).buildAuthToken(any(), any(), any())
+        verify(authService, never()).buildAuthToken(any(), any(), any(), any())
         verify(activity, never()).startActivity(any())
     }
 
     @Test
     fun handleWebEidAuthResult_doesNothing_whenLoginUriMissing() {
         val cert = byteArrayOf(1)
+        val signingCert = byteArrayOf(9)
         val signature = byteArrayOf(2)
 
         val authRequest =
@@ -146,12 +149,12 @@ class WebEidViewModelTest {
                 getSigningCertificate = true,
                 origin = "https://example.com",
             )
-        `when`(authService.authRequest).thenReturn(MutableStateFlow(authRequest))
+        whenever(authService.authRequest).thenReturn(MutableStateFlow(authRequest))
 
         viewModel = WebEidViewModel(authService)
-        viewModel.handleWebEidAuthResult(cert, signature, activity)
+        viewModel.handleWebEidAuthResult(cert, signingCert, signature, activity)
 
-        verify(authService, never()).buildAuthToken(any(), any(), any())
+        verify(authService, never()).buildAuthToken(any(), any(), any(), any())
         verify(activity, never()).startActivity(any())
     }
 }
