@@ -500,7 +500,11 @@ fun EncryptNavigation(
                 modifier = modifier,
                 sharedMenuViewModel = sharedMenuViewModel,
                 title = null,
-                leftIcon = R.drawable.ic_m3_close_48dp_wght400,
+                leftIcon =
+                    when {
+                        isNestedContainer -> R.drawable.ic_m3_arrow_back_48dp_wght400
+                        else -> R.drawable.ic_m3_close_48dp_wght400
+                    },
                 leftIconContentDescription = R.string.crypto_close_container_title,
                 onLeftButtonClick = {
                     if (!isNestedContainer && encryptViewModel.isEncryptedContainer(cryptoContainer)) {
@@ -1049,9 +1053,19 @@ fun EncryptNavigation(
             EncryptContainerBottomSheet(
                 modifier = modifier,
                 showSheet = showContainerBottomSheet,
-                isEditContainerButtonShown = cryptoContainer?.hasRecipients() == false,
+                isEditContainerButtonShown =
+                    !isNestedContainer &&
+                        !encryptViewModel.isEncryptedContainer(cryptoContainer) &&
+                        !encryptViewModel.isDecryptedContainer(cryptoContainer),
                 openEditContainerNameDialog = openEditContainerNameDialog,
-                isSaveButtonShown = !isNestedContainer && encryptViewModel.isEncryptedContainer(cryptoContainer),
+                isSaveButtonShown = (
+                    encryptViewModel.isEncryptedContainer(cryptoContainer) ||
+                        (
+                            encryptViewModel.isDecryptedContainer(cryptoContainer) &&
+                                cryptoContainer?.hasRecipients() == true
+                        )
+                ),
+                isSignButtonShown = !isNestedContainer && encryptViewModel.isEncryptedContainer(cryptoContainer),
                 cryptoContainer = cryptoContainer,
                 onSignClick = onSignActionClick,
                 saveFileLauncher = saveFileLauncher,
