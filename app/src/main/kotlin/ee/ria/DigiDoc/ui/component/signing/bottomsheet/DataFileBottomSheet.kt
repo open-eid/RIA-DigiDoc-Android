@@ -12,6 +12,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.Constant
 import ee.ria.DigiDoc.common.Constant.SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES
 import ee.ria.DigiDoc.domain.model.bottomSheet.BottomSheetButton
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
@@ -104,14 +105,24 @@ fun DataFileBottomSheet(
                     )} ${clickedDataFile.value?.fileName ?: ""} $buttonName",
                 ) {
                     val dataFile = clickedDataFile.value
-                    if (dataFile != null) {
+
+                    dataFile?.let {
                         try {
-                            val file = sharedContainerViewModel.getContainerDataFile(signedContainer, dataFile)
-                            saveFile(file, dataFile.mediaType, saveFileLauncher)
+                            val file = sharedContainerViewModel.getContainerDataFile(signedContainer, it)
+
+                            val mimeType =
+                                when {
+                                    file?.isCryptoContainer() == true -> Constant.CONTAINER_MIME_TYPE
+                                    else -> it.mediaType
+                                }
+
+                            saveFile(file, mimeType, saveFileLauncher)
                         } catch (ex: Exception) {
-                            errorLog("SigningContainer", "Unable to save file. Unable to get datafile", ex)
+                            errorLog("DataFileBottomSheet", "Unable to save file. Unable to get data file", ex)
                             onBackButtonClick()
                         }
+                    } ?: run {
+                        errorLog("DataFileBottomSheet", "Data file is null")
                     }
                 },
                 BottomSheetButton(

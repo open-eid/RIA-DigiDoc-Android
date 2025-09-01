@@ -167,7 +167,7 @@
     <string name="crypto_documents_title">Container files</string>
     <string name="crypto_encrypted_documents_title">Encrypted files</string>
     <string name="crypto_containter_update_name">Container name</string>
-    <string name="crypto_recipients_description">For encryption, at least one recipient must be included - the person (personal identification number) or authority (registration number) authorised to decrypt the data. Add your own personal identification number if you want to decrypt the envelope later.</string>
+    <string name="crypto_recipients_description">For encryption, at least one recipient must be included - the person (personal identification number) or authority (registration number, name or part of the name) authorised to decrypt the data. Add your own personal identification number if you want to decrypt the envelope later.</string>
     <string name="crypto_recipients_search">Search recipients…</string>
     <string name="crypto_recipients_search_cancel">Cancel search recipients</string>
     <string name="crypto_recipients_search_empty">No recipients found</string>

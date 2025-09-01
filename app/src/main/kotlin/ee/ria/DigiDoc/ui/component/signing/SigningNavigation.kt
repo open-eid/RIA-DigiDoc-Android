@@ -592,7 +592,11 @@ fun SigningNavigation(
                     signedContainer
                         ?.takeIf { it.isSigned() }
                         ?.let { R.string.signing_container_documents_title },
-                leftIcon = R.drawable.ic_m3_close_48dp_wght400,
+                leftIcon =
+                    when {
+                        isNestedContainer -> R.drawable.ic_m3_arrow_back_48dp_wght400
+                        else -> R.drawable.ic_m3_close_48dp_wght400
+                    },
                 leftIconContentDescription = R.string.signing_close_container_title,
                 onLeftButtonClick = {
                     if (!isNestedContainer) {
