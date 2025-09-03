@@ -570,6 +570,9 @@ class CryptoContainerTest {
     @Test()
     fun cryptoContainer_decrypt_offlineSuccess() =
         runTest {
+            val isTestEnabled = System.getenv("WITH_CRYTO_LIB_TESTS")?.toBoolean() == true
+            assumeTrue("Skipping test: WITH_CRYTO_LIB_TESTS not true", isTestEnabled)
+
             preferences
                 .edit()
                 .putBoolean(
