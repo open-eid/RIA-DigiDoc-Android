@@ -5,7 +5,6 @@ package ee.ria.DigiDoc.cryptolib
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
-import android.util.Base64
 import androidx.annotation.RawRes
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
@@ -62,6 +61,7 @@ import java.io.ByteArrayInputStream
 import java.io.File
 import java.nio.charset.Charset
 import java.nio.file.Files
+import java.util.Base64
 
 @RunWith(MockitoJUnitRunner::class)
 class CryptoContainerTest {
@@ -585,14 +585,14 @@ class CryptoContainerTest {
             val cryptoContainer = openOrCreate(context, containerCDOC2, dataFiles, cdoc2Settings)
             val data = "+puuS4wUR3wz+5D3DknZmebWhrP0X7ngQlXiBuPBipow0mDXgixJ7OCwhxx/zkYg"
             val token = mock(Token::class.java)
-            `when`(token.decrypt(any(), any(), eq(true))).thenReturn(Base64.decode(data, Base64.DEFAULT))
+            `when`(token.decrypt(any(), any(), eq(true))).thenReturn(Base64.getDecoder().decode(data))
 
             val result =
                 decrypt(
                     context,
                     containerCDOC2,
                     cryptoContainer.getRecipients(),
-                    Base64.decode(authCert, Base64.DEFAULT),
+                    Base64.getDecoder().decode(authCert),
                     "1234".toByteArray(),
                     token,
                     cdoc2Settings,
@@ -649,15 +649,15 @@ class CryptoContainerTest {
                 "nrNDvHxP8jjqK1Uk83BxYB63UHQxAPAPBLlLlrQUddlY887Z0lS+E1FvXhv8XIpr0wNUP" +
                     "tIiAgMQ26zLsBXQ+8w9Y9WootXHhhHYq8OqFDG3zgJwtmwCt6WzbGpsxZSg"
             val token = mock(Token::class.java)
-            `when`(token.decrypt(any(), any(), eq(true))).thenReturn(Base64.decode(data, Base64.DEFAULT))
-            `when`(token.authenticate(any(), any())).thenReturn(Base64.decode(authData, Base64.DEFAULT))
+            `when`(token.decrypt(any(), any(), eq(true))).thenReturn(Base64.getDecoder().decode(data))
+            `when`(token.authenticate(any(), any())).thenReturn(Base64.getDecoder().decode(authData))
             `when`(mockConfigurationRepository.getConfiguration()).thenReturn(configurationProvider)
             val result =
                 decrypt(
                     context,
                     containerCDOC2Network,
                     cryptoContainer.getRecipients(),
-                    Base64.decode(authCert, Base64.DEFAULT),
+                    Base64.getDecoder().decode(authCert),
                     "1234".toByteArray(),
                     token,
                     cdoc2Settings,
@@ -731,15 +731,15 @@ class CryptoContainerTest {
                 "nrNDvHxP8jjqK1Uk83BxYB63UHQxAPAPBLlLlrQUddlY887Z0lS+E1FvXhv8XIpr0wNUP" +
                     "tIiAgMQ26zLsBXQ+8w9Y9WootXHhhHYq8OqFDG3zgJwtmwCt6WzbGpsxZSg"
             val token = mock(Token::class.java)
-            `when`(token.decrypt(any(), any(), eq(true))).thenReturn(Base64.decode(data, Base64.DEFAULT))
-            `when`(token.authenticate(any(), any())).thenReturn(Base64.decode(authData, Base64.DEFAULT))
+            `when`(token.decrypt(any(), any(), eq(true))).thenReturn(Base64.getDecoder().decode(data))
+            `when`(token.authenticate(any(), any())).thenReturn(Base64.getDecoder().decode(authData))
             `when`(mockConfigurationRepository.getConfiguration()).thenReturn(configurationProvider)
             val result =
                 decrypt(
                     context,
                     containerCDOC2Network,
                     cryptoContainer.getRecipients(),
-                    Base64.decode(authCert, Base64.DEFAULT),
+                    Base64.getDecoder().decode(authCert),
                     "1234".toByteArray(),
                     token,
                     cdoc2Settings,
@@ -769,7 +769,7 @@ class CryptoContainerTest {
                 context,
                 containerCDOC2,
                 cryptoContainer.getRecipients(),
-                Base64.decode(authCert, Base64.DEFAULT),
+                Base64.getDecoder().decode(authCert),
                 "1234".toByteArray(),
                 token,
                 cdoc2Settings,
@@ -795,13 +795,13 @@ class CryptoContainerTest {
             val cryptoContainer = openOrCreate(context, containerRIACDOC1, dataFiles, cdoc2Settings)
             val data = "+puuS4wUR3wz+5D3DknZmebWhrP0X7ngQlXiBuPBipow0mDXgixJ7OCwhxx/zkYg"
             val token = mock(Token::class.java)
-            `when`(token.decrypt(any(), any(), eq(true))).thenReturn(Base64.decode(data, Base64.DEFAULT))
+            `when`(token.decrypt(any(), any(), eq(true))).thenReturn(Base64.getDecoder().decode(data))
 
             decrypt(
                 context,
                 containerRIACDOC1,
                 cryptoContainer.getRecipients(),
-                Base64.decode(riaCertData, Base64.DEFAULT),
+                Base64.getDecoder().decode(riaCertData),
                 "1234".toByteArray(),
                 token,
                 cdoc2Settings,
@@ -827,7 +827,7 @@ class CryptoContainerTest {
                 context,
                 containerRIACDOC1,
                 cryptoContainer.getRecipients(),
-                Base64.decode(riaCertData, Base64.DEFAULT),
+                Base64.getDecoder().decode(riaCertData),
                 "1234".toByteArray(),
                 token,
                 cdoc2Settings,
@@ -853,7 +853,7 @@ class CryptoContainerTest {
                 ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
-            val recipient = Addressee(Base64.decode(authCert, Base64.DEFAULT))
+            val recipient = Addressee(Base64.getDecoder().decode(authCert))
 
             val testFiles = listOf(testFile)
             val container = openOrCreate(context, testFile, testFiles, cdoc2Settings)
@@ -884,7 +884,7 @@ class CryptoContainerTest {
                 ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
-            val recipient = Addressee(Base64.decode(authCert, Base64.DEFAULT))
+            val recipient = Addressee(Base64.getDecoder().decode(authCert))
 
             val testFiles = listOf(testFile)
             val container = openOrCreate(context, testFile, testFiles, cdoc2Settings)
@@ -924,7 +924,7 @@ class CryptoContainerTest {
                 ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
-            val recipient = Addressee(Base64.decode(authCert, Base64.DEFAULT))
+            val recipient = Addressee(Base64.getDecoder().decode(authCert))
 
             val testFiles = listOf(testFile)
             val container = openOrCreate(context, testFile, testFiles, cdoc2Settings)
@@ -951,7 +951,7 @@ class CryptoContainerTest {
                 ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
-            val recipient = Addressee(Base64.decode(authCert, Base64.DEFAULT))
+            val recipient = Addressee(Base64.getDecoder().decode(authCert))
 
             val testFiles = listOf(testFile)
             val container = openOrCreate(context, testFile, testFiles, cdoc2Settings)
@@ -976,7 +976,7 @@ class CryptoContainerTest {
                 ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
-            val recipient = Addressee(Base64.decode(authCert, Base64.DEFAULT))
+            val recipient = Addressee(Base64.getDecoder().decode(authCert))
 
             val testFiles = listOf(testFile)
             val container = openOrCreate(context, testFile, testFiles, cdoc2Settings)
@@ -994,7 +994,7 @@ class CryptoContainerTest {
                 ).apply()
 
             val cdoc2Settings = CDOC2Settings(context)
-            val recipient = Addressee(Base64.decode(authCert, Base64.DEFAULT))
+            val recipient = Addressee(Base64.getDecoder().decode(authCert))
 
             val testFiles = listOf(testFile)
             val container = openOrCreate(context, testFile, testFiles, cdoc2Settings)
@@ -1212,7 +1212,7 @@ class CryptoContainerTest {
             val cdoc2Settings = CDOC2Settings(context)
             val dataFiles = listOf(testFile)
             val cryptoContainer = openOrCreate(context, testFile, dataFiles, cdoc2Settings)
-            cryptoContainer.addRecipients(listOf(Addressee(Base64.decode(authCert, Base64.DEFAULT))))
+            cryptoContainer.addRecipients(listOf(Addressee(Base64.getDecoder().decode(authCert))))
             assertEquals(1, cryptoContainer.getRecipients().size)
         }
 
@@ -1263,7 +1263,7 @@ class CryptoContainerTest {
             val cdoc2Settings = CDOC2Settings(context)
             val dataFiles = listOf(testFile)
             val cryptoContainer = openOrCreate(context, testFile, dataFiles, cdoc2Settings)
-            val recipient = Addressee(Base64.decode(authCert, Base64.DEFAULT))
+            val recipient = Addressee(Base64.getDecoder().decode(authCert))
             cryptoContainer.addRecipients(listOf(recipient))
             cryptoContainer.removeRecipient(recipient)
             assertEquals(0, cryptoContainer.getRecipients().size)
@@ -1282,7 +1282,7 @@ class CryptoContainerTest {
             val cdoc2Settings = CDOC2Settings(context)
             val dataFiles = listOf(testFile)
             val cryptoContainer = openOrCreate(context, testFile, dataFiles, cdoc2Settings)
-            val recipient = Addressee(Base64.decode(authCert, Base64.DEFAULT))
+            val recipient = Addressee(Base64.getDecoder().decode(authCert))
             cryptoContainer.removeRecipient(recipient)
             assertEquals(0, cryptoContainer.getRecipients().size)
         }

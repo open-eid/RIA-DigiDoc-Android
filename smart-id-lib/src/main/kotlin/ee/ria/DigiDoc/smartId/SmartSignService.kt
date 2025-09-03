@@ -46,13 +46,13 @@ import ee.ria.DigiDoc.utilsLib.text.MessageUtil
 import ee.ria.libdigidocpp.ExternalSigner
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
-import org.bouncycastle.util.encoders.Base64
 import retrofit2.Call
 import java.io.IOException
 import java.net.UnknownHostException
 import java.nio.charset.StandardCharsets
 import java.security.NoSuchAlgorithmException
 import java.security.cert.CertificateException
+import java.util.Base64
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.net.ssl.SSLPeerUnverifiedException
@@ -245,7 +245,7 @@ class SmartSignServiceImpl
                     signer.setUserAgent(UserAgentUtil.getUserAgent(context))
 
                     val dataToSignBytes =
-                        Base64.encode(
+                        Base64.getEncoder().encode(
                             containerWrapper.prepareSignature(
                                 signer,
                                 signedContainer,
@@ -297,7 +297,10 @@ class SmartSignServiceImpl
                         }
                         debugLog(logTag, "SessionStatusResponse: $sessionStatusResponse")
                         debugLog(logTag, "Finalizing signature...")
-                        val signatureValueBytes: ByteArray = Base64.decode(sessionStatusResponse.signature?.value)
+                        val signatureValueBytes: ByteArray =
+                            Base64.getDecoder().decode(
+                                sessionStatusResponse.signature?.value,
+                            )
                         containerWrapper.finalizeSignature(
                             signer,
                             signedContainer,
@@ -758,7 +761,7 @@ class SmartSignServiceImpl
 
             val verificationCode =
                 VerificationCodeUtil.calculateSmartIdVerificationCode(
-                    Base64.decode(base64Hash),
+                    Base64.getDecoder().decode(base64Hash),
                 )
 
             setResponse(null)

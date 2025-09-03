@@ -27,22 +27,22 @@ data class MyEidMyDataDetailItem(
     ): List<MyEidMyDataDetailItem> =
         listOf(
             MyEidMyDataDetailItem(
-                label = R.string.myeid_firstname,
+                label = R.string.myeid_givennames,
                 value = firstname,
                 contentDescription =
                     if (firstname != null) {
-                        "${stringResource(id = R.string.myeid_firstname)} ${firstname.lowercase()}"
+                        "${stringResource(id = R.string.myeid_givennames)} ${firstname.lowercase()}"
                     } else {
                         ""
                     },
                 testTag = "myEidMyDataFirstname",
             ),
             MyEidMyDataDetailItem(
-                label = R.string.myeid_lastname,
+                label = R.string.myeid_surname,
                 value = lastname,
                 contentDescription =
                     if (lastname != null) {
-                        "${stringResource(id = R.string.myeid_lastname)}, ${lastname.lowercase()}"
+                        "${stringResource(id = R.string.myeid_surname)}, ${lastname.lowercase()}"
                     } else {
                         ""
                     },

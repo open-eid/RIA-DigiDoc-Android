@@ -27,13 +27,13 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.internal.tls.OkHostnameVerifier
 import okhttp3.logging.HttpLoggingInterceptor
-import org.bouncycastle.util.encoders.Base64
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
+import java.util.Base64
 import java.util.Date
 import java.util.Properties
 import java.util.concurrent.TimeUnit
@@ -85,7 +85,7 @@ object FetchAndPackageDefaultConfigurationTask {
             ConfigurationData(
                 centralConfigurationRepository.fetchConfiguration(),
                 centralConfigurationRepository.fetchPublicKey(),
-                Base64.decode(centralConfigurationRepository.fetchSignature().trim().removeWhitespaces()),
+                Base64.getDecoder().decode(centralConfigurationRepository.fetchSignature().trim().removeWhitespaces()),
             )
 
         loadAndAssertConfiguration(configurationData, configurationServiceUrl, args)

@@ -13,7 +13,9 @@ object CertificateUtil {
     fun x509Certificate(certPem: String): X509Certificate =
         CertificateFactory
             .getInstance("X.509")
-            .generateCertificate(ByteArrayInputStream(certPem.toByteArray(StandardCharsets.UTF_8))) as X509Certificate
+            .generateCertificate(
+                ByteArrayInputStream(certPem.trim().toByteArray(StandardCharsets.UTF_8)),
+            ) as X509Certificate
 
     @Throws(CertificateException::class)
     fun x509Certificate(certDer: ByteArray?): X509Certificate =

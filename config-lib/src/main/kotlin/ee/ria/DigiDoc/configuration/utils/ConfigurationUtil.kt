@@ -2,8 +2,7 @@
 
 package ee.ria.DigiDoc.configuration.utils
 
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
+import java.util.Base64
 
 object ConfigurationUtil {
     fun isSerialNewerThanCached(
@@ -17,10 +16,9 @@ object ConfigurationUtil {
             }
         }
 
-    @OptIn(ExperimentalEncodingApi::class)
     fun isBase64(encoded: String): Boolean =
         try {
-            Base64.decode(encoded)
+            Base64.getDecoder().decode(encoded)
             true
         } catch (_: IllegalArgumentException) {
             false

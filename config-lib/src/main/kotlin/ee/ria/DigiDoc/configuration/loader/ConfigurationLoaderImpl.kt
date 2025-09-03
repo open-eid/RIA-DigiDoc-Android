@@ -22,13 +22,14 @@ import ee.ria.DigiDoc.configuration.utils.Constant.DEFAULT_CONFIG_RSA
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
+import ee.ria.DigiDoc.utilsLib.extensions.removeWhitespaces
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.bouncycastle.util.encoders.Base64
 import java.io.File
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
+import java.util.Base64
 import java.util.Date
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -95,7 +96,7 @@ class ConfigurationLoaderImpl
 
                 val signature =
                     if (ConfigurationUtil.isBase64(signatureText)) {
-                        Base64.decode(signatureText)
+                        Base64.getDecoder().decode(signatureText)
                     } else {
                         signatureBytes
                     }
@@ -146,7 +147,7 @@ class ConfigurationLoaderImpl
 
             val signature =
                 if (ConfigurationUtil.isBase64(signatureText)) {
-                    Base64.decode(signatureText)
+                    Base64.getDecoder().decode(signatureText)
                 } else {
                     signatureBytes
                 }
@@ -179,7 +180,7 @@ class ConfigurationLoaderImpl
             userAgent: String,
         ): ConfigurationData {
             val centralSignature =
-                Base64.decode(centralConfigurationRepository.fetchSignature().trim())
+                Base64.getDecoder().decode(centralConfigurationRepository.fetchSignature().trim())
             val centralConfig = centralConfigurationRepository.fetchConfiguration()
             val centralPublicKey = centralConfigurationRepository.fetchPublicKey()
 
@@ -208,8 +209,8 @@ class ConfigurationLoaderImpl
             centralConfigurationRepository.setupProxy(proxySetting, proxy)
 
             val centralSignature =
-                Base64.decode(
-                    centralConfigurationRepository.fetchSignature().trim(),
+                Base64.getDecoder().decode(
+                    centralConfigurationRepository.fetchSignature().removeWhitespaces().trim(),
                 )
 
             if (!currentSignature.contentEquals(centralSignature)) {

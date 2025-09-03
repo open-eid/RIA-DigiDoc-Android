@@ -45,7 +45,6 @@ import ee.ria.libdigidocpp.Container
 import ee.ria.libdigidocpp.ExternalSigner
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
-import org.bouncycastle.util.encoders.Base64
 import retrofit2.Call
 import retrofit2.Response
 import java.io.FileInputStream
@@ -58,6 +57,7 @@ import java.security.KeyStoreException
 import java.security.NoSuchAlgorithmException
 import java.security.UnrecoverableKeyException
 import java.security.cert.CertificateException
+import java.util.Base64
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.net.ssl.KeyManagerFactory
@@ -325,7 +325,7 @@ class MobileSignServiceImpl
                         signer.setUserAgent(UserAgentUtil.getUserAgent(context))
 
                         val dataToSignBytes =
-                            Base64.encode(
+                            Base64.getEncoder().encode(
                                 containerWrapper.prepareSignature(
                                     signer,
                                     signedContainer,
@@ -600,7 +600,7 @@ class MobileSignServiceImpl
                     )
                 }
                 debugLog(logTag, "Finalizing signature...")
-                val signatureValueBytes: ByteArray = Base64.decode(response.signature?.value)
+                val signatureValueBytes: ByteArray = Base64.getDecoder().decode(response.signature?.value)
                 containerWrapper.finalizeSignature(signer, signedContainer, signatureValueBytes)
                 debugLog(logTag, "Posting create signature status response")
                 signedContainer.rawContainer()?.let {
@@ -834,7 +834,7 @@ class MobileSignServiceImpl
             debugLog(logTag, "Posting create signature response: $base64Hash")
             val verificationCode =
                 VerificationCodeUtil.calculateMobileIdVerificationCode(
-                    Base64.decode(base64Hash),
+                    Base64.getDecoder().decode(base64Hash),
                 )
 
             setResponse(null)

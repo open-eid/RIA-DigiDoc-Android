@@ -26,7 +26,6 @@ import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import org.bouncycastle.util.encoders.Base64
 import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -43,6 +42,7 @@ import java.io.File
 import java.io.FileWriter
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.util.Base64
 import java.util.Date
 
 @ExperimentalCoroutinesApi
@@ -178,7 +178,11 @@ class ConfigurationLoaderTest {
 
             doNothing()
                 .`when`(configurationSignatureVerifier)
-                .verifyConfigurationSignature(centralConfig, centralPublicKey, Base64.decode(centralSignature))
+                .verifyConfigurationSignature(
+                    centralConfig,
+                    centralPublicKey,
+                    Base64.getDecoder().decode(centralSignature),
+                )
 
             `when`(configurationProperties.getConfigurationProperties(context)).thenReturn(
                 ConfigurationProperty(
@@ -220,7 +224,11 @@ class ConfigurationLoaderTest {
 
             doNothing()
                 .`when`(configurationSignatureVerifier)
-                .verifyConfigurationSignature(centralConfig, centralPublicKey, Base64.decode(centralSignature))
+                .verifyConfigurationSignature(
+                    centralConfig,
+                    centralPublicKey,
+                    Base64.getDecoder().decode(centralSignature),
+                )
 
             `when`(configurationProperties.getConfigurationProperties(context)).thenReturn(
                 ConfigurationProperty(
@@ -236,7 +244,7 @@ class ConfigurationLoaderTest {
             configFolder.mkdirs()
             val signatureFile = File(configFolder, CACHED_CONFIG_RSA)
             FileWriter(signatureFile).use { writer ->
-                writer.write(String(Base64.decode(centralSignature)))
+                writer.write(String(Base64.getDecoder().decode(centralSignature)))
             }
 
             configurationLoader.loadCentralConfiguration(context, proxySetting, manualProxy)
@@ -261,7 +269,11 @@ class ConfigurationLoaderTest {
 
             doNothing()
                 .`when`(configurationSignatureVerifier)
-                .verifyConfigurationSignature(centralConfig, centralPublicKey, Base64.decode(centralSignature))
+                .verifyConfigurationSignature(
+                    centralConfig,
+                    centralPublicKey,
+                    Base64.getDecoder().decode(centralSignature),
+                )
 
             val configurationData =
                 configurationLoader
