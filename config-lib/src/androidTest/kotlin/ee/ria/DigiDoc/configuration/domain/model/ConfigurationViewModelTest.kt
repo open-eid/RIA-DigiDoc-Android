@@ -110,6 +110,7 @@ class ConfigurationViewModelTest {
             "tsaUrl",
             emptyMap(),
             "ldapPersonUrl",
+            ldapPersonUrls = listOf("ldapPersonUrl"),
             "ldapCorpUrl",
             "midRestUrl",
             "midSkRestUrl",

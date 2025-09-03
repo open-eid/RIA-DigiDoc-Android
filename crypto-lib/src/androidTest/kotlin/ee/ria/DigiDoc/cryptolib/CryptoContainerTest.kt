@@ -105,6 +105,7 @@ class CryptoContainerTest {
                 tsaUrl = "https://www.example.com",
                 ocspUrls = mapOf("issuer" to "https://www.example.com"),
                 ldapPersonUrl = "https://www.example.com",
+                ldapPersonUrls = listOf("https://www.example.com"),
                 ldapCorpUrl = "https://www.example.com",
                 midRestUrl = "https://www.example.com",
                 midSkRestUrl = "https://www.example.com",
@@ -569,6 +570,9 @@ class CryptoContainerTest {
     @Test()
     fun cryptoContainer_decrypt_offlineSuccess() =
         runTest {
+            val isTestEnabled = System.getenv("WITH_CRYTO_LIB_TESTS")?.toBoolean() == true
+            assumeTrue("Skipping test: WITH_CRYTO_LIB_TESTS not true", isTestEnabled)
+
             preferences
                 .edit()
                 .putBoolean(

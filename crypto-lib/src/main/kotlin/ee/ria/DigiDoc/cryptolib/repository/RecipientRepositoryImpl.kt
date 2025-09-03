@@ -82,11 +82,30 @@ class RecipientRepositoryImpl
 
             val ldapFilter = LdapFilter(query)
             if (ldapFilter.isPersonalCode(query)) {
-                val ldapPersonUrl = configurationProvider?.ldapPersonUrl?.split("://")[1]
-                return search(context, ldapPersonUrl, LdapFilter(query))
+                val ldapPersonUrls = configurationProvider?.ldapPersonUrls
+                for (url in ldapPersonUrls.orEmpty()) {
+                    val ldapUrl = url.split("://")[1]
+                    val ldapUrlComponents = ldapUrl.split("/")
+                    val ldapPersonUrl = ldapUrlComponents[0]
+                    val dn = if (ldapUrlComponents.size > 1) ldapUrlComponents[1] else null
+
+                    try {
+                        val (addressees, count) = search(context, ldapPersonUrl, dn, LdapFilter(query))
+                        if (addressees.isNotEmpty()) {
+                            return Pair(addressees, count)
+                        }
+                    } catch (e: NoInternetConnectionException) {
+                        errorLog(logTag, "Unable to connect to LDAP url: $ldapPersonUrl", e)
+                        throw e
+                    } catch (ce: CryptoException) {
+                        errorLog(logTag, "Unable to get certificates from LDAP url: $ldapPersonUrl", ce)
+                        throw CryptoException("Unable to get certificates from LDAP url: $ldapPersonUrl", ce)
+                    }
+                }
+                return Pair(listOf(), 0)
             } else {
                 val ldapCorpUrl = configurationProvider?.ldapCorpUrl?.split("://")[1]
-                return search(context, ldapCorpUrl, LdapFilter(query))
+                return search(context, ldapCorpUrl, null, LdapFilter(query))
             }
         }
 
@@ -94,12 +113,13 @@ class RecipientRepositoryImpl
         private fun search(
             context: Context,
             url: String?,
+            dn: String?,
             ldapFilter: LdapFilter,
         ): Pair<List<Addressee>, Int> {
             try {
                 LDAPConnection(getDefaultKeystoreSslSocketFactory()).use { connection ->
                     connection.connect(url, LDAP_PORT)
-                    return executeSearch(connection, ldapFilter)
+                    return executeSearch(connection, ldapFilter, dn)
                 }
             } catch (e: Exception) {
                 if (e is LDAPException && e.resultCode.equals(ResultCode.CONNECT_ERROR)) {
@@ -113,11 +133,13 @@ class RecipientRepositoryImpl
         private fun executeSearch(
             connection: LDAPConnection,
             ldapFilter: LdapFilter,
+            dn: String?,
         ): Pair<List<Addressee>, Int> {
             val maximumNumberOfResults = 50
+            val fullDN = BASE_DN + dn ?.let { ",$it" }.orEmpty()
             val searchRequest =
                 SearchRequest(
-                    BASE_DN,
+                    fullDN,
                     SearchScope.SUB,
                     ldapFilter.filterString(),
                     CERT_BINARY_ATTR,

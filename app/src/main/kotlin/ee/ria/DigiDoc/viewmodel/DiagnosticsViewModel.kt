@@ -304,7 +304,7 @@ class DiagnosticsViewModel
                     appendLine(
                         "${context.getString(
                             R.string.main_diagnostics_ldap_person_url_title,
-                        )} ${updatedConfiguration.value?.ldapPersonUrl}",
+                        )} ${updatedConfiguration.value?.ldapPersonUrls?.joinToString(", ")}",
                     )
                     appendLine(
                         "${context.getString(

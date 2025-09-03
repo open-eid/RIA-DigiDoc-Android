@@ -431,7 +431,7 @@ fun DiagnosticsScreen(
                                 testTagsAsResourceId = true
                             }.testTag("mainDiagnosticsLdapPersonUrl"),
                     stringResource(id = R.string.main_diagnostics_ldap_person_url_title),
-                    currentConfiguration?.ldapPersonUrl ?: "",
+                    currentConfiguration?.ldapPersonUrls?.joinToString(", ") ?: "",
                 )
                 DiagnosticsText(
                     modifier =
