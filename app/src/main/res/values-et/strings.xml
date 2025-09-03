@@ -141,7 +141,7 @@
 
     <!-- SiVa -->
     <string name="siva_send_message_dialog">Seda tüüpi allkirjastatud dokument edastatakse digitaalallkirjade kehtivuse kontrollimiseks valideerimisteenusele SiVa. Digitaalallkirjade kehtivuse kontrollimisel edastatud andmete kohta loe lähemalt veebilehelt</string>
-    <string name="siva_read_here">siit</string>
+    <string name="siva_read_here">siit.</string>
     <string name="siva_continue_question">Kas soovid jätkata?</string>
     <string name="siva_info_url">https://www.id.ee/artikkel/riigi-infosusteemi-ameti-id-tarkvara-andmekaitsetingimused</string>
 
@@ -285,6 +285,7 @@
     <string name="invalid_time_slot_message">Palun kontrolli oma nutiseadme kellaaega.</string>
     <string name="invalid_time_slot_url">https://www.id.ee/artikkel/ria-digidoc-viga-palun-kontrollige-oma-nutiseadme-kellaaega/</string>
     <string name="signature_update_signature_error_message_certificate_revoked">Sertifikaat on kehtetu</string>
+    <string name="signature_update_signature_error_message_certificate_unknown">Sertifikaadi staatus on teadmata</string>
     <string name="id_card_conditional_speech">ID-kaardi</string>
     <string name="mobile_id_conditional_speech">Mobiil-ID</string>
     <string name="smart_id_conditional_speech">Smart-ID</string>
@@ -599,8 +600,8 @@
     <string name="myeid_identify_button">Identifitseeri</string>
     <string name="myeid_my_data">Minu andmed</string>
     <string name="myeid_pins_and_certificates">PIN-koodid ja sertifikaadid</string>
-    <string name="myeid_firstname">Eesnimi</string>
-    <string name="myeid_lastname">Perekonnanimi</string>
+    <string name="myeid_givennames">Eesnimi</string>
+    <string name="myeid_surname">Perekonnanimi</string>
     <string name="myeid_citizenship">Kodakondsus</string>
     <string name="myeid_personal_code">Isikukood</string>
     <string name="myeid_date_of_birth">Sünniaeg</string>

@@ -132,7 +132,7 @@ fun MyEidMyDataItem(
 fun MyEidMyDataItemPreview() {
     RIADigiDocTheme {
         MyEidMyDataItem(
-            detailKey = R.string.myeid_firstname,
+            detailKey = R.string.myeid_givennames,
             detailValue = "John Doe",
             showTagBadge = true,
             status = MyEidDocumentStatus.VALID,

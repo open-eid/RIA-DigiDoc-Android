@@ -18,7 +18,6 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okio.Buffer
-import org.bouncycastle.util.encoders.Base64
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
@@ -30,6 +29,7 @@ import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.security.cert.Certificate
 import java.security.cert.CertificateException
+import java.util.Base64
 import java.util.concurrent.TimeUnit
 
 interface ServiceGenerator {
@@ -153,9 +153,7 @@ class ServiceGeneratorImpl : ServiceGenerator {
                 sha256Certificates[i] = "sha256/" +
                     getSHA256FromCertificate(
                         CertificateUtil.x509Certificate(
-                            Base64.decode(
-                                certBundle[i],
-                            ),
+                            Base64.getDecoder().decode(certBundle[i]),
                         ),
                     )
             }
@@ -177,7 +175,7 @@ class ServiceGeneratorImpl : ServiceGenerator {
         try {
             val digest = MessageDigest.getInstance("SHA-256")
             val encodedHash = digest.digest(cert.publicKey.encoded)
-            val base64EncodedHash = Base64.encode(encodedHash)
+            val base64EncodedHash = Base64.getEncoder().encode(encodedHash)
             return String(base64EncodedHash, StandardCharsets.UTF_8)
         } catch (e: NoSuchAlgorithmException) {
             errorLog(logTag, "Unable to get instance of algorithm", e)

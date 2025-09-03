@@ -43,9 +43,9 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import org.bouncycastle.util.encoders.Base64
 import org.bouncycastle.util.encoders.Hex
 import java.util.Arrays
+import java.util.Base64
 import javax.inject.Inject
 
 @HiltViewModel
@@ -218,7 +218,7 @@ class NFCViewModel
                                 val signerCert = card.certificate(CertificateType.SIGNING)
                                 debugLog(
                                     logTag,
-                                    "Signer certificate: " + Base64.toBase64String(signerCert),
+                                    "Signer certificate: " + Base64.getEncoder().encodeToString(signerCert),
                                 )
 
                                 val signer = ExternalSigner(signerCert)
@@ -314,6 +314,8 @@ class NFCViewModel
                                         setErrorState(
                                             SessionStatusResponseProcessStatus.OCSP_INVALID_TIME_SLOT,
                                         )
+                                    message.contains("Certificate status: revoked") -> showRevokedCertificateError(ex)
+                                    message.contains("Certificate status: unknown") -> showUnknownCertificateError(ex)
                                     else -> showTechnicalError(ex)
                                 }
 
@@ -369,7 +371,7 @@ class NFCViewModel
                                     card.certificate(CertificateType.AUTHENTICATION)
                                 debugLog(
                                     logTag,
-                                    "Auth certificate: " + Base64.toBase64String(authCert),
+                                    "Auth certificate: " + Base64.getEncoder().encodeToString(authCert),
                                 )
                                 val decryptedContainer =
                                     CryptoContainer.decrypt(
@@ -467,6 +469,9 @@ class NFCViewModel
                                         )
                                     message.contains("No lock found with certificate key") ->
                                         showNoLockFoundError(ex)
+
+                                    message.contains("Certificate status: revoked") -> showRevokedCertificateError(ex)
+                                    message.contains("Certificate status: unknown") -> showUnknownCertificateError(ex)
 
                                     else -> showTechnicalError(ex)
                                 }
@@ -594,6 +599,28 @@ class NFCViewModel
         private fun showNoLockFoundError(e: Exception) {
             _errorState.postValue(Triple(R.string.no_lock_found, null, null))
             errorLog(logTag, "Unable to decrypt with NFC - No lock found with certificate key", e)
+        }
+
+        private fun showRevokedCertificateError(e: Exception) {
+            _errorState.postValue(
+                Triple(
+                    R.string.signature_update_signature_error_message_certificate_revoked,
+                    null,
+                    null,
+                ),
+            )
+            errorLog(logTag, "Unable to sign with NFC - Certificate status: revoked", e)
+        }
+
+        private fun showUnknownCertificateError(e: Exception) {
+            _errorState.postValue(
+                Triple(
+                    R.string.signature_update_signature_error_message_certificate_unknown,
+                    null,
+                    null,
+                ),
+            )
+            errorLog(logTag, "Unable to sign with NFC - Certificate status: unknown", e)
         }
 
         private fun showTechnicalError(e: Exception) {

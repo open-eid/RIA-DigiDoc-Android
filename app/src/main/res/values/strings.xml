@@ -141,7 +141,7 @@
 
     <!-- SiVa -->
     <string name="siva_send_message_dialog">This type of signed document will be transmitted to the Digital Signature Validation Service SiVa to verify the validity of the digital signature. Read more information about transmitted data to Digital Signature Validation Service on the website</string>
-    <string name="siva_read_here">here</string>
+    <string name="siva_read_here">here.</string>
     <string name="siva_continue_question">Do you want to continue?</string>
     <string name="siva_info_url">https://www.id.ee/en/article/data-protection-conditions-for-the-id-software-of-the-national-information-system-authority</string>
 
@@ -285,6 +285,7 @@
     <string name="invalid_time_slot_message">Please check your smart device time.</string>
     <string name="invalid_time_slot_url">https://www.id.ee/en/article/ria-digidoc-error-please-check-your-smart-device-time/</string>
     <string name="signature_update_signature_error_message_certificate_revoked">Certificate status revoked</string>
+    <string name="signature_update_signature_error_message_certificate_unknown">Certificate status unknown</string>
     <string name="id_card_conditional_speech">ID-card\'s</string>
     <string name="mobile_id_conditional_speech">Mobile-ID</string>
     <string name="smart_id_conditional_speech">Smart-ID</string>
@@ -599,8 +600,8 @@
     <string name="myeid_identify_button">Identify</string>
     <string name="myeid_my_data">My data</string>
     <string name="myeid_pins_and_certificates">PIN\'s and certificates</string>
-    <string name="myeid_firstname">Firstname</string>
-    <string name="myeid_lastname">Lastname</string>
+    <string name="myeid_givennames">Given names</string>
+    <string name="myeid_surname">Surname</string>
     <string name="myeid_citizenship">Citizenship</string>
     <string name="myeid_personal_code">Personal code</string>
     <string name="myeid_date_of_birth">Date of birth</string>

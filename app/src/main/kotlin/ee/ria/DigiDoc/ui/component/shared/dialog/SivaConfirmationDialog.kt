@@ -34,6 +34,7 @@ fun SivaConfirmationDialog(
             text2 = R.string.siva_continue_question,
             linkText = R.string.siva_read_here,
             linkUrl = R.string.siva_info_url,
+            showLinkOnOneLine = false,
             onConfirm = {
                 showDialog.value = false
                 onResult(true)

@@ -3,7 +3,6 @@
 package ee.ria.DigiDoc.cryptolib
 
 import android.content.Context
-import android.util.Base64
 import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.common.Constant.CDOC1_EXTENSION
 import ee.ria.DigiDoc.common.Constant.CDOC2_EXTENSION
@@ -49,6 +48,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.util.Base64
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -520,14 +520,13 @@ class CryptoContainer
                     val certs = configurationProvider?.certBundle ?: listOf()
                     dst?.clear()
                     for (cert in certs) {
-                        val certBytes = Base64.decode(cert, Base64.DEFAULT)
+                        val certBytes = Base64.getDecoder().decode(cert)
                         dst?.addCertificate(certBytes)
                     }
                     val certFromSettings = cdoc2Settings.getCDOC2Cert()
                     if (certFromSettings != null) {
                         val certBytes =
-                            org.bouncycastle.util.encoders.Base64
-                                .decode(certFromSettings)
+                            Base64.getDecoder().decode(certFromSettings)
                         dst?.addCertificate(certBytes)
                     }
 

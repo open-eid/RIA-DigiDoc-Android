@@ -347,12 +347,12 @@ class DiagnosticsViewModel
                     appendLine(
                         "${context.getString(
                             R.string.main_diagnostics_cdoc2_use_keyserver_title,
-                        )} ${updatedConfiguration.value?.cdoc2UseKeyServer}",
+                        )} ${isCdoc2KeyServerUsed()}",
                     )
                     appendLine(
                         "${context.getString(
                             R.string.main_diagnostics_cdoc2_default_keyserver_title,
-                        )} ${updatedConfiguration.value?.cdoc2DefaultKeyServer}",
+                        )} ${getCdoc2KeyServerUUID()}",
                     )
 
                     // Category

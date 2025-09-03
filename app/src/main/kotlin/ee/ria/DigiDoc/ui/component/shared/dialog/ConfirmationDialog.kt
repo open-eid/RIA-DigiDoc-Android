@@ -30,6 +30,7 @@ fun ConfirmationDialog(
     @StringRes text2: Int,
     @StringRes linkText: Int,
     @StringRes linkUrl: Int,
+    showLinkOnOneLine: Boolean = true,
     modifier: Modifier,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
@@ -63,7 +64,7 @@ fun ConfirmationDialog(
                         text2 = text2,
                         linkText = linkText,
                         linkUrl = linkUrl,
-                        showLinkOnOneLine = true,
+                        showLinkOnOneLine = showLinkOnOneLine,
                     )
                 }
             },

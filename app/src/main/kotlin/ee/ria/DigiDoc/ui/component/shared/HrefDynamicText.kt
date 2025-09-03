@@ -107,11 +107,7 @@ fun createAnnotatedStringWithLinks(
     showLinkOnOneLine: Boolean,
 ): AnnotatedString =
     buildAnnotatedString {
-        if (showLinkOnOneLine) {
-            append("$text1 ")
-        } else {
-            append("$text1\n")
-        }
+        append("$text1 ")
 
         pushStringAnnotation(tag = "URL", annotation = linkUrl)
         withStyle(

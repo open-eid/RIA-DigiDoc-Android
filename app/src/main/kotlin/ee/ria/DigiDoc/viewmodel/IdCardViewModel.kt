@@ -33,8 +33,8 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.asFlow
 import kotlinx.coroutines.withContext
-import org.bouncycastle.util.encoders.Base64
 import java.util.Arrays
+import java.util.Base64
 import javax.inject.Inject
 
 @HiltViewModel
@@ -158,7 +158,7 @@ class IdCardViewModel
 
                     debugLog(
                         logTag,
-                        "Auth certificate: " + Base64.toBase64String(authCert),
+                        "Auth certificate: " + Base64.getEncoder().encodeToString(authCert),
                     )
                     val decryptedContainer =
                         CryptoContainer.decrypt(
@@ -221,6 +221,7 @@ class IdCardViewModel
                         "Unable to sign with ID-card - OCSP response not in valid time slot",
                     )
                 message.contains("Certificate status: revoked") -> showRevokedCertificateError(e)
+                message.contains("Certificate status: unknown") -> showUnknownCertificateError(e)
                 message.contains("Failed to connect") ||
                     message.contains("Failed to create connection with host") ->
                     showNetworkError(e)
@@ -277,6 +278,17 @@ class IdCardViewModel
                 ),
             )
             errorLog(logTag, "Unable to sign with ID-card - Certificate status: revoked", e)
+        }
+
+        private fun showUnknownCertificateError(e: Exception) {
+            _errorState.postValue(
+                Triple(
+                    R.string.signature_update_signature_error_message_certificate_unknown,
+                    null,
+                    null,
+                ),
+            )
+            errorLog(logTag, "Unable to sign with ID-card - Certificate status: unknown", e)
         }
 
         private fun showNetworkError(e: Exception) {

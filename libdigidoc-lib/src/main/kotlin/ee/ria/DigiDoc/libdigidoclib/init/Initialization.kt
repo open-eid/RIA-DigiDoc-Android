@@ -9,7 +9,6 @@ import android.content.res.Resources.NotFoundException
 import android.system.ErrnoException
 import android.system.Os
 import android.text.TextUtils
-import android.util.Base64
 import android.widget.Toast
 import androidx.preference.PreferenceManager
 import ee.ria.DigiDoc.common.Constant.DIR_SIVA_CERT
@@ -30,6 +29,7 @@ import ee.ria.DigiDoc.network.utils.ProxyUtil
 import ee.ria.DigiDoc.network.utils.ProxyUtil.getManualProxySettings
 import ee.ria.DigiDoc.network.utils.ProxyUtil.getProxySetting
 import ee.ria.DigiDoc.network.utils.UserAgentUtil
+import ee.ria.DigiDoc.utilsLib.extensions.removeWhitespaces
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.getCertFile
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.readFileContent
@@ -46,6 +46,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
+import java.util.Base64
 import java.util.Optional
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -404,7 +405,7 @@ class Initialization
         private fun overrideTSCerts(certBundle: List<String>) {
             DigiDocConf.instance().setTSCert(ByteArray(0)) // Clear existing TS certificates list
             for (tsCert in certBundle) {
-                DigiDocConf.instance().addTSCert(Base64.decode(tsCert, Base64.DEFAULT))
+                DigiDocConf.instance().addTSCert(Base64.getDecoder().decode(tsCert.removeWhitespaces().trim()))
             }
         }
 
@@ -415,14 +416,14 @@ class Initialization
         private fun overrideTSLCert(tslCerts: List<String>) {
             DigiDocConf.instance().setTSLCert(ByteArray(0)) // Clear existing TSL certificates list
             for (tslCert in tslCerts) {
-                DigiDocConf.instance().addTSLCert(Base64.decode(tslCert, Base64.DEFAULT))
+                DigiDocConf.instance().addTSLCert(Base64.getDecoder().decode(tslCert.removeWhitespaces().trim()))
             }
         }
 
         private fun overrideVerifyServiceCert(certBundle: List<String>) {
             DigiDocConf.instance().setVerifyServiceCert(ByteArray(0))
             for (cert in certBundle) {
-                DigiDocConf.instance().addVerifyServiceCert(Base64.decode(cert, Base64.DEFAULT))
+                DigiDocConf.instance().addVerifyServiceCert(Base64.getDecoder().decode(cert.removeWhitespaces().trim()))
             }
         }
 
@@ -564,18 +565,14 @@ class Initialization
                 DigiDocConf.instance().setTSCert(ByteArray(0)) // Clear existing TS certificates list
                 for (tsCert in certBundle) {
                     DigiDocConf.instance().addTSCert(
-                        org.bouncycastle.util.encoders.Base64
-                            .decode(tsCert),
+                        Base64.getDecoder().decode(tsCert.removeWhitespaces().trim()),
                     )
                 }
 
                 if (customTsCert != null) {
-                    DigiDocConf
-                        .instance()
-                        .addTSCert(
-                            org.bouncycastle.util.encoders.Base64
-                                .decode(customTsCert),
-                        )
+                    DigiDocConf.instance().addTSCert(
+                        Base64.getDecoder().decode(customTsCert.removeWhitespaces().trim()),
+                    )
                 }
             }
 
@@ -587,21 +584,14 @@ class Initialization
                 try {
                     DigiDocConf.instance().setVerifyServiceCert(ByteArray(0))
                     if (!customSivaCert.isNullOrEmpty()) {
-                        DigiDocConf
-                            .instance()
-                            .addVerifyServiceCert(
-                                org.bouncycastle.util.encoders.Base64.decode(
-                                    customSivaCert,
-                                ),
-                            )
+                        DigiDocConf.instance().addVerifyServiceCert(
+                            Base64.getDecoder().decode(customSivaCert.removeWhitespaces().trim()),
+                        )
                     }
                     for (cert in certBundle) {
-                        DigiDocConf
-                            .instance()
-                            .addVerifyServiceCert(
-                                org.bouncycastle.util.encoders.Base64
-                                    .decode(cert),
-                            )
+                        DigiDocConf.instance().addVerifyServiceCert(
+                            Base64.getDecoder().decode(cert.removeWhitespaces().trim()),
+                        )
                     }
                 } catch (e: Exception) {
                     errorLog("Libdigidoc-Initialization", "Error adding custom SiVa certificate", e)
