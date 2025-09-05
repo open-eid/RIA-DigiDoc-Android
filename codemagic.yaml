@@ -37,6 +37,7 @@ workflows:
           - http://10.1.24.31/config/mobile
           - https://repo.ria/config
           - https://id.eesti.ee
+          - https://id-test.eesti.ee
           - https://id.test.eesti.ee
       defaultCentralConfigurationUpdateInterval_input:
         description: Default Central Configuration Update Interval
