@@ -237,6 +237,8 @@ class SignedContainer
             return counts.toMap()
         }
 
+        fun isSignedPDF(): Boolean = containerFile?.isSignedPDF(context) ?: false
+
         companion object {
             @Throws(Exception::class)
             fun addDataFiles(

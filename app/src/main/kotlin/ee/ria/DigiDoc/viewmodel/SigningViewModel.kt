@@ -181,7 +181,7 @@ class SigningViewModel
 
                 if (ASICS_MIMETYPE == nestedFile.mimeType(context)) {
                     val timestampedNestedContainer =
-                        getTimestampedContainer(context, nestedContainer, isSivaConfirmed)
+                        getTimestampedContainer(context, nestedContainer)
                     sharedContainerViewModel.setSignedContainer(timestampedNestedContainer)
                 } else {
                     sharedContainerViewModel.setSignedContainer(nestedContainer)
@@ -206,19 +206,30 @@ class SigningViewModel
         suspend fun getTimestampedContainer(
             context: Context,
             signedContainer: SignedContainer,
-            isSivaConfirmed: Boolean,
         ): SignedContainer {
-            if (isTimestampedContainer(signedContainer, isSivaConfirmed)) {
+            if (isTimestampedContainer(signedContainer)) {
                 return sivaRepository.getTimestampedContainer(context, signedContainer)
             }
 
             return signedContainer
         }
 
-        suspend fun isTimestampedContainer(
-            signedContainer: SignedContainer,
-            isSivaConfirmed: Boolean,
-        ): Boolean =
+        suspend fun isTimestampedContainer(signedContainer: SignedContainer): Boolean =
             sivaRepository.isTimestampedContainer(signedContainer) &&
                 !signedContainer.isXades()
+
+        suspend fun createContainerForSignedPDF(
+            context: Context,
+            signedContainer: SignedContainer,
+        ): SignedContainer? {
+            val containerFile = signedContainer.getContainerFile() ?: return null
+
+            return SignedContainer.openOrCreate(
+                context = context,
+                file = containerFile,
+                dataFiles = listOf(containerFile),
+                isSivaConfirmed = true,
+                forceFirstDataFileContainer = true,
+            )
+        }
     }
