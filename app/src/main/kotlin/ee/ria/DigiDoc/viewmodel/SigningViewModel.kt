@@ -91,7 +91,7 @@ class SigningViewModel
             isNestedContainer: Boolean,
         ): Boolean =
             (
-                isExistingContainer(signedContainer) &&
+                isExistingContainer(signedContainer) ||
                     !isContainerWithoutSignatures(signedContainer)
             ) &&
                 !isNestedContainer
@@ -105,6 +105,11 @@ class SigningViewModel
                     !isContainerWithoutSignatures(signedContainer)
             ) &&
                 !isNestedContainer
+
+        fun isBottomContainerButtonShown(
+            signedContainer: SignedContainer?,
+            isNestedContainer: Boolean,
+        ): Boolean = signedContainer?.isSigned() == false && !isNestedContainer
 
         fun isRoleEmpty(signature: SignatureInterface): Boolean =
             signature.signerRoles.isEmpty() &&
