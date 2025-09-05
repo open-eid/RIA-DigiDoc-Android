@@ -4,6 +4,7 @@ package ee.ria.DigiDoc.ui.component.signing
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.widget.Toast
@@ -109,6 +110,7 @@ import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.removeExtensionFromContainerFilename
 import ee.ria.DigiDoc.utilsLib.extensions.isContainer
+import ee.ria.DigiDoc.utilsLib.extensions.isSignedPDF
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
@@ -540,10 +542,7 @@ fun SigningNavigation(
         signedContainer?.let { container ->
             scope.launch(IO) {
                 isTimestampedContainer =
-                    signingViewModel.isTimestampedContainer(
-                        container,
-                        isSivaConfirmed,
-                    )
+                    signingViewModel.isTimestampedContainer(container)
             }
         }
     }
@@ -676,7 +675,8 @@ fun SigningNavigation(
                 { nestedContainer, isSivaConfirmed ->
                     scope.launch(IO) {
                         try {
-                            val isSigningContainer = nestedContainer.isContainer(context)
+                            val isSigningContainer =
+                                nestedContainer.isContainer(context) || nestedContainer.isSignedPDF(context)
                             if (!isSigningContainer) {
                                 encryptViewModel.openNestedContainer(
                                     context,
@@ -765,10 +765,10 @@ fun SigningNavigation(
                                 text = removeExtensionFromContainerFilename(signedContainerName),
                             )
                         signedContainer?.let {
-                            val isSignedContainer =
-                                !signingViewModel.isContainerWithoutSignatures(signedContainer) &&
+                            val isNonNestedSignedContainer =
+                                signingViewModel.isContainerWithoutSignatures(signedContainer) ||
                                     !isNestedContainer
-                            if (!isSignedContainer) {
+                            if (isNonNestedSignedContainer) {
                                 Text(
                                     modifier =
                                         modifier
@@ -803,9 +803,22 @@ fun SigningNavigation(
                                 leftActionButtonContentDescription = R.string.signature_update_signature_add,
                                 rightActionButtonContentDescription = R.string.encrypt_button_accessibility,
                                 onLeftActionButtonClick = {
-                                    navController.navigate(
-                                        Route.SignatureInputScreen.route,
-                                    )
+                                    val isSignedPDF = signedContainer?.isSignedPDF() == true
+                                    val currentSignedContainer = signedContainer
+
+                                    if (currentSignedContainer != null && isSignedPDF) {
+                                        scope.launch(IO) {
+                                            createContainerForSignedPDF(
+                                                context = context,
+                                                navController = navController,
+                                                currentSignedContainer = currentSignedContainer,
+                                                signingViewModel = signingViewModel,
+                                                sharedContainerViewModel = sharedContainerViewModel,
+                                            )
+                                        }
+                                    } else {
+                                        navController.navigate(Route.SignatureInputScreen.route)
+                                    }
                                 },
                                 onRightActionButtonClick = onEncryptActionClick,
                                 onMoreOptionsActionButtonClick = {
@@ -835,7 +848,7 @@ fun SigningNavigation(
                                 }
                             }
                         } else {
-                            if (signingViewModel.isContainerWithoutSignatures(signedContainer) && !isNestedContainer) {
+                            if (signingViewModel.isContainerWithoutSignatures(signedContainer)) {
                                 item {
                                     Text(
                                         modifier =
@@ -1128,9 +1141,9 @@ fun SigningNavigation(
             ContainerBottomSheet(
                 modifier = modifier,
                 showSheet = showContainerBottomSheet,
-                isEditContainerButtonShown = signedContainer?.isSigned() == false,
+                isEditContainerButtonShown = signedContainer?.isSigned() == false && !isNestedContainer,
                 openEditContainerNameDialog = openEditContainerNameDialog,
-                isEncryptButtonShown = signedContainer?.isSigned() == false,
+                isEncryptButtonShown = signedContainer?.isSigned() == false && !isNestedContainer,
                 signedContainer = signedContainer,
                 onEncryptClick = onEncryptActionClick,
                 saveFileLauncher = saveFileLauncher,
@@ -1207,6 +1220,27 @@ fun SigningNavigation(
                 )
             }
         }
+    }
+}
+
+private suspend fun createContainerForSignedPDF(
+    context: Context,
+    navController: NavHostController,
+    currentSignedContainer: SignedContainer,
+    signingViewModel: SigningViewModel,
+    sharedContainerViewModel: SharedContainerViewModel,
+) {
+    val pdfFileSignedContainer =
+        signingViewModel.createContainerForSignedPDF(
+            context,
+            currentSignedContainer,
+        )
+
+    withContext(Main) {
+        sharedContainerViewModel.removeLastContainer()
+        sharedContainerViewModel.setSignedContainer(pdfFileSignedContainer)
+
+        navController.navigate(Route.SignatureInputScreen.route)
     }
 }
 

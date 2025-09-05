@@ -21,6 +21,7 @@ import ee.ria.DigiDoc.ui.component.shared.BottomSheet
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.extensions.isContainer
 import ee.ria.DigiDoc.utilsLib.extensions.isCryptoContainer
+import ee.ria.DigiDoc.utilsLib.extensions.isSignedPDF
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.viewmodel.SigningViewModel
@@ -76,7 +77,10 @@ fun DataFileBottomSheet(
                                 )
                             showLoadingScreen.value = false
                             containerDataFile?.let { file ->
-                                if (file.isContainer(context) || file.isCryptoContainer()) {
+                                if (file.isContainer(context) ||
+                                    file.isCryptoContainer() ||
+                                    (signedContainer?.isSignedPDF() == false && file.isSignedPDF(context))
+                                ) {
                                     nestedFile.value = file
                                     currentNestedFile.value = file
                                     val nestedFileMimetype = file.mimeType(context)
@@ -126,7 +130,9 @@ fun DataFileBottomSheet(
                     }
                 },
                 BottomSheetButton(
-                    showButton = signingViewModel.isContainerWithoutSignatures(signedContainer),
+                    showButton =
+                        signingViewModel.isContainerWithoutSignatures(signedContainer) &&
+                            !sharedContainerViewModel.isNestedContainer(signedContainer),
                     icon = R.drawable.ic_m3_delete_48dp_wght400,
                     text = stringResource(R.string.document_remove_button),
                     contentDescription = "${stringResource(
