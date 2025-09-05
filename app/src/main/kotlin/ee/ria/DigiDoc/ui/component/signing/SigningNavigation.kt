@@ -1141,9 +1141,9 @@ fun SigningNavigation(
             ContainerBottomSheet(
                 modifier = modifier,
                 showSheet = showContainerBottomSheet,
-                isEditContainerButtonShown = signedContainer?.isSigned() == false && !isNestedContainer,
+                isEditContainerButtonShown = signingViewModel.isBottomContainerButtonShown(signedContainer, isNestedContainer),
                 openEditContainerNameDialog = openEditContainerNameDialog,
-                isEncryptButtonShown = signedContainer?.isSigned() == false && !isNestedContainer,
+                isEncryptButtonShown = signingViewModel.isBottomContainerButtonShown(signedContainer, isNestedContainer),
                 signedContainer = signedContainer,
                 onEncryptClick = onEncryptActionClick,
                 saveFileLauncher = saveFileLauncher,
