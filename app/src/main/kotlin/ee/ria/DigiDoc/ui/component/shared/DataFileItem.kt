@@ -27,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -45,7 +44,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -54,8 +52,8 @@ fun DataFileItem(
     modifier: Modifier = Modifier,
     dataFiles: List<DataFileInterface>,
     onClick: (DataFileInterface) -> Unit,
+    onMoreOptionsActionButtonClick: (DataFileInterface) -> Unit,
 ) {
-    val context = LocalContext.current
     val fileDescription = stringResource(R.string.file)
 
     val buttonName = stringResource(id = R.string.button_name)
@@ -66,7 +64,6 @@ fun DataFileItem(
                 modifier =
                     modifier
                         .fillMaxWidth()
-                        .clickable(enabled = !isTalkBackEnabled(context)) { onClick(dataFile) }
                         .semantics {
                             this.contentDescription = "$fileDescription ${index + 1} ${dataFile.fileName} $buttonName"
                             testTagsAsResourceId = true
@@ -83,7 +80,10 @@ fun DataFileItem(
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = modifier.fillMaxWidth(),
+                        modifier =
+                            modifier
+                                .fillMaxWidth()
+                                .clickable { onClick(dataFile) },
                     ) {
                         Box(
                             modifier =
@@ -135,7 +135,7 @@ fun DataFileItem(
                             )
                         }
 
-                        IconButton(onClick = { onClick(dataFile) }) {
+                        IconButton(onClick = { onMoreOptionsActionButtonClick(dataFile) }) {
                             Icon(
                                 modifier =
                                     modifier
@@ -165,6 +165,7 @@ fun DataFileItemPreview() {
         DataFileItem(
             dataFiles = listOf(),
             onClick = {},
+            onMoreOptionsActionButtonClick = {},
         )
     }
 }

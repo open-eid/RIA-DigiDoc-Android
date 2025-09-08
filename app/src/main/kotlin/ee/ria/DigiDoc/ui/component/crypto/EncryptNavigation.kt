@@ -499,7 +499,10 @@ fun EncryptNavigation(
             TopBar(
                 modifier = modifier,
                 sharedMenuViewModel = sharedMenuViewModel,
-                title = null,
+                title =
+                    cryptoContainer
+                        ?.takeIf { it.encrypted || it.decrypted }
+                        ?.let { R.string.signing_container_documents_title },
                 leftIcon =
                     when {
                         isNestedContainer -> R.drawable.ic_m3_arrow_back_48dp_wght400
@@ -685,27 +688,28 @@ fun EncryptNavigation(
                                 text = removeExtensionFromContainerFilename(cryptoContainerName),
                             )
                         cryptoContainer?.let {
-                            val isNoRecipientsContainer =
-                                !encryptViewModel.isContainerWithoutRecipients(cryptoContainer) &&
-                                    !isNestedContainer
-                            val title =
-                                if (!isNoRecipientsContainer) {
-                                    stringResource(R.string.crypto_new_title)
-                                } else {
-                                    stringResource(R.string.crypto_view_title)
+                            val isInitialCryptoContainer =
+                                with(encryptViewModel) {
+                                    isContainerWithoutRecipients(cryptoContainer) &&
+                                        !isEncryptedContainer(cryptoContainer) &&
+                                        !isDecryptedContainer(cryptoContainer) &&
+                                        !isNestedContainer
                                 }
-                            Text(
-                                modifier =
-                                    modifier
-                                        .padding(bottom = SPadding)
-                                        .semantics {
-                                            heading()
-                                            testTagsAsResourceId = true
-                                        }.testTag("encryptionTitle"),
-                                text = title,
-                                style = MaterialTheme.typography.headlineMedium,
-                                textAlign = TextAlign.Start,
-                            )
+
+                            if (isInitialCryptoContainer) {
+                                Text(
+                                    modifier =
+                                        modifier
+                                            .padding(bottom = SPadding)
+                                            .semantics {
+                                                heading()
+                                                testTagsAsResourceId = true
+                                            }.testTag("encryptionTitle"),
+                                    text = stringResource(R.string.crypto_new_title),
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    textAlign = TextAlign.Start,
+                                )
+                            }
                             val rightActionButtonName =
                                 if (encryptViewModel.isDecryptButtonShown(cryptoContainer, isNestedContainer)) {
                                     R.string.decrypt_button

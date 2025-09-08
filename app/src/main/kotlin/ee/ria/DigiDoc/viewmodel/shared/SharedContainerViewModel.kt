@@ -14,9 +14,11 @@ import androidx.lifecycle.ViewModel
 import com.google.common.io.ByteStreams
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import ee.ria.DigiDoc.common.Constant.SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES
 import ee.ria.DigiDoc.common.container.Container
 import ee.ria.DigiDoc.cryptolib.Addressee
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
+import ee.ria.DigiDoc.domain.model.ContainerFileOpeningResult
 import ee.ria.DigiDoc.domain.model.notifications.ContainerNotificationType
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
@@ -24,6 +26,11 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
+import ee.ria.DigiDoc.utilsLib.extensions.isContainer
+import ee.ria.DigiDoc.utilsLib.extensions.isCryptoContainer
+import ee.ria.DigiDoc.utilsLib.extensions.isSignedPDF
+import ee.ria.DigiDoc.utilsLib.extensions.mimeType
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -168,6 +175,41 @@ class SharedContainerViewModel
 
         fun resetAddedFilesCount() {
             _addedFilesCount.value = 0
+        }
+
+        fun openContainerDataFile(
+            signedContainer: SignedContainer?,
+            clickedDataFile: DataFileInterface?,
+            context: Context,
+        ): ContainerFileOpeningResult {
+            return try {
+                if (clickedDataFile == null) {
+                    return ContainerFileOpeningResult.Error(IllegalArgumentException("Clicked data file is null"))
+                }
+
+                val containerDataFile =
+                    getContainerDataFile(
+                        signedContainer,
+                        clickedDataFile,
+                    ) ?: return ContainerFileOpeningResult.Error(IllegalStateException("Container data file is null"))
+
+                if (
+                    containerDataFile.isContainer(context) ||
+                    containerDataFile.isCryptoContainer() ||
+                    (signedContainer?.isSignedPDF() == false && containerDataFile.isSignedPDF(context))
+                ) {
+                    val mimetype = containerDataFile.mimeType(context)
+                    ContainerFileOpeningResult.OpenNestedFile(
+                        file = containerDataFile,
+                        needsSivaDialog = SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(mimetype),
+                    )
+                } else {
+                    ContainerFileOpeningResult.OpenWithFile(containerDataFile)
+                }
+            } catch (ex: Exception) {
+                errorLog("SigningNavigation", "Unable to open container. Unable to get datafiles", ex)
+                ContainerFileOpeningResult.Error(ex)
+            }
         }
 
         @Throws(Exception::class)
