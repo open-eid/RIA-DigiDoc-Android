@@ -48,7 +48,7 @@ fun SettingsMenuBottomSheet(
     testTag: String = "menuSettingsBottomSheet",
     firstButtonTestTag: String = "menuSettingsLanguageButton",
     secondButtonTestTag: String = "menuSettingsAppearanceButton",
-    thirdButtonTestTag: String = "menuSettingsSigningButton",
+    thirdButtonTestTag: String = "menuSettingsAdvancedButton",
 ) {
     if (isBottomSheetVisible.value) {
         val firstButtonClick =
