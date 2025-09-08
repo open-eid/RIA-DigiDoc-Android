@@ -111,7 +111,7 @@
 
     <string name="main_settings_menu_language">Language selection</string>
     <string name="main_settings_menu_appearance">Appearance</string>
-    <string name="main_settings_menu_signing">Advanced settings</string>
+    <string name="main_settings_menu_advanced">Advanced settings</string>
 
     <!-- Signing -->
     <string name="signing_title_new_container">Signing</string>
@@ -447,7 +447,7 @@
 
     <string name="main_settings_menu_language_accessibility">Language selection</string>
     <string name="main_settings_menu_appearance_accessibility">Appearance</string>
-    <string name="main_settings_menu_signing_accessibility">Advanced settings</string>
+    <string name="main_settings_menu_advanced_accessibility">Advanced settings</string>
 
     <string name="choose_server_option">Choose server</string>
     <string name="option">Option</string>

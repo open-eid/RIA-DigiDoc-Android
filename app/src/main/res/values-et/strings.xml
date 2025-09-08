@@ -111,7 +111,7 @@
 
     <string name="main_settings_menu_language">Keelevalik</string>
     <string name="main_settings_menu_appearance">Välimus</string>
-    <string name="main_settings_menu_signing">Täpsemad seaded</string>
+    <string name="main_settings_menu_advanced">Täpsemad seaded</string>
 
     <!-- Signing -->
     <string name="signing_title_new_container">Allkirjastamine</string>
@@ -447,7 +447,7 @@
 
     <string name="main_settings_menu_language_accessibility">Keelevalik</string>
     <string name="main_settings_menu_appearance_accessibility">Välimus</string>
-    <string name="main_settings_menu_signing_accessibility">Täpsemad seaded</string>
+    <string name="main_settings_menu_advanced_accessibility">Täpsemad seaded</string>
 
     <string name="choose_server_option">Vali server</string>
     <string name="option">Valik</string>

@@ -130,7 +130,7 @@ fun AdvancedSettingsScreen(
             TopBar(
                 modifier = modifier,
                 sharedMenuViewModel = sharedMenuViewModel,
-                title = R.string.main_settings_menu_signing,
+                title = R.string.main_settings_menu_advanced,
                 onLeftButtonClick = {
                     navController.navigateUp()
                 },
