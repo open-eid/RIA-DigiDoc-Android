@@ -445,10 +445,6 @@
     <string name="main_menu_save_container_accessibility">Save container</string>
     <string name="main_menu_encrypt_container_accessibility">Encrypt container</string>
 
-    <string name="main_settings_menu_language_accessibility">Language selection</string>
-    <string name="main_settings_menu_appearance_accessibility">Appearance</string>
-    <string name="main_settings_menu_advanced_accessibility">Advanced settings</string>
-
     <string name="choose_server_option">Choose server</string>
     <string name="option">Option</string>
     <string name="option_selected">Option %1$s selected</string>

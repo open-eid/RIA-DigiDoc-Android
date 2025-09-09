@@ -47,7 +47,7 @@ fun MenuButton(
     buttonClick: () -> Unit = {},
     testTag: String = "",
 ) {
-    val contentDescription = stringResource(id = buttonStringResContentDescription)
+    val contentDescription = stringResource(id = buttonStringResContentDescription).lowercase()
     Button(
         onClick = buttonClick,
         modifier =
