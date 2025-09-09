@@ -277,7 +277,6 @@ fun SigningNavigation(
 
     val showSivaDialog = remember { mutableStateOf(false) }
     val nestedFile = rememberSaveable { mutableStateOf<File?>(null) }
-    val currentNestedFile = rememberSaveable { mutableStateOf<File?>(null) }
 
     val showContainerBottomSheet = remember { mutableStateOf(false) }
     val showSignedContainerBottomSheet = remember { mutableStateOf(false) }
@@ -355,7 +354,6 @@ fun SigningNavigation(
     }
 
     val onDataFileClick: (DataFileInterface) -> Unit = { dataFile ->
-        currentNestedFile.value = null
         showDataFileBottomSheet.value = false
 
         showLoadingScreen.value = true
@@ -368,7 +366,6 @@ fun SigningNavigation(
         containerFileOpeningHandler(
             result = result,
             nestedFile = nestedFile,
-            currentNestedFile = currentNestedFile,
             showSivaDialog = showSivaDialog,
             showLoadingScreen = showLoadingScreen,
             context = context,

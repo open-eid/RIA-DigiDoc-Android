@@ -13,7 +13,6 @@ import java.io.File
 fun containerFileOpeningHandler(
     result: ContainerFileOpeningResult,
     nestedFile: MutableState<File?>,
-    currentNestedFile: MutableState<File?>,
     showSivaDialog: MutableState<Boolean>,
     showLoadingScreen: MutableState<Boolean>,
     context: Context,
@@ -23,7 +22,6 @@ fun containerFileOpeningHandler(
     when (result) {
         is ContainerFileOpeningResult.OpenNestedFile -> {
             nestedFile.value = result.file
-            currentNestedFile.value = result.file
             if (result.needsSivaDialog) {
                 showSivaDialog.value = true
             } else {

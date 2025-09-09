@@ -7,8 +7,6 @@ import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import ee.ria.DigiDoc.R
@@ -43,15 +41,12 @@ fun DataFileBottomSheet(
     openRemoveFileDialog: MutableState<Boolean>,
     onBackButtonClick: () -> Unit,
 ) {
-    val currentNestedFile = rememberSaveable { mutableStateOf<File?>(null) }
-
     val buttonName = stringResource(id = R.string.button_name)
 
     BottomSheet(
         modifier = modifier,
         showSheet = showSheet,
         onDismiss = {
-            currentNestedFile.value = null
             onDataFileBottomSheetDismiss()
         },
         buttons =
@@ -73,7 +68,6 @@ fun DataFileBottomSheet(
                     containerFileOpeningHandler(
                         result = result,
                         nestedFile = nestedFile,
-                        currentNestedFile = currentNestedFile,
                         showSivaDialog = showSivaDialog,
                         showLoadingScreen = showLoadingScreen,
                         context = context,
