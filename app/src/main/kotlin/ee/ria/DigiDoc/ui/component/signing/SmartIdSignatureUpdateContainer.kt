@@ -26,7 +26,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
@@ -40,8 +42,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXL
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.SmartIdViewModel
 
@@ -70,22 +70,6 @@ fun SmartIdSignatureUpdateContainer(
             error?.let {
                 onError()
             }
-        }
-    }
-
-    LaunchedEffect(Unit, challengeText) {
-        if (challengeText.isNotEmpty()) {
-            sendAccessibilityEvent(
-                context,
-                getAccessibilityEventType(),
-                "$controlCode ${formatNumbers(challengeText)}",
-            )
-        } else {
-            sendAccessibilityEvent(
-                context,
-                getAccessibilityEventType(),
-                controlCodeLoadingText,
-            )
         }
     }
 
@@ -131,12 +115,14 @@ fun SmartIdSignatureUpdateContainer(
                     .fillMaxWidth()
                     .focusable()
                     .semantics {
+                        liveRegion = LiveRegionMode.Assertive
                         if (challengeText.isEmpty()) {
                             this.contentDescription =
                                 "$controlCode $controlCodeLoadingText"
+                        } else {
+                            this.contentDescription =
+                                "$controlCode ${formatNumbers(challengeText)}"
                         }
-                        this.contentDescription =
-                            "$controlCode ${formatNumbers(challengeText)}"
                     }.testTag("signatureUpdateSmartIdChallenge"),
         )
     }

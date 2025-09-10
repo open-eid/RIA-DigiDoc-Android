@@ -57,13 +57,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
@@ -103,6 +106,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil
@@ -484,8 +488,7 @@ fun SigningNavigation(
                     withContext(Main) {
                         selectedSignedContainerTabIndex.intValue = 1
                         signatureAddedSuccess.value = true
-                        sendAccessibilityEvent(context, getAccessibilityEventType(), signatureAddedSuccessText)
-                        delay(3000)
+                        delay(5000)
                         signatureAddedSuccess.value = false
                         sharedContainerViewModel.setSignedMidStatus(null)
                     }
@@ -502,7 +505,6 @@ fun SigningNavigation(
                     withContext(Main) {
                         signatureAddedSuccess.value = true
                         selectedSignedContainerTabIndex.intValue = 1
-                        sendAccessibilityEvent(context, getAccessibilityEventType(), signatureAddedSuccessText)
                         delay(5000)
                         signatureAddedSuccess.value = false
                         sharedContainerViewModel.setSignedSidStatus(null)
@@ -520,7 +522,6 @@ fun SigningNavigation(
                     withContext(Main) {
                         signatureAddedSuccess.value = true
                         selectedSignedContainerTabIndex.intValue = 1
-                        sendAccessibilityEvent(context, getAccessibilityEventType(), signatureAddedSuccessText)
                         delay(5000)
                         signatureAddedSuccess.value = false
                         sharedContainerViewModel.setSignedNFCStatus(null)
@@ -538,7 +539,6 @@ fun SigningNavigation(
                     withContext(Main) {
                         signatureAddedSuccess.value = true
                         selectedSignedContainerTabIndex.intValue = 1
-                        sendAccessibilityEvent(context, getAccessibilityEventType(), signatureAddedSuccessText)
                         delay(5000)
                         signatureAddedSuccess.value = false
                         sharedContainerViewModel.setSignedIDCardStatus(null)
@@ -685,7 +685,7 @@ fun SigningNavigation(
                 sharedMenuViewModel = sharedMenuViewModel,
                 title =
                     signedContainer
-                        ?.takeIf { it.isSigned() }
+                        ?.takeIf { it.isSigned() || isNestedContainer }
                         ?.let { R.string.signing_container_documents_title },
                 leftIcon =
                     when {
@@ -773,6 +773,22 @@ fun SigningNavigation(
                 horizontalAlignment = Alignment.Start,
             ) {
                 if (signatureAddedSuccess.value == true) {
+                    // Make sure text is announced when TalkBack is enabled by having its own element
+                    if (isTalkBackEnabled(context)) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .size(0.0001.dp),
+                        ) {
+                            Text(
+                                text = signatureAddedSuccessText,
+                                modifier =
+                                    Modifier.semantics {
+                                        liveRegion = LiveRegionMode.Assertive
+                                    },
+                            )
+                        }
+                    }
                     showMessage(signatureAddedSuccessText)
                     signatureAddedSuccess.value = false
                 }
@@ -802,6 +818,7 @@ fun SigningNavigation(
                                             }.testTag("signingTitle"),
                                     text = stringResource(R.string.signature_update_title),
                                     style = MaterialTheme.typography.headlineMedium,
+                                    color = MaterialTheme.colorScheme.onBackground,
                                     textAlign = TextAlign.Start,
                                 )
                             }

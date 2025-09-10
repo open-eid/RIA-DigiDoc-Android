@@ -81,6 +81,8 @@ fun SignatureDataItem(
             }
         }
 
+    val buttonName = stringResource(id = R.string.button_name)
+
     Row(
         modifier =
             modifier
@@ -91,7 +93,7 @@ fun SignatureDataItem(
                     if (isLink) {
                         this.contentDescription = "$contentDescriptionText, $linkName"
                     } else if (isWithCertificate) {
-                        this.contentDescription = "$contentDescriptionText, Button"
+                        this.contentDescription = "$contentDescriptionText, $buttonName"
                     } else {
                         this.contentDescription = contentDescriptionText
                     }

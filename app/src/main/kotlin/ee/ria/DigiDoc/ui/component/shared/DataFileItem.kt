@@ -64,6 +64,7 @@ fun DataFileItem(
                 modifier =
                     modifier
                         .fillMaxWidth()
+                        .clickable { onClick(dataFile) }
                         .semantics {
                             this.contentDescription = "$fileDescription ${index + 1} ${dataFile.fileName} $buttonName"
                             testTagsAsResourceId = true
@@ -83,12 +84,12 @@ fun DataFileItem(
                         modifier =
                             modifier
                                 .fillMaxWidth()
-                                .clickable { onClick(dataFile) },
                     ) {
                         Box(
                             modifier =
                                 modifier
-                                    .wrapContentHeight(),
+                                    .wrapContentHeight()
+                                    .notAccessible(),
                             contentAlignment = Alignment.Center,
                         ) {
                             Icon(

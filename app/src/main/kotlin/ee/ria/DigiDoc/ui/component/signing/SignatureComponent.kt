@@ -48,7 +48,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil.getSignatureStatusText
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil.getTimestampStatusText
@@ -118,17 +117,20 @@ fun SignatureComponent(
                     modifier =
                         modifier
                             .fillMaxWidth()
-                            .clickable(enabled = !isTalkBackEnabled(context)) { onClick(signature) }
+                            .clickable { onClick(signature) }
                             .semantics {
-                                if (roles.isEmpty()) {
-                                    this.contentDescription =
-                                        "$signatureText ${index + 1}, ${formatNumbers(nameText)}," +
-                                        " $statusText, $signedTime"
-                                } else {
-                                    this.contentDescription =
-                                        "$signatureText ${index + 1}, ${formatNumbers(nameText)}," +
-                                        " $statusText, $signedTime, $roleAndAddress: $roles"
-                                }
+                                this.contentDescription =
+                                    buildString {
+                                        append(
+                                            "$signatureText ${index + 1}, ${formatNumbers(
+                                                nameText,
+                                            )}, $statusText, $signedTime",
+                                        )
+                                        if (roles.isNotEmpty()) {
+                                            append(", $roleAndAddress: $roles")
+                                        }
+                                    }
+
                                 testTagsAsResourceId = true
                             }.testTag("signatureComponentContainer"),
                     colors = CardDefaults.cardColors(containerColor = Color.Transparent),

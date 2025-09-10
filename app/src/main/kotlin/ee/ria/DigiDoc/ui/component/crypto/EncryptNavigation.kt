@@ -728,6 +728,7 @@ fun EncryptNavigation(
                                             }.testTag("encryptionTitle"),
                                     text = stringResource(R.string.crypto_new_title),
                                     style = MaterialTheme.typography.headlineMedium,
+                                    color = MaterialTheme.colorScheme.onBackground,
                                     textAlign = TextAlign.Start,
                                 )
                             }
