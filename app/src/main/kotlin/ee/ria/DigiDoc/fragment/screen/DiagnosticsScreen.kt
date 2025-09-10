@@ -487,38 +487,40 @@ fun DiagnosticsScreen(
                     stringResource(id = R.string.main_diagnostics_rpuuid_title),
                     stringResource(diagnosticsViewModel.getRpUuid()),
                 )
-                SpannableBoldText(
-                    modifier = modifier,
-                    stringResource(id = R.string.main_diagnostics_cdoc2_title),
-                    "",
-                )
-                DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsCdoc2Default"),
-                    stringResource(id = R.string.main_diagnostics_cdoc2_default_title),
-                    diagnosticsViewModel.isCdoc2Selected().toString(),
-                )
-                DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsCdoc2UseKeyserver"),
-                    stringResource(id = R.string.main_diagnostics_cdoc2_use_keyserver_title),
-                    diagnosticsViewModel.isCdoc2KeyServerUsed().toString(),
-                )
-                DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsCdoc2DefaultKeyserver"),
-                    stringResource(id = R.string.main_diagnostics_cdoc2_default_keyserver_title),
-                    diagnosticsViewModel.getCdoc2KeyServerUUID(),
-                )
+                if (diagnosticsViewModel.isCdoc2Enabled) {
+                    SpannableBoldText(
+                        modifier = modifier,
+                        stringResource(id = R.string.main_diagnostics_cdoc2_title),
+                        "",
+                    )
+                    DiagnosticsText(
+                        modifier =
+                            modifier
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }.testTag("mainDiagnosticsCdoc2Default"),
+                        stringResource(id = R.string.main_diagnostics_cdoc2_default_title),
+                        diagnosticsViewModel.isCdoc2Selected().toString(),
+                    )
+                    DiagnosticsText(
+                        modifier =
+                            modifier
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }.testTag("mainDiagnosticsCdoc2UseKeyserver"),
+                        stringResource(id = R.string.main_diagnostics_cdoc2_use_keyserver_title),
+                        diagnosticsViewModel.isCdoc2KeyServerUsed().toString(),
+                    )
+                    DiagnosticsText(
+                        modifier =
+                            modifier
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }.testTag("mainDiagnosticsCdoc2DefaultKeyserver"),
+                        stringResource(id = R.string.main_diagnostics_cdoc2_default_keyserver_title),
+                        diagnosticsViewModel.getCdoc2KeyServerUUID(),
+                    )
+                }
                 HorizontalDivider(
                     modifier =
                         modifier
