@@ -44,7 +44,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import java.io.File
 
@@ -68,9 +67,7 @@ fun CryptoDataFileItem(
                 modifier =
                     modifier
                         .fillMaxWidth()
-                        .clickable(
-                            enabled = isMoreOptionsButtonShown && !isTalkBackEnabled(context),
-                        ) { onClick(dataFile) }
+                        .clickable(enabled = isMoreOptionsButtonShown) { onClick(dataFile) }
                         .semantics {
                             this.contentDescription = "$fileDescription ${index + 1} ${dataFile.name} $buttonName"
                             testTagsAsResourceId = true
@@ -92,7 +89,8 @@ fun CryptoDataFileItem(
                         Box(
                             modifier =
                                 modifier
-                                    .wrapContentHeight(),
+                                    .wrapContentHeight()
+                                    .notAccessible(),
                             contentAlignment = Alignment.Center,
                         ) {
                             Icon(

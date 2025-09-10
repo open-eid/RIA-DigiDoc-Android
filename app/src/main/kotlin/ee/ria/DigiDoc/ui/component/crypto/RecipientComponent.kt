@@ -47,7 +47,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.libdigidoc.RecipientCertTypeUtil.getRecipientCertTypeText
 import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatCompanyName
@@ -131,11 +130,12 @@ fun RecipientComponent(
                     modifier =
                         modifier
                             .fillMaxWidth()
-                            .clickable(enabled = !isTalkBackEnabled(context)) { onClick(recipient) }
+                            .clickable { onClick(recipient) }
                             .semantics {
+                                val validToText = if (isCDOC2Container) decryptionValidToText else certValidTo
                                 this.contentDescription =
-                                    "$recipientText ${index + 1} ${formatNumbers(nameText)} " +
-                                    "$certTypeText $decryptionValidToText"
+                                    "$recipientText ${index + 1} ${formatNumbers(nameText)} $certTypeText $validToText"
+
                                 testTagsAsResourceId = true
                             }.testTag("recipientComponentContainer"),
                     colors = CardDefaults.cardColors(containerColor = Color.Transparent),

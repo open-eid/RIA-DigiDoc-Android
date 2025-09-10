@@ -31,7 +31,7 @@ data class RecipientDetailItem(
     ): List<RecipientDetailItem> =
         listOf(
             RecipientDetailItem(
-                icon = 0,
+                icon = R.drawable.ic_m3_expand_content_48dp_wght400,
                 label = R.string.recipient_details_name_label,
                 value = recipientFormattedName,
                 certificate = recipient.data.x509Certificate(),

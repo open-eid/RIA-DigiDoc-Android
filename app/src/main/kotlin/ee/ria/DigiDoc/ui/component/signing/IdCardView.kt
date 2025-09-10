@@ -53,7 +53,9 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.semantics.traversalIndex
@@ -648,7 +650,9 @@ fun IdCardView(
                             modifier
                                 .focusRequester(statusMessageFocusRequester)
                                 .focusable()
-                                .testTag("idCardStatusMessage"),
+                                .semantics {
+                                    liveRegion = LiveRegionMode.Assertive
+                                }.testTag("idCardStatusMessage"),
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onSurface,
                     )

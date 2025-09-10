@@ -6,7 +6,6 @@ import android.content.res.Configuration
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -107,7 +106,7 @@ fun ContainerNameView(
                             .background(
                                 color = MaterialTheme.colorScheme.primary,
                                 shape = CircleShape,
-                            ),
+                            ).notAccessible(),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
@@ -121,14 +120,21 @@ fun ContainerNameView(
                                 .wrapContentHeight(align = Alignment.CenterVertically)
                                 .semantics {
                                     testTagsAsResourceId = true
-                                }.testTag("containerNameIcon")
-                                .notAccessible(),
+                                }.testTag("containerNameIcon"),
                     )
                 }
 
                 Spacer(modifier = modifier.width(SPadding))
 
-                Column(modifier = modifier.weight(1f)) {
+                Column(
+                    modifier =
+                        modifier
+                            .weight(1f)
+                            .semantics(mergeDescendants = true) {
+                                this.contentDescription = "$containerTitleText $name"
+                                testTagsAsResourceId = true
+                            }.testTag("signedContainerName"),
+                ) {
                     Text(
                         modifier = modifier.notAccessible(),
                         text = stringResource(R.string.signature_update_name_update_name),
@@ -140,11 +146,7 @@ fun ContainerNameView(
                             modifier
                                 .padding(zeroPadding)
                                 .wrapContentHeight(align = Alignment.CenterVertically)
-                                .focusable(false)
-                                .semantics {
-                                    this.contentDescription = "$containerTitleText $name"
-                                    testTagsAsResourceId = true
-                                }.testTag("signedContainerName"),
+                                .notAccessible(),
                         text = name,
                         maxLines = 4,
                         textColor = MaterialTheme.colorScheme.onSurface.toArgb(),
