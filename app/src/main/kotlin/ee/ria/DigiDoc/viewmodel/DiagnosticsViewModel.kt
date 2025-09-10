@@ -63,6 +63,8 @@ class DiagnosticsViewModel
         private val _updatedConfiguration = MutableLiveData<ConfigurationProvider?>()
         var updatedConfiguration: LiveData<ConfigurationProvider?> = _updatedConfiguration
 
+        val isCdoc2Enabled = false
+
         init {
             observeConfigurationUpdates(context)
         }
@@ -337,23 +339,32 @@ class DiagnosticsViewModel
                         )} ${context.getString(getRpUuid())}",
                     )
 
-                    // CDOC2
-                    appendLine()
-                    appendLine(
-                        "${context.getString(
-                            R.string.main_diagnostics_cdoc2_default_title,
-                        )} ${isCdoc2Selected()}",
-                    )
-                    appendLine(
-                        "${context.getString(
-                            R.string.main_diagnostics_cdoc2_use_keyserver_title,
-                        )} ${isCdoc2KeyServerUsed()}",
-                    )
-                    appendLine(
-                        "${context.getString(
-                            R.string.main_diagnostics_cdoc2_default_keyserver_title,
-                        )} ${getCdoc2KeyServerUUID()}",
-                    )
+                    if (isCdoc2Enabled) {
+                        // CDOC2
+                        appendLine()
+                        appendLine(context.getString(R.string.main_diagnostics_cdoc2_title))
+                        appendLine(
+                            "${
+                                context.getString(
+                                    R.string.main_diagnostics_cdoc2_default_title,
+                                )
+                            } ${isCdoc2Selected()}",
+                        )
+                        appendLine(
+                            "${
+                                context.getString(
+                                    R.string.main_diagnostics_cdoc2_use_keyserver_title,
+                                )
+                            } ${isCdoc2KeyServerUsed()}",
+                        )
+                        appendLine(
+                            "${
+                                context.getString(
+                                    R.string.main_diagnostics_cdoc2_default_keyserver_title,
+                                )
+                            } ${getCdoc2KeyServerUUID()}",
+                        )
+                    }
 
                     // Category
                     appendLine()
