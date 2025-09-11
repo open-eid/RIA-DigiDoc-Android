@@ -207,7 +207,42 @@ class SharedContainerViewModel
                     ContainerFileOpeningResult.OpenWithFile(containerDataFile)
                 }
             } catch (ex: Exception) {
-                errorLog("SigningNavigation", "Unable to open container. Unable to get datafiles", ex)
+                errorLog("SharedContainerViewModel", "Unable to open container. Unable to get datafiles", ex)
+                ContainerFileOpeningResult.Error(ex)
+            }
+        }
+
+        fun openCryptoContainerDataFile(
+            cryptoContainer: CryptoContainer?,
+            dataFile: File?,
+        ): ContainerFileOpeningResult {
+            return try {
+                if (dataFile == null) {
+                    return ContainerFileOpeningResult.Error(IllegalArgumentException("Clicked data file is null"))
+                }
+
+                val containerDataFile =
+                    getCryptoContainerDataFile(
+                        cryptoContainer,
+                        dataFile,
+                    )
+                        ?: return ContainerFileOpeningResult.Error(IllegalStateException("Container data file is null"))
+
+                if (
+                    containerDataFile.isContainer(context) ||
+                    containerDataFile.isCryptoContainer() ||
+                    (containerDataFile.isSignedPDF(context))
+                ) {
+                    val mimetype = containerDataFile.mimeType(context)
+                    ContainerFileOpeningResult.OpenNestedFile(
+                        file = containerDataFile,
+                        needsSivaDialog = SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(mimetype),
+                    )
+                } else {
+                    ContainerFileOpeningResult.OpenWithFile(containerDataFile)
+                }
+            } catch (ex: Exception) {
+                errorLog("SharedContainerViewModel", "Unable to open container. Unable to get datafiles", ex)
                 ContainerFileOpeningResult.Error(ex)
             }
         }

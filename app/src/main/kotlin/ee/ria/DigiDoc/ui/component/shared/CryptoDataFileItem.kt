@@ -55,6 +55,7 @@ fun CryptoDataFileItem(
     dataFiles: List<File>,
     isMoreOptionsButtonShown: Boolean = true,
     onClick: (File) -> Unit,
+    onDataFileMoreOptionsActionButtonClick: (File) -> Unit,
 ) {
     val context = LocalContext.current
     val fileDescription = stringResource(R.string.file)
@@ -138,7 +139,7 @@ fun CryptoDataFileItem(
                             )
                         }
                         if (isMoreOptionsButtonShown) {
-                            IconButton(onClick = { onClick(dataFile) }) {
+                            IconButton(onClick = { onDataFileMoreOptionsActionButtonClick(dataFile) }) {
                                 Icon(
                                     modifier =
                                         modifier
@@ -171,6 +172,7 @@ fun CryptoDataFileItemPreview() {
         CryptoDataFileItem(
             dataFiles = listOf(),
             onClick = {},
+            onDataFileMoreOptionsActionButtonClick = {},
         )
     }
 }

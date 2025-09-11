@@ -370,6 +370,7 @@ fun SigningNavigation(
             showLoadingScreen = showLoadingScreen,
             context = context,
             signingViewModel = signingViewModel,
+            encryptViewModel = null,
             handleSivaConfirmation = handleSivaConfirmation,
         )
     }

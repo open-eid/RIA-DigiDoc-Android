@@ -3,10 +3,12 @@
 package ee.ria.DigiDoc.ui.component.shared.handler
 
 import android.content.Context
+import android.content.Intent
 import androidx.compose.runtime.MutableState
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.domain.model.ContainerFileOpeningResult
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
+import ee.ria.DigiDoc.viewmodel.EncryptViewModel
 import ee.ria.DigiDoc.viewmodel.SigningViewModel
 import java.io.File
 
@@ -16,7 +18,8 @@ fun containerFileOpeningHandler(
     showSivaDialog: MutableState<Boolean>,
     showLoadingScreen: MutableState<Boolean>,
     context: Context,
-    signingViewModel: SigningViewModel,
+    signingViewModel: SigningViewModel?,
+    encryptViewModel: EncryptViewModel?,
     handleSivaConfirmation: () -> Unit,
 ) {
     when (result) {
@@ -30,7 +33,12 @@ fun containerFileOpeningHandler(
             }
         }
         is ContainerFileOpeningResult.OpenWithFile -> {
-            val intent = signingViewModel.getViewIntent(context, result.file)
+            var intent: Intent? = null
+            if (signingViewModel != null) {
+                intent = signingViewModel.getViewIntent(context, result.file)
+            } else if (encryptViewModel != null) {
+                intent = encryptViewModel.getViewIntent(context, result.file)
+            }
             context.startActivity(intent, null)
         }
         is ContainerFileOpeningResult.Error -> {
