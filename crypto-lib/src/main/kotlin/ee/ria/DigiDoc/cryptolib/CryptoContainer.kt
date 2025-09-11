@@ -348,28 +348,28 @@ class CryptoContainer
                     }
 
                 val cdocWriter = CDocWriter.createWriter(version, file?.path, conf, null, network)
-                withContext(IO) {
-                    if (version == 2 && cdoc2Settings.getUseOnlineEncryption()) {
-                        val serverId = cdoc2Settings.getCDOC2UUID()
-                        recipients.forEach { addressee ->
-                            val recipient = Recipient.makeEIDServer(addressee?.data, serverId)
-                            if (cdocWriter.addRecipient(recipient) != 0L) {
-                                throw CryptoException("Failed to add recipient")
-                            }
-                        }
-                    } else {
-                        recipients.forEach { addressee ->
-                            val recipient = Recipient.makeEID(addressee?.data)
-                            if (cdocWriter.addRecipient(recipient) != 0L) {
-                                throw CryptoException("Failed to add recipient")
-                            }
-                        }
-                    }
-                }
-
                 try {
                     if (cdocWriter.beginEncryption() != 0L) {
                         throw CryptoException("Failed to begin encryption")
+                    }
+
+                    withContext(IO) {
+                        if (version == 2 && cdoc2Settings.getUseOnlineEncryption()) {
+                            val serverId = cdoc2Settings.getCDOC2UUID()
+                            recipients.forEach { addressee ->
+                                val recipient = Recipient.makeEIDServer(addressee?.data, serverId)
+                                if (cdocWriter.addRecipient(recipient) != 0L) {
+                                    throw CryptoException("Failed to add recipient")
+                                }
+                            }
+                        } else {
+                            recipients.forEach { addressee ->
+                                val recipient = Recipient.makeEID(addressee?.data)
+                                if (cdocWriter.addRecipient(recipient) != 0L) {
+                                    throw CryptoException("Failed to add recipient")
+                                }
+                            }
+                        }
                     }
 
                     withContext(IO) {
