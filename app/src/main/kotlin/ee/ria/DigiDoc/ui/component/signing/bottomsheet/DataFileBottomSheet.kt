@@ -7,22 +7,16 @@ import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant
-import ee.ria.DigiDoc.common.Constant.SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES
 import ee.ria.DigiDoc.domain.model.bottomSheet.BottomSheetButton
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.ui.component.shared.BottomSheet
-import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
-import ee.ria.DigiDoc.utilsLib.extensions.isContainer
+import ee.ria.DigiDoc.ui.component.shared.handler.containerFileOpeningHandler
 import ee.ria.DigiDoc.utilsLib.extensions.isCryptoContainer
-import ee.ria.DigiDoc.utilsLib.extensions.isSignedPDF
-import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.viewmodel.SigningViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
@@ -47,15 +41,12 @@ fun DataFileBottomSheet(
     openRemoveFileDialog: MutableState<Boolean>,
     onBackButtonClick: () -> Unit,
 ) {
-    val currentNestedFile = rememberSaveable { mutableStateOf<File?>(null) }
-
     val buttonName = stringResource(id = R.string.button_name)
 
     BottomSheet(
         modifier = modifier,
         showSheet = showSheet,
         onDismiss = {
-            currentNestedFile.value = null
             onDataFileBottomSheetDismiss()
         },
         buttons =
@@ -67,39 +58,23 @@ fun DataFileBottomSheet(
                         R.string.main_menu_open_file_accessibility,
                     )} ${clickedDataFile.value?.fileName ?: ""} $buttonName",
                 ) {
-                    try {
-                        val dataFile = clickedDataFile.value
-                        if (dataFile != null) {
-                            val containerDataFile =
-                                sharedContainerViewModel.getContainerDataFile(
-                                    signedContainer,
-                                    dataFile,
-                                )
-                            showLoadingScreen.value = false
-                            containerDataFile?.let { file ->
-                                if (file.isContainer(context) ||
-                                    file.isCryptoContainer() ||
-                                    (signedContainer?.isSignedPDF() == false && file.isSignedPDF(context))
-                                ) {
-                                    nestedFile.value = file
-                                    currentNestedFile.value = file
-                                    val nestedFileMimetype = file.mimeType(context)
-                                    if (SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(nestedFileMimetype)) {
-                                        showSivaDialog.value = true
-                                    } else {
-                                        showLoadingScreen.value = true
-                                        handleSivaConfirmation()
-                                    }
-                                } else {
-                                    val viewIntent = signingViewModel.getViewIntent(context, file)
-                                    context.startActivity(viewIntent, null)
-                                }
-                            }
-                        }
-                    } catch (ex: Exception) {
-                        errorLog("SigningNavigation", "Unable to open container. Unable to get datafiles", ex)
-                        showMessage(context, R.string.container_open_file_error)
-                    }
+                    showLoadingScreen.value = true
+                    val result =
+                        sharedContainerViewModel.openContainerDataFile(
+                            signedContainer = signedContainer,
+                            clickedDataFile = clickedDataFile.value,
+                            context = context,
+                        )
+                    containerFileOpeningHandler(
+                        result = result,
+                        nestedFile = nestedFile,
+                        showSivaDialog = showSivaDialog,
+                        showLoadingScreen = showLoadingScreen,
+                        context = context,
+                        signingViewModel = signingViewModel,
+                        encryptViewModel = null,
+                        handleSivaConfirmation = handleSivaConfirmation,
+                    )
                 },
                 BottomSheetButton(
                     icon = R.drawable.ic_m3_download_48dp_wght400,

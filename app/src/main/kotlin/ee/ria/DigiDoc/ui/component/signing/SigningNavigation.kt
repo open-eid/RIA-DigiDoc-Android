@@ -89,6 +89,7 @@ import ee.ria.DigiDoc.ui.component.shared.MessageDialog
 import ee.ria.DigiDoc.ui.component.shared.TabView
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
+import ee.ria.DigiDoc.ui.component.shared.handler.containerFileOpeningHandler
 import ee.ria.DigiDoc.ui.component.signing.bottombar.SigningBottomBar
 import ee.ria.DigiDoc.ui.component.signing.bottomsheet.ContainerBottomSheet
 import ee.ria.DigiDoc.ui.component.signing.bottomsheet.DataFileBottomSheet
@@ -274,12 +275,107 @@ fun SigningNavigation(
 
     val showContainerCloseConfirmationDialog = remember { mutableStateOf(false) }
 
+    val showSivaDialog = remember { mutableStateOf(false) }
+    val nestedFile = rememberSaveable { mutableStateOf<File?>(null) }
+
     val showContainerBottomSheet = remember { mutableStateOf(false) }
     val showSignedContainerBottomSheet = remember { mutableStateOf(false) }
     val showDataFileBottomSheet = remember { mutableStateOf(false) }
     val showSignatureBottomSheet = remember { mutableStateOf(false) }
 
+    val openNestedContainer: (nestedContainer: File, isSivaConfirmed: Boolean) -> Unit =
+        { nestedContainer, isSivaConfirmed ->
+            scope.launch(IO) {
+                try {
+                    val isSigningContainer =
+                        nestedContainer.isContainer(context) || nestedContainer.isSignedPDF(context)
+                    if (!isSigningContainer) {
+                        encryptViewModel.openNestedContainer(
+                            context,
+                            nestedContainer,
+                            sharedContainerViewModel,
+                        )
+
+                        withContext(Main) {
+                            navController.navigate(Route.Encrypt.route)
+                        }
+                    } else {
+                        signingViewModel.openNestedContainer(
+                            context,
+                            nestedContainer,
+                            sharedContainerViewModel,
+                            isSivaConfirmed,
+                        )
+                    }
+                    showLoadingScreen.value = false
+                } catch (ex: Exception) {
+                    withContext(Main) {
+                        errorLog(
+                            this.javaClass.simpleName,
+                            "Unable to open nested container",
+                            ex,
+                        )
+                        showLoadingScreen.value = false
+                        Toast
+                            .makeText(
+                                context,
+                                ex.localizedMessage,
+                                Toast.LENGTH_LONG,
+                            ).show()
+                    }
+                }
+            }
+        }
+
+    val handleSivaConfirmation: () -> Unit = {
+        showSivaDialog.value = false
+        isSivaConfirmed = true
+        nestedFile.value?.let { file ->
+            openNestedContainer(file, true)
+        }
+    }
+
+    val handleSivaCancel: () -> Unit = {
+        showSivaDialog.value = false
+        isSivaConfirmed = false
+        nestedFile.value?.let { file ->
+            if (DDOC_MIMETYPE != file.mimeType(context)) {
+                openNestedContainer(file, false)
+            }
+        }
+    }
+
+    val handleResult: (Boolean) -> Unit = { isSivaConfirmed ->
+        if (isSivaConfirmed) {
+            handleSivaConfirmation()
+        } else {
+            handleSivaCancel()
+        }
+    }
+
     val onDataFileClick: (DataFileInterface) -> Unit = { dataFile ->
+        showDataFileBottomSheet.value = false
+
+        showLoadingScreen.value = true
+        val result =
+            sharedContainerViewModel.openContainerDataFile(
+                signedContainer = signedContainer,
+                clickedDataFile = dataFile,
+                context = context,
+            )
+        containerFileOpeningHandler(
+            result = result,
+            nestedFile = nestedFile,
+            showSivaDialog = showSivaDialog,
+            showLoadingScreen = showLoadingScreen,
+            context = context,
+            signingViewModel = signingViewModel,
+            encryptViewModel = null,
+            handleSivaConfirmation = handleSivaConfirmation,
+        )
+    }
+
+    val onDataFileMoreOptionsActionButtonClick: (DataFileInterface) -> Unit = { dataFile ->
         showDataFileBottomSheet.value = true
         clickedDataFile.value = dataFile
     }
@@ -668,79 +764,6 @@ fun SigningNavigation(
         ) {
             var actionSignature by remember { mutableStateOf<SignatureInterface?>(null) }
 
-            val showSivaDialog = remember { mutableStateOf(false) }
-            val nestedFile = rememberSaveable { mutableStateOf<File?>(null) }
-
-            val openNestedContainer: (nestedContainer: File, isSivaConfirmed: Boolean) -> Unit =
-                { nestedContainer, isSivaConfirmed ->
-                    scope.launch(IO) {
-                        try {
-                            val isSigningContainer =
-                                nestedContainer.isContainer(context) || nestedContainer.isSignedPDF(context)
-                            if (!isSigningContainer) {
-                                encryptViewModel.openNestedContainer(
-                                    context,
-                                    nestedContainer,
-                                    sharedContainerViewModel,
-                                )
-
-                                withContext(Main) {
-                                    navController.navigate(Route.Encrypt.route)
-                                }
-                            } else {
-                                signingViewModel.openNestedContainer(
-                                    context,
-                                    nestedContainer,
-                                    sharedContainerViewModel,
-                                    isSivaConfirmed,
-                                )
-                            }
-                            showLoadingScreen.value = false
-                        } catch (ex: Exception) {
-                            withContext(Main) {
-                                errorLog(
-                                    this.javaClass.simpleName,
-                                    "Unable to open nested container",
-                                    ex,
-                                )
-                                showLoadingScreen.value = false
-                                Toast
-                                    .makeText(
-                                        context,
-                                        ex.localizedMessage,
-                                        Toast.LENGTH_LONG,
-                                    ).show()
-                            }
-                        }
-                    }
-                }
-
-            val handleSivaConfirmation: () -> Unit = {
-                showSivaDialog.value = false
-                isSivaConfirmed = true
-                nestedFile.value?.let { file ->
-                    openNestedContainer(file, true)
-                }
-            }
-
-            val handleSivaCancel: () -> Unit = {
-                showSivaDialog.value = false
-                isSivaConfirmed = false
-                nestedFile.value?.let { file ->
-                    if (DDOC_MIMETYPE != file.mimeType(context)) {
-                        openNestedContainer(file, false)
-                    }
-                }
-            }
-
-            val handleResult: (Boolean) -> Unit = { isSivaConfirmed ->
-                if (isSivaConfirmed) {
-                    handleSivaConfirmation()
-                } else {
-                    handleSivaCancel()
-                }
-            }
-
             Column(
                 modifier =
                     modifier
@@ -766,7 +789,7 @@ fun SigningNavigation(
                             )
                         signedContainer?.let {
                             val isNonNestedSignedContainer =
-                                signingViewModel.isContainerWithoutSignatures(signedContainer) ||
+                                signingViewModel.isContainerWithoutSignatures(signedContainer) &&
                                     !isNestedContainer
                             if (isNonNestedSignedContainer) {
                                 Text(
@@ -863,7 +886,12 @@ fun SigningNavigation(
                                         style = MaterialTheme.typography.bodyMedium,
                                         textAlign = TextAlign.Start,
                                     )
-                                    DataFileItem(modifier, dataFiles, onDataFileClick)
+                                    DataFileItem(
+                                        modifier,
+                                        dataFiles,
+                                        onDataFileClick,
+                                        onDataFileMoreOptionsActionButtonClick,
+                                    )
                                 }
                             } else {
                                 item {
@@ -880,6 +908,7 @@ fun SigningNavigation(
                                                     modifier,
                                                     dataFiles,
                                                     onDataFileClick,
+                                                    onDataFileMoreOptionsActionButtonClick,
                                                 )
                                             },
                                             Pair(

@@ -85,6 +85,7 @@ import ee.ria.DigiDoc.ui.component.shared.MessageDialog
 import ee.ria.DigiDoc.ui.component.shared.TabView
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
+import ee.ria.DigiDoc.ui.component.shared.handler.containerFileOpeningHandler
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XLPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
@@ -250,7 +251,99 @@ fun EncryptNavigation(
     val showDataFileBottomSheet = remember { mutableStateOf(false) }
     val showRecipientBottomSheet = remember { mutableStateOf(false) }
 
+    val showSivaDialog = remember { mutableStateOf(false) }
+    val nestedFile = rememberSaveable { mutableStateOf<File?>(null) }
+
+    val openNestedContainer: (nestedContainer: File, isSivaConfirmed: Boolean) -> Unit =
+        { nestedContainer, isSivaConfirmed ->
+            scope.launch(IO) {
+                try {
+                    val isSigningContainer = nestedContainer.isContainer(context)
+
+                    if (isSigningContainer) {
+                        signingViewModel.openNestedContainer(
+                            context,
+                            nestedContainer,
+                            sharedContainerViewModel,
+                            isSivaConfirmed,
+                        )
+
+                        withContext(Main) {
+                            sharedContainerViewModel.setIsSivaConfirmed(isSivaConfirmed)
+                            navController.navigate(Route.Signing.route)
+                        }
+                    } else {
+                        encryptViewModel.openNestedContainer(
+                            context,
+                            nestedContainer,
+                            sharedContainerViewModel,
+                        )
+                    }
+                    showLoadingScreen.value = false
+                } catch (ex: Exception) {
+                    withContext(Main) {
+                        errorLog(
+                            this.javaClass.simpleName,
+                            "Unable to open nested container",
+                            ex,
+                        )
+                        showLoadingScreen.value = false
+                        Toast
+                            .makeText(
+                                context,
+                                ex.localizedMessage,
+                                Toast.LENGTH_LONG,
+                            ).show()
+                    }
+                }
+            }
+        }
+
+    val handleSivaCancel: () -> Unit = {
+        showSivaDialog.value = false
+        nestedFile.value?.let { file ->
+            if (DDOC_MIMETYPE != file.mimeType(context)) {
+                openNestedContainer(file, false)
+            }
+        }
+    }
+
+    val handleSivaConfirmation: () -> Unit = {
+        showSivaDialog.value = false
+        nestedFile.value?.let { file ->
+            openNestedContainer(file, true)
+        }
+    }
+
+    val handleResult: (Boolean) -> Unit = { isSivaConfirmed ->
+        if (isSivaConfirmed) {
+            handleSivaConfirmation()
+        } else {
+            handleSivaCancel()
+        }
+    }
+
     val onDataFileClick: (File) -> Unit = { file ->
+        showDataFileBottomSheet.value = false
+        showLoadingScreen.value = true
+        val result =
+            sharedContainerViewModel.openCryptoContainerDataFile(
+                cryptoContainer = cryptoContainer,
+                dataFile = file,
+            )
+        containerFileOpeningHandler(
+            result = result,
+            nestedFile = nestedFile,
+            showSivaDialog = showSivaDialog,
+            showLoadingScreen = showLoadingScreen,
+            context = context,
+            signingViewModel = null,
+            encryptViewModel = encryptViewModel,
+            handleSivaConfirmation = handleSivaConfirmation,
+        )
+    }
+
+    val onDataFileMoreOptionsActionButtonClick: (File) -> Unit = { file ->
         showDataFileBottomSheet.value = true
         clickedFile.value = file
     }
@@ -499,7 +592,10 @@ fun EncryptNavigation(
             TopBar(
                 modifier = modifier,
                 sharedMenuViewModel = sharedMenuViewModel,
-                title = null,
+                title =
+                    cryptoContainer
+                        ?.takeIf { it.encrypted || it.decrypted }
+                        ?.let { R.string.signing_container_documents_title },
                 leftIcon =
                     when {
                         isNestedContainer -> R.drawable.ic_m3_arrow_back_48dp_wght400
@@ -578,78 +674,6 @@ fun EncryptNavigation(
         ) {
             var actionRecipient by remember { mutableStateOf<Addressee?>(null) }
 
-            val showSivaDialog = remember { mutableStateOf(false) }
-            val nestedFile = rememberSaveable { mutableStateOf<File?>(null) }
-
-            val openNestedContainer: (nestedContainer: File, isSivaConfirmed: Boolean) -> Unit =
-                { nestedContainer, isSivaConfirmed ->
-                    scope.launch(IO) {
-                        try {
-                            val isSigningContainer = nestedContainer.isContainer(context)
-
-                            if (isSigningContainer) {
-                                signingViewModel.openNestedContainer(
-                                    context,
-                                    nestedContainer,
-                                    sharedContainerViewModel,
-                                    isSivaConfirmed,
-                                )
-
-                                withContext(Main) {
-                                    sharedContainerViewModel.setIsSivaConfirmed(isSivaConfirmed)
-                                    navController.navigate(Route.Signing.route)
-                                }
-                            } else {
-                                encryptViewModel.openNestedContainer(
-                                    context,
-                                    nestedContainer,
-                                    sharedContainerViewModel,
-                                )
-                            }
-                            showLoadingScreen.value = false
-                        } catch (ex: Exception) {
-                            withContext(Main) {
-                                errorLog(
-                                    this.javaClass.simpleName,
-                                    "Unable to open nested container",
-                                    ex,
-                                )
-                                showLoadingScreen.value = false
-                                Toast
-                                    .makeText(
-                                        context,
-                                        ex.localizedMessage,
-                                        Toast.LENGTH_LONG,
-                                    ).show()
-                            }
-                        }
-                    }
-                }
-
-            val handleSivaCancel: () -> Unit = {
-                showSivaDialog.value = false
-                nestedFile.value?.let { file ->
-                    if (DDOC_MIMETYPE != file.mimeType(context)) {
-                        openNestedContainer(file, false)
-                    }
-                }
-            }
-
-            val handleSivaConfirmation: () -> Unit = {
-                showSivaDialog.value = false
-                nestedFile.value?.let { file ->
-                    openNestedContainer(file, true)
-                }
-            }
-
-            val handleResult: (Boolean) -> Unit = { isSivaConfirmed ->
-                if (isSivaConfirmed) {
-                    handleSivaConfirmation()
-                } else {
-                    handleSivaCancel()
-                }
-            }
-
             Column(
                 modifier =
                     modifier
@@ -685,27 +709,28 @@ fun EncryptNavigation(
                                 text = removeExtensionFromContainerFilename(cryptoContainerName),
                             )
                         cryptoContainer?.let {
-                            val isNoRecipientsContainer =
-                                !encryptViewModel.isContainerWithoutRecipients(cryptoContainer) &&
-                                    !isNestedContainer
-                            val title =
-                                if (!isNoRecipientsContainer) {
-                                    stringResource(R.string.crypto_new_title)
-                                } else {
-                                    stringResource(R.string.crypto_view_title)
+                            val isInitialCryptoContainer =
+                                with(encryptViewModel) {
+                                    isContainerWithoutRecipients(cryptoContainer) &&
+                                        !isEncryptedContainer(cryptoContainer) &&
+                                        !isDecryptedContainer(cryptoContainer) &&
+                                        !isNestedContainer
                                 }
-                            Text(
-                                modifier =
-                                    modifier
-                                        .padding(bottom = SPadding)
-                                        .semantics {
-                                            heading()
-                                            testTagsAsResourceId = true
-                                        }.testTag("encryptionTitle"),
-                                text = title,
-                                style = MaterialTheme.typography.headlineMedium,
-                                textAlign = TextAlign.Start,
-                            )
+
+                            if (isInitialCryptoContainer) {
+                                Text(
+                                    modifier =
+                                        modifier
+                                            .padding(bottom = SPadding)
+                                            .semantics {
+                                                heading()
+                                                testTagsAsResourceId = true
+                                            }.testTag("encryptionTitle"),
+                                    text = stringResource(R.string.crypto_new_title),
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    textAlign = TextAlign.Start,
+                                )
+                            }
                             val rightActionButtonName =
                                 if (encryptViewModel.isDecryptButtonShown(cryptoContainer, isNestedContainer)) {
                                     R.string.decrypt_button
@@ -806,6 +831,7 @@ fun EncryptNavigation(
                                         dataFiles = dataFiles,
                                         isMoreOptionsButtonShown = true,
                                         onClick = onDataFileClick,
+                                        onDataFileMoreOptionsActionButtonClick = onDataFileMoreOptionsActionButtonClick,
                                     )
                                 }
                             } else {
@@ -830,6 +856,8 @@ fun EncryptNavigation(
                                                                 cryptoContainer,
                                                             ),
                                                         onClick = onDataFileClick,
+                                                        onDataFileMoreOptionsActionButtonClick =
+                                                        onDataFileMoreOptionsActionButtonClick,
                                                     )
                                                 } else {
                                                     CryptoDataFilesLocked(modifier = modifier)

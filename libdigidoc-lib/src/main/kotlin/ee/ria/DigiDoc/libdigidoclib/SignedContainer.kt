@@ -371,6 +371,7 @@ class SignedContainer
                     }
 
                     else -> {
+                        errorLog(LOG_TAG, "Unable to open container", e)
                         throw IOException(e.message)
                     }
                 }

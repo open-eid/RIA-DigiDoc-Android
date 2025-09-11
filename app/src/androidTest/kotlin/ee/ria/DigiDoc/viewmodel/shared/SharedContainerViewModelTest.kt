@@ -10,7 +10,9 @@ import androidx.activity.result.ActivityResult
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
+import ee.ria.DigiDoc.common.R
 import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
+import ee.ria.DigiDoc.common.testfiles.asset.AssetFile.Companion.getResourceFileAsFile
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifierImpl
 import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
@@ -20,8 +22,10 @@ import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepositoryImp
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
+import ee.ria.DigiDoc.domain.model.ContainerFileOpeningResult
 import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
+import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerDataFilesEmptyException
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
@@ -607,6 +611,69 @@ class SharedContainerViewModelTest {
         viewModel.resetAddedFilesCount()
 
         assertTrue(viewModel.addedFilesCount.value == 0)
+    }
+
+    @Test
+    fun sharedContainerViewModel_openContainerDataFile_returnOpenNestedFileResultWhenFileIsContainer() {
+        runTest {
+            val file =
+                getResourceFileAsFile(
+                    context,
+                    "example_nested_container.asice",
+                    R.raw.example_nested_container,
+                )
+
+            val signedContainer = SignedContainer.openOrCreate(context, file, listOf(file), true)
+
+            val dataFile = signedContainer.getDataFiles().first()
+
+            val result = viewModel.openContainerDataFile(signedContainer, dataFile, context)
+            assertTrue(result is ContainerFileOpeningResult.OpenNestedFile)
+        }
+    }
+
+    @Test
+    fun sharedContainerViewModel_openContainerDataFile_returnOpenWithFileResultWhenFileIsNotAContainer() {
+        runTest {
+            val file =
+                getResourceFileAsFile(
+                    context,
+                    "example_no_signatures.asice",
+                    R.raw.example_no_signatures,
+                )
+
+            val signedContainer = SignedContainer.openOrCreate(context, file, listOf(file), true)
+
+            val dataFile = signedContainer.getDataFiles().first()
+
+            val result = viewModel.openContainerDataFile(signedContainer, dataFile, context)
+            assertTrue(result is ContainerFileOpeningResult.OpenWithFile)
+        }
+    }
+
+    @Test
+    fun sharedContainerViewModel_openContainerDataFile_returnErrorResultWhenParametersAreNull() {
+        val result = viewModel.openContainerDataFile(null, null, context)
+        assertTrue(result is ContainerFileOpeningResult.Error)
+    }
+
+    @Test
+    fun sharedContainerViewModel_openContainerDataFile_returnErrorResultWhenFileDoesntExistInContainer() {
+        runTest {
+            val mockDataFile = mock(DataFileInterface::class.java)
+
+            val file =
+                getResourceFileAsFile(
+                    context,
+                    "example_nested_container.asice",
+                    R.raw.example_nested_container,
+                )
+
+            val signedContainer = SignedContainer.openOrCreate(context, file, listOf(file), true)
+
+            val result = viewModel.openContainerDataFile(signedContainer, mockDataFile, context)
+            assertTrue(result is ContainerFileOpeningResult.Error)
+        }
     }
 
     private fun createTempFileWithStringContent(

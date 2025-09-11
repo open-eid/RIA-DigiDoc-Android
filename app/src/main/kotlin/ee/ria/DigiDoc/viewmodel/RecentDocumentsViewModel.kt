@@ -45,6 +45,7 @@ class RecentDocumentsViewModel
         private val mimeTypeResolver: MimeTypeResolver,
         private val cdoc2Settings: CDOC2Settings,
     ) : ViewModel() {
+        private val logTag = "RecentDocumentsViewModel"
         private val _sendToSigningViewWithSiva = MutableLiveData(false)
         val sendToSigningViewWithSiva: LiveData<Boolean> = _sendToSigningViewWithSiva
 
@@ -69,16 +70,22 @@ class RecentDocumentsViewModel
                     initialValue = _documentList.value,
                 )
 
-        @Throws(Exception::class)
         suspend fun openDocument(
             document: File,
             isSivaConfirmed: Boolean,
-        ): Container =
-            if (!document.isCryptoContainer()) {
-                openSignatureDocument(document, isSivaConfirmed)
-            } else {
-                openCryptoDocument(document)
+        ): Container? {
+            return try {
+                if (!document.isCryptoContainer()) {
+                    openSignatureDocument(document, isSivaConfirmed)
+                } else {
+                    openCryptoDocument(document)
+                }
+            } catch (e: Exception) {
+                errorLog(logTag, "Unable to open container", e)
+                _errorState.postValue(R.string.container_load_error)
+                return null
             }
+        }
 
         @Throws(Exception::class)
         suspend fun openSignatureDocument(
