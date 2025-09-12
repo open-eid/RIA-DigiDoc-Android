@@ -68,10 +68,11 @@ class WebEidAuthServiceImpl
         }
 
         override fun buildAuthToken(
-            certBytes: ByteArray,
+            authCert: ByteArray,
+            signingCert: ByteArray,
             signature: ByteArray,
             challenge: String,
         ): JSONObject {
-            return parserImpl.buildAuthToken(certBytes, signature, challenge)
+            return parserImpl.buildAuthToken(authCert, signingCert, signature, challenge)
         }
     }
