@@ -137,8 +137,9 @@ class IdCardServiceImpl
             pin1: ByteArray,
             origin: String,
             challenge: String,
-        ): Pair<ByteArray, ByteArray> {
+        ): Triple<ByteArray, ByteArray, ByteArray> {
             val authCert = token.certificate(CertificateType.AUTHENTICATION)
+            val signingCert = token.certificate(CertificateType.SIGNING)
 
             val cert =
                 java.security.cert.CertificateFactory
@@ -172,6 +173,6 @@ class IdCardServiceImpl
             val tbsHash = MessageDigest.getInstance("SHA-384").digest(signedData)
             val signature = token.authenticate(pin1, tbsHash)
 
-            return authCert to signature
+            return Triple(authCert, signingCert, signature)
         }
     }

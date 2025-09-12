@@ -42,35 +42,28 @@ class WebEidViewModel
         }
 
         fun handleWebEidAuthResult(
-            cert: ByteArray,
+            authCert: ByteArray,
+            signingCert: ByteArray,
             signature: ByteArray,
             activity: Activity,
         ) {
             val challenge = authPayload.value?.challenge
             val loginUri = authPayload.value?.loginUri
 
-            if (challenge.isNullOrBlank()) {
-                errorLog("WebEidViewModel", "Missing challenge in auth payload")
+            if (challenge.isNullOrBlank() || loginUri.isNullOrBlank()) {
+                errorLog("WebEidViewModel", "Missing challenge or loginUri in auth payload")
                 return
             }
 
-            if (loginUri.isNullOrBlank()) {
-                errorLog("WebEidViewModel", "Missing login_uri in auth payload")
-                return
-            }
-
-            val token = authService.buildAuthToken(cert, signature, challenge)
+            val token = authService.buildAuthToken(authCert, signingCert, signature, challenge)
 
             try {
                 val payload = JSONObject().put("auth-token", token)
-                val encoded =
-                    Base64.encodeToString(
-                        payload.toString().toByteArray(Charsets.UTF_8),
-                        Base64.NO_WRAP,
-                    )
+                val encoded = Base64.encodeToString(payload.toString().toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
                 val browserUri = "$loginUri#$encoded"
 
-                debugLog("WebEidViewModel", "Opening browser with loginUri: $browserUri")
+                debugLog("WebEidViewModel", "Launching browser back to: $browserUri")
+
                 val intent =
                     Intent(Intent.ACTION_VIEW, browserUri.toUri()).apply {
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -78,7 +71,7 @@ class WebEidViewModel
                 activity.startActivity(intent)
                 activity.finish()
             } catch (e: Exception) {
-                errorLog("WebEidViewModel", "Failed to open browser with token", e)
+                errorLog("WebEidViewModel", "Failed to return token to browser", e)
             }
         }
     }

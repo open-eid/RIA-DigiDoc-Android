@@ -164,13 +164,14 @@ class WebEidAuthParserImpl
         }
 
         override fun buildAuthToken(
-            certBytes: ByteArray,
+            authCert: ByteArray,
+            signingCert: ByteArray,
             signature: ByteArray,
             challenge: String,
         ): JSONObject {
             val cert =
                 CertificateFactory.getInstance("X.509")
-                    .generateCertificate(certBytes.inputStream()) as X509Certificate
+                    .generateCertificate(authCert.inputStream()) as X509Certificate
 
             val publicKey = cert.publicKey
             val algorithm =
@@ -193,8 +194,8 @@ class WebEidAuthParserImpl
 
             return JSONObject().apply {
                 put("algorithm", algorithm)
-                put("unverifiedCertificate", Base64.getEncoder().encodeToString(certBytes))
-                put("unverifiedSigningCertificate", Base64.getEncoder().encodeToString(certBytes))
+                put("unverifiedCertificate", Base64.getEncoder().encodeToString(authCert))
+                put("unverifiedSigningCertificate", Base64.getEncoder().encodeToString(signingCert))
                 put("supportedSignatureAlgorithms", supportedSignatureAlgorithms)
                 put("issuerApp", "https://web-eid.eu/web-eid-mobile-app/releases/v1.0.0")
                 put("signature", Base64.getEncoder().encodeToString(signature))

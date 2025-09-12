@@ -10,6 +10,7 @@ import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthParserImpl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
@@ -24,7 +25,7 @@ class WebEidAuthServiceTest {
 
     private lateinit var parser: WebEidAuthParser
     private lateinit var service: WebEidAuthService
-    private val cert =
+    private val authCertBase64 =
         "MIIDuzCCAqOgAwIBAgIUBkYXJdruP6EuH/+I4YoXxIQ3WcowDQYJKoZIhvcNAQELBQAw" +
             "bTELMAkGA1UEBhMCRUUxDTALBgNVBAgMBFRlc3QxDTALBgNVBAcMBFRlc3QxDTALBgNV" +
             "BAoMBFRlc3QxDTALBgNVBAsMBFRlc3QxDTALBgNVBAMMBFRlc3QxEzARBgkqhkiG9w0B" +
@@ -44,6 +45,28 @@ class WebEidAuthServiceTest {
             "AKDZbI0RINIXarZCb2j963eCfguxXZJbxzW09S6kZ/bDEOwi4PLwE0kln9NqQW6JEBHY" +
             "kDeYQonkKm1VrZklb1obq+g1UIJkTOAXQdJDyvfHWyKzKE8cUHGxYUvlxOL/YCyLkUGa" +
             "eE/VmJs0niWtKlX4UURG0HAGjZIQ/pJejV+7GzknFMZmuiwJQe4yT4mw="
+
+    private val signingCertBase64 =
+        "MIID6zCCA02gAwIBAgIQT7j6zk6pmVRcyspLo5SqejAKBggqhkjOPQQDBDBgMQswCQYD" +
+            "VQQGEwJFRTEbMBkGA1UECgwSU0sgSUQgU29sdXRpb25zIEFTMRcwFQYDVQRhDA5OVFJF" +
+            "RS0xMDc0NzAxMzEbMBkGA1UEAwwSVEVTVCBvZiBFU1RFSUQyMDE4MB4XDTE5MDUwMjEw" +
+            "NDUzMVoXDTI5MDUwMjEwNDUzMVowfzELMAkGA1UEBhMCRUUxFjAUBgNVBCoMDUpBQUst" +
+            "S1JJU1RKQU4xEDAOBgNVBAQMB0rDlUVPUkcxKjAoBgNVBAMMIUrDlUVPUkcsSkFBSy1L" +
+            "UklTVEpBTiwzODAwMTA4NTcxODEaMBgGA1UEBRMRUE5PRUUtMzgwMDEwODU3MTgwdjAQ" +
+            "BgcqhkjOPQIBBgUrgQQAIgNiAASkwENR8GmCpEs6OshDWDfIiKvGuyNMOD2rjIQW321A" +
+            "nZD3oIsqD0svBMNEJJj9Dlvq/47TYDObIa12KAU5IuOBfJs2lrFdSXZjaM+a5TWT3O2J" +
+            "TM36YDH2GcMe/eisepejggGrMIIBpzAJBgNVHRMEAjAAMA4GA1UdDwEB/wQEAwIGQDBI" +
+            "BgNVHSAEQTA/MDIGCysGAQQBg5EhAQIBMCMwIQYIKwYBBQUHAgEWFWh0dHBzOi8vd3d3" +
+            "LnNrLmVlL0NQUzAJBgcEAIvsQAECMB0GA1UdDgQWBBTVX3s48Spy/Es2TcXgkRvwUn2Y" +
+            "cjCBigYIKwYBBQUHAQMEfjB8MAgGBgQAjkYBATAIBgYEAI5GAQQwEwYGBACORgEGMAkG" +
+            "BwQAjkYBBgEwUQYGBACORgEFMEcwRRY/aHR0cHM6Ly9zay5lZS9lbi9yZXBvc2l0b3J5" +
+            "L2NvbmRpdGlvbnMtZm9yLXVzZS1vZi1jZXJ0aWZpY2F0ZXMvEwJFTjAfBgNVHSMEGDAW" +
+            "gBTAhJkpxE6fOwI09pnhClYACCk+ezBzBggrBgEFBQcBAQRnMGUwLAYIKwYBBQUHMAGG" +
+            "IGh0dHA6Ly9haWEuZGVtby5zay5lZS9lc3RlaWQyMDE4MDUGCCsGAQUFBzAChilodHRw" +
+            "Oi8vYy5zay5lZS9UZXN0X29mX0VTVEVJRDIwMTguZGVyLmNydDAKBggqhkjOPQQDBAOB" +
+            "iwAwgYcCQgGBr+Jbo1GeqgWdIwgMo7SA29AP38JxNm2HWq2Qb+kIHpusAK574Co1K5D4" +
+            "+Mk7/ITTuXQaET5WphHoN7tdAciTaQJBAn0zBigYyVPYSTO68HM6hmlwTwi/KlJDdXW/" +
+            "2NsMjSqofFFJXpGvpxk2CTqSRCjcavxLPnkasTbNROYSJcmM8Xc="
 
     @Before
     fun setup() {
@@ -136,7 +159,8 @@ class WebEidAuthServiceTest {
 
             val redirect = service.redirectUri.value
             assert(redirect != null)
-            val decodedFragment = String(Base64.getUrlDecoder().decode(Uri.parse(redirect).fragment))
+            val decodedFragment =
+                String(Base64.getUrlDecoder().decode(Uri.parse(redirect).fragment))
             assert(decodedFragment.contains("mock-web-eid-auth-token"))
         }
 
@@ -150,17 +174,19 @@ class WebEidAuthServiceTest {
 
             val redirect = service.redirectUri.value
             assert(redirect != null)
-            val decodedFragment = String(Base64.getUrlDecoder().decode(Uri.parse(redirect).fragment))
+            val decodedFragment =
+                String(Base64.getUrlDecoder().decode(Uri.parse(redirect).fragment))
             assert(decodedFragment.contains("ERR_WEBEID_INVALID_REQUEST"))
         }
 
     @Test
     fun buildAuthToken_withValidInputs_returnsValidJson() {
-        val certBytes = Base64.getDecoder().decode(cert)
+        val authCertBytes = Base64.getDecoder().decode(authCertBase64)
+        val signingCertBytes = Base64.getDecoder().decode(signingCertBase64)
         val signature = byteArrayOf(1, 2, 3, 4, 5)
         val challenge = "abc123"
 
-        val token = service.buildAuthToken(certBytes, signature, challenge)
+        val token = service.buildAuthToken(authCertBytes, signingCertBytes, signature, challenge)
 
         assertEquals("web-eid:1.1", token.getString("format"))
         assertEquals(challenge, token.getString("challenge"))
@@ -169,6 +195,16 @@ class WebEidAuthServiceTest {
         assert(token.getString("signature").isNotBlank())
         assert(token.has("algorithm"))
         assert(token.has("supportedSignatureAlgorithms"))
+        assertEquals(Base64.getEncoder().encodeToString(authCertBytes), token.getString("unverifiedCertificate"))
+        assertEquals(
+            Base64.getEncoder().encodeToString(signingCertBytes),
+            token.getString("unverifiedSigningCertificate"),
+        )
+        assertNotEquals(
+            token.getString("unverifiedCertificate"),
+            token.getString("unverifiedSigningCertificate"),
+            "Auth certificate and signing certificate should not be identical",
+        )
     }
 
     @Suppress("SameParameterValue")
