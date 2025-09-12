@@ -115,7 +115,7 @@ object Constant {
     const val CDOC1_EXTENSION = "cdoc"
 
     // TODO: Change to "cdoc2" when enabled
-    const val CDOC2_EXTENSION = "cdoc"
+    const val CDOC2_EXTENSION = "cdocna"
 
     const val LDAP_PORT = 636
     const val CERT_BINARY_ATTR = "userCertificate;binary"
