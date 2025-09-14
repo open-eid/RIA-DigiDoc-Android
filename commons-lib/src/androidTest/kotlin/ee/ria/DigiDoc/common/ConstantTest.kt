@@ -46,7 +46,7 @@ class ConstantTest {
         assertTrue(Constant.CONTAINER_EXTENSIONS.contains("asice"))
         assertTrue(Constant.ALL_CONTAINER_EXTENSIONS.contains("cdoc"))
         assertTrue(Constant.NON_LEGACY_CONTAINER_EXTENSIONS.contains("bdoc"))
-        assertTrue(Constant.CRYPTO_CONTAINER_EXTENSIONS.contains("cdoc2"))
+        assertTrue(Constant.CRYPTO_CONTAINER_EXTENSIONS.contains("cdocna"))
     }
 
     @Test
