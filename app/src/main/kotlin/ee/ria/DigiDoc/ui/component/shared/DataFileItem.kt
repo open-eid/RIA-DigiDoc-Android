@@ -83,7 +83,7 @@ fun DataFileItem(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier =
                             modifier
-                                .fillMaxWidth()
+                                .fillMaxWidth(),
                     ) {
                         Box(
                             modifier =
