@@ -10,8 +10,6 @@ interface WebEidAuthParser {
 
     fun parseSignUri(uri: Uri): WebEidSignRequest
 
-    fun handleAuthFlow(uri: Uri): String
-
     fun buildAuthToken(
         authCert: ByteArray,
         signingCert: ByteArray,

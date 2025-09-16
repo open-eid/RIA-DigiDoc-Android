@@ -12,7 +12,6 @@ interface WebEidAuthService {
     val authRequest: StateFlow<WebEidAuthRequest?>
     val signRequest: StateFlow<WebEidSignRequest?>
     val errorState: StateFlow<String?>
-    val redirectUri: StateFlow<String?>
 
     fun resetValues()
 

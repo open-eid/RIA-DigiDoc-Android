@@ -42,7 +42,6 @@ class WebEidViewModelTest {
         `when`(authService.authRequest).thenReturn(MutableStateFlow(null))
         `when`(authService.signRequest).thenReturn(MutableStateFlow(null))
         `when`(authService.errorState).thenReturn(MutableStateFlow(null))
-        `when`(authService.redirectUri).thenReturn(MutableStateFlow(null))
 
         viewModel = WebEidViewModel(authService)
     }
@@ -65,23 +64,6 @@ class WebEidViewModelTest {
     fun reset_callsResetValues() {
         viewModel.reset()
         verify(authService).resetValues()
-    }
-
-    @Test
-    fun redirectUri_isExposedFromAuthService() {
-        val redirectFlow = MutableStateFlow("https://example.com#encodedPayload")
-        `when`(authService.redirectUri).thenReturn(redirectFlow)
-        val vm = WebEidViewModel(authService)
-        assert(vm.redirectUri.value == "https://example.com#encodedPayload")
-    }
-
-    @Test
-    fun redirectUri_updatesWhenServiceUpdates() {
-        val redirectFlow = MutableStateFlow<String?>(null)
-        `when`(authService.redirectUri).thenReturn(redirectFlow)
-        val vm = WebEidViewModel(authService)
-        redirectFlow.value = "https://example.com#updatedPayload"
-        assert(vm.redirectUri.value == "https://example.com#updatedPayload")
     }
 
     @Test

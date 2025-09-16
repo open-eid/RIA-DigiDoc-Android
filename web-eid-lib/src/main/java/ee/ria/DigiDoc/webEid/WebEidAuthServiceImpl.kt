@@ -31,20 +31,14 @@ class WebEidAuthServiceImpl
         private val _errorState = MutableStateFlow<String?>(null)
         override val errorState: StateFlow<String?> = _errorState.asStateFlow()
 
-        private val _redirectUri = MutableStateFlow<String?>(null)
-        override val redirectUri: StateFlow<String?> = _redirectUri.asStateFlow()
-
         override fun resetValues() {
             _authRequest.value = null
             _signRequest.value = null
             _errorState.value = null
-            _redirectUri.value = null
         }
 
         override fun parseAuthUri(uri: Uri) {
             try {
-                val resultRedirect = parserImpl.handleAuthFlow(uri)
-                _redirectUri.value = resultRedirect
                 _authRequest.value = parserImpl.parseAuthUri(uri)
             } catch (e: IllegalArgumentException) {
                 errorLog(logTag, "Validation failed in parseAuthUri", e)

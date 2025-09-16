@@ -27,7 +27,6 @@ class WebEidViewModel
         val authPayload: StateFlow<WebEidAuthRequest?> = authService.authRequest
         val signPayload: StateFlow<WebEidSignRequest?> = authService.signRequest
         val errorState: StateFlow<String?> = authService.errorState
-        val redirectUri: StateFlow<String?> = authService.redirectUri
 
         fun handleAuth(uri: Uri) {
             authService.parseAuthUri(uri)
@@ -71,7 +70,17 @@ class WebEidViewModel
                 activity.startActivity(intent)
                 activity.finish()
             } catch (e: Exception) {
-                errorLog("WebEidViewModel", "Failed to return token to browser", e)
+                val payload = JSONObject()
+                    .put("error", true)
+                    .put("code", "TOKEN_BUILD_FAILED")
+                    .put("message", e.message ?: "Failed to return token to browser")
+
+                val encoded = Base64.encodeToString(payload.toString().toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
+                val browserUri = "$loginUri#$encoded"
+                activity.startActivity(Intent(Intent.ACTION_VIEW, browserUri.toUri()).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                })
+                activity.finish()
             }
         }
     }

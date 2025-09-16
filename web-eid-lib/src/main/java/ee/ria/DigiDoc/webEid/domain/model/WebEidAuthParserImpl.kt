@@ -22,17 +22,6 @@ class WebEidAuthParserImpl
     constructor() : WebEidAuthParser {
         private val logTag = javaClass.simpleName
 
-        override fun handleAuthFlow(uri: Uri): String {
-            return try {
-                val request = parseAuthUri(uri)
-                WebEidResponseUtil.createSuccessRedirect(request.loginUri)
-            } catch (e: Exception) {
-                errorLog(logTag, "Error in auth flow", e)
-                val err = mapExceptionToError(e)
-                WebEidResponseUtil.createErrorRedirect(extractLoginUriSafe(uri), err.code, err.message)
-            }
-        }
-
         override fun parseAuthUri(uri: Uri): WebEidAuthRequest {
             val json = decodeUriFragment(uri)
 
