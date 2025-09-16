@@ -5,15 +5,14 @@ package ee.ria.DigiDoc.viewmodel
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
-import android.util.Base64
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.webEid.WebEidAuthService
 import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthRequest
 import ee.ria.DigiDoc.webEid.domain.model.WebEidSignRequest
+import ee.ria.DigiDoc.webEid.utils.WebEidResponseUtil
 import kotlinx.coroutines.flow.StateFlow
 import org.json.JSONObject
 import javax.inject.Inject
@@ -36,10 +35,6 @@ class WebEidViewModel
             authService.parseSignUri(uri)
         }
 
-        fun reset() {
-            authService.resetValues()
-        }
-
         fun handleWebEidAuthResult(
             authCert: ByteArray,
             signingCert: ByteArray,
@@ -54,44 +49,31 @@ class WebEidViewModel
                 return
             }
 
-            val token = authService.buildAuthToken(authCert, signingCert, signature, challenge)
-
             try {
+                val token = authService.buildAuthToken(authCert, signingCert, signature, challenge)
                 val payload = JSONObject().put("auth-token", token)
-                val encoded =
-                    Base64.encodeToString(
-                        payload.toString().toByteArray(Charsets.UTF_8),
-                        Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP,
-                    )
-                val browserUri = "$loginUri#$encoded"
-
-                debugLog("WebEidViewModel", "Launching browser back to: $browserUri")
-
-                val intent =
-                    Intent(Intent.ACTION_VIEW, browserUri.toUri()).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    }
-                activity.startActivity(intent)
-                activity.finish()
+                launchBrowserRedirect(loginUri, payload, activity)
             } catch (e: Exception) {
                 val payload =
                     JSONObject()
                         .put("error", true)
                         .put("code", "TOKEN_BUILD_FAILED")
                         .put("message", e.message ?: "Failed to return token to browser")
-
-                val encoded =
-                    Base64.encodeToString(
-                        payload.toString().toByteArray(Charsets.UTF_8),
-                        Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP,
-                    )
-                val browserUri = "$loginUri#$encoded"
-                activity.startActivity(
-                    Intent(Intent.ACTION_VIEW, browserUri.toUri()).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    },
-                )
-                activity.finish()
+                launchBrowserRedirect(loginUri, payload, activity)
             }
+        }
+
+        private fun launchBrowserRedirect(
+            loginUri: String,
+            payload: JSONObject,
+            activity: Activity,
+        ) {
+            val browserUri = WebEidResponseUtil.createRedirect(loginUri, payload)
+            val intent =
+                Intent(Intent.ACTION_VIEW, browserUri.toUri()).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                }
+            activity.startActivity(intent)
+            activity.finish()
         }
     }

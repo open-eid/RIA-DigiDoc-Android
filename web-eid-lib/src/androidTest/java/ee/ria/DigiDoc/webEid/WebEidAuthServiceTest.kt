@@ -8,6 +8,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Before
@@ -115,20 +116,6 @@ class WebEidAuthServiceTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun resetValues_clearsAllState() =
-        runTest {
-            val uri = createAuthUri("abc123", "https://rp.example.com", false)
-            service.parseAuthUri(uri)
-
-            service.resetValues()
-
-            assertNull(service.authRequest.value)
-            assertNull(service.signRequest.value)
-            assertNull(service.errorState.value)
-        }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    @Test
     fun parseAuthUri_invalidUri_setsErrorState() =
         runTest {
             val badUri = Uri.parse("web-eid://auth#not-base64!!!")
@@ -146,6 +133,9 @@ class WebEidAuthServiceTest {
         val signingCertBytes = Base64.getDecoder().decode(signingCertBase64)
         val signature = byteArrayOf(1, 2, 3, 4, 5)
         val challenge = "abc123"
+
+        val uri = createAuthUri(challenge, "https://rp.example.com/auth/eid/login", true)
+        service.parseAuthUri(uri)
 
         val token = service.buildAuthToken(authCertBytes, signingCertBytes, signature, challenge)
 
@@ -166,6 +156,26 @@ class WebEidAuthServiceTest {
             token.getString("unverifiedSigningCertificate"),
             "Auth certificate and signing certificate should not be identical",
         )
+    }
+
+    @Test
+    fun buildAuthToken_withoutSigningCertificate_returnsV1Format() {
+        val authCertBytes = Base64.getDecoder().decode(authCertBase64)
+        val signature = byteArrayOf(1, 2, 3, 4, 5)
+        val challenge = "abc123"
+
+        val uri = createAuthUri(challenge, "https://rp.example.com/auth/eid/login", false)
+        service.parseAuthUri(uri)
+
+        val token = service.buildAuthToken(authCertBytes, ByteArray(0), signature, challenge)
+
+        assertEquals("web-eid:1.0", token.getString("format"))
+        assertEquals(challenge, token.getString("challenge"))
+        assert(token.getString("unverifiedCertificate").isNotBlank())
+        assert(token.getString("signature").isNotBlank())
+
+        assertFalse(token.has("unverifiedSigningCertificate"))
+        assertFalse(token.has("supportedSignatureAlgorithms"))
     }
 
     @Suppress("SameParameterValue")

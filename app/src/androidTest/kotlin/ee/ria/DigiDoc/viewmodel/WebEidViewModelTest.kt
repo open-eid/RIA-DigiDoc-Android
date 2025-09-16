@@ -61,12 +61,6 @@ class WebEidViewModelTest {
     }
 
     @Test
-    fun reset_callsResetValues() {
-        viewModel.reset()
-        verify(authService).resetValues()
-    }
-
-    @Test
     fun handleWebEidAuthResult_callsBuildAuthToken_whenPayloadValid() {
         val cert = byteArrayOf(1, 2, 3)
         val signingCert = byteArrayOf(9, 9, 9)

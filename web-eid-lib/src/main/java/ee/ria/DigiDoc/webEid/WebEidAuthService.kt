@@ -13,8 +13,6 @@ interface WebEidAuthService {
     val signRequest: StateFlow<WebEidSignRequest?>
     val errorState: StateFlow<String?>
 
-    fun resetValues()
-
     fun parseAuthUri(uri: Uri)
 
     fun parseSignUri(uri: Uri)
