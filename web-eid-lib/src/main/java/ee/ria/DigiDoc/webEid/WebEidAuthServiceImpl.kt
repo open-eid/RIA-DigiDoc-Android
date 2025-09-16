@@ -17,9 +17,7 @@ import javax.inject.Singleton
 @Singleton
 class WebEidAuthServiceImpl
     @Inject
-    constructor(
-        private val parserImpl: WebEidAuthParser,
-    ) : WebEidAuthService {
+    constructor() : WebEidAuthService {
         private val logTag = javaClass.simpleName
 
         private val _authRequest = MutableStateFlow<WebEidAuthRequest?>(null)
@@ -39,7 +37,7 @@ class WebEidAuthServiceImpl
 
         override fun parseAuthUri(uri: Uri) {
             try {
-                _authRequest.value = parserImpl.parseAuthUri(uri)
+                _authRequest.value = WebEidAuthParser.parseAuthUri(uri)
             } catch (e: IllegalArgumentException) {
                 errorLog(logTag, "Validation failed in parseAuthUri", e)
                 _errorState.value = e.message
@@ -51,7 +49,7 @@ class WebEidAuthServiceImpl
 
         override fun parseSignUri(uri: Uri) {
             try {
-                _signRequest.value = parserImpl.parseSignUri(uri)
+                _signRequest.value = WebEidAuthParser.parseSignUri(uri)
             } catch (e: IllegalArgumentException) {
                 errorLog(logTag, "Validation failed in parseSignUri", e)
                 _errorState.value = e.message
@@ -66,7 +64,5 @@ class WebEidAuthServiceImpl
             signingCert: ByteArray,
             signature: ByteArray,
             challenge: String,
-        ): JSONObject {
-            return parserImpl.buildAuthToken(authCert, signingCert, signature, challenge)
-        }
+        ): JSONObject = WebEidAuthParser.buildAuthToken(authCert, signingCert, signature, challenge)
     }

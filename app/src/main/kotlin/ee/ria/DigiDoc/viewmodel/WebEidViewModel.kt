@@ -58,7 +58,11 @@ class WebEidViewModel
 
             try {
                 val payload = JSONObject().put("auth-token", token)
-                val encoded = Base64.encodeToString(payload.toString().toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
+                val encoded =
+                    Base64.encodeToString(
+                        payload.toString().toByteArray(Charsets.UTF_8),
+                        Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP,
+                    )
                 val browserUri = "$loginUri#$encoded"
 
                 debugLog("WebEidViewModel", "Launching browser back to: $browserUri")
@@ -70,16 +74,23 @@ class WebEidViewModel
                 activity.startActivity(intent)
                 activity.finish()
             } catch (e: Exception) {
-                val payload = JSONObject()
-                    .put("error", true)
-                    .put("code", "TOKEN_BUILD_FAILED")
-                    .put("message", e.message ?: "Failed to return token to browser")
+                val payload =
+                    JSONObject()
+                        .put("error", true)
+                        .put("code", "TOKEN_BUILD_FAILED")
+                        .put("message", e.message ?: "Failed to return token to browser")
 
-                val encoded = Base64.encodeToString(payload.toString().toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
+                val encoded =
+                    Base64.encodeToString(
+                        payload.toString().toByteArray(Charsets.UTF_8),
+                        Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP,
+                    )
                 val browserUri = "$loginUri#$encoded"
-                activity.startActivity(Intent(Intent.ACTION_VIEW, browserUri.toUri()).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                })
+                activity.startActivity(
+                    Intent(Intent.ACTION_VIEW, browserUri.toUri()).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    },
+                )
                 activity.finish()
             }
         }

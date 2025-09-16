@@ -146,7 +146,7 @@ class MainActivity :
             RIADigiDocTheme(darkTheme = useDarkMode) {
                 RIADigiDocAppScreen(
                     externalFileUris = externalFileUris,
-                    webEidUri = webEidUri
+                    webEidUri = webEidUri,
                 )
             }
         }

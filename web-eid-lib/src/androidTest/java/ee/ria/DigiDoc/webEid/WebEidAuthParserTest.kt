@@ -7,7 +7,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthParser
-import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthParserImpl
 import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthRequest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -25,7 +24,6 @@ class WebEidAuthParserTest {
     val instantExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var context: Context
-    private lateinit var parser: WebEidAuthParser
     private val authCertBase64 =
         "MIIDuzCCAqOgAwIBAgIUBkYXJdruP6EuH/+I4YoXxIQ3WcowDQYJKoZIhvcNAQELBQAw" +
             "bTELMAkGA1UEBhMCRUUxDTALBgNVBAgMBFRlc3QxDTALBgNVBAcMBFRlc3QxDTALBgNV" +
@@ -72,14 +70,13 @@ class WebEidAuthParserTest {
     @Before
     fun setup() {
         context = InstrumentationRegistry.getInstrumentation().targetContext
-        parser = WebEidAuthParserImpl()
     }
 
     @Test
     fun parseAuthUri_httpsOriginIsValid() {
         val loginUri = "https://rp.example.com/auth/eid/login"
         val uri = android.net.Uri.parse(createAuthUri("abc123", loginUri, true))
-        val result: WebEidAuthRequest = parser.parseAuthUri(uri)
+        val result: WebEidAuthRequest = WebEidAuthParser.parseAuthUri(uri)
 
         assertEquals("abc123", result.challenge)
         assertEquals(loginUri, result.loginUri)
@@ -94,7 +91,7 @@ class WebEidAuthParserTest {
 
         val exception =
             assertThrows(IllegalArgumentException::class.java) {
-                parser.parseAuthUri(uri)
+                WebEidAuthParser.parseAuthUri(uri)
             }
         assertEquals("login_uri must use HTTPS", exception.message)
     }
@@ -106,7 +103,7 @@ class WebEidAuthParserTest {
 
         val exception =
             assertThrows(IllegalArgumentException::class.java) {
-                parser.parseAuthUri(uri)
+                WebEidAuthParser.parseAuthUri(uri)
             }
         assertTrue(exception.message!!.contains("Login URI contains userinfo"))
     }
@@ -133,7 +130,7 @@ class WebEidAuthParserTest {
         val uri = android.net.Uri.parse("web-eid://auth#%%%INVALID%%%")
         val exception =
             assertThrows(IllegalArgumentException::class.java) {
-                parser.parseAuthUri(uri)
+                WebEidAuthParser.parseAuthUri(uri)
             }
         assertTrue(exception.message!!.contains("Invalid URI fragment format"))
     }
@@ -145,7 +142,7 @@ class WebEidAuthParserTest {
         val signature = byteArrayOf(1, 2, 3, 4, 5)
         val challenge = "abc123"
 
-        val token = parser.buildAuthToken(authCertBytes, signingCertBytes, signature, challenge)
+        val token = WebEidAuthParser.buildAuthToken(authCertBytes, signingCertBytes, signature, challenge)
 
         assertEquals("web-eid:1.1", token.getString("format"))
         assertTrue(token.getString("unverifiedCertificate").isNotEmpty())

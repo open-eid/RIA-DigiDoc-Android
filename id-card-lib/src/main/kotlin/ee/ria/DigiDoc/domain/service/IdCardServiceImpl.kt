@@ -23,6 +23,9 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.withContext
 import java.security.MessageDigest
+import java.security.cert.CertificateFactory
+import java.security.interfaces.ECPublicKey
+import java.security.interfaces.RSAPublicKey
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -142,21 +145,21 @@ class IdCardServiceImpl
             val signingCert = token.certificate(CertificateType.SIGNING)
 
             val cert =
-                java.security.cert.CertificateFactory
+                CertificateFactory
                     .getInstance("X.509")
                     .generateCertificate(authCert.inputStream())
             val publicKey = cert.publicKey
 
             val hashAlg =
                 when (publicKey) {
-                    is java.security.interfaces.RSAPublicKey ->
+                    is RSAPublicKey ->
                         when (publicKey.modulus.bitLength()) {
                             2048 -> "SHA-256"
                             3072 -> "SHA-384"
                             4096 -> "SHA-512"
                             else -> throw IllegalArgumentException("Unsupported RSA key length")
                         }
-                    is java.security.interfaces.ECPublicKey ->
+                    is ECPublicKey ->
                         when (publicKey.params.curve.field.fieldSize) {
                             256 -> "SHA-256"
                             384 -> "SHA-384"
@@ -170,7 +173,7 @@ class IdCardServiceImpl
             val originHash = md.digest(origin.toByteArray(Charsets.UTF_8))
             val challengeHash = md.digest(challenge.toByteArray(Charsets.UTF_8))
             val signedData = originHash + challengeHash
-            val tbsHash = MessageDigest.getInstance("SHA-384").digest(signedData)
+            val tbsHash = md.digest(signedData)
             val signature = token.authenticate(pin1, tbsHash)
 
             return Triple(authCert, signingCert, signature)

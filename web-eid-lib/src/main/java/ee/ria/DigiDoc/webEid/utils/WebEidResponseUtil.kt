@@ -6,7 +6,10 @@ import androidx.core.net.toUri
 import org.json.JSONObject
 import java.util.Base64
 
-data class WebEidError(val code: String, val message: String)
+data class WebEidError(
+    val code: String,
+    val message: String,
+)
 
 object WebEidResponseUtil {
     fun createErrorRedirect(
@@ -36,18 +39,19 @@ object WebEidResponseUtil {
         return appendFragment(loginUri, encoded)
     }
 
-    private fun base64UrlEncode(input: String): String {
-        return Base64.getUrlEncoder()
+    private fun base64UrlEncode(input: String): String =
+        Base64
+            .getUrlEncoder()
             .withoutPadding()
             .encodeToString(input.toByteArray(Charsets.UTF_8))
-    }
 
     private fun appendFragment(
         loginUri: String,
         fragment: String,
     ): String {
         val uri = loginUri.toUri()
-        return uri.buildUpon()
+        return uri
+            .buildUpon()
             .fragment(fragment)
             .build()
             .toString()

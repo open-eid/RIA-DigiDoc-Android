@@ -5,8 +5,6 @@ package ee.ria.DigiDoc.webEid
 import android.net.Uri
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthParser
-import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthParserImpl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -23,7 +21,6 @@ class WebEidAuthServiceTest {
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
 
-    private lateinit var parser: WebEidAuthParser
     private lateinit var service: WebEidAuthService
     private val authCertBase64 =
         "MIIDuzCCAqOgAwIBAgIUBkYXJdruP6EuH/+I4YoXxIQ3WcowDQYJKoZIhvcNAQELBQAw" +
@@ -70,8 +67,7 @@ class WebEidAuthServiceTest {
 
     @Before
     fun setup() {
-        parser = WebEidAuthParserImpl()
-        service = WebEidAuthServiceImpl(parser)
+        service = WebEidAuthServiceImpl()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
