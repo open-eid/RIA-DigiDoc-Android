@@ -133,7 +133,7 @@ workflows:
         script: |
           # Not running 'fetchAndPackageDefaultConfiguration' for repo.ria as necessary files are already setup
           if [[ ! "${{ inputs.defaultCentralConfigurationTslUrl_input }}" == *"10.1.24.31"* ]]; then
-            ./gradlew clean --no-daemon fetchAndPackageDefaultConfiguration --args="${{ inputs.defaultCentralConfigurationUrl_input }} ${{ inputs.defaultCentralConfigurationUpdateInterval_input }}"
+            ./gradlew clean --no-daemon fetchAndPackageDefaultConfiguration --args="${{ inputs.defaultCentralConfigurationUrl_input }} ${{ inputs.defaultCentralConfigurationUpdateInterval_input }}" -Dorg.gradle.jvmargs="-Xmx4g"
           else
             echo "Skipping default configuration fetching for repo.ria"
           fi
@@ -145,7 +145,7 @@ workflows:
       - name: Launch emulator for instrumented tests
         script: |
           cd $ANDROID_HOME/tools
-          emulator -avd emulator-35 &
+          emulator -avd emulator-35 -memory 4096 &
           adb wait-for-device
         when:
           condition: ${{ inputs.enableTests_input }}
@@ -153,7 +153,7 @@ workflows:
         script: |
           set -e
           cd $CM_BUILD_DIR
-          ./gradlew clean createDebugCoverageReport -Dorg.gradle.jvmargs="-Xmx4g"
+          ./gradlew connectedDebugAndroidTest -Dorg.gradle.jvmargs="-Xmx4g"
           adb logcat -d > emulator.log
         when:
           condition: ${{ inputs.enableTests_input }}
@@ -216,22 +216,42 @@ workflows:
           -dname "CN=Debug,O=Debug,C=EE"
 
           echo "Debug keystore created at $DEBUG_KEYSTORE_PATH"
-      - name: Fetch default configuration
+      - name: Fetch default configuration and setup TSLs
         script: |
-          ./gradlew clean --no-daemon fetchAndPackageDefaultConfiguration
+          ./gradlew clean --no-daemon fetchAndPackageDefaultConfiguration -Dorg.gradle.jvmargs="-Xmx4g"
+
+          TSL_FILES_DIR=config-lib/src/main/assets/tslFiles
+
+          # Create TSLs folder
+          mkdir -p $TSL_FILES_DIR
+
+          # Remove current eu-lotl.xml if it exists
+          rm -f $TSL_FILES_DIR/eu-lotl.xml
+
+          # Download latest 'eu-lotl' file
+          echo "Downloading latest 'eu-lotl.xml' file"
+          wget "https://ec.europa.eu/tools/lotl/eu-lotl.xml" -P $TSL_FILES_DIR
+          
+          echo "Getting TSL (remote LOTL)"
+          python3 scripts/TSLXMLDownloader.py --tslFile="$TSL_FILES_DIR/$(basename 'https://ec.europa.eu/tools/lotl/eu-lotl.xml')" --tslTestFile="$TSL_FILES_DIR/$(basename 'https://ec.europa.eu/tools/lotl/eu-lotl.xml')" --countries="EE" --isDevBuild="False"
+          echo "Finished downloading TSL"
+
+          echo "Moving TSLs to app's assets"
+          mv -v scripts/TSL/* $TSL_FILES_DIR/
+          echo "Done moving TSLs"
       - name: Run tests
         script: |
           ./gradlew test
       - name: Launch emulator for instrumented tests
         script: |
           cd $ANDROID_HOME/tools
-          emulator -avd emulator-35 &
+          emulator -avd emulator-35 -memory 4096 &
           adb wait-for-device
       - name: Run instrumented tests
         script: |
           set -e
           cd $CM_BUILD_DIR
-          ./gradlew clean createDebugCoverageReport -Dorg.gradle.jvmargs="-Xmx4g"
+          ./gradlew clean connectedDebugAndroidTest -Dorg.gradle.jvmargs="-Xmx4g"
           adb logcat -d > emulator.log
       - name: Build RIA DigiDoc
         script: |
