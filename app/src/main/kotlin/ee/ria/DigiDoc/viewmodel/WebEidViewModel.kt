@@ -12,6 +12,8 @@ import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthRequest
 import ee.ria.DigiDoc.webEid.domain.model.WebEidSignRequest
 import ee.ria.DigiDoc.webEid.utils.WebEidErrorCodes
 import ee.ria.DigiDoc.webEid.utils.WebEidResponseUtil
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.json.JSONObject
 import javax.inject.Inject
@@ -25,20 +27,19 @@ class WebEidViewModel
         val authPayload: StateFlow<WebEidAuthRequest?> = authService.authRequest
         val signPayload: StateFlow<WebEidSignRequest?> = authService.signRequest
         val errorState: StateFlow<String?> = authService.errorState
+        val errorEvents: SharedFlow<Triple<String, String, String>> get() = _errorEvents
 
-        fun handleAuth(
-            uri: Uri,
-            activity: Activity,
-        ) {
+        private val _errorEvents = MutableSharedFlow<Triple<String, String, String>>()
+
+        fun handleAuth(uri: Uri) {
             try {
                 authService.parseAuthUri(uri)
             } catch (e: IllegalArgumentException) {
                 errorLog("WebEidViewModel", "Invalid Web eID auth URI", e)
 
-                WebEidResponseUtil.launchRedirect(
-                    activity,
-                    uri.toString(),
-                    WebEidResponseUtil.createErrorPayload(
+                _errorEvents.tryEmit(
+                    Triple(
+                        uri.toString(),
                         WebEidErrorCodes.ERR_WEBEID_MOBILE_INVALID_REQUEST,
                         WebEidErrorCodes.ERR_WEBEID_MOBILE_INVALID_REQUEST,
                     ),
@@ -46,10 +47,9 @@ class WebEidViewModel
             } catch (e: Exception) {
                 errorLog("WebEidViewModel", "Unexpected error parsing Web eID auth URI", e)
 
-                WebEidResponseUtil.launchRedirect(
-                    activity,
-                    uri.toString(),
-                    WebEidResponseUtil.createErrorPayload(
+                _errorEvents.tryEmit(
+                    Triple(
+                        uri.toString(),
                         WebEidErrorCodes.ERR_WEBEID_MOBILE_UNKNOWN,
                         e.message ?: WebEidErrorCodes.ERR_WEBEID_MOBILE_UNKNOWN,
                     ),

@@ -23,7 +23,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.fragment.screen.WebEidScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.viewmodel.WebEidViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
@@ -47,11 +46,9 @@ fun WebEidFragment(
     LaunchedEffect(webEidUri) {
         webEidUri?.let {
             when (it.host) {
-                "auth" -> viewModel.handleAuth(it, context as Activity)
+                "auth" -> viewModel.handleAuth(it)
                 "sign" -> viewModel.handleSign(it)
                 else -> {
-                    debugLog("WebEidFragment", "Unknown Web eID URI host: ${it.host}")
-
                     WebEidResponseUtil.launchRedirect(
                         context as Activity,
                         it.toString(),
@@ -62,6 +59,16 @@ fun WebEidFragment(
                     )
                 }
             }
+        }
+    }
+
+    LaunchedEffect(viewModel) {
+        viewModel.errorEvents.collect { (uri, code, description) ->
+            WebEidResponseUtil.launchRedirect(
+                context as Activity,
+                uri,
+                WebEidResponseUtil.createErrorPayload(code, description),
+            )
         }
     }
 
