@@ -2,6 +2,8 @@
 
 package ee.ria.DigiDoc.webEid.utils
 
+import android.app.Activity
+import android.content.Intent
 import android.util.Base64
 import androidx.core.net.toUri
 import org.json.JSONObject
@@ -13,6 +15,29 @@ object WebEidResponseUtil {
     ): String {
         val encoded = base64UrlEncode(payload)
         return appendFragment(loginUri, encoded)
+    }
+
+    fun createErrorPayload(
+        code: String,
+        message: String,
+    ): JSONObject =
+        JSONObject()
+            .put("error", true)
+            .put("code", code)
+            .put("message", message)
+
+    fun launchRedirect(
+        activity: Activity,
+        loginUri: String,
+        payload: JSONObject,
+    ) {
+        val browserUri = createRedirect(loginUri, payload)
+        val intent =
+            Intent(Intent.ACTION_VIEW, browserUri.toUri()).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            }
+        activity.startActivity(intent)
+        activity.finish()
     }
 
     fun base64UrlEncode(input: JSONObject): String =

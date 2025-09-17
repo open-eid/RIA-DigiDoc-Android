@@ -48,7 +48,8 @@ object WebEidAuthParser {
 
     private fun decodeUriFragment(uri: Uri): JSONObject {
         try {
-            val fragment = uri.fragment ?: throw IllegalArgumentException("No fragment in URI")
+            val fragment =
+                uri.fragment ?: throw IllegalArgumentException(WebEidErrorCodes.ERR_WEBEID_MOBILE_INVALID_REQUEST)
             val decoded = String(Base64.getDecoder().decode(fragment))
             return JSONObject(decoded)
         } catch (e: Exception) {
@@ -57,7 +58,7 @@ object WebEidAuthParser {
                 "Failed to decode or parse URI fragment: ${uri.fragment}",
                 e,
             )
-            throw IllegalArgumentException("Invalid URI fragment format", e)
+            throw IllegalArgumentException(WebEidErrorCodes.ERR_WEBEID_MOBILE_INVALID_REQUEST, e)
         }
     }
 

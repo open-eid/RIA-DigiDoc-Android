@@ -2,6 +2,7 @@
 
 package ee.ria.DigiDoc.fragment
 
+import android.app.Activity
 import android.content.res.Configuration
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -12,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
@@ -26,6 +28,8 @@ import ee.ria.DigiDoc.viewmodel.WebEidViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
+import ee.ria.DigiDoc.webEid.utils.WebEidErrorCodes
+import ee.ria.DigiDoc.webEid.utils.WebEidResponseUtil
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -38,12 +42,25 @@ fun WebEidFragment(
     sharedContainerViewModel: SharedContainerViewModel = hiltViewModel(),
     sharedMenuViewModel: SharedMenuViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
+
     LaunchedEffect(webEidUri) {
         webEidUri?.let {
             when (it.host) {
-                "auth" -> viewModel.handleAuth(it)
+                "auth" -> viewModel.handleAuth(it, context as Activity)
                 "sign" -> viewModel.handleSign(it)
-                else -> debugLog("WebEidFragment", "Unknown Web eID URI host: ${it.host}")
+                else -> {
+                    debugLog("WebEidFragment", "Unknown Web eID URI host: ${it.host}")
+
+                    WebEidResponseUtil.launchRedirect(
+                        context as Activity,
+                        it.toString(),
+                        WebEidResponseUtil.createErrorPayload(
+                            WebEidErrorCodes.ERR_WEBEID_MOBILE_INVALID_REQUEST,
+                            WebEidErrorCodes.ERR_WEBEID_MOBILE_INVALID_REQUEST,
+                        ),
+                    )
+                }
             }
         }
     }

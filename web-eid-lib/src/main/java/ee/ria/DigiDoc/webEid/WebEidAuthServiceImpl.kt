@@ -7,6 +7,7 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthRequest
 import ee.ria.DigiDoc.webEid.domain.model.WebEidSignRequest
 import ee.ria.DigiDoc.webEid.utils.WebEidAuthParser
+import ee.ria.DigiDoc.webEid.utils.WebEidErrorCodes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -41,10 +42,10 @@ class WebEidAuthServiceImpl
                 _authRequest.value = WebEidAuthParser.parseAuthUri(uri)
             } catch (e: IllegalArgumentException) {
                 errorLog(logTag, "Validation failed in parseAuthUri", e)
-                _errorState.value = e.message
+                _errorState.value = WebEidErrorCodes.ERR_WEBEID_MOBILE_INVALID_REQUEST
             } catch (e: Exception) {
                 errorLog(logTag, "Failed to parse Web eID auth URI", e)
-                _errorState.value = e.message
+                _errorState.value = WebEidErrorCodes.ERR_WEBEID_MOBILE_UNKNOWN
             }
         }
 
@@ -53,10 +54,10 @@ class WebEidAuthServiceImpl
                 _signRequest.value = WebEidAuthParser.parseSignUri(uri)
             } catch (e: IllegalArgumentException) {
                 errorLog(logTag, "Validation failed in parseSignUri", e)
-                _errorState.value = e.message
+                _errorState.value = WebEidErrorCodes.ERR_WEBEID_MOBILE_INVALID_REQUEST
             } catch (e: Exception) {
                 errorLog(logTag, "Failed to parse Web eID sign URI", e)
-                _errorState.value = e.message
+                _errorState.value = WebEidErrorCodes.ERR_WEBEID_MOBILE_UNKNOWN
             }
         }
 

@@ -3,15 +3,14 @@
 package ee.ria.DigiDoc.viewmodel
 
 import android.app.Activity
-import android.content.Intent
 import android.net.Uri
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.webEid.WebEidAuthService
 import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthRequest
 import ee.ria.DigiDoc.webEid.domain.model.WebEidSignRequest
+import ee.ria.DigiDoc.webEid.utils.WebEidErrorCodes
 import ee.ria.DigiDoc.webEid.utils.WebEidResponseUtil
 import kotlinx.coroutines.flow.StateFlow
 import org.json.JSONObject
@@ -27,8 +26,35 @@ class WebEidViewModel
         val signPayload: StateFlow<WebEidSignRequest?> = authService.signRequest
         val errorState: StateFlow<String?> = authService.errorState
 
-        fun handleAuth(uri: Uri) {
-            authService.parseAuthUri(uri)
+        fun handleAuth(
+            uri: Uri,
+            activity: Activity,
+        ) {
+            try {
+                authService.parseAuthUri(uri)
+            } catch (e: IllegalArgumentException) {
+                errorLog("WebEidViewModel", "Invalid Web eID auth URI", e)
+
+                WebEidResponseUtil.launchRedirect(
+                    activity,
+                    uri.toString(),
+                    WebEidResponseUtil.createErrorPayload(
+                        WebEidErrorCodes.ERR_WEBEID_MOBILE_INVALID_REQUEST,
+                        WebEidErrorCodes.ERR_WEBEID_MOBILE_INVALID_REQUEST,
+                    ),
+                )
+            } catch (e: Exception) {
+                errorLog("WebEidViewModel", "Unexpected error parsing Web eID auth URI", e)
+
+                WebEidResponseUtil.launchRedirect(
+                    activity,
+                    uri.toString(),
+                    WebEidResponseUtil.createErrorPayload(
+                        WebEidErrorCodes.ERR_WEBEID_MOBILE_UNKNOWN,
+                        e.message ?: WebEidErrorCodes.ERR_WEBEID_MOBILE_UNKNOWN,
+                    ),
+                )
+            }
         }
 
         fun handleSign(uri: Uri) {
@@ -52,28 +78,16 @@ class WebEidViewModel
             try {
                 val token = authService.buildAuthToken(authCert, signingCert, signature, challenge)
                 val payload = JSONObject().put("auth-token", token)
-                launchBrowserRedirect(loginUri, payload, activity)
+
+                WebEidResponseUtil.launchRedirect(activity, loginUri, payload)
             } catch (e: Exception) {
                 val payload =
-                    JSONObject()
-                        .put("error", true)
-                        .put("code", "TOKEN_BUILD_FAILED")
-                        .put("message", e.message ?: "Failed to return token to browser")
-                launchBrowserRedirect(loginUri, payload, activity)
-            }
-        }
+                    WebEidResponseUtil.createErrorPayload(
+                        WebEidErrorCodes.ERR_WEBEID_MOBILE_UNKNOWN,
+                        e.message ?: WebEidErrorCodes.ERR_WEBEID_MOBILE_UNKNOWN,
+                    )
 
-        private fun launchBrowserRedirect(
-            loginUri: String,
-            payload: JSONObject,
-            activity: Activity,
-        ) {
-            val browserUri = WebEidResponseUtil.createRedirect(loginUri, payload)
-            val intent =
-                Intent(Intent.ACTION_VIEW, browserUri.toUri()).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                }
-            activity.startActivity(intent)
-            activity.finish()
+                WebEidResponseUtil.launchRedirect(activity, loginUri, payload)
+            }
         }
     }
