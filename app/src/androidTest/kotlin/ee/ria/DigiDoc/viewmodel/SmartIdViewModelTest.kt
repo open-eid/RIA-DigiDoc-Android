@@ -30,6 +30,7 @@ import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
 import ee.ria.DigiDoc.network.sid.dto.response.SmartIDServiceResponse
 import ee.ria.DigiDoc.smartId.SmartSignService
+import ee.ria.DigiDoc.utils.notification.NotificationUtil
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
@@ -67,6 +68,9 @@ class SmartIdViewModelTest {
 
     @Mock
     lateinit var configurationRepository: ConfigurationRepository
+
+    @Mock
+    lateinit var notificationUtil: NotificationUtil
 
     @Mock
     lateinit var errorStateObserver: Observer<String?>
@@ -172,6 +176,7 @@ class SmartIdViewModelTest {
                 dataStore,
                 smartSignService,
                 configurationRepository,
+                notificationUtil
             )
         viewModel.errorState.observeForever(errorStateObserver)
         viewModel.dialogError.observeForever(dialogErrorObserver)

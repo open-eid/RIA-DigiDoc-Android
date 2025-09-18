@@ -2,13 +2,9 @@
 
 package ee.ria.DigiDoc.smartId
 
-import android.app.Notification
-import android.app.NotificationManager
 import android.content.Context
-import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import ee.ria.DigiDoc.common.Constant
 import ee.ria.DigiDoc.common.Constant.PEM_BEGIN_CERT
 import ee.ria.DigiDoc.common.Constant.PEM_END_CERT
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.SIGNATURE_PROFILE_TS
@@ -39,8 +35,6 @@ import ee.ria.DigiDoc.utilsLib.extensions.removeWhitespaces
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.signing.CertificateUtil
-import ee.ria.DigiDoc.utilsLib.signing.NotificationUtil
-import ee.ria.DigiDoc.utilsLib.signing.PowerUtil
 import ee.ria.DigiDoc.utilsLib.signing.UUIDUtil
 import ee.ria.DigiDoc.utilsLib.text.MessageUtil
 import ee.ria.libdigidocpp.ExternalSigner
@@ -162,10 +156,6 @@ class SmartSignServiceImpl
             accessTokenPath: String?,
             accessTokenPass: String?,
         ) {
-            if (PowerUtil.isPowerSavingMode(context)) {
-                showEmptyNotification(context)
-            }
-
             debugLog(logTag, "Handling smart sign service")
             if (request != null) {
                 try {
@@ -463,31 +453,6 @@ class SmartSignServiceImpl
                 setErrorState(errorString)
                 return
             }
-        }
-
-        private fun createNotificationChannel(context: Context) {
-            debugLog(logTag, "Creating notification channel")
-            NotificationUtil.createNotificationChannel(
-                context,
-                Constant.SmartIdConstants.NOTIFICATION_CHANNEL,
-                Constant.SmartIdConstants.NOTIFICATION_NAME,
-            )
-        }
-
-        private fun showEmptyNotification(context: Context) {
-            createNotificationChannel(context)
-            val notification: Notification? =
-                NotificationUtil.createNotification(
-                    context,
-                    Constant.SmartIdConstants.NOTIFICATION_CHANNEL,
-                    R.mipmap.ic_launcher,
-                    null,
-                    null,
-                    NotificationCompat.PRIORITY_MIN,
-                    true,
-                )
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.notify(Constant.SmartIdConstants.NOTIFICATION_PERMISSION_CODE, notification)
         }
 
         private fun getCertificate(cert: String?): ByteArray {

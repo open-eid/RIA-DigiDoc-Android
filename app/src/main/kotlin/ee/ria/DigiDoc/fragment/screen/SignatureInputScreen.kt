@@ -64,6 +64,7 @@ import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.TopBar
+import ee.ria.DigiDoc.ui.component.shared.notificationPermissionRequester
 import ee.ria.DigiDoc.ui.component.signing.IdCardView
 import ee.ria.DigiDoc.ui.component.signing.MobileIdView
 import ee.ria.DigiDoc.ui.component.signing.NFCView
@@ -76,9 +77,12 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -90,7 +94,11 @@ fun SignatureInputScreen(
     sharedSettingsViewModel: SharedSettingsViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
 ) {
+    val logTag = "SignatureInputScreen"
+
     val context = LocalActivity.current as Activity
+    val scope = rememberCoroutineScope()
+    val requestNotificationPermission = notificationPermissionRequester()
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
     val getIsAskRoleAndAddressRequested = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
     var rememberMe by rememberSaveable { mutableStateOf(true) }
@@ -419,13 +427,27 @@ fun SignatureInputScreen(
 
                 Button(
                     onClick = {
-                        if (getIsAskRoleAndAddressRequested() && !isAddingRoleAndAddress) {
-                            isSigning = false
-                            isAddingRoleAndAddress = true
-                        } else {
-                            isSigning = true
-                            isAddingRoleAndAddress = false
-                            signAction()
+                        scope.launch(Main) {
+                            if (chosenMethod == SigningMethod.SMART_ID) {
+                                try {
+                                    val isNotificationShowingGranted = requestNotificationPermission()
+                                    debugLog(
+                                        logTag,
+                                        "Notification permission granted: $isNotificationShowingGranted",
+                                    )
+                                } catch (e: Exception) {
+                                    errorLog(logTag, "Permission request failed: ${e.message}")
+                                }
+                            }
+
+                            if (getIsAskRoleAndAddressRequested() && !isAddingRoleAndAddress) {
+                                isSigning = false
+                                isAddingRoleAndAddress = true
+                            } else {
+                                isSigning = true
+                                isAddingRoleAndAddress = false
+                                signAction()
+                            }
                         }
                     },
                     enabled = isValidToSign,

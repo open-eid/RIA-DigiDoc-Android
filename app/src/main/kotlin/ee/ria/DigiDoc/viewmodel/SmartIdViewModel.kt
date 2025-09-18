@@ -4,14 +4,10 @@ package ee.ria.DigiDoc.viewmodel
 
 import android.Manifest
 import android.app.Activity
-import android.app.Notification
 import android.content.Context
 import android.content.pm.ActivityInfo
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
+import androidx.annotation.RequiresPermission
+import androidx.core.app.NotificationCompat.PRIORITY_MIN
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -19,6 +15,7 @@ import com.google.common.collect.ImmutableMap
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.SmartIdConstants.NOTIFICATION_CHANNEL
+import ee.ria.DigiDoc.common.Constant.SmartIdConstants.NOTIFICATION_NAME
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
@@ -30,14 +27,16 @@ import ee.ria.DigiDoc.network.sid.dto.request.SmartCreateSignatureRequest
 import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
 import ee.ria.DigiDoc.smartId.SmartSignService
 import ee.ria.DigiDoc.smartId.utils.SmartCreateSignatureRequestHelper
+import ee.ria.DigiDoc.utils.notification.NotificationUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
-import ee.ria.DigiDoc.utilsLib.signing.NotificationUtil
 import ee.ria.DigiDoc.utilsLib.signing.PowerUtil
 import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator
 import ee.ria.libdigidocpp.Conf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Objects
@@ -50,6 +49,7 @@ class SmartIdViewModel
         private val dataStore: DataStore,
         private val smartSignService: SmartSignService,
         private val configurationRepository: ConfigurationRepository,
+        private val notificationUtil: NotificationUtil,
     ) : ViewModel() {
         private val logTag = javaClass.simpleName
 
@@ -66,6 +66,9 @@ class SmartIdViewModel
 
         private val _dialogError = MutableLiveData(0)
         val dialogError: LiveData<Int> = _dialogError
+
+        private val _requestNotificationPermission = MutableSharedFlow<Pair<String, String>>()
+        val requestNotificationPermission: SharedFlow<Pair<String, String>> = _requestNotificationPermission
 
         private val countries: ImmutableMap<Int, String> =
             ImmutableMap
@@ -245,33 +248,12 @@ class SmartIdViewModel
                     if (challenge != null) {
                         _challenge.postValue(challenge)
 
-                        if (!PowerUtil.isPowerSavingMode(context)) {
-                            debugLog(logTag, "Creating notification channel")
-
-                            NotificationUtil.createNotificationChannel(
-                                context,
-                                NOTIFICATION_CHANNEL,
-                                context.getString(R.string.signature_update_signature_add_method_smart_id),
-                            )
-                        }
                         val challengeTitle: String = context.getString(R.string.smart_id_challenge)
-                        val notification: Notification? =
-                            NotificationUtil.createNotification(
-                                context,
-                                NOTIFICATION_CHANNEL,
-                                R.mipmap.ic_launcher,
-                                challengeTitle,
-                                challenge,
-                                NotificationCompat.PRIORITY_HIGH,
-                                false,
-                            )
-                        try {
-                            if (notification != null) {
-                                sendNotification(context, challenge, notification)
-                            }
-                        } catch (nfe: NumberFormatException) {
-                            errorLog(logTag, "Unable to send notification", nfe)
-                        }
+
+                        sendNotification(
+                            title = challengeTitle,
+                            message = challenge,
+                        )
                     }
                 }
                 smartSignService.selectDevice.observeForever {
@@ -336,6 +318,9 @@ class SmartIdViewModel
             }
             smartSignService.resetValues()
             if (container != null) {
+                if (PowerUtil.isPowerSavingMode(context)) {
+                    sendEmptyNotification()
+                }
                 smartSignService.processSmartIdRequest(
                     context = context,
                     signedContainer = container,
@@ -456,19 +441,36 @@ class SmartIdViewModel
             return Pair(formattedText, cursorPosition)
         }
 
-        @Throws(NumberFormatException::class)
-        private fun sendNotification(
-            context: Context,
-            challenge: String,
-            notification: Notification,
+        @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+        fun sendNotification(
+            title: String,
+            message: String,
         ) {
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2 ||
-                ActivityCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.POST_NOTIFICATIONS,
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                NotificationManagerCompat.from(context).notify(challenge.toInt(), notification)
+            if (notificationUtil.hasNotificationPermission()) {
+                notificationUtil.sendNotification(
+                    title = title,
+                    message = message,
+                    channelId = NOTIFICATION_CHANNEL,
+                    channelName = NOTIFICATION_NAME,
+                )
             }
+        }
+
+        @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+        fun sendEmptyNotification() {
+            if (notificationUtil.hasNotificationPermission()) {
+                notificationUtil.sendNotification(
+                    title = "",
+                    message = "",
+                    isSilent = true,
+                    channelId = NOTIFICATION_CHANNEL,
+                    channelName = NOTIFICATION_NAME,
+                    priority = PRIORITY_MIN,
+                )
+            }
+        }
+
+        fun cancelNotification(notificationId: Int) {
+            notificationUtil.cancelNotification(notificationId)
         }
     }
