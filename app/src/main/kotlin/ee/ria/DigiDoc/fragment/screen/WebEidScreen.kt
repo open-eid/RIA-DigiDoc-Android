@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -27,10 +29,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -94,20 +98,7 @@ fun WebEidScreen(
                 modifier = modifier,
                 sharedMenuViewModel = sharedMenuViewModel,
                 title = null,
-                leftIconContentDescription =
-                    if (isWebEidAuthenticating) {
-                        R.string.signing_cancel
-                    } else {
-                        R.string.back
-                    },
-                onLeftButtonClick = {
-                    if (isWebEidAuthenticating) {
-                        cancelWebEidAuthenticateAction()
-                        isWebEidAuthenticating = false
-                    } else {
-                        navController.navigateUp()
-                    }
-                },
+                onLeftButtonClick = {},
                 onRightSecondaryButtonClick = {
                     isSettingsMenuBottomSheetVisible.value = true
                 },
@@ -135,6 +126,24 @@ fun WebEidScreen(
                 modifier = Modifier.semantics { heading() },
             )
             if (authPayload != null) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(
+                        text = authPayload.origin,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        textAlign = TextAlign.Center,
+                    )
+                    Text(
+                        text = stringResource(R.string.web_eid_requests_authentication),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+
                 NFCView(
                     activity = activity,
                     identityAction = IdentityAction.AUTH,
@@ -180,12 +189,31 @@ fun WebEidScreen(
                     },
                     enabled = isValidToWebEidAuthenticate,
                     modifier = Modifier.fillMaxWidth(),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                        ),
                 ) {
                     Text(
                         text = stringResource(R.string.web_eid_authenticate),
-                        color = MaterialTheme.colorScheme.surface,
                     )
                 }
+            }
+
+            OutlinedButton(
+                onClick = {
+                    isWebEidAuthenticating = false
+                    activity.finish()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors =
+                    ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onBackground,
+                    ),
+            ) {
+                Text(
+                    text = stringResource(R.string.web_eid_ignore),
+                )
             }
         }
     }

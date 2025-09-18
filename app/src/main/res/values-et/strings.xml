@@ -650,4 +650,7 @@
     <!-- Voice Control -->
     <string name="signing_container_name_update_button_voice">Muuda</string>
 
+    <!-- Web eID for Mobile -->
+    <string name="web_eid_requests_authentication">soovib autentimist</string>
+    <string name="web_eid_ignore">Ignoreeri</string>
 </resources>
