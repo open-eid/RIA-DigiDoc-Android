@@ -74,6 +74,7 @@ import androidx.compose.ui.unit.toSize
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.Constant
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.HrefMessageDialog
@@ -178,12 +179,15 @@ fun SmartIdView(
 
     val personalCodeWithInvisibleSpaces = TextFieldValue(addInvisibleElement(personalCode.text))
 
+    val smartIdChallengeNotificationId = Constant.SmartIdConstants.NOTIFICATION_PERMISSION_CODE
+
     BackHandler {
         if (isSigning) {
             onError()
         } else {
             onSuccess()
         }
+        smartIdViewModel.cancelNotification(smartIdChallengeNotificationId)
     }
 
     LaunchedEffect(smartIdViewModel.status) {
@@ -214,6 +218,7 @@ fun SmartIdView(
             signedContainer?.let {
                 sharedContainerViewModel.setSignedContainer(it)
                 smartIdViewModel.resetSignedContainer()
+                smartIdViewModel.cancelNotification(smartIdChallengeNotificationId)
                 onSuccess()
             }
         }
@@ -387,6 +392,7 @@ fun SmartIdView(
                     }
                     cancelAction {
                         smartIdViewModel.cancelSmartIdWorkRequest(signedContainer)
+                        smartIdViewModel.cancelNotification(smartIdChallengeNotificationId)
                     }
                 }
             }

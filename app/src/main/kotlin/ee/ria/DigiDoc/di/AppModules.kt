@@ -43,6 +43,8 @@ import ee.ria.DigiDoc.utils.locale.LocaleUtil
 import ee.ria.DigiDoc.utils.locale.LocaleUtilImpl
 import ee.ria.DigiDoc.utils.monitoring.CrashDetector
 import ee.ria.DigiDoc.utils.monitoring.CrashDetectorImpl
+import ee.ria.DigiDoc.utils.notification.NotificationUtil
+import ee.ria.DigiDoc.utils.notification.NotificationUtilImpl
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
 import javax.inject.Singleton
 
@@ -144,4 +146,9 @@ class AppModules {
     @Provides
     @Singleton
     fun provideLocaleUtil(): LocaleUtil = LocaleUtilImpl()
+
+    @Provides
+    fun provideNotificationPermissionUtil(
+        @ApplicationContext context: Context,
+    ): NotificationUtil = NotificationUtilImpl(context)
 }
