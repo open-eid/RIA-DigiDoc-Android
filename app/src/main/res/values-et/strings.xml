@@ -653,4 +653,8 @@
     <!-- Web eID for Mobile -->
     <string name="web_eid_requests_authentication">soovib autentimist</string>
     <string name="web_eid_ignore">Ignoreeri</string>
+    <string name="web_eid_invalid_request_error">Vigane Web eID päring</string>
+    <string name="web_eid_request_error">Päringu viga</string>
+    <string name="web_eid_invalid_auth_request_error">Vigane autentimispäring</string>
+    <string name="web_eid_invalid_sign_request_error">Vigane allkirjastamisspäring</string>
 </resources>

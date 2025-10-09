@@ -27,7 +27,6 @@ import ee.ria.DigiDoc.viewmodel.WebEidViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
-import ee.ria.DigiDoc.webEid.utils.WebEidErrorCodes
 import ee.ria.DigiDoc.webEid.utils.WebEidResponseUtil
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -43,32 +42,25 @@ fun WebEidFragment(
 ) {
     val context = LocalContext.current
 
+    LaunchedEffect(viewModel) {
+        viewModel.rpErrorResponseEvents.collect { (responseUri, errorCode, message) ->
+            WebEidResponseUtil.launchRedirect(
+                context as Activity,
+                responseUri,
+                WebEidResponseUtil.createErrorPayload(errorCode, message),
+            )
+        }
+    }
+
     LaunchedEffect(webEidUri) {
         webEidUri?.let {
             when (it.host) {
                 "auth" -> viewModel.handleAuth(it)
                 "sign" -> viewModel.handleSign(it)
                 else -> {
-                    WebEidResponseUtil.launchRedirect(
-                        context as Activity,
-                        it.toString(),
-                        WebEidResponseUtil.createErrorPayload(
-                            WebEidErrorCodes.ERR_WEBEID_MOBILE_INVALID_REQUEST,
-                            WebEidErrorCodes.ERR_WEBEID_MOBILE_INVALID_REQUEST,
-                        ),
-                    )
+                    viewModel.handleUnknown(it)
                 }
             }
-        }
-    }
-
-    LaunchedEffect(viewModel) {
-        viewModel.errorEvents.collect { (uri, code, description) ->
-            WebEidResponseUtil.launchRedirect(
-                context as Activity,
-                uri,
-                WebEidResponseUtil.createErrorPayload(code, description),
-            )
         }
     }
 

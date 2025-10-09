@@ -2,15 +2,6 @@
 
 package ee.ria.DigiDoc.webEid
 
-import android.net.Uri
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
-import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthRequest
-import ee.ria.DigiDoc.webEid.domain.model.WebEidSignRequest
-import ee.ria.DigiDoc.webEid.utils.WebEidAuthParser
-import ee.ria.DigiDoc.webEid.utils.WebEidErrorCodes
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONArray
 import org.json.JSONObject
 import java.security.PublicKey
@@ -26,44 +17,10 @@ import javax.inject.Singleton
 class WebEidAuthServiceImpl
     @Inject
     constructor() : WebEidAuthService {
-        private val logTag = javaClass.simpleName
-
-        private val _authRequest = MutableStateFlow<WebEidAuthRequest?>(null)
-        override val authRequest: StateFlow<WebEidAuthRequest?> = _authRequest.asStateFlow()
-
-        private val _signRequest = MutableStateFlow<WebEidSignRequest?>(null)
-        override val signRequest: StateFlow<WebEidSignRequest?> = _signRequest.asStateFlow()
-
-        private val _errorState = MutableStateFlow<String?>(null)
-        override val errorState: StateFlow<String?> = _errorState.asStateFlow()
-
-        override fun parseAuthUri(uri: Uri) {
-            try {
-                _authRequest.value = WebEidAuthParser.parseAuthUri(uri)
-            } catch (e: IllegalArgumentException) {
-                errorLog(logTag, "Validation failed in parseAuthUri", e)
-                _errorState.value = WebEidErrorCodes.ERR_WEBEID_MOBILE_INVALID_REQUEST
-            } catch (e: Exception) {
-                errorLog(logTag, "Failed to parse Web eID auth URI", e)
-                _errorState.value = WebEidErrorCodes.ERR_WEBEID_MOBILE_UNKNOWN
-            }
-        }
-
-        override fun parseSignUri(uri: Uri) {
-            try {
-                _signRequest.value = WebEidAuthParser.parseSignUri(uri)
-            } catch (e: IllegalArgumentException) {
-                errorLog(logTag, "Validation failed in parseSignUri", e)
-                _errorState.value = WebEidErrorCodes.ERR_WEBEID_MOBILE_INVALID_REQUEST
-            } catch (e: Exception) {
-                errorLog(logTag, "Failed to parse Web eID sign URI", e)
-                _errorState.value = WebEidErrorCodes.ERR_WEBEID_MOBILE_UNKNOWN
-            }
-        }
 
         override fun buildAuthToken(
             authCert: ByteArray,
-            signingCert: ByteArray,
+            signingCert: ByteArray?,
             signature: ByteArray,
             challenge: String,
         ): JSONObject {
@@ -80,6 +37,7 @@ class WebEidAuthServiceImpl
                     else -> "RS256"
                 }
 
+
             return JSONObject().apply {
                 put("algorithm", algorithm)
                 put("unverifiedCertificate", Base64.getEncoder().encodeToString(authCert))
@@ -87,9 +45,10 @@ class WebEidAuthServiceImpl
                 put("signature", Base64.getEncoder().encodeToString(signature))
                 put("challenge", challenge)
 
-                if (authRequest.value?.getSigningCertificate == true) {
+                if (signingCert != null) {
+                    val supportedSignatureAlgorithms = buildSupportedSignatureAlgorithms(publicKey)
                     put("unverifiedSigningCertificate", Base64.getEncoder().encodeToString(signingCert))
-                    put("supportedSignatureAlgorithms", buildSupportedSignatureAlgorithms(publicKey))
+                    put("supportedSignatureAlgorithms", supportedSignatureAlgorithms)
                     put("format", "web-eid:1.1")
                 } else {
                     put("format", "web-eid:1.0")
@@ -101,32 +60,38 @@ class WebEidAuthServiceImpl
             JSONArray().apply {
                 when (publicKey) {
                     is RSAPublicKey -> {
+                        val hashFunction =
+                            when (publicKey.modulus.bitLength()) {
+                                2048 -> "SHA-256"
+                                3072 -> "SHA-384"
+                                4096 -> "SHA-512"
+                                else -> throw IllegalArgumentException("Unsupported RSA key length")
+                            }
                         put(
                             JSONObject().apply {
                                 put("cryptoAlgorithm", "RSA")
-                                put("hashFunction", "SHA-256")
+                                put("hashFunction", hashFunction)
                                 put("paddingScheme", "PKCS1.5")
                             },
                         )
                     }
                     is ECPublicKey -> {
+                        val hashFunction =
+                            when (publicKey.params.curve.field.fieldSize) {
+                                256 -> "SHA-256"
+                                384 -> "SHA-384"
+                                512 -> "SHA-512"
+                                else -> throw IllegalArgumentException("Unsupported EC key length")
+                            }
                         put(
                             JSONObject().apply {
-                                put("cryptoAlgorithm", "ECDSA")
-                                put("hashFunction", "SHA-384")
-                                put("paddingScheme", JSONObject.NULL)
+                                put("cryptoAlgorithm", "EC")
+                                put("hashFunction", hashFunction)
+                                put("paddingScheme", "NONE")
                             },
                         )
                     }
-                    else -> {
-                        put(
-                            JSONObject().apply {
-                                put("cryptoAlgorithm", "RSA")
-                                put("hashFunction", "SHA-256")
-                                put("paddingScheme", "PKCS1.5")
-                            },
-                        )
-                    }
+                    else -> throw IllegalArgumentException("Unsupported key type")
                 }
             }
     }

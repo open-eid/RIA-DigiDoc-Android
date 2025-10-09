@@ -4,17 +4,24 @@ package ee.ria.DigiDoc.viewmodel
 
 import android.app.Activity
 import android.net.Uri
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.webEid.WebEidAuthService
 import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthRequest
 import ee.ria.DigiDoc.webEid.domain.model.WebEidSignRequest
+import ee.ria.DigiDoc.webEid.utils.WebEidAuthParser
 import ee.ria.DigiDoc.webEid.utils.WebEidErrorCodes
 import ee.ria.DigiDoc.webEid.utils.WebEidResponseUtil
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONObject
 import javax.inject.Inject
 
@@ -24,70 +31,76 @@ class WebEidViewModel
     constructor(
         private val authService: WebEidAuthService,
     ) : ViewModel() {
-        val authPayload: StateFlow<WebEidAuthRequest?> = authService.authRequest
-        val signPayload: StateFlow<WebEidSignRequest?> = authService.signRequest
-        val errorState: StateFlow<String?> = authService.errorState
-        val errorEvents: SharedFlow<Triple<String, String, String>> get() = _errorEvents
-
-        private val _errorEvents = MutableSharedFlow<Triple<String, String, String>>()
+        private val logTag = javaClass.simpleName
+        private val _authRequest = MutableStateFlow<WebEidAuthRequest?>(null)
+        val authRequest: StateFlow<WebEidAuthRequest?> = _authRequest.asStateFlow()
+        private val _signRequest = MutableStateFlow<WebEidSignRequest?>(null)
+        val signRequest: StateFlow<WebEidSignRequest?> = _signRequest.asStateFlow()
+        private val _rpResponseEvents = MutableSharedFlow<Uri>()
+        val rpResponseEvents: SharedFlow<Uri> = _rpResponseEvents.asSharedFlow()
+        private val _rpErrorResponseEvents = MutableSharedFlow<Triple<String, String, String>>()
+        val rpErrorResponseEvents: SharedFlow<Triple<String, String, String>> = _rpErrorResponseEvents.asSharedFlow()
+        private val _dialogError = MutableLiveData<Int>(null)
+        val dialogError: LiveData<Int> = _dialogError
 
         fun handleAuth(uri: Uri) {
             try {
-                authService.parseAuthUri(uri)
-            } catch (e: IllegalArgumentException) {
-                errorLog("WebEidViewModel", "Invalid Web eID auth URI", e)
-
-                _errorEvents.tryEmit(
-                    Triple(
-                        uri.toString(),
-                        WebEidErrorCodes.ERR_WEBEID_MOBILE_INVALID_REQUEST,
-                        WebEidErrorCodes.ERR_WEBEID_MOBILE_INVALID_REQUEST,
-                    ),
-                )
+                _authRequest.value = WebEidAuthParser.parseAuthUri(uri)
             } catch (e: Exception) {
-                errorLog("WebEidViewModel", "Unexpected error parsing Web eID auth URI", e)
-
-                _errorEvents.tryEmit(
-                    Triple(
-                        uri.toString(),
-                        WebEidErrorCodes.ERR_WEBEID_MOBILE_UNKNOWN,
-                        e.message ?: WebEidErrorCodes.ERR_WEBEID_MOBILE_UNKNOWN,
-                    ),
-                )
+                errorLog(logTag, "Unable parse Web eID authentication request: $uri", e)
+                _dialogError.postValue(R.string.web_eid_invalid_auth_request_error)
             }
         }
 
         fun handleSign(uri: Uri) {
-            authService.parseSignUri(uri)
+            try {
+                _signRequest.value = WebEidAuthParser.parseSignUri(uri)
+            } catch (e: Exception) {
+                errorLog(logTag, "Unable parse Web eID signing request: $uri", e)
+                _dialogError.postValue(R.string.web_eid_invalid_sign_request_error)
+            }
         }
 
-        fun handleWebEidAuthResult(
+        fun handleUnknown(uri: Uri) {
+            errorLog(logTag, "Unable parse Web eID request: $uri")
+            _dialogError.postValue(R.string.web_eid_invalid_sign_request_error)
+        }
+
+        suspend fun handleWebEidAuthResult(
             authCert: ByteArray,
             signingCert: ByteArray,
             signature: ByteArray,
             activity: Activity,
         ) {
-            val challenge = authPayload.value?.challenge
-            val loginUri = authPayload.value?.loginUri
+            val challenge = authRequest.value?.challenge
+            val loginUri = authRequest.value?.loginUri
+            val getSigningCertificate = authRequest.value?.getSigningCertificate
 
             if (challenge.isNullOrBlank() || loginUri.isNullOrBlank()) {
-                errorLog("WebEidViewModel", "Missing challenge or loginUri in auth payload")
+                errorLog(logTag, "Missing challenge or loginUri in auth payload")
                 return
             }
 
             try {
-                val token = authService.buildAuthToken(authCert, signingCert, signature, challenge)
+                val token =
+                    authService.buildAuthToken(
+                        authCert,
+                        if (getSigningCertificate == true) signingCert else null,
+                        signature,
+                        challenge,
+                    )
                 val payload = JSONObject().put("auth-token", token)
 
                 WebEidResponseUtil.launchRedirect(activity, loginUri, payload)
             } catch (e: Exception) {
-                val payload =
-                    WebEidResponseUtil.createErrorPayload(
+                errorLog(logTag, "Unexpected error building auth token", e)
+                _rpErrorResponseEvents.emit(
+                    Triple(
+                        loginUri,
                         WebEidErrorCodes.ERR_WEBEID_MOBILE_UNKNOWN,
-                        e.message ?: WebEidErrorCodes.ERR_WEBEID_MOBILE_UNKNOWN,
-                    )
-
-                WebEidResponseUtil.launchRedirect(activity, loginUri, payload)
+                        "Unexpected error",
+                    ),
+                )
             }
         }
     }

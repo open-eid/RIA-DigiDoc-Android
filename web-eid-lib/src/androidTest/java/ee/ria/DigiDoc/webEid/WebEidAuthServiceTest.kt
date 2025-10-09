@@ -71,71 +71,12 @@ class WebEidAuthServiceTest {
         service = WebEidAuthServiceImpl()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    @Test
-    fun parseAuthUri_validUri_updatesAuthRequest() =
-        runTest {
-            val uri =
-                createAuthUri(
-                    challenge = "abc123",
-                    loginUri = "https://rp.example.com/auth/eid/login",
-                    getCert = true,
-                )
-
-            service.parseAuthUri(uri)
-
-            val auth = service.authRequest.value
-            assertEquals("abc123", auth?.challenge)
-            assertEquals("https://rp.example.com/auth/eid/login", auth?.loginUri)
-            assertEquals(true, auth?.getSigningCertificate)
-            assertEquals("https://rp.example.com", auth?.origin)
-            assertNull(service.errorState.value)
-        }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    @Test
-    fun parseSignUri_validUri_updatesSignRequest() =
-        runTest {
-            val uri =
-                createSignUri(
-                    responseUri = "https://rp.example.com/sign/ok",
-                    signCert = "CERTDATA",
-                    hash = "abcd1234",
-                    hashFunc = "SHA-256",
-                )
-
-            service.parseSignUri(uri)
-
-            val sign = service.signRequest.value
-            assertEquals("https://rp.example.com/sign/ok", sign?.responseUri)
-            assertEquals("CERTDATA", sign?.signCertificate)
-            assertEquals("abcd1234", sign?.hash)
-            assertEquals("SHA-256", sign?.hashFunction)
-            assertNull(service.errorState.value)
-        }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    @Test
-    fun parseAuthUri_invalidUri_setsErrorState() =
-        runTest {
-            val badUri = Uri.parse("web-eid://auth#not-base64!!!")
-
-            service.parseAuthUri(badUri)
-
-            assertNull(service.authRequest.value)
-            assertNull(service.signRequest.value)
-            assert(service.errorState.value != null)
-        }
-
     @Test
     fun buildAuthToken_withValidInputs_returnsValidJson() {
         val authCertBytes = Base64.getDecoder().decode(authCertBase64)
         val signingCertBytes = Base64.getDecoder().decode(signingCertBase64)
         val signature = byteArrayOf(1, 2, 3, 4, 5)
         val challenge = "abc123"
-
-        val uri = createAuthUri(challenge, "https://rp.example.com/auth/eid/login", true)
-        service.parseAuthUri(uri)
 
         val token = service.buildAuthToken(authCertBytes, signingCertBytes, signature, challenge)
 
@@ -164,55 +105,13 @@ class WebEidAuthServiceTest {
         val signature = byteArrayOf(1, 2, 3, 4, 5)
         val challenge = "abc123"
 
-        val uri = createAuthUri(challenge, "https://rp.example.com/auth/eid/login", false)
-        service.parseAuthUri(uri)
-
-        val token = service.buildAuthToken(authCertBytes, ByteArray(0), signature, challenge)
+        val token = service.buildAuthToken(authCertBytes, null, signature, challenge)
 
         assertEquals("web-eid:1.0", token.getString("format"))
         assertEquals(challenge, token.getString("challenge"))
         assert(token.getString("unverifiedCertificate").isNotBlank())
         assert(token.getString("signature").isNotBlank())
-
         assertFalse(token.has("unverifiedSigningCertificate"))
         assertFalse(token.has("supportedSignatureAlgorithms"))
-    }
-
-    @Suppress("SameParameterValue")
-    private fun createAuthUri(
-        challenge: String,
-        loginUri: String,
-        getCert: Boolean,
-    ): Uri {
-        val json =
-            """
-            {
-              "challenge": "$challenge",
-              "login_uri": "$loginUri",
-              "get_signing_certificate": $getCert
-            }
-            """.trimIndent()
-        val encoded = Base64.getEncoder().encodeToString(json.toByteArray())
-        return Uri.parse("web-eid://auth#$encoded")
-    }
-
-    @Suppress("SameParameterValue")
-    private fun createSignUri(
-        responseUri: String,
-        signCert: String,
-        hash: String,
-        hashFunc: String,
-    ): Uri {
-        val json =
-            """
-            {
-              "response_uri": "$responseUri",
-              "sign_certificate": "$signCert",
-              "hash": "$hash",
-              "hash_function": "$hashFunc"
-            }
-            """.trimIndent()
-        val encoded = Base64.getEncoder().encodeToString(json.toByteArray())
-        return Uri.parse("web-eid://sign#$encoded")
     }
 }

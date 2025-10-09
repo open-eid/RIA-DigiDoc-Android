@@ -213,7 +213,7 @@ fun NFCView(
             CodeType.PIN1
         }
 
-    val webEidAuth = webEidViewModel?.authPayload?.collectAsState()?.value
+    val webEidAuth = webEidViewModel?.authRequest?.collectAsState()?.value
     val originString = webEidAuth?.origin ?: ""
     val challengeString = webEidAuth?.challenge ?: ""
 
