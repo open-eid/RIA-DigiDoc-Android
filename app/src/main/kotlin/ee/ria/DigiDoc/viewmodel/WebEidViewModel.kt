@@ -13,8 +13,8 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.webEid.WebEidAuthService
 import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthRequest
 import ee.ria.DigiDoc.webEid.domain.model.WebEidSignRequest
-import ee.ria.DigiDoc.webEid.utils.WebEidAuthParser
 import ee.ria.DigiDoc.webEid.utils.WebEidErrorCodes
+import ee.ria.DigiDoc.webEid.utils.WebEidRequestParser
 import ee.ria.DigiDoc.webEid.utils.WebEidResponseUtil
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,7 +45,7 @@ class WebEidViewModel
 
         fun handleAuth(uri: Uri) {
             try {
-                _authRequest.value = WebEidAuthParser.parseAuthUri(uri)
+                _authRequest.value = WebEidRequestParser.parseAuthUri(uri)
             } catch (e: Exception) {
                 errorLog(logTag, "Unable parse Web eID authentication request: $uri", e)
                 _dialogError.postValue(R.string.web_eid_invalid_auth_request_error)
@@ -54,7 +54,7 @@ class WebEidViewModel
 
         fun handleSign(uri: Uri) {
             try {
-                _signRequest.value = WebEidAuthParser.parseSignUri(uri)
+                _signRequest.value = WebEidRequestParser.parseSignUri(uri)
             } catch (e: Exception) {
                 errorLog(logTag, "Unable parse Web eID signing request: $uri", e)
                 _dialogError.postValue(R.string.web_eid_invalid_sign_request_error)
