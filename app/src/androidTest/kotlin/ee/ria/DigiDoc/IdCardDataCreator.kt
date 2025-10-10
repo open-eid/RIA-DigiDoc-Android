@@ -20,6 +20,7 @@ class IdCardDataCreator {
             pin1RetryCount: Int = 3,
             pin2RetryCount: Int = 3,
             pukRetryCount: Int = 3,
+            pin2CodeChanged: Boolean = true,
         ): IdCardData =
             IdCardData(
                 type = type,
@@ -29,6 +30,7 @@ class IdCardDataCreator {
                 pin1RetryCount = pin1RetryCount,
                 pin2RetryCount = pin2RetryCount,
                 pukRetryCount = pukRetryCount,
+                pin2CodeChanged = pin2CodeChanged,
             )
 
         private fun createMockExtendedCertificate(): ExtendedCertificate =

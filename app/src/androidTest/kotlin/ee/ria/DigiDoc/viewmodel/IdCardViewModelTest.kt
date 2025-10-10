@@ -186,6 +186,7 @@ class IdCardViewModelTest {
                     3,
                     3,
                     3,
+                    true,
                 )
 
             `when`(idCardService.data(anyOrNull())).thenReturn(idCardData)
@@ -259,6 +260,7 @@ class IdCardViewModelTest {
                     3,
                     3,
                     3,
+                    true,
                 )
 
             `when`(idCardService.data(anyOrNull())).thenReturn(idCardData)
@@ -320,6 +322,7 @@ class IdCardViewModelTest {
                     3,
                     2,
                     3,
+                    true,
                 )
 
             `when`(idCardService.data(anyOrNull())).thenReturn(idCardData)
@@ -386,6 +389,7 @@ class IdCardViewModelTest {
                     3,
                     1,
                     3,
+                    true,
                 )
 
             `when`(idCardService.data(anyOrNull())).thenReturn(idCardData)
@@ -452,6 +456,7 @@ class IdCardViewModelTest {
                     3,
                     0,
                     3,
+                    true,
                 )
 
             `when`(idCardService.data(anyOrNull())).thenReturn(idCardData)
@@ -472,6 +477,63 @@ class IdCardViewModelTest {
                 Triple(R.string.id_card_sign_pin_locked, CodeType.PIN2.name, null),
                 viewModel.pinErrorState.value,
             )
+        }
+
+    @Test
+    fun idCardViewModel_sign_handlePin2NotChangedException() =
+        runTest {
+            `when`(smartCardReaderManager.status()).thenReturn(Observable.just(SmartCardReaderStatus.CARD_DETECTED))
+
+            val pin2 = byteArrayOf(1, 2, 3)
+            val signedContainer = SignedContainer.openOrCreate(context, container, listOf(container), true)
+
+            val exception = Exception("PIN2 has not been changed")
+
+            val mockPersonalData = mock(PersonalData::class.java)
+            val keyUsage = mock(KeyUsage::class.java)
+            val extendedKeyUsage = mock(ExtendedKeyUsage::class.java)
+            val mockSmartCardReader = mock(SmartCardReader::class.java)
+            `when`(mockSmartCardReader.atr()).thenReturn(Hex.decode("3bdb960080b1fe451f830012233f536549440f9000f1"))
+            `when`(smartCardReaderManager.connectedReader()).thenReturn(mockSmartCardReader)
+
+            `when`(token.personalData()).thenReturn(mockPersonalData)
+
+            `when`(mockComponentActivity.resources).thenReturn(resources)
+            `when`(resources.configuration).thenReturn(context.resources.configuration)
+
+            val testData = byteArrayOf(1, 2, 3)
+            val testName = "Test name"
+
+            `when`(certificateService.parseCertificate(anyOrNull()))
+                .thenReturn(x509CertificateHolder)
+            `when`(certificateService.extractEIDType(any()))
+                .thenReturn(EIDType.ID_CARD)
+            `when`(certificateService.extractFriendlyName(anyOrNull())).thenReturn(testName)
+            `when`(certificateService.isEllipticCurve(anyOrNull())).thenReturn(true)
+            `when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
+            `when`(certificateService.extractExtendedKeyUsage(any())).thenReturn(extendedKeyUsage)
+            val certificate = ExtendedCertificate.create(testData, certificateService)
+            val idCardData =
+                IdCardData(
+                    EIDType.ID_CARD,
+                    mockPersonalData,
+                    certificate,
+                    certificate,
+                    3,
+                    0,
+                    3,
+                    false,
+                )
+
+            `when`(idCardService.data(anyOrNull())).thenReturn(idCardData)
+            `when`(idCardService.signContainer(anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull())).thenThrow(
+                exception,
+            )
+
+            viewModel.sign(mockComponentActivity, signedContainer, pin2, null)
+
+            assertNotNull(viewModel.dialogError.value)
+            assertEquals(exception.message, viewModel.dialogError.value)
         }
 
     @Test

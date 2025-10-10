@@ -27,6 +27,7 @@ import ee.ria.DigiDoc.manager.ActivityManager
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.network.siva.SivaSetting
+import ee.ria.DigiDoc.utils.Constant
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.FileUtils
 import org.junit.Assert.assertEquals
@@ -138,7 +139,7 @@ class SharedSettingsViewModelTest {
         viewModel.resetToDefaultSettings()
 
         // resetSigningSettings
-        assertEquals("", dataStore.getSettingsUUID())
+        assertEquals(Constant.Defaults.DEFAULT_UUID_VALUE, dataStore.getSettingsUUID())
         assertEquals("", dataStore.getSettingsTSAUrl())
         assertFalse(dataStore.getSettingsAskRoleAndAddress())
         assertFalse(dataStore.getIsTsaCertificateViewVisible())
@@ -376,6 +377,7 @@ class SharedSettingsViewModelTest {
         verify(activityManager).setShouldRecreateActivity(true)
     }
 
+    @Suppress("SameParameterValue")
     private fun createTempFileWithStringContent(
         filename: String,
         content: String,
@@ -405,7 +407,7 @@ class SharedSettingsViewModelTest {
 
                 dataStore.setTSACertName(tsaFile.name)
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // Do nothing
         }
     }
