@@ -5,19 +5,27 @@ package ee.ria.DigiDoc.webEid.utils
 import android.net.Uri
 import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthRequest
 import ee.ria.DigiDoc.webEid.domain.model.WebEidSignRequest
+import ee.ria.DigiDoc.webEid.exception.WebEidErrorCode.ERR_WEBEID_MOBILE_INVALID_REQUEST
+import ee.ria.DigiDoc.webEid.exception.WebEidException
 import org.json.JSONObject
 import java.net.URI
 import java.net.URISyntaxException
 import java.util.Base64
 
 object WebEidRequestParser {
+    private const val MIN_CHALLENGE_LENGTH = 44
+
     fun parseAuthUri(authUri: Uri): WebEidAuthRequest {
         val request = decodeUriFragment(authUri)
         val challenge = request.getString("challenge")
         val responseUri = validateResponseUri(request.getString("login_uri"))
         val origin = parseOrigin(responseUri)
-        if (challenge.isNullOrBlank()) {
-            throw IllegalArgumentException("Invalid challenge")
+        if (challenge.isNullOrBlank() || challenge.length < MIN_CHALLENGE_LENGTH) {
+            throw WebEidException(
+                ERR_WEBEID_MOBILE_INVALID_REQUEST,
+                "Invalid challenge",
+                responseUri.toString(),
+            )
         }
 
         return WebEidAuthRequest(

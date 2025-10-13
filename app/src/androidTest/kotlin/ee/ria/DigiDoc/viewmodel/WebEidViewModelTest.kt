@@ -43,19 +43,43 @@ class WebEidViewModelTest {
 
     @Test
     fun webEidViewModel_handleAuth_parsesAuthUriAndSetsStateFlow() {
-        val uri =
-            Uri.parse(
-                "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZSIsImxvZ2luX3VyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UiLCJnZXRfc2lnbmluZ19jZXJ0aWZpY2F0ZSI6dHJ1ZX0",
-            )
-        viewModel.handleAuth(uri)
-        val authRequest = viewModel.authRequest.value
-        val signRequest = viewModel.signRequest.value
-        assert(authRequest != null)
-        assert(signRequest == null)
-        assertEquals("test-challenge", authRequest?.challenge)
-        assertEquals("https://example.com/response", authRequest?.loginUri)
-        assertEquals("https://example.com", authRequest?.origin)
-        assertEquals(true, authRequest?.getSigningCertificate)
+        runTest {
+            val uri =
+                Uri.parse(
+                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsImxvZ2luX3VyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UiLCJnZXRfc2lnbmluZ19jZXJ0aWZpY2F0ZSI6dHJ1ZX0",
+                )
+            viewModel.handleAuth(uri)
+            val authRequest = viewModel.authRequest.value
+            val signRequest = viewModel.signRequest.value
+            assert(authRequest != null)
+            assert(signRequest == null)
+            assertEquals("test-challenge-00000000000000000000000000000", authRequest?.challenge)
+            assertEquals("https://example.com/response", authRequest?.loginUri)
+            assertEquals("https://example.com", authRequest?.origin)
+            assertEquals(true, authRequest?.getSigningCertificate)
+        }
+    }
+
+    @Test
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun webEidViewModel_handleAuth_emitErrorResponseEventWhenInvalidChallenge() {
+        runTest(UnconfinedTestDispatcher()) {
+            val uri =
+                Uri.parse(
+                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZSIsImxvZ2luX3VyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UiLCJnZXRfc2lnbmluZ19jZXJ0aWZpY2F0ZSI6dHJ1ZX0",
+                )
+            val deferred =
+                async {
+                    viewModel.rpErrorResponseEvents.first()
+                }
+
+            viewModel.handleAuth(uri)
+
+            val emittedError = deferred.await()
+            assertEquals("https://example.com/response", emittedError.first)
+            assertEquals(WebEidErrorCode.ERR_WEBEID_MOBILE_INVALID_REQUEST, emittedError.second)
+            assertEquals("Invalid challenge", emittedError.third)
+        }
     }
 
     @Test
@@ -84,7 +108,7 @@ class WebEidViewModelTest {
             val signature = byteArrayOf(4, 5, 6)
             val uri =
                 Uri.parse(
-                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZSIsImxvZ2luX3VyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UiLCJnZXRfc2lnbmluZ19jZXJ0aWZpY2F0ZSI6dHJ1ZX0",
+                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsImxvZ2luX3VyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UiLCJnZXRfc2lnbmluZ19jZXJ0aWZpY2F0ZSI6dHJ1ZX0",
                 )
             whenever(authService.buildAuthToken(cert, signingCert, signature))
                 .thenReturn(JSONObject().put("format", "web-eid:1.0"))
@@ -115,7 +139,7 @@ class WebEidViewModelTest {
             val signature = byteArrayOf(4, 5, 6)
             val uri =
                 Uri.parse(
-                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZSIsImxvZ2luX3VyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UiLCJnZXRfc2lnbmluZ19jZXJ0aWZpY2F0ZSI6dHJ1ZX0",
+                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsImxvZ2luX3VyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UiLCJnZXRfc2lnbmluZ19jZXJ0aWZpY2F0ZSI6dHJ1ZX0",
                 )
             whenever(authService.buildAuthToken(cert, signingCert, signature))
                 .thenThrow(RuntimeException("Test exception"))

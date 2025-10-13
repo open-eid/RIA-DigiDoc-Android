@@ -32,10 +32,10 @@ class WebEidRequestParserTest {
     @Test
     fun parseAuthUri_validUri_success() {
         val loginUri = "https://rp.example.com/auth/eid/login"
-        val uri = android.net.Uri.parse(createAuthUri("abc123", loginUri, true))
+        val uri = android.net.Uri.parse(createAuthUri("test-challenge-00000000000000000000000000000", loginUri, true))
         val result: WebEidAuthRequest = WebEidRequestParser.parseAuthUri(uri)
 
-        assertEquals("abc123", result.challenge)
+        assertEquals("test-challenge-00000000000000000000000000000", result.challenge)
         assertEquals(loginUri, result.loginUri)
         assertEquals(true, result.getSigningCertificate)
         assertTrue(result.origin.startsWith("https://rp.example.com"))

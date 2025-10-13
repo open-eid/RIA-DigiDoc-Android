@@ -13,6 +13,7 @@ import ee.ria.DigiDoc.webEid.WebEidAuthService
 import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthRequest
 import ee.ria.DigiDoc.webEid.domain.model.WebEidSignRequest
 import ee.ria.DigiDoc.webEid.exception.WebEidErrorCode
+import ee.ria.DigiDoc.webEid.exception.WebEidException
 import ee.ria.DigiDoc.webEid.utils.WebEidRequestParser
 import ee.ria.DigiDoc.webEid.utils.WebEidResponseUtil
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -44,9 +45,18 @@ class WebEidViewModel
         private val _dialogError = MutableLiveData<Int>(null)
         val dialogError: LiveData<Int> = _dialogError
 
-        fun handleAuth(uri: Uri) {
+        suspend fun handleAuth(uri: Uri) {
             try {
                 _authRequest.value = WebEidRequestParser.parseAuthUri(uri)
+            } catch (e: WebEidException) {
+                errorLog(logTag, "Invalid Web eID authentication request: $uri", e)
+                _rpErrorResponseEvents.emit(
+                    Triple(
+                        e.responseUri,
+                        e.errorCode,
+                        e.message,
+                    ),
+                )
             } catch (e: Exception) {
                 errorLog(logTag, "Unable parse Web eID authentication request: $uri", e)
                 _dialogError.postValue(R.string.web_eid_invalid_auth_request_error)
