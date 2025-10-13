@@ -2,23 +2,25 @@
 
 package ee.ria.DigiDoc.viewmodel
 
-import android.app.Activity
 import android.net.Uri
+import android.util.Base64.URL_SAFE
+import android.util.Base64.decode
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import ee.ria.DigiDoc.webEid.WebEidAuthService
-import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthRequest
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.json.JSONObject
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.never
-import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
-import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
@@ -30,107 +32,105 @@ class WebEidViewModelTest {
     @Mock
     private lateinit var authService: WebEidAuthService
 
-    @Mock
-    private lateinit var activity: Activity
-
     private lateinit var viewModel: WebEidViewModel
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-
-        `when`(authService.authRequest).thenReturn(MutableStateFlow(null))
-        `when`(authService.signRequest).thenReturn(MutableStateFlow(null))
-        `when`(authService.errorState).thenReturn(MutableStateFlow(null))
-
         viewModel = WebEidViewModel(authService)
     }
 
     @Test
-    fun handleAuth_callsParseAuthUri() {
-        val uri = Uri.parse("web-eid-mobile://auth#dummyData")
+    fun webEidViewModel_handleAuth_parsesAuthUriAndSetsStateFlow() {
+        val uri =
+            Uri.parse(
+                "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZSIsImxvZ2luX3VyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UiLCJnZXRfc2lnbmluZ19jZXJ0aWZpY2F0ZSI6dHJ1ZX0",
+            )
         viewModel.handleAuth(uri)
-        verify(authService).parseAuthUri(uri)
+        val authRequest = viewModel.authRequest.value
+        val signRequest = viewModel.signRequest.value
+        assert(authRequest != null)
+        assert(signRequest == null)
+        assertEquals("test-challenge", authRequest?.challenge)
+        assertEquals("https://example.com/response", authRequest?.loginUri)
+        assertEquals("https://example.com", authRequest?.origin)
+        assertEquals(true, authRequest?.getSigningCertificate)
     }
 
     @Test
-    fun handleSign_callsParseSignUri() {
-        val uri = Uri.parse("web-eid-mobile://sign#dummyData")
+    fun webEidViewModel_handleSign_parsesSignUriAndSetsStateFlow() {
+        val uri =
+            Uri.parse(
+                "web-eid-mobile://sign#eyJyZXNwb25zZV91cmkiOiJodHRwczovL2V4YW1wbGUuY29tL3Jlc3BvbnNlIiwic2lnbl9jZXJ0aWZpY2F0ZSI6InNpZ25pbmdfY2VydGlmaWNhdGUiLCJoYXNoIjoiaGFzaCIsImhhc2hfZnVuY3Rpb24iOiJoYXNoX2Z1bmN0aW9uIn0",
+            )
         viewModel.handleSign(uri)
-        verify(authService).parseSignUri(uri)
+        val authRequest = viewModel.authRequest.value
+        val signRequest = viewModel.signRequest.value
+        assert(authRequest == null)
+        assert(signRequest != null)
+        assertEquals("https://example.com/response", signRequest?.responseUri)
+        assertEquals("signing_certificate", signRequest?.signCertificate)
+        assertEquals("hash", signRequest?.hash)
+        assertEquals("hash_function", signRequest?.hashFunction)
     }
 
     @Test
-    fun handleWebEidAuthResult_callsBuildAuthToken_whenPayloadValid() {
-        val cert = byteArrayOf(1, 2, 3)
-        val signingCert = byteArrayOf(9, 9, 9)
-        val signature = byteArrayOf(4, 5, 6)
-        val challenge = "test-challenge"
-        val loginUri = "https://example.com/login"
-        val origin = "https://example.com"
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun webEidViewModel_handleWebEidAuthResult_buildsAuthTokenAndEmitsResponseEvent() {
+        runTest(UnconfinedTestDispatcher()) {
+            val cert = byteArrayOf(1, 2, 3)
+            val signingCert = byteArrayOf(9, 9, 9)
+            val signature = byteArrayOf(4, 5, 6)
+            val uri =
+                Uri.parse(
+                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZSIsImxvZ2luX3VyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UiLCJnZXRfc2lnbmluZ19jZXJ0aWZpY2F0ZSI6dHJ1ZX0",
+                )
+            whenever(authService.buildAuthToken(cert, signingCert, signature))
+                .thenReturn(JSONObject().put("format", "web-eid:1.0"))
+            val deferred =
+                async {
+                    viewModel.rpResponseEvents.first()
+                }
+            viewModel.handleAuth(uri)
+            viewModel.handleWebEidAuthResult(cert, signingCert, signature)
 
-        val authRequest =
-            WebEidAuthRequest(
-                challenge = challenge,
-                loginUri = loginUri,
-                getSigningCertificate = true,
-                origin = origin,
-            )
-        whenever(authService.authRequest).thenReturn(MutableStateFlow(authRequest))
-
-        val token = JSONObject().put("mock", "token")
-        whenever(authService.buildAuthToken(cert, signingCert, signature, challenge)).thenReturn(token)
-
-        viewModel = WebEidViewModel(authService)
-
-        viewModel.handleWebEidAuthResult(cert, signingCert, signature, activity)
-
-        verify(authService).buildAuthToken(cert, signingCert, signature, challenge)
-        verify(activity).startActivity(any())
-        verify(activity).finish()
+            verify(authService).buildAuthToken(cert, signingCert, signature)
+            val emittedUri = deferred.await()
+            assert(emittedUri.toString().startsWith("https://example.com/response#"))
+            assert(emittedUri.fragment != null)
+            val decodedPayload = String(decode(emittedUri.fragment, URL_SAFE))
+            val jsonPayload = JSONObject(decodedPayload)
+            val authToken = jsonPayload.getJSONObject("auth-token")
+            assertEquals("web-eid:1.0", authToken.getString("format"))
+        }
     }
 
     @Test
-    fun handleWebEidAuthResult_doesNothing_whenChallengeMissing() {
-        val cert = byteArrayOf(1)
-        val signingCert = byteArrayOf(9)
-        val signature = byteArrayOf(2)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun webEidViewModel_handleWebEidAuthResult_emitErrorResponseEventWhenException() {
+        runTest(UnconfinedTestDispatcher()) {
+            val cert = byteArrayOf(1, 2, 3)
+            val signingCert = byteArrayOf(9, 9, 9)
+            val signature = byteArrayOf(4, 5, 6)
+            val uri =
+                Uri.parse(
+                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZSIsImxvZ2luX3VyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UiLCJnZXRfc2lnbmluZ19jZXJ0aWZpY2F0ZSI6dHJ1ZX0",
+                )
+            whenever(authService.buildAuthToken(cert, signingCert, signature))
+                .thenThrow(RuntimeException("Test exception"))
+            val deferred =
+                async {
+                    viewModel.rpErrorResponseEvents.first()
+                }
+            viewModel.handleAuth(uri)
 
-        val authRequest =
-            WebEidAuthRequest(
-                challenge = "",
-                loginUri = "https://example.com",
-                getSigningCertificate = true,
-                origin = "https://example.com",
-            )
-        whenever(authService.authRequest).thenReturn(MutableStateFlow(authRequest))
+            viewModel.handleWebEidAuthResult(cert, signingCert, signature)
 
-        viewModel = WebEidViewModel(authService)
-        viewModel.handleWebEidAuthResult(cert, signingCert, signature, activity)
-
-        verify(authService, never()).buildAuthToken(any(), any(), any(), any())
-        verify(activity, never()).startActivity(any())
-    }
-
-    @Test
-    fun handleWebEidAuthResult_doesNothing_whenLoginUriMissing() {
-        val cert = byteArrayOf(1)
-        val signingCert = byteArrayOf(9)
-        val signature = byteArrayOf(2)
-
-        val authRequest =
-            WebEidAuthRequest(
-                challenge = "abc",
-                loginUri = "",
-                getSigningCertificate = true,
-                origin = "https://example.com",
-            )
-        whenever(authService.authRequest).thenReturn(MutableStateFlow(authRequest))
-
-        viewModel = WebEidViewModel(authService)
-        viewModel.handleWebEidAuthResult(cert, signingCert, signature, activity)
-
-        verify(authService, never()).buildAuthToken(any(), any(), any(), any())
-        verify(activity, never()).startActivity(any())
+            verify(authService).buildAuthToken(cert, signingCert, signature)
+            val emittedError = deferred.await()
+            assertEquals("https://example.com/response", emittedError.first)
+            assertEquals("ERR_WEBEID_MOBILE_UNKNOWN", emittedError.second)
+            assertEquals("Unexpected error", emittedError.third)
+        }
     }
 }
