@@ -134,6 +134,7 @@ fun WebEidScreen(
                 modifier = modifier,
                 sharedMenuViewModel = sharedMenuViewModel,
                 title = null,
+                showNavigationIcon = false,
                 onLeftButtonClick = {},
                 onRightSecondaryButtonClick = {
                     isSettingsMenuBottomSheetVisible.value = true
