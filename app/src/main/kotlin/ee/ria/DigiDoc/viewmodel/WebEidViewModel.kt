@@ -2,7 +2,6 @@
 
 package ee.ria.DigiDoc.viewmodel
 
-import android.app.Activity
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -70,7 +69,6 @@ class WebEidViewModel
             authCert: ByteArray,
             signingCert: ByteArray,
             signature: ByteArray,
-            activity: Activity,
         ) {
             val loginUri = authRequest.value?.loginUri!!
             val getSigningCertificate = authRequest.value?.getSigningCertificate
@@ -84,7 +82,8 @@ class WebEidViewModel
                     )
                 val payload = JSONObject().put("auth-token", token)
 
-                WebEidResponseUtil.openResponseUriAndFinish(activity, loginUri, payload)
+                val responseUri = WebEidResponseUtil.createResponseUri(loginUri, payload)
+                _rpResponseEvents.emit(responseUri)
             } catch (e: Exception) {
                 errorLog(logTag, "Unexpected error building auth token", e)
                 _rpErrorResponseEvents.emit(
