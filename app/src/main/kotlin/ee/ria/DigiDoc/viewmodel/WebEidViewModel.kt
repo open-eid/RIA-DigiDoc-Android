@@ -72,14 +72,9 @@ class WebEidViewModel
             signature: ByteArray,
             activity: Activity,
         ) {
-            val challenge = authRequest.value?.challenge
-            val loginUri = authRequest.value?.loginUri
+            val challenge = authRequest.value?.challenge!!
+            val loginUri = authRequest.value?.loginUri!!
             val getSigningCertificate = authRequest.value?.getSigningCertificate
-
-            if (challenge.isNullOrBlank() || loginUri.isNullOrBlank()) {
-                errorLog(logTag, "Missing challenge or loginUri in auth payload")
-                return
-            }
 
             try {
                 val token =
@@ -91,7 +86,7 @@ class WebEidViewModel
                     )
                 val payload = JSONObject().put("auth-token", token)
 
-                WebEidResponseUtil.launchRedirect(activity, loginUri, payload)
+                WebEidResponseUtil.openResponseUriAndFinish(activity, loginUri, payload)
             } catch (e: Exception) {
                 errorLog(logTag, "Unexpected error building auth token", e)
                 _rpErrorResponseEvents.emit(
