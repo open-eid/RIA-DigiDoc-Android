@@ -80,8 +80,6 @@ class WebEidAuthServiceImpl
                     else -> "RS256"
                 }
 
-            val getSigningCertificate = authRequest.value?.getSigningCertificate == true
-
             return JSONObject().apply {
                 put("algorithm", algorithm)
                 put("unverifiedCertificate", Base64.getEncoder().encodeToString(authCert))
@@ -89,10 +87,9 @@ class WebEidAuthServiceImpl
                 put("signature", Base64.getEncoder().encodeToString(signature))
                 put("challenge", challenge)
 
-                if (getSigningCertificate) {
-                    val supportedSignatureAlgorithms = buildSupportedSignatureAlgorithms(publicKey)
+                if (authRequest.value?.getSigningCertificate == true) {
                     put("unverifiedSigningCertificate", Base64.getEncoder().encodeToString(signingCert))
-                    put("supportedSignatureAlgorithms", supportedSignatureAlgorithms)
+                    put("supportedSignatureAlgorithms", buildSupportedSignatureAlgorithms(publicKey))
                     put("format", "web-eid:1.1")
                 } else {
                     put("format", "web-eid:1.0")
@@ -104,38 +101,32 @@ class WebEidAuthServiceImpl
             JSONArray().apply {
                 when (publicKey) {
                     is RSAPublicKey -> {
-                        val hashFunction =
-                            when (publicKey.modulus.bitLength()) {
-                                2048 -> "SHA-256"
-                                3072 -> "SHA-384"
-                                4096 -> "SHA-512"
-                                else -> throw IllegalArgumentException("Unsupported RSA key length")
-                            }
                         put(
                             JSONObject().apply {
                                 put("cryptoAlgorithm", "RSA")
-                                put("hashFunction", hashFunction)
+                                put("hashFunction", "SHA-256")
                                 put("paddingScheme", "PKCS1.5")
                             },
                         )
                     }
                     is ECPublicKey -> {
-                        val hashFunction =
-                            when (publicKey.params.curve.field.fieldSize) {
-                                256 -> "SHA-256"
-                                384 -> "SHA-384"
-                                512 -> "SHA-512"
-                                else -> throw IllegalArgumentException("Unsupported EC key length")
-                            }
                         put(
                             JSONObject().apply {
-                                put("cryptoAlgorithm", "EC")
-                                put("hashFunction", hashFunction)
-                                put("paddingScheme", "NONE")
+                                put("cryptoAlgorithm", "ECDSA")
+                                put("hashFunction", "SHA-384")
+                                put("paddingScheme", JSONObject.NULL)
                             },
                         )
                     }
-                    else -> throw IllegalArgumentException("Unsupported key type")
+                    else -> {
+                        put(
+                            JSONObject().apply {
+                                put("cryptoAlgorithm", "RSA")
+                                put("hashFunction", "SHA-256")
+                                put("paddingScheme", "PKCS1.5")
+                            },
+                        )
+                    }
                 }
             }
     }
