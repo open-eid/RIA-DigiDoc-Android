@@ -2,15 +2,11 @@
 
 package ee.ria.DigiDoc.webEid
 
-import android.net.Uri
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
-import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -76,12 +72,10 @@ class WebEidAuthServiceTest {
         val authCertBytes = Base64.getDecoder().decode(authCertBase64)
         val signingCertBytes = Base64.getDecoder().decode(signingCertBase64)
         val signature = byteArrayOf(1, 2, 3, 4, 5)
-        val challenge = "abc123"
 
-        val token = service.buildAuthToken(authCertBytes, signingCertBytes, signature, challenge)
+        val token = service.buildAuthToken(authCertBytes, signingCertBytes, signature)
 
         assertEquals("web-eid:1.1", token.getString("format"))
-        assertEquals(challenge, token.getString("challenge"))
         assert(token.getString("unverifiedCertificate").isNotBlank())
         assert(token.getString("unverifiedSigningCertificate").isNotBlank())
         assert(token.getString("signature").isNotBlank())
@@ -103,12 +97,10 @@ class WebEidAuthServiceTest {
     fun buildAuthToken_withoutSigningCertificate_returnsV1Format() {
         val authCertBytes = Base64.getDecoder().decode(authCertBase64)
         val signature = byteArrayOf(1, 2, 3, 4, 5)
-        val challenge = "abc123"
 
-        val token = service.buildAuthToken(authCertBytes, null, signature, challenge)
+        val token = service.buildAuthToken(authCertBytes, null, signature)
 
         assertEquals("web-eid:1.0", token.getString("format"))
-        assertEquals(challenge, token.getString("challenge"))
         assert(token.getString("unverifiedCertificate").isNotBlank())
         assert(token.getString("signature").isNotBlank())
         assertFalse(token.has("unverifiedSigningCertificate"))

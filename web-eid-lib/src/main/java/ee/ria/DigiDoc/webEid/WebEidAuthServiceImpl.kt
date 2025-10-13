@@ -17,12 +17,10 @@ import javax.inject.Singleton
 class WebEidAuthServiceImpl
     @Inject
     constructor() : WebEidAuthService {
-
         override fun buildAuthToken(
             authCert: ByteArray,
             signingCert: ByteArray?,
             signature: ByteArray,
-            challenge: String,
         ): JSONObject {
             val cert =
                 CertificateFactory
@@ -37,13 +35,11 @@ class WebEidAuthServiceImpl
                     else -> "RS256"
                 }
 
-
             return JSONObject().apply {
                 put("algorithm", algorithm)
                 put("unverifiedCertificate", Base64.getEncoder().encodeToString(authCert))
                 put("issuerApp", "https://web-eid.eu/web-eid-mobile-app/releases/v1.0.0")
                 put("signature", Base64.getEncoder().encodeToString(signature))
-                put("challenge", challenge)
 
                 if (signingCert != null) {
                     val supportedSignatureAlgorithms = buildSupportedSignatureAlgorithms(publicKey)

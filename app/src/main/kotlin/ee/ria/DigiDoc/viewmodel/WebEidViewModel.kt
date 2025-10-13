@@ -72,7 +72,6 @@ class WebEidViewModel
             signature: ByteArray,
             activity: Activity,
         ) {
-            val challenge = authRequest.value?.challenge!!
             val loginUri = authRequest.value?.loginUri!!
             val getSigningCertificate = authRequest.value?.getSigningCertificate
 
@@ -82,7 +81,6 @@ class WebEidViewModel
                         authCert,
                         if (getSigningCertificate == true) signingCert else null,
                         signature,
-                        challenge,
                     )
                 val payload = JSONObject().put("auth-token", token)
 
