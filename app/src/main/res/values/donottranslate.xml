@@ -135,9 +135,4 @@
     <string name="fingerprints">Fingerprints</string>
     <string name="sha_256">SHA-256</string>
     <string name="sha_1">SHA-1</string>
-
-    <!-- Web eID for Mobile -->
-    <string name="web_eid_auth_no_payload">No auth payload received.</string>
-    <string name="web_eid_authenticate">Authenticate</string>
-    <string name="web_eid_auth_title">Authenticate with ID-card</string>
 </resources>

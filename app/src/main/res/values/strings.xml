@@ -651,6 +651,9 @@
     <string name="signing_container_name_update_button_voice">Edit</string>
 
     <!-- Web eID for Mobile -->
+    <string name="web_eid_authenticate">Authenticate</string>
+    <string name="web_eid_auth_title">Authenticate with ID-card</string>
+    <string name="web_eid_auth_no_payload">No auth payload received.</string>
     <string name="web_eid_requests_authentication">requests authentication</string>
     <string name="web_eid_ignore">Ignore</string>
     <string name="web_eid_invalid_request_error">Invalid Web eID request</string>

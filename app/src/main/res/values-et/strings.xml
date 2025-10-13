@@ -651,6 +651,9 @@
     <string name="signing_container_name_update_button_voice">Muuda</string>
 
     <!-- Web eID for Mobile -->
+    <string name="web_eid_authenticate">Autentimine</string>
+    <string name="web_eid_auth_title">Autentimine ID-kaardiga</string>
+    <string name="web_eid_auth_no_payload">Autentimispäringut ei saadetud</string>
     <string name="web_eid_requests_authentication">soovib autentimist</string>
     <string name="web_eid_ignore">Ignoreeri</string>
     <string name="web_eid_invalid_request_error">Vigane Web eID päring</string>
