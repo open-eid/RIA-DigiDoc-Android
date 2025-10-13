@@ -7,6 +7,7 @@ import android.util.Base64.URL_SAFE
 import android.util.Base64.decode
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import ee.ria.DigiDoc.webEid.WebEidAuthService
+import ee.ria.DigiDoc.webEid.exception.WebEidErrorCode
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
@@ -129,7 +130,7 @@ class WebEidViewModelTest {
             verify(authService).buildAuthToken(cert, signingCert, signature)
             val emittedError = deferred.await()
             assertEquals("https://example.com/response", emittedError.first)
-            assertEquals("ERR_WEBEID_MOBILE_UNKNOWN", emittedError.second)
+            assertEquals(WebEidErrorCode.ERR_WEBEID_MOBILE_UNKNOWN_ERROR, emittedError.second)
             assertEquals("Unexpected error", emittedError.third)
         }
     }

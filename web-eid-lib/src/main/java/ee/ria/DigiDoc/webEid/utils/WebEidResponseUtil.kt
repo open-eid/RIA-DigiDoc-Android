@@ -5,11 +5,12 @@ package ee.ria.DigiDoc.webEid.utils
 import android.net.Uri
 import android.util.Base64
 import androidx.core.net.toUri
+import ee.ria.DigiDoc.webEid.exception.WebEidErrorCode
 import org.json.JSONObject
 
 object WebEidResponseUtil {
     fun createErrorPayload(
-        code: String,
+        code: WebEidErrorCode,
         message: String,
     ): JSONObject =
         JSONObject()

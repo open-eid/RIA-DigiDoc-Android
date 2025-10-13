@@ -12,7 +12,7 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.webEid.WebEidAuthService
 import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthRequest
 import ee.ria.DigiDoc.webEid.domain.model.WebEidSignRequest
-import ee.ria.DigiDoc.webEid.utils.WebEidErrorCodes
+import ee.ria.DigiDoc.webEid.exception.WebEidErrorCode
 import ee.ria.DigiDoc.webEid.utils.WebEidRequestParser
 import ee.ria.DigiDoc.webEid.utils.WebEidResponseUtil
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -37,8 +37,10 @@ class WebEidViewModel
         val signRequest: StateFlow<WebEidSignRequest?> = _signRequest.asStateFlow()
         private val _rpResponseEvents = MutableSharedFlow<Uri>()
         val rpResponseEvents: SharedFlow<Uri> = _rpResponseEvents.asSharedFlow()
-        private val _rpErrorResponseEvents = MutableSharedFlow<Triple<String, String, String>>()
-        val rpErrorResponseEvents: SharedFlow<Triple<String, String, String>> = _rpErrorResponseEvents.asSharedFlow()
+        private val _rpErrorResponseEvents = MutableSharedFlow<Triple<String, WebEidErrorCode, String>>()
+        val rpErrorResponseEvents: SharedFlow<Triple<String, WebEidErrorCode, String>> =
+            _rpErrorResponseEvents
+                .asSharedFlow()
         private val _dialogError = MutableLiveData<Int>(null)
         val dialogError: LiveData<Int> = _dialogError
 
@@ -89,7 +91,7 @@ class WebEidViewModel
                 _rpErrorResponseEvents.emit(
                     Triple(
                         loginUri,
-                        WebEidErrorCodes.ERR_WEBEID_MOBILE_UNKNOWN,
+                        WebEidErrorCode.ERR_WEBEID_MOBILE_UNKNOWN_ERROR,
                         "Unexpected error",
                     ),
                 )
