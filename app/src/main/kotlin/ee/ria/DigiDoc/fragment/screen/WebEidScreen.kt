@@ -307,7 +307,7 @@ fun WebEidScreen(
             OutlinedButton(
                 onClick = {
                     isWebEidAuthenticating = false
-                    activity.finish()
+                    activity.finishAndRemoveTask()
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors =
