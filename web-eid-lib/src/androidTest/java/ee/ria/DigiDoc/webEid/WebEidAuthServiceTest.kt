@@ -20,47 +20,38 @@ class WebEidAuthServiceTest {
 
     private lateinit var service: WebEidAuthService
     private val authCertBase64 =
-        "MIIDuzCCAqOgAwIBAgIUBkYXJdruP6EuH/+I4YoXxIQ3WcowDQYJKoZIhvcNAQELBQAw" +
-            "bTELMAkGA1UEBhMCRUUxDTALBgNVBAgMBFRlc3QxDTALBgNVBAcMBFRlc3QxDTALBgNV" +
-            "BAoMBFRlc3QxDTALBgNVBAsMBFRlc3QxDTALBgNVBAMMBFRlc3QxEzARBgkqhkiG9w0B" +
-            "CQEWBHRlc3QwHhcNMjQwNjEwMTI1OTA3WhcNMjUwNjEwMTI1OTA3WjBtMQswCQYDVQQG" +
-            "EwJFRTENMAsGA1UECAwEVGVzdDENMAsGA1UEBwwEVGVzdDENMAsGA1UECgwEVGVzdDEN" +
-            "MAsGA1UECwwEVGVzdDENMAsGA1UEAwwEVGVzdDETMBEGCSqGSIb3DQEJARYEdGVzdDCC" +
-            "ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANNQx56UkGcNvUrEsdzqhn94nHb3" +
-            "X8oa1+JUWLHE9KUe2ZiNaIMjMOEuMKtss3tKHHBwLig0by24cwySNozoL156i9a5J8VX" +
-            "zkuEr0dKlkGm13BnSBVY+gdRB47oh1ZocSewyyJmWetLiOzgRq4xkYLuV/xP+lmum580" +
-            "MomZcwB06/C42FWIlkPqQF4NFTT1mXjHCzl5uY3OZN9+2KGPa5/QOS9ZI3ixp9TiS8oI" +
-            "Y7VskIk6tUJcnSF3pN6cI+EkS5zODV3Cs33S2Z3mskC3uBTZQxua75NUxycB5wvg4jbf" +
-            "GcKOaA9QhHmaloNDwXcw7v9hTwg/xe148mt+D5wABl8CAwEAAaNTMFEwHQYDVR0OBBYE" +
-            "FCM1tdnw9XYxBNieiNJ8liORKwlpMB8GA1UdIwQYMBaAFCM1tdnw9XYxBNieiNJ8liOR" +
-            "KwlpMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBALmgdhGrkMLsc/g" +
-            "n2BsaFx3S7fHaO3MEV0krghH9TMk+M1y0oghAjotm/bGqOmZ4x/Hv08YputTMLTK2qpa" +
-            "Xtf0Q75V7tOr29jpL10lFALuhNtjRt/Ha5mV4qYGDk+vT8+Rw7SzeVhhSr1pM/MmjN3c" +
-            "AKDZbI0RINIXarZCb2j963eCfguxXZJbxzW09S6kZ/bDEOwi4PLwE0kln9NqQW6JEBHY" +
-            "kDeYQonkKm1VrZklb1obq+g1UIJkTOAXQdJDyvfHWyKzKE8cUHGxYUvlxOL/YCyLkUGa" +
-            "eE/VmJs0niWtKlX4UURG0HAGjZIQ/pJejV+7GzknFMZmuiwJQe4yT4mw="
+        """
+        MIIECTCCA4+gAwIBAgIUN2tgxiz6MdXE3QfegLIoan8ZNW0wCgYIKoZIzj0EAwMwXDEYMBYGA1UEAwwPVGVzdCBFU1RFSUQyMDI1MRcwFQYDVQRh
+        DA5OVFJFRS0xNzA2NjA0OTEaMBgGA1UECgwRWmV0ZXMgRXN0b25pYSBPw5wxCzAJBgNVBAYTAkVFMB4XDTI0MTIxODEwMjYxMloXDTI5MTIwOTIw
+        NTkxMlowfzEqMCgGA1UEAwwhSsOVRU9SRyxKQUFLLUtSSVNUSkFOLDM4MDAxMDg1NzE4MRowGAYDVQQFExFQTk9FRS0zODAwMTA4NTcxODEWMBQG
+        A1UEKgwNSkFBSy1LUklTVEpBTjEQMA4GA1UEBAwHSsOVRU9SRzELMAkGA1UEBhMCRUUwdjAQBgcqhkjOPQIBBgUrgQQAIgNiAARCqN9WLBaVniOO
+        qXCKa5yzvlXZNNfmTxxhduZX/81iNvB6BRDJEyyRgKMyn/32NuKUUxa+JqExAvT534kOOTQVPOcp/e2X5NUc+qCw1qsNcsMs60C7FSxzoyvZ+HIt
+        /oajggHtMIIB6TAJBgNVHRMEAjAAMB8GA1UdIwQYMBaAFO7ylT+MsvxRnoTm5l6EEX5CuiA2MHAGCCsGAQUFBwEBBGQwYjA4BggrBgEFBQcwAoYs
+        aHR0cDovL2NydC10ZXN0LmVpZHBraS5lZS90ZXN0RVNURUlEMjAyNS5jcnQwJgYIKwYBBQUHMAGGGmh0dHA6Ly9vY3NwLXRlc3QuZWlkcGtpLmVl
+        MB8GA1UdEQQYMBaBFDM4MDAxMDg1NzE4QGVlc3RpLmVlMFYGA1UdIARPME0wCAYGBACPegECMEEGDog3AQMGAQQBg5EhAgEBMC8wLQYIKwYBBQUH
+        AgEWIWh0dHBzOi8vcmVwb3NpdG9yeS10ZXN0LmVpZHBraS5lZTAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwQwYIKwYBBQUHAQMENzA1
+        MDMGBgQAjkYBBTApMCcWIWh0dHBzOi8vcmVwb3NpdG9yeS10ZXN0LmVpZHBraS5lZRMCZW4wPQYDVR0fBDYwNDAyoDCgLoYsaHR0cDovL2NybC10
+        ZXN0LmVpZHBraS5lZS90ZXN0RVNURUlEMjAyNS5jcmwwHQYDVR0OBBYEFIl1MYmBknWP4qF6QZmMHHVO4pnTMA4GA1UdDwEB/wQEAwIDiDAKBggq
+        hkjOPQQDAwNoADBlAjAk2dWjje4yKfESIYN2fU0vQM7+8BOyOD4qHdwSnh+XqphWXGEDIra6FgS4mY/uu0oCMQC4Hg18SnB6oy6dL4vEMFyTyx2F
+        iaiMnWMYd1/TyTQvUzvT2jmEA1a7DrALs0Pt3aA=
+        """.trimIndent()
 
     private val signingCertBase64 =
-        "MIID6zCCA02gAwIBAgIQT7j6zk6pmVRcyspLo5SqejAKBggqhkjOPQQDBDBgMQswCQYD" +
-            "VQQGEwJFRTEbMBkGA1UECgwSU0sgSUQgU29sdXRpb25zIEFTMRcwFQYDVQRhDA5OVFJF" +
-            "RS0xMDc0NzAxMzEbMBkGA1UEAwwSVEVTVCBvZiBFU1RFSUQyMDE4MB4XDTE5MDUwMjEw" +
-            "NDUzMVoXDTI5MDUwMjEwNDUzMVowfzELMAkGA1UEBhMCRUUxFjAUBgNVBCoMDUpBQUst" +
-            "S1JJU1RKQU4xEDAOBgNVBAQMB0rDlUVPUkcxKjAoBgNVBAMMIUrDlUVPUkcsSkFBSy1L" +
-            "UklTVEpBTiwzODAwMTA4NTcxODEaMBgGA1UEBRMRUE5PRUUtMzgwMDEwODU3MTgwdjAQ" +
-            "BgcqhkjOPQIBBgUrgQQAIgNiAASkwENR8GmCpEs6OshDWDfIiKvGuyNMOD2rjIQW321A" +
-            "nZD3oIsqD0svBMNEJJj9Dlvq/47TYDObIa12KAU5IuOBfJs2lrFdSXZjaM+a5TWT3O2J" +
-            "TM36YDH2GcMe/eisepejggGrMIIBpzAJBgNVHRMEAjAAMA4GA1UdDwEB/wQEAwIGQDBI" +
-            "BgNVHSAEQTA/MDIGCysGAQQBg5EhAQIBMCMwIQYIKwYBBQUHAgEWFWh0dHBzOi8vd3d3" +
-            "LnNrLmVlL0NQUzAJBgcEAIvsQAECMB0GA1UdDgQWBBTVX3s48Spy/Es2TcXgkRvwUn2Y" +
-            "cjCBigYIKwYBBQUHAQMEfjB8MAgGBgQAjkYBATAIBgYEAI5GAQQwEwYGBACORgEGMAkG" +
-            "BwQAjkYBBgEwUQYGBACORgEFMEcwRRY/aHR0cHM6Ly9zay5lZS9lbi9yZXBvc2l0b3J5" +
-            "L2NvbmRpdGlvbnMtZm9yLXVzZS1vZi1jZXJ0aWZpY2F0ZXMvEwJFTjAfBgNVHSMEGDAW" +
-            "gBTAhJkpxE6fOwI09pnhClYACCk+ezBzBggrBgEFBQcBAQRnMGUwLAYIKwYBBQUHMAGG" +
-            "IGh0dHA6Ly9haWEuZGVtby5zay5lZS9lc3RlaWQyMDE4MDUGCCsGAQUFBzAChilodHRw" +
-            "Oi8vYy5zay5lZS9UZXN0X29mX0VTVEVJRDIwMTguZGVyLmNydDAKBggqhkjOPQQDBAOB" +
-            "iwAwgYcCQgGBr+Jbo1GeqgWdIwgMo7SA29AP38JxNm2HWq2Qb+kIHpusAK574Co1K5D4" +
-            "+Mk7/ITTuXQaET5WphHoN7tdAciTaQJBAn0zBigYyVPYSTO68HM6hmlwTwi/KlJDdXW/" +
-            "2NsMjSqofFFJXpGvpxk2CTqSRCjcavxLPnkasTbNROYSJcmM8Xc="
+        """
+        MIID8zCCA3mgAwIBAgIUeHSVTuHxrs0ASYMbqOjDX5yFVnswCgYIKoZIzj0EAwMwXDEYMBYGA1UEAwwPVGVzdCBFU1RFSUQyMDI1MRcwFQYDVQRh
+        DA5OVFJFRS0xNzA2NjA0OTEaMBgGA1UECgwRWmV0ZXMgRXN0b25pYSBPw5wxCzAJBgNVBAYTAkVFMB4XDTI0MTIxODEwMjY0MVoXDTI5MTIwOTIw
+        NTk0MVowfzEqMCgGA1UEAwwhSsOVRU9SRyxKQUFLLUtSSVNUSkFOLDM4MDAxMDg1NzE4MRowGAYDVQQFExFQTk9FRS0zODAwMTA4NTcxODEWMBQG
+        A1UEKgwNSkFBSy1LUklTVEpBTjEQMA4GA1UEBAwHSsOVRU9SRzELMAkGA1UEBhMCRUUwdjAQBgcqhkjOPQIBBgUrgQQAIgNiAAR9DpcXt4J2NwqG
+        B3pS1RcGlBM7tcoG82OGpLwCr4xn9LZgc5QRk/oGmRoJ6Nk9/BbHgoYYvBXW8xzcTNZwKIxwz7FRI9cFF+4+4i/ywqkRV9ApH112xQ7L+p9ANCP/
+        va6jggHXMIIB0zAJBgNVHRMEAjAAMB8GA1UdIwQYMBaAFO7ylT+MsvxRnoTm5l6EEX5CuiA2MHAGCCsGAQUFBwEBBGQwYjA4BggrBgEFBQcwAoYs
+        aHR0cDovL2NydC10ZXN0LmVpZHBraS5lZS90ZXN0RVNURUlEMjAyNS5jcnQwJgYIKwYBBQUHMAGGGmh0dHA6Ly9vY3NwLXRlc3QuZWlkcGtpLmVl
+        MFcGA1UdIARQME4wCQYHBACL7EABAjBBBg6INwEDBgEEAYORIQIBATAvMC0GCCsGAQUFBwIBFiFodHRwczovL3JlcG9zaXRvcnktdGVzdC5laWRw
+        a2kuZWUwbAYIKwYBBQUHAQMEYDBeMAgGBgQAjkYBATAIBgYEAI5GAQQwEwYGBACORgEGMAkGBwQAjkYBBgEwMwYGBACORgEFMCkwJxYhaHR0cHM6
+        Ly9yZXBvc2l0b3J5LXRlc3QuZWlkcGtpLmVlEwJlbjA9BgNVHR8ENjA0MDKgMKAuhixodHRwOi8vY3JsLXRlc3QuZWlkcGtpLmVlL3Rlc3RFU1RF
+        SUQyMDI1LmNybDAdBgNVHQ4EFgQUH6IlbFh9H8w0BIsDCgq01rqaFVUwDgYDVR0PAQH/BAQDAgZAMAoGCCqGSM49BAMDA2gAMGUCMQDGeR+QV6MF
+        sWnB7LoXrpOfPQFTT366CLbdmQQMbIzJtysZTrOSQ95yxpulvpxOKsoCMAsT41AJ3de5JSrW89S5x5zgvi1K7PG1zhzSGgUuMElzDZPJSyp4TE8k
+        FvCDizwjaQ==
+        """.trimIndent()
 
     @Before
     fun setup() {
@@ -69,8 +60,8 @@ class WebEidAuthServiceTest {
 
     @Test
     fun buildAuthToken_withValidInputs_returnsValidJson() {
-        val authCertBytes = Base64.getDecoder().decode(authCertBase64)
-        val signingCertBytes = Base64.getDecoder().decode(signingCertBase64)
+        val authCertBytes = Base64.getMimeDecoder().decode(authCertBase64)
+        val signingCertBytes = Base64.getMimeDecoder().decode(signingCertBase64)
         val signature = byteArrayOf(1, 2, 3, 4, 5)
 
         val token = service.buildAuthToken(authCertBytes, signingCertBytes, signature)
@@ -95,7 +86,7 @@ class WebEidAuthServiceTest {
 
     @Test
     fun buildAuthToken_withoutSigningCertificate_returnsV1Format() {
-        val authCertBytes = Base64.getDecoder().decode(authCertBase64)
+        val authCertBytes = Base64.getMimeDecoder().decode(authCertBase64)
         val signature = byteArrayOf(1, 2, 3, 4, 5)
 
         val token = service.buildAuthToken(authCertBytes, null, signature)
