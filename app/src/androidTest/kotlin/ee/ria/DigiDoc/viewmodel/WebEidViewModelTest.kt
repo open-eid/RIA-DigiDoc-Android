@@ -60,13 +60,26 @@ class WebEidViewModelTest {
     }
 
     @Test
+    fun webEidViewModel_handleAuth_emitErrorResponseEventWhenChallengeMinLength() {
+        val uri =
+            Uri.parse(
+                "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwibG9naW5fdXJpIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9yZXNwb25zZSIsImdldF9zaWduaW5nX2NlcnRpZmljYXRlIjp0cnVlfQ",
+            )
+        webEidViewModel_handleAuth_emitErrorResponseEventWhenInvalidChallenge(uri)
+    }
+
+    @Test
+    fun webEidViewModel_handleAuth_emitErrorResponseEventWhenChallengeMaxLength() {
+        val uri =
+            Uri.parse(
+                "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLCJsb2dpbl91cmkiOiJodHRwczovL2V4YW1wbGUuY29tL3Jlc3BvbnNlIiwiZ2V0X3NpZ25pbmdfY2VydGlmaWNhdGUiOnRydWV9",
+            )
+        webEidViewModel_handleAuth_emitErrorResponseEventWhenInvalidChallenge(uri)
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun webEidViewModel_handleAuth_emitErrorResponseEventWhenInvalidChallenge() {
+    private fun webEidViewModel_handleAuth_emitErrorResponseEventWhenInvalidChallenge(uri: Uri) {
         runTest(UnconfinedTestDispatcher()) {
-            val uri =
-                Uri.parse(
-                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZSIsImxvZ2luX3VyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UiLCJnZXRfc2lnbmluZ19jZXJ0aWZpY2F0ZSI6dHJ1ZX0",
-                )
             val deferred =
                 async {
                     viewModel.relyingPartyResponseEvents.first()
@@ -80,7 +93,36 @@ class WebEidViewModelTest {
             val decodedPayload = String(decode(emittedUri.fragment, URL_SAFE))
             val jsonPayload = JSONObject(decodedPayload)
             assertEquals("ERR_WEBEID_MOBILE_INVALID_REQUEST", jsonPayload.getString("code"))
-            assertEquals("Invalid challenge", jsonPayload.getString("message"))
+            assertEquals("Invalid challenge length", jsonPayload.getString("message"))
+        }
+    }
+
+    @Test
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun webEidViewModel_handleAuth_emitErrorResponseEventWhenOriginMaxLength() {
+        runTest(UnconfinedTestDispatcher()) {
+            val uri =
+                Uri.parse(
+                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsImxvZ2luX3VyaSI6Imh0dHBzOi8vZXhhbXBsZS54eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eC5jb20vcmVzcG9uc2UiLCJnZXRfc2lnbmluZ19jZXJ0aWZpY2F0ZSI6dHJ1ZX0",
+                )
+            val deferred =
+                async {
+                    viewModel.relyingPartyResponseEvents.first()
+                }
+
+            viewModel.handleAuth(uri)
+
+            val emittedUri = deferred.await()
+            assert(
+                emittedUri.toString().startsWith(
+                    "https://example.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.com/response#",
+                ),
+            )
+            assert(emittedUri.fragment != null)
+            val decodedPayload = String(decode(emittedUri.fragment, URL_SAFE))
+            val jsonPayload = JSONObject(decodedPayload)
+            assertEquals("ERR_WEBEID_MOBILE_INVALID_REQUEST", jsonPayload.getString("code"))
+            assertEquals("Invalid origin length", jsonPayload.getString("message"))
         }
     }
 

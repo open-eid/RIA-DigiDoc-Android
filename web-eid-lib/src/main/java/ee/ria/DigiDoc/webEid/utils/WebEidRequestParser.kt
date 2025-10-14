@@ -14,16 +14,21 @@ import java.util.Base64
 
 object WebEidRequestParser {
     private const val MIN_CHALLENGE_LENGTH = 44
+    private const val MAX_CHALLENGE_LENGTH = 128
+    private const val MAX_ORIGIN_LENGTH = 255
 
     fun parseAuthUri(authUri: Uri): WebEidAuthRequest {
         val request = decodeUriFragment(authUri)
         val challenge = request.getString("challenge")
         val responseUri = validateResponseUri(request.getString("login_uri"))
         val origin = parseOrigin(responseUri)
-        if (challenge.isNullOrBlank() || challenge.length < MIN_CHALLENGE_LENGTH) {
+        if (challenge.isNullOrBlank() ||
+            challenge.length < MIN_CHALLENGE_LENGTH ||
+            challenge.length > MAX_CHALLENGE_LENGTH
+        ) {
             throw WebEidException(
                 ERR_WEBEID_MOBILE_INVALID_REQUEST,
-                "Invalid challenge",
+                "Invalid challenge length",
                 responseUri.toString(),
             )
         }
@@ -82,6 +87,14 @@ object WebEidRequestParser {
 
     private fun parseOrigin(uri: URI): String {
         val portPart = if (uri.port != -1) ":${uri.port}" else ""
-        return "${uri.scheme}://${uri.host}$portPart"
+        val origin = "${uri.scheme}://${uri.host}$portPart"
+        if (origin.length > MAX_ORIGIN_LENGTH) {
+            throw WebEidException(
+                ERR_WEBEID_MOBILE_INVALID_REQUEST,
+                "Invalid origin length",
+                uri.toString(),
+            )
+        }
+        return origin
     }
 }
