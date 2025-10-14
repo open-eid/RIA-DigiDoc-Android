@@ -36,12 +36,8 @@ class WebEidViewModel
         val authRequest: StateFlow<WebEidAuthRequest?> = _authRequest.asStateFlow()
         private val _signRequest = MutableStateFlow<WebEidSignRequest?>(null)
         val signRequest: StateFlow<WebEidSignRequest?> = _signRequest.asStateFlow()
-        private val _rpResponseEvents = MutableSharedFlow<Uri>()
-        val rpResponseEvents: SharedFlow<Uri> = _rpResponseEvents.asSharedFlow()
-        private val _rpErrorResponseEvents = MutableSharedFlow<Triple<String, WebEidErrorCode, String>>()
-        val rpErrorResponseEvents: SharedFlow<Triple<String, WebEidErrorCode, String>> =
-            _rpErrorResponseEvents
-                .asSharedFlow()
+        private val _relyingPartyResponseEvents = MutableSharedFlow<Uri>()
+        val relyingPartyResponseEvents: SharedFlow<Uri> = _relyingPartyResponseEvents.asSharedFlow()
         private val _dialogError = MutableLiveData<Int>(null)
         val dialogError: LiveData<Int> = _dialogError
 
@@ -50,13 +46,9 @@ class WebEidViewModel
                 _authRequest.value = WebEidRequestParser.parseAuthUri(uri)
             } catch (e: WebEidException) {
                 errorLog(logTag, "Invalid Web eID authentication request: $uri", e)
-                _rpErrorResponseEvents.emit(
-                    Triple(
-                        e.responseUri,
-                        e.errorCode,
-                        e.message,
-                    ),
-                )
+                val errorPayload = WebEidResponseUtil.createErrorPayload(e.errorCode, e.message)
+                val responseUri = WebEidResponseUtil.createResponseUri(e.responseUri, errorPayload)
+                _relyingPartyResponseEvents.emit(responseUri)
             } catch (e: Exception) {
                 errorLog(logTag, "Unable parse Web eID authentication request: $uri", e)
                 _dialogError.postValue(R.string.web_eid_invalid_auth_request_error)
@@ -93,18 +85,17 @@ class WebEidViewModel
                         signature,
                     )
                 val payload = JSONObject().put("auth-token", token)
-
                 val responseUri = WebEidResponseUtil.createResponseUri(loginUri, payload)
-                _rpResponseEvents.emit(responseUri)
+                _relyingPartyResponseEvents.emit(responseUri)
             } catch (e: Exception) {
                 errorLog(logTag, "Unexpected error building auth token", e)
-                _rpErrorResponseEvents.emit(
-                    Triple(
-                        loginUri,
+                val errorPayload =
+                    WebEidResponseUtil.createErrorPayload(
                         WebEidErrorCode.ERR_WEBEID_MOBILE_UNKNOWN_ERROR,
                         "Unexpected error",
-                    ),
-                )
+                    )
+                val responseUri = WebEidResponseUtil.createResponseUri(loginUri, errorPayload)
+                _relyingPartyResponseEvents.emit(responseUri)
             }
         }
     }

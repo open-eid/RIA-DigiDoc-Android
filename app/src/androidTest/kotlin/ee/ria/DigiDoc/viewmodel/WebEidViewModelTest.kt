@@ -7,7 +7,6 @@ import android.util.Base64.URL_SAFE
 import android.util.Base64.decode
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import ee.ria.DigiDoc.webEid.WebEidAuthService
-import ee.ria.DigiDoc.webEid.exception.WebEidErrorCode
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
@@ -70,15 +69,18 @@ class WebEidViewModelTest {
                 )
             val deferred =
                 async {
-                    viewModel.rpErrorResponseEvents.first()
+                    viewModel.relyingPartyResponseEvents.first()
                 }
 
             viewModel.handleAuth(uri)
 
-            val emittedError = deferred.await()
-            assertEquals("https://example.com/response", emittedError.first)
-            assertEquals(WebEidErrorCode.ERR_WEBEID_MOBILE_INVALID_REQUEST, emittedError.second)
-            assertEquals("Invalid challenge", emittedError.third)
+            val emittedUri = deferred.await()
+            assert(emittedUri.toString().startsWith("https://example.com/response#"))
+            assert(emittedUri.fragment != null)
+            val decodedPayload = String(decode(emittedUri.fragment, URL_SAFE))
+            val jsonPayload = JSONObject(decodedPayload)
+            assertEquals("ERR_WEBEID_MOBILE_INVALID_REQUEST", jsonPayload.getString("code"))
+            assertEquals("Invalid challenge", jsonPayload.getString("message"))
         }
     }
 
@@ -114,7 +116,7 @@ class WebEidViewModelTest {
                 .thenReturn(JSONObject().put("format", "web-eid:1.0"))
             val deferred =
                 async {
-                    viewModel.rpResponseEvents.first()
+                    viewModel.relyingPartyResponseEvents.first()
                 }
             viewModel.handleAuth(uri)
             viewModel.handleWebEidAuthResult(cert, signingCert, signature)
@@ -145,17 +147,20 @@ class WebEidViewModelTest {
                 .thenThrow(RuntimeException("Test exception"))
             val deferred =
                 async {
-                    viewModel.rpErrorResponseEvents.first()
+                    viewModel.relyingPartyResponseEvents.first()
                 }
             viewModel.handleAuth(uri)
 
             viewModel.handleWebEidAuthResult(cert, signingCert, signature)
 
             verify(authService).buildAuthToken(cert, signingCert, signature)
-            val emittedError = deferred.await()
-            assertEquals("https://example.com/response", emittedError.first)
-            assertEquals(WebEidErrorCode.ERR_WEBEID_MOBILE_UNKNOWN_ERROR, emittedError.second)
-            assertEquals("Unexpected error", emittedError.third)
+            val emittedUri = deferred.await()
+            assert(emittedUri.toString().startsWith("https://example.com/response#"))
+            assert(emittedUri.fragment != null)
+            val decodedPayload = String(decode(emittedUri.fragment, URL_SAFE))
+            val jsonPayload = JSONObject(decodedPayload)
+            assertEquals("ERR_WEBEID_MOBILE_UNKNOWN_ERROR", jsonPayload.getString("code"))
+            assertEquals("Unexpected error", jsonPayload.getString("message"))
         }
     }
 }

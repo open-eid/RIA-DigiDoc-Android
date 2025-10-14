@@ -28,7 +28,6 @@ import ee.ria.DigiDoc.viewmodel.WebEidViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
-import ee.ria.DigiDoc.webEid.utils.WebEidResponseUtil
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -44,11 +43,9 @@ fun WebEidFragment(
     val activity = LocalActivity.current as Activity
 
     LaunchedEffect(viewModel) {
-        viewModel.rpErrorResponseEvents.collect { (responseUri, errorCode, message) ->
-            val errorPayload = WebEidResponseUtil.createErrorPayload(errorCode, message)
-            val uri = WebEidResponseUtil.createResponseUri(responseUri, errorPayload)
+        viewModel.relyingPartyResponseEvents.collect { responseUri ->
             val browserIntent =
-                Intent(Intent.ACTION_VIEW, uri).apply {
+                Intent(Intent.ACTION_VIEW, responseUri).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 }
             activity.startActivity(browserIntent)
