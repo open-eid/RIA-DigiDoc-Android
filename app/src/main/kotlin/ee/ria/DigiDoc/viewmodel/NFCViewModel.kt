@@ -617,8 +617,6 @@ class NFCViewModel
                                 _webEidAuthResult.postValue(Triple(authCert, signingCert, signatureArray))
                             }
                         } catch (ex: SmartCardReaderException) {
-                            _decryptStatus.postValue(false)
-
                             if (ex.message?.contains("TagLostException") == true) {
                                 _errorState.postValue(Triple(R.string.signature_update_nfc_tag_lost, null, null))
                             } else if (ex.message?.contains("PIN1 verification failed") == true &&
@@ -668,7 +666,6 @@ class NFCViewModel
 
                             errorLog(logTag, "Exception: " + ex.message, ex)
                         } catch (ex: Exception) {
-                            _decryptStatus.postValue(false)
                             _shouldResetPIN.postValue(true)
 
                             val message = ex.message ?: ""
