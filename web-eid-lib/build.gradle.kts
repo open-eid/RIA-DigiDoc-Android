@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.web_eid_lib"
+    namespace = "ee.ria.DigiDoc.webEid"
     compileSdk = Integer.parseInt(libs.versions.compileSdkVersion.get())
 
     defaultConfig {

@@ -663,10 +663,20 @@
     <string name="web_eid_authenticate">Autentimine</string>
     <string name="web_eid_auth_title">Autentimine ID-kaardiga</string>
     <string name="web_eid_auth_no_payload">Autentimispäringut ei saadetud</string>
-    <string name="web_eid_requests_authentication">soovib autentimist</string>
-    <string name="web_eid_ignore">Ignoreeri</string>
+    <string name="web_eid_auth_consent_text">Autentides nõustun oma nime ja isikukoodi edastamisega teenusepakkujale.</string>
+    <string name="web_eid_auth_request_from">Autentimispäring:</string>
+    <string name="web_eid_details_forwarded">Edastatavad andmed:</string>
+    <string name="web_eid_name_personal_identification_code">NIMI, ISIKUKOOD</string>
+    <string name="web_eid_remember_me_message">Järgmisel kasutamisel on andmeväljad eeltäidetud.</string>
+    <string name="web_eid_get_certificate">Kinnita</string>
+    <string name="web_eid_certificate_title">Vali sertifikaat</string>
+    <string name="web_eid_certificate_consent_text">Sertifikaati valides nõustun oma nime ja isikukoodi edastamisega teenusepakkujale.</string>
+    <string name="web_eid_sign">Allkirjastamine</string>
+    <string name="web_eid_sign_title">Allkirjasta ID-kaardiga</string>
+    <string name="web_eid_cert_request_from">Sertifikaadipäring:</string>
+    <string name="web_eid_sign_request_from">Allkirjastamispäring:</string>
+    <string name="web_eid_cancel">Tühista</string>
     <string name="web_eid_invalid_request_error">Vigane Web eID päring</string>
     <string name="web_eid_request_error">Päringu viga</string>
     <string name="web_eid_invalid_auth_request_error">Vigane autentimispäring</string>
-    <string name="web_eid_invalid_sign_request_error">Vigane allkirjastamisspäring</string>
 </resources>

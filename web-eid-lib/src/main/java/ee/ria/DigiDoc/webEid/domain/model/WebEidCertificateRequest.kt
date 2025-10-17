@@ -21,9 +21,7 @@
 
 package ee.ria.DigiDoc.webEid.domain.model
 
-data class WebEidAuthRequest(
-    val challenge: String,
-    val loginUri: String,
-    val getSigningCertificate: Boolean,
+data class WebEidCertificateRequest(
+    val responseUri: String,
     val origin: String,
 )

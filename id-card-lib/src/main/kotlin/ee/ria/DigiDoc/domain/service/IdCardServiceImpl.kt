@@ -191,4 +191,15 @@ class IdCardServiceImpl
 
             return Triple(authCert, signingCert, signature)
         }
+
+        @Throws(Exception::class)
+        override fun sign(
+            token: Token,
+            pin2: ByteArray?,
+            hash: ByteArray,
+        ): Pair<ByteArray, ByteArray> {
+            val signingCert = token.certificate(CertificateType.SIGNING)
+            val signature = token.calculateSignature(pin2, hash, false)
+            return Pair(signingCert, signature)
+        }
     }

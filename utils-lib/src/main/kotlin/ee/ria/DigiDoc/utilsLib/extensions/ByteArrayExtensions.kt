@@ -27,6 +27,7 @@ import java.io.ByteArrayInputStream
 import java.security.cert.CertificateException
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
+import java.util.Arrays
 
 fun ByteArray.hexString(): String {
     val hexString = Hex.toHexString(this)
@@ -43,3 +44,9 @@ fun ByteArray.x509Certificate(): X509Certificate? =
     } catch (ce: CertificateException) {
         null
     }
+
+fun ByteArray?.clearSensitive() {
+    if (this != null && this.isNotEmpty()) {
+        Arrays.fill(this, 0.toByte())
+    }
+}

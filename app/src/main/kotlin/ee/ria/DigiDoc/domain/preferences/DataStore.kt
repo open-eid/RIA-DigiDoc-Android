@@ -21,6 +21,7 @@
 
 package ee.ria.DigiDoc.domain.preferences
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
@@ -117,6 +118,34 @@ class DataStore
                 return
             }
             errorLog(logTag, "Unable to save CAN")
+        }
+
+        fun getSigningCertificate(): String {
+            val encryptedPrefs = getEncryptedPreferences(context)
+            if (encryptedPrefs == null) {
+                errorLog(logTag, "Unable to read signing certificate")
+                return ""
+            }
+
+            val currentCan = getCanNumber()
+            val key = "${resources.getString(R.string.main_settings_signing_cert_key)}_$currentCan"
+            return encryptedPrefs.getString(key, "") ?: ""
+        }
+
+        @SuppressLint("ApplySharedPref")
+        fun setSigningCertificate(cert: String) {
+            val encryptedPrefs = getEncryptedPreferences(context)
+            if (encryptedPrefs == null) {
+                errorLog(logTag, "Unable to save signing certificate")
+                return
+            }
+
+            val currentCanNumber = getCanNumber()
+            val key = "${resources.getString(R.string.main_settings_signing_cert_key)}_$currentCanNumber"
+            val editor = encryptedPrefs.edit()
+
+            editor.remove(key).commit()
+            if (cert.isNotEmpty()) editor.putString(key, cert).commit()
         }
 
         fun getPhoneNo(): String =

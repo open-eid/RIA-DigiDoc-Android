@@ -1,8 +1,29 @@
+/*
+ * Copyright 2017 - 2026 Riigi Infosüsteemi Amet
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ */
+
 @file:Suppress("PackageName")
 
 package ee.ria.DigiDoc.webEid.utils
 
+import android.util.Base64
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import ee.ria.DigiDoc.webEid.exception.WebEidErrorCode
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -22,7 +43,7 @@ class WebEidResponseUtilTest {
         val resultUri = WebEidResponseUtil.createResponseUri(loginUri, payload)
 
         val fragment = resultUri.fragment
-        val decodedJson = String(android.util.Base64.decode(fragment, android.util.Base64.URL_SAFE))
+        val decodedJson = String(Base64.decode(fragment, Base64.URL_SAFE))
         val json = JSONObject(decodedJson)
 
         assertEquals("ERR_CUSTOM", json.getString("code"))
@@ -40,7 +61,7 @@ class WebEidResponseUtilTest {
         val resultUri = WebEidResponseUtil.createResponseUri(loginUri, payload)
 
         val fragment = resultUri.fragment
-        val decodedJson = String(android.util.Base64.decode(fragment, android.util.Base64.URL_SAFE))
+        val decodedJson = String(Base64.decode(fragment, Base64.URL_SAFE))
         val json = JSONObject(decodedJson)
 
         assertEquals("sample-token", json.getString("auth-token"))
@@ -55,5 +76,23 @@ class WebEidResponseUtilTest {
         val resultUri = WebEidResponseUtil.createResponseUri(loginUri, payload)
 
         assertTrue(resultUri.toString().startsWith(loginUri))
+    }
+
+    @Test
+    fun createErrorPayload_and_createResponseUri_areCovered() {
+        val loginUri = "https://rp.example.com/auth/eid/login"
+
+        val errorPayload =
+            WebEidResponseUtil.createErrorPayload(
+                WebEidErrorCode.ERR_WEBEID_MOBILE_INVALID_REQUEST,
+                "Invalid request",
+            )
+
+        val resultUri = WebEidResponseUtil.createResponseUri(loginUri, errorPayload)
+        val decodedJson = String(Base64.decode(resultUri.fragment, Base64.URL_SAFE))
+        val json = JSONObject(decodedJson)
+
+        assertTrue(json.getBoolean("error"))
+        assertEquals("Invalid request", json.getString("message"))
     }
 }

@@ -19,11 +19,16 @@
 
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.webEid.domain.model
+package ee.ria.DigiDoc.webEid
 
-data class WebEidAuthRequest(
-    val challenge: String,
-    val loginUri: String,
-    val getSigningCertificate: Boolean,
-    val origin: String,
-)
+import org.json.JSONObject
+
+interface WebEidSignService {
+    fun buildCertificatePayload(signingCert: ByteArray): JSONObject
+
+    fun buildSignPayload(
+        signingCert: String,
+        signature: ByteArray,
+        hashFunction: String,
+    ): JSONObject
+}

@@ -64,4 +64,11 @@ interface IdCardService {
         origin: String,
         challenge: String,
     ): Triple<ByteArray, ByteArray, ByteArray>
+
+    @Throws(Exception::class)
+    fun sign(
+        token: Token,
+        pin2: ByteArray?,
+        hash: ByteArray,
+    ): Pair<ByteArray, ByteArray>
 }
