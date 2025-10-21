@@ -16,6 +16,14 @@ import javax.inject.Singleton
 class WebEidAuthServiceImpl
     @Inject
     constructor() : WebEidAuthService {
+
+        companion object {
+            val SUPPORTED_HASH_FUNCTIONS = listOf(
+                "SHA-224", "SHA-256", "SHA-384", "SHA-512",
+                "SHA3-224", "SHA3-256", "SHA3-384", "SHA3-512"
+            )
+        }
+
         override fun buildAuthToken(
             authCert: ByteArray,
             signingCert: ByteArray?,
@@ -60,17 +68,11 @@ class WebEidAuthServiceImpl
                 else -> throw IllegalArgumentException("Unsupported key type")
             }
 
-        private fun buildSupportedSignatureAlgorithms(publicKey: PublicKey): JSONArray =
-            JSONArray().apply {
-                when (publicKey) {
-                    is ECPublicKey -> {
-                        val hashFunction =
-                            when (publicKey.params.curve.field.fieldSize) {
-                                256 -> "SHA-256"
-                                384 -> "SHA-384"
-                                521 -> "SHA-512"
-                                else -> throw IllegalArgumentException("Unsupported EC key length")
-                            }
+    private fun buildSupportedSignatureAlgorithms(publicKey: PublicKey): JSONArray =
+        JSONArray().apply {
+            when (publicKey) {
+                is ECPublicKey -> {
+                    SUPPORTED_HASH_FUNCTIONS.forEach { hashFunction ->
                         put(
                             JSONObject().apply {
                                 put("cryptoAlgorithm", "ECC")
@@ -79,8 +81,9 @@ class WebEidAuthServiceImpl
                             },
                         )
                     }
-
-                    else -> throw IllegalArgumentException("Unsupported key type")
                 }
+
+                else -> throw IllegalArgumentException("Unsupported key type")
             }
+        }
     }
