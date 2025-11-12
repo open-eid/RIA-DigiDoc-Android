@@ -149,7 +149,7 @@ class MainActivity :
                 getString(main_diagnostics_logging_running_key),
                 false,
             )
-        val isLoggingEnabled = isDebug || (isDiagnosticsLoggingEnabled && isDiagnosticsLoggingRunning)
+        val isLoggingEnabled = true // isDebug || (isDiagnosticsLoggingEnabled && isDiagnosticsLoggingRunning)
         lifecycleScope.launch {
             LoggingUtil.initialize(
                 applicationContext,
