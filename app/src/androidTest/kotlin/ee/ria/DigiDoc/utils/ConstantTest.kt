@@ -50,8 +50,6 @@ class ConstantTest {
         assertEquals("signer_detail_route", Constant.Routes.SIGNER_DETAIL_SCREEN)
         assertEquals("certificate_detail_route", Constant.Routes.CERTIFICATE_DETAIL_SCREEN)
         assertEquals("recipient_detail_route", Constant.Routes.RECIPIENT_DETAIL_SCREEN)
-        assertEquals("recent_documents_route", Constant.Routes.RECENT_DOCUMENTS_SCREEN)
-        assertEquals("recent_documents_from_encrypt_route", Constant.Routes.RECENT_DOCUMENTS_FROM_ENCRYPT_SCREEN)
         assertEquals("settings_route", Constant.Routes.SETTINGS_SCREEN)
         assertEquals("settings_language_chooser_route", Constant.Routes.SETTINGS_LANGUAGE_CHOOSER_SCREEN)
         assertEquals("settings_theme_chooser_route", Constant.Routes.SETTINGS_THEME_CHOOSER_SCREEN)

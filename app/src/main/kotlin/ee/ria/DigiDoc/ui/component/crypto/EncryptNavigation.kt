@@ -189,7 +189,7 @@ fun EncryptNavigation(
             stringResource(id = R.string.document_remove_last_confirmation_message)
     }
     val closeContainerMessage = stringResource(id = R.string.crypto_close_container_message)
-    val removeContainerMessage = stringResource(id = R.string.remove_container)
+    val confirmCloseContainerMessage = stringResource(id = R.string.close_container)
     val saveContainerMessage = stringResource(id = R.string.container_save)
     val dismissRemoveFileDialog = {
         closeRemoveFileDialog()
@@ -412,7 +412,7 @@ fun EncryptNavigation(
         }
 
     BackHandler {
-        if (!isNestedContainer && encryptViewModel.isEncryptedContainer(cryptoContainer)) {
+        if (!isNestedContainer && encryptViewModel.isSaveButtonShown(cryptoContainer)) {
             showContainerCloseConfirmationDialog.value = true
         } else {
             handleBackButtonClick(
@@ -572,7 +572,7 @@ fun EncryptNavigation(
                     },
                 leftIconContentDescription = R.string.crypto_close_container_title,
                 onLeftButtonClick = {
-                    if (!isNestedContainer && encryptViewModel.isEncryptedContainer(cryptoContainer)) {
+                    if (!isNestedContainer && encryptViewModel.isSaveButtonShown(cryptoContainer)) {
                         showContainerCloseConfirmationDialog.value = true
                     } else {
                         handleBackButtonClick(
@@ -1052,13 +1052,7 @@ fun EncryptNavigation(
                         !encryptViewModel.isEncryptedContainer(cryptoContainer) &&
                         !encryptViewModel.isDecryptedContainer(cryptoContainer),
                 openEditContainerNameDialog = openEditContainerNameDialog,
-                isSaveButtonShown = (
-                    encryptViewModel.isEncryptedContainer(cryptoContainer) ||
-                        (
-                            encryptViewModel.isDecryptedContainer(cryptoContainer) &&
-                                cryptoContainer?.hasRecipients() == true
-                        )
-                ),
+                isSaveButtonShown = encryptViewModel.isSaveButtonShown(cryptoContainer),
                 cryptoContainer = cryptoContainer,
                 saveFileLauncher = saveFileLauncher,
                 saveFile = saveFile,
@@ -1082,36 +1076,49 @@ fun EncryptNavigation(
             }
 
             if (showContainerCloseConfirmationDialog.value) {
+                val isSaveContainerShown = encryptViewModel.isSaveButtonShown(cryptoContainer)
+                val dismissIcon =
+                    if (isSaveContainerShown) {
+                        R.drawable.ic_m3_download_48dp_wght400
+                    } else {
+                        R.drawable.ic_m3_cancel_48dp_wght400
+                    }
+                val dismissButtonText =
+                    if (isSaveContainerShown) {
+                        stringResource(R.string.save)
+                    } else {
+                        stringResource(R.string.cancel_button)
+                    }
                 MessageDialog(
                     modifier = modifier,
                     title = stringResource(R.string.crypto_close_container_title),
                     message = closeContainerMessage,
                     showIcons = true,
-                    dismissIcon = R.drawable.ic_m3_download_48dp_wght400,
+                    dismissIcon = dismissIcon,
                     confirmIcon = R.drawable.ic_m3_delete_48dp_wght400,
-                    dismissButtonText = stringResource(R.string.save),
-                    confirmButtonText = stringResource(R.string.remove_title),
+                    dismissButtonText = dismissButtonText,
+                    confirmButtonText = stringResource(R.string.close_title),
                     dismissButtonContentDescription = saveContainerMessage,
-                    confirmButtonContentDescription = removeContainerMessage,
+                    confirmButtonContentDescription = confirmCloseContainerMessage,
                     onDismissRequest = {
                         showContainerCloseConfirmationDialog.value = false
                     },
                     onDismissButton = {
-                        val file = cryptoContainer?.file
-                        if (file != null) {
-                            saveFile(
-                                file,
-                                cryptoContainer?.containerMimetype(),
-                                saveFileLauncher,
-                            )
+                        if (isSaveContainerShown) {
+                            val file = cryptoContainer?.file
+                            if (file != null) {
+                                saveFile(
+                                    file,
+                                    cryptoContainer?.containerMimetype(),
+                                    saveFileLauncher,
+                                )
+                            }
+                        } else {
+                            showContainerCloseConfirmationDialog.value = false
                         }
                     },
                     onConfirmButton = {
                         showContainerCloseConfirmationDialog.value = false
-                        val containerFile = cryptoContainer?.file
-                        if (containerFile?.exists() == true) {
-                            containerFile.delete()
-                        }
                         sharedContainerViewModel.resetCryptoContainer()
                         handleBackButtonClick(navController, encryptViewModel, sharedContainerViewModel)
                     },

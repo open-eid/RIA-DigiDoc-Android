@@ -71,7 +71,6 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.home.ActionButton
 import ee.ria.DigiDoc.ui.component.main.CrashDialog
 import ee.ria.DigiDoc.ui.component.menu.MainMenuBottomSheet
-import ee.ria.DigiDoc.ui.component.menu.OpenMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TopBar
@@ -100,9 +99,6 @@ fun HomeScreen(
 
     val isMainMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
-    val isOpenMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
-    val isOpenMenuBottomFromSigning = rememberSaveable { mutableStateOf(false) }
-    val isOpenMenuBottomFromEncrypt = rememberSaveable { mutableStateOf(false) }
 
     val openMenuAddFileNavigateTo = remember { mutableStateOf(Route.SigningFileChoosing.route) }
 
@@ -186,27 +182,6 @@ fun HomeScreen(
         SettingsMenuBottomSheet(
             navController = navController,
             isBottomSheetVisible = isSettingsMenuBottomSheetVisible,
-        )
-
-        OpenMenuBottomSheet(
-            isBottomSheetVisible = isOpenMenuBottomSheetVisible,
-            firstButtonClick = {
-                isOpenMenuBottomSheetVisible.value = false
-                navController.navigate(
-                    openMenuAddFileNavigateTo.value,
-                )
-            },
-            secondButtonClick = {
-                isOpenMenuBottomSheetVisible.value = false
-                val recentDocumentsRoute =
-                    when {
-                        isOpenMenuBottomFromSigning.value -> Route.RecentDocumentsFromSigning.route
-                        isOpenMenuBottomFromEncrypt.value -> Route.RecentDocumentsFromEncrypt.route
-                        else -> Route.RecentDocuments.route
-                    }
-
-                navController.navigate(recentDocumentsRoute)
-            },
         )
 
         Surface(
@@ -296,9 +271,9 @@ fun HomeScreen(
                                     stringResource(id = R.string.main_home_open_document_description),
                             onClickItem = {
                                 openMenuAddFileNavigateTo.value = Route.AllFilesChoosing.route
-                                isOpenMenuBottomSheetVisible.value = true
-                                isOpenMenuBottomFromSigning.value = false
-                                isOpenMenuBottomFromEncrypt.value = false
+                                navController.navigate(
+                                    openMenuAddFileNavigateTo.value,
+                                )
                             },
                             testTag = "homeOpenDocumentButton",
                         )
@@ -312,9 +287,9 @@ fun HomeScreen(
                                     stringResource(id = R.string.main_home_signature_description),
                             onClickItem = {
                                 openMenuAddFileNavigateTo.value = Route.SigningFileChoosing.route
-                                isOpenMenuBottomSheetVisible.value = true
-                                isOpenMenuBottomFromSigning.value = true
-                                isOpenMenuBottomFromEncrypt.value = false
+                                navController.navigate(
+                                    openMenuAddFileNavigateTo.value,
+                                )
                             },
                             testTag = "homeSignatureButton",
                         )
@@ -328,9 +303,9 @@ fun HomeScreen(
                                     stringResource(id = R.string.main_home_crypto_description),
                             onClickItem = {
                                 openMenuAddFileNavigateTo.value = Route.CryptoFileChoosing.route
-                                isOpenMenuBottomSheetVisible.value = true
-                                isOpenMenuBottomFromSigning.value = false
-                                isOpenMenuBottomFromEncrypt.value = true
+                                navController.navigate(
+                                    openMenuAddFileNavigateTo.value,
+                                )
                             },
                             testTag = "homeCryptoButton",
                         )

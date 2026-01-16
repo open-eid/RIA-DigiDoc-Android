@@ -44,7 +44,9 @@
     <string name="file_saved">Fail salvestatud</string>
     <string name="file_saved_error">Faili salvestamine ebaõnnestus</string>
     <string name="remove_title">Eemalda</string>
+    <string name="close_title">Sulge</string>
     <string name="remove_container">Eemalda ümbrik</string>
+    <string name="close_container">Sulge ümbrik</string>
     <string name="document_remove_button">Eemalda fail</string>
     <string name="document_save_button">Salvesta fail</string>
     <string name="document_remove_confirmation_message">Soovid eemaldada faili ümbrikust?</string>
@@ -133,18 +135,6 @@
     <string name="signing_close_container_title">Sulge ümbrik</string>
     <string name="signing_close_container_message">Oled sulgemas ümbrikut. Palun vali, mida ümbrikuga edasi teha: </string>
     <string name="container_notifications">Ümbriku teavitused</string>
-
-    <!-- Recent Documents -->
-    <string name="document">Dokument</string>
-    <string name="recent_documents_search">Otsi ümbrikku…</string>
-    <string name="recent_documents_search_cancel">Katkesta ümbriku otsing</string>
-    <string name="recent_documents_search_empty">Hiljutisi ümbrikke ei leitud</string>
-    <string name="recent_documents_title">Hiljutised ümbrikud</string>
-    <string name="recent_documents_empty_message">Ümbrikud puuduvad</string>
-    <string name="recent_documents_remove_button">Eemalda ümbrik</string>
-    <string name="recent_documents_remove_confirmation_message">Soovid eemaldada ümbriku?</string>
-    <string name="recent_documents_cancel_container_removal_button">Katkesta ümbriku eemaldamine</string>
-    <string name="recent_documents_confirm_container_removal_button">Kinnita ümbriku eemaldamine</string>
 
     <!-- SiVa -->
     <string name="siva_send_message_dialog">Seda tüüpi allkirjastatud dokument edastatakse digitaalallkirjade kehtivuse kontrollimiseks valideerimisteenusele SiVa. Digitaalallkirjade kehtivuse kontrollimisel edastatud andmete kohta loe lähemalt veebilehelt</string>

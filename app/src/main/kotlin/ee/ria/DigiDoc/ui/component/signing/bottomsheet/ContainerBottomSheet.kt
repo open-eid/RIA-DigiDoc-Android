@@ -37,6 +37,7 @@ import java.io.File
 fun ContainerBottomSheet(
     modifier: Modifier,
     showSheet: MutableState<Boolean>,
+    isSaveButtonShown:Boolean = false,
     isEditContainerButtonShown: Boolean = true,
     openEditContainerNameDialog: MutableState<Boolean>,
     isEncryptButtonShown: Boolean = true,
@@ -66,6 +67,7 @@ fun ContainerBottomSheet(
                     openEditContainerNameDialog.value = true
                 },
                 BottomSheetButton(
+                    showButton = isSaveButtonShown,
                     icon = R.drawable.ic_m3_download_48dp_wght400,
                     text = stringResource(R.string.container_save),
                     contentDescription = "${stringResource(

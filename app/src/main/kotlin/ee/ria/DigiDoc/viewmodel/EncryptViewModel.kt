@@ -35,8 +35,6 @@ import ee.ria.DigiDoc.common.Constant.CDOC1_EXTENSION
 import ee.ria.DigiDoc.cryptolib.CDOC2Settings
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
-import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
-import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
@@ -52,7 +50,6 @@ import javax.inject.Inject
 class EncryptViewModel
     @Inject
     constructor(
-        private val sivaRepository: SivaRepository,
         private val mimeTypeResolver: MimeTypeResolver,
         private val contentResolver: ContentResolver,
         private val fileOpeningRepository: FileOpeningRepository,
@@ -91,6 +88,11 @@ class EncryptViewModel
                     !isEncryptedContainer(cryptoContainer)
             ) &&
                 isDataFilesInContainer(cryptoContainer)
+
+        fun isSaveButtonShown(cryptoContainer: CryptoContainer?): Boolean {
+            return (isEncryptedContainer(cryptoContainer) || (isDecryptedContainer(cryptoContainer)
+                    && cryptoContainer?.hasRecipients() == true))
+        }
 
         fun isSignButtonShown(
             cryptoContainer: CryptoContainer?,

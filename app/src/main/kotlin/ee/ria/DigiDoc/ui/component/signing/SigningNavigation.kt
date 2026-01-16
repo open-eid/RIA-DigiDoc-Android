@@ -182,6 +182,8 @@ fun SigningNavigation(
     val isCadesContainer = signedContainer?.isCades() == true
     val isDdocContainer = signedContainer?.isDdoc() == true
     var isEmptyFileInContainer by remember { mutableStateOf(false) }
+    val isSignedContainer = signedContainer?.isSigned() == true
+    val isSaveContainerShown = remember { mutableStateOf(isSignedContainer) }
 
     var validSignaturesCount by remember { mutableIntStateOf(0) }
     var unknownSignaturesCount by remember { mutableIntStateOf(0) }
@@ -224,7 +226,7 @@ fun SigningNavigation(
             stringResource(id = R.string.document_remove_last_confirmation_message)
     }
     val closeContainerMessage = stringResource(id = R.string.signing_close_container_message)
-    val removeContainerMessage = stringResource(id = R.string.remove_container)
+    val confirmCloseContainerMessage = stringResource(id = R.string.close_container)
     val saveContainerMessage = stringResource(id = R.string.container_save)
     val dismissRemoveFileDialog = {
         closeRemoveFileDialog()
@@ -464,7 +466,7 @@ fun SigningNavigation(
         }
 
     BackHandler {
-        if (!isNestedContainer) {
+        if (!isNestedContainer && isSaveContainerShown.value == true) {
             showContainerCloseConfirmationDialog.value = true
         } else {
             handleBackButtonClick(
@@ -614,6 +616,9 @@ fun SigningNavigation(
             if (newTime >= (pastTime + 2 * 1000)) {
                 sendAccessibilityEvent(context, getAccessibilityEventType(), signaturesLoaded)
             }
+            if (isSaveContainerShown.value != true) {
+                isSaveContainerShown.value = signatures.count() > 0
+            }
         }
     }
 
@@ -710,7 +715,7 @@ fun SigningNavigation(
                     },
                 leftIconContentDescription = R.string.signing_close_container_title,
                 onLeftButtonClick = {
-                    if (!isNestedContainer) {
+                    if (!isNestedContainer && isSaveContainerShown.value == true) {
                         showContainerCloseConfirmationDialog.value = true
                     } else {
                         handleBackButtonClick(
@@ -805,6 +810,7 @@ fun SigningNavigation(
                             )
                         }
                     }
+                    isSaveContainerShown.value = true
                     showMessage(signatureAddedSuccessText, SnackbarType.SUCCESS)
                     signatureAddedSuccess.value = false
                 }
@@ -1053,6 +1059,7 @@ fun SigningNavigation(
                                     )
                                 }
                                 openEditContainerNameDialog.value = false
+                                isSaveContainerShown.value = true
                                 sendAccessibilityEvent(
                                     context,
                                     getAccessibilityEventType(),
@@ -1114,6 +1121,7 @@ fun SigningNavigation(
                                         }
                                     }
                                 }
+                                isSaveContainerShown.value = true
                                 closeRemoveFileDialog()
                                 sendAccessibilityEvent(context, getAccessibilityEventType(), fileRemoved)
                             },
@@ -1158,6 +1166,7 @@ fun SigningNavigation(
                                         actionSignature,
                                     )
                                 }
+                                isSaveContainerShown.value = true
                                 closeSignatureDialog()
                                 sendAccessibilityEvent(context, getAccessibilityEventType(), signatureRemoved)
                             },
@@ -1203,6 +1212,7 @@ fun SigningNavigation(
             ContainerBottomSheet(
                 modifier = modifier,
                 showSheet = showContainerBottomSheet,
+                isSaveButtonShown = isSaveContainerShown.value,
                 isEditContainerButtonShown =
                     signingViewModel.isBottomContainerButtonShown(
                         signedContainer,
@@ -1256,36 +1266,48 @@ fun SigningNavigation(
             }
 
             if (showContainerCloseConfirmationDialog.value) {
+                val dismissIcon =
+                    if (isSaveContainerShown.value == true) {
+                        R.drawable.ic_m3_download_48dp_wght400
+                    } else {
+                        R.drawable.ic_m3_cancel_48dp_wght400
+                    }
+                val dismissButtonText =
+                    if (isSaveContainerShown.value == true) {
+                        stringResource(R.string.save)
+                    } else {
+                        stringResource(R.string.cancel_button)
+                    }
                 MessageDialog(
                     modifier = modifier,
                     title = stringResource(R.string.signing_close_container_title),
                     message = closeContainerMessage,
                     showIcons = true,
-                    dismissIcon = R.drawable.ic_m3_download_48dp_wght400,
+                    dismissIcon = dismissIcon,
                     confirmIcon = R.drawable.ic_m3_delete_48dp_wght400,
-                    dismissButtonText = stringResource(R.string.save),
-                    confirmButtonText = stringResource(R.string.remove_title),
+                    dismissButtonText = dismissButtonText,
+                    confirmButtonText = stringResource(R.string.close_title),
                     dismissButtonContentDescription = saveContainerMessage,
-                    confirmButtonContentDescription = removeContainerMessage,
+                    confirmButtonContentDescription = confirmCloseContainerMessage,
                     onDismissRequest = {
                         showContainerCloseConfirmationDialog.value = false
                     },
                     onDismissButton = {
-                        val file = signedContainer?.getContainerFile()
-                        if (file != null) {
-                            saveFile(
-                                file,
-                                signedContainer?.containerMimetype(),
-                                saveFileLauncher,
-                            )
+                        if (isSaveContainerShown.value == true) {
+                            val file = signedContainer?.getContainerFile()
+                            if (file != null) {
+                                saveFile(
+                                    file,
+                                    signedContainer?.containerMimetype(),
+                                    saveFileLauncher,
+                                )
+                            }
+                        } else {
+                            showContainerCloseConfirmationDialog.value = false
                         }
                     },
                     onConfirmButton = {
                         showContainerCloseConfirmationDialog.value = false
-                        val containerFile = signedContainer?.getContainerFile()
-                        if (containerFile?.exists() == true) {
-                            containerFile.delete()
-                        }
                         sharedContainerViewModel.resetSignedContainer()
                         sharedContainerViewModel.resetContainerNotifications()
                         handleBackButtonClick(navController, signingViewModel, sharedContainerViewModel)

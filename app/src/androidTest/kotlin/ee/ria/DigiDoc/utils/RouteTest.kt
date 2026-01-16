@@ -40,9 +40,6 @@ import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_IDENTIFICATION_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_PIN_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.PROXY_SERVICES_SCREEN
-import ee.ria.DigiDoc.utils.Constant.Routes.RECENT_DOCUMENTS_FROM_ENCRYPT_SCREEN
-import ee.ria.DigiDoc.utils.Constant.Routes.RECENT_DOCUMENTS_SCREEN
-import ee.ria.DigiDoc.utils.Constant.Routes.RECENT_DOCUMENTS_SCREEN_FROM_SIGNING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.RECIPIENT_DETAIL_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ROOT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_LANGUAGE_CHOOSER_SCREEN
@@ -79,9 +76,6 @@ class RouteTest {
         assertEquals(SIGNER_DETAIL_SCREEN, Route.SignerDetail.route)
         assertEquals(CERTIFICATE_DETAIL_SCREEN, Route.CertificateDetail.route)
         assertEquals(RECIPIENT_DETAIL_SCREEN, Route.RecipientDetail.route)
-        assertEquals(RECENT_DOCUMENTS_SCREEN, Route.RecentDocuments.route)
-        assertEquals(RECENT_DOCUMENTS_SCREEN_FROM_SIGNING_SCREEN, Route.RecentDocumentsFromSigning.route)
-        assertEquals(RECENT_DOCUMENTS_FROM_ENCRYPT_SCREEN, Route.RecentDocumentsFromEncrypt.route)
         assertEquals(SETTINGS_SCREEN, Route.Settings.route)
         assertEquals(SETTINGS_LANGUAGE_CHOOSER_SCREEN, Route.SettingsLanguageChooser.route)
         assertEquals(SETTINGS_THEME_CHOOSER_SCREEN, Route.SettingsThemeChooser.route)
