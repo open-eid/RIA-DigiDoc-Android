@@ -37,7 +37,7 @@ import java.io.File
 fun ContainerBottomSheet(
     modifier: Modifier,
     showSheet: MutableState<Boolean>,
-    isSaveButtonShown:Boolean = false,
+    isSaveButtonShown: Boolean = false,
     isEditContainerButtonShown: Boolean = true,
     openEditContainerNameDialog: MutableState<Boolean>,
     isEncryptButtonShown: Boolean = true,

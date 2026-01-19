@@ -89,10 +89,14 @@ class EncryptViewModel
             ) &&
                 isDataFilesInContainer(cryptoContainer)
 
-        fun isSaveButtonShown(cryptoContainer: CryptoContainer?): Boolean {
-            return (isEncryptedContainer(cryptoContainer) || (isDecryptedContainer(cryptoContainer)
-                    && cryptoContainer?.hasRecipients() == true))
-        }
+        fun isSaveButtonShown(cryptoContainer: CryptoContainer?): Boolean =
+            (
+                isEncryptedContainer(cryptoContainer) ||
+                    (
+                        isDecryptedContainer(cryptoContainer) &&
+                            cryptoContainer?.hasRecipients() == true
+                    )
+            )
 
         fun isSignButtonShown(
             cryptoContainer: CryptoContainer?,
@@ -151,20 +155,6 @@ class EncryptViewModel
             )
 
         fun getMimetype(file: File): String? = mimeTypeResolver.mimeType(file)
-
-        suspend fun getTimestampedContainer(
-            context: Context,
-            signedContainer: SignedContainer,
-            isSivaConfirmed: Boolean,
-        ): SignedContainer {
-            if (sivaRepository.isTimestampedContainer(signedContainer) &&
-                !signedContainer.isXades()
-            ) {
-                return sivaRepository.getTimestampedContainer(context, signedContainer, isSivaConfirmed)
-            }
-
-            return signedContainer
-        }
 
         @Throws(Exception::class)
         suspend fun openSignedContainer(
