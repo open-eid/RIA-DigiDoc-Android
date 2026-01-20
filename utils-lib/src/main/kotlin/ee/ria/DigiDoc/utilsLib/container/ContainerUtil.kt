@@ -284,15 +284,15 @@ object ContainerUtil {
 
     fun removeSignatureContainersDir(context: Context): Boolean {
         val dir = File(context.filesDir, DIR_SIGNATURE_CONTAINERS)
-        return deleteDirSafely(dir)
+        return deleteDir(dir)
     }
 
     fun removeCryptoContainersDir(context: Context): Boolean {
         val dir = File(context.filesDir, DIR_CRYPTO_CONTAINERS)
-        return deleteDirSafely(dir)
+        return deleteDir(dir)
     }
 
-    private fun deleteDirSafely(dir: File): Boolean {
+    private fun deleteDir(dir: File): Boolean {
         if (!dir.exists()) {
             debugLog(LOG_TAG, "Directory does not exist: ${dir.path}")
             return true

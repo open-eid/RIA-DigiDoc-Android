@@ -168,6 +168,9 @@ class MainActivity :
             fileTypeSetup.initializeApplicationFileTypesAssociation(componentClassName)
             librarySetup.setupLibraries(applicationContext, isLoggingEnabled)
 
+            ContainerUtil.removeSignatureContainersDir(applicationContext)
+            ContainerUtil.removeCryptoContainersDir(applicationContext)
+
             isAppReady = true
 
             setContent {
@@ -180,9 +183,6 @@ class MainActivity :
                 }
             }
         }
-
-        ContainerUtil.removeSignatureContainersDir(applicationContext)
-        ContainerUtil.removeCryptoContainersDir(applicationContext)
     }
 
     override fun attachBaseContext(newBase: Context?) {
