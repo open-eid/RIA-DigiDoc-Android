@@ -226,7 +226,7 @@ fun SigningNavigation(
             stringResource(id = R.string.document_remove_last_confirmation_message)
     }
     val closeContainerMessage = stringResource(id = R.string.signing_close_container_message)
-    val confirmCloseContainerMessage = stringResource(id = R.string.close_container)
+    val confirmCloseContainerMessage = stringResource(id = R.string.signing_close_container_title)
     val saveContainerMessage = stringResource(id = R.string.container_save)
     val dismissRemoveFileDialog = {
         closeRemoveFileDialog()
@@ -1286,7 +1286,7 @@ fun SigningNavigation(
                     dismissIcon = dismissIcon,
                     confirmIcon = R.drawable.ic_m3_delete_48dp_wght400,
                     dismissButtonText = dismissButtonText,
-                    confirmButtonText = stringResource(R.string.close_title),
+                    confirmButtonText = stringResource(R.string.close_button),
                     dismissButtonContentDescription = saveContainerMessage,
                     confirmButtonContentDescription = confirmCloseContainerMessage,
                     onDismissRequest = {
@@ -1308,6 +1308,10 @@ fun SigningNavigation(
                     },
                     onConfirmButton = {
                         showContainerCloseConfirmationDialog.value = false
+                        val containerFile = signedContainer?.getContainerFile()
+                        if (containerFile?.exists() == true) {
+                            containerFile.delete()
+                        }
                         sharedContainerViewModel.resetSignedContainer()
                         sharedContainerViewModel.resetContainerNotifications()
                         handleBackButtonClick(navController, signingViewModel, sharedContainerViewModel)

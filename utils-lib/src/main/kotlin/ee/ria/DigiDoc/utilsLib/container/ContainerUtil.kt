@@ -282,6 +282,36 @@ object ContainerUtil {
         return dir
     }
 
+    fun removeSignatureContainersDir(context: Context): Boolean {
+        val dir = File(context.filesDir, DIR_SIGNATURE_CONTAINERS)
+        return deleteDirSafely(dir)
+    }
+
+    fun removeCryptoContainersDir(context: Context): Boolean {
+        val dir = File(context.filesDir, DIR_CRYPTO_CONTAINERS)
+        return deleteDirSafely(dir)
+    }
+
+    private fun deleteDirSafely(dir: File): Boolean {
+        if (!dir.exists()) {
+            debugLog(LOG_TAG, "Directory does not exist: ${dir.path}")
+            return true
+        }
+
+        return try {
+            dir.deleteRecursively().also { success ->
+                if (success) {
+                    debugLog(LOG_TAG, "Directory removed: ${dir.path}")
+                } else {
+                    debugLog(LOG_TAG, "Failed to remove directory: ${dir.path}")
+                }
+            }
+        } catch (e: Exception) {
+            debugLog(LOG_TAG, "Error removing directory ${dir.path}: ${e.message}", e)
+            false
+        }
+    }
+
     fun removeExtensionFromContainerFilename(filename: String): String = FilenameUtils.removeExtension(filename)
 
     fun addExtensionToContainerFilename(filename: String): String {

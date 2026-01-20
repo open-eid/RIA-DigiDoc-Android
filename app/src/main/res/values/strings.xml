@@ -44,9 +44,7 @@
     <string name="file_saved">File saved</string>
     <string name="file_saved_error">Failed to save file</string>
     <string name="remove_title">Remove</string>
-    <string name="close_title">Close</string>
     <string name="remove_container">Remove container</string>
-    <string name="close_container">Close container</string>
     <string name="document_remove_button">Remove file</string>
     <string name="document_save_button">Save file</string>
     <string name="document_remove_confirmation_message">Remove file from container?</string>

@@ -44,9 +44,7 @@
     <string name="file_saved">Fail salvestatud</string>
     <string name="file_saved_error">Faili salvestamine ebaõnnestus</string>
     <string name="remove_title">Eemalda</string>
-    <string name="close_title">Sulge</string>
     <string name="remove_container">Eemalda ümbrik</string>
-    <string name="close_container">Sulge ümbrik</string>
     <string name="document_remove_button">Eemalda fail</string>
     <string name="document_save_button">Salvesta fail</string>
     <string name="document_remove_confirmation_message">Soovid eemaldada faili ümbrikust?</string>
