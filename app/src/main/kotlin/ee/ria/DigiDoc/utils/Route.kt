@@ -30,6 +30,7 @@ import ee.ria.DigiDoc.utils.Constant.Routes.CRYPTO_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.DECRYPT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.DIAGNOSTICS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.EID_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.ENCRYPTED_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ENCRYPTION_SERVICES_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ENCRYPT_RECIPIENT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ENCRYPT_SCREEN
@@ -77,6 +78,8 @@ sealed class Route(
     data object Signing : Route(SIGNING_SCREEN)
 
     data object Encrypt : Route(ENCRYPT_SCREEN)
+
+    data object Encrypted : Route(ENCRYPTED_SCREEN)
 
     data object DecryptScreen : Route(DECRYPT_SCREEN)
 

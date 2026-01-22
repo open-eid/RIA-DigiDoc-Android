@@ -98,7 +98,10 @@ class RecipientRepositoryImpl
             query: String,
         ): Pair<List<Addressee>, Int> {
             val configurationProvider = configurationRepository.getConfiguration()
-
+            var exception: Exception =
+                CryptoException(
+                    "No addressee found",
+                )
             val ldapFilter = LdapFilter(query)
             if (ldapFilter.isPersonalCode(query)) {
                 val ldapPersonUrls = configurationProvider?.ldapPersonUrls
@@ -116,11 +119,18 @@ class RecipientRepositoryImpl
                         count += countSearch
                     } catch (e: NoInternetConnectionException) {
                         errorLog(logTag, "Unable to connect to LDAP url: $ldapPersonUrl", e)
-                        throw e
+                        exception = e
                     } catch (ce: CryptoException) {
                         errorLog(logTag, "Unable to get certificates from LDAP url: $ldapPersonUrl", ce)
-                        throw CryptoException("Unable to get certificates from LDAP url: $ldapPersonUrl", ce)
+                        exception =
+                            CryptoException(
+                                "Unable to get certificates from LDAP url: $ldapPersonUrl",
+                                ce,
+                            )
                     }
+                }
+                if (addressees.isEmpty()) {
+                    throw exception
                 }
                 return Pair(addressees, count)
             } else {

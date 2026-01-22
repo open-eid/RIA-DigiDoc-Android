@@ -40,6 +40,7 @@ object Constant {
         const val CRYPTO_FILE_CHOOSING_SCREEN = "crypto_file_choosing_route"
         const val SIGNING_SCREEN = "signing_route"
         const val ENCRYPT_SCREEN = "encrypt_route"
+        const val ENCRYPTED_SCREEN = "encrypted_route"
         const val DECRYPT_SCREEN = "decrypt_route"
         const val ACCESSIBILITY_SCREEN = "accessibility_route"
         const val INFO_SCREEN = "info_route"
