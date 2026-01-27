@@ -43,7 +43,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
@@ -111,9 +116,14 @@ fun InitScreen(
                 },
             )
         }
-
+        val baseStyle = MaterialTheme.typography.displaySmall
         Text(
-            text = stringResource(id = R.string.ria),
+            text =
+                smallCapsText(
+                    text = stringResource(id = R.string.ria),
+                    normalSize = baseStyle.fontSize,
+                    smallCapsSize = baseStyle.fontSize * 0.8f,
+                ),
             style = MaterialTheme.typography.displaySmall,
             color = Color.White,
             modifier =
@@ -125,6 +135,29 @@ fun InitScreen(
         )
     }
 }
+
+fun smallCapsText(
+    text: String,
+    normalSize: TextUnit,
+    smallCapsSize: TextUnit,
+): AnnotatedString =
+    buildAnnotatedString {
+        text.forEach { ch ->
+            if (ch.isLowerCase()) {
+                withStyle(
+                    SpanStyle(fontSize = smallCapsSize),
+                ) {
+                    append(ch.uppercaseChar())
+                }
+            } else {
+                withStyle(
+                    SpanStyle(fontSize = normalSize),
+                ) {
+                    append(ch)
+                }
+            }
+        }
+    }
 
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
