@@ -455,7 +455,7 @@ fun SigningNavigation(
                     } ?: run {
                         signedContainer?.getContainerFile()?.let {
                             sharedContainerViewModel.saveContainerFile(it, result)
-                            showMessage(context, R.string.file_saved, SnackbarType.SUCCESS)
+                            showMessage(context, R.string.signature_saved_container_success, SnackbarType.SUCCESS)
                             isSaved = true
                         } ?: showMessage(context, R.string.file_saved_error)
                     }
@@ -670,6 +670,7 @@ fun SigningNavigation(
                     navController,
                     signingViewModel,
                     sharedContainerViewModel,
+                    true,
                 )
             }
             @Suppress("AssignedValueIsNeverRead")
@@ -1367,6 +1368,7 @@ private fun handleBackButtonClick(
     navController: NavHostController,
     signingViewModel: SigningViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
+    containerSavedSuccess: Boolean = false,
 ) {
     sharedContainerViewModel.resetExternalFileUris()
     sharedContainerViewModel.resetIsSivaConfirmed()
@@ -1386,6 +1388,12 @@ private fun handleBackButtonClick(
     } else {
         sharedContainerViewModel.clearContainers()
         signingViewModel.handleBackButton()
+
+        if (containerSavedSuccess) {
+            navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.set("snackbar_message", R.string.signature_saved_container_success)
+        }
         navController.navigateUp()
     }
 }

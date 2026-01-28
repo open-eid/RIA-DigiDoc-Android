@@ -180,6 +180,8 @@
     <string name="crypto_decrypt_title">Ümbriku dekrüpteerimine</string>
     <string name="crypto_decrypt_method">Dekrüpteerimise meetod</string>
 
+    <string name="crypto_saved_container_success">Krüptokonteineri salvestamine õnnestus</string>
+
     <!-- Signature Add -->
     <string name="signature_update_title">Ümbriku allkirjastamine</string>
     <string name="signature_update_name_update_name">Ümbriku nimi</string>
@@ -192,6 +194,8 @@
     <string name="signature_update_signature_add_method_nfc_accessibility">ID-kaart N F C abil</string>
     <string name="signature_update_signature_add_success">Allkiri lisatud</string>
     <string name="signature_update_signature_add">Lisa allkiri</string>
+
+    <string name="signature_saved_container_success">Allkirjastatud konteineri salvestamine õnnestus</string>
 
     <string name="signature_update_signature_selected_method_mobile_id">Allkirjastamise viisiks on mobiil-ID, vahekaart %1$d / %2$d</string>
     <string name="signature_update_signature_selected_method_smart_id">Allkirjastamise viisiks on Smart-ID, vahekaart %1$d / %2$d</string>

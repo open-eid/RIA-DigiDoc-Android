@@ -53,6 +53,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -79,6 +80,8 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeM
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
+import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.HomeViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -93,6 +96,7 @@ fun HomeScreen(
     sharedMenuViewModel: SharedMenuViewModel,
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
     val activity = LocalActivity.current
     val openCrashDetectorDialog = rememberSaveable { mutableStateOf(false) }
     val hasUnsentReports by homeViewModel.hasUnsentReports.asFlow().collectAsState(Tasks.forResult(false))
@@ -104,6 +108,13 @@ fun HomeScreen(
 
     BackHandler {
         activity?.finish()
+    }
+
+    LaunchedEffect(snackbarMessage) {
+        snackbarMessage?.let { message ->
+            showMessage(context, message)
+            savedStateHandle?.set("snackbar_message", null)
+        }
     }
 
     LaunchedEffect(homeViewModel.didAppCrashOnPreviousExecution(), hasUnsentReports) {

@@ -407,7 +407,13 @@ fun EncryptNavigation(
                         sharedContainerViewModel.saveContainerFile(file, result)
                         showMessage(context, R.string.file_saved, SnackbarType.SUCCESS)
                         isSaved = true
-                    } ?: showMessage(context, R.string.file_saved_error)
+                    } ?: run {
+                        cryptoContainer?.file?.let {
+                            sharedContainerViewModel.saveContainerFile(it, result)
+                            showMessage(context, R.string.crypto_saved_container_success, SnackbarType.SUCCESS)
+                            isSaved = true
+                        } ?: showMessage(context, R.string.file_saved_error)
+                    }
                 } catch (_: Exception) {
                     showMessage(context, R.string.file_saved_error)
                 }
@@ -514,6 +520,7 @@ fun EncryptNavigation(
                     navController,
                     encryptViewModel,
                     sharedContainerViewModel,
+                    true,
                 )
             }
             @Suppress("AssignedValueIsNeverRead")
@@ -1172,6 +1179,7 @@ private fun handleBackButtonClick(
     navController: NavHostController,
     encryptViewModel: EncryptViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
+    containerSavedSuccess: Boolean = false,
 ) {
     sharedContainerViewModel.resetExternalFileUris()
     sharedContainerViewModel.resetIsSivaConfirmed()
@@ -1191,6 +1199,12 @@ private fun handleBackButtonClick(
     } else {
         sharedContainerViewModel.clearContainers()
         encryptViewModel.handleBackButton()
+
+        if (containerSavedSuccess) {
+            navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.set("snackbar_message", R.string.crypto_saved_container_success)
+        }
         navController.navigateUp()
     }
 }
