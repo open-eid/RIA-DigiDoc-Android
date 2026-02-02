@@ -180,7 +180,7 @@
     <string name="crypto_decrypt_title">Container decryption</string>
     <string name="crypto_decrypt_method">Decryption method</string>
 
-    <string name="crypto_saved_container_success">Successfully saved crypto container</string>
+    <string name="crypto_saved_container_success">Crypto container saved successfully</string>
 
     <!-- Signature Add -->
     <string name="signature_update_title">Container signing</string>
@@ -195,7 +195,7 @@
     <string name="signature_update_signature_add_success">Signature added</string>
     <string name="signature_update_signature_add">Add signature</string>
 
-    <string name="signature_saved_container_success">Successfully saved signed container</string>
+    <string name="signature_saved_container_success">Signed container saved successfully</string>
 
     <string name="signature_update_signature_selected_method_mobile_id">Signing option Mobile-ID, tab %1$d of %2$d</string>
     <string name="signature_update_signature_selected_method_smart_id">Signing option Smart-ID, tab %1$d of %2$d</string>
