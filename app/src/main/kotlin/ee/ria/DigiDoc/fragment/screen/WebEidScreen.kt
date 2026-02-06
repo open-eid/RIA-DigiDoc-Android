@@ -125,8 +125,12 @@ fun WebEidScreen(
     val snackBarScope = rememberCoroutineScope()
     val messages by SnackBarManager.messages.collectAsState(emptyList())
     val dialogError by viewModel.dialogError.collectAsState()
-    var rememberMe by rememberSaveable { mutableStateOf(true) }
-    val hasStoredCanNumber = sharedSettingsViewModel.dataStore.getCanNumber().isNotEmpty()
+    var rememberMe by rememberSaveable {
+        mutableStateOf(sharedSettingsViewModel.dataStore.getWebEidRememberMe())
+    }
+    val hasStoredCanNumber =
+        sharedSettingsViewModel.dataStore.getCanNumber().isNotEmpty() ||
+            sharedSettingsViewModel.dataStore.getTemporaryCanNumber().isNotEmpty()
 
     LaunchedEffect(messages) {
         messages.forEach { message ->
@@ -134,6 +138,15 @@ fun WebEidScreen(
                 snackBarHostState.showSnackbar(message)
             }
             SnackBarManager.removeMessage(message)
+        }
+    }
+
+    LaunchedEffect(authRequest, certificateRequest) {
+        if (authRequest != null || certificateRequest != null) {
+            if (!sharedSettingsViewModel.dataStore.isWebEidSessionActive()) {
+                sharedSettingsViewModel.dataStore.clearTemporaryCanNumber()
+            }
+            sharedSettingsViewModel.dataStore.setWebEidSessionActive(true)
         }
     }
 
@@ -297,7 +310,10 @@ fun WebEidScreen(
                     if (!isWebEidAuthenticating) {
                         WebEidRememberMe(
                             rememberMe = rememberMe,
-                            onRememberMeChange = { rememberMe = it },
+                            onRememberMeChange = {
+                                rememberMe = it
+                                sharedSettingsViewModel.dataStore.setWebEidRememberMe(it)
+                            },
                         )
                     }
                 } else if (isCertificateFlow || signRequest != null) {
@@ -308,9 +324,14 @@ fun WebEidScreen(
                                 signRequest != null -> signRequest.origin
                                 else -> ""
                             }
+                        val signingPersonInfo =
+                            signRequest?.personalData?.let {
+                                "${it.givenNames} ${it.surname}, ${it.personalCode}"
+                            }
                         WebEidSignOrCertificateInfo(
                             origin = origin,
                             isCertificateFlow = isCertificateFlow,
+                            signingPersonInfo = signingPersonInfo,
                         )
                     }
 
@@ -347,7 +368,10 @@ fun WebEidScreen(
                         if (!isWebEidAuthenticating) {
                             WebEidRememberMe(
                                 rememberMe = rememberMe,
-                                onRememberMeChange = { rememberMe = it },
+                                onRememberMeChange = {
+                                    rememberMe = it
+                                    sharedSettingsViewModel.dataStore.setWebEidRememberMe(it)
+                                },
                             )
                         }
                     } else {
@@ -364,6 +388,8 @@ fun WebEidScreen(
                                 cancelWebEidSignAction()
                             },
                             onSuccess = {
+                                sharedSettingsViewModel.dataStore.clearTemporaryCanNumber()
+                                sharedSettingsViewModel.dataStore.setWebEidSessionActive(false)
                                 isWebEidAuthenticating = false
                                 navController.navigateUp()
                             },
@@ -500,6 +526,7 @@ private fun WebEidAuthInfo(authRequest: WebEidAuthRequest) {
 private fun WebEidSignOrCertificateInfo(
     origin: String,
     isCertificateFlow: Boolean,
+    signingPersonInfo: String? = null,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -529,7 +556,12 @@ private fun WebEidSignOrCertificateInfo(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = stringResource(R.string.web_eid_details_forwarded),
+            text =
+                if (isCertificateFlow) {
+                    stringResource(R.string.web_eid_details_forwarded)
+                } else {
+                    stringResource(R.string.web_eid_details)
+                },
             style = MaterialTheme.typography.labelMedium,
             textAlign = TextAlign.Left,
         )
@@ -537,7 +569,12 @@ private fun WebEidSignOrCertificateInfo(
         Spacer(modifier = Modifier.height(2.dp))
 
         Text(
-            text = stringResource(R.string.web_eid_name_personal_identification_code),
+            text =
+                if (!isCertificateFlow && !signingPersonInfo.isNullOrBlank()) {
+                    signingPersonInfo
+                } else {
+                    stringResource(R.string.web_eid_name_personal_identification_code)
+                },
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Left,
         )
@@ -545,7 +582,12 @@ private fun WebEidSignOrCertificateInfo(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = stringResource(R.string.web_eid_certificate_consent_text),
+            text =
+                if (isCertificateFlow) {
+                    stringResource(R.string.web_eid_certificate_consent_text)
+                } else {
+                    stringResource(R.string.web_eid_signature_consent_text)
+                },
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Left,
