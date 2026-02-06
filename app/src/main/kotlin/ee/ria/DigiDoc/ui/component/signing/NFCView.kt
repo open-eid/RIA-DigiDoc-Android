@@ -120,6 +120,7 @@ import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.pin.PinCodeUtil.shouldShowPINCodeError
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.NFCViewModel
+import ee.ria.DigiDoc.viewmodel.WebEidViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.Dispatchers.IO
@@ -129,6 +130,7 @@ import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Base64
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -138,7 +140,9 @@ fun NFCView(
     identityAction: IdentityAction,
     isSigning: Boolean = false,
     isDecrypting: Boolean = false,
-    isAuthenticating: Boolean,
+    isAuthenticating: Boolean = false,
+    isCertificate: Boolean = false,
+    isWebEidAuthenticating: Boolean = false,
     onError: () -> Unit = {},
     onSuccess: () -> Unit = {},
     isAddingRoleAndAddress: Boolean = false,
@@ -149,13 +153,20 @@ fun NFCView(
     isSupported: (Boolean) -> Unit = {},
     isValidToSign: (Boolean) -> Unit = {},
     isValidToDecrypt: (Boolean) -> Unit = {},
+    isValidToWebEidAuthenticate: (Boolean) -> Unit = {},
     showPinField: Boolean = true,
-    isValidToAuthenticate: (Boolean) -> Unit,
+    isValidToAuthenticate: (Boolean) -> Unit = {},
     signAction: (() -> Unit) -> Unit = {},
     decryptAction: (() -> Unit) -> Unit = {},
     cancelAction: (() -> Unit) -> Unit = {},
     cancelDecryptAction: (() -> Unit) -> Unit = {},
+    authenticateWebEidAction: (() -> Unit) -> Unit = {},
+    cancelWebEidAuthenticateAction: (() -> Unit) -> Unit = {},
+    signWebEidAction: (() -> Unit) -> Unit = {},
+    cancelWebEidSignAction: (() -> Unit) -> Unit = {},
     isAuthenticated: (Boolean, IdCardData) -> Unit,
+    webEidViewModel: WebEidViewModel? = null,
+    canNumberReadOnly: Boolean = false,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -183,14 +194,27 @@ fun NFCView(
             ),
         )
     }
+    var signingCert by rememberSaveable {
+        mutableStateOf(sharedSettingsViewModel.dataStore.getSigningCertificate())
+    }
     var errorText by remember { mutableStateOf("") }
     val showErrorDialog = rememberSaveable { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val saveFormParams = {
+        val previousCanNumber = sharedSettingsViewModel.dataStore.getCanNumber()
+        val currentCanNumber = canNumber.text
+
         if (shouldRememberMe) {
-            sharedSettingsViewModel.dataStore.setCanNumber(canNumber.text)
+            if (previousCanNumber != currentCanNumber) {
+                signingCert = ""
+                sharedSettingsViewModel.dataStore.setSigningCertificate("")
+            }
+
+            sharedSettingsViewModel.dataStore.setCanNumber(currentCanNumber)
+            sharedSettingsViewModel.dataStore.setSigningCertificate(signingCert)
         } else {
             sharedSettingsViewModel.dataStore.setCanNumber("")
+            sharedSettingsViewModel.dataStore.setSigningCertificate("")
         }
     }
 
@@ -225,6 +249,15 @@ fun NFCView(
         } else {
             CodeType.PIN1
         }
+
+    val webEidAuth = webEidViewModel?.authRequest?.collectAsState()?.value
+    val originString = webEidAuth?.origin ?: ""
+    val challengeString = webEidAuth?.challenge ?: ""
+
+    val webEidCertificate = webEidViewModel?.certificateRequest?.collectAsState()?.value
+    val webEidSign = webEidViewModel?.signRequest?.collectAsState()?.value
+    val responseUriString = webEidSign?.responseUri ?: webEidCertificate?.responseUri ?: ""
+    val hashString = webEidSign?.hash ?: ""
 
     BackHandler {
         nfcViewModel.handleBackButton()
@@ -309,6 +342,40 @@ fun NFCView(
             cryptoContainer?.let {
                 sharedContainerViewModel.setCryptoContainer(it, true)
                 nfcViewModel.resetCryptoContainer()
+                onSuccess()
+            }
+        }
+    }
+
+    LaunchedEffect(nfcViewModel.webEidAuthResult) {
+        nfcViewModel.webEidAuthResult.asFlow().collect { result ->
+            result?.let { (authCert, signingCert, signature) ->
+                val encodedCert = Base64.getEncoder().encodeToString(signingCert)
+                sharedSettingsViewModel.dataStore.setSigningCertificate(encodedCert)
+                webEidViewModel?.handleWebEidAuthResult(authCert, signingCert, signature)
+                nfcViewModel.resetWebEidAuthResult()
+                onSuccess()
+            }
+        }
+    }
+
+    LaunchedEffect(nfcViewModel.webEidCertificateResult) {
+        nfcViewModel.webEidCertificateResult.asFlow().collect { result ->
+            result?.let { signCert ->
+                sharedSettingsViewModel.dataStore.setSigningCertificate(signCert)
+                val certBytes = Base64.getDecoder().decode(signCert)
+                webEidViewModel?.handleWebEidCertificateResult(certBytes)
+                nfcViewModel.resetWebEidCertificateResult()
+                onSuccess()
+            }
+        }
+    }
+
+    LaunchedEffect(nfcViewModel.webEidSignResult) {
+        nfcViewModel.webEidSignResult.asFlow().collect { result ->
+            result?.let { (signCert, signature, responseUri) ->
+                webEidViewModel?.handleWebEidSignResult(signCert, signature, responseUri)
+                nfcViewModel.resetWebEidSignResult()
                 onSuccess()
             }
         }
@@ -446,7 +513,7 @@ fun NFCView(
     ) {
         if (isAddingRoleAndAddress) {
             RoleDataView(modifier, sharedSettingsViewModel)
-        } else if (isSigning || isAuthenticating || isDecrypting) {
+        } else if (isSigning || isWebEidAuthenticating || isAuthenticating || isDecrypting) {
             NFCSignatureUpdateContainer(
                 nfcViewModel = nfcViewModel,
                 onError = onError,
@@ -492,11 +559,15 @@ fun NFCView(
                 nfcImage = R.drawable.ic_icon_nfc
 
                 val isValid =
-                    nfcViewModel.positiveButtonEnabled(
-                        canNumber.text,
-                        pinCode.value,
-                        codeType,
-                    )
+                    if (isCertificate) {
+                        nfcViewModel.isCANLengthValid(canNumber.text)
+                    } else {
+                        nfcViewModel.positiveButtonEnabled(
+                            canNumber.text,
+                            pinCode.value,
+                            codeType,
+                        )
+                    }
 
                 val isValidForAuthenticating =
                     nfcViewModel.isCANLengthValid(canNumber.text)
@@ -504,6 +575,7 @@ fun NFCView(
                 LaunchedEffect(isValid) {
                     isValidToSign(isValid)
                     isValidToDecrypt(isValid)
+                    isValidToWebEidAuthenticate(isValid)
                 }
 
                 LaunchedEffect(Unit, rememberMe) {
@@ -564,6 +636,51 @@ fun NFCView(
                                 )
                             }
                         }
+                        authenticateWebEidAction {
+                            saveFormParams()
+                            scope.launch(IO) {
+                                nfcViewModel.performNFCWebEidAuthWorkRequest(
+                                    activity = activity,
+                                    context = context,
+                                    canNumber = canNumber.text,
+                                    pin1Code = pinCode.value,
+                                    origin = originString,
+                                    challenge = challengeString,
+                                )
+                            }
+                        }
+                        signWebEidAction {
+                            scope.launch(IO) {
+                                val isCertificateFlow = webEidCertificate != null
+                                val cachedCert = sharedSettingsViewModel.dataStore.getSigningCertificate()
+
+                                if (isCertificateFlow) {
+                                    saveFormParams()
+                                    if (cachedCert.isNotEmpty()) {
+                                        val certBytes = Base64.getDecoder().decode(cachedCert)
+                                        webEidViewModel.handleWebEidCertificateResult(certBytes)
+                                        onSuccess()
+                                    } else {
+                                        nfcViewModel.performNFCWebEidCertificateWorkRequest(
+                                            activity = activity,
+                                            canNumber = canNumber.text,
+                                        )
+                                    }
+                                } else {
+                                    if (sharedSettingsViewModel.dataStore.getCanNumber().isNotEmpty()) {
+                                        saveFormParams()
+                                    }
+                                    nfcViewModel.performNFCWebEidSignWorkRequest(
+                                        activity = activity,
+                                        context = context,
+                                        canNumber = canNumber.text,
+                                        pin2Code = pinCode.value,
+                                        responseUri = responseUriString,
+                                        hash = hashString,
+                                    )
+                                }
+                            }
+                        }
                         cancelAction {
                             nfcViewModel.handleBackButton()
                             scope.launch(IO) {
@@ -572,7 +689,17 @@ fun NFCView(
                         }
                         cancelDecryptAction {
                             nfcViewModel.handleBackButton()
-                            nfcViewModel.cancelNFCDecryptWorkRequest()
+                            nfcViewModel.cancelNfcOperation()
+                        }
+
+                        cancelWebEidAuthenticateAction {
+                            nfcViewModel.handleBackButton()
+                            nfcViewModel.cancelNfcOperation()
+                        }
+
+                        cancelWebEidSignAction {
+                            nfcViewModel.handleBackButton()
+                            nfcViewModel.cancelNfcOperation()
                         }
                     }
                 }
@@ -637,6 +764,8 @@ fun NFCView(
                                         )
                                 }
                             },
+                            readOnly = canNumberReadOnly,
+                            enabled = !canNumberReadOnly,
                             modifier =
                                 modifier
                                     .focusRequester(canNumberFocusRequester)
@@ -654,7 +783,7 @@ fun NFCView(
                                         contentDescription = canNumberLocationText
                                     }.testTag("signatureUpdateNFCCAN"),
                             trailingIcon = {
-                                if (!isTalkBackEnabled(context) && canNumber.text.isNotEmpty()) {
+                                if (!isTalkBackEnabled(context) && canNumber.text.isNotEmpty() && !canNumberReadOnly) {
                                     IconButton(onClick = {
                                         canNumber = TextFieldValue("")
                                     }) {

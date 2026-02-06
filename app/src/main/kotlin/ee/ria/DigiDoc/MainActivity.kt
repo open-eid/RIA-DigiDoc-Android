@@ -123,11 +123,12 @@ class MainActivity :
         val locale = dataStore.getLocale() ?: getLocale("en")
         val webEidUri = intent?.data?.takeIf { it.scheme == "web-eid-mobile" }
 
-        val externalFileUris = if (webEidUri != null) {
-            listOf()
-        } else {
-            getExternalFileUris(intent)
-        }
+        val externalFileUris =
+            if (webEidUri != null) {
+                listOf()
+            } else {
+                getExternalFileUris(intent)
+            }
 
         localeUtil.updateLocale(applicationContext, locale)
 
@@ -172,7 +173,7 @@ class MainActivity :
                 RIADigiDocTheme(darkTheme = useDarkMode) {
                     RIADigiDocAppScreen(
                         externalFileUris = externalFileUris,
-                        webEidUri = webEidUri
+                        webEidUri = webEidUri,
                     )
                 }
             }

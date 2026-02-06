@@ -66,6 +66,7 @@
     <string name="main_settings_signature_add_method_key">mainSettingsSignatureAddMethod</string>
     <string name="main_settings_uuid_key">mainSettingsUUID</string>
     <string name="main_settings_can_key">can</string>
+    <string name="main_settings_signing_cert_key">signingCert</string>
     <string name="main_settings_phone_no_key">mainSettingsMobileNr</string>
     <string name="main_settings_personal_code_key">mainSettingsPersonalCode</string>
     <string name="main_settings_sid_personal_code_key">mainSettingsSmartIdPersonalCode</string>

@@ -88,4 +88,25 @@ class ByteArrayExtensionsTest {
 
         assertNull(result)
     }
+
+    @Test
+    fun byteArrayExtensions_clearSensitive_clearsNonEmptyArray() {
+        val byteArray = byteArrayOf(1, 2, 3, 4)
+        byteArray.clearSensitive()
+        assertTrue(byteArray.all { it == 0.toByte() })
+    }
+
+    @Test
+    fun byteArrayExtensions_clearSensitive_doesNothingForEmptyArray() {
+        val byteArray = byteArrayOf()
+        byteArray.clearSensitive()
+        assertTrue(byteArray.isEmpty())
+    }
+
+    @Test
+    fun byteArrayExtensions_clearSensitive_doesNotThrowForNull() {
+        val byteArray: ByteArray? = null
+        byteArray.clearSensitive()
+        assertNull(byteArray)
+    }
 }

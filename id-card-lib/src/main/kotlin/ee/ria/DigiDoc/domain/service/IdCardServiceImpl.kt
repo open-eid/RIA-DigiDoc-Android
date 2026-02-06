@@ -41,6 +41,9 @@ import ee.ria.libdigidocpp.ExternalSigner
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.withContext
+import java.security.MessageDigest
+import java.security.cert.CertificateFactory
+import java.security.interfaces.ECPublicKey
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -149,5 +152,54 @@ class IdCardServiceImpl
                 signatureData,
             )
             return signedContainer
+        }
+
+        @Throws(Exception::class)
+        override fun authenticate(
+            token: Token,
+            pin1: ByteArray,
+            origin: String,
+            challenge: String,
+        ): Triple<ByteArray, ByteArray, ByteArray> {
+            val authCert = token.certificate(CertificateType.AUTHENTICATION)
+            val signingCert = token.certificate(CertificateType.SIGNING)
+
+            val cert =
+                CertificateFactory
+                    .getInstance("X.509")
+                    .generateCertificate(authCert.inputStream())
+            val publicKey = cert.publicKey
+
+            val hashAlg =
+                when (publicKey) {
+                    is ECPublicKey ->
+                        when (publicKey.params.curve.field.fieldSize) {
+                            256 -> "SHA-256"
+                            384 -> "SHA-384"
+                            521 -> "SHA-512"
+                            else -> throw IllegalArgumentException("Unsupported EC key length")
+                        }
+                    else -> throw IllegalArgumentException("Unsupported key type")
+                }
+
+            val md = MessageDigest.getInstance(hashAlg)
+            val originHash = md.digest(origin.toByteArray(Charsets.UTF_8))
+            val challengeHash = md.digest(challenge.toByteArray(Charsets.UTF_8))
+            val signedData = originHash + challengeHash
+            val tbsHash = md.digest(signedData)
+            val signature = token.authenticate(pin1, tbsHash)
+
+            return Triple(authCert, signingCert, signature)
+        }
+
+        @Throws(Exception::class)
+        override fun sign(
+            token: Token,
+            pin2: ByteArray?,
+            hash: ByteArray,
+        ): Pair<ByteArray, ByteArray> {
+            val signingCert = token.certificate(CertificateType.SIGNING)
+            val signature = token.calculateSignature(pin2, hash, false)
+            return Pair(signingCert, signature)
         }
     }
