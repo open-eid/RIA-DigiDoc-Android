@@ -40,6 +40,7 @@ import ee.ria.DigiDoc.network.siva.SivaSetting
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.BeforeClass
@@ -613,5 +614,31 @@ class DataStoreTest {
         val result = dataStore.getIsCrashSendingAlwaysEnabled()
 
         assertFalse(result)
+    }
+
+    @Test
+    fun dataStore_getWebEidBrowserPackage_defaultNull() {
+        val result = dataStore.getWebEidBrowserPackage()
+
+        assertNull(result)
+    }
+
+    @Test
+    fun dataStore_setWebEidBrowserPackage_success() {
+        dataStore.setWebEidBrowserPackage("com.android.chrome")
+
+        val result = dataStore.getWebEidBrowserPackage()
+
+        assertEquals("com.android.chrome", result)
+    }
+
+    @Test
+    fun dataStore_setWebEidBrowserPackage_nullClearsValue() {
+        dataStore.setWebEidBrowserPackage("com.android.chrome")
+        dataStore.setWebEidBrowserPackage(null)
+
+        val result = dataStore.getWebEidBrowserPackage()
+
+        assertNull(result)
     }
 }

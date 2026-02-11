@@ -22,6 +22,7 @@
 package ee.ria.DigiDoc.fragment.screen
 
 import android.app.Activity
+import android.content.Intent
 import android.content.res.Configuration
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
@@ -455,6 +456,15 @@ fun WebEidScreen(
                 OutlinedButton(
                     onClick = {
                         isWebEidAuthenticating = false
+                        val browserPackage = viewModel.getWebEidBrowserPackage()
+                        if (!browserPackage.isNullOrEmpty()) {
+                            val launchIntent =
+                                activity.packageManager.getLaunchIntentForPackage(browserPackage)
+                            if (launchIntent != null) {
+                                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                activity.startActivity(launchIntent)
+                            }
+                        }
                         activity.finishAndRemoveTask()
                     },
                     modifier = Modifier.fillMaxWidth(),

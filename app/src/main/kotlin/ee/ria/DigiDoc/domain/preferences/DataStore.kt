@@ -178,6 +178,18 @@ class DataStore
 
         fun getWebEidRememberMe(): Boolean = preferences.getBoolean("web_eid_remember_me", true)
 
+        fun setWebEidBrowserPackage(packageName: String?) {
+            preferences.edit {
+                if (packageName.isNullOrEmpty()) {
+                    remove("web_eid_browser_package")
+                } else {
+                    putString("web_eid_browser_package", packageName)
+                }
+            }
+        }
+
+        fun getWebEidBrowserPackage(): String? = preferences.getString("web_eid_browser_package", null)
+
         fun isWebEidSessionActive(): Boolean {
             val prefs = getEncryptedPreferences(context)
             return prefs?.getBoolean("web_eid_session_active", false) ?: false
