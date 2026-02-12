@@ -25,6 +25,7 @@ import android.net.Uri
 import android.util.Base64.URL_SAFE
 import android.util.Base64.decode
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.webEid.WebEidAuthService
@@ -59,7 +60,6 @@ class WebEidViewModelTest {
     @Mock
     private lateinit var signService: WebEidSignService
 
-    @Mock
     private lateinit var dataStore: DataStore
 
     private lateinit var viewModel: WebEidViewModel
@@ -86,6 +86,8 @@ class WebEidViewModelTest {
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        dataStore = DataStore(context)
         viewModel = WebEidViewModel(authService, signService, dataStore)
     }
 
