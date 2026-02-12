@@ -56,6 +56,7 @@ class WebEidViewModel
         private val logTag = javaClass.simpleName
 
         fun getWebEidBrowserPackage(): String? = dataStore.getWebEidBrowserPackage()
+
         private val _authRequest = MutableStateFlow<WebEidAuthRequest?>(null)
         val authRequest: StateFlow<WebEidAuthRequest?> = _authRequest.asStateFlow()
         private val _certificateRequest = MutableStateFlow<WebEidCertificateRequest?>(null)

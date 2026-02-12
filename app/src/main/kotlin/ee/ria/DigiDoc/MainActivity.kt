@@ -124,8 +124,10 @@ class MainActivity :
         val webEidUri = intent.data?.takeIf { it.scheme == "web-eid-mobile" }
 
         if (webEidUri != null) {
-            val browserPackage = intent.getStringExtra("com.android.browser.application_id")
-                ?.takeIf { it.isNotEmpty() }
+            val browserPackage =
+                intent
+                    .getStringExtra("com.android.browser.application_id")
+                    ?.takeIf { it.isNotEmpty() }
             dataStore.setWebEidBrowserPackage(browserPackage)
         }
 
