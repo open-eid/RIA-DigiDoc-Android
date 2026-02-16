@@ -21,13 +21,8 @@
 
 package ee.ria.DigiDoc.webEid.domain.model
 
-import java.security.cert.X509Certificate
-
-data class WebEidSignRequest(
-    val responseUri: String,
-    val origin: String,
-    val signingCertificate: X509Certificate,
-    val hash: String?,
-    val hashFunction: String?,
-    val personalData: WebEidPersonalData?,
+data class WebEidPersonalData(
+    val givenNames: String,
+    val surname: String,
+    val personalCode: String,
 )

@@ -106,6 +106,7 @@ class NFCViewModel
         val webEidSignResult: LiveData<Triple<String, ByteArray, String>?> = _webEidSignResult
         private val _webEidCertificateResult = MutableLiveData<String?>()
         val webEidCertificateResult: LiveData<String?> = _webEidCertificateResult
+        private var expectedWebEidSigningCert: ByteArray? = null
 
         private val dialogMessages: ImmutableMap<SessionStatusResponseProcessStatus, Int> =
             ImmutableMap
@@ -175,6 +176,10 @@ class NFCViewModel
         }
 
         fun getNFCStatus(activity: Activity): NfcStatus = NfcStatus.NFC_ACTIVE
+
+        fun setExpectedWebEidSigningCertificate(cert: ByteArray) {
+            expectedWebEidSigningCert = cert
+        }
 
         private fun resetValues() {
             _errorState.postValue(null)
@@ -605,6 +610,7 @@ class NFCViewModel
             pin2Code: ByteArray?,
             responseUri: String,
             hash: String,
+            expectedSigningCertBase64: String?,
         ) {
             val pinType = context.getString(R.string.signature_id_card_pin2)
             activity.requestedOrientation = activity.resources.configuration.orientation
@@ -623,6 +629,15 @@ class NFCViewModel
                             val card = TokenWithPace.create(nfcReader)
                             card.tunnel(canNumber)
                             val signerCert = card.certificate(CertificateType.SIGNING)
+                            expectedSigningCertBase64
+                                ?.takeIf { it.isNotEmpty() }
+                                ?.let {
+                                    val expectedCert = Base64.getDecoder().decode(it)
+                                    if (!expectedCert.contentEquals(signerCert)) {
+                                        throw IllegalStateException("Web eID signing certificate mismatch")
+                                    }
+                                }
+
                             val signerCertB64 = Base64.getEncoder().encodeToString(signerCert)
                             val hashBytes = Base64.getDecoder().decode(hash)
                             val (_, signatureArray) = idCardService.sign(card, pin2Code, hashBytes)
@@ -654,6 +669,7 @@ class NFCViewModel
                                     showTechnicalError(ex)
                             }
                         } finally {
+                            expectedWebEidSigningCert = null
                             pin2Code.clearSensitive()
                             nfcSmartCardReaderManager.disableNfcReaderMode()
                             activity.requestedOrientation =
@@ -665,6 +681,7 @@ class NFCViewModel
         }
 
         fun handleBackButton() {
+            expectedWebEidSigningCert = null
             _shouldResetPIN.postValue(true)
             resetValues()
         }
@@ -724,6 +741,15 @@ class NFCViewModel
                 ),
             )
             errorLog(logTag, "Unable to sign with NFC - Certificate status: unknown", e)
+        }
+
+        private fun showWebEidSigningCertificateMismatchError(e: Exception) {
+            _errorState.postValue(Triple(R.string.signature_update_nfc_wrong_certificate, null, null))
+            errorLog(
+                logTag,
+                "Web eID signing failed - signing certificate does not match previously used certificate",
+                e,
+            )
         }
 
         private fun showTechnicalError(e: Exception) {
@@ -811,6 +837,11 @@ class NFCViewModel
                     true
                 }
 
+                message.contains("Web eID signing certificate mismatch") -> {
+                    showWebEidSigningCertificateMismatchError(ex)
+                    true
+                }
+
                 else -> false
             }.also {
                 errorLog(logTag, "Exception: ${ex.message}", ex)
@@ -819,6 +850,7 @@ class NFCViewModel
 
         override fun onCleared() {
             super.onCleared()
+            expectedWebEidSigningCert = null
             nfcSmartCardReaderManager.disableNfcReaderMode()
         }
     }

@@ -63,9 +63,13 @@ fun WebEidFragment(
 
     LaunchedEffect(viewModel) {
         viewModel.relyingPartyResponseEvents.collect { responseUri ->
+            val browserPackage = viewModel.getWebEidBrowserPackage()
             val browserIntent =
                 Intent(Intent.ACTION_VIEW, responseUri).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    if (!browserPackage.isNullOrEmpty()) {
+                        setPackage(browserPackage)
+                    }
                 }
             activity.startActivity(browserIntent)
             activity.finishAndRemoveTask()

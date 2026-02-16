@@ -289,6 +289,7 @@
     <string name="sign_blocked_pin2_unchanged_url">https://www.id.ee/artikkel/id-kaardi-pin-ja-puk-koodide-muutmine/</string>
     <string name="signature_update_signature_error_message_certificate_revoked">Sertifikaat on kehtetu</string>
     <string name="signature_update_signature_error_message_certificate_unknown">Sertifikaadi staatus on teadmata</string>
+    <string name="signature_update_nfc_wrong_certificate">Valitud ID-kaart ei vasta varem kasutatud sertifikaadile. Palun kasuta sama ID-kaarti, millega autentisid.</string>
     <string name="id_card_conditional_speech">ID-kaardi</string>
     <string name="mobile_id_conditional_speech">Mobiil-ID</string>
     <string name="smart_id_conditional_speech">Smart-ID</string>
@@ -666,11 +667,13 @@
     <string name="web_eid_auth_consent_text">Autentides nõustun oma nime ja isikukoodi edastamisega teenusepakkujale.</string>
     <string name="web_eid_auth_request_from">Autentimispäring:</string>
     <string name="web_eid_details_forwarded">Edastatavad andmed:</string>
+    <string name="web_eid_details">Andmed:</string>
     <string name="web_eid_name_personal_identification_code">NIMI, ISIKUKOOD</string>
     <string name="web_eid_remember_me_message">Järgmisel kasutamisel on andmeväljad eeltäidetud.</string>
     <string name="web_eid_get_certificate">Kinnita</string>
     <string name="web_eid_certificate_title">Vali sertifikaat</string>
     <string name="web_eid_certificate_consent_text">Sertifikaati valides nõustun oma nime ja isikukoodi edastamisega teenusepakkujale.</string>
+    <string name="web_eid_signature_consent_text">PIN2 koodi sisestamisega annad omakäelise digiallkirja.</string>
     <string name="web_eid_sign">Allkirjastamine</string>
     <string name="web_eid_sign_title">Allkirjasta ID-kaardiga</string>
     <string name="web_eid_cert_request_from">Sertifikaadipäring:</string>

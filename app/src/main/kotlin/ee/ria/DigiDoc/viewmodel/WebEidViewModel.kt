@@ -25,6 +25,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.webEid.WebEidAuthService
 import ee.ria.DigiDoc.webEid.WebEidSignService
@@ -50,8 +51,12 @@ class WebEidViewModel
     constructor(
         private val authService: WebEidAuthService,
         private val signService: WebEidSignService,
+        private val dataStore: DataStore,
     ) : ViewModel() {
         private val logTag = javaClass.simpleName
+
+        fun getWebEidBrowserPackage(): String? = dataStore.getWebEidBrowserPackage()
+
         private val _authRequest = MutableStateFlow<WebEidAuthRequest?>(null)
         val authRequest: StateFlow<WebEidAuthRequest?> = _authRequest.asStateFlow()
         private val _certificateRequest = MutableStateFlow<WebEidCertificateRequest?>(null)

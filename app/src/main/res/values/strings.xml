@@ -289,6 +289,7 @@
     <string name="sign_blocked_pin2_unchanged_url">https://www.id.ee/en/article/changing-id-card-pin-codes-and-puk-code/</string>
     <string name="signature_update_signature_error_message_certificate_revoked">Certificate status revoked</string>
     <string name="signature_update_signature_error_message_certificate_unknown">Certificate status unknown</string>
+    <string name="signature_update_nfc_wrong_certificate">The selected ID card does not match the previously used certificate. Please use the same ID card you authenticated with.</string>
     <string name="id_card_conditional_speech">ID-card\'s</string>
     <string name="mobile_id_conditional_speech">Mobile-ID</string>
     <string name="smart_id_conditional_speech">Smart-ID</string>
@@ -666,11 +667,13 @@
     <string name="web_eid_auth_consent_text">By authenticating, I agree to the transfer of my name and personal identification code to the service provider.</string>
     <string name="web_eid_auth_request_from">Authentication request from:</string>
     <string name="web_eid_details_forwarded">Details forwarded:</string>
+    <string name="web_eid_details">Details:</string>
     <string name="web_eid_name_personal_identification_code">NAME, PERSONAL IDENTIFICATION CODE</string>
     <string name="web_eid_remember_me_message">The entered data will be filled the next time you authenticate.</string>
     <string name="web_eid_get_certificate">Confirm</string>
     <string name="web_eid_certificate_title">Select a certificate</string>
     <string name="web_eid_certificate_consent_text">By choosing the certificate, I agree to the transfer of my name and personal identification code to the service provider.</string>
+    <string name="web_eid_signature_consent_text">By entering your PIN2, you give a handwritten-equivalent digital signature.</string>
     <string name="web_eid_sign">Sign</string>
     <string name="web_eid_sign_title">Sign with ID-card</string>
     <string name="web_eid_cert_request_from">Certificate request from:</string>

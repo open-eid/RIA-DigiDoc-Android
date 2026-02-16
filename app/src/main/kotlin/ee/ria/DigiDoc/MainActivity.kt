@@ -121,7 +121,15 @@ class MainActivity :
         val componentClassName = this.javaClass.name
 
         val locale = dataStore.getLocale() ?: getLocale("en")
-        val webEidUri = intent?.data?.takeIf { it.scheme == "web-eid-mobile" }
+        val webEidUri = intent.data?.takeIf { it.scheme == "web-eid-mobile" }
+
+        if (webEidUri != null) {
+            val browserPackage =
+                intent
+                    .getStringExtra("com.android.browser.application_id")
+                    ?.takeIf { it.isNotEmpty() }
+            dataStore.setWebEidBrowserPackage(browserPackage)
+        }
 
         val externalFileUris =
             if (webEidUri != null) {

@@ -148,6 +148,60 @@ class DataStore
             if (cert.isNotEmpty()) editor.putString(key, cert).commit()
         }
 
+        fun getTemporaryCanNumber(): String {
+            val encryptedPrefs = getEncryptedPreferences(context)
+            return encryptedPrefs?.getString(
+                resources.getString(R.string.main_settings_temporary_can_key),
+                "",
+            ) ?: ""
+        }
+
+        fun setTemporaryCanNumber(can: String) {
+            val encryptedPrefs = getEncryptedPreferences(context)
+            encryptedPrefs?.edit {
+                putString(resources.getString(R.string.main_settings_temporary_can_key), can)
+            }
+        }
+
+        fun clearTemporaryCanNumber() {
+            val encryptedPrefs = getEncryptedPreferences(context)
+            encryptedPrefs?.edit {
+                remove(resources.getString(R.string.main_settings_temporary_can_key))
+            }
+        }
+
+        fun setWebEidRememberMe(value: Boolean) {
+            preferences.edit {
+                putBoolean("web_eid_remember_me", value)
+            }
+        }
+
+        fun getWebEidRememberMe(): Boolean = preferences.getBoolean("web_eid_remember_me", true)
+
+        fun setWebEidBrowserPackage(packageName: String?) {
+            preferences.edit {
+                if (packageName.isNullOrEmpty()) {
+                    remove("web_eid_browser_package")
+                } else {
+                    putString("web_eid_browser_package", packageName)
+                }
+            }
+        }
+
+        fun getWebEidBrowserPackage(): String? = preferences.getString("web_eid_browser_package", null)
+
+        fun isWebEidSessionActive(): Boolean {
+            val prefs = getEncryptedPreferences(context)
+            return prefs?.getBoolean("web_eid_session_active", false) ?: false
+        }
+
+        fun setWebEidSessionActive(active: Boolean) {
+            val prefs = getEncryptedPreferences(context)
+            prefs?.edit {
+                putBoolean("web_eid_session_active", active)
+            }
+        }
+
         fun getPhoneNo(): String =
             preferences.getString(
                 resources.getString(R.string.main_settings_phone_no_key),

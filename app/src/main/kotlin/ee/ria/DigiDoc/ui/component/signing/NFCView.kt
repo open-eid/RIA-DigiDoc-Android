@@ -54,6 +54,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -187,10 +188,24 @@ fun NFCView(
     var shouldRememberMe by rememberSaveable { mutableStateOf(rememberMe) }
 
     var canNumber by rememberSaveable(stateSaver = textFieldValueSaver) {
+        val storedCan = sharedSettingsViewModel.dataStore.getCanNumber()
+        val tempCan = sharedSettingsViewModel.dataStore.getTemporaryCanNumber()
+
+        val initialCan =
+            when {
+                identityAction == IdentityAction.CERTIFICATE && storedCan.isNotEmpty() -> storedCan
+                identityAction == IdentityAction.CERTIFICATE -> ""
+                identityAction == IdentityAction.SIGN && tempCan.isNotEmpty() -> tempCan
+
+                storedCan.isNotEmpty() -> storedCan
+                tempCan.isNotEmpty() && isWebEidAuthenticating -> tempCan
+                else -> ""
+            }
+
         mutableStateOf(
             TextFieldValue(
-                text = sharedSettingsViewModel.dataStore.getCanNumber(),
-                selection = TextRange(sharedSettingsViewModel.dataStore.getCanNumber().length),
+                text = initialCan,
+                selection = TextRange(initialCan.length),
             ),
         )
     }
@@ -201,20 +216,27 @@ fun NFCView(
     val showErrorDialog = rememberSaveable { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val saveFormParams = {
-        val previousCanNumber = sharedSettingsViewModel.dataStore.getCanNumber()
-        val currentCanNumber = canNumber.text
+        val currentCan = canNumber.text
 
-        if (shouldRememberMe) {
-            if (previousCanNumber != currentCanNumber) {
-                signingCert = ""
-                sharedSettingsViewModel.dataStore.setSigningCertificate("")
+        when {
+            (
+                identityAction == IdentityAction.AUTH ||
+                    identityAction == IdentityAction.CERTIFICATE
+            ) &&
+                shouldRememberMe -> {
+                sharedSettingsViewModel.dataStore.setCanNumber(currentCan)
+                sharedSettingsViewModel.dataStore.setSigningCertificate(signingCert)
+                sharedSettingsViewModel.dataStore.clearTemporaryCanNumber()
             }
 
-            sharedSettingsViewModel.dataStore.setCanNumber(currentCanNumber)
-            sharedSettingsViewModel.dataStore.setSigningCertificate(signingCert)
-        } else {
-            sharedSettingsViewModel.dataStore.setCanNumber("")
-            sharedSettingsViewModel.dataStore.setSigningCertificate("")
+            (
+                identityAction == IdentityAction.AUTH ||
+                    identityAction == IdentityAction.CERTIFICATE
+            ) &&
+                !shouldRememberMe -> {
+                sharedSettingsViewModel.dataStore.setCanNumber("")
+                sharedSettingsViewModel.dataStore.setTemporaryCanNumber(currentCan)
+            }
         }
     }
 
@@ -261,10 +283,22 @@ fun NFCView(
 
     BackHandler {
         nfcViewModel.handleBackButton()
+        sharedSettingsViewModel.dataStore.clearTemporaryCanNumber()
+        sharedSettingsViewModel.dataStore.setWebEidSessionActive(false)
         if (isSigning || isDecrypting || isAuthenticating) {
             onError()
         } else {
             onSuccess()
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            val webEidActive = sharedSettingsViewModel.dataStore.isWebEidSessionActive()
+
+            if (!shouldRememberMe && !webEidActive) {
+                sharedSettingsViewModel.dataStore.clearTemporaryCanNumber()
+            }
         }
     }
 
@@ -350,6 +384,7 @@ fun NFCView(
     LaunchedEffect(nfcViewModel.webEidAuthResult) {
         nfcViewModel.webEidAuthResult.asFlow().collect { result ->
             result?.let { (authCert, signingCert, signature) ->
+                nfcViewModel.setExpectedWebEidSigningCertificate(signingCert)
                 val encodedCert = Base64.getEncoder().encodeToString(signingCert)
                 sharedSettingsViewModel.dataStore.setSigningCertificate(encodedCert)
                 webEidViewModel?.handleWebEidAuthResult(authCert, signingCert, signature)
@@ -364,6 +399,7 @@ fun NFCView(
             result?.let { signCert ->
                 sharedSettingsViewModel.dataStore.setSigningCertificate(signCert)
                 val certBytes = Base64.getDecoder().decode(signCert)
+                nfcViewModel.setExpectedWebEidSigningCertificate(certBytes)
                 webEidViewModel?.handleWebEidCertificateResult(certBytes)
                 nfcViewModel.resetWebEidCertificateResult()
                 onSuccess()
@@ -667,9 +703,10 @@ fun NFCView(
                                         )
                                     }
                                 } else {
-                                    if (sharedSettingsViewModel.dataStore.getCanNumber().isNotEmpty()) {
-                                        saveFormParams()
-                                    }
+                                    saveFormParams()
+                                    val expectedSigningCertBase64 =
+                                        sharedSettingsViewModel.dataStore
+                                            .getSigningCertificate()
                                     nfcViewModel.performNFCWebEidSignWorkRequest(
                                         activity = activity,
                                         context = context,
@@ -677,6 +714,7 @@ fun NFCView(
                                         pin2Code = pinCode.value,
                                         responseUri = responseUriString,
                                         hash = hashString,
+                                        expectedSigningCertBase64 = expectedSigningCertBase64,
                                     )
                                 }
                             }

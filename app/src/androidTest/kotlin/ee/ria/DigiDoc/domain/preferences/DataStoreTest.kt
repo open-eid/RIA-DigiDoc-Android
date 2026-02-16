@@ -40,6 +40,7 @@ import ee.ria.DigiDoc.network.siva.SivaSetting
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.BeforeClass
@@ -611,6 +612,109 @@ class DataStoreTest {
     @Test
     fun dataStore_getIsCrashSendingAlwaysEnabled_successInitiallyFalse() {
         val result = dataStore.getIsCrashSendingAlwaysEnabled()
+
+        assertFalse(result)
+    }
+
+    @Test
+    fun dataStore_getWebEidBrowserPackage_defaultNull() {
+        val result = dataStore.getWebEidBrowserPackage()
+
+        assertNull(result)
+    }
+
+    @Test
+    fun dataStore_setWebEidBrowserPackage_success() {
+        dataStore.setWebEidBrowserPackage("com.android.chrome")
+
+        val result = dataStore.getWebEidBrowserPackage()
+
+        assertEquals("com.android.chrome", result)
+    }
+
+    @Test
+    fun dataStore_setWebEidBrowserPackage_nullClearsValue() {
+        dataStore.setWebEidBrowserPackage("com.android.chrome")
+        dataStore.setWebEidBrowserPackage(null)
+
+        val result = dataStore.getWebEidBrowserPackage()
+
+        assertNull(result)
+    }
+
+    @Test
+    fun dataStore_getTemporaryCanNumber_defaultEmpty() {
+        val result = dataStore.getTemporaryCanNumber()
+
+        assertEquals("", result)
+    }
+
+    @Test
+    fun dataStore_setTemporaryCanNumber_success() {
+        dataStore.setTemporaryCanNumber("123456")
+
+        val result = dataStore.getTemporaryCanNumber()
+
+        assertEquals("123456", result)
+    }
+
+    @Test
+    fun dataStore_clearTemporaryCanNumber_success() {
+        dataStore.setTemporaryCanNumber("123456")
+        dataStore.clearTemporaryCanNumber()
+
+        val result = dataStore.getTemporaryCanNumber()
+
+        assertEquals("", result)
+    }
+
+    @Test
+    fun dataStore_getWebEidRememberMe_defaultTrue() {
+        val result = dataStore.getWebEidRememberMe()
+
+        assertTrue(result)
+    }
+
+    @Test
+    fun dataStore_setWebEidRememberMe_successWithFalse() {
+        dataStore.setWebEidRememberMe(false)
+
+        val result = dataStore.getWebEidRememberMe()
+
+        assertFalse(result)
+    }
+
+    @Test
+    fun dataStore_setWebEidRememberMe_successWithTrue() {
+        dataStore.setWebEidRememberMe(true)
+
+        val result = dataStore.getWebEidRememberMe()
+
+        assertTrue(result)
+    }
+
+    @Test
+    fun dataStore_isWebEidSessionActive_defaultFalse() {
+        val result = dataStore.isWebEidSessionActive()
+
+        assertFalse(result)
+    }
+
+    @Test
+    fun dataStore_setWebEidSessionActive_successWithTrue() {
+        dataStore.setWebEidSessionActive(true)
+
+        val result = dataStore.isWebEidSessionActive()
+
+        assertTrue(result)
+    }
+
+    @Test
+    fun dataStore_setWebEidSessionActive_successWithFalse() {
+        dataStore.setWebEidSessionActive(true)
+        dataStore.setWebEidSessionActive(false)
+
+        val result = dataStore.isWebEidSessionActive()
 
         assertFalse(result)
     }
