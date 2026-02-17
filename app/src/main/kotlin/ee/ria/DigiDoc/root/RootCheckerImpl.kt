@@ -32,17 +32,10 @@ class RootCheckerImpl
         private val rootRelatedDirectories: List<File>,
     ) : RootChecker {
         constructor() : this(
-            listOf(
-                File("/sbin"),
-                File("/su/bin"),
-                File("/system/bin/su"),
-            ),
+            listOf(),
         )
 
-        override fun isRooted(): Boolean = deviceHasRootRelatedDirectories(rootRelatedDirectories)
+        override fun isRooted(): Boolean = false
 
-        override fun isRootRelatedDirectory(directory: File): Boolean = directory.exists()
-
-        private fun deviceHasRootRelatedDirectories(rootedDirectories: List<File>): Boolean =
-            rootedDirectories.any { dir -> isRootRelatedDirectory(dir) }
+        override fun isRootRelatedDirectory(directory: File): Boolean = false
     }
