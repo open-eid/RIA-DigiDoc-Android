@@ -22,7 +22,6 @@
 package ee.ria.DigiDoc.fragment.screen
 
 import android.app.Activity
-import android.content.Intent
 import android.content.res.Configuration
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
@@ -123,7 +122,7 @@ fun WebEidScreen(
 
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
     val snackBarHostState = remember { SnackbarHostState() }
-    val snackBarScope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope()
     val messages by SnackBarManager.messages.collectAsState(emptyList())
     val dialogError by viewModel.dialogError.collectAsState()
     var rememberMe by rememberSaveable {
@@ -135,7 +134,7 @@ fun WebEidScreen(
 
     LaunchedEffect(messages) {
         messages.forEach { message ->
-            snackBarScope.launch {
+            scope.launch {
                 snackBarHostState.showSnackbar(message)
             }
             SnackBarManager.removeMessage(message)
@@ -311,9 +310,12 @@ fun WebEidScreen(
                     if (!isWebEidAuthenticating) {
                         WebEidRememberMe(
                             rememberMe = rememberMe,
-                            onRememberMeChange = {
-                                rememberMe = it
-                                sharedSettingsViewModel.dataStore.setWebEidRememberMe(it)
+                            onRememberMeChange = { isRememberMeEnabled ->
+                                rememberMe = isRememberMeEnabled
+                                sharedSettingsViewModel.dataStore.setWebEidRememberMe(isRememberMeEnabled)
+                                if (!isRememberMeEnabled) {
+                                    sharedSettingsViewModel.dataStore.setSigningCertificate("")
+                                }
                             },
                         )
                     }
@@ -369,9 +371,12 @@ fun WebEidScreen(
                         if (!isWebEidAuthenticating) {
                             WebEidRememberMe(
                                 rememberMe = rememberMe,
-                                onRememberMeChange = {
-                                    rememberMe = it
-                                    sharedSettingsViewModel.dataStore.setWebEidRememberMe(it)
+                                onRememberMeChange = { isRememberMeEnabled ->
+                                    rememberMe = isRememberMeEnabled
+                                    sharedSettingsViewModel.dataStore.setWebEidRememberMe(isRememberMeEnabled)
+                                    if (!isRememberMeEnabled) {
+                                        sharedSettingsViewModel.dataStore.setSigningCertificate("")
+                                    }
                                 },
                             )
                         }
@@ -379,11 +384,12 @@ fun WebEidScreen(
                         NFCView(
                             activity = activity,
                             identityAction = IdentityAction.SIGN,
+                            rememberMe = rememberMe,
                             isCertificate = false,
                             isSigning = false,
                             isDecrypting = false,
                             isWebEidAuthenticating = isWebEidAuthenticating,
-                            canNumberReadOnly = hasStoredCanNumber,
+                            isCanNumberReadOnly = hasStoredCanNumber,
                             onError = {
                                 isWebEidAuthenticating = false
                                 cancelWebEidSignAction()
@@ -391,6 +397,7 @@ fun WebEidScreen(
                             onSuccess = {
                                 sharedSettingsViewModel.dataStore.clearTemporaryCanNumber()
                                 sharedSettingsViewModel.dataStore.setWebEidSessionActive(false)
+                                if (!rememberMe) sharedSettingsViewModel.dataStore.setSigningCertificate("")
                                 isWebEidAuthenticating = false
                                 navController.navigateUp()
                             },
@@ -456,16 +463,9 @@ fun WebEidScreen(
                 OutlinedButton(
                     onClick = {
                         isWebEidAuthenticating = false
-                        val browserPackage = viewModel.getWebEidBrowserPackage()
-                        if (!browserPackage.isNullOrEmpty()) {
-                            val launchIntent =
-                                activity.packageManager.getLaunchIntentForPackage(browserPackage)
-                            if (launchIntent != null) {
-                                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                activity.startActivity(launchIntent)
-                            }
+                        scope.launch {
+                            viewModel.handleUserCancelled()
                         }
-                        activity.finishAndRemoveTask()
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors =

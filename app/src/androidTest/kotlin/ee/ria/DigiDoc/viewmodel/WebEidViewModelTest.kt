@@ -505,6 +505,115 @@ class WebEidViewModelTest {
         }
     }
 
+    @Test
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun webEidViewModel_handleUserCancelled_authFlow_emitsCancelError() {
+        runTest(UnconfinedTestDispatcher()) {
+            val uri =
+                Uri.parse(
+                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsImxvZ2luX3VyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UiLCJnZXRfc2lnbmluZ19jZXJ0aWZpY2F0ZSI6dHJ1ZX0",
+                )
+
+            viewModel.handleAuth(uri)
+
+            val deferred =
+                async {
+                    viewModel.relyingPartyResponseEvents.first()
+                }
+
+            viewModel.handleUserCancelled()
+
+            val emittedUri = deferred.await()
+
+            assert(emittedUri.toString().startsWith("https://example.com/response#"))
+            assertNotNull(emittedUri.fragment)
+
+            val decodedPayload = String(decode(emittedUri.fragment, URL_SAFE))
+            val jsonPayload = JSONObject(decodedPayload)
+
+            assertEquals("ERR_WEBEID_USER_CANCELLED", jsonPayload.getString("code"))
+            assertEquals("User cancelled", jsonPayload.getString("message"))
+        }
+    }
+
+    @Test
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun webEidViewModel_handleUserCancelled_certificateFlow_emitsCancelError() {
+        runTest(UnconfinedTestDispatcher()) {
+            val uri =
+                Uri.parse(
+                    "web-eid-mobile://cert#eyJyZXNwb25zZV91cmkiOiJodHRwczovL2V4YW1wbGUuY29tL3Jlc3BvbnNlIn0",
+                )
+
+            viewModel.handleCertificate(uri)
+
+            val deferred =
+                async {
+                    viewModel.relyingPartyResponseEvents.first()
+                }
+
+            viewModel.handleUserCancelled()
+
+            val emittedUri = deferred.await()
+
+            assert(emittedUri.toString().startsWith("https://example.com/response#"))
+            assertNotNull(emittedUri.fragment)
+
+            val decodedPayload = String(decode(emittedUri.fragment, URL_SAFE))
+            val jsonPayload = JSONObject(decodedPayload)
+
+            assertEquals("ERR_WEBEID_USER_CANCELLED", jsonPayload.getString("code"))
+            assertEquals("User cancelled", jsonPayload.getString("message"))
+        }
+    }
+
+    @Test
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun webEidViewModel_handleUserCancelled_signFlow_emitsCancelError() {
+        runTest(UnconfinedTestDispatcher()) {
+            val uri = Uri.parse(createSignUri(signingCertBase64))
+
+            viewModel.handleSign(uri)
+
+            val deferred =
+                async {
+                    viewModel.relyingPartyResponseEvents.first()
+                }
+
+            viewModel.handleUserCancelled()
+
+            val emittedUri = deferred.await()
+
+            assert(emittedUri.toString().startsWith("https://rp.example.com/sign/response#"))
+            assertNotNull(emittedUri.fragment)
+
+            val decodedPayload = String(decode(emittedUri.fragment, URL_SAFE))
+            val jsonPayload = JSONObject(decodedPayload)
+
+            assertEquals("ERR_WEBEID_USER_CANCELLED", jsonPayload.getString("code"))
+            assertEquals("User cancelled", jsonPayload.getString("message"))
+        }
+    }
+
+    @Test
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun webEidViewModel_handleUserCancelled_noActiveRequest_doesNotEmit() {
+        runTest(UnconfinedTestDispatcher()) {
+            var emitted = false
+
+            val job =
+                async {
+                    viewModel.relyingPartyResponseEvents.first()
+                    emitted = true
+                }
+
+            viewModel.handleUserCancelled()
+            job.cancel()
+
+            assertEquals(false, emitted)
+        }
+    }
+
     private fun createSignUri(signingCertificate: String? = null): String {
         val hash = validSha384Base64()
         val hashFunction = "SHA-384"

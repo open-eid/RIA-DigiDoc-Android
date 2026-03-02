@@ -682,4 +682,5 @@
     <string name="web_eid_invalid_request_error">Vigane Web eID päring</string>
     <string name="web_eid_request_error">Päringu viga</string>
     <string name="web_eid_invalid_auth_request_error">Vigane autentimispäring</string>
+    <string name="signature_update_nfc_detection_timeout">Kaarti ei tuvastatud. Palun alusta uuesti.</string>
 </resources>

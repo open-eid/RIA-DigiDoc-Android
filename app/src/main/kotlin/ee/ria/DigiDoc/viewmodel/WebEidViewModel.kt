@@ -193,4 +193,31 @@ class WebEidViewModel
                 _relyingPartyResponseEvents.emit(errorUri)
             }
         }
+
+        suspend fun handleUserCancelled() {
+            try {
+                val responseUri =
+                    authRequest.value?.loginUri
+                        ?: certificateRequest.value?.responseUri
+                        ?: signRequest.value?.responseUri
+
+                if (responseUri.isNullOrBlank()) {
+                    errorLog(logTag, "Cannot send cancel response — missing response URI")
+                    return
+                }
+
+                val errorPayload =
+                    WebEidResponseUtil.createErrorPayload(
+                        WebEidErrorCode.ERR_WEBEID_USER_CANCELLED,
+                        "User cancelled",
+                    )
+
+                val errorUri =
+                    WebEidResponseUtil.createResponseUri(responseUri, errorPayload)
+
+                _relyingPartyResponseEvents.emit(errorUri)
+            } catch (e: Exception) {
+                errorLog(logTag, "Failed to send cancel response", e)
+            }
+        }
     }

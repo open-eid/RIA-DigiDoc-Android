@@ -22,6 +22,7 @@
 package ee.ria.DigiDoc.webEid.utils
 
 import android.net.Uri
+import ee.ria.DigiDoc.common.certificate.CertificateParsingUtil
 import ee.ria.DigiDoc.utilsLib.signing.CertificateUtil
 import ee.ria.DigiDoc.webEid.domain.model.WebEidAuthRequest
 import ee.ria.DigiDoc.webEid.domain.model.WebEidCertificateRequest
@@ -29,13 +30,9 @@ import ee.ria.DigiDoc.webEid.domain.model.WebEidPersonalData
 import ee.ria.DigiDoc.webEid.domain.model.WebEidSignRequest
 import ee.ria.DigiDoc.webEid.exception.WebEidErrorCode.ERR_WEBEID_MOBILE_INVALID_REQUEST
 import ee.ria.DigiDoc.webEid.exception.WebEidException
-import org.bouncycastle.asn1.x500.X500Name
-import org.bouncycastle.asn1.x500.style.BCStyle
-import org.bouncycastle.asn1.x500.style.IETFUtils
 import org.json.JSONObject
 import java.net.URI
 import java.net.URISyntaxException
-import java.security.cert.X509Certificate
 import java.util.Base64
 
 object WebEidRequestParser {
@@ -107,6 +104,7 @@ object WebEidRequestParser {
 
         val signingCertificateDerBytes = Base64.getDecoder().decode(signingCertificatePem)
         val signingCertificate = CertificateUtil.x509Certificate(signingCertificateDerBytes)
+        val parsedPersonalData = CertificateParsingUtil.personalData(signingCertificate)
 
         return WebEidSignRequest(
             responseUri = responseUri.toString(),
@@ -114,7 +112,12 @@ object WebEidRequestParser {
             signingCertificate,
             hash = hash,
             hashFunction = hashFunction,
-            personalData = extractPersonalData(signingCertificate),
+            personalData =
+                WebEidPersonalData(
+                    surname = parsedPersonalData.surname,
+                    givenNames = parsedPersonalData.givenNames,
+                    personalCode = parsedPersonalData.personalCode,
+                ),
         )
     }
 
@@ -213,31 +216,5 @@ object WebEidRequestParser {
         }
 
         return hashBytes
-    }
-
-    private fun extractPersonalData(cert: X509Certificate): WebEidPersonalData {
-        val x500Name = X500Name.getInstance(cert.subjectX500Principal.encoded)
-        val cnRDNs = x500Name.getRDNs(BCStyle.CN)
-
-        require(cnRDNs.isNotEmpty()) {
-            "Signing certificate CN missing"
-        }
-
-        val cn =
-            IETFUtils
-                .valueToString(cnRDNs.first().first.value)
-                .replace("\\,", ",")
-                .replace("\\ ", " ")
-        val parts = cn.split(",").map { it.trim() }
-
-        require(parts.size >= 3) {
-            "Unexpected signing certificate CN format: $cn"
-        }
-
-        return WebEidPersonalData(
-            surname = parts[0],
-            givenNames = parts[1],
-            personalCode = parts[2],
-        )
     }
 }

@@ -24,6 +24,8 @@ package ee.ria.DigiDoc.viewmodel
 import android.app.Activity
 import android.content.Context
 import android.content.pm.ActivityInfo
+import android.os.Handler
+import android.os.Looper.getMainLooper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -61,7 +63,6 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.bouncycastle.util.encoders.Hex
-import java.util.Arrays
 import java.util.Base64
 import javax.inject.Inject
 
@@ -106,7 +107,11 @@ class NFCViewModel
         val webEidSignResult: LiveData<Triple<String, ByteArray, String>?> = _webEidSignResult
         private val _webEidCertificateResult = MutableLiveData<String?>()
         val webEidCertificateResult: LiveData<String?> = _webEidCertificateResult
-        private var expectedWebEidSigningCert: ByteArray? = null
+        private val timeoutHandler = Handler(getMainLooper())
+        private var timeoutRunnable: Runnable? = null
+        private var pendingWebEidAuthResult: Triple<ByteArray, ByteArray, ByteArray>? = null
+        private val _certMismatch = MutableLiveData(false)
+        val certMismatch: LiveData<Boolean> = _certMismatch
 
         private val dialogMessages: ImmutableMap<SessionStatusResponseProcessStatus, Int> =
             ImmutableMap
@@ -118,6 +123,10 @@ class NFCViewModel
                     SessionStatusResponseProcessStatus.OCSP_INVALID_TIME_SLOT,
                     R.string.invalid_time_slot_message,
                 ).build()
+
+        companion object {
+            private const val NFC_CARD_DETECTION_TIMEOUT_MS = 30_000L
+        }
 
         fun resetErrorState() {
             _errorState.postValue(null)
@@ -177,16 +186,13 @@ class NFCViewModel
 
         fun getNFCStatus(activity: Activity): NfcStatus = NfcStatus.NFC_ACTIVE
 
-        fun setExpectedWebEidSigningCertificate(cert: ByteArray) {
-            expectedWebEidSigningCert = cert
-        }
-
         private fun resetValues() {
             _errorState.postValue(null)
             _message.postValue(null)
             _signStatus.postValue(null)
             _decryptStatus.postValue(null)
             _nfcStatus.postValue(null)
+            pendingWebEidAuthResult = null
         }
 
         private fun resetNonErrorValues() {
@@ -484,6 +490,7 @@ class NFCViewModel
             val pinType = context.getString(R.string.signature_id_card_pin1)
             activity.requestedOrientation = activity.resources.configuration.orientation
             resetValues()
+            startNFCDetectionTimeout(activity, pin1Code)
 
             withContext(Main) {
                 _message.postValue(R.string.signature_update_nfc_hold)
@@ -492,11 +499,14 @@ class NFCViewModel
             checkNFCStatus(
                 nfcSmartCardReaderManager.startDiscovery(activity) { nfcReader, exc ->
                     if ((nfcReader != null) && (exc == null)) {
+                        stopNFCDetectionTimeout()
                         try {
                             _message.postValue(R.string.signature_update_nfc_detected)
 
                             val card = TokenWithPace.create(nfcReader)
                             card.tunnel(canNumber)
+
+                            val pin2Changed = card.pinChangedFlag() == 1
 
                             val (authCert, signingCert, signatureArray) =
                                 idCardService.authenticate(
@@ -505,6 +515,11 @@ class NFCViewModel
                                     origin = origin,
                                     challenge = challenge,
                                 )
+
+                            if (!pin2Changed) {
+                                handlePin2NotChanged(pin1Code, authCert, signingCert, signatureArray)
+                                return@startDiscovery
+                            }
 
                             pin1Code.clearSensitive()
 
@@ -528,9 +543,8 @@ class NFCViewModel
                                     showTechnicalError(ex)
                             }
                         } finally {
-                            if (pin1Code.isNotEmpty()) {
-                                Arrays.fill(pin1Code, 0.toByte())
-                            }
+                            stopNFCDetectionTimeout()
+                            pin1Code.clearSensitive()
                             nfcSmartCardReaderManager.disableNfcReaderMode()
                             activity.requestedOrientation =
                                 ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
@@ -546,6 +560,7 @@ class NFCViewModel
         ) {
             activity.requestedOrientation = activity.resources.configuration.orientation
             resetValues()
+            startNFCDetectionTimeout(activity)
 
             withContext(Main) {
                 _message.postValue(R.string.signature_update_nfc_hold)
@@ -554,6 +569,7 @@ class NFCViewModel
             checkNFCStatus(
                 nfcSmartCardReaderManager.startDiscovery(activity) { nfcReader, exc ->
                     if ((nfcReader != null) && (exc == null)) {
+                        stopNFCDetectionTimeout()
                         try {
                             _message.postValue(R.string.signature_update_nfc_detected)
 
@@ -594,6 +610,7 @@ class NFCViewModel
                                     showTechnicalError(ex)
                             }
                         } finally {
+                            stopNFCDetectionTimeout()
                             nfcSmartCardReaderManager.disableNfcReaderMode()
                             activity.requestedOrientation =
                                 ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
@@ -610,11 +627,12 @@ class NFCViewModel
             pin2Code: ByteArray?,
             responseUri: String,
             hash: String,
-            expectedSigningCertBase64: String?,
+            requestSigningCert: String?,
         ) {
             val pinType = context.getString(R.string.signature_id_card_pin2)
             activity.requestedOrientation = activity.resources.configuration.orientation
             resetValues()
+            startNFCDetectionTimeout(activity, pin2Code)
 
             withContext(Main) {
                 _message.postValue(R.string.signature_update_nfc_hold)
@@ -623,22 +641,26 @@ class NFCViewModel
             checkNFCStatus(
                 nfcSmartCardReaderManager.startDiscovery(activity) { nfcReader, exc ->
                     if ((nfcReader != null) && (exc == null)) {
+                        stopNFCDetectionTimeout()
                         try {
                             _message.postValue(R.string.signature_update_nfc_detected)
 
                             val card = TokenWithPace.create(nfcReader)
                             card.tunnel(canNumber)
                             val signerCert = card.certificate(CertificateType.SIGNING)
-                            expectedSigningCertBase64
-                                ?.takeIf { it.isNotEmpty() }
-                                ?.let {
-                                    val expectedCert = Base64.getDecoder().decode(it)
-                                    if (!expectedCert.contentEquals(signerCert)) {
-                                        throw IllegalStateException("Web eID signing certificate mismatch")
-                                    }
-                                }
-
                             val signerCertB64 = Base64.getEncoder().encodeToString(signerCert)
+
+                            if (requestSigningCert.isNullOrEmpty()) {
+                                throw IllegalStateException("Missing signing certificate from AUTH or CERT flow")
+                            } else {
+                                val expectedCert = Base64.getDecoder().decode(requestSigningCert)
+
+                                if (!expectedCert.contentEquals(signerCert)) {
+                                    _certMismatch.postValue(true)
+                                    throw IllegalStateException("Web eID signing certificate mismatch")
+                                }
+                            }
+
                             val hashBytes = Base64.getDecoder().decode(hash)
                             val (_, signatureArray) = idCardService.sign(card, pin2Code, hashBytes)
 
@@ -669,7 +691,7 @@ class NFCViewModel
                                     showTechnicalError(ex)
                             }
                         } finally {
-                            expectedWebEidSigningCert = null
+                            stopNFCDetectionTimeout()
                             pin2Code.clearSensitive()
                             nfcSmartCardReaderManager.disableNfcReaderMode()
                             activity.requestedOrientation =
@@ -681,7 +703,6 @@ class NFCViewModel
         }
 
         fun handleBackButton() {
-            expectedWebEidSigningCert = null
             _shouldResetPIN.postValue(true)
             resetValues()
         }
@@ -850,7 +871,75 @@ class NFCViewModel
 
         override fun onCleared() {
             super.onCleared()
-            expectedWebEidSigningCert = null
+            stopNFCDetectionTimeout()
             nfcSmartCardReaderManager.disableNfcReaderMode()
+        }
+
+        private fun startNFCDetectionTimeout(
+            activity: Activity,
+            pinToClear: ByteArray? = null,
+        ) {
+            timeoutRunnable =
+                Runnable {
+                    pinToClear?.clearSensitive()
+                    _errorState.postValue(
+                        Triple(R.string.signature_update_nfc_detection_timeout, null, null),
+                    )
+
+                    nfcSmartCardReaderManager.disableNfcReaderMode()
+                    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                }
+
+            timeoutHandler.postDelayed(timeoutRunnable!!, NFC_CARD_DETECTION_TIMEOUT_MS)
+        }
+
+        private fun stopNFCDetectionTimeout() {
+            timeoutRunnable?.let {
+                timeoutHandler.removeCallbacks(it)
+            }
+            timeoutRunnable = null
+        }
+
+        private fun handlePin2NotChanged(
+            pin1Code: ByteArray,
+            authCert: ByteArray,
+            signingCert: ByteArray,
+            signatureArray: ByteArray,
+        ) {
+            pin1Code.clearSensitive()
+            _shouldResetPIN.postValue(true)
+
+            pendingWebEidAuthResult = Triple(authCert, signingCert, signatureArray)
+            _dialogError.postValue(R.string.sign_blocked_pin2_unchanged_message)
+        }
+
+        fun continuePendingWebEidAuth() {
+            pendingWebEidAuthResult?.let {
+                _webEidAuthResult.postValue(it)
+                pendingWebEidAuthResult = null
+            }
+        }
+
+        fun checkWebEidSigningCertificateMismatch(
+            cachedCert: String?,
+            requestSigningCert: String?,
+        ): Boolean {
+            if (cachedCert.isNullOrEmpty() || requestSigningCert.isNullOrEmpty()) {
+                return false
+            }
+
+            val isMismatch = cachedCert != requestSigningCert
+            if (isMismatch) {
+                _certMismatch.postValue(true)
+                showWebEidSigningCertificateMismatchError(
+                    IllegalStateException("Web eID signing certificate mismatch"),
+                )
+            }
+
+            return isMismatch
+        }
+
+        fun resetCertificateMismatch() {
+            _certMismatch.postValue(false)
         }
     }

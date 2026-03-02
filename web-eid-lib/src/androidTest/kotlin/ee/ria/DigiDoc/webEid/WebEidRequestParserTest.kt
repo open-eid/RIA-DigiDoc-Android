@@ -40,6 +40,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.security.MessageDigest
 import java.util.Base64
 
 @RunWith(AndroidJUnit4::class)
@@ -278,7 +279,7 @@ class WebEidRequestParserTest {
     }
 
     private fun validSha384Base64(): String {
-        val digest = java.security.MessageDigest.getInstance("SHA-384")
+        val digest = MessageDigest.getInstance("SHA-384")
         val hash = digest.digest("test-data".toByteArray())
         return Base64.getEncoder().encodeToString(hash)
     }
