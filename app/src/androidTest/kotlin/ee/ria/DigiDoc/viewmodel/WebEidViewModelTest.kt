@@ -96,7 +96,7 @@ class WebEidViewModelTest {
         runTest {
             val uri =
                 Uri.parse(
-                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsImxvZ2luX3VyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UiLCJnZXRfc2lnbmluZ19jZXJ0aWZpY2F0ZSI6dHJ1ZX0",
+                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsImxvZ2luVXJpIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9yZXNwb25zZSIsImdldFNpZ25pbmdDZXJ0aWZpY2F0ZSI6dHJ1ZX0",
                 )
             viewModel.handleAuth(uri)
             val authRequest = viewModel.authRequest.value
@@ -114,7 +114,7 @@ class WebEidViewModelTest {
     fun webEidViewModel_handleAuth_emitErrorResponseEventWhenChallengeMinLength() {
         val uri =
             Uri.parse(
-                "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwibG9naW5fdXJpIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9yZXNwb25zZSIsImdldF9zaWduaW5nX2NlcnRpZmljYXRlIjp0cnVlfQ",
+                "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwibG9naW5VcmkiOiJodHRwczovL2V4YW1wbGUuY29tL3Jlc3BvbnNlIiwiZ2V0U2lnbmluZ0NlcnRpZmljYXRlIjp0cnVlfQ",
             )
         webEidViewModel_handleAuth_emitErrorResponseEventWhenInvalidChallenge(uri)
     }
@@ -123,7 +123,7 @@ class WebEidViewModelTest {
     fun webEidViewModel_handleAuth_emitErrorResponseEventWhenChallengeMaxLength() {
         val uri =
             Uri.parse(
-                "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLCJsb2dpbl91cmkiOiJodHRwczovL2V4YW1wbGUuY29tL3Jlc3BvbnNlIiwiZ2V0X3NpZ25pbmdfY2VydGlmaWNhdGUiOnRydWV9",
+                "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLCJsb2dpblVyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UiLCJnZXRTaWduaW5nQ2VydGlmaWNhdGUiOnRydWV9",
             )
         webEidViewModel_handleAuth_emitErrorResponseEventWhenInvalidChallenge(uri)
     }
@@ -154,7 +154,7 @@ class WebEidViewModelTest {
         runTest(UnconfinedTestDispatcher()) {
             val uri =
                 Uri.parse(
-                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsImxvZ2luX3VyaSI6Imh0dHBzOi8vZXhhbXBsZS54eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eC5jb20vcmVzcG9uc2UiLCJnZXRfc2lnbmluZ19jZXJ0aWZpY2F0ZSI6dHJ1ZX0",
+                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsImxvZ2luVXJpIjoiaHR0cHM6Ly9leGFtcGxlLnh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4LmNvbS9yZXNwb25zZSIsImdldFNpZ25pbmdDZXJ0aWZpY2F0ZSI6dHJ1ZX0=",
                 )
             val deferred =
                 async {
@@ -196,7 +196,7 @@ class WebEidViewModelTest {
             val signature = byteArrayOf(4, 5, 6)
             val uri =
                 Uri.parse(
-                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsImxvZ2luX3VyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UiLCJnZXRfc2lnbmluZ19jZXJ0aWZpY2F0ZSI6dHJ1ZX0",
+                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsImxvZ2luVXJpIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9yZXNwb25zZSIsImdldFNpZ25pbmdDZXJ0aWZpY2F0ZSI6dHJ1ZX0",
                 )
             whenever(authService.buildAuthToken(cert, signingCert, signature))
                 .thenReturn(JSONObject().put("format", "web-eid:1.0"))
@@ -213,7 +213,7 @@ class WebEidViewModelTest {
             assert(emittedUri.fragment != null)
             val decodedPayload = String(decode(emittedUri.fragment, URL_SAFE))
             val jsonPayload = JSONObject(decodedPayload)
-            val authToken = jsonPayload.getJSONObject("auth_token")
+            val authToken = jsonPayload.getJSONObject("authToken")
             assertEquals("web-eid:1.0", authToken.getString("format"))
         }
     }
@@ -227,7 +227,7 @@ class WebEidViewModelTest {
             val signature = byteArrayOf(4, 5, 6)
             val uri =
                 Uri.parse(
-                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsImxvZ2luX3VyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UiLCJnZXRfc2lnbmluZ19jZXJ0aWZpY2F0ZSI6ZmFsc2V9",
+                    "web-eid-mobile://auth#ewogICJjaGFsbGVuZ2UiOiAidGVzdC1jaGFsbGVuZ2UtMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLAogICJsb2dpblVyaSI6ICJodHRwczovL2V4YW1wbGUuY29tL3Jlc3BvbnNlIiwKICAiZ2V0U2lnbmluZ0NlcnRpZmljYXRlIjogZmFsc2UKfQ==",
                 )
             whenever(authService.buildAuthToken(cert, null, signature))
                 .thenReturn(JSONObject().put("format", "web-eid:1.0"))
@@ -236,6 +236,7 @@ class WebEidViewModelTest {
                     viewModel.relyingPartyResponseEvents.first()
                 }
             viewModel.handleAuth(uri)
+            println(viewModel.authRequest.value)
             viewModel.handleWebEidAuthResult(cert, signingCert, signature)
 
             verify(authService).buildAuthToken(cert, null, signature)
@@ -244,7 +245,7 @@ class WebEidViewModelTest {
             assert(emittedUri.fragment != null)
             val decodedPayload = String(decode(emittedUri.fragment, URL_SAFE))
             val jsonPayload = JSONObject(decodedPayload)
-            val authToken = jsonPayload.getJSONObject("auth_token")
+            val authToken = jsonPayload.getJSONObject("authToken")
             assertEquals("web-eid:1.0", authToken.getString("format"))
         }
     }
@@ -258,7 +259,7 @@ class WebEidViewModelTest {
             val signature = byteArrayOf(4, 5, 6)
             val uri =
                 Uri.parse(
-                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsImxvZ2luX3VyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UiLCJnZXRfc2lnbmluZ19jZXJ0aWZpY2F0ZSI6dHJ1ZX0",
+                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsImxvZ2luVXJpIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9yZXNwb25zZSIsImdldFNpZ25pbmdDZXJ0aWZpY2F0ZSI6dHJ1ZX0",
                 )
             whenever(authService.buildAuthToken(cert, signingCert, signature))
                 .thenThrow(RuntimeException("Test exception"))
@@ -286,7 +287,7 @@ class WebEidViewModelTest {
         runTest {
             val uri =
                 Uri.parse(
-                    "web-eid-mobile://cert#eyJyZXNwb25zZV91cmkiOiJodHRwczovL2V4YW1wbGUuY29tL3Jlc3BvbnNlIn0",
+                    "web-eid-mobile://cert#eyJyZXNwb25zZVVyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UifQ",
                 )
             viewModel.handleCertificate(uri)
             val authRequest = viewModel.authRequest.value
@@ -334,7 +335,7 @@ class WebEidViewModelTest {
             val uri =
                 Uri.parse(
                     "web-eid-mobile://sign#" +
-                        "eyJyZXNwb25zZV91cmkiOiJodHRwczovL2V4YW1wbGUuY29tL3Jlc3BvbnNlIiwic2lnbl9jZXJ0aWZpY2F0ZSI6InNpZ25lcnNlcnQiLCJoYXNoIjoiIn0",
+                        "eyJyZXNwb25zZVVyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UiLCJzaWduQ2VydGlmaWNhdGUiOiJzaWduZXJzZXJ0IiwiaGFzaCI6IiJ9",
                 )
 
             val deferred =
@@ -351,7 +352,7 @@ class WebEidViewModelTest {
             val jsonPayload = JSONObject(decodedPayload)
             assertEquals("ERR_WEBEID_MOBILE_INVALID_REQUEST", jsonPayload.getString("code"))
             assertEquals(
-                "Invalid signing request: missing hash or hash_function",
+                "Invalid signing request: missing hash or hashFunction",
                 jsonPayload.getString("message"),
             )
         }
@@ -387,7 +388,7 @@ class WebEidViewModelTest {
             val signingCert = byteArrayOf(1, 2, 3)
             val uri =
                 Uri.parse(
-                    "web-eid-mobile://sign#eyJyZXNwb25zZV91cmkiOiJodHRwczovL2V4YW1wbGUuY29tL3Jlc3BvbnNlIiwic2lnbl9jZXJ0aWZpY2F0ZSI6InNpZ25pbmdfY2VydGlmaWNhdGUiLCJoYXNoIjoiaGFzaCIsImhhc2hfZnVuY3Rpb24iOiJoYXNoX2Z1bmN0aW9uIn0",
+                    "web-eid-mobile://sign#eyJyZXNwb25zZVVyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UiLCJzaWduQ2VydGlmaWNhdGUiOiJzaWduaW5nX2NlcnRpZmljYXRlIiwiaGFzaCI6Imhhc2giLCJoYXNoRnVuY3Rpb24iOiJoYXNoX2Z1bmN0aW9uIn0",
                 )
             viewModel.handleCertificate(uri)
 
@@ -419,7 +420,7 @@ class WebEidViewModelTest {
             val signingCert = byteArrayOf(1, 2, 3)
             val uri =
                 Uri.parse(
-                    "web-eid-mobile://sign#eyJyZXNwb25zZV91cmkiOiJodHRwczovL2V4YW1wbGUuY29tL3Jlc3BvbnNlIiwic2lnbl9jZXJ0aWZpY2F0ZSI6InNpZ25pbmdfY2VydGlmaWNhdGUiLCJoYXNoIjoiaGFzaCIsImhhc2hfZnVuY3Rpb24iOiJoYXNoX2Z1bmN0aW9uIn0",
+                    "web-eid-mobile://sign#eyJyZXNwb25zZVVyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UiLCJzaWduQ2VydGlmaWNhdGUiOiJzaWduaW5nX2NlcnRpZmljYXRlIiwiaGFzaCI6Imhhc2giLCJoYXNoRnVuY3Rpb24iOiJoYXNoX2Z1bmN0aW9uIn0",
                 )
             viewModel.handleCertificate(uri)
 
@@ -511,7 +512,7 @@ class WebEidViewModelTest {
         runTest(UnconfinedTestDispatcher()) {
             val uri =
                 Uri.parse(
-                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsImxvZ2luX3VyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UiLCJnZXRfc2lnbmluZ19jZXJ0aWZpY2F0ZSI6dHJ1ZX0",
+                    "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsImxvZ2luVXJpIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9yZXNwb25zZSIsImdldFNpZ25pbmdDZXJ0aWZpY2F0ZSI6dHJ1ZX0",
                 )
 
             viewModel.handleAuth(uri)
@@ -542,7 +543,7 @@ class WebEidViewModelTest {
         runTest(UnconfinedTestDispatcher()) {
             val uri =
                 Uri.parse(
-                    "web-eid-mobile://cert#eyJyZXNwb25zZV91cmkiOiJodHRwczovL2V4YW1wbGUuY29tL3Jlc3BvbnNlIn0",
+                    "web-eid-mobile://cert#eyJyZXNwb25zZVVyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UifQ",
                 )
 
             viewModel.handleCertificate(uri)
@@ -619,11 +620,11 @@ class WebEidViewModelTest {
         val hashFunction = "SHA-384"
         val responseUri = "https://rp.example.com/sign/response"
         val sb = StringBuilder()
-        sb.append("{\"response_uri\":\"$responseUri\"")
+        sb.append("{\"responseUri\":\"$responseUri\"")
         sb.append(",\"hash\":\"$hash\"")
-        sb.append(",\"hash_function\":\"$hashFunction\"")
+        sb.append(",\"hashFunction\":\"$hashFunction\"")
         if (signingCertificate != null) {
-            sb.append(",\"signing_certificate\":\"$signingCertificate\"")
+            sb.append(",\"signingCertificate\":\"$signingCertificate\"")
         }
         sb.append("}")
         val encoded = Base64.getEncoder().encodeToString(sb.toString().toByteArray())

@@ -156,8 +156,8 @@ class WebEidRequestParserTest {
             """
             {
               "challenge": "abc123",
-              "login_uri": "$loginUri",
-              "get_signing_certificate": false
+              "loginUri": "$loginUri",
+              "getSigningCertificate": false
             }
             """.trimIndent()
 
@@ -183,8 +183,8 @@ class WebEidRequestParserTest {
             """
             {
               "challenge": "$challenge",
-              "login_uri": "$loginUri",
-              "get_signing_certificate": $getCert
+              "loginUri": "$loginUri",
+              "getSigningCertificate": $getCert
             }
             """.trimIndent()
         val encoded = Base64.getEncoder().encodeToString(json.toByteArray())
@@ -210,8 +210,8 @@ class WebEidRequestParserTest {
             """
             {
               "challenge": "${"b".repeat(60)}",
-              "login_uri": "$loginUri",
-              "get_signing_certificate": false
+              "loginUri": "$loginUri",
+              "getSigningCertificate": false
             }
             """.trimIndent()
 
@@ -267,11 +267,11 @@ class WebEidRequestParserTest {
     ): String {
         val responseUri = "https://rp.example.com/sign/response"
         val sb = StringBuilder()
-        sb.append("{\"response_uri\":\"$responseUri\"")
+        sb.append("{\"responseUri\":\"$responseUri\"")
         if (hash != null) sb.append(",\"hash\":\"$hash\"")
-        if (hashFunction != null) sb.append(",\"hash_function\":\"$hashFunction\"")
+        if (hashFunction != null) sb.append(",\"hashFunction\":\"$hashFunction\"")
         if (signingCertificate != null) {
-            sb.append(",\"signing_certificate\":\"$signingCertificate\"")
+            sb.append(",\"signingCertificate\":\"$signingCertificate\"")
         }
         sb.append("}")
         val encoded = Base64.getEncoder().encodeToString(sb.toString().toByteArray())

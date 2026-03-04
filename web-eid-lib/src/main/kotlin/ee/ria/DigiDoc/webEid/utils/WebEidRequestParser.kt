@@ -43,7 +43,7 @@ object WebEidRequestParser {
     fun parseAuthUri(authUri: Uri): WebEidAuthRequest {
         val request = decodeUriFragment(authUri)
         val challenge = request.getString("challenge")
-        val responseUri = validateResponseUri(request.getString("login_uri"))
+        val responseUri = validateResponseUri(request.getString("loginUri"))
         if (challenge.isNullOrBlank() ||
             challenge.length < MIN_CHALLENGE_LENGTH ||
             challenge.length > MAX_CHALLENGE_LENGTH
@@ -58,14 +58,14 @@ object WebEidRequestParser {
         return WebEidAuthRequest(
             challenge = challenge,
             loginUri = responseUri.toString(),
-            getSigningCertificate = request.optBoolean("get_signing_certificate", false),
+            getSigningCertificate = request.optBoolean("getSigningCertificate", false),
             origin = parseOrigin(responseUri),
         )
     }
 
     fun parseCertificateUri(uri: Uri): WebEidCertificateRequest {
         val request = decodeUriFragment(uri)
-        val responseUri = validateResponseUri(request.optString("response_uri", ""))
+        val responseUri = validateResponseUri(request.optString("responseUri", ""))
 
         return WebEidCertificateRequest(
             responseUri = responseUri.toString(),
@@ -75,14 +75,14 @@ object WebEidRequestParser {
 
     fun parseSignUri(uri: Uri): WebEidSignRequest {
         val request = decodeUriFragment(uri)
-        val responseUri = validateResponseUri(request.optString("response_uri", ""))
+        val responseUri = validateResponseUri(request.optString("responseUri", ""))
         val hash = request.optString("hash", "")
-        val hashFunction = request.optString("hash_function", "")
+        val hashFunction = request.optString("hashFunction", "")
 
         if (hash.isBlank() || hashFunction.isBlank()) {
             throw WebEidException(
                 ERR_WEBEID_MOBILE_INVALID_REQUEST,
-                "Invalid signing request: missing hash or hash_function",
+                "Invalid signing request: missing hash or hashFunction",
                 responseUri.toString(),
             )
         }
@@ -93,11 +93,11 @@ object WebEidRequestParser {
             responseUri = responseUri.toString(),
         )
 
-        val signingCertificatePem = request.optString("signing_certificate", "")
+        val signingCertificatePem = request.optString("signingCertificate", "")
         if (signingCertificatePem.isBlank()) {
             throw WebEidException(
                 ERR_WEBEID_MOBILE_INVALID_REQUEST,
-                "Invalid signing request: missing signing_certificate",
+                "Invalid signing request: missing signingCertificate",
                 responseUri.toString(),
             )
         }

@@ -125,7 +125,7 @@ class WebEidViewModel
                         if (getSigningCertificate == true) signingCert else null,
                         signature,
                     )
-                val payload = JSONObject().put("auth_token", token)
+                val payload = JSONObject().put("authToken", token)
                 val responseUri = WebEidResponseUtil.createResponseUri(loginUri, payload)
                 _relyingPartyResponseEvents.emit(responseUri)
             } catch (e: Exception) {
