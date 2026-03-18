@@ -43,6 +43,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.fragment.screen.WebEidScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.WebEidOperation
+import ee.ria.DigiDoc.utils.WebEidUriUtil
 import ee.ria.DigiDoc.viewmodel.WebEidViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
@@ -78,13 +80,11 @@ fun WebEidFragment(
 
     LaunchedEffect(webEidUri) {
         webEidUri?.let {
-            when (it.host) {
-                "auth" -> viewModel.handleAuth(it)
-                "cert" -> viewModel.handleCertificate(it)
-                "sign" -> viewModel.handleSign(it)
-                else -> {
-                    viewModel.handleUnknown(it)
-                }
+            when (WebEidUriUtil.getOperation(it)) {
+                WebEidOperation.AUTH -> viewModel.handleAuth(it)
+                WebEidOperation.CERT -> viewModel.handleCertificate(it)
+                WebEidOperation.SIGN -> viewModel.handleSign(it)
+                null -> viewModel.handleUnknown(it)
             }
         }
     }

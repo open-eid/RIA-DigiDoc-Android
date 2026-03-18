@@ -42,6 +42,7 @@ import ee.ria.DigiDoc.init.LibrarySetup
 import ee.ria.DigiDoc.manager.ActivityManager
 import ee.ria.DigiDoc.root.RootChecker
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.WebEidUriUtil
 import ee.ria.DigiDoc.utils.locale.LocaleUtil
 import ee.ria.DigiDoc.utils.locale.LocaleUtilImpl
 import ee.ria.DigiDoc.utils.secure.SecureUtil
@@ -121,7 +122,7 @@ class MainActivity :
         val componentClassName = this.javaClass.name
 
         val locale = dataStore.getLocale() ?: getLocale("en")
-        val webEidUri = intent.data?.takeIf { it.scheme == "web-eid-mobile" }
+        val webEidUri = intent.data?.takeIf { WebEidUriUtil.isWebEidUri(it) }
 
         if (webEidUri != null) {
             val browserPackage =
