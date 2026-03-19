@@ -62,6 +62,7 @@ import javax.xml.parsers.SAXParserFactory
 
 object FileUtil {
     private val LOG_TAG = javaClass.simpleName
+    private val ALLOWED_FILE_SCHEMES = setOf("content", "file")
 
     /**
      * Check if file path is in cache directory
@@ -471,10 +472,10 @@ object FileUtil {
 
     fun getExternalFileUris(intent: Intent): List<Uri> {
         val externalFileUris = mutableListOf<Uri>()
-        intent.data?.let { externalFileUris.add(it) }
+        intent.data?.takeIf { it.scheme in ALLOWED_FILE_SCHEMES }?.let { externalFileUris.add(it) }
         intent.clipData?.let { clipData ->
             for (i in 0 until clipData.itemCount) {
-                clipData.getItemAt(i)?.uri?.let { externalFileUris.add(it) }
+                clipData.getItemAt(i)?.uri?.takeIf { it.scheme in ALLOWED_FILE_SCHEMES }?.let { externalFileUris.add(it) }
             }
         }
         return externalFileUris
