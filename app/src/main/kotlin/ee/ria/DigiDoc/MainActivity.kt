@@ -22,10 +22,13 @@
 package ee.ria.DigiDoc
 
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.app.ActivityCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -55,6 +58,7 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
 import kotlinx.coroutines.launch
 import java.util.logging.Logger
 import javax.inject.Inject
+import androidx.core.net.toUri
 
 @AndroidEntryPoint
 class MainActivity :
@@ -123,21 +127,8 @@ class MainActivity :
 
         val locale = dataStore.getLocale() ?: getLocale("en")
         val webEidUri = intent.data?.takeIf { WebEidUriUtil.isWebEidUri(it) }
-
-        if (webEidUri != null) {
-            val browserPackage =
-                intent
-                    .getStringExtra("com.android.browser.application_id")
-                    ?.takeIf { it.isNotEmpty() }
-            dataStore.setWebEidBrowserPackage(browserPackage)
-        }
-
-        val externalFileUris =
-            if (webEidUri != null) {
-                listOf()
-            } else {
-                getExternalFileUris(intent)
-            }
+        val browserPackage = if (webEidUri != null) resolveBrowserPackage(intent) else null
+        val externalFileUris = getExternalFileUris(intent)
 
         localeUtil.updateLocale(applicationContext, locale)
 
@@ -183,6 +174,7 @@ class MainActivity :
                     RIADigiDocAppScreen(
                         externalFileUris = externalFileUris,
                         webEidUri = webEidUri,
+                        browserPackage = browserPackage,
                     )
                 }
             }
@@ -210,4 +202,17 @@ class MainActivity :
     private fun isSystemModeEnabled(dataStore: DataStore): Boolean = dataStore.getThemeSetting() == ThemeSetting.SYSTEM
 
     private fun isDarkModeEnabled(dataStore: DataStore): Boolean = dataStore.getThemeSetting() == ThemeSetting.DARK
+
+    private fun resolveBrowserPackage(intent: Intent): String? =
+        (intent
+            .getStringExtra("com.android.browser.application_id")
+            ?.takeIf { it.isNotEmpty() }
+            ?: ActivityCompat.getReferrer(this)?.host) // TODO: This needs testing with App Link
+            ?.takeIf { pkg ->
+                val browseIntent = Intent(Intent.ACTION_VIEW, "https://".toUri()).apply {
+                    setPackage(pkg)
+                }
+                @Suppress("QueryPermissionsNeeded")
+                packageManager.resolveActivity(browseIntent, PackageManager.MATCH_DEFAULT_ONLY) != null
+            }
 }

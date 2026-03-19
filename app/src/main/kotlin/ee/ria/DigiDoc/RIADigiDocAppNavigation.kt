@@ -79,6 +79,7 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
 fun RIADigiDocAppScreen(
     externalFileUris: List<Uri>,
     webEidUri: Uri? = null,
+    browserPackage: String? = null,
 ) {
     val navController = rememberNavController()
     val sharedMenuViewModel: SharedMenuViewModel = hiltViewModel()
@@ -386,6 +387,7 @@ fun RIADigiDocAppScreen(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 webEidUri = webEidUri,
+                browserPackage = browserPackage,
             )
         }
     }

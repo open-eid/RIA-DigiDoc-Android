@@ -617,32 +617,6 @@ class DataStoreTest {
     }
 
     @Test
-    fun dataStore_getWebEidBrowserPackage_defaultNull() {
-        val result = dataStore.getWebEidBrowserPackage()
-
-        assertNull(result)
-    }
-
-    @Test
-    fun dataStore_setWebEidBrowserPackage_success() {
-        dataStore.setWebEidBrowserPackage("com.android.chrome")
-
-        val result = dataStore.getWebEidBrowserPackage()
-
-        assertEquals("com.android.chrome", result)
-    }
-
-    @Test
-    fun dataStore_setWebEidBrowserPackage_nullClearsValue() {
-        dataStore.setWebEidBrowserPackage("com.android.chrome")
-        dataStore.setWebEidBrowserPackage(null)
-
-        val result = dataStore.getWebEidBrowserPackage()
-
-        assertNull(result)
-    }
-
-    @Test
     fun dataStore_getTemporaryCanNumber_defaultEmpty() {
         val result = dataStore.getTemporaryCanNumber()
 

@@ -56,6 +56,7 @@ fun WebEidFragment(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     webEidUri: Uri?,
+    browserPackage: String? = null,
     viewModel: WebEidViewModel = hiltViewModel(),
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
     sharedContainerViewModel: SharedContainerViewModel = hiltViewModel(),
@@ -65,7 +66,6 @@ fun WebEidFragment(
 
     LaunchedEffect(viewModel) {
         viewModel.relyingPartyResponseEvents.collect { responseUri ->
-            val browserPackage = viewModel.getWebEidBrowserPackage()
             val browserIntent =
                 Intent(Intent.ACTION_VIEW, responseUri).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
