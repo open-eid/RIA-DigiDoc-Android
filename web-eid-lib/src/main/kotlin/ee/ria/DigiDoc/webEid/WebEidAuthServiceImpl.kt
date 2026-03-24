@@ -23,6 +23,7 @@ package ee.ria.DigiDoc.webEid
 
 import ee.ria.DigiDoc.webEid.utils.WebEidAlgorithmUtil.buildSupportedSignatureAlgorithms
 import ee.ria.DigiDoc.webEid.utils.WebEidAlgorithmUtil.getAlgorithm
+import org.json.JSONArray
 import org.json.JSONObject
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
@@ -55,8 +56,16 @@ class WebEidAuthServiceImpl
 
                 if (signingCert != null) {
                     val supportedSignatureAlgorithms = buildSupportedSignatureAlgorithms(publicKey)
-                    put("unverifiedSigningCertificate", Base64.getEncoder().encodeToString(signingCert))
-                    put("supportedSignatureAlgorithms", supportedSignatureAlgorithms)
+
+                    val signingCertificates =
+                        JSONArray().put(
+                            JSONObject().apply {
+                                put("certificate", Base64.getEncoder().encodeToString(signingCert))
+                                put("supportedSignatureAlgorithms", supportedSignatureAlgorithms)
+                            },
+                        )
+
+                    put("unverifiedSigningCertificates", signingCertificates)
                     put("format", "web-eid:1.1")
                 } else {
                     put("format", "web-eid:1.0")

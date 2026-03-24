@@ -87,18 +87,24 @@ class WebEidAuthServiceTest {
 
         assertEquals("web-eid:1.1", token.getString("format"))
         assert(token.getString("unverifiedCertificate").isNotBlank())
-        assert(token.getString("unverifiedSigningCertificate").isNotBlank())
         assert(token.getString("signature").isNotBlank())
         assert(token.has("algorithm"))
-        assert(token.has("supportedSignatureAlgorithms"))
+        assert(token.has("unverifiedSigningCertificates"))
+
+        val signingCertificates = token.getJSONArray("unverifiedSigningCertificates")
+        assertEquals(1, signingCertificates.length())
+
+        val signingCertificate = signingCertificates.getJSONObject(0)
+        assert(signingCertificate.getString("certificate").isNotBlank())
+        assert(signingCertificate.has("supportedSignatureAlgorithms"))
         assertEquals(Base64.getEncoder().encodeToString(authCertBytes), token.getString("unverifiedCertificate"))
         assertEquals(
             Base64.getEncoder().encodeToString(signingCertBytes),
-            token.getString("unverifiedSigningCertificate"),
+            signingCertificate.getString("certificate"),
         )
         assertNotEquals(
             token.getString("unverifiedCertificate"),
-            token.getString("unverifiedSigningCertificate"),
+            signingCertificate.getString("certificate"),
             "Auth certificate and signing certificate should not be identical",
         )
     }
