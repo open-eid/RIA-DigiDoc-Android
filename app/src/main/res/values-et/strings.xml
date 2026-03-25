@@ -497,7 +497,7 @@
 
     <!-- Main About -->
     <string name="main_about_1_logo_text">Eesti tuleviku heaks</string>
-    <string name="main_about_2_logo_text">Euroopa Liit Euroopa Regionaalarengu Fond</string>
+    <string name="main_about_2_logo_text">Kaasrahastanud Euroopa Liit</string>
     <string name="main_about_digidoc_and_el_logos">Projekti on toetatud Euroopa Liidu Regionaalarengu Fondist</string>
     <string name="main_about_ria_digidoc_title">RIA DigiDoc</string>
     <string name="main_about_version_title">versioon %1$s</string>
