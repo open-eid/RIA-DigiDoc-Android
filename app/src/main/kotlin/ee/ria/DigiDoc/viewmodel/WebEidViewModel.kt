@@ -25,7 +25,6 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.webEid.WebEidAuthService
 import ee.ria.DigiDoc.webEid.WebEidSignService

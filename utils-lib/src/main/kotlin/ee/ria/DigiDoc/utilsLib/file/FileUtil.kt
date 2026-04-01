@@ -475,7 +475,12 @@ object FileUtil {
         intent.data?.takeIf { it.scheme in ALLOWED_FILE_SCHEMES }?.let { externalFileUris.add(it) }
         intent.clipData?.let { clipData ->
             for (i in 0 until clipData.itemCount) {
-                clipData.getItemAt(i)?.uri?.takeIf { it.scheme in ALLOWED_FILE_SCHEMES }?.let { externalFileUris.add(it) }
+                clipData
+                    .getItemAt(
+                        i,
+                    )?.uri
+                    ?.takeIf { it.scheme in ALLOWED_FILE_SCHEMES }
+                    ?.let { externalFileUris.add(it) }
             }
         }
         return externalFileUris

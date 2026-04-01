@@ -683,4 +683,5 @@
     <string name="web_eid_request_error">Request error</string>
     <string name="web_eid_invalid_auth_request_error">Invalid authentication request</string>
     <string name="signature_update_nfc_detection_timeout">Card not detected. Please start again.</string>
+    <string name="web_eid_signing_card_mismatch">The selected ID card does not match the card used for authentication. Please use the same ID card.</string>
 </resources>

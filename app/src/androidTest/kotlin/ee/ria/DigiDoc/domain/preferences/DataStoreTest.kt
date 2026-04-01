@@ -40,7 +40,6 @@ import ee.ria.DigiDoc.network.siva.SivaSetting
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.BeforeClass

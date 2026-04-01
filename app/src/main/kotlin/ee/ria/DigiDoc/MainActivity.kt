@@ -29,6 +29,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.app.ActivityCompat
+import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -58,7 +59,6 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
 import kotlinx.coroutines.launch
 import java.util.logging.Logger
 import javax.inject.Inject
-import androidx.core.net.toUri
 
 @AndroidEntryPoint
 class MainActivity :
@@ -204,14 +204,17 @@ class MainActivity :
     private fun isDarkModeEnabled(dataStore: DataStore): Boolean = dataStore.getThemeSetting() == ThemeSetting.DARK
 
     private fun resolveBrowserPackage(intent: Intent): String? =
-        (intent
-            .getStringExtra("com.android.browser.application_id")
-            ?.takeIf { it.isNotEmpty() }
-            ?: ActivityCompat.getReferrer(this)?.host) // TODO: This needs testing with App Link
+        (
+            intent
+                .getStringExtra("com.android.browser.application_id")
+                ?.takeIf { it.isNotEmpty() }
+                ?: ActivityCompat.getReferrer(this)?.host
+        ) // TODO: This needs testing with App Link
             ?.takeIf { pkg ->
-                val browseIntent = Intent(Intent.ACTION_VIEW, "https://".toUri()).apply {
-                    setPackage(pkg)
-                }
+                val browseIntent =
+                    Intent(Intent.ACTION_VIEW, "https://".toUri()).apply {
+                        setPackage(pkg)
+                    }
                 @Suppress("QueryPermissionsNeeded")
                 packageManager.resolveActivity(browseIntent, PackageManager.MATCH_DEFAULT_ONLY) != null
             }

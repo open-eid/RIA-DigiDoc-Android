@@ -23,14 +23,16 @@ package ee.ria.DigiDoc.utils
 
 import android.net.Uri
 
-enum class WebEidOperation(val operation: String) {
+enum class WebEidOperation(
+    val operation: String,
+) {
     AUTH("auth"),
     CERT("cert"),
-    SIGN("sign");
+    SIGN("sign"),
+    ;
 
     companion object {
-        fun fromOperation(operation: String): WebEidOperation? =
-            entries.find { it.operation == operation }
+        fun fromOperation(operation: String): WebEidOperation? = entries.find { it.operation == operation }
     }
 }
 
