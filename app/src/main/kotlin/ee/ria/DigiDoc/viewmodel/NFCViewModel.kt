@@ -657,9 +657,7 @@ class NFCViewModel
 
                                 if (!expectedCert.contentEquals(signerCert)) {
                                     _certMismatch.postValue(true)
-                                    throw IllegalStateException(
-                                        "Web eID card does not match the card used for authentication",
-                                    )
+                                    throw IllegalStateException("Web eID signing certificate mismatch")
                                 }
                             }
 
@@ -767,19 +765,10 @@ class NFCViewModel
         }
 
         private fun showWebEidSigningCertificateMismatchError(e: Exception) {
-            _errorState.postValue(Triple(R.string.signature_update_nfc_wrong_certificate, null, null))
-            errorLog(
-                logTag,
-                "Web eID signing failed - signing certificate does not match previously used certificate",
-                e,
-            )
-        }
-
-        private fun showWebEidAuthenticationCardMismatchError(e: Exception) {
             _errorState.postValue(Triple(R.string.web_eid_signing_card_mismatch, null, null))
             errorLog(
                 logTag,
-                "Web eID signing failed - selected ID card does not match the card used for authentication",
+                "Web eID signing failed - selected ID card does not match the required person",
                 e,
             )
         }
@@ -871,11 +860,6 @@ class NFCViewModel
 
                 message.contains("Web eID signing certificate mismatch") -> {
                     showWebEidSigningCertificateMismatchError(ex)
-                    true
-                }
-
-                message.contains("Web eID card does not match the card used for authentication") -> {
-                    showWebEidAuthenticationCardMismatchError(ex)
                     true
                 }
 

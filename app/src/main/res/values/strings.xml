@@ -289,7 +289,6 @@
     <string name="sign_blocked_pin2_unchanged_url">https://www.id.ee/en/article/changing-id-card-pin-codes-and-puk-code/</string>
     <string name="signature_update_signature_error_message_certificate_revoked">Certificate status revoked</string>
     <string name="signature_update_signature_error_message_certificate_unknown">Certificate status unknown</string>
-    <string name="signature_update_nfc_wrong_certificate">The selected ID card does not match the previously used certificate. Please use the same ID card you authenticated with.</string>
     <string name="id_card_conditional_speech">ID-card\'s</string>
     <string name="mobile_id_conditional_speech">Mobile-ID</string>
     <string name="smart_id_conditional_speech">Smart-ID</string>
@@ -683,5 +682,5 @@
     <string name="web_eid_request_error">Request error</string>
     <string name="web_eid_invalid_auth_request_error">Invalid authentication request</string>
     <string name="signature_update_nfc_detection_timeout">Card not detected. Please start again.</string>
-    <string name="web_eid_signing_card_mismatch">The selected ID card does not match the card used for authentication. Please use the same ID card.</string>
+    <string name="web_eid_signing_card_mismatch">The selected ID card does not match the required person. Please use the correct ID card.</string>
 </resources>

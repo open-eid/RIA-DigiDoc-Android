@@ -289,7 +289,6 @@
     <string name="sign_blocked_pin2_unchanged_url">https://www.id.ee/artikkel/id-kaardi-pin-ja-puk-koodide-muutmine/</string>
     <string name="signature_update_signature_error_message_certificate_revoked">Sertifikaat on kehtetu</string>
     <string name="signature_update_signature_error_message_certificate_unknown">Sertifikaadi staatus on teadmata</string>
-    <string name="signature_update_nfc_wrong_certificate">Valitud ID-kaart ei vasta varem kasutatud sertifikaadile. Palun kasuta sama ID-kaarti, millega autentisid.</string>
     <string name="id_card_conditional_speech">ID-kaardi</string>
     <string name="mobile_id_conditional_speech">Mobiil-ID</string>
     <string name="smart_id_conditional_speech">Smart-ID</string>
@@ -683,5 +682,5 @@
     <string name="web_eid_request_error">Päringu viga</string>
     <string name="web_eid_invalid_auth_request_error">Vigane autentimispäring</string>
     <string name="signature_update_nfc_detection_timeout">Kaarti ei tuvastatud. Palun alusta uuesti.</string>
-    <string name="web_eid_signing_card_mismatch">Valitud ID-kaart ei ühti autentimisel kasutatud kaardiga. Palun kasuta sama ID-kaarti.</string>
+    <string name="web_eid_signing_card_mismatch">Valitud ID-kaart ei vasta nõutud isikule. Palun kasuta õiget ID-kaarti.</string>
 </resources>
