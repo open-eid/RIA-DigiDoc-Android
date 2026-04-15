@@ -768,7 +768,7 @@ class NFCViewModel
             _errorState.postValue(Triple(R.string.web_eid_signing_card_mismatch, null, null))
             errorLog(
                 logTag,
-                "Web eID signing failed - selected ID card does not match the required person",
+                "Web eID signing failed - signing certificate does not match previously used certificate",
                 e,
             )
         }
