@@ -61,6 +61,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -132,12 +133,36 @@ class SharedSettingsViewModel
 
         private val defaultManualProxySettings = ManualProxy("", 80, "", "")
 
+        private val _allowScreenshots = MutableStateFlow(dataStore.getSettingsAllowScreenshots())
+        val allowScreenshots = _allowScreenshots.asStateFlow()
+
+        private val _enableRoleAsking = MutableStateFlow(dataStore.getSettingsAskRoleAndAddress())
+        val enableRoleAsking = _enableRoleAsking.asStateFlow()
+
+        private val _enableOpenAllFileTypes = MutableStateFlow(dataStore.getSettingsOpenAllFileTypes())
+        val enableOpenAllFileTypes = _enableOpenAllFileTypes.asStateFlow()
+
         init {
             viewModelScope.launch(Main) {
                 configurationRepository.observeConfigurationUpdates { newConfig ->
                     _updatedConfiguration.value = newConfig
                 }
             }
+        }
+
+        fun setSettingsAskRoleAndAddress(value: Boolean) {
+            dataStore.setSettingsAskRoleAndAddress(value)
+            _enableRoleAsking.value = value
+        }
+
+        fun setAllowScreenshots(value: Boolean) {
+            dataStore.setSettingsAllowScreenshots(value)
+            _allowScreenshots.value = value
+        }
+
+        fun setSettingsOpenAllFileTypes(value: Boolean) {
+            dataStore.setSettingsOpenAllFileTypes(value)
+            _enableOpenAllFileTypes.value = value
         }
 
         fun resetToDefaultSettings() {
@@ -201,8 +226,8 @@ class SharedSettingsViewModel
         }
 
         private fun resetRightsSettings() {
-            dataStore.setSettingsOpenAllFileTypes(true)
-            dataStore.setSettingsAllowScreenshots(false)
+            setSettingsOpenAllFileTypes(true)
+            setAllowScreenshots(false)
         }
 
         private fun resetSigningSettings() {
@@ -210,7 +235,7 @@ class SharedSettingsViewModel
             dataStore.setTsaSetting(TSASetting.DEFAULT)
             dataStore.setSettingsUUID(DEFAULT_UUID_VALUE)
             dataStore.setSettingsTSAUrl(updatedConfiguration.value?.tsaUrl ?: "")
-            dataStore.setSettingsAskRoleAndAddress(false)
+            setSettingsAskRoleAndAddress(false)
             dataStore.setIsTsaCertificateViewVisible(false)
             val certFile =
                 FileUtil.getCertFile(context, dataStore.getTSACertName(), DIR_TSA_CERT)

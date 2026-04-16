@@ -46,7 +46,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -95,18 +94,9 @@ fun AdvancedSettingsScreen(
 
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
-    val getIsRoleAskingEnabled = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
-    val setIsRoleAskingEnabled = sharedSettingsViewModel.dataStore::setSettingsAskRoleAndAddress
-
-    val getAllowScreenshotsEnabled = sharedSettingsViewModel.dataStore::getSettingsAllowScreenshots
-    val setAllowScreenshotsEnabled = sharedSettingsViewModel.dataStore::setSettingsAllowScreenshots
-
-    val getOpenAllFileTypesEnabled = sharedSettingsViewModel.dataStore::getSettingsOpenAllFileTypes
-    val setOpenAllFileTypesEnabled = sharedSettingsViewModel.dataStore::setSettingsOpenAllFileTypes
-
-    var checkedAskRoleAndAddress by remember { mutableStateOf(getIsRoleAskingEnabled()) }
-    var checkedAllowScreenshots by remember { mutableStateOf(getAllowScreenshotsEnabled()) }
-    var checkedAllowOpeningAllFileTypes by remember { mutableStateOf(getOpenAllFileTypesEnabled()) }
+    val checkedAskRoleAndAddress by sharedSettingsViewModel.enableRoleAsking.collectAsState()
+    val checkedAllowScreenshots by sharedSettingsViewModel.allowScreenshots.collectAsState()
+    val checkedAllowOpeningAllFileTypes by sharedSettingsViewModel.enableOpenAllFileTypes.collectAsState()
 
     val askRoleAndAddressTitleText = stringResource(R.string.main_settings_ask_role_and_address_title)
     val allowScreenshotsTitleText = stringResource(R.string.main_settings_allow_screenshots_title)
@@ -167,8 +157,7 @@ fun AdvancedSettingsScreen(
                     modifier
                         .fillMaxWidth()
                         .clickable {
-                            checkedAskRoleAndAddress = !checkedAskRoleAndAddress
-                            setIsRoleAskingEnabled(checkedAskRoleAndAddress)
+                            sharedSettingsViewModel.setSettingsAskRoleAndAddress(!checkedAskRoleAndAddress)
                         },
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -189,8 +178,7 @@ fun AdvancedSettingsScreen(
                             },
                     checked = checkedAskRoleAndAddress,
                     onCheckedChange = {
-                        checkedAskRoleAndAddress = it
-                        setIsRoleAskingEnabled(it)
+                        sharedSettingsViewModel.setSettingsAskRoleAndAddress(it)
                     },
                 )
             }
@@ -200,8 +188,7 @@ fun AdvancedSettingsScreen(
                     modifier
                         .fillMaxWidth()
                         .clickable {
-                            checkedAllowScreenshots = !checkedAllowScreenshots
-                            setAllowScreenshotsEnabled(checkedAllowScreenshots)
+                            sharedSettingsViewModel.setAllowScreenshots(!checkedAllowScreenshots)
                             secureUtil.markAsSecure(activity)
                         },
                 verticalAlignment = Alignment.CenterVertically,
@@ -223,8 +210,7 @@ fun AdvancedSettingsScreen(
                             },
                     checked = checkedAllowScreenshots,
                     onCheckedChange = {
-                        checkedAllowScreenshots = it
-                        setAllowScreenshotsEnabled(it)
+                        sharedSettingsViewModel.setAllowScreenshots(it)
                         secureUtil.markAsSecure(activity)
                     },
                 )
@@ -235,8 +221,7 @@ fun AdvancedSettingsScreen(
                     modifier
                         .fillMaxWidth()
                         .clickable {
-                            checkedAllowOpeningAllFileTypes = !checkedAllowOpeningAllFileTypes
-                            setOpenAllFileTypesEnabled(checkedAllowOpeningAllFileTypes)
+                            sharedSettingsViewModel.setSettingsOpenAllFileTypes(!checkedAllowOpeningAllFileTypes)
                             sharedSettingsViewModel.recreateActivity()
                         },
                 verticalAlignment = Alignment.CenterVertically,
@@ -258,8 +243,7 @@ fun AdvancedSettingsScreen(
                             },
                     checked = checkedAllowOpeningAllFileTypes,
                     onCheckedChange = {
-                        checkedAllowOpeningAllFileTypes = it
-                        setOpenAllFileTypesEnabled(it)
+                        sharedSettingsViewModel.setSettingsOpenAllFileTypes(it)
                         sharedSettingsViewModel.recreateActivity()
                     },
                 )
@@ -301,10 +285,12 @@ fun AdvancedSettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 TextButton(onClick = {
-                    checkedAskRoleAndAddress = false
-                    checkedAllowScreenshots = false
-                    checkedAllowOpeningAllFileTypes = true
+                    sharedSettingsViewModel.setSettingsAskRoleAndAddress(false)
+                    sharedSettingsViewModel.setAllowScreenshots(false)
+                    sharedSettingsViewModel.setSettingsOpenAllFileTypes(true)
                     sharedSettingsViewModel.resetToDefaultSettings()
+                    secureUtil.markAsSecure(activity)
+                    sharedSettingsViewModel.recreateActivity()
                     showMessage(context, R.string.main_settings_use_default_settings_message, SnackbarType.SUCCESS)
                 }) {
                     Text(
