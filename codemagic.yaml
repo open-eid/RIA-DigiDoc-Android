@@ -145,15 +145,41 @@ workflows:
       - name: Launch emulator for instrumented tests
         script: |
           cd $ANDROID_HOME/tools
-          emulator -avd emulator-35 -memory 4096 &
+
+          emulator -avd emulator-36 \
+          -memory 8192 \
+          -no-window \
+          -no-boot-anim \
+          -no-snapshot \
+          -wipe-data \
+          -cores 4 &
+
           adb wait-for-device
+
+          # Wait until emulator has booted
+          echo "Booting emulator..."
+          until [[ "$(adb shell getprop sys.boot_completed 2>/dev/null)" == "1" ]]; do
+          printf '.'
+          sleep 5
+          done
+          echo " Emulator booted!"
+
+          sleep 5
+
+          echo "Emulator is ready"
         when:
           condition: ${{ inputs.enableTests_input }}
       - name: Run instrumented tests
         script: |
           set -e
           cd $CM_BUILD_DIR
-          ./gradlew connectedDebugAndroidTest -Dorg.gradle.jvmargs="-Xmx4g"
+
+          ./gradlew connectedDebugAndroidTest \
+            -Pandroid.enableUnitTestCoverage=false \
+            -Pandroid.enableAndroidTestCoverage=false \
+            -Dorg.gradle.jvmargs="-Xmx4g" \
+            -Dorg.gradle.daemon=false
+
           adb logcat -d > emulator.log
         when:
           condition: ${{ inputs.enableTests_input }}
@@ -245,13 +271,39 @@ workflows:
       - name: Launch emulator for instrumented tests
         script: |
           cd $ANDROID_HOME/tools
-          emulator -avd emulator-35 -memory 4096 &
+
+          emulator -avd emulator-36 \
+          -memory 8192 \
+          -no-window \
+          -no-boot-anim \
+          -no-snapshot \
+          -wipe-data \
+          -cores 4 &
+
           adb wait-for-device
+
+          # Wait until emulator has booted
+          echo "Booting emulator..."
+          until [[ "$(adb shell getprop sys.boot_completed 2>/dev/null)" == "1" ]]; do
+          printf '.'
+          sleep 5
+          done
+          echo " Emulator booted!"
+
+          sleep 5
+
+          echo "Emulator is ready"
       - name: Run instrumented tests
         script: |
           set -e
           cd $CM_BUILD_DIR
-          ./gradlew clean connectedDebugAndroidTest -Dorg.gradle.jvmargs="-Xmx4g"
+
+          ./gradlew connectedDebugAndroidTest \
+            -Pandroid.enableUnitTestCoverage=false \
+            -Pandroid.enableAndroidTestCoverage=false \
+            -Dorg.gradle.jvmargs="-Xmx4g" \
+            -Dorg.gradle.daemon=false
+
           adb logcat -d > emulator.log
       - name: Build RIA DigiDoc
         script: |
@@ -306,6 +358,7 @@ workflows:
           mv "$OUTPUT_DIR/app-release_$APP_VERSION.apk" "$SIGNED_DIR/RIA_DigiDoc_$APP_VERSION.apk"
     artifacts:
       - app/build/outputs/apk/release/signed/*.apk
+      - app/build/outputs/mapping/release/mapping.txt
     publishing:
       email:
         recipients:

@@ -15,6 +15,7 @@ android {
         minSdk = Integer.parseInt(libs.versions.minSdkVersion.get())
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     compileOptions {
@@ -26,6 +27,10 @@ android {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
         }
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
