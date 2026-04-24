@@ -26,6 +26,7 @@ import ee.ria.DigiDoc.common.Constant.TSL_SEQUENCE_NUMBER_ELEMENT
 import ee.ria.DigiDoc.configuration.exception.TSLException
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.createDirectoryIfNotExist
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
@@ -37,6 +38,11 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.attribute.BasicFileAttributeView
+import java.nio.file.attribute.BasicFileAttributes
+import java.nio.file.attribute.FileTime
+import java.util.concurrent.TimeUnit
 
 object TSLUtil {
     private val logTag = javaClass.simpleName
@@ -59,7 +65,9 @@ object TSLUtil {
             for (fileName in tslFiles) {
                 if (isXMLFile(fileName) && shouldCopyTSL(context, assetsPath, fileName, destination)) {
                     copyTSLFromAssets(context, assetsPath, fileName, destination)
-                    removeExistingETag(File(destination, fileName).path)
+                    val tslFile = File(destination, fileName)
+                    setFileDateAttributes(tslFile)
+                    removeExistingETag(tslFile.path)
                 }
             }
         }
@@ -138,5 +146,27 @@ object TSLUtil {
             eventType = parser.next()
         }
         throw TSLException("Error reading version from TSL")
+    }
+
+    private fun setFileDateAttributes(file: File) {
+        val path = file.toPath()
+
+        val currentFileAttrs =
+            Files.readAttributes(path, BasicFileAttributes::class.java)
+
+        val sevenDaysAgoMs = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(7)
+        val fileTime = FileTime.fromMillis(sevenDaysAgoMs)
+
+        val attrs = Files.getFileAttributeView(path, BasicFileAttributeView::class.java)
+
+        attrs.setTimes(fileTime, fileTime, fileTime)
+
+        val updatedFileAttrs =
+            Files.readAttributes(path, BasicFileAttributes::class.java)
+
+        debugLog(
+            logTag,
+            "Changed file ${file.name} modified date attribute ${currentFileAttrs.lastModifiedTime()} -> ${updatedFileAttrs.lastModifiedTime()}",
+        )
     }
 }
