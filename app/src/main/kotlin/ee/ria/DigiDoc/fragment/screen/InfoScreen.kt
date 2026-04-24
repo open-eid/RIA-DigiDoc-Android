@@ -89,6 +89,7 @@ import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TopBar
+import ee.ria.DigiDoc.ui.component.shared.keyboard.keyboardScrollable
 import ee.ria.DigiDoc.ui.theme.Dimensions.MCornerRadius
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
@@ -112,6 +113,8 @@ fun InfoScreen(
     sharedSettingsViewModel: SharedSettingsViewModel,
 ) {
     val context = LocalContext.current
+
+    val screenScrollState = rememberScrollState()
 
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
@@ -177,7 +180,8 @@ fun InfoScreen(
             Column(
                 modifier =
                     modifier
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(screenScrollState)
+                        .keyboardScrollable(screenScrollState)
                         .fillMaxWidth()
                         .semantics {
                             testTagsAsResourceId = true

@@ -23,8 +23,6 @@ package ee.ria.DigiDoc.fragment.screen
 
 import android.content.res.Configuration
 import androidx.activity.compose.LocalActivity
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,7 +33,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -64,6 +61,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
+import ee.ria.DigiDoc.ui.component.settings.SettingsCheckboxItem
 import ee.ria.DigiDoc.ui.component.settings.advanced.AdvancedSettingComponent
 import ee.ria.DigiDoc.ui.component.settings.advanced.AdvancedSettingComponentItem
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
@@ -73,7 +71,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.secure.SecureUtil
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utils.snackbar.SnackbarType
@@ -152,102 +149,37 @@ fun AdvancedSettingsScreen(
                 style = MaterialTheme.typography.titleLarge,
             )
             Spacer(modifier = modifier.height(XSPadding))
-            Row(
-                modifier =
-                    modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            sharedSettingsViewModel.setSettingsAskRoleAndAddress(!checkedAskRoleAndAddress)
-                        },
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = askRoleAndAddressTitleText,
-                    modifier =
-                        modifier
-                            .weight(1f)
-                            .notAccessible(),
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-                Checkbox(
-                    modifier =
-                        modifier
-                            .focusable(true)
-                            .semantics {
-                                contentDescription = askRoleAndAddressTitleText
-                            },
-                    checked = checkedAskRoleAndAddress,
-                    onCheckedChange = {
-                        sharedSettingsViewModel.setSettingsAskRoleAndAddress(it)
-                    },
-                )
-            }
+            SettingsCheckboxItem(
+                modifier = modifier,
+                checked = checkedAskRoleAndAddress,
+                title = askRoleAndAddressTitleText,
+                contentDescription = askRoleAndAddressTitleText,
+                onCheckedChange = {
+                    sharedSettingsViewModel.setSettingsAskRoleAndAddress(it)
+                },
+            )
 
-            Row(
-                modifier =
-                    modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            sharedSettingsViewModel.setAllowScreenshots(!checkedAllowScreenshots)
-                            secureUtil.markAsSecure(activity)
-                        },
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = allowScreenshotsTitleText,
-                    modifier =
-                        modifier
-                            .weight(1f)
-                            .notAccessible(),
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-                Checkbox(
-                    modifier =
-                        modifier
-                            .focusable(true)
-                            .semantics {
-                                contentDescription = allowScreenshotsTitleText
-                            },
-                    checked = checkedAllowScreenshots,
-                    onCheckedChange = {
-                        sharedSettingsViewModel.setAllowScreenshots(it)
-                        secureUtil.markAsSecure(activity)
-                    },
-                )
-            }
+            SettingsCheckboxItem(
+                modifier = modifier,
+                checked = checkedAllowScreenshots,
+                title = allowScreenshotsTitleText,
+                contentDescription = allowScreenshotsTitleText,
+                onCheckedChange = {
+                    sharedSettingsViewModel.setAllowScreenshots(it)
+                    secureUtil.markAsSecure(activity)
+                },
+            )
 
-            Row(
-                modifier =
-                    modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            sharedSettingsViewModel.setSettingsOpenAllFileTypes(!checkedAllowOpeningAllFileTypes)
-                            sharedSettingsViewModel.recreateActivity()
-                        },
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = allowOpeningAllFileTypesButtonText,
-                    modifier =
-                        modifier
-                            .weight(1f)
-                            .notAccessible(),
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-                Checkbox(
-                    modifier =
-                        modifier
-                            .focusable(true)
-                            .semantics {
-                                contentDescription = allowOpeningAllFileTypesButtonText
-                            },
-                    checked = checkedAllowOpeningAllFileTypes,
-                    onCheckedChange = {
-                        sharedSettingsViewModel.setSettingsOpenAllFileTypes(it)
-                        sharedSettingsViewModel.recreateActivity()
-                    },
-                )
-            }
+            SettingsCheckboxItem(
+                modifier = modifier,
+                checked = checkedAllowOpeningAllFileTypes,
+                title = allowOpeningAllFileTypesButtonText,
+                contentDescription = allowOpeningAllFileTypesButtonText,
+                onCheckedChange = {
+                    sharedSettingsViewModel.setSettingsOpenAllFileTypes(it)
+                    sharedSettingsViewModel.recreateActivity()
+                },
+            )
 
             HorizontalDivider(modifier = modifier.padding(vertical = MPadding))
 

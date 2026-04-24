@@ -46,9 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -175,9 +173,6 @@ fun TopBar(
                             modifier
                                 .semantics { heading() }
                                 .focusRequester(headingFocusRequester)
-                                .focusable(enabled = true)
-                                .focusTarget()
-                                .focusProperties { canFocus = true }
                                 .onGloballyPositioned {
                                     if (!headingTextLoaded) {
                                         CoroutineScope(Main).launch {
