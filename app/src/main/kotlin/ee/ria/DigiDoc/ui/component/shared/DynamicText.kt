@@ -91,7 +91,7 @@ fun DynamicText(
             modifier
                 .fillMaxWidth()
                 .then(pressIndicator)
-                .semantics(mergeDescendants = true) {
+                .semantics {
                     testTagsAsResourceId = true
                 }.testTag("dynamicTextMessage")
                 .let {

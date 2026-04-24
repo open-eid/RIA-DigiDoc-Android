@@ -42,6 +42,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -204,7 +205,9 @@ fun AccessibilityScreen(
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
-                            ).testTag("mainAccessibilityIntroductionScreenReaderIntroductionIos"),
+                            ).semantics {
+                                stateDescription = "link"
+                            }.testTag("mainAccessibilityIntroductionScreenReaderIntroductionIos"),
                     text = stringResource(R.string.main_accessibility_introduction_screen_reader_introduction_ios),
                 )
                 DynamicText(
@@ -213,7 +216,9 @@ fun AccessibilityScreen(
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
-                            ).testTag("mainAccessibilityIntroductionScreenReaderIntroductionAndroid"),
+                            ).semantics {
+                                stateDescription = "link"
+                            }.testTag("mainAccessibilityIntroductionScreenReaderIntroductionAndroid"),
                     text = stringResource(R.string.main_accessibility_introduction_screen_reader_introduction_android),
                 )
                 Text(
@@ -253,7 +258,9 @@ fun AccessibilityScreen(
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
-                            ).testTag("mainAccessibilityIntroductionScreenMagnificationScreenToolsIos"),
+                            ).semantics {
+                                stateDescription = "link"
+                            }.testTag("mainAccessibilityIntroductionScreenMagnificationScreenToolsIos"),
                     text =
                         stringResource(
                             R.string.main_accessibility_introduction_screen_magnification_screen_tools_ios,
@@ -265,7 +272,9 @@ fun AccessibilityScreen(
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
-                            ).testTag("mainAccessibilityIntroductionScreenMagnificationScreenToolsAndroid"),
+                            ).semantics {
+                                stateDescription = "link"
+                            }.testTag("mainAccessibilityIntroductionScreenMagnificationScreenToolsAndroid"),
                     text =
                         stringResource(
                             R.string.main_accessibility_introduction_screen_magnification_screen_tools_android,
@@ -286,7 +295,9 @@ fun AccessibilityScreen(
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
-                            ).testTag("mainAccessibilityIntroductionScreenMagnificationToolsIos"),
+                            ).semantics {
+                                stateDescription = "link"
+                            }.testTag("mainAccessibilityIntroductionScreenMagnificationToolsIos"),
                     text = stringResource(R.string.main_accessibility_introduction_screen_magnification_tools_ios),
                 )
                 DynamicText(
@@ -295,7 +306,9 @@ fun AccessibilityScreen(
                             .padding(
                                 horizontal = SPadding,
                                 vertical = SPadding,
-                            ).testTag("mainAccessibilityIntroductionScreenMagnificationToolsAndroid"),
+                            ).semantics {
+                                stateDescription = "link"
+                            }.testTag("mainAccessibilityIntroductionScreenMagnificationToolsAndroid"),
                     text = stringResource(R.string.main_accessibility_introduction_screen_magnification_tools_android),
                 )
                 InvisibleElement(modifier = modifier)

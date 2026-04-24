@@ -36,23 +36,33 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalTextToolbar
+import androidx.compose.ui.platform.TextToolbar
+import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.ImeAction
@@ -78,6 +88,7 @@ fun SecurePinTextField(
     keyboardImeAction: ImeAction = ImeAction.Done,
     onDone: (() -> Unit)? = null,
     removeIconTestTag: String = "",
+    showIconTestTag: String = "",
     errorTestTag: String = "",
 ) {
     val context = LocalContext.current
@@ -86,127 +97,171 @@ fun SecurePinTextField(
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
+    var shown by rememberSaveable { mutableStateOf(false) }
+
+    val displayText =
+        remember(pin.value, shown) {
+            if (shown) shownPinText(pin.value) else "*".repeat(pin.value.size)
+        }
+
     val clearButtonText = stringResource(R.string.clear_text)
     val buttonName = stringResource(R.string.button_name)
+    val showPasswordText = stringResource(R.string.show_password)
+    val hidePasswordText = stringResource(R.string.hide_password)
 
-    Column(modifier = modifier) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            OutlinedTextField(
-                modifier =
-                    Modifier
-                        .focusRequester(focusRequester)
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .semantics {
-                            testTagsAsResourceId = true
-                        }.testTag("pinTextField"),
-                label = {
-                    Text(text = label)
-                },
-                value = "*".repeat(pin.value.size),
-                singleLine = true,
-                onValueChange = { newValue ->
-                    val digitsOnly = newValue.filter { it.isDigit() }
-                    if (digitsOnly.isEmpty()) {
-                        if (pin.value.isNotEmpty()) {
-                            pin.value = pin.value.dropLast(1).toByteArray()
-                        }
-                    } else {
-                        pin.value += digitsOnly.last().code.toByte()
-                    }
-                    pinCodeTextEdited?.value = true
-                },
-                trailingIcon = {
-                    if (!isTalkBackEnabled(context) && pin.value.isNotEmpty()) {
-                        IconButton(onClick = {
-                            pin.value = byteArrayOf()
-                            scope.launch(Main) {
-                                focusRequester.requestFocus()
-                                focusManager.clearFocus()
-                                delay(200)
-                                focusRequester.requestFocus()
+    CompositionLocalProvider(LocalTextToolbar provides NoFloatingToolbar) {
+        Column(modifier = modifier) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                OutlinedTextField(
+                    modifier =
+                        Modifier
+                            .focusRequester(focusRequester)
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .semantics {
+                                if (!shown) {
+                                    password()
+                                }
+                                testTagsAsResourceId = true
+                            }.testTag("pinTextField"),
+                    label = {
+                        Text(text = label)
+                    },
+                    value = displayText,
+                    singleLine = true,
+                    onValueChange = { newValue ->
+                        val digits = newValue.filter { it.isDigit() }
+                        val previous = pin.value
+                        val next =
+                            if (shown) {
+                                // Shown text is the PIN itself, so it is authoritative
+                                ByteArray(digits.length) { digits[it].code.toByte() }
+                            } else if (digits.isEmpty()) {
+                                // Masked, so an edit leaving no digit can only be a deletion
+                                if (previous.isNotEmpty()) {
+                                    previous.copyOf(previous.size - 1)
+                                } else {
+                                    previous
+                                }
+                            } else {
+                                previous + digits.last().code.toByte()
                             }
-                        }) {
+                        pin.value = next
+                        pinCodeTextEdited?.value = true
+                    },
+                    trailingIcon = {
+                        IconButton(onClick = { shown = !shown }) {
                             Icon(
                                 modifier =
                                     Modifier
                                         .size(iconSizeXXS)
                                         .semantics { testTagsAsResourceId = true }
-                                        .testTag(removeIconTestTag),
-                                imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                contentDescription = "$clearButtonText $buttonName",
+                                        .then(
+                                            if (showIconTestTag.isNotEmpty()) {
+                                                Modifier.testTag(showIconTestTag)
+                                            } else {
+                                                Modifier
+                                            },
+                                        ),
+                                imageVector =
+                                    ImageVector.vectorResource(
+                                        if (shown) {
+                                            R.drawable.ic_visibility
+                                        } else {
+                                            R.drawable.ic_visibility_off
+                                        },
+                                    ),
+                                contentDescription = if (shown) hidePasswordText else showPasswordText,
                             )
                         }
-                    }
-                },
-                colors =
-                    OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-                    ),
-                keyboardOptions =
-                    KeyboardOptions.Default.copy(
-                        imeAction = keyboardImeAction,
-                        keyboardType = KeyboardType.NumberPassword,
-                    ),
-                keyboardActions =
-                    KeyboardActions(
-                        onDone = {
-                            keyboardController?.hide()
-                            onDone?.invoke()
-                        },
-                    ),
-                isError = isError,
-            )
+                    },
+                    colors =
+                        OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.primary,
+                        ),
+                    keyboardOptions =
+                        KeyboardOptions.Default.copy(
+                            imeAction = keyboardImeAction,
+                            keyboardType = KeyboardType.NumberPassword,
+                        ),
+                    keyboardActions =
+                        KeyboardActions(
+                            onDone = {
+                                keyboardController?.hide()
+                                onDone?.invoke()
+                            },
+                        ),
+                    isError = isError,
+                )
 
-            if (isTalkBackEnabled(context) && pin.value.isNotEmpty()) {
-                IconButton(onClick = {
-                    pin.value = byteArrayOf()
-                    pinCodeTextEdited?.value = true
-                    scope.launch(Main) {
-                        focusRequester.requestFocus()
-                        focusManager.clearFocus()
-                        delay(200)
-                        focusRequester.requestFocus()
+                if (isTalkBackEnabled(context) && pin.value.isNotEmpty()) {
+                    IconButton(onClick = {
+                        pin.value = byteArrayOf()
+                        pinCodeTextEdited?.value = true
+                        scope.launch(Main) {
+                            focusRequester.requestFocus()
+                            focusManager.clearFocus()
+                            delay(200)
+                            focusRequester.requestFocus()
+                        }
+                    }) {
+                        Icon(
+                            modifier =
+                                Modifier
+                                    .semantics { testTagsAsResourceId = true }
+                                    .then(
+                                        if (removeIconTestTag.isNotEmpty()) {
+                                            Modifier.testTag(removeIconTestTag)
+                                        } else {
+                                            Modifier
+                                        },
+                                    ),
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
+                            contentDescription = "$clearButtonText $buttonName",
+                        )
                     }
-                }) {
-                    Icon(
-                        modifier =
-                            Modifier
-                                .semantics { testTagsAsResourceId = true }
-                                .then(
-                                    if (removeIconTestTag.isNotEmpty()) {
-                                        Modifier.testTag(removeIconTestTag)
-                                    } else {
-                                        Modifier
-                                    },
-                                ),
-                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                        contentDescription = "$clearButtonText $buttonName",
-                    )
                 }
             }
-        }
 
-        if (errorText.isNotEmpty()) {
-            Text(
-                modifier =
-                    Modifier
-                        .padding(top = XSPadding)
-                        .padding(bottom = MSPadding)
-                        .fillMaxWidth()
-                        .semantics {
-                            contentDescription = errorText
-                            liveRegion = LiveRegionMode.Polite
-                        }.testTag(errorTestTag),
-                text = errorText,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-            )
+            if (errorText.isNotEmpty()) {
+                Text(
+                    modifier =
+                        Modifier
+                            .padding(top = XSPadding)
+                            .padding(bottom = MSPadding)
+                            .fillMaxWidth()
+                            .semantics {
+                                contentDescription = errorText
+                                liveRegion = LiveRegionMode.Polite
+                            }.testTag(errorTestTag),
+                    text = errorText,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
         }
     }
 }
+
+private fun shownPinText(pin: ByteArray): String = String(CharArray(pin.size) { pin[it].toInt().toChar() })
+
+// Dont show Copy, Paste options
+private val NoFloatingToolbar =
+    object : TextToolbar {
+        override val status: TextToolbarStatus = TextToolbarStatus.Hidden
+
+        override fun hide() = Unit
+
+        override fun showMenu(
+            rect: Rect,
+            onCopyRequested: (() -> Unit)?,
+            onPasteRequested: (() -> Unit)?,
+            onCutRequested: (() -> Unit)?,
+            onSelectAllRequested: (() -> Unit)?,
+        ) = Unit
+    }

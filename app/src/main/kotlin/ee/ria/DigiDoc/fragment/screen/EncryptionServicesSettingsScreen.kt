@@ -72,6 +72,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
@@ -182,6 +183,8 @@ fun EncryptionServicesSettingsScreen(
     val uuidLabel = stringResource(R.string.main_settings_crypto_uuid)
     val fetchUrlLabel = stringResource(R.string.main_settings_crypto_fetch_url)
     val postUrlLabel = stringResource(R.string.main_settings_crypto_post_url)
+
+    val panelDescription = stringResource(R.string.panel)
 
     var uuidText by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
@@ -476,6 +479,7 @@ fun EncryptionServicesSettingsScreen(
                                                 ).semantics {
                                                     contentDescription =
                                                         "$serverLabel: ${selectedCdoc2Conf.name}"
+                                                    stateDescription = panelDescription
                                                 },
                                     )
                                 } else {

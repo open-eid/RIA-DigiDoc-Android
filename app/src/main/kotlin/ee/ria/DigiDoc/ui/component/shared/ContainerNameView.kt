@@ -57,6 +57,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -96,6 +97,7 @@ fun ContainerNameView(
     val containerTitleText = stringResource(R.string.container_title)
 
     val buttonName = stringResource(id = R.string.button_name)
+    val panelDescription = stringResource(R.string.panel)
 
     Card(
         modifier =
@@ -184,6 +186,7 @@ fun ContainerNameView(
                         modifier =
                             modifier
                                 .semantics {
+                                    stateDescription = panelDescription
                                     testTagsAsResourceId = true
                                 }.testTag("containerNameMoreOptionsIcon"),
                         imageVector = ImageVector.vectorResource(R.drawable.ic_more_vert),

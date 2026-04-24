@@ -115,7 +115,6 @@ import ee.ria.DigiDoc.ui.component.signing.bottombar.SigningBottomBar
 import ee.ria.DigiDoc.ui.component.signing.bottomsheet.ContainerBottomSheet
 import ee.ria.DigiDoc.ui.component.signing.bottomsheet.DataFileBottomSheet
 import ee.ria.DigiDoc.ui.component.signing.bottomsheet.SignatureBottomSheet
-import ee.ria.DigiDoc.ui.component.signing.bottomsheet.SignedContainerBottomSheet
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
@@ -310,7 +309,6 @@ fun SigningNavigation(
     val nestedFile = rememberSaveable { mutableStateOf<File?>(null) }
 
     val showContainerBottomSheet = rememberSaveable { mutableStateOf(false) }
-    val showSignedContainerBottomSheet = rememberSaveable { mutableStateOf(false) }
     val showDataFileBottomSheet = rememberSaveable { mutableStateOf(false) }
     val showSignatureBottomSheet = rememberSaveable { mutableStateOf(false) }
 
@@ -1234,21 +1232,6 @@ fun SigningNavigation(
                 isCadesContainer = isCadesContainer,
                 openRemoveSignatureDialog = openRemoveSignatureDialog,
                 onSignatureRemove = { actionSignature = it },
-            )
-
-            SignedContainerBottomSheet(
-                modifier = modifier,
-                showSheet = showSignedContainerBottomSheet,
-                signedContainer = signedContainer,
-                isNestedContainer = isNestedContainer,
-                isXadesContainer = isXadesContainer,
-                isCadesContainer = isCadesContainer,
-                signingViewModel = signingViewModel,
-                navController = navController,
-                onEncryptClick = onEncryptActionClick,
-                onExtendSignatureClick = {
-                    // TODO: Implement extend signature click
-                },
             )
 
             if (showLoadingScreen.value) {

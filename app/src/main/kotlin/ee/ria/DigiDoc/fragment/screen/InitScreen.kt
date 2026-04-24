@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
@@ -87,7 +88,9 @@ fun InitScreen(
                             top = LPadding,
                             bottom = zeroPadding,
                             end = XLPadding,
-                        ),
+                        ).semantics {
+                            stateDescription = "logo"
+                        },
             )
             Text(
                 text = stringResource(id = R.string.digidoc_all_caps),

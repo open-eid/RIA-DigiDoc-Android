@@ -54,6 +54,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextOverflow
 import ee.ria.DigiDoc.R
@@ -86,10 +87,10 @@ fun SignatureComponent(
     onClick: (SignatureInterface) -> Unit,
     onClickMore: (SignatureInterface) -> Unit,
 ) {
-    val context = LocalContext.current
     val signatureText = stringResource(R.string.signature_details_signer_details_title)
 
     val buttonName = stringResource(id = R.string.button_name)
+    val panelDescription = stringResource(R.string.panel)
 
     if (showSignaturesLoadingIndicator) {
         Box(
@@ -266,6 +267,7 @@ fun SignatureComponent(
                                     modifier =
                                         modifier
                                             .semantics {
+                                                stateDescription = panelDescription
                                                 testTagsAsResourceId = true
                                             }.testTag("signatureComponentMoreOptionsIconButton"),
                                     imageVector = ImageVector.vectorResource(R.drawable.ic_more_vert),

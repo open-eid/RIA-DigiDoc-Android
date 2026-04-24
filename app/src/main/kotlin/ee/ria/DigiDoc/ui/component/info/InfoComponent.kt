@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -85,7 +86,8 @@ fun InfoComponent(
             modifier =
                 modifier
                     .weight(1f)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .semantics(mergeDescendants = true) {},
             horizontalAlignment = Alignment.Start,
         ) {
             Text(
@@ -138,6 +140,7 @@ fun InfoComponent(
                         .size(iconSizeXXS)
                         .semantics {
                             testTagsAsResourceId = true
+                            stateDescription = "link"
                         }.testTag("mainAboutComponentLicenseUrlButton"),
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_m3_open_in_new_48dp_wght400),
                 contentDescription = openButtonContentDescription,

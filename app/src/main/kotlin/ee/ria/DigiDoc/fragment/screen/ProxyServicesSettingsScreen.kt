@@ -35,8 +35,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -47,7 +45,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -56,16 +53,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -87,14 +79,11 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSBorder
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class)
@@ -105,18 +94,12 @@ fun ProxyServicesSettingsScreen(
     sharedMenuViewModel: SharedMenuViewModel,
     navController: NavHostController,
 ) {
-    val context = LocalContext.current
-    val focusManager = LocalFocusManager.current
-    val scope = rememberCoroutineScope()
-
     val hostFocusRequester = remember { FocusRequester() }
     val portFocusRequester = remember { FocusRequester() }
     val usernameFocusRequester = remember { FocusRequester() }
     val passwordFocusRequester = remember { FocusRequester() }
 
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
-
-    var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
     val setProxySetting = sharedSettingsViewModel.dataStore::setProxySetting
     val setProxyHost = sharedSettingsViewModel.dataStore::setProxyHost
@@ -185,7 +168,6 @@ fun ProxyServicesSettingsScreen(
     val systemProxyText = stringResource(R.string.main_settings_proxy_use_system)
     val manualProxyText = stringResource(R.string.main_settings_proxy_manual)
     val proxyCheckConnectionText = stringResource(R.string.main_settings_proxy_check_connection)
-    val clearButtonText = stringResource(R.string.clear_text)
     val buttonName = stringResource(id = R.string.button_name)
 
     LaunchedEffect(sharedSettingsViewModel.errorState) {
@@ -481,83 +463,29 @@ fun ProxyServicesSettingsScreen(
                             removeIconTestTag = "proxyServicesUsernameRemoveIconButton",
                         )
 
-                        Row(
+                        PrimaryTextField(
                             modifier =
-                                modifier
-                                    .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Start,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            PrimaryTextField(
-                                modifier =
-                                    Modifier
-                                        .focusRequester(passwordFocusRequester)
-                                        .weight(1f)
-                                        .padding(vertical = XSPadding),
-                                value = proxyPassword,
-                                onValueChange = {
-                                    proxyPassword = it
-                                    setProxyPassword(it.text)
-                                },
-                                singleLine = true,
-                                label = stringResource(R.string.main_settings_proxy_password),
-                                enabled = settingsProxyChoice.value == ProxySetting.MANUAL_PROXY.name,
-                                isPasswordText = !passwordVisible,
-                                trailingIcon = {
-                                    val image =
-                                        if (passwordVisible) {
-                                            ImageVector.vectorResource(id = R.drawable.ic_visibility)
-                                        } else {
-                                            ImageVector.vectorResource(id = R.drawable.ic_visibility_off)
-                                        }
-                                    val description =
-                                        if (passwordVisible) {
-                                            stringResource(
-                                                id = R.string.hide_password,
-                                            )
-                                        } else {
-                                            stringResource(id = R.string.show_password)
-                                        }
-                                    IconButton(
-                                        modifier =
-                                            modifier
-                                                .semantics { traversalIndex = 9f }
-                                                .testTag("proxyServicesPasswordVisibleButton"),
-                                        onClick = { passwordVisible = !passwordVisible },
-                                    ) {
-                                        Icon(imageVector = image, description)
-                                    }
-                                },
-                                keyboardOptions =
-                                    KeyboardOptions.Default.copy(
-                                        imeAction = ImeAction.Done,
-                                        keyboardType = KeyboardType.Password,
-                                    ),
-                                testTag = "proxyServicesPasswordTextField",
-                            )
-
-                            if (isTalkBackEnabled(context) && proxyPassword.text.isNotEmpty()) {
-                                IconButton(onClick = {
-                                    proxyPassword = TextFieldValue("")
-                                    scope.launch(Main) {
-                                        passwordFocusRequester.requestFocus()
-                                        focusManager.clearFocus()
-                                        delay(200)
-                                        passwordFocusRequester.requestFocus()
-                                    }
-                                }) {
-                                    Icon(
-                                        modifier =
-                                            modifier
-                                                .semantics {
-                                                    testTagsAsResourceId = true
-                                                }.testTag("proxyServicesPasswordRemoveIconButton"),
-                                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                        contentDescription = "$clearButtonText $buttonName",
-                                    )
-                                }
-                            }
-                        }
+                                Modifier
+                                    .focusRequester(passwordFocusRequester)
+                                    .padding(vertical = XSPadding),
+                            value = proxyPassword,
+                            onValueChange = {
+                                proxyPassword = it
+                                setProxyPassword(it.text)
+                            },
+                            singleLine = true,
+                            label = stringResource(R.string.main_settings_proxy_password),
+                            enabled = settingsProxyChoice.value == ProxySetting.MANUAL_PROXY.name,
+                            isPasswordText = true,
+                            keyboardOptions =
+                                KeyboardOptions.Default.copy(
+                                    imeAction = ImeAction.Done,
+                                    keyboardType = KeyboardType.Password,
+                                ),
+                            testTag = "proxyServicesPasswordTextField",
+                            removeIconTestTag = "proxyServicesPasswordRemoveIconButton",
+                            showIconTestTag = "proxyServicesPasswordVisibleButton",
+                        )
                     }
                 }
             }
