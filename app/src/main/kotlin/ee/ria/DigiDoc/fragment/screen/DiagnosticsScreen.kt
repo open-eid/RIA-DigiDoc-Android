@@ -78,6 +78,7 @@ import ee.ria.DigiDoc.ui.component.shared.PrimaryOutlinedButton
 import ee.ria.DigiDoc.ui.component.shared.SpannableBoldText
 import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TopBar
+import ee.ria.DigiDoc.ui.component.shared.keyboard.keyboardScrollable
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
@@ -107,6 +108,9 @@ fun DiagnosticsScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+
+    val screenScrollState = rememberScrollState()
+    val loggingDialogScrollState = rememberScrollState()
 
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
     val currentConfiguration by
@@ -192,7 +196,8 @@ fun DiagnosticsScreen(
             Column(
                 modifier =
                     modifier
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(screenScrollState)
+                        .keyboardScrollable(screenScrollState)
                         .fillMaxWidth()
                         .testTag("scrollView"),
                 horizontalAlignment = Alignment.Start,
@@ -592,14 +597,15 @@ fun DiagnosticsScreen(
                                     .padding(SPadding)
                                     .wrapContentHeight()
                                     .wrapContentWidth()
-                                    .verticalScroll(rememberScrollState()),
+                                    .verticalScroll(loggingDialogScrollState),
                         ) {
                             Column(
                                 modifier =
                                     modifier
                                         .semantics {
                                             testTagsAsResourceId = true
-                                        }.testTag("diagnosticsActivateLoggingContainer"),
+                                        }.keyboardScrollable(loggingDialogScrollState)
+                                        .testTag("diagnosticsActivateLoggingContainer"),
                             ) {
                                 HrefMessageDialog(
                                     text1 = R.string.main_diagnostics_restart_message,

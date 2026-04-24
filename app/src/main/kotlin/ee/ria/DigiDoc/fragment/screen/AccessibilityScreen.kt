@@ -58,6 +58,7 @@ import ee.ria.DigiDoc.ui.component.shared.HrefDynamicText
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TopBar
+import ee.ria.DigiDoc.ui.component.shared.keyboard.keyboardScrollable
 import ee.ria.DigiDoc.ui.theme.Dimensions.LINE_HEIGHT
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
@@ -71,6 +72,8 @@ fun AccessibilityScreen(
     navController: NavHostController,
     sharedMenuViewModel: SharedMenuViewModel,
 ) {
+    val screenScrollState = rememberScrollState()
+
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
@@ -113,7 +116,8 @@ fun AccessibilityScreen(
                             testTagsAsResourceId = true
                         }.testTag("scrollView")
                         .fillMaxWidth()
-                        .verticalScroll(rememberScrollState()),
+                        .verticalScroll(screenScrollState)
+                        .keyboardScrollable(screenScrollState),
                 horizontalAlignment = Alignment.Start,
             ) {
                 DynamicText(

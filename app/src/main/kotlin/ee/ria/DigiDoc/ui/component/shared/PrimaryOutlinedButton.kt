@@ -24,7 +24,6 @@ package ee.ria.DigiDoc.ui.component.shared
 import android.content.res.Configuration
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -40,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -86,7 +86,7 @@ fun PrimaryOutlinedButton(
                 }.fillMaxWidth()
                 .padding(
                     horizontal = XSPadding,
-                ).focusable(enabled = isFocusable),
+                ).focusProperties { canFocus = isFocusable },
         shape = buttonRoundCornerShape,
         contentPadding = PaddingValues(zeroPadding),
         enabled = enabled,
