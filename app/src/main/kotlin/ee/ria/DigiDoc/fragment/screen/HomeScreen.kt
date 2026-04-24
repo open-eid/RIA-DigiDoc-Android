@@ -56,8 +56,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.tooling.preview.Preview
@@ -80,6 +82,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeM
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.HomeViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -166,7 +169,9 @@ fun HomeScreen(
                         },
                 sharedMenuViewModel = sharedMenuViewModel,
                 leftIcon = R.drawable.ic_m3_menu_48dp_wght400,
+                leftIconContentDescription = R.string.main_home_menu_button,
                 title = null,
+                isPanel = true,
                 onLeftButtonClick = {
                     isMainMenuBottomSheetVisible.value = true
                     isSettingsMenuBottomSheetVisible.value = false
@@ -252,10 +257,13 @@ fun HomeScreen(
                                 modifier =
                                     modifier
                                         .padding(end = XSPadding)
-                                        .width(iconSizeM),
+                                        .width(iconSizeM)
+                                        .semantics {
+                                            stateDescription = "logo"
+                                        },
                             )
                             Text(
-                                modifier = modifier,
+                                modifier = modifier.notAccessible(),
                                 style = MaterialTheme.typography.displayMedium,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 text = stringResource(id = R.string.digidoc),

@@ -415,6 +415,7 @@
     <string name="control_code_loading">Control code loading</string>
     <string name="container_files_loading">Container files loading</string>
     <string name="container_files_loaded">Container files loaded</string>
+    <string name="panel">Panel</string>
 
     <!-- Home -->
     <string name="main_home_navigation_signature_accessibility">Signature</string>

@@ -415,6 +415,7 @@
     <string name="control_code_loading">Kontrollkoodi laadimine</string>
     <string name="container_files_loading">Konteineri failide laadimine</string>
     <string name="container_files_loaded">Konteineri failid laaditud</string>
+    <string name="panel">Paneel</string>
 
     <!-- Home -->
     <string name="main_home_navigation_signature_accessibility">Allkiri</string>
@@ -496,7 +497,7 @@
     <string name="setting_value_changed">Seade väärtus muudetud</string>
     <string name="setting_value_change_cancelled">Seade väärtuse muutmine katkestatud</string>
     <string name="close_menu">Sulge menüü</string>
-    <string name="hide_password">Peida parooli</string>
+    <string name="hide_password">Peida parool</string>
     <string name="show_password">Näita parooli</string>
 
     <string name="main_settings_theme_light">Hele</string>

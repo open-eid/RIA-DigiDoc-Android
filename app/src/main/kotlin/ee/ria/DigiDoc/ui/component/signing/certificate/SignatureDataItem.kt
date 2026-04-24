@@ -110,9 +110,9 @@ fun SignatureDataItem(
                 .indication(interactionSource, LocalIndication.current)
                 .semantics(mergeDescendants = true) {
                     if (isLink) {
-                        this.contentDescription = "$contentDescriptionText, $linkName"
+                        this.contentDescription = "$contentDescriptionText $linkName"
                     } else if (isWithCertificate) {
-                        this.contentDescription = "$contentDescriptionText, $buttonName"
+                        this.contentDescription = "$contentDescriptionText $buttonName"
                     } else {
                         this.contentDescription = contentDescriptionText
                     }

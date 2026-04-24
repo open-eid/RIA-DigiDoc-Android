@@ -56,6 +56,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.popup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.net.toUri
@@ -92,12 +93,12 @@ fun TopBar(
     onExtraButtonClick: () -> Unit = {},
     showExtraButton: Boolean = false,
     extraButtonItemCount: Int = 0,
+    isPanel: Boolean = false,
     sharedMenuViewModel: SharedMenuViewModel,
 ) {
     val context = LocalContext.current
     var onRightPrimaryButtonClick = onRightPrimaryButtonClick
     if (onRightPrimaryButtonClick == null) {
-        @Suppress("AssignedValueIsNeverRead")
         onRightPrimaryButtonClick = {
             val browserIntent =
                 Intent(
@@ -112,6 +113,8 @@ fun TopBar(
     val headingFocusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     var headingTextLoaded by remember { mutableStateOf(false) }
+
+    val panelDescription = stringResource(R.string.panel)
 
     val isEstonianLanguageUsed = remember { mutableStateOf(false) }
     val isTtsInitialized by sharedMenuViewModel.isTtsInitialized.asFlow().collectAsState(false)
@@ -140,7 +143,14 @@ fun TopBar(
         navigationIcon = {
             if (showNavigationIcon) {
                 IconButton(
-                    modifier = modifier.testTag("toolBarLeftButton"),
+                    modifier =
+                        modifier
+                            .testTag("toolBarLeftButton")
+                            .semantics {
+                                if (isPanel) {
+                                    popup()
+                                }
+                            },
                     onClick = {
                         // Add debounce to prevent rapid navigation clicks
                         debounceJob?.cancel()
@@ -152,7 +162,12 @@ fun TopBar(
                 ) {
                     Icon(
                         imageVector = ImageVector.vectorResource(id = leftIcon),
-                        contentDescription = stringResource(id = leftIconContentDescription),
+                        contentDescription =
+                            if (isPanel) {
+                                "${stringResource(id = leftIconContentDescription)}, $panelDescription"
+                            } else {
+                                stringResource(id = leftIconContentDescription)
+                            },
                         tint = MaterialTheme.colorScheme.onSurface,
                         modifier =
                             modifier
@@ -268,7 +283,11 @@ fun TopBar(
                     )
                 }
                 IconButton(
-                    modifier = modifier.testTag("toolBarRightSecondaryButton"),
+                    modifier =
+                        modifier
+                            .semantics {
+                                popup()
+                            }.testTag("toolBarRightSecondaryButton"),
                     onClick = {
                         // Add debounce to prevent rapid navigation clicks
                         debounceJob?.cancel()
@@ -280,7 +299,12 @@ fun TopBar(
                 ) {
                     Icon(
                         imageVector = ImageVector.vectorResource(id = rightSecondaryIcon),
-                        contentDescription = stringResource(id = rightSecondaryIconContentDescription),
+                        contentDescription =
+                            if (isPanel) {
+                                "${stringResource(id = rightSecondaryIconContentDescription)}, $panelDescription"
+                            } else {
+                                stringResource(id = rightSecondaryIconContentDescription)
+                            },
                         tint = MaterialTheme.colorScheme.onSurface,
                         modifier =
                             modifier

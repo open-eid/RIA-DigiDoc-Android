@@ -900,7 +900,7 @@ fun NFCView(
                                     } else {
                                         ImeAction.Done
                                     },
-                                keyboardType = KeyboardType.Number,
+                                keyboardType = KeyboardType.NumberPassword,
                             ),
                         isError =
                             canNumberTextEdited.value &&
@@ -955,6 +955,7 @@ fun NFCView(
                                     ),
                             errorText = pinCodeErrorText,
                             removeIconTestTag = "nfcPinRemoveButton",
+                            showIconTestTag = "nfcPinShowButton",
                             errorTestTag = "nfcPinError",
                         )
                     }

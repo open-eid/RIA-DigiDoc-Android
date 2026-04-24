@@ -46,12 +46,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -75,8 +75,8 @@ fun CryptoDataFileItem(
     onClick: (File) -> Unit,
     onDataFileMoreOptionsActionButtonClick: (File) -> Unit,
 ) {
-    val context = LocalContext.current
     val fileDescription = stringResource(R.string.file)
+    val panelDescription = stringResource(R.string.panel)
 
     val buttonName = stringResource(id = R.string.button_name)
 
@@ -161,6 +161,7 @@ fun CryptoDataFileItem(
                                     modifier =
                                         modifier
                                             .semantics {
+                                                stateDescription = panelDescription
                                                 testTagsAsResourceId = true
                                             }.testTag("dataFileItemMoreOptionsIconButton"),
                                     imageVector = ImageVector.vectorResource(R.drawable.ic_more_vert),

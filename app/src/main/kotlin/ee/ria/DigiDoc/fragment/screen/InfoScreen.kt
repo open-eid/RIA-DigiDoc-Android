@@ -71,6 +71,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -203,6 +204,7 @@ fun InfoScreen(
                                 .aspectRatio(cofundedLogoWidthPx.toFloat() / cofundedLogo.height)
                                 .semantics {
                                     contentDescription = logoDescription
+                                    stateDescription = "logo"
                                     role = Role.Image
                                 }.drawBehind {
                                     drawRect(logoSurfaceColor)
@@ -219,23 +221,29 @@ fun InfoScreen(
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.Start,
                     ) {
-                        Text(
-                            text = stringResource(id = R.string.main_about_ria_digidoc_title),
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-                        Text(
-                            text =
-                                String.format(
-                                    stringResource(id = R.string.main_about_version_title),
-                                    BuildConfig.VERSION_NAME + '.' + BuildConfig.VERSION_CODE,
-                                ),
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
+                        Column(
+                            modifier = modifier.semantics(mergeDescendants = true) {},
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.main_about_ria_digidoc_title),
+                                style = MaterialTheme.typography.titleLarge,
+                            )
+                            Text(
+                                text =
+                                    String.format(
+                                        stringResource(id = R.string.main_about_version_title),
+                                        BuildConfig.VERSION_NAME + '.' + BuildConfig.VERSION_CODE,
+                                    ),
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
+
                         Text(
                             modifier = Modifier.padding(vertical = SPadding),
                             text = stringResource(id = R.string.main_about_info_title),
                             style = MaterialTheme.typography.labelMedium,
                         )
+
                         val helpButtonContentDescriptionText =
                             if (isEstonianLanguageUsed.value) {
                                 stringResource(id = R.string.main_home_menu_help) +
@@ -260,6 +268,7 @@ fun InfoScreen(
                                     ).clip(buttonRoundCornerShape)
                                     .semantics {
                                         contentDescription = helpButtonContentDescriptionText
+                                        stateDescription = "link"
                                         testTagsAsResourceId = true
                                     }.testTag("mainInfoHelpButton"),
                             colors =

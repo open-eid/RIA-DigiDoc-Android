@@ -589,58 +589,53 @@ fun DiagnosticsScreen(
                                 }.testTag("mainDiagnosticsRestartConfirmationDialog"),
                         onDismissRequest = dismissRestartConfirmationDialog,
                     ) {
-                        Surface(
+                        Column(
                             modifier =
                                 modifier
                                     .padding(SPadding)
                                     .wrapContentHeight()
                                     .wrapContentWidth()
-                                    .verticalScroll(loggingDialogScrollState),
+                                    .verticalScroll(loggingDialogScrollState)
+                                    .semantics {
+                                        testTagsAsResourceId = true
+                                    }.keyboardScrollable(loggingDialogScrollState)
+                                    .testTag("diagnosticsActivateLoggingContainer"),
                         ) {
-                            Column(
-                                modifier =
-                                    modifier
-                                        .semantics {
-                                            testTagsAsResourceId = true
-                                        }.keyboardScrollable(loggingDialogScrollState)
-                                        .testTag("diagnosticsActivateLoggingContainer"),
-                            ) {
-                                HrefMessageDialog(
-                                    text1 = R.string.main_diagnostics_restart_message,
-                                    text2 = R.string.main_diagnostics_restart_message_restart_now,
-                                    linkText = R.string.read_more_here,
-                                    linkUrl = R.string.main_diagnostics_restart_message_href,
-                                    newLineBeforeLink = true,
-                                    newLineBeforeText2 = true,
-                                )
+                            HrefMessageDialog(
+                                text1 = R.string.main_diagnostics_restart_message,
+                                text2 = R.string.main_diagnostics_restart_message_restart_now,
+                                linkText = R.string.read_more_here,
+                                linkUrl = R.string.main_diagnostics_restart_message_href,
+                                newLineBeforeLink = true,
+                                newLineBeforeText2 = true,
+                            )
 
-                                CancelAndOkButtonRow(
-                                    okButtonTestTag = "hrefMessageDialogOkButton",
-                                    cancelButtonTestTag = "hrefMessageDialogCancelButton",
-                                    cancelButtonClick = dismissRestartConfirmationDialog,
-                                    okButtonClick = {
-                                        enableOneTimeLogGeneration = true
-                                        diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(
-                                            true,
-                                        )
-                                        closeRestartConfirmationDialog()
-                                        sendAccessibilityEvent(
-                                            context,
-                                            settingValueChanged,
-                                        )
-                                        sharedSettingsViewModel.recreateActivity(true)
-                                    },
-                                    cancelButtonTitle = R.string.cancel_button,
-                                    okButtonTitle = R.string.ok_button,
-                                    cancelButtonContentDescription =
-                                        stringResource(
-                                            id = R.string.cancel_button,
-                                        ).lowercase(),
-                                    okButtonContentDescription = stringResource(id = R.string.ok_button).lowercase(),
-                                    showCancelButton = true,
-                                )
-                                InvisibleElement(modifier = modifier)
-                            }
+                            CancelAndOkButtonRow(
+                                okButtonTestTag = "hrefMessageDialogOkButton",
+                                cancelButtonTestTag = "hrefMessageDialogCancelButton",
+                                cancelButtonClick = dismissRestartConfirmationDialog,
+                                okButtonClick = {
+                                    enableOneTimeLogGeneration = true
+                                    diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(
+                                        true,
+                                    )
+                                    closeRestartConfirmationDialog()
+                                    sendAccessibilityEvent(
+                                        context,
+                                        settingValueChanged,
+                                    )
+                                    sharedSettingsViewModel.recreateActivity(true)
+                                },
+                                cancelButtonTitle = R.string.cancel_button,
+                                okButtonTitle = R.string.ok_button,
+                                cancelButtonContentDescription =
+                                    stringResource(
+                                        id = R.string.cancel_button,
+                                    ).lowercase(),
+                                okButtonContentDescription = stringResource(id = R.string.ok_button).lowercase(),
+                                showCancelButton = true,
+                            )
+                            InvisibleElement(modifier = modifier)
                         }
                     }
                 }

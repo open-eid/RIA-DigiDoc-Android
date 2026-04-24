@@ -641,6 +641,7 @@ fun MyEidPinScreen(
                                 isError = !isCurrentPinValid,
                                 keyboardImeAction = ImeAction.Next,
                                 removeIconTestTag = "myEidCurrentPinRemoveButton",
+                                showIconTestTag = "myEidCurrentPinShowButton",
                                 onDone = {
                                     if (isCurrentPinValid) {
                                         showCurrentPinField.value = false
@@ -703,6 +704,7 @@ fun MyEidPinScreen(
                                 isError = !isNewPinValid,
                                 keyboardImeAction = ImeAction.Next,
                                 removeIconTestTag = "myEidNewPinRemoveButton",
+                                showIconTestTag = "myEidNewPinShowButton",
                                 onDone = {
                                     if (isNewPinValid) {
                                         showCurrentPinField.value = false
@@ -793,6 +795,7 @@ fun MyEidPinScreen(
                                 pinCodeTextEdited = null,
                                 isError = !isNewRepeatedPinValid,
                                 removeIconTestTag = "myEidNewPinRepeatedRemoveButton",
+                                showIconTestTag = "myEidNewPinRepeatedShowButton",
                             )
                             Text(
                                 modifier =
