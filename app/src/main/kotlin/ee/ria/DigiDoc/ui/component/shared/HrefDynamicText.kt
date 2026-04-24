@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -108,7 +109,11 @@ fun HrefDynamicText(
                 .verticalScroll(rememberScrollState())
                 .testTag("hrefDynamicText")
                 .then(pressIndicator)
-                .semantics(mergeDescendants = true) {}
+                .semantics(mergeDescendants = true) {
+                    if (!linkUrl.isEmpty()) {
+                        contentDescription = "$text1 $text2 $linkText link $linkUrl"
+                    }
+                }
                 .let {
                     val urlInText =
                         annotatedStringWithLinks
