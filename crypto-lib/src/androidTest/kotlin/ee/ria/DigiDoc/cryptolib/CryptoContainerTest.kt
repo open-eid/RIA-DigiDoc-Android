@@ -578,8 +578,8 @@ class CryptoContainerTest {
     @Test
     fun cryptoContainer_decrypt_offlineSuccess() =
         runTest {
-            val isTestEnabled = System.getenv("WITH_CRYTO_LIB_TESTS")?.toBoolean() == true
-            assumeTrue("Skipping test: WITH_CRYTO_LIB_TESTS not true", isTestEnabled)
+            val isTestEnabled = System.getenv("WITH_CRYPTO_LIB_TESTS")?.toBoolean() == true
+            assumeTrue("Skipping test: WITH_CRYPTO_LIB_TESTS not true", isTestEnabled)
 
             preferences
                 .edit()
@@ -784,8 +784,8 @@ class CryptoContainerTest {
     @Test(expected = CDocException::class)
     fun cryptoContainer_decrypt_CDOC1RSAException() =
         runTest {
-            val isTestEnabled = System.getenv("WITH_CRYTO_LIB_TESTS")?.toBoolean() == true
-            assumeTrue("Skipping test: WITH_CRYTO_LIB_TESTS not true", isTestEnabled)
+            val isTestEnabled = System.getenv("WITH_CRYPTO_LIB_TESTS")?.toBoolean() == true
+            assumeTrue("Skipping test: WITH_CRYPTO_LIB_TESTS not true", isTestEnabled)
 
             preferences
                 .edit()
@@ -895,6 +895,9 @@ class CryptoContainerTest {
     @Test
     fun cryptoContainer_encrypt_CDOC2OnlineSuccess() =
         runTest {
+            val isTestEnabled = System.getenv("WITH_CRYPTO_LIB_TESTS")?.toBoolean() == true
+            assumeTrue("Skipping test: WITH_CRYPTO_LIB_TESTS not true", isTestEnabled)
+
             preferences
                 .edit()
                 .putBoolean(
@@ -939,8 +942,8 @@ class CryptoContainerTest {
     @Test
     fun cryptoContainer_encrypt_CDOC1Success() =
         runTest {
-            val isTestEnabled = System.getenv("WITH_CRYTO_LIB_TESTS")?.toBoolean() == true
-            assumeTrue("Skipping test: WITH_CRYTO_LIB_TESTS not true", isTestEnabled)
+            val isTestEnabled = System.getenv("WITH_CRYPTO_LIB_TESTS")?.toBoolean() == true
+            assumeTrue("Skipping test: WITH_CRYPTO_LIB_TESTS not true", isTestEnabled)
 
             preferences
                 .edit()
