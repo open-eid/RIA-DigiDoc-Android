@@ -264,13 +264,13 @@ fun EncryptNavigation(
 
     val listState = rememberLazyListState()
 
-    val showContainerCloseConfirmationDialog = remember { mutableStateOf(false) }
+    val showContainerCloseConfirmationDialog = rememberSaveable { mutableStateOf(false) }
 
     val showContainerBottomSheet = remember { mutableStateOf(false) }
     val showDataFileBottomSheet = remember { mutableStateOf(false) }
     val showRecipientBottomSheet = remember { mutableStateOf(false) }
 
-    val showSivaDialog = remember { mutableStateOf(false) }
+    val showSivaDialog = rememberSaveable { mutableStateOf(false) }
     val nestedFile = rememberSaveable { mutableStateOf<File?>(null) }
 
     val openNestedContainer: (nestedContainer: File, isSivaConfirmed: Boolean) -> Unit =

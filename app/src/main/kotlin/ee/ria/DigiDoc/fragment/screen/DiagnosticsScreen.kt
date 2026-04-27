@@ -124,7 +124,7 @@ fun DiagnosticsScreen(
     var enableOneTimeLogGeneration by remember {
         mutableStateOf(diagnosticsViewModel.dataStore.getIsLogFileGenerationEnabled())
     }
-    val openRestartConfirmationDialog = remember { mutableStateOf(false) }
+    val openRestartConfirmationDialog = rememberSaveable { mutableStateOf(false) }
 
     val settingValueChanged = stringResource(id = R.string.setting_value_changed)
     val settingValueChangeCancelled = stringResource(id = R.string.setting_value_change_cancelled)

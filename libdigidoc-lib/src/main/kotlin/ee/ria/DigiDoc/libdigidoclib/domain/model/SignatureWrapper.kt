@@ -27,10 +27,11 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.libdigidocpp.Signature
 import java.io.IOException
+import java.io.Serializable
 
 class SignatureWrapper(
     signature: Signature,
-) : SignatureInterface {
+) : SignatureInterface, Serializable {
     private val logTag = javaClass.simpleName
 
     override val id: String = signature.id()

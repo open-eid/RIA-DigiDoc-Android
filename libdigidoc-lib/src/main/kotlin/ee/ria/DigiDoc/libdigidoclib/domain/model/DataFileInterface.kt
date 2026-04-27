@@ -21,7 +21,9 @@
 
 package ee.ria.DigiDoc.libdigidoclib.domain.model
 
-interface DataFileInterface {
+import java.io.Serializable
+
+interface DataFileInterface: Serializable {
     val id: String
     val fileName: String
     val fileSize: Long

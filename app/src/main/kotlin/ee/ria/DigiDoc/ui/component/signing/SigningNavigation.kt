@@ -26,6 +26,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -172,8 +173,8 @@ fun SigningNavigation(
 
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
-    val clickedDataFile = remember { mutableStateOf<DataFileInterface?>(null) }
-    val clickedSignature = remember { mutableStateOf<SignatureInterface?>(null) }
+    val clickedDataFile = rememberSaveable { mutableStateOf<DataFileInterface?>(null) }
+    val clickedSignature = rememberSaveable { mutableStateOf<SignatureInterface?>(null) }
 
     val signatureAddedSuccess = remember { mutableStateOf(false) }
     val signatureAddedSuccessText = stringResource(id = R.string.signature_update_signature_add_success)
@@ -206,7 +207,7 @@ fun SigningNavigation(
     val invalidSignaturesText =
         pluralStringResource(id = R.plurals.signatures_invalid, count = invalidSignaturesCount, invalidSignaturesCount)
 
-    val showLoadingScreen = remember { mutableStateOf(false) }
+    val showLoadingScreen = rememberSaveable { mutableStateOf(false) }
 
     val openRemoveFileDialog = rememberSaveable { mutableStateOf(false) }
     val fileRemoved = stringResource(id = R.string.document_removed)
@@ -280,27 +281,27 @@ fun SigningNavigation(
     }
 
     var signatures by remember { mutableStateOf<List<SignatureInterface>>(emptyList()) }
-    val showSignaturesLoadingIndicator = remember { mutableStateOf(false) }
+    val showSignaturesLoadingIndicator = rememberSaveable { mutableStateOf(false) }
     val signaturesLoading = stringResource(id = R.string.signatures_loading)
     val signaturesLoaded = stringResource(id = R.string.signatures_loaded)
 
     var dataFiles by remember { mutableStateOf<List<DataFileInterface>>(emptyList()) }
-    val showDataFilesLoadingIndicator = remember { mutableStateOf(false) }
+    val showDataFilesLoadingIndicator = rememberSaveable { mutableStateOf(false) }
     val dataFilesLoading = stringResource(id = R.string.container_files_loading)
 
     val filesAdded by sharedContainerViewModel.addedFilesCount.collectAsState(0)
 
     val listState = rememberLazyListState()
 
-    val showContainerCloseConfirmationDialog = remember { mutableStateOf(false) }
+    val showContainerCloseConfirmationDialog = rememberSaveable { mutableStateOf(false) }
 
-    val showSivaDialog = remember { mutableStateOf(false) }
+    val showSivaDialog = rememberSaveable { mutableStateOf(false) }
     val nestedFile = rememberSaveable { mutableStateOf<File?>(null) }
 
-    val showContainerBottomSheet = remember { mutableStateOf(false) }
-    val showSignedContainerBottomSheet = remember { mutableStateOf(false) }
-    val showDataFileBottomSheet = remember { mutableStateOf(false) }
-    val showSignatureBottomSheet = remember { mutableStateOf(false) }
+    val showContainerBottomSheet = rememberSaveable { mutableStateOf(false) }
+    val showSignedContainerBottomSheet = rememberSaveable { mutableStateOf(false) }
+    val showDataFileBottomSheet = rememberSaveable { mutableStateOf(false) }
+    val showSignatureBottomSheet = rememberSaveable { mutableStateOf(false) }
 
     val openNestedContainer: (nestedContainer: File, isSivaConfirmed: Boolean) -> Unit =
         { nestedContainer, isSivaConfirmed ->
@@ -801,7 +802,7 @@ fun SigningNavigation(
                         testTagsAsResourceId = true
                     }.testTag("signingContainer"),
         ) {
-            var actionSignature by remember { mutableStateOf<SignatureInterface?>(null) }
+            var actionSignature by rememberSaveable { mutableStateOf<SignatureInterface?>(null) }
 
             Column(
                 modifier =
@@ -811,7 +812,7 @@ fun SigningNavigation(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start,
             ) {
-                if (signatureAddedSuccess.value == true) {
+                if (signatureAddedSuccess.value) {
                     // Make sure text is announced when TalkBack is enabled by having its own element
                     if (isTalkBackEnabled(context)) {
                         Box(

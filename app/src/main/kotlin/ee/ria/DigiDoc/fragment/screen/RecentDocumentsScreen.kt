@@ -132,9 +132,9 @@ fun RecentDocumentsScreen(
 
     val messages by SnackBarManager.messages.collectAsState(emptyList())
 
-    val showLoading = remember { mutableStateOf(false) }
-    val showSivaDialog = remember { mutableStateOf(false) }
-    val selectedDocument = remember { mutableStateOf<File?>(null) }
+    val showLoading = rememberSaveable { mutableStateOf(false) }
+    val showSivaDialog = rememberSaveable { mutableStateOf(false) }
+    val selectedDocument = rememberSaveable { mutableStateOf<File?>(null) }
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
     val handleResult: (Boolean) -> Unit = { confirmed ->
@@ -164,13 +164,13 @@ fun RecentDocumentsScreen(
     }
 
     val recentDocumentList =
-        remember {
+        rememberSaveable {
             mutableStateOf(
                 recentDocumentsViewModel.getRecentDocumentList(fileOpeningMethod),
             )
         }
-    var actionDocument by remember { mutableStateOf<File?>(null) }
-    val openRemoveDocumentDialog = remember { mutableStateOf(false) }
+    var actionDocument by rememberSaveable { mutableStateOf<File?>(null) }
+    val openRemoveDocumentDialog = rememberSaveable { mutableStateOf(false) }
 
     val documentRemoved = stringResource(id = R.string.document_removed)
     val documentRemovalCancelled = stringResource(id = R.string.document_removal_cancelled)

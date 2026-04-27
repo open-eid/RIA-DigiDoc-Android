@@ -26,10 +26,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -71,7 +68,7 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import java.time.LocalDate
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MyEidPinAndCertificateView(
     modifier: Modifier = Modifier,
@@ -173,19 +170,19 @@ fun MyEidPinAndCertificateView(
             }
 
             if (showForgotPin && forgotPinText.isNotBlank() && onForgotPinClick != null) {
-                FlowRow(
+                Row(
                     modifier =
                         modifier
-                            .padding(SPadding),
-                    verticalArrangement = Arrangement.spacedBy(XSPadding),
-                    horizontalArrangement = Arrangement.Center,
+                            .padding(SPadding)
+                            .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(XSPadding),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     OutlinedButton(
                         enabled = !isPukBlocked,
                         onClick = onForgotPinClick,
                         modifier =
                             modifier
-                                .align(Alignment.CenterVertically)
                                 .weight(1f)
                                 .semantics {
                                     testTagsAsResourceId = true
@@ -211,12 +208,15 @@ fun MyEidPinAndCertificateView(
                         )
                     }
 
-                    Spacer(modifier = modifier.size(XSPadding))
-
                     Button(
                         enabled = !isPinBlocked,
                         onClick = onChangePinClick ?: {},
-                        modifier = modifier.align(Alignment.CenterVertically),
+                        modifier =
+                            modifier
+                                .weight(1f)
+                                .semantics {
+                                    testTagsAsResourceId = true
+                                }.testTag("myEidPinAndCertificateChangePinButton"),
                         colors =
                             ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primary,
@@ -231,9 +231,10 @@ fun MyEidPinAndCertificateView(
                                     .semantics {
                                         this.contentDescription = changePinText.lowercase()
                                         testTagsAsResourceId = true
-                                    }.testTag("myEidPinAndCertificateChangePinButton"),
+                                    }.testTag("myEidPinAndCertificateChangePinButtonText"),
                             text = changePinText,
                             style = MaterialTheme.typography.labelLarge,
+                            textAlign = TextAlign.Center,
                         )
                     }
                 }

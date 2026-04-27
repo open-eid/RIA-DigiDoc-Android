@@ -150,9 +150,9 @@ fun EncryptRecipientScreen(
             )
         }
     val showRecipientBottomSheet = remember { mutableStateOf(false) }
-    var actionRecipient by remember { mutableStateOf<Addressee?>(null) }
-    val clickedRecipient = remember { mutableStateOf<Addressee?>(null) }
-    val openRemoveRecipientDialog = remember { mutableStateOf(false) }
+    var actionRecipient by rememberSaveable { mutableStateOf<Addressee?>(null) }
+    val clickedRecipient = rememberSaveable { mutableStateOf<Addressee?>(null) }
+    val openRemoveRecipientDialog = rememberSaveable { mutableStateOf(false) }
 
     val recipientRemoved = stringResource(id = R.string.recipient_removed)
     val recipientRemovalCancelled = stringResource(id = R.string.recipient_removal_cancelled)

@@ -98,7 +98,7 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
     val activity = LocalActivity.current
-    val openCrashDetectorDialog = remember { mutableStateOf(false) }
+    val openCrashDetectorDialog = rememberSaveable { mutableStateOf(false) }
     val hasUnsentReports by homeViewModel.hasUnsentReports.asFlow().collectAsState(Tasks.forResult(false))
 
     val isMainMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
