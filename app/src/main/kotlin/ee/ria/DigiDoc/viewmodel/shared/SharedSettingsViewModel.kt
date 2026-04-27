@@ -57,6 +57,8 @@ import ee.ria.DigiDoc.utilsLib.signing.CertificateUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -90,41 +92,41 @@ class SharedSettingsViewModel
         private val _updatedConfiguration = MutableLiveData<ConfigurationProvider?>()
         val updatedConfiguration: LiveData<ConfigurationProvider?> = _updatedConfiguration
 
-        private val _sivaIssuedTo = MutableLiveData<String?>()
-        val sivaIssuedTo: LiveData<String?> = _sivaIssuedTo
+        private val _sivaIssuedTo = MutableStateFlow<String?>(null)
+        val sivaIssuedTo: StateFlow<String?> = _sivaIssuedTo
 
-        private val _sivaValidTo = MutableLiveData<String?>()
-        val sivaValidTo: LiveData<String?> = _sivaValidTo
+        private val _sivaValidTo = MutableStateFlow<String?>(null)
+        val sivaValidTo: StateFlow<String?> = _sivaValidTo
 
-        private val _tsaIssuedTo = MutableLiveData<String?>()
-        val tsaIssuedTo: LiveData<String?> = _tsaIssuedTo
+        private val _tsaIssuedTo = MutableStateFlow<String?>(null)
+        val tsaIssuedTo: StateFlow<String?> = _tsaIssuedTo
 
-        private val _tsaValidTo = MutableLiveData<String?>()
-        val tsaValidTo: LiveData<String?> = _tsaValidTo
+        private val _tsaValidTo = MutableStateFlow<String?>(null)
+        val tsaValidTo: StateFlow<String?> = _tsaValidTo
 
-        private val _cryptoCertIssuedTo = MutableLiveData<String?>()
-        val cryptoCertIssuedTo: LiveData<String?> = _cryptoCertIssuedTo
+        private val _cryptoCertIssuedTo = MutableStateFlow<String?>(null)
+        val cryptoCertIssuedTo: StateFlow<String?> = _cryptoCertIssuedTo
 
-        private val _cryptoCertValidTo = MutableLiveData<String?>()
-        val cryptoCertValidTo: LiveData<String?> = _cryptoCertValidTo
+        private val _cryptoCertValidTo = MutableStateFlow<String?>(null)
+        val cryptoCertValidTo: StateFlow<String?> = _cryptoCertValidTo
 
-        private val _previousSivaUrl = MutableLiveData<String?>()
-        val previousSivaUrl: LiveData<String?> = _previousSivaUrl
+        private val _previousSivaUrl = MutableStateFlow<String?>(null)
+        val previousSivaUrl: StateFlow<String?> = _previousSivaUrl
 
-        private val _previousTsaUrl = MutableLiveData<String?>()
-        val previousTsaUrl: LiveData<String?> = _previousTsaUrl
+        private val _previousTsaUrl = MutableStateFlow<String?>(null)
+        val previousTsaUrl: StateFlow<String?> = _previousTsaUrl
 
-        private val _sivaCertificate = MutableLiveData<X509Certificate?>()
-        val sivaCertificate: LiveData<X509Certificate?> = _sivaCertificate
+        private val _sivaCertificate = MutableStateFlow<X509Certificate?>(null)
+        val sivaCertificate: StateFlow<X509Certificate?> = _sivaCertificate
 
-        private val _tsaCertificate = MutableLiveData<X509Certificate?>()
-        val tsaCertificate: LiveData<X509Certificate?> = _tsaCertificate
+        private val _tsaCertificate = MutableStateFlow<X509Certificate?>(null)
+        val tsaCertificate: StateFlow<X509Certificate?> = _tsaCertificate
 
-        private val _cryptoCertificate = MutableLiveData<X509Certificate?>()
-        val cryptoCertificate: LiveData<X509Certificate?> = _cryptoCertificate
+        private val _cryptoCertificate = MutableStateFlow<X509Certificate?>(null)
+        val cryptoCertificate: StateFlow<X509Certificate?> = _cryptoCertificate
 
-        private val _errorState = MutableLiveData<Int?>(null)
-        val errorState: LiveData<Int?> = _errorState
+        private val _errorState = MutableStateFlow<Int?>(null)
+        val errorState: StateFlow<Int?> = _errorState
 
         init {
             CoroutineScope(Main).launch {
@@ -140,6 +142,9 @@ class SharedSettingsViewModel
             resetSivaSettings()
             resetProxySettings()
             resetCryptoSettings()
+
+            resetCertificateInfo()
+            resetErrors()
         }
 
         private fun resetProxySettings() {
@@ -176,7 +181,6 @@ class SharedSettingsViewModel
             dataStore.setCDOC2UUID("00000000-0000-0000-0000-000000000002")
             dataStore.setCDOC2FetchURL("https://cdoc2-keyserver-get")
             dataStore.setCDOC2PostURL("https://cdoc2-keyserver-post")
-            dataStore.setCryptoCertName(null)
             removeCryptoCert()
         }
 
@@ -299,7 +303,7 @@ class SharedSettingsViewModel
             sivaServiceUrl: String,
             context: Context,
         ) {
-            _previousSivaUrl.postValue(sivaServiceUrl)
+            _previousSivaUrl.value = sivaServiceUrl
 
             val sivaCertName: String = dataStore.getSettingsSivaCertName()
             val sivaFile = FileUtil.getCertFile(context, sivaCertName, DIR_SIVA_CERT)
@@ -308,16 +312,16 @@ class SharedSettingsViewModel
                 val fileContents: String = FileUtil.readFileContent(sivaFile.path)
                 try {
                     val sivaCert = CertificateUtil.x509Certificate(fileContents)
-                    _sivaCertificate.postValue(sivaCert)
+                    _sivaCertificate.value = sivaCert
                     val certificateHolder: X509CertificateHolder = JcaX509CertificateHolder(sivaCert)
                     val issuer: String = getSubject(certificateHolder)
-                    _sivaIssuedTo.postValue(issuer)
+                    _sivaIssuedTo.value = issuer
                     val notAfter: Date = certificateHolder.notAfter
                     if (notAfter.before(Date())) {
                         val expiredText = context.getString(R.string.main_settings_siva_certificate_expired)
-                        _sivaValidTo.postValue("${getFormattedDateTime(notAfter)} ($expiredText)")
+                        _sivaValidTo.value = "${getFormattedDateTime(notAfter)} ($expiredText)"
                     } else {
-                        _sivaValidTo.postValue(getFormattedDateTime(notAfter))
+                        _sivaValidTo.value = getFormattedDateTime(notAfter)
                     }
                 } catch (e: CertificateException) {
                     errorLog(logTag, "Unable to get SiVa certificate", e)
@@ -326,6 +330,10 @@ class SharedSettingsViewModel
                     removeSivaCert()
                     resetCertificateInfo()
                 }
+            } else {
+                _sivaIssuedTo.value = null
+                _sivaValidTo.value = null
+                _sivaCertificate.value = null
             }
         }
 
@@ -333,7 +341,7 @@ class SharedSettingsViewModel
             tsaServiceUrl: String,
             context: Context,
         ) {
-            _previousTsaUrl.postValue(tsaServiceUrl)
+            _previousTsaUrl.value = tsaServiceUrl
 
             val tsaCertName: String = dataStore.getTSACertName()
             val tsaFile = FileUtil.getCertFile(context, tsaCertName, DIR_TSA_CERT)
@@ -342,16 +350,16 @@ class SharedSettingsViewModel
                 val fileContents: String = FileUtil.readFileContent(tsaFile.path)
                 try {
                     val tsaCert = CertificateUtil.x509Certificate(fileContents)
-                    _tsaCertificate.postValue(tsaCert)
+                    _tsaCertificate.value = tsaCert
                     val certificateHolder: X509CertificateHolder = JcaX509CertificateHolder(tsaCert)
                     val issuer: String = getSubject(certificateHolder)
-                    _tsaIssuedTo.postValue(issuer)
+                    _tsaIssuedTo.value = issuer
                     val notAfter: Date = certificateHolder.notAfter
                     if (notAfter.before(Date())) {
                         val expiredText = context.getString(R.string.main_settings_siva_certificate_expired)
-                        _tsaValidTo.postValue("${getFormattedDateTime(notAfter)} ($expiredText)")
+                        _tsaValidTo.value = "${getFormattedDateTime(notAfter)} ($expiredText)"
                     } else {
-                        _tsaValidTo.postValue(getFormattedDateTime(notAfter))
+                        _tsaValidTo.value = getFormattedDateTime(notAfter)
                     }
                 } catch (e: CertificateException) {
                     errorLog(logTag, "Unable to get TSA certificate", e)
@@ -360,6 +368,10 @@ class SharedSettingsViewModel
                     removeTsaCert()
                     resetCertificateInfo()
                 }
+            } else {
+                _tsaIssuedTo.value = null
+                _tsaIssuedTo.value = null
+                _tsaCertificate.value = null
             }
         }
 
@@ -371,16 +383,16 @@ class SharedSettingsViewModel
                 val fileContents: String = FileUtil.readFileContent(cryptoCertFile.path)
                 try {
                     val cryptoCert = CertificateUtil.x509Certificate(fileContents)
-                    _cryptoCertificate.postValue(cryptoCert)
+                    _cryptoCertificate.value = cryptoCert
                     val certificateHolder: X509CertificateHolder = JcaX509CertificateHolder(cryptoCert)
                     val issuer: String = getSubject(certificateHolder)
-                    _cryptoCertIssuedTo.postValue(issuer)
+                    _cryptoCertIssuedTo.value = issuer
                     val notAfter: Date = certificateHolder.notAfter
                     if (notAfter.before(Date())) {
                         val expiredText = context.getString(R.string.main_settings_siva_certificate_expired)
-                        _cryptoCertValidTo.postValue("${getFormattedDateTime(notAfter)} ($expiredText)")
+                        _cryptoCertValidTo.value = "${getFormattedDateTime(notAfter)} ($expiredText)"
                     } else {
-                        _cryptoCertValidTo.postValue(getFormattedDateTime(notAfter))
+                        _cryptoCertValidTo.value = getFormattedDateTime(notAfter)
                     }
                 } catch (e: CertificateException) {
                     errorLog(logTag, "Unable to get Crypto certificate", e)
@@ -389,6 +401,10 @@ class SharedSettingsViewModel
                     removeCryptoCert()
                     resetCertificateInfo()
                 }
+            } else {
+                _cryptoCertIssuedTo.value = null
+                _cryptoCertValidTo.value = null
+                _cryptoCertificate.value = null
             }
         }
 
@@ -480,12 +496,19 @@ class SharedSettingsViewModel
         }
 
         private fun resetCertificateInfo() {
-            _sivaIssuedTo.postValue(null)
-            _sivaValidTo.postValue(null)
-            _tsaIssuedTo.postValue(null)
-            _tsaValidTo.postValue(null)
-            _cryptoCertIssuedTo.postValue(null)
-            _cryptoCertValidTo.postValue(null)
+            _sivaIssuedTo.value = null
+            _sivaValidTo.value = null
+            _sivaCertificate.value = null
+            _tsaIssuedTo.value = null
+            _tsaValidTo.value = null
+            _tsaCertificate.value = null
+            _cryptoCertIssuedTo.value = null
+            _cryptoCertValidTo.value = null
+            _cryptoCertificate.value = null
+        }
+
+        private fun resetErrors() {
+            _errorState.value = null
         }
 
         fun checkConnection(manualProxySettings: ManualProxy) {
@@ -514,15 +537,15 @@ class SharedSettingsViewModel
                     val response = call.execute()
                     if (response.code == 403) {
                         debugLog(logTag, "Forbidden error with proxy configuration")
-                        _errorState.postValue(R.string.main_settings_proxy_check_username_and_password)
+                        _errorState.value = R.string.main_settings_proxy_check_username_and_password
                     }
 
                     if (response.code != 200) {
                         debugLog(logTag, "No Internet connection detected")
-                        _errorState.postValue(R.string.main_settings_proxy_check_connection_unsuccessful)
+                        _errorState.value = R.string.main_settings_proxy_check_connection_unsuccessful
                     } else {
                         debugLog(logTag, "Internet connection detected successfully")
-                        _errorState.postValue(R.string.main_settings_proxy_check_connection_success)
+                        _errorState.value = R.string.main_settings_proxy_check_connection_success
                     }
                 } catch (e: IOException) {
                     val message = e.message
@@ -537,10 +560,10 @@ class SharedSettingsViewModel
                             "Received HTTP status 403 or failed to authenticate. " +
                                 "Unable to connect with proxy configuration",
                         )
-                        _errorState.postValue(R.string.main_settings_proxy_check_connection_unsuccessful)
+                        _errorState.value = R.string.main_settings_proxy_check_connection_unsuccessful
                     }
                     errorLog(logTag, "Unable to check Internet connection", e)
-                    _errorState.postValue(R.string.main_settings_proxy_check_connection_unsuccessful)
+                    _errorState.value = R.string.main_settings_proxy_check_connection_unsuccessful
                 }
             }
         }

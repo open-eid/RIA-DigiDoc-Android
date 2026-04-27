@@ -42,6 +42,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import java.util.Date
+import java.util.UUID
 
 @RunWith(MockitoJUnitRunner::class)
 class ConfigurationViewModelTest {
@@ -118,6 +119,7 @@ class ConfigurationViewModelTest {
             mapOf(
                 DEFAULT_UUID_VALUE to
                     ConfigurationProvider.CDOC2Conf(
+                        uuid = UUID.randomUUID(),
                         name = "RIA",
                         post = "https://cdoc2.id.ee:8443",
                         fetch = "https://cdoc2.id.ee:8444",

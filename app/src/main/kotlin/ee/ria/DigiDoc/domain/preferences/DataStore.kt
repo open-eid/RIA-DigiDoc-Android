@@ -102,8 +102,7 @@ class DataStore
             }
             errorLog(
                 logTag,
-                "Un" +
-                    "able to read CAN",
+                "Unable to read CAN",
             )
             return ""
         }

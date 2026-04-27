@@ -47,6 +47,7 @@ import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnitRunner
+import java.util.UUID
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(MockitoJUnitRunner::class)
@@ -205,6 +206,7 @@ class ConfigurationRepositoryTest {
                 mapOf(
                     DEFAULT_UUID_VALUE to
                         ConfigurationProvider.CDOC2Conf(
+                            uuid = UUID.randomUUID(),
                             name = "RIA",
                             post = "https://cdoc2.id.ee:8443",
                             fetch = "https://cdoc2.id.ee:8444",

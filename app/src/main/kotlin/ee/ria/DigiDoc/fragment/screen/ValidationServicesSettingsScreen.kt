@@ -82,7 +82,6 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.network.siva.SivaSetting
@@ -148,14 +147,14 @@ fun ValidationServicesSettingsScreen(
         )
     }
     sharedSettingsViewModel.updateSivaData(settingsSivaServiceUrl.text, context)
-    val issuedTo by sharedSettingsViewModel.sivaIssuedTo.asFlow().collectAsState(
+    val issuedTo by sharedSettingsViewModel.sivaIssuedTo.collectAsState(
         "",
     )
-    val validTo by sharedSettingsViewModel.sivaValidTo.asFlow().collectAsState(
+    val validTo by sharedSettingsViewModel.sivaValidTo.collectAsState(
         "",
     )
 
-    val sivaCertificate by sharedSettingsViewModel.sivaCertificate.asFlow().collectAsState(
+    val sivaCertificate by sharedSettingsViewModel.sivaCertificate.collectAsState(
         null,
     )
 

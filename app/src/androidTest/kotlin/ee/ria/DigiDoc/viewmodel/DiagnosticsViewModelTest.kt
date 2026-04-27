@@ -72,6 +72,7 @@ import java.nio.file.Files
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import java.util.UUID
 
 @RunWith(MockitoJUnitRunner::class)
 class DiagnosticsViewModelTest {
@@ -115,6 +116,7 @@ class DiagnosticsViewModelTest {
                 mapOf(
                     DEFAULT_UUID_VALUE to
                         ConfigurationProvider.CDOC2Conf(
+                            uuid = UUID.randomUUID(),
                             name = "RIA",
                             post = "https://cdoc2.id.ee:8443",
                             fetch = "https://cdoc2.id.ee:8444",

@@ -64,6 +64,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Base64
 import java.util.Date
+import java.util.UUID
 
 @ExperimentalCoroutinesApi
 @RunWith(MockitoJUnitRunner::class)
@@ -430,6 +431,7 @@ class ConfigurationLoaderTest {
                 mapOf(
                     DEFAULT_UUID_VALUE to
                         ConfigurationProvider.CDOC2Conf(
+                            uuid = UUID.randomUUID(),
                             name = "RIA",
                             post = "https://cdoc2.id.ee:8443",
                             fetch = "https://cdoc2.id.ee:8444",
