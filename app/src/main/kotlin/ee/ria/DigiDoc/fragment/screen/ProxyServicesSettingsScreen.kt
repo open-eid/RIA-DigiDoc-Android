@@ -83,7 +83,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.network.proxy.ManualProxy
@@ -214,7 +213,7 @@ fun ProxyServicesSettingsScreen(
     }
 
     LaunchedEffect(sharedSettingsViewModel.errorState) {
-        sharedSettingsViewModel.errorState.asFlow().collect { errorState ->
+        sharedSettingsViewModel.errorState.collect { errorState ->
             errorState?.let {
                 withContext(Main) {
                     showMessage(context, errorState)

@@ -70,7 +70,11 @@ class CDOC2Settings
         fun getCDOC2PostURL(domain: String): String {
             val configurationProvider = configurationRepository.getConfiguration()
             val configPostUrl =
-                configurationProvider?.cdoc2Conf?.get(domain)?.post
+                configurationProvider
+                    ?.cdoc2Conf
+                    ?.values
+                    ?.firstOrNull { it.post == domain }
+                    ?.post
                     ?: return preferences.getString(
                         resources.getString(R.string.crypto_settings_use_cdoc2_post_url),
                         "",
@@ -82,7 +86,11 @@ class CDOC2Settings
         fun getCDOC2FetchURL(domain: String): String {
             val configurationProvider = configurationRepository.getConfiguration()
             val configFetchUrl =
-                configurationProvider?.cdoc2Conf?.get(domain)?.fetch
+                configurationProvider
+                    ?.cdoc2Conf
+                    ?.values
+                    ?.firstOrNull { it.fetch == domain }
+                    ?.fetch
                     ?: return preferences.getString(
                         resources.getString(R.string.crypto_settings_use_cdoc2_fetch_url),
                         "",

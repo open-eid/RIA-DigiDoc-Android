@@ -41,6 +41,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import java.lang.reflect.Field
+import java.util.UUID
 
 @RunWith(MockitoJUnitRunner::class)
 class InitializationTest {
@@ -75,6 +76,7 @@ class InitializationTest {
                     mapOf(
                         DEFAULT_UUID_VALUE to
                             ConfigurationProvider.CDOC2Conf(
+                                uuid = UUID.randomUUID(),
                                 name = "RIA",
                                 post = "https://cdoc2.id.ee:8443",
                                 fetch = "https://cdoc2.id.ee:8444",

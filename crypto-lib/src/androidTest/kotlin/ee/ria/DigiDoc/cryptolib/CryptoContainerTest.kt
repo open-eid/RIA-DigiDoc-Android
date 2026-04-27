@@ -82,6 +82,7 @@ import java.io.File
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.util.Base64
+import java.util.UUID
 
 @RunWith(MockitoJUnitRunner::class)
 class CryptoContainerTest {
@@ -141,6 +142,7 @@ class CryptoContainerTest {
                     mapOf(
                         DEFAULT_UUID_VALUE to
                             ConfigurationProvider.CDOC2Conf(
+                                uuid = UUID.randomUUID(),
                                 name = "RIA",
                                 post = "https://cdoc2.id.ee:8443",
                                 fetch = "https://cdoc2.id.ee:8444",

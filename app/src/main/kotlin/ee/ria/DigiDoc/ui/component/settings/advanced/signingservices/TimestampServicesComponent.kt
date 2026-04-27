@@ -76,7 +76,6 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.domain.model.settings.TSASetting
@@ -128,14 +127,14 @@ fun TimestampServicesComponent(
         )
     }
     sharedSettingsViewModel.updateTsaData(settingsTsaServiceUrl.text, context)
-    val issuedTo by sharedSettingsViewModel.tsaIssuedTo.asFlow().collectAsState(
+    val issuedTo by sharedSettingsViewModel.tsaIssuedTo.collectAsState(
         "",
     )
-    val validTo by sharedSettingsViewModel.tsaValidTo.asFlow().collectAsState(
+    val validTo by sharedSettingsViewModel.tsaValidTo.collectAsState(
         "",
     )
 
-    val tsaCertificate by sharedSettingsViewModel.tsaCertificate.asFlow().collectAsState(
+    val tsaCertificate by sharedSettingsViewModel.tsaCertificate.collectAsState(
         null,
     )
 

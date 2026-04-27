@@ -26,6 +26,8 @@ import android.content.ContentResolver
 import android.content.Context
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,6 +36,8 @@ import dagger.hilt.components.SingletonComponent
 import ee.ria.DigiDoc.common.BuildVersionProvider
 import ee.ria.DigiDoc.common.BuildVersionProviderImpl
 import ee.ria.DigiDoc.common.certificate.CertificateService
+import ee.ria.DigiDoc.configuration.deserializer.Cdoc2ConfDeserializer
+import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.cryptolib.CDOC2Settings
 import ee.ria.DigiDoc.cryptolib.init.CryptoInitialization
@@ -141,7 +145,14 @@ class AppModules {
     fun provideActivityManager(): ActivityManager = ActivityManagerImpl()
 
     @Provides
-    fun provideGson(): Gson = Gson()
+    @Singleton
+    fun provideGson(): Gson {
+        val type = object : TypeToken<Map<String, ConfigurationProvider.CDOC2Conf>>() {}.type
+
+        return GsonBuilder()
+            .registerTypeAdapter(type, Cdoc2ConfDeserializer())
+            .create()
+    }
 
     @Provides
     fun provideRootChecker(): RootChecker = RootCheckerImpl()

@@ -71,6 +71,7 @@ import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
 import org.mockito.kotlin.atLeastOnce
 import org.mockito.kotlin.eq
+import java.util.UUID
 
 @RunWith(MockitoJUnitRunner::class)
 class MobileIdViewModelTest {
@@ -137,6 +138,7 @@ class MobileIdViewModelTest {
                 mapOf(
                     DEFAULT_UUID_VALUE to
                         ConfigurationProvider.CDOC2Conf(
+                            uuid = UUID.randomUUID(),
                             name = "RIA",
                             post = "https://cdoc2.id.ee:8443",
                             fetch = "https://cdoc2.id.ee:8444",

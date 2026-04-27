@@ -21,13 +21,18 @@
 
 package ee.ria.DigiDoc.configuration.provider
 
+import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
+import ee.ria.DigiDoc.configuration.deserializer.Cdoc2ConfDeserializer
 import java.util.Date
+import java.util.UUID
 
 data class ConfigurationProvider(
     @SerializedName("META-INF") val metaInf: MetaInf,
     @SerializedName("SIVA-URL") val sivaUrl: String,
-    @SerializedName("CDOC2-CONF") val cdoc2Conf: Map<String, CDOC2Conf>,
+    @SerializedName("CDOC2-CONF")
+    @JsonAdapter(Cdoc2ConfDeserializer::class)
+    val cdoc2Conf: Map<String, CDOC2Conf>,
     @SerializedName("CDOC2-DEFAULT") val cdoc2Default: Boolean?,
     @SerializedName("CDOC2-USE-KEYSERVER") val cdoc2UseKeyServer: Boolean,
     @SerializedName("CDOC2-DEFAULT-KEYSERVER") val cdoc2DefaultKeyServer: String,
@@ -54,6 +59,7 @@ data class ConfigurationProvider(
     )
 
     data class CDOC2Conf(
+        val uuid: UUID,
         @SerializedName("NAME") val name: String,
         @SerializedName("POST") val post: String,
         @SerializedName("FETCH") val fetch: String,

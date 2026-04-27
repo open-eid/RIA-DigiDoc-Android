@@ -62,7 +62,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -89,10 +88,10 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.lifecycle.asFlow
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.common.Constant.Defaults.DEFAULT_UUID_VALUE
 import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider.CDOC2Conf
 import ee.ria.DigiDoc.domain.model.settings.CDOCSetting
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
@@ -111,6 +110,7 @@ import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
+import ee.ria.DigiDoc.viewmodel.EncryptionServicesViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
@@ -120,6 +120,7 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 @OptIn(
     ExperimentalLayoutApi::class,
@@ -129,6 +130,7 @@ import kotlinx.coroutines.withContext
 @Composable
 fun EncryptionServicesSettingsScreen(
     modifier: Modifier = Modifier,
+    encryptionServicesViewModel: EncryptionServicesViewModel = hiltViewModel(),
     sharedSettingsViewModel: SharedSettingsViewModel,
     sharedMenuViewModel: SharedMenuViewModel,
     sharedCertificateViewModel: SharedCertificateViewModel,
@@ -146,52 +148,50 @@ fun EncryptionServicesSettingsScreen(
 
     val configuration = sharedSettingsViewModel.updatedConfiguration.value
 
-    val getCdocSetting = sharedSettingsViewModel.dataStore::getCdocSetting
-    val setCdocSetting = sharedSettingsViewModel.dataStore::setCdocSetting
-
-    val getUseOnlineEncryption = sharedSettingsViewModel.dataStore::getUseOnlineEncryption
-    val setUseOnlineEncryption = sharedSettingsViewModel.dataStore::setUseOnlineEncryption
-
-    val getCDOC2SelectedService = sharedSettingsViewModel.dataStore::getCDOC2SelectedService
-    val setCDOC2SelectedService = sharedSettingsViewModel.dataStore::setCDOC2SelectedService
-
-    val getCDOC2UUID = sharedSettingsViewModel.dataStore::getCDOC2UUID
-    val setCDOC2UUID = sharedSettingsViewModel.dataStore::setCDOC2UUID
-
-    val getCDOC2FetchURL = sharedSettingsViewModel.dataStore::getCDOC2FetchURL
-    val setCDOC2FetchURL = sharedSettingsViewModel.dataStore::setCDOC2FetchURL
-
-    val getCDOC2PostURL = sharedSettingsViewModel.dataStore::getCDOC2PostURL
-    val setCDOC2PostURL = sharedSettingsViewModel.dataStore::setCDOC2PostURL
-
-    val cdoc2Default = configuration?.cdoc2Default ?: false
-    val cdoc2UseKeyServerDefault = configuration?.cdoc2UseKeyServer == true
-    val cdoc2DefaultKeyServer = configuration?.cdoc2DefaultKeyServer ?: DEFAULT_UUID_VALUE
-    val useKeyTransfer = rememberSaveable { mutableStateOf(getUseOnlineEncryption(cdoc2UseKeyServerDefault)) }
-    val useDefaultKeyTransferServer = rememberSaveable { mutableStateOf(true) }
-
-    val settingsCdocServiceChoice = remember { mutableStateOf(getCdocSetting(cdoc2Default)) }
-
     val cdoc2Conf = configuration?.cdoc2Conf ?: emptyMap()
 
-    val settingsCDOC2SelectedService =
-        rememberSaveable { mutableStateOf(getCDOC2SelectedService(cdoc2DefaultKeyServer)) }
+    val cdocSetting by encryptionServicesViewModel.cdocSetting.collectAsStateWithLifecycle()
+    val useCDOC2SelectedService by encryptionServicesViewModel.useOnlineEncryption.collectAsStateWithLifecycle()
+    val selectedCDOC2Service by encryptionServicesViewModel.selectedCDOC2Service.collectAsStateWithLifecycle()
+    val cdoc2Uuid by encryptionServicesViewModel.cdoc2Uuid.collectAsStateWithLifecycle()
+    val cdoc2FetchUrl by encryptionServicesViewModel.cdoc2FetchUrl.collectAsStateWithLifecycle()
+    val cdoc2PostUrl by encryptionServicesViewModel.cdoc2PostUrl.collectAsStateWithLifecycle()
 
-    val selectedCdoc2Conf =
-        cdoc2Conf[settingsCDOC2SelectedService.value] ?: CDOC2Conf(
-            name = stringResource(R.string.option_ria),
-            post = "https://cdoc2.id.ee:8443",
-            fetch = "https://cdoc2.id.ee:8444",
-        )
+    val issuedTo by sharedSettingsViewModel.cryptoCertIssuedTo.collectAsState(null)
+    val validTo by sharedSettingsViewModel.cryptoCertValidTo.collectAsState(null)
+    val cryptoCertificate by sharedSettingsViewModel.cryptoCertificate.collectAsState(null)
 
-    val settingsCDOC2UUID = rememberSaveable { mutableStateOf(getCDOC2UUID(settingsCDOC2SelectedService.value)) }
-    val settingsCDOC2FetchURL = rememberSaveable { mutableStateOf(getCDOC2FetchURL(selectedCdoc2Conf.fetch)) }
-    val settingsCDOC2PostURL = rememberSaveable { mutableStateOf(getCDOC2PostURL(selectedCdoc2Conf.post)) }
-
-    val settingsCdocNameChoice = rememberSaveable { mutableStateOf(selectedCdoc2Conf.name) }
+    val useKeyTransfer = rememberSaveable { mutableStateOf(useCDOC2SelectedService) }
+    val useDefaultKeyTransferServer =
+        rememberSaveable {
+            mutableStateOf(
+                cdoc2Conf.values.any { it.uuid.toString() == selectedCDOC2Service },
+            )
+        }
 
     val keyTransferText = stringResource(R.string.option_key_transfer)
     val manualKeyTransferText = stringResource(R.string.option_manual_key_transfer)
+
+    val customDefaultCDOC2UUID: UUID =
+        UUID.fromString(
+            "00000000-0000-0000-0000-00000000000" + (cdoc2Conf.size + 1).toString(),
+        )
+    val customDefaultCDOC2FetchUrl = "https://cdoc2-keyserver-get"
+    val customDefaultCDOC2PostUrl = "https://cdoc2-keyserver-post"
+
+    val cdoc2ConfManual =
+        CDOC2Conf(
+            uuid = customDefaultCDOC2UUID,
+            name = manualKeyTransferText,
+            post = customDefaultCDOC2FetchUrl,
+            fetch = customDefaultCDOC2PostUrl,
+        )
+
+    val allConfs = cdoc2Conf + (cdoc2ConfManual.uuid.toString() to cdoc2ConfManual)
+
+    val configurationNames: List<String> = allConfs.values.map { it.name }
+
+    val selectedCdoc2Conf = allConfs[selectedCDOC2Service] ?: cdoc2ConfManual
 
     val useCDOC1Label = stringResource(R.string.main_settings_crypto_use_cdoc1)
     val useCDOC2Label = stringResource(R.string.main_settings_crypto_use_cdoc2)
@@ -201,33 +201,10 @@ fun EncryptionServicesSettingsScreen(
     val fetchUrlLabel = stringResource(R.string.main_settings_crypto_fetch_url)
     val postUrlLabel = stringResource(R.string.main_settings_crypto_post_url)
 
-    val nameChoices = arrayListOf<String>()
-
-    var index = 0
-    val settingsCdocNameChoiceInt = rememberSaveable { mutableIntStateOf(0) }
-
-    for ((_, value) in cdoc2Conf) {
-        nameChoices.add(value.name)
-        if (value.name == settingsCdocNameChoice.value) {
-            settingsCdocNameChoiceInt.intValue = index
-        }
-
-        index++
-    }
-    nameChoices.add(manualKeyTransferText)
-    val customDefaultCDOC2UUID = "00000000-0000-0000-0000-00000000000" + (index + 1).toString()
-    val customDefaultCDOC2FetchUrl = "https://cdoc2-keyserver-get"
-    val customDefaultCDOC2PostUrl = "https://cdoc2-keyserver-post"
-
     var uuidText by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
             TextFieldValue(
-                text =
-                    if (nameChoices[settingsCdocNameChoiceInt.intValue] == manualKeyTransferText) {
-                        getCDOC2UUID(customDefaultCDOC2UUID)
-                    } else {
-                        settingsCDOC2UUID.value
-                    },
+                text = cdoc2Uuid,
                 selection = TextRange.Zero,
             ),
         )
@@ -237,10 +214,10 @@ fun EncryptionServicesSettingsScreen(
         mutableStateOf(
             TextFieldValue(
                 text =
-                    if (nameChoices[settingsCdocNameChoiceInt.intValue] == manualKeyTransferText) {
-                        getCDOC2FetchURL(customDefaultCDOC2FetchUrl)
+                    if (!cdoc2FetchUrl.isEmpty()) {
+                        cdoc2FetchUrl
                     } else {
-                        settingsCDOC2FetchURL.value
+                        selectedCdoc2Conf.fetch
                     },
                 selection = TextRange.Zero,
             ),
@@ -251,10 +228,10 @@ fun EncryptionServicesSettingsScreen(
         mutableStateOf(
             TextFieldValue(
                 text =
-                    if (nameChoices[settingsCdocNameChoiceInt.intValue] == manualKeyTransferText) {
-                        getCDOC2PostURL(customDefaultCDOC2PostUrl)
+                    if (!cdoc2PostUrl.isEmpty()) {
+                        cdoc2PostUrl
                     } else {
-                        settingsCDOC2PostURL.value
+                        selectedCdoc2Conf.post
                     },
                 selection = TextRange.Zero,
             ),
@@ -262,27 +239,29 @@ fun EncryptionServicesSettingsScreen(
     }
 
     val saveParameters = {
-        setCdocSetting(settingsCdocServiceChoice.value)
-        setUseOnlineEncryption(useKeyTransfer.value)
-        var valueCDOC2UUID = customDefaultCDOC2UUID
-        var valueCDOC2FetchUrl = customDefaultCDOC2FetchUrl
-        var valueCDOC2PostUrl = customDefaultCDOC2PostUrl
+        encryptionServicesViewModel.setCdocSetting(cdocSetting)
+        encryptionServicesViewModel.setUseOnlineEncryption(useKeyTransfer.value)
+        var valueCDOC2UUID: String
+        var valueCDOC2FetchUrl: String
+        var valueCDOC2PostUrl: String
 
-        for ((key, value) in cdoc2Conf) {
-            if (value.name == nameChoices[settingsCdocNameChoiceInt.intValue]) {
-                settingsCdocNameChoice.value = value.name
-                settingsCDOC2SelectedService.value = key
-                useDefaultKeyTransferServer.value = true
-                valueCDOC2UUID = key
-                valueCDOC2FetchUrl = value.fetch
-                valueCDOC2PostUrl = value.post
-            }
+        val cdoc2Service = encryptionServicesViewModel.selectedCDOC2Service.value
+        if (cdoc2Service == customDefaultCDOC2UUID.toString()) {
+            useDefaultKeyTransferServer.value = false
+            valueCDOC2UUID = cdoc2Uuid
+            valueCDOC2FetchUrl = cdoc2FetchUrl
+            valueCDOC2PostUrl = cdoc2PostUrl
+        } else {
+            val conf = allConfs[cdoc2Service] ?: cdoc2ConfManual
+            useDefaultKeyTransferServer.value = true
+            valueCDOC2UUID = cdoc2Service
+            valueCDOC2FetchUrl = conf.fetch
+            valueCDOC2PostUrl = conf.post
         }
 
-        setCDOC2SelectedService(settingsCDOC2SelectedService.value)
-        setCDOC2UUID(valueCDOC2UUID)
-        setCDOC2FetchURL(valueCDOC2FetchUrl)
-        setCDOC2PostURL(valueCDOC2PostUrl)
+        encryptionServicesViewModel.setCdoc2Uuid(valueCDOC2UUID)
+        encryptionServicesViewModel.setCdoc2FetchUrl(valueCDOC2FetchUrl)
+        encryptionServicesViewModel.setCdoc2PostUrl(valueCDOC2PostUrl)
 
         uuidText =
             TextFieldValue(
@@ -302,15 +281,6 @@ fun EncryptionServicesSettingsScreen(
     }
 
     sharedSettingsViewModel.updateCryptoCertData(context)
-    val issuedTo by sharedSettingsViewModel.cryptoCertIssuedTo.asFlow().collectAsState(
-        "",
-    )
-    val validTo by sharedSettingsViewModel.cryptoCertValidTo.asFlow().collectAsState(
-        "",
-    )
-    val cryptoCertificate by sharedSettingsViewModel.cryptoCertificate.asFlow().collectAsState(
-        null,
-    )
 
     val filePicker =
         rememberLauncherForActivityResult(
@@ -414,8 +384,7 @@ fun EncryptionServicesSettingsScreen(
                             .fillMaxWidth()
                             .padding(SPadding)
                             .clickable {
-                                settingsCdocServiceChoice.value = CDOCSetting.CDOC1
-                                setCdocSetting(settingsCdocServiceChoice.value)
+                                encryptionServicesViewModel.setCdocSetting(CDOCSetting.CDOC1)
                             },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -432,10 +401,9 @@ fun EncryptionServicesSettingsScreen(
                                 .semantics {
                                     contentDescription = useCDOC1Label
                                 },
-                        selected = settingsCdocServiceChoice.value == CDOCSetting.CDOC1,
+                        selected = cdocSetting == CDOCSetting.CDOC1,
                         onClick = {
-                            settingsCdocServiceChoice.value = CDOCSetting.CDOC1
-                            setCdocSetting(CDOCSetting.CDOC1)
+                            encryptionServicesViewModel.setCdocSetting(CDOCSetting.CDOC1)
                         },
                     )
                 }
@@ -465,8 +433,7 @@ fun EncryptionServicesSettingsScreen(
                         modifier =
                             modifier
                                 .clickable {
-                                    settingsCdocServiceChoice.value = CDOCSetting.CDOC2
-                                    setCdocSetting(settingsCdocServiceChoice.value)
+                                    encryptionServicesViewModel.setCdocSetting(CDOCSetting.CDOC2)
                                 },
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
@@ -484,15 +451,14 @@ fun EncryptionServicesSettingsScreen(
                                     .semantics {
                                         contentDescription = useCDOC2Label
                                     },
-                            selected = settingsCdocServiceChoice.value == CDOCSetting.CDOC2,
+                            selected = cdocSetting == CDOCSetting.CDOC2,
                             onClick = {
-                                settingsCdocServiceChoice.value = CDOCSetting.CDOC2
-                                setCdocSetting(settingsCdocServiceChoice.value)
+                                encryptionServicesViewModel.setCdocSetting(CDOCSetting.CDOC2)
                             },
                         )
                     }
 
-                    if (settingsCdocServiceChoice.value == CDOCSetting.CDOC2) {
+                    if (cdocSetting == CDOCSetting.CDOC2) {
                         Spacer(modifier = modifier.height(LPadding))
 
                         SettingsSwitchItem(
@@ -520,7 +486,7 @@ fun EncryptionServicesSettingsScreen(
                                     label = {
                                         Text(serverLabel)
                                     },
-                                    value = nameChoices[settingsCdocNameChoiceInt.intValue],
+                                    value = selectedCdoc2Conf.name,
                                     onValueChange = {},
                                     readOnly = true,
                                     singleLine = true,
@@ -581,15 +547,22 @@ fun EncryptionServicesSettingsScreen(
                                             OptionChooserDialog(
                                                 modifier = modifier,
                                                 title = R.string.choose_server_option,
-                                                choices = nameChoices,
-                                                selectedChoice = settingsCdocNameChoiceInt.intValue,
+                                                choices = configurationNames,
+                                                selectedChoice =
+                                                    allConfs.keys.indexOf(
+                                                        selectedCdoc2Conf.uuid.toString(),
+                                                    ),
                                                 cancelButtonClick = {
                                                     openOptionChooserDialog = false
                                                 },
                                                 okButtonClick = { selectedIndex ->
-                                                    settingsCdocNameChoiceInt.intValue = selectedIndex
+                                                    val entries = allConfs.entries.toList()
+                                                    val entry = entries[selectedIndex]
+                                                    encryptionServicesViewModel.setSelectedCDOC2Service(
+                                                        entry.value.uuid.toString(),
+                                                    )
                                                     useDefaultKeyTransferServer.value =
-                                                        nameChoices[selectedIndex] == settingsCdocNameChoice.value
+                                                        selectedCDOC2Service != customDefaultCDOC2UUID.toString()
                                                     saveParameters()
                                                     openOptionChooserDialog = false
                                                 },
@@ -611,14 +584,14 @@ fun EncryptionServicesSettingsScreen(
                             ) {
                                 OutlinedTextField(
                                     enabled =
-                                        settingsCdocServiceChoice.value == CDOCSetting.CDOC2 &&
+                                        cdocSetting == CDOCSetting.CDOC2 &&
                                             useKeyTransfer.value &&
                                             !useDefaultKeyTransferServer.value,
                                     value = uuidText,
                                     singleLine = true,
                                     onValueChange = {
                                         uuidText = it.copy(selection = TextRange(it.text.length))
-                                        setCDOC2UUID(it.text)
+                                        encryptionServicesViewModel.setCdoc2Uuid(it.text)
                                     },
                                     shape = RectangleShape,
                                     label = { Text(uuidLabel) },
@@ -691,7 +664,7 @@ fun EncryptionServicesSettingsScreen(
                             ) {
                                 OutlinedTextField(
                                     enabled =
-                                        settingsCdocServiceChoice.value == CDOCSetting.CDOC2 &&
+                                        cdocSetting == CDOCSetting.CDOC2 &&
                                             useKeyTransfer.value &&
                                             !useDefaultKeyTransferServer.value,
                                     value = fetchUrlText,
@@ -699,7 +672,7 @@ fun EncryptionServicesSettingsScreen(
                                     onValueChange = {
                                         fetchUrlText =
                                             it.copy(selection = TextRange(it.text.length))
-                                        setCDOC2FetchURL(it.text)
+                                        encryptionServicesViewModel.setCdoc2FetchUrl(it.text)
                                     },
                                     shape = RectangleShape,
                                     label = { Text(fetchUrlLabel) },
@@ -772,14 +745,14 @@ fun EncryptionServicesSettingsScreen(
                             ) {
                                 OutlinedTextField(
                                     enabled =
-                                        settingsCdocServiceChoice.value == CDOCSetting.CDOC2 &&
+                                        cdocSetting == CDOCSetting.CDOC2 &&
                                             useKeyTransfer.value &&
                                             !useDefaultKeyTransferServer.value,
                                     value = postUrlText,
                                     singleLine = true,
                                     onValueChange = {
                                         postUrlText = it.copy(selection = TextRange(it.text.length))
-                                        setCDOC2PostURL(it.text)
+                                        encryptionServicesViewModel.setCdoc2PostUrl(it.text)
                                     },
                                     shape = RectangleShape,
                                     label = { Text(postUrlLabel) },
@@ -840,7 +813,7 @@ fun EncryptionServicesSettingsScreen(
                                     }
                                 }
                             }
-                            if (settingsCdocServiceChoice.value == CDOCSetting.CDOC2 &&
+                            if (cdocSetting == CDOCSetting.CDOC2 &&
                                 useKeyTransfer.value &&
                                 !useDefaultKeyTransferServer.value
                             ) {
