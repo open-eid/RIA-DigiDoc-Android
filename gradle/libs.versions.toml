@@ -33,6 +33,7 @@ threegpp-telecom-charsets = "1.0.1"
 commons-io = "2.20.0"
 commons-text = "1.14.0"
 commonsCodec = "1.19.0"
+commons-compress = "1.28.0"
 bouncy-castle = "1.82"
 okhttp = "5.2.1"
 retrofit = "3.0.0"
@@ -90,6 +91,7 @@ threegpp-telecom-charsets = { group = "com.github.brake.threegpp", name = "telec
 commons-io = { group = "commons-io", name = "commons-io", version.ref = "commons-io" }
 commons-text = { group = "org.apache.commons", name = "commons-text", version.ref = "commons-text" }
 commons-codec = { module = "commons-codec:commons-codec", version.ref = "commonsCodec" }
+commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commons-compress" }
 bouncy-castle = { group = "org.bouncycastle", name = "bcpkix-jdk18on", version.ref = "bouncy-castle" }
 cdoc4j = { group = "org.open-eid.cdoc4j", name = "cdoc4j", version.ref = "cdoc4j" }
 unboundid-ldapsdk = { group = "com.unboundid", name = "unboundid-ldapsdk", version.ref = "unboundid-ldapsdk" }

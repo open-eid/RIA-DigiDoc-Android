@@ -69,6 +69,10 @@
 # Top-level functions that can only be used by Kotlin.
 -dontwarn retrofit2.-KotlinExtensions
 
+# Ignore R8 warnings for unused optional XZ and Zstandard support in Apache Commons Compress.
+-dontwarn org.apache.commons.compress.compressors.xz.**
+-dontwarn org.apache.commons.compress.compressors.zstandard.**
+
 # OkHTTP
 # JSR 305 annotations are for embedding nullability information.
 -dontwarn javax.annotation.**

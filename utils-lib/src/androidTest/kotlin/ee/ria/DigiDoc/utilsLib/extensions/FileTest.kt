@@ -220,14 +220,14 @@ class FileTest {
         mimeType: String,
     ): File {
         val tempFile = File.createTempFile(fileName, ".$fileExtension", context.cacheDir)
+
         tempFile.deleteOnExit()
-        val file = mock(File::class.java)
-        `when`(file.name).thenReturn("$fileName.$fileExtension")
-        `when`(file.path).thenReturn(tempFile.path)
 
-        `when`(mimeTypeMap.getMimeTypeFromExtension(file.extension.lowercase())).thenReturn(mimeType)
+        `when`(
+            mimeTypeMap.getMimeTypeFromExtension(fileExtension.lowercase())
+        ).thenReturn(mimeType)
 
-        return file
+        return tempFile
     }
 
     private fun createSignedPDF(): File? {
