@@ -52,25 +52,28 @@
     <string name="container_open_file_error">Failide laadimine ebaõnnestus</string>
     <string name="container_load_error">Ümbriku laadimine ebaõnnestus</string>
     <string name="empty_file_message">Ümbrikule on lisatud tühi fail. Allkirjastamiseks eemalda ümbrikust tühi fail.</string>
-    <string name="xades_file_message">Tegemist on XADES allkirja sisalduva ASICS ümbrikuga. Sellele ümbrikule ei saa allkirja lisada ega eemaldada.</string>
+    <string name="xades_file_message">Tegemist on XADES allkirja sisaldava ASICS ümbrikuga. Sellele ümbrikule ei saa allkirja lisada ega eemaldada.</string>
     <string name="cades_file_message">Tegemist on CAdES allkirja sisaldava ümbrikuga. Sellele ümbrikule ei saa allkirja lisada ega eemaldada.</string>
+    <string name="ddoc_file_message">Tegemist on vanas formaadis DigiDoc ümbrikuga. Sellele ümbrikule ei saa allkirja lisada ega eemaldada.</string>
     <plurals name="signatures_unknown">
-        <item quantity="one">%1$d ALLKIRI ON TEADMATA</item>
-        <item quantity="other">%1$d ALLKIRJA ON TEADMATA</item>
-        <!-- placeholder to keep line numbers same in different locales -->
-        <!-- placeholder to keep line numbers same in different locales -->
+        <item quantity="one">%1$d allkiri on teadmata</item>
+        <item quantity="other">%1$d allkirja on teadmata</item>
     </plurals>
     <plurals name="signatures_invalid">
-        <item quantity="one">%1$d ALLKIRI EI KEHTI</item>
-        <item quantity="other">%1$d ALLKIRJA EI KEHTI</item>
-        <!-- placeholder to keep line numbers same in different locales -->
-        <!-- placeholder to keep line numbers same in different locales -->
+        <item quantity="one">%1$d allkiri ei kehti</item>
+        <item quantity="other">%1$d allkirja ei kehti</item>
     </plurals>
     <plurals name="signatures_valid">
         <item quantity="one">%1$d kehtiv allkiri</item>
         <item quantity="other">%1$d kehtivat allkirja</item>
-        <!-- placeholder to keep line numbers same in different locales -->
-        <!-- placeholder to keep line numbers same in different locales -->
+    </plurals>
+    <plurals name="timestamps_unknown">
+        <item quantity="one">%1$d ajatempel on teadmata</item>
+        <item quantity="other">%1$d ajatemplit on teadmata</item>
+    </plurals>
+    <plurals name="timestamps_invalid">
+        <item quantity="one">%1$d ajatempel ei kehti</item>
+        <item quantity="other">%1$d ajatemplit ei kehti</item>
     </plurals>
 
     <string name="challenge_code_text">Kontrollkood:</string>

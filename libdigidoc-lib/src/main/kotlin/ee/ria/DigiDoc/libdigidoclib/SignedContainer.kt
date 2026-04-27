@@ -24,6 +24,8 @@ package ee.ria.DigiDoc.libdigidoclib
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
+import ee.ria.DigiDoc.common.Constant.DDOC_EXTENSION
+import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
 import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
 import ee.ria.DigiDoc.common.Constant.NON_LEGACY_CONTAINER_EXTENSIONS
@@ -68,7 +70,7 @@ class SignedContainer
         private val container: Container? = null,
         private var containerFile: File? = null,
         private val isExistingContainer: Boolean = false,
-        private val timestamps: List<SignatureInterface>? = emptyList(),
+        private val timestamps: List<SignatureInterface> = emptyList(),
     ) : ee.ria.DigiDoc.common.container.Container {
         suspend fun getDataFiles(): List<DataFileInterface> {
             return CoroutineScope(IO)
@@ -108,7 +110,7 @@ class SignedContainer
             return null
         }
 
-        fun getTimestamps(): List<SignatureInterface>? = timestamps
+        fun getTimestamps(): List<SignatureInterface> = timestamps
 
         suspend fun getSignatures(thread: CoroutineContext = IO): List<SignatureInterface> =
             withContext(thread) {
@@ -237,7 +239,26 @@ class SignedContainer
                     signature?.profile()?.lowercase()?.contains("cades") ?: false
                 } ?: false
 
+        fun isDdoc(): Boolean =
+            containerMimetype().equals(DDOC_MIMETYPE, true) &&
+                containerFile?.extension == DDOC_EXTENSION
+
         suspend fun getSignaturesStatusCount(): Map<ValidatorInterface.Status, Int> {
+            val signatures = getSignatures(Main)
+            return countStatuses(signatures) { it.validator.status }
+        }
+
+        fun getTimestampStatusCount(): Map<ValidatorInterface.Status, Int> {
+            val timestamps = getTimestamps()
+            return countStatuses(timestamps) { it.validator.status }
+        }
+
+        fun isSignedPDF(): Boolean = containerFile?.isSignedPDF(context) ?: false
+
+        private fun <T> countStatuses(
+            items: List<T>,
+            getStatus: (T) -> ValidatorInterface.Status,
+        ): Map<ValidatorInterface.Status, Int> {
             val counts =
                 mutableMapOf(
                     ValidatorInterface.Status.Valid to 0,
@@ -245,18 +266,13 @@ class SignedContainer
                     ValidatorInterface.Status.Invalid to 0,
                 )
 
-            val signatures = getSignatures(Main)
-
-            for (signature in signatures) {
-                signature.validator.status.let { status ->
-                    counts[status] = counts[status]?.plus(1) ?: 1
-                }
+            for (item in items) {
+                val status = getStatus(item)
+                counts[status] = counts[status]?.plus(1) ?: 1
             }
 
-            return counts.toMap()
+            return counts
         }
-
-        fun isSignedPDF(): Boolean = containerFile?.isSignedPDF(context) ?: false
 
         companion object {
             @Throws(Exception::class)
