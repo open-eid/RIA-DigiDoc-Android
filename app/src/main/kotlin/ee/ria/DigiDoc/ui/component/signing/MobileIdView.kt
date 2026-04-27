@@ -287,6 +287,7 @@ fun MobileIdView(
             linkUrl = R.string.invalid_time_slot_url
         }
         Box(modifier = modifier.fillMaxSize()) {
+            onError()
             BasicAlertDialog(
                 modifier =
                     modifier
