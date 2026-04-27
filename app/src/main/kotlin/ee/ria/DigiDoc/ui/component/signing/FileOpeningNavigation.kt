@@ -33,6 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -79,9 +80,9 @@ fun FileOpeningNavigation(
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
     val cryptoContainer by sharedContainerViewModel.cryptoContainer.asFlow().collectAsState(null)
     val externalFileUris by sharedContainerViewModel.externalFileUris.collectAsState()
-    val showSivaDialog = remember { mutableStateOf(false) }
-    var isExternalFile by remember { mutableStateOf(false) }
-    var fileUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
+    val showSivaDialog = rememberSaveable { mutableStateOf(false) }
+    var isExternalFile by rememberSaveable { mutableStateOf(false) }
+    var fileUris by rememberSaveable { mutableStateOf<List<Uri>>(emptyList()) }
 
     val handleSivaConfirmation: () -> Unit = {
         showSivaDialog.value = false

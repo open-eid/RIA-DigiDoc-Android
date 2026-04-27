@@ -21,7 +21,9 @@
 
 package ee.ria.DigiDoc.libdigidoclib.domain.model
 
-interface SignatureInterface {
+import java.io.Serializable
+
+interface SignatureInterface: Serializable {
     val id: String
     val name: String
     val claimedSigningTime: String

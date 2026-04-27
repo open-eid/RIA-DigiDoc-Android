@@ -30,6 +30,7 @@ import org.bouncycastle.asn1.x500.style.BCStyle
 import org.bouncycastle.asn1.x500.style.IETFUtils
 import org.bouncycastle.asn1.x509.Extension
 import org.bouncycastle.asn1.x509.PolicyInformation
+import java.io.Serializable
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import java.util.Date
@@ -43,7 +44,7 @@ class Addressee(
     var certType: CertType,
     var validTo: Date?,
     var concatKDFAlgorithmURI: String?,
-) {
+): Serializable {
     constructor(cn: String, sn: String, certType: CertType, validTo: Date?, data: ByteArray) : this(
         data = data,
         identifier = "",
