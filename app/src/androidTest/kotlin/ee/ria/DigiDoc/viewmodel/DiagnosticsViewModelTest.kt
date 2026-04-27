@@ -101,7 +101,6 @@ class DiagnosticsViewModelTest {
             tslUrl = "https://www.example.com",
             tslCerts = listOf("CERT0000111122224444"),
             tsaUrl = "https://www.example.com",
-            ocspUrls = mapOf("issuer" to "https://www.example.com"),
             ldapPersonUrl = "https://www.example.com",
             ldapPersonUrls = listOf("https://www.example.com"),
             ldapCorpUrl = "https://www.example.com",

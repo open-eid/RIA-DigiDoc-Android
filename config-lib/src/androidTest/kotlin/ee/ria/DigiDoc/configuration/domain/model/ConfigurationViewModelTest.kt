@@ -131,7 +131,6 @@ class ConfigurationViewModelTest {
             "tslUrl",
             emptyList(),
             "tsaUrl",
-            emptyMap(),
             "ldapPersonUrl",
             ldapPersonUrls = listOf("ldapPersonUrl"),
             "ldapCorpUrl",

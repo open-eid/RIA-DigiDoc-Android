@@ -170,7 +170,6 @@ class ConfigurationRepositoryTest {
                         "eE/VmJs0niWtKlX4UURG0HAGjZIQ/pJejV+7GzknFMZmuiwJQe4yT4mw=\n",
                 ),
             tsaUrl = "https://www.example.com",
-            ocspUrls = mapOf("issuer" to "https://www.example.com"),
             ldapPersonUrl = "https://www.example.com",
             ldapPersonUrls = listOf("https://www.example.com"),
             ldapCorpUrl = "https://www.example.com",

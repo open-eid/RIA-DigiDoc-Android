@@ -54,7 +54,6 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.libdigidocpp.Conf
 import ee.ria.libdigidocpp.DigiDocConf
-import ee.ria.libdigidocpp.StringMap
 import ee.ria.libdigidocpp.digidoc
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -192,7 +191,6 @@ class Initialization
             overrideTSLUrl(configurationProvider.tslUrl)
             overrideTSLCert(configurationProvider.tslCerts)
             overrideSivaUrl(configurationProvider.sivaUrl)
-            overrideOCSPUrls(configurationProvider.ocspUrls)
             overrideTSCerts(configurationProvider.certBundle)
             overrideTSUrl(configurationProvider.tsaUrl)
             overrideVerifyServiceCert(configurationProvider.certBundle)
@@ -419,14 +417,6 @@ class Initialization
             for (cert in certBundle) {
                 DigiDocConf.instance().addVerifyServiceCert(Base64.getDecoder().decode(cert.removeWhitespaces().trim()))
             }
-        }
-
-        private fun overrideOCSPUrls(ocspUrls: Map<String, String>) {
-            val stringMap = StringMap()
-            for ((key, value) in ocspUrls) {
-                stringMap[key] = value
-            }
-            DigiDocConf.instance().setOCSPUrls(stringMap)
         }
 
         private fun loadConfiguration(context: Context) {
