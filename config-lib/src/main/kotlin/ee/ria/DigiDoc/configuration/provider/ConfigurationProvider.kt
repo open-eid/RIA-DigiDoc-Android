@@ -34,7 +34,6 @@ data class ConfigurationProvider(
     @SerializedName("TSL-URL") val tslUrl: String,
     @SerializedName("TSL-CERTS") val tslCerts: List<String>,
     @SerializedName("TSA-URL") val tsaUrl: String,
-    @SerializedName("OCSP-URL-ISSUER") val ocspUrls: Map<String, String>,
     @SerializedName("LDAP-PERSON-URL") val ldapPersonUrl: String,
     @SerializedName("LDAP-PERSON-URLS") val ldapPersonUrls: List<String>,
     @SerializedName("LDAP-CORP-URL") val ldapCorpUrl: String,
