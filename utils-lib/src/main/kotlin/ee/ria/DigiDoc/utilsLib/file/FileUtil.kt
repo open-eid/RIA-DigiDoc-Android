@@ -33,6 +33,7 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.infoLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.apache.commons.compress.archivers.zip.ZipFile
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.StringUtils
@@ -55,8 +56,6 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.Objects
-import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.SAXParserFactory
 
@@ -120,7 +119,9 @@ object FileUtil {
         replacement: String,
     ): String {
         var trimmed = input.trim { it <= ' ' }
-        if (trimmed.startsWith(".")) {
+        if (trimmed.startsWith("..")) {
+            trimmed = trimmed.removePrefix("..")
+        } else if (trimmed.startsWith(".")) {
             trimmed = DEFAULT_FILENAME + trimmed
         }
         val sb = StringBuilder(trimmed.length)
@@ -359,22 +360,56 @@ object FileUtil {
     ): File? {
         createDirectoryIfNotExist(outputFolder.path)
 
-        ZipInputStream(containerFile.inputStream()).use { zipInputStream ->
-            var zipEntry: ZipEntry?
+        val resolvedDestDir = outputFolder.canonicalFile
 
-            while (zipInputStream.nextEntry.also { zipEntry = it } != null) {
-                val entryName = zipEntry?.name
-                if (entryName != null && File(entryName).name.contains(fileNameToFind)) {
-                    val outputFile = File(outputFolder, File(entryName).name)
-                    FileOutputStream(outputFile).use { outputStream ->
-                        zipInputStream.copyTo(outputStream)
-                    }
-                    return outputFile
+        val matches = { entryName: String ->
+            val file = File(entryName)
+            val fileName = file.name
+            val nameWithoutExt = file.nameWithoutExtension
+            val extension = file.extension
+
+            when {
+                fileNameToFind.contains(".") -> {
+                    fileName.equals(fileNameToFind, ignoreCase = true)
+                }
+
+                else -> {
+                    extension.equals(fileNameToFind, ignoreCase = true)
+                            || (extension.isEmpty() &&
+                            nameWithoutExt.equals(fileNameToFind, ignoreCase = true))
                 }
             }
         }
 
-        return null
+        val zip =
+            ZipFile
+                .Builder()
+                .setFile(containerFile)
+                .get()
+
+        zip.use {
+            val entry =
+                it.entries
+                    .asSequence()
+                    .filterNot { archiveEntry -> archiveEntry.isDirectory }
+                    .firstOrNull { archiveEntry -> matches(archiveEntry.name) }
+                    ?: return null
+
+            val outputFile = File(outputFolder, File(entry.name).name)
+            val resolvedOutFile = outputFile.canonicalFile
+
+            if (!resolvedOutFile.path.startsWith(resolvedDestDir.path + File.separator)) {
+                return null
+            }
+
+            it.getInputStream(entry).use { input ->
+                resolvedOutFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+
+            return resolvedOutFile
+        }
     }
 
     fun readFileAsString(file: File): String = file.readText()

@@ -41,12 +41,12 @@ import ee.ria.DigiDoc.utilsLib.file.FileUtil.parseXMLFile
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.readFileAsString
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import org.apache.commons.codec.digest.DigestUtils
+import org.apache.commons.compress.archivers.zip.ZipFile
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.util.Locale
 import java.util.zip.ZipException
-import java.util.zip.ZipFile
 
 private const val FILE_EXTENSIONS_LOG_TAG = "FileExtensions"
 
@@ -56,8 +56,7 @@ fun File.isXades(context: Context): Boolean {
     val tempContainerFiles = File(context.filesDir, "tempContainerFiles")
 
     try {
-        // Check if file is a zip file. If not, throw ZipException
-        ZipFile(this)
+        checkIsZipFile(this)
 
         val signaturesXmlFile = getFileInContainerZip(this, "signatures.xml", tempContainerFiles)
         val fileExists = signaturesXmlFile?.exists()
@@ -74,8 +73,7 @@ fun File.isCades(context: Context): Boolean {
     val tempContainerFiles = File(context.filesDir, "tempContainerFiles")
 
     try {
-        // Check if file is a zip file. If not, throw ZipException
-        ZipFile(this)
+        checkIsZipFile(this)
 
         val signaturesXmlFile = getFileInContainerZip(this, "p7s", tempContainerFiles)
         val fileExists = signaturesXmlFile?.exists()
@@ -93,8 +91,7 @@ fun File.mimeType(context: Context): String {
 
     val tempContainerFiles = File(context.filesDir, "tempContainerFiles")
     try {
-        // Check if file is a zip file. If not, throw ZipException
-        ZipFile(this)
+        checkIsZipFile(this)
 
         val mimetypeFile = getFileInContainerZip(this, "mimetype", tempContainerFiles)
         mimetypeFile?.let {
@@ -155,4 +152,13 @@ fun File.md5Hash(): String {
 
 fun File.saveAs(destinationPath: String) {
     this.copyTo(File(destinationPath), overwrite = true)
+}
+
+// Check if file is a zip file. If not, throw ZipException
+@Throws(ZipException::class)
+private fun checkIsZipFile(file: File) {
+    ZipFile
+        .Builder()
+        .setFile(file)
+        .get()
 }

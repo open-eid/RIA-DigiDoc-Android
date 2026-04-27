@@ -55,6 +55,7 @@ dependencies {
     api(libs.commons.io)
     api(libs.commons.text)
     api(libs.commons.codec)
+    api(libs.commons.compress)
     implementation(libs.guava)
     implementation(libs.gson)
     implementation(libs.threegpp.telecom.charsets)
