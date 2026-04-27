@@ -54,23 +54,26 @@
     <string name="empty_file_message">An empty file is attached to the envelope. Remove the empty file from the container to sign.</string>
     <string name="xades_file_message">This ASICS container contains XADES signature. You are not allowed to add or remove signatures to this container.</string>
     <string name="cades_file_message">This container contains CAdES signature. You are not allowed to add or remove signatures to this container.</string>
+    <string name="ddoc_file_message">The current file is a DigiDoc container that is not supported officially any longer. You are not allowed to add or remove signatures to this container.</string>
     <plurals name="signatures_unknown">
-        <item quantity="one">%1$d UNKNOWN SIGNATURE</item>
-        <item quantity="other">%1$d UNKNOWN SIGNATURES</item>
-        <!-- placeholder to keep line numbers same in different locales -->
-        <!-- placeholder to keep line numbers same in different locales -->
+        <item quantity="one">%1$d unknown signature</item>
+        <item quantity="other">%1$d unknown signatures</item>
     </plurals>
     <plurals name="signatures_invalid">
-        <item quantity="one">%1$d INVALID SIGNATURE</item>
-        <item quantity="other">%1$d INVALID SIGNATURES</item>
-        <!-- placeholder to keep line numbers same in different locales -->
-        <!-- placeholder to keep line numbers same in different locales -->
+        <item quantity="one">%1$d invalid signature</item>
+        <item quantity="other">%1$d invalid signature</item>
     </plurals>
     <plurals name="signatures_valid">
         <item quantity="one">%1$d valid signature</item>
         <item quantity="other">%1$d valid signatures</item>
-        <!-- placeholder to keep line numbers same in different locales -->
-        <!-- placeholder to keep line numbers same in different locales -->
+    </plurals>
+    <plurals name="timestamps_unknown">
+        <item quantity="one">%1$d unknown timestamp</item>
+        <item quantity="other">%1$d unknown timestamps</item>
+    </plurals>
+    <plurals name="timestamps_invalid">
+        <item quantity="one">%1$d invalid timestamp</item>
+        <item quantity="other">%1$d invalid timestamps</item>
     </plurals>
 
     <string name="challenge_code_text">Control code:</string>

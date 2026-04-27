@@ -190,6 +190,8 @@ fun ContainerNotificationsScreen(
                                 when (type) {
                                     ContainerNotificationType.XadesFile -> stringResource(R.string.xades_file_message)
                                     ContainerNotificationType.CadesFile -> stringResource(R.string.cades_file_message)
+                                    ContainerNotificationType.DdocFile -> stringResource(R.string.ddoc_file_message)
+                                    ContainerNotificationType.EmptyFile -> stringResource(R.string.empty_file_message)
                                     is ContainerNotificationType.UnknownSignatures ->
                                         pluralStringResource(
                                             id = R.plurals.signatures_unknown,
@@ -199,6 +201,18 @@ fun ContainerNotificationsScreen(
                                     is ContainerNotificationType.InvalidSignatures ->
                                         pluralStringResource(
                                             id = R.plurals.signatures_invalid,
+                                            count = type.count,
+                                            type.count,
+                                        )
+                                    is ContainerNotificationType.UnknownTimestamps ->
+                                        pluralStringResource(
+                                            id = R.plurals.timestamps_unknown,
+                                            count = type.count,
+                                            type.count,
+                                        )
+                                    is ContainerNotificationType.InvalidTimestamps ->
+                                        pluralStringResource(
+                                            id = R.plurals.timestamps_invalid,
                                             count = type.count,
                                             type.count,
                                         )

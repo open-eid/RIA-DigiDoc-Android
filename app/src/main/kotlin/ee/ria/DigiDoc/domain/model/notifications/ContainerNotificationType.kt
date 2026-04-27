@@ -26,11 +26,23 @@ sealed class ContainerNotificationType {
 
     data object CadesFile : ContainerNotificationType()
 
+    data object DdocFile : ContainerNotificationType()
+
+    data object EmptyFile : ContainerNotificationType()
+
     data class UnknownSignatures(
         val count: Int,
     ) : ContainerNotificationType()
 
     data class InvalidSignatures(
+        val count: Int,
+    ) : ContainerNotificationType()
+
+    data class UnknownTimestamps(
+        val count: Int,
+    ) : ContainerNotificationType()
+
+    data class InvalidTimestamps(
         val count: Int,
     ) : ContainerNotificationType()
 }

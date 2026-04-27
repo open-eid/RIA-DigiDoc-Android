@@ -181,10 +181,16 @@ fun SigningNavigation(
     val isNestedContainer = sharedContainerViewModel.isNestedContainer(signedContainer)
     val isXadesContainer = signedContainer?.isXades() == true
     val isCadesContainer = signedContainer?.isCades() == true
+    val isDdocContainer = signedContainer?.isDdoc() == true
+    var isEmptyFileInContainer by remember { mutableStateOf(false) }
 
     var validSignaturesCount by remember { mutableIntStateOf(0) }
     var unknownSignaturesCount by remember { mutableIntStateOf(0) }
     var invalidSignaturesCount by remember { mutableIntStateOf(0) }
+
+    var validTimestampsCount by remember { mutableIntStateOf(0) }
+    var unknownTimestampsCount by remember { mutableIntStateOf(0) }
+    var invalidTimestampsCount by remember { mutableIntStateOf(0) }
 
     var isSignaturesCountLoaded by remember { mutableStateOf(false) }
 
@@ -571,10 +577,26 @@ fun SigningNavigation(
                 invalidSignaturesCount =
                     signatureCounts?.get(ValidatorInterface.Status.Invalid) ?: 0
 
+                if (signedContainer?.containerMimetype() != ASICS_MIMETYPE) {
+                    val timestampCounts = signedContainer?.getTimestampStatusCount()
+                    validTimestampsCount = timestampCounts?.get(ValidatorInterface.Status.Valid) ?: 0
+                    unknownTimestampsCount =
+                        timestampCounts?.get(ValidatorInterface.Status.Unknown) ?: 0
+                    invalidTimestampsCount =
+                        timestampCounts?.get(ValidatorInterface.Status.Invalid) ?: 0
+                }
+
+                isEmptyFileInContainer =
+                    signingViewModel.isEmptyFileInList(
+                        signedContainer?.getDataFiles() ?: listOf(),
+                    )
+
                 sharedContainerViewModel.setContainerNotifications(
                     listOfNotNull(
                         ContainerNotificationType.XadesFile.takeIf { isXadesContainer },
                         ContainerNotificationType.CadesFile.takeIf { isCadesContainer },
+                        ContainerNotificationType.DdocFile.takeIf { isDdocContainer },
+                        ContainerNotificationType.EmptyFile.takeIf { isEmptyFileInContainer },
                         ContainerNotificationType
                             .UnknownSignatures(
                                 unknownSignaturesCount,
@@ -583,6 +605,14 @@ fun SigningNavigation(
                             .InvalidSignatures(
                                 invalidSignaturesCount,
                             ).takeIf { invalidSignaturesCount > 0 },
+                        ContainerNotificationType
+                            .UnknownTimestamps(
+                                unknownTimestampsCount,
+                            ).takeIf { unknownTimestampsCount > 0 },
+                        ContainerNotificationType
+                            .InvalidTimestamps(
+                                invalidTimestampsCount,
+                            ).takeIf { invalidTimestampsCount > 0 },
                     ),
                 )
             }
@@ -948,7 +978,7 @@ fun SigningNavigation(
                                                         signedContainer?.let { container ->
                                                             container
                                                                 .getTimestamps()
-                                                                ?.let { timestamps ->
+                                                                .let { timestamps ->
                                                                     Row {
                                                                         SignatureComponent(
                                                                             modifier,

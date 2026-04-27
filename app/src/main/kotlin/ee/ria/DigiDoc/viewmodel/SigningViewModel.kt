@@ -37,6 +37,7 @@ import ee.ria.DigiDoc.common.Constant.UNSIGNABLE_CONTAINER_MIMETYPES
 import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
+import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
@@ -45,6 +46,8 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
 import java.io.File
@@ -64,6 +67,9 @@ class SigningViewModel
 
         private val _shouldResetSignedContainer = MutableLiveData(false)
         val shouldResetSignedContainer: LiveData<Boolean?> = _shouldResetSignedContainer
+
+        private val _hasEmptyFiles = MutableStateFlow(false)
+        val hasEmptyFiles: StateFlow<Boolean> = _hasEmptyFiles
 
         fun handleBackButton() {
             _shouldResetSignedContainer.postValue(true)
@@ -136,6 +142,9 @@ class SigningViewModel
                 signature.stateOrProvince.isEmpty() &&
                 signature.countryName.isEmpty() &&
                 signature.postalCode.isEmpty()
+
+        fun isEmptyFileInList(dataFiles: List<DataFileInterface>): Boolean =
+            dataFiles.any { dataFile -> dataFile.fileSize == 0L }
 
         @Throws(Exception::class)
         suspend fun openCryptoContainer(

@@ -685,6 +685,26 @@ class SignedContainerTest {
             assertEquals(0, signaturesStatuses[ValidatorInterface.Status.Invalid])
         }
 
+    @Test
+    fun signedContainer_getTimestampStatusCount_successWithNoTimestamps() =
+        runTest {
+            val noSignaturesContainer =
+                getResourceFileAsFile(
+                    context,
+                    "example_no_signatures.asice",
+                    ee.ria.DigiDoc.common.R.raw.example_no_signatures,
+                )
+
+            val signedContainer = openOrCreate(context, noSignaturesContainer, listOf(noSignaturesContainer), true)
+
+            val signaturesStatuses = signedContainer.getTimestampStatusCount()
+
+            assertNotNull(signaturesStatuses)
+            assertEquals(0, signaturesStatuses[ValidatorInterface.Status.Valid])
+            assertEquals(0, signaturesStatuses[ValidatorInterface.Status.Unknown])
+            assertEquals(0, signaturesStatuses[ValidatorInterface.Status.Invalid])
+        }
+
     // Requires internet access, emulator should be running with internet access and RIA VPN on.
     @Test
     fun signedContainer_openOrCreate_successCreatingNewContainerWithPDFSignatures() =
