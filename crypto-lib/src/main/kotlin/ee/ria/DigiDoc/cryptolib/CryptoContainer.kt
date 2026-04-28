@@ -373,10 +373,6 @@ class CryptoContainer
 
                 val cdocWriter = CDocWriter.createWriter(version, file.path, conf, null, network)
                 try {
-                    if (cdocWriter.beginEncryption() != 0L) {
-                        throw CryptoException("Failed to begin encryption")
-                    }
-
                     withContext(IO) {
                         if (version == 2 && cdoc2Settings.getUseOnlineEncryption()) {
                             val serverId = cdoc2Settings.getCDOC2UUID()
@@ -395,7 +391,9 @@ class CryptoContainer
                             }
                         }
                     }
-
+                    if (cdocWriter.beginEncryption() != 0L) {
+                        throw CryptoException("Failed to begin encryption")
+                    }
                     withContext(IO) {
                         dataFiles.forEach { dataFile ->
                             val ifs: InputStream = FileInputStream(dataFile)
