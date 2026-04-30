@@ -7,5 +7,10 @@
         <item name="postSplashScreenTheme">@style/Theme.RIADigiDoc</item>
     </style>
 
-    <style name="Theme.RIADigiDoc" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.RIADigiDoc" parent="Theme.Material3.DayNight">
+        <item name="android:colorBackground">@color/background</item>
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:statusBarColor">@color/background</item>
+        <item name="android:navigationBarColor">@color/background</item>
+    </style>
 </resources>
