@@ -108,8 +108,8 @@
     <string name="main_diagnostics_version_title">VERSION:\u0020</string>
 
 
-    <string name="file_provider_authority">ee.ria.digidoc.debug.fileprovider</string>
-    <string name="document_provider_authority">ee.ria.digidoc.debug.documentprovider</string>
+    <string name="file_provider_authority">ee.ria.digidoc.fileprovider</string>
+    <string name="document_provider_authority">ee.ria.digidoc.documentprovider</string>
 
     <!-- Signature details -->
     <string name="subject_name">Subject Name</string>

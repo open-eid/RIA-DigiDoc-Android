@@ -3,4 +3,7 @@
 
     <string name="app_name">RIA DigiDoc (debug)</string>
 
+    <string name="file_provider_authority">ee.ria.digidoc.debug.fileprovider</string>
+    <string name="document_provider_authority">ee.ria.digidoc.debug.documentprovider</string>
+
 </resources>
