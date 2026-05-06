@@ -23,17 +23,19 @@ package ee.ria.DigiDoc.fragment.screen
 
 import android.content.Intent
 import android.content.res.Configuration
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
@@ -54,20 +56,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.IntSize
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.asFlow
@@ -75,6 +82,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.BuildConfig
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.domain.model.theme.ThemeSetting
 import ee.ria.DigiDoc.ui.component.info.InfoComponent
 import ee.ria.DigiDoc.ui.component.info.InfoComponentItem
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
@@ -85,12 +93,15 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.MCornerRadius
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXL
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utilsLib.text.TextUtil
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -98,6 +109,7 @@ fun InfoScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     sharedMenuViewModel: SharedMenuViewModel,
+    sharedSettingsViewModel: SharedSettingsViewModel,
 ) {
     val context = LocalContext.current
 
@@ -105,6 +117,23 @@ fun InfoScreen(
 
     val isEstonianLanguageUsed = remember { mutableStateOf(false) }
     val isTtsInitialized by sharedMenuViewModel.isTtsInitialized.asFlow().collectAsState(false)
+
+    val themeSetting = remember { sharedSettingsViewModel.dataStore.getThemeSetting() }
+    val isDarkTheme =
+        when (themeSetting) {
+            ThemeSetting.DARK -> true
+            ThemeSetting.LIGHT -> false
+            ThemeSetting.SYSTEM -> isSystemInDarkTheme()
+        }
+    val cofundedLogo =
+        ImageBitmap.imageResource(
+            if (isDarkTheme) R.drawable.cofunded_eu else R.drawable.cofunded_eu_tp,
+        )
+    // Remove border from image
+    val cofundedLogoWidthPx = cofundedLogo.width - XSPadding.value.toInt()
+    val cofundedLogoBlendMode = if (isDarkTheme) BlendMode.Lighten else BlendMode.SrcOver
+    val logoSurfaceColor = MaterialTheme.colorScheme.surface
+    val logoDescription = stringResource(R.string.main_about_digidoc_and_el_logos)
 
     LaunchedEffect(isTtsInitialized) {
         if (isTtsInitialized) {
@@ -157,48 +186,33 @@ fun InfoScreen(
             ) {
                 Row(
                     modifier =
-                        modifier
+                        Modifier
                             .padding(horizontal = XSPadding, vertical = SPadding),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Column(
+                    Box(
                         modifier =
-                            modifier
+                            Modifier
+                                .fillMaxWidth(0.4f)
+                                .widthIn(max = iconSizeXXL)
                                 .padding(end = XSPadding)
-                                .weight(.35f),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.eesti_flag),
-                            alignment = Alignment.Center,
-                            modifier = modifier.wrapContentSize(),
-                            contentDescription = stringResource(id = R.string.main_about_1_logo_text),
-                        )
-                        Text(
-                            modifier = modifier.notAccessible(),
-                            text = stringResource(id = R.string.main_about_1_logo_text),
-                            style = MaterialTheme.typography.labelSmall,
-                            fontSize = 9.sp,
-                            textAlign = TextAlign.Center,
-                        )
-                        Image(
-                            painter = painterResource(id = R.drawable.eu_flag),
-                            alignment = Alignment.Center,
-                            modifier = modifier.wrapContentSize(),
-                            contentDescription = stringResource(id = R.string.main_about_2_logo_text),
-                        )
-                        Text(
-                            modifier = modifier.notAccessible(),
-                            text = stringResource(id = R.string.main_about_2_logo_text),
-                            style = MaterialTheme.typography.labelSmall,
-                            fontSize = 9.sp,
-                            textAlign = TextAlign.Center,
-                        )
-                    }
+                                .aspectRatio(cofundedLogoWidthPx.toFloat() / cofundedLogo.height)
+                                .semantics {
+                                    contentDescription = logoDescription
+                                    role = Role.Image
+                                }.drawBehind {
+                                    drawRect(logoSurfaceColor)
+                                    drawImage(
+                                        image = cofundedLogo,
+                                        srcSize = IntSize(cofundedLogoWidthPx, cofundedLogo.height),
+                                        dstSize = IntSize(size.width.roundToInt(), size.height.roundToInt()),
+                                        blendMode = cofundedLogoBlendMode,
+                                    )
+                                },
+                    )
+
                     Column(
-                        modifier =
-                            modifier
-                                .padding(start = XSPadding)
-                                .weight(.65f),
+                        modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.Start,
                     ) {
                         Text(
@@ -214,7 +228,7 @@ fun InfoScreen(
                             style = MaterialTheme.typography.bodyMedium,
                         )
                         Text(
-                            modifier = modifier.padding(vertical = SPadding),
+                            modifier = Modifier.padding(vertical = SPadding),
                             text = stringResource(id = R.string.main_about_info_title),
                             style = MaterialTheme.typography.labelMedium,
                         )
@@ -233,7 +247,7 @@ fun InfoScreen(
                             }
                         ElevatedButton(
                             modifier =
-                                modifier
+                                Modifier
                                     .shadow(
                                         elevation = MCornerRadius,
                                         shape = buttonRoundCornerShape,
@@ -266,16 +280,16 @@ fun InfoScreen(
                             },
                         ) {
                             Icon(
-                                modifier = modifier.size(iconSizeXXS),
+                                modifier = Modifier.size(iconSizeXXS),
                                 imageVector =
                                     ImageVector.vectorResource(
                                         id = R.drawable.ic_m3_open_in_new_48dp_wght400,
                                     ),
                                 contentDescription = null,
                             )
-                            Spacer(modifier = modifier.width(XSPadding))
+                            Spacer(modifier = Modifier.width(XSPadding))
                             Text(
-                                modifier = modifier.notAccessible(),
+                                modifier = Modifier.notAccessible(),
                                 text = stringResource(id = R.string.main_about_help_center),
                                 color = MaterialTheme.colorScheme.onPrimary,
                                 fontSize = MaterialTheme.typography.labelMedium.fontSize,
@@ -322,6 +336,7 @@ fun InfoScreenPreview() {
         InfoScreen(
             navController = rememberNavController(),
             sharedMenuViewModel = hiltViewModel(),
+            sharedSettingsViewModel = hiltViewModel(),
         )
     }
 }

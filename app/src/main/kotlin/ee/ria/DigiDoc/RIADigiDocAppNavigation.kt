@@ -207,6 +207,7 @@ fun RIADigiDocAppScreen(
                 modifier = Modifier.safeDrawingPadding(),
                 navController = navController,
                 sharedMenuViewModel = sharedMenuViewModel,
+                sharedSettingsViewModel = sharedSettingsViewModel,
             )
         }
         composable(route = Route.Diagnostics.route) {
