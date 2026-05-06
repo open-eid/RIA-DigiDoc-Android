@@ -23,15 +23,12 @@ package ee.ria.DigiDoc.fragment.screen
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -41,8 +38,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -64,7 +59,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -79,9 +73,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
@@ -89,6 +81,7 @@ import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
+import ee.ria.DigiDoc.ui.component.shared.PrimaryTextField
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.theme.Dimensions.LPadding
@@ -406,79 +399,84 @@ fun ProxyServicesSettingsScreen(
                                 .padding(horizontal = SPadding)
                                 .padding(bottom = LPadding),
                     ) {
-                        Row(
+                        PrimaryTextField(
                             modifier =
-                                modifier
-                                    .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Start,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            OutlinedTextField(
-                                enabled = settingsProxyChoice.value == ProxySetting.MANUAL_PROXY.name,
-                                value = proxyHost,
-                                singleLine = true,
-                                onValueChange = {
-                                    proxyHost = it.copy(selection = TextRange(it.text.length))
-                                    setProxyHost(it.text)
-                                },
-                                shape = RectangleShape,
-                                label = { Text(stringResource(R.string.main_settings_proxy_host)) },
-                                modifier =
-                                    modifier
-                                        .focusRequester(hostFocusRequester)
-                                        .weight(1f)
-                                        .fillMaxWidth()
-                                        .semantics {
-                                            testTagsAsResourceId = true
-                                        }.testTag("proxyServicesHostTextField"),
-                                trailingIcon = {
-                                    if (!isTalkBackEnabled(context) && proxyHost.text.isNotEmpty()) {
-                                        IconButton(onClick = {
-                                            proxyHost = TextFieldValue("")
-                                        }) {
-                                            Icon(
-                                                imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                                contentDescription = "$clearButtonText $buttonName",
-                                            )
-                                        }
-                                    }
-                                },
-                                colors =
-                                    OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-                                    ),
-                                keyboardOptions =
-                                    KeyboardOptions.Default.copy(
-                                        imeAction = ImeAction.Next,
-                                        keyboardType = KeyboardType.Uri,
-                                    ),
-                            )
+                                Modifier
+                                    .focusRequester(hostFocusRequester)
+                                    .padding(vertical = XSPadding),
+                            value = proxyHost,
+                            onValueChange = {
+                                proxyHost = it
+                                setProxyHost(it.text)
+                            },
+                            singleLine = true,
+                            label = stringResource(R.string.main_settings_proxy_host),
+                            enabled = settingsProxyChoice.value == ProxySetting.MANUAL_PROXY.name,
+                            keyboardOptions =
+                                KeyboardOptions.Default.copy(
+                                    imeAction = ImeAction.Next,
+                                    keyboardType = KeyboardType.Uri,
+                                ),
+                            onDone = {
+                                portFocusRequester.requestFocus()
+                            },
+                            testTag = "proxyServicesHostTextField",
+                            removeIconTestTag = "proxyServicesHostRemoveIconButton",
+                        )
 
-                            if (isTalkBackEnabled(context) && proxyHost.text.isNotEmpty()) {
-                                IconButton(onClick = {
-                                    proxyHost = TextFieldValue("")
-                                    scope.launch(Main) {
-                                        hostFocusRequester.requestFocus()
-                                        focusManager.clearFocus()
-                                        delay(200)
-                                        hostFocusRequester.requestFocus()
-                                    }
-                                }) {
-                                    Icon(
-                                        modifier =
-                                            modifier
-                                                .semantics {
-                                                    testTagsAsResourceId = true
-                                                }.testTag("proxyServicesHostRemoveIconButton"),
-                                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                        contentDescription = "$clearButtonText $buttonName",
-                                    )
+                        PrimaryTextField(
+                            modifier =
+                                Modifier
+                                    .focusRequester(portFocusRequester)
+                                    .padding(vertical = XSPadding),
+                            value = proxyPort,
+                            onValueChange = {
+                                proxyPort = it
+                                if (isValidPortNumber(it.text)) {
+                                    setProxyPort(it.text.toInt())
                                 }
-                            }
-                        }
+                            },
+                            singleLine = true,
+                            label = stringResource(R.string.main_settings_proxy_port),
+                            enabled = settingsProxyChoice.value == ProxySetting.MANUAL_PROXY.name,
+                            keyboardOptions =
+                                KeyboardOptions.Default.copy(
+                                    imeAction = ImeAction.Next,
+                                    keyboardType = KeyboardType.Number,
+                                ),
+                            onDone = {
+                                usernameFocusRequester.requestFocus()
+                            },
+                            isError = proxyPortErrorText.isNotEmpty(),
+                            errorText = proxyPortErrorText,
+                            testTag = "proxyServicesPortTextField",
+                            removeIconTestTag = "proxyServicesPortRemoveIconButton",
+                        )
 
-                        Spacer(modifier = modifier.height(XSPadding))
+                        PrimaryTextField(
+                            modifier =
+                                Modifier
+                                    .focusRequester(usernameFocusRequester)
+                                    .padding(vertical = XSPadding),
+                            value = proxyUsername,
+                            onValueChange = {
+                                proxyUsername = it
+                                setProxyUsername(it.text)
+                            },
+                            singleLine = true,
+                            label = stringResource(R.string.main_settings_proxy_username),
+                            enabled = settingsProxyChoice.value == ProxySetting.MANUAL_PROXY.name,
+                            keyboardOptions =
+                                KeyboardOptions.Default.copy(
+                                    imeAction = ImeAction.Next,
+                                    keyboardType = KeyboardType.Text,
+                                ),
+                            onDone = {
+                                passwordFocusRequester.requestFocus()
+                            },
+                            testTag = "proxyServicesUsernameTextField",
+                            removeIconTestTag = "proxyServicesUsernameRemoveIconButton",
+                        )
 
                         Row(
                             modifier =
@@ -487,186 +485,21 @@ fun ProxyServicesSettingsScreen(
                             horizontalArrangement = Arrangement.Start,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            OutlinedTextField(
-                                enabled = settingsProxyChoice.value == ProxySetting.MANUAL_PROXY.name,
-                                value = proxyPort,
-                                singleLine = true,
-                                onValueChange = {
-                                    proxyPort = it.copy(selection = TextRange(it.text.length))
-                                    if (isValidPortNumber(it.text)) {
-                                        setProxyPort(it.text.toInt())
-                                    }
-                                },
-                                shape = RectangleShape,
-                                label = { Text(stringResource(R.string.main_settings_proxy_port)) },
+                            PrimaryTextField(
                                 modifier =
-                                    modifier
-                                        .focusRequester(portFocusRequester)
-                                        .weight(1f)
-                                        .fillMaxWidth()
-                                        .semantics {
-                                            testTagsAsResourceId = true
-                                        }.testTag("proxyServicesPortTextField"),
-                                trailingIcon = {
-                                    if (!isTalkBackEnabled(context) && proxyPort.text.isNotEmpty()) {
-                                        IconButton(onClick = {
-                                            proxyPort = TextFieldValue("")
-                                        }) {
-                                            Icon(
-                                                imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                                contentDescription = "$clearButtonText $buttonName",
-                                            )
-                                        }
-                                    }
-                                },
-                                colors =
-                                    OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-                                    ),
-                                keyboardOptions =
-                                    KeyboardOptions.Default.copy(
-                                        imeAction = ImeAction.Next,
-                                        keyboardType = KeyboardType.Number,
-                                    ),
-                            )
-
-                            if (isTalkBackEnabled(context) && proxyPort.text.isNotEmpty()) {
-                                IconButton(onClick = {
-                                    proxyPort = TextFieldValue("")
-                                    scope.launch(Main) {
-                                        portFocusRequester.requestFocus()
-                                        focusManager.clearFocus()
-                                        delay(200)
-                                        portFocusRequester.requestFocus()
-                                    }
-                                }) {
-                                    Icon(
-                                        modifier =
-                                            modifier
-                                                .semantics {
-                                                    testTagsAsResourceId = true
-                                                }.testTag("proxyServicesPortRemoveIconButton"),
-                                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                        contentDescription = "$clearButtonText $buttonName",
-                                    )
-                                }
-                            }
-                        }
-                        if (proxyPortErrorText.isNotEmpty()) {
-                            Text(
-                                modifier =
-                                    modifier
-                                        .fillMaxWidth()
-                                        .focusable(enabled = true)
-                                        .semantics { contentDescription = proxyPortErrorText }
-                                        .testTag("proxyServicesPortErrorText"),
-                                text = proxyPortErrorText,
-                                color = MaterialTheme.colorScheme.error,
-                            )
-                        }
-
-                        Spacer(modifier = modifier.height(XSPadding))
-
-                        Row(
-                            modifier =
-                                modifier
-                                    .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Start,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            OutlinedTextField(
-                                enabled = settingsProxyChoice.value == ProxySetting.MANUAL_PROXY.name,
-                                value = proxyUsername,
-                                singleLine = true,
-                                onValueChange = {
-                                    proxyUsername = it.copy(selection = TextRange(it.text.length))
-                                    setProxyUsername(it.text)
-                                },
-                                shape = RectangleShape,
-                                label = { Text(stringResource(R.string.main_settings_proxy_username)) },
-                                modifier =
-                                    modifier
-                                        .focusRequester(usernameFocusRequester)
-                                        .weight(1f)
-                                        .fillMaxWidth()
-                                        .semantics {
-                                            testTagsAsResourceId = true
-                                        }.testTag("proxyServicesUsernameTextField"),
-                                trailingIcon = {
-                                    if (!isTalkBackEnabled(context) && proxyUsername.text.isNotEmpty()) {
-                                        IconButton(onClick = {
-                                            proxyUsername = TextFieldValue("")
-                                        }) {
-                                            Icon(
-                                                imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                                contentDescription = "$clearButtonText $buttonName",
-                                            )
-                                        }
-                                    }
-                                },
-                                colors =
-                                    OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-                                    ),
-                                keyboardOptions =
-                                    KeyboardOptions.Default.copy(
-                                        imeAction = ImeAction.Next,
-                                        keyboardType = KeyboardType.Text,
-                                    ),
-                            )
-
-                            if (isTalkBackEnabled(context) && proxyUsername.text.isNotEmpty()) {
-                                IconButton(onClick = {
-                                    proxyUsername = TextFieldValue("")
-                                    scope.launch(Main) {
-                                        usernameFocusRequester.requestFocus()
-                                        focusManager.clearFocus()
-                                        delay(200)
-                                        usernameFocusRequester.requestFocus()
-                                    }
-                                }) {
-                                    Icon(
-                                        modifier =
-                                            modifier
-                                                .semantics {
-                                                    testTagsAsResourceId = true
-                                                }.testTag("proxyServicesUsernameRemoveIconButton"),
-                                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                        contentDescription = "$clearButtonText $buttonName",
-                                    )
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = modifier.height(XSPadding))
-
-                        Row(
-                            modifier =
-                                modifier
-                                    .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Start,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            OutlinedTextField(
-                                enabled = settingsProxyChoice.value == ProxySetting.MANUAL_PROXY.name,
-                                value = proxyPassword,
-                                singleLine = true,
-                                onValueChange = {
-                                    proxyPassword = it.copy(selection = TextRange(it.text.length))
-                                    setProxyPassword(it.text)
-                                },
-                                shape = RectangleShape,
-                                label = { Text(stringResource(R.string.main_settings_proxy_password)) },
-                                modifier =
-                                    modifier
+                                    Modifier
                                         .focusRequester(passwordFocusRequester)
                                         .weight(1f)
-                                        .fillMaxWidth()
-                                        .semantics {
-                                            testTagsAsResourceId = true
-                                        }.testTag("proxyServicesPasswordTextField"),
+                                        .padding(vertical = XSPadding),
+                                value = proxyPassword,
+                                onValueChange = {
+                                    proxyPassword = it
+                                    setProxyPassword(it.text)
+                                },
+                                singleLine = true,
+                                label = stringResource(R.string.main_settings_proxy_password),
+                                enabled = settingsProxyChoice.value == ProxySetting.MANUAL_PROXY.name,
+                                isPasswordText = !passwordVisible,
                                 trailingIcon = {
                                     val image =
                                         if (passwordVisible) {
@@ -686,25 +519,18 @@ fun ProxyServicesSettingsScreen(
                                         modifier =
                                             modifier
                                                 .semantics { traversalIndex = 9f }
-                                                .testTag("mainSettingsProxyPasswordVisibleButton"),
+                                                .testTag("proxyServicesPasswordVisibleButton"),
                                         onClick = { passwordVisible = !passwordVisible },
                                     ) {
                                         Icon(imageVector = image, description)
                                     }
                                 },
-                                textStyle = MaterialTheme.typography.titleSmall,
-                                visualTransformation =
-                                    if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                                colors =
-                                    OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-                                    ),
                                 keyboardOptions =
                                     KeyboardOptions.Default.copy(
                                         imeAction = ImeAction.Done,
                                         keyboardType = KeyboardType.Password,
                                     ),
+                                testTag = "proxyServicesPasswordTextField",
                             )
 
                             if (isTalkBackEnabled(context) && proxyPassword.text.isNotEmpty()) {
@@ -759,7 +585,7 @@ fun ProxyServicesSettingsScreen(
                                     contentDescription =
                                         "${proxyCheckConnectionText.lowercase()} $buttonName"
                                     testTagsAsResourceId = true
-                                }.testTag("mainSettingsProxyServicesCheckInternetConnectionButton"),
+                                }.testTag("proxyServicesCheckInternetConnectionButton"),
                         text = proxyCheckConnectionText,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,

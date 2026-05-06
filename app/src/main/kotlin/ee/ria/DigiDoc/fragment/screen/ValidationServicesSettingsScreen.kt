@@ -40,11 +40,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -65,15 +61,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -87,6 +79,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.network.siva.SivaSetting
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
+import ee.ria.DigiDoc.ui.component.shared.PrimaryTextField
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.theme.Dimensions.LPadding
@@ -95,7 +88,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.XSBorder
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
@@ -104,7 +96,6 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -355,81 +346,26 @@ fun ValidationServicesSettingsScreen(
                     }
 
                     if (settingsSivaServiceChoice.value == SivaSetting.MANUAL.name) {
-                        Spacer(modifier = modifier.height(LPadding))
-
-                        Row(
+                        PrimaryTextField(
                             modifier =
-                                modifier
-                                    .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Start,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            OutlinedTextField(
-                                enabled = settingsSivaServiceChoice.value == SivaSetting.MANUAL.name,
-                                value = settingsSivaServiceUrl,
-                                singleLine = true,
-                                onValueChange = {
-                                    settingsSivaServiceUrl = it
-                                    setSettingsSivaUrl(it.text)
-                                },
-                                shape = RectangleShape,
-                                label = { Text(stringResource(R.string.main_settings_siva_service_url)) },
-                                modifier =
-                                    modifier
-                                        .focusRequester(focusRequester)
-                                        .weight(1f)
-                                        .fillMaxWidth()
-                                        .semantics {
-                                            testTagsAsResourceId = true
-                                        }.testTag("validationServicesComponentTextField"),
-                                trailingIcon = {
-                                    if (!isTalkBackEnabled(context) && settingsSivaServiceUrl.text.isNotEmpty()) {
-                                        IconButton(onClick = {
-                                            settingsSivaServiceUrl = TextFieldValue("")
-                                        }) {
-                                            Icon(
-                                                imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                                contentDescription = "$clearButtonText $buttonName",
-                                            )
-                                        }
-                                    }
-                                },
-                                colors =
-                                    OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-                                    ),
-                                keyboardOptions =
-                                    KeyboardOptions.Default.copy(
-                                        imeAction = ImeAction.Done,
-                                        keyboardType = KeyboardType.Uri,
-                                    ),
-                            )
-
-                            if (isTalkBackEnabled(context) && settingsSivaServiceUrl.text.isNotEmpty()) {
-                                IconButton(onClick = {
-                                    settingsSivaServiceUrl = TextFieldValue("")
-                                    scope.launch(Main) {
-                                        focusRequester.requestFocus()
-                                        focusManager.clearFocus()
-                                        delay(200)
-                                        focusRequester.requestFocus()
-                                    }
-                                }) {
-                                    Icon(
-                                        modifier =
-                                            modifier
-                                                .semantics {
-                                                    testTagsAsResourceId = true
-                                                }.testTag("validationServicesRemoveIconButton"),
-                                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                        contentDescription = "$clearButtonText $buttonName",
-                                    )
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = modifier.height(SPadding))
+                                Modifier
+                                    .padding(vertical = LPadding),
+                            value = settingsSivaServiceUrl,
+                            onValueChange = {
+                                settingsSivaServiceUrl = it
+                                setSettingsSivaUrl(it.text)
+                            },
+                            singleLine = true,
+                            label = stringResource(R.string.main_settings_siva_service_url),
+                            enabled = settingsSivaServiceChoice.value == SivaSetting.MANUAL.name,
+                            keyboardOptions =
+                                KeyboardOptions.Default.copy(
+                                    imeAction = ImeAction.Done,
+                                    keyboardType = KeyboardType.Uri,
+                                ),
+                            testTag = "validationServicesComponentTextField",
+                            removeIconTestTag = "validationServicesRemoveIconButton",
+                        )
 
                         Text(
                             modifier =

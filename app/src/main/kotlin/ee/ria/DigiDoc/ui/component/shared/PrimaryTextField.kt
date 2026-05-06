@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
@@ -36,13 +35,17 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -55,34 +58,53 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun SecurePinTextField(
+fun PrimaryTextField(
     modifier: Modifier = Modifier,
     focusRequester: FocusRequester = remember { FocusRequester() },
-    pin: MutableState<ByteArray>,
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
     label: String,
-    pinCodeTextEdited: MutableState<Boolean>? = null,
+    placeholder: String = "",
+    readOnly: Boolean = false,
+    singleLine: Boolean = true,
+    enabled: Boolean = true,
+    readDigitByDigit: Boolean = false,
+    description: String = "",
     isError: Boolean = false,
     errorText: String = "",
-    keyboardImeAction: ImeAction = ImeAction.Done,
+    isPasswordText: Boolean = false,
+    keyboardOptions: KeyboardOptions =
+        KeyboardOptions.Default.copy(
+            imeAction = ImeAction.Done,
+        ),
+    trailingIcon: (@Composable () -> Unit)? = null,
     onDone: (() -> Unit)? = null,
+    testTag: String = "",
     removeIconTestTag: String = "",
+    descriptionTestTag: String = "",
     errorTestTag: String = "",
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val scope = rememberCoroutineScope()
+
+    var editingStarted by remember { mutableStateOf(false) }
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -101,58 +123,66 @@ fun SecurePinTextField(
                         .focusRequester(focusRequester)
                         .weight(1f)
                         .fillMaxWidth()
-                        .semantics {
+                        .onFocusChanged { focusState ->
+                            if (!focusState.isFocused) {
+                                editingStarted = false
+                            }
+                        }.semantics {
+                            if (readDigitByDigit && value.text.isNotEmpty() && value.text.all { it.isDigit() }) {
+                                contentDescription = value.text.split("").joinToString(" ")
+                            } else if (isPasswordText) {
+                                contentDescription = ""
+                            }
                             testTagsAsResourceId = true
-                        }.testTag("pinTextField"),
-                label = {
-                    Text(text = label)
-                },
-                value = "*".repeat(pin.value.size),
-                singleLine = true,
+                        }.then(if (testTag.isNotEmpty()) Modifier.testTag(testTag) else Modifier),
+                enabled = enabled,
+                value = value,
+                readOnly = readOnly,
+                singleLine = singleLine,
                 onValueChange = { newValue ->
-                    val digitsOnly = newValue.filter { it.isDigit() }
-                    if (digitsOnly.isEmpty()) {
-                        if (pin.value.isNotEmpty()) {
-                            pin.value = pin.value.dropLast(1).toByteArray()
+                    val corrected =
+                        if (isTalkBackEnabled(context) && !editingStarted) {
+                            editingStarted = true
+                            newValue.copy(selection = TextRange(newValue.text.length))
+                        } else {
+                            newValue
                         }
-                    } else {
-                        pin.value += digitsOnly.last().code.toByte()
-                    }
-                    pinCodeTextEdited?.value = true
+                    onValueChange(corrected)
+                },
+                shape = RectangleShape,
+                label = {
+                    Text(
+                        text = label,
+                    )
+                },
+                placeholder = {
+                    Text(
+                        modifier = Modifier.notAccessible(),
+                        text = placeholder,
+                    )
                 },
                 trailingIcon = {
-                    if (!isTalkBackEnabled(context) && pin.value.isNotEmpty()) {
+                    if (trailingIcon != null) {
+                        trailingIcon()
+                    } else if (!readOnly && !isTalkBackEnabled(context) && value.text.isNotEmpty()) {
                         IconButton(onClick = {
-                            pin.value = byteArrayOf()
-                            scope.launch(Main) {
-                                focusRequester.requestFocus()
-                                focusManager.clearFocus()
-                                delay(200)
-                                focusRequester.requestFocus()
-                            }
+                            onValueChange(TextFieldValue(""))
                         }) {
                             Icon(
-                                modifier =
-                                    Modifier
-                                        .size(iconSizeXXS)
-                                        .semantics { testTagsAsResourceId = true }
-                                        .testTag(removeIconTestTag),
                                 imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                 contentDescription = "$clearButtonText $buttonName",
                             )
                         }
                     }
                 },
+                visualTransformation =
+                    if (!isPasswordText) VisualTransformation.None else PasswordVisualTransformation(),
                 colors =
                     OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.primary,
                     ),
-                keyboardOptions =
-                    KeyboardOptions.Default.copy(
-                        imeAction = keyboardImeAction,
-                        keyboardType = KeyboardType.NumberPassword,
-                    ),
+                keyboardOptions = keyboardOptions,
                 keyboardActions =
                     KeyboardActions(
                         onDone = {
@@ -163,10 +193,9 @@ fun SecurePinTextField(
                 isError = isError,
             )
 
-            if (isTalkBackEnabled(context) && pin.value.isNotEmpty()) {
+            if (trailingIcon == null && !readOnly && isTalkBackEnabled(context) && value.text.isNotEmpty()) {
                 IconButton(onClick = {
-                    pin.value = byteArrayOf()
-                    pinCodeTextEdited?.value = true
+                    onValueChange(TextFieldValue(""))
                     scope.launch(Main) {
                         focusRequester.requestFocus()
                         focusManager.clearFocus()
@@ -190,6 +219,20 @@ fun SecurePinTextField(
                     )
                 }
             }
+        }
+
+        if (description.isNotEmpty()) {
+            Text(
+                text = description,
+                modifier =
+                    Modifier
+                        .padding(vertical = XSPadding)
+                        .testTag(descriptionTestTag)
+                        .notAccessible(),
+                color = MaterialTheme.colorScheme.onSecondary,
+                textAlign = TextAlign.Start,
+                style = MaterialTheme.typography.labelMedium,
+            )
         }
 
         if (errorText.isNotEmpty()) {
