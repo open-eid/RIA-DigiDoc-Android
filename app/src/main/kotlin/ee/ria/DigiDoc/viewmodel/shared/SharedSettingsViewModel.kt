@@ -149,6 +149,8 @@ class SharedSettingsViewModel
 
             resetCertificateInfo()
             resetErrorState()
+
+            resetShowingWrongCanNumberDialog()
         }
 
         private fun resetProxySettings() {
@@ -158,6 +160,10 @@ class SharedSettingsViewModel
 
         private fun clearProxySettings() {
             setManualProxySettings(defaultManualProxySettings)
+        }
+
+        private fun resetShowingWrongCanNumberDialog() {
+            dataStore.setDoNotShowWrongCanDialog(false)
         }
 
         private fun setManualProxySettings(manualProxy: ManualProxy) {

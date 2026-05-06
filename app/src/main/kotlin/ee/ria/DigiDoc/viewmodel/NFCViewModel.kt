@@ -38,7 +38,9 @@ import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.cryptolib.CDOC2Settings
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.domain.model.IdCardData
+import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.domain.service.IdCardService
+import ee.ria.DigiDoc.exceptions.NFCError
 import ee.ria.DigiDoc.idcard.CertificateType
 import ee.ria.DigiDoc.idcard.CodeType
 import ee.ria.DigiDoc.idcard.PaceTunnelException
@@ -60,6 +62,9 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.libdigidocpp.ExternalSigner
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.bouncycastle.util.encoders.Hex
@@ -75,6 +80,7 @@ class NFCViewModel
         private val cdoc2Settings: CDOC2Settings,
         private val configurationRepository: ConfigurationRepository,
         private val idCardService: IdCardService,
+        private val dataStore: DataStore,
     ) : ViewModel() {
         private val logTag = javaClass.simpleName
 
@@ -83,8 +89,8 @@ class NFCViewModel
         private val _cryptoContainer = MutableLiveData<CryptoContainer?>(null)
         val cryptoContainer: LiveData<CryptoContainer?> = _cryptoContainer
 
-        private val _errorState = MutableLiveData<Triple<Int, String?, Int?>?>(null)
-        val errorState: LiveData<Triple<Int, String?, Int?>?> = _errorState
+        private val _errorState = MutableStateFlow<NFCError?>(null)
+        val errorState: StateFlow<NFCError?> = _errorState
 
         private val _message = MutableLiveData<Int?>(null)
         val message: LiveData<Int?> = _message
@@ -129,7 +135,7 @@ class NFCViewModel
         }
 
         fun resetErrorState() {
-            _errorState.postValue(null)
+            _errorState.value = null
         }
 
         fun resetSignStatus() {
@@ -164,6 +170,12 @@ class NFCViewModel
             _webEidCertificateResult.postValue(null)
         }
 
+        fun setDoNotShowWrongCanDialog(doNotShowAgain: Boolean) {
+            dataStore.setDoNotShowWrongCanDialog(doNotShowAgain)
+        }
+
+        fun getDoNotShowWrongCanDialog(): Boolean = dataStore.getDoNotShowWrongCanDialog()
+
         fun shouldShowCANNumberError(canNumber: String?): Boolean =
             (
                 !canNumber.isNullOrEmpty() &&
@@ -187,7 +199,7 @@ class NFCViewModel
         fun getNFCStatus(activity: Activity): NfcStatus = NfcStatus.NFC_ACTIVE
 
         private fun resetValues() {
-            _errorState.postValue(null)
+            _errorState.value = null
             _message.postValue(null)
             _signStatus.postValue(null)
             _decryptStatus.postValue(null)
@@ -321,7 +333,7 @@ class NFCViewModel
                 withContext(Main) {
                     _nfcStatus.postValue(nfcSmartCardReaderManager.detectNfcStatus(activity))
                     _signStatus.postValue(false)
-                    _errorState.postValue(Triple(R.string.error_general_client, null, null))
+                    _errorState.update { NFCError.GeneralError(R.string.error_general_client) }
                     errorLog(logTag, "Unable to get container value. Container is 'null'")
                 }
             }
@@ -412,7 +424,7 @@ class NFCViewModel
                 withContext(Main) {
                     _nfcStatus.postValue(nfcSmartCardReaderManager.detectNfcStatus(activity))
                     _decryptStatus.postValue(false)
-                    _errorState.postValue(Triple(R.string.error_general_client, null, null))
+                    _errorState.update { NFCError.GeneralError(R.string.error_general_client) }
                     errorLog(logTag, "Unable to get container value. Container is 'null'")
                     _shouldResetPIN.postValue(true)
                 }
@@ -445,21 +457,17 @@ class NFCViewModel
                             resetIdCardUserData()
 
                             if (e.message?.contains("TagLostException") == true) {
-                                _errorState.postValue(
-                                    Triple(R.string.signature_update_nfc_tag_lost, null, null),
-                                )
+                                _errorState.update { NFCError.TagLost(R.string.signature_update_nfc_tag_lost) }
                             } else if (e is ApduResponseException) {
-                                _errorState.postValue(
-                                    Triple(R.string.signature_update_nfc_technical_error, null, null),
-                                )
+                                _errorState.update {
+                                    NFCError.ApduResponse(R.string.signature_update_nfc_technical_error)
+                                }
                             } else if (e is PaceTunnelException) {
-                                _errorState.postValue(
-                                    Triple(R.string.signature_update_nfc_wrong_can, null, null),
-                                )
+                                _errorState.update { NFCError.WrongCan(R.string.signature_update_nfc_wrong_can) }
                             } else {
-                                _errorState.postValue(
-                                    Triple(R.string.signature_update_nfc_technical_error, null, null),
-                                )
+                                _errorState.update {
+                                    NFCError.TechnicalError(R.string.signature_update_nfc_technical_error)
+                                }
                             }
 
                             errorLog(
@@ -582,15 +590,13 @@ class NFCViewModel
                             _webEidCertificateResult.postValue(signingCertB64)
                         } catch (ex: SmartCardReaderException) {
                             if (ex.message?.contains("TagLostException") == true) {
-                                _errorState.postValue(Triple(R.string.signature_update_nfc_tag_lost, null, null))
+                                _errorState.update { NFCError.TagLost(R.string.signature_update_nfc_tag_lost) }
                             } else if (ex is ApduResponseException) {
-                                _errorState.postValue(
-                                    Triple(R.string.signature_update_nfc_technical_error, null, null),
-                                )
+                                _errorState.update {
+                                    NFCError.ApduResponse(R.string.signature_update_nfc_technical_error)
+                                }
                             } else if (ex is PaceTunnelException) {
-                                _errorState.postValue(
-                                    Triple(R.string.signature_update_nfc_wrong_can, null, null),
-                                )
+                                _errorState.update { NFCError.WrongCan(R.string.signature_update_nfc_wrong_can) }
                             } else {
                                 showTechnicalError(ex)
                             }
@@ -723,49 +729,41 @@ class NFCViewModel
             ) {
                 _dialogError.postValue(res)
             } else {
-                _errorState.postValue(res?.let { Triple(it, null, null) })
+                _errorState.update { res?.let { NFCError.LimitExceeded(it) } }
             }
         }
 
         private fun showNetworkError(e: Exception) {
-            _errorState.postValue(Triple(R.string.no_internet_connection, null, null))
+            _errorState.update { NFCError.NoInternetConnection(R.string.no_internet_connection) }
             errorLog(logTag, "Unable to sign with NFC - Unable to connect to Internet", e)
         }
 
         private fun showProxyError(e: Exception) {
-            _errorState.postValue(Triple(R.string.main_settings_proxy_invalid_settings, null, null))
+            _errorState.update { NFCError.NoProxyConnection(R.string.main_settings_proxy_invalid_settings) }
             errorLog(logTag, "Unable to sign with NFC - Unable to create proxy connection with host", e)
         }
 
         private fun showNoLockFoundError(e: Exception) {
-            _errorState.postValue(Triple(R.string.no_lock_found, null, null))
+            _errorState.update { NFCError.NoLockFound(R.string.no_lock_found) }
             errorLog(logTag, "Unable to decrypt with NFC - No lock found with certificate key", e)
         }
 
         private fun showRevokedCertificateError(e: Exception) {
-            _errorState.postValue(
-                Triple(
-                    R.string.signature_update_signature_error_message_certificate_revoked,
-                    null,
-                    null,
-                ),
-            )
+            _errorState.update {
+                NFCError.CertificateRevoked(R.string.signature_update_signature_error_message_certificate_revoked)
+            }
             errorLog(logTag, "Unable to sign with NFC - Certificate status: revoked", e)
         }
 
         private fun showUnknownCertificateError(e: Exception) {
-            _errorState.postValue(
-                Triple(
-                    R.string.signature_update_signature_error_message_certificate_unknown,
-                    null,
-                    null,
-                ),
-            )
+            _errorState.update {
+                NFCError.CertificateUnknown(R.string.signature_update_signature_error_message_certificate_unknown)
+            }
             errorLog(logTag, "Unable to sign with NFC - Certificate status: unknown", e)
         }
 
         private fun showWebEidSigningCertificateMismatchError(e: Exception) {
-            _errorState.postValue(Triple(R.string.web_eid_signing_card_mismatch, null, null))
+            _errorState.update { NFCError.GeneralError(R.string.web_eid_signing_card_mismatch) }
             errorLog(
                 logTag,
                 "Web eID signing failed - signing certificate does not match previously used certificate",
@@ -774,7 +772,7 @@ class NFCViewModel
         }
 
         private fun showTechnicalError(e: Exception) {
-            _errorState.postValue(Triple(R.string.signature_update_nfc_technical_error, null, null))
+            _errorState.update { NFCError.TechnicalError(R.string.signature_update_nfc_technical_error) }
             errorLog(logTag, "Unable to perform with NFC: ${e.message}", e)
         }
 
@@ -792,7 +790,7 @@ class NFCViewModel
 
             when {
                 ex.message?.contains("TagLostException") == true -> {
-                    _errorState.postValue(Triple(R.string.signature_update_nfc_tag_lost, null, null))
+                    _errorState.update { NFCError.TagLost(R.string.signature_update_nfc_tag_lost) }
                 }
 
                 isSigning && ex.message?.contains("PIN2 has not been changed") == true -> {
@@ -802,27 +800,27 @@ class NFCViewModel
                 ex.message?.contains("$pinName verification failed") == true &&
                     ex.message?.contains("Retries left: 2") == true -> {
                     _shouldResetPIN.postValue(true)
-                    _errorState.postValue(Triple(R.string.id_card_sign_pin_invalid, pinType, 2))
+                    _errorState.update { NFCError.WrongPin(pinType, 2, R.string.id_card_sign_pin_invalid) }
                 }
 
                 ex.message?.contains("$pinName verification failed") == true &&
                     ex.message?.contains("Retries left: 1") == true -> {
                     _shouldResetPIN.postValue(true)
-                    _errorState.postValue(Triple(R.string.id_card_sign_pin_invalid_final, pinType, null))
+                    _errorState.update { NFCError.WrongPin(pinType, 1, R.string.id_card_sign_pin_invalid_final) }
                 }
 
                 ex.message?.contains("$pinName verification failed") == true &&
                     ex.message?.contains("Retries left: 0") == true -> {
                     _shouldResetPIN.postValue(true)
-                    _errorState.postValue(Triple(R.string.id_card_sign_pin_locked, pinType, null))
+                    _errorState.update { NFCError.PinBlocked(pinType, R.string.id_card_sign_pin_locked) }
                 }
 
                 ex is ApduResponseException -> {
-                    _errorState.postValue(Triple(R.string.signature_update_nfc_technical_error, null, null))
+                    _errorState.update { NFCError.ApduResponse(R.string.signature_update_nfc_technical_error) }
                 }
 
                 ex is PaceTunnelException -> {
-                    _errorState.postValue(Triple(R.string.signature_update_nfc_wrong_can, null, null))
+                    _errorState.update { NFCError.WrongCan(R.string.signature_update_nfc_wrong_can) }
                 }
 
                 else -> {
@@ -882,9 +880,7 @@ class NFCViewModel
             timeoutRunnable =
                 Runnable {
                     pinToClear?.clearSensitive()
-                    _errorState.postValue(
-                        Triple(R.string.signature_update_nfc_detection_timeout, null, null),
-                    )
+                    _errorState.update { NFCError.GeneralError(R.string.signature_update_nfc_detection_timeout) }
 
                     nfcSmartCardReaderManager.disableNfcReaderMode()
                     activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED

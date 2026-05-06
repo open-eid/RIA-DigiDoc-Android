@@ -33,7 +33,9 @@ import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.cryptolib.CDOC2Settings
 import ee.ria.DigiDoc.domain.model.IdCardData
+import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.domain.service.IdCardService
+import ee.ria.DigiDoc.exceptions.NFCError
 import ee.ria.DigiDoc.idcard.CodeType
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
@@ -43,10 +45,16 @@ import ee.ria.DigiDoc.libdigidoclib.init.LibdigidocLibraryLoader
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager.NfcStatus
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
@@ -90,6 +98,8 @@ class NFCViewModelTest {
 
     private lateinit var configurationRepository: ConfigurationRepository
 
+    private lateinit var dataStore: DataStore
+
     @Mock
     private lateinit var idCardService: IdCardService
 
@@ -118,6 +128,7 @@ class NFCViewModelTest {
         containerWrapper = ContainerWrapperImpl()
         configurationRepository = mock(ConfigurationRepository::class.java)
         cdoc2Settings = CDOC2Settings(context, configurationRepository)
+        dataStore = DataStore(context)
 
         viewModel =
             NFCViewModel(
@@ -126,6 +137,7 @@ class NFCViewModelTest {
                 cdoc2Settings,
                 configurationRepository,
                 idCardService,
+                dataStore,
             )
 
         scenario = ActivityScenario.launch(ComponentActivity::class.java)
@@ -181,16 +193,29 @@ class NFCViewModelTest {
             viewModel.signStatus.removeObserver(resetSignStatusObserver)
         }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun nfcViewModel_resetErrorState_success() =
         runTest {
-            val errorStateObserver: Observer<Triple<Int, String?, Int?>?> = mock()
-            viewModel.errorState.observeForever(errorStateObserver)
+            val values = mutableListOf<NFCError?>()
+            val job = launch { viewModel.errorState.toList(values) }
+
+            viewModel.performNFCSignWorkRequest(
+                activity = activity,
+                context = context,
+                container = null,
+                pin2Code = byteArrayOf(),
+                canNumber = "",
+                roleData = null,
+            )
 
             viewModel.resetErrorState()
-            verify(errorStateObserver, atLeastOnce()).onChanged(null)
 
-            viewModel.errorState.removeObserver(errorStateObserver)
+            advanceUntilIdle()
+            job.cancel()
+
+            assertTrue(values.isNotEmpty())
+            assertNull(values.last())
         }
 
     @Test
@@ -392,6 +417,9 @@ class NFCViewModelTest {
         runTest {
             val signedContainer = SignedContainer.openOrCreate(context, container, listOf(container), true)
 
+            val values = mutableListOf<NFCError?>()
+            val job = launch { viewModel.errorState.toList(values) }
+
             viewModel.performNFCSignWorkRequest(
                 activity,
                 context,
@@ -401,10 +429,9 @@ class NFCViewModelTest {
                 null,
             )
 
-            val errorStateObserver: Observer<Triple<Int, String?, Int?>?> = mock()
-            viewModel.errorState.observeForever(errorStateObserver)
-            verify(errorStateObserver, atLeastOnce()).onChanged(null)
-            viewModel.errorState.removeObserver(errorStateObserver)
+            job.cancel()
+
+            assertNull(values.last())
 
             val signStatusObserver: Observer<Boolean?> = mock()
             viewModel.signStatus.observeForever(signStatusObserver)
@@ -420,12 +447,17 @@ class NFCViewModelTest {
     @Test
     fun nfcViewModel_performNFCSignWorkRequest_nullContainer() =
         runTest {
+            val values = mutableListOf<NFCError?>()
+            val job = launch { viewModel.errorState.toList(values) }
+
             viewModel.performNFCSignWorkRequest(activity, context, null, byteArrayOf(1, 1, 5, 5, 5), "444222", null)
 
-            val errorStateObserver: Observer<Triple<Int, String?, Int?>?> = mock()
-            viewModel.errorState.observeForever(errorStateObserver)
-            verify(errorStateObserver, atLeastOnce()).onChanged(Triple(R.string.error_general_client, null, null))
-            viewModel.errorState.removeObserver(errorStateObserver)
+            job.cancel()
+
+            assertTrue(values.isNotEmpty())
+            val error = values.last()
+            assertNotNull(error)
+            assertEquals(R.string.error_general_client, error?.message)
         }
 
     @Test
@@ -469,15 +501,19 @@ class NFCViewModelTest {
             viewModel.dialogError.removeObserver(errorStateObserver)
         }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun nfcViewModel_loadPersonalData_success() =
         runTest {
+            val values = mutableListOf<NFCError?>()
+            val job = launch { viewModel.errorState.toList(values) }
+
             viewModel.loadPersonalData(activity, "123456")
 
-            val errorStateObserver: Observer<Triple<Int, String?, Int?>?> = mock()
-            viewModel.errorState.observeForever(errorStateObserver)
-            verify(errorStateObserver, atLeastOnce()).onChanged(null)
-            viewModel.errorState.removeObserver(errorStateObserver)
+            advanceUntilIdle()
+            job.cancel()
+
+            assertNull(values.last())
 
             val userDataObserver: Observer<IdCardData?> = mock()
             viewModel.userData.observeForever(userDataObserver)

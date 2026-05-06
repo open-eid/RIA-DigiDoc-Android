@@ -30,6 +30,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.Defaults.DEFAULT_UUID_VALUE
 import ee.ria.DigiDoc.common.Constant.IS_CRASH_SENDING_ALWAYS_ENABLED
 import ee.ria.DigiDoc.common.Constant.KEY_LOCALE
+import ee.ria.DigiDoc.common.Constant.NFCConstants.DO_NOT_SHOW_WRONG_CAN_DIALOG
 import ee.ria.DigiDoc.common.Constant.Theme.THEME_SETTING
 import ee.ria.DigiDoc.common.preferences.EncryptedPreferences
 import ee.ria.DigiDoc.domain.model.methods.SigningMethod
@@ -785,6 +786,12 @@ class DataStore
 
         fun setThemeSetting(themeSetting: ThemeSetting) {
             preferences.edit { putString(THEME_SETTING, themeSetting.mode) }
+        }
+
+        fun getDoNotShowWrongCanDialog(): Boolean = preferences.getBoolean(DO_NOT_SHOW_WRONG_CAN_DIALOG, false)
+
+        fun setDoNotShowWrongCanDialog(doNotShowAgain: Boolean) {
+            preferences.edit { putBoolean(DO_NOT_SHOW_WRONG_CAN_DIALOG, doNotShowAgain) }
         }
 
         private fun runEncrypted(
