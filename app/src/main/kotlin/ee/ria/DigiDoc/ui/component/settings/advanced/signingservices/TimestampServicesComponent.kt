@@ -38,11 +38,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -59,15 +55,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -80,6 +72,7 @@ import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.domain.model.settings.TSASetting
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
+import ee.ria.DigiDoc.ui.component.shared.PrimaryTextField
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.theme.Dimensions.LPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
@@ -87,13 +80,11 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.XSBorder
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -293,81 +284,23 @@ fun TimestampServicesComponent(
                 }
 
                 if (settingsTsaServiceChoice.value == TSASetting.MANUAL.name) {
-                    Spacer(modifier = modifier.height(LPadding))
-
-                    Row(
-                        modifier =
-                            modifier
-                                .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        OutlinedTextField(
-                            enabled = settingsTsaServiceChoice.value == TSASetting.MANUAL.name,
-                            value = settingsTsaServiceUrl,
-                            singleLine = true,
-                            onValueChange = {
-                                settingsTsaServiceUrl = it.copy(selection = TextRange(it.text.length))
-                                setSettingsTsaUrl(it.text)
-                            },
-                            shape = RectangleShape,
-                            label = { Text(accessToTimeStampingServicesTitleText) },
-                            modifier =
-                                modifier
-                                    .focusRequester(focusRequester)
-                                    .weight(1f)
-                                    .fillMaxWidth()
-                                    .semantics {
-                                        testTagsAsResourceId = true
-                                    }.testTag("timestampServicesComponentTextField"),
-                            trailingIcon = {
-                                if (!isTalkBackEnabled(context) && settingsTsaServiceUrl.text.isNotEmpty()) {
-                                    IconButton(onClick = {
-                                        settingsTsaServiceUrl = TextFieldValue("")
-                                    }) {
-                                        Icon(
-                                            imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                            contentDescription = "$clearButtonText $buttonName",
-                                        )
-                                    }
-                                }
-                            },
-                            colors =
-                                OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                    unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-                                ),
-                            keyboardOptions =
-                                KeyboardOptions.Default.copy(
-                                    imeAction = ImeAction.Done,
-                                    keyboardType = KeyboardType.Uri,
-                                ),
-                        )
-
-                        if (isTalkBackEnabled(context) && settingsTsaServiceUrl.text.isNotEmpty()) {
-                            IconButton(onClick = {
-                                settingsTsaServiceUrl = TextFieldValue("")
-                                scope.launch(Main) {
-                                    focusRequester.requestFocus()
-                                    focusManager.clearFocus()
-                                    delay(200)
-                                    focusRequester.requestFocus()
-                                }
-                            }) {
-                                Icon(
-                                    modifier =
-                                        modifier
-                                            .semantics {
-                                                testTagsAsResourceId = true
-                                            }.testTag("timestampServicesRemoveIconButton"),
-                                    imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                    contentDescription = "$clearButtonText $buttonName",
-                                )
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = modifier.padding(SPadding))
+                    PrimaryTextField(
+                        modifier = Modifier.padding(vertical = LPadding),
+                        value = settingsTsaServiceUrl,
+                        onValueChange = {
+                            settingsTsaServiceUrl = it
+                            setSettingsTsaUrl(it.text)
+                        },
+                        label = accessToTimeStampingServicesTitleText,
+                        enabled = settingsTsaServiceChoice.value == TSASetting.MANUAL.name,
+                        keyboardOptions =
+                            KeyboardOptions.Default.copy(
+                                imeAction = ImeAction.Done,
+                                keyboardType = KeyboardType.Uri,
+                            ),
+                        testTag = "timestampServicesComponentTextField",
+                        removeIconTestTag = "timestampServicesRemoveIconButton",
+                    )
 
                     Text(
                         modifier =

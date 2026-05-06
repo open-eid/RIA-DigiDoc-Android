@@ -30,16 +30,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
@@ -48,12 +45,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -64,7 +57,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -74,7 +66,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
@@ -89,7 +80,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.toSize
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import ee.ria.DigiDoc.R
@@ -98,14 +88,13 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.HrefMessageDialog
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
+import ee.ria.DigiDoc.ui.component.shared.PrimaryTextField
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
 import ee.ria.DigiDoc.ui.component.shared.dialog.OptionChooserDialog
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
-import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.addInvisibleElement
@@ -118,7 +107,6 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -430,37 +418,32 @@ fun SmartIdView(
                             .focusable(false)
                             .fillMaxWidth(),
                 ) {
-                    OutlinedTextField(
-                        label = {
-                            Text(countryTitleText)
-                        },
-                        value = countryString,
-                        onValueChange = {},
-                        readOnly = true,
-                        singleLine = true,
+                    PrimaryTextField(
                         modifier =
-                            modifier
+                            Modifier
                                 .focusRequester(countryFocusRequester)
                                 .focusProperties {
                                     next = personalCodeFocusRequester
-                                }.fillMaxWidth()
-                                .onGloballyPositioned { coordinates ->
-                                    textFieldSize = coordinates.size.toSize()
                                 },
+                        value = TextFieldValue(text = countryString),
+                        onValueChange = {},
+                        readOnly = true,
+                        singleLine = true,
+                        label = countryTitleText,
                         trailingIcon = {
                             Icon(
                                 imageVector =
                                     ImageVector.vectorResource(
                                         R.drawable.ic_baseline_keyboard_arrow_down_24,
                                     ),
-                                contentDescription = "$countryTitleText $countryString",
+                                contentDescription = countryTitleText,
                                 modifier =
-                                    modifier
-                                        .clickable {
-                                            openOptionChooserDialog = !openOptionChooserDialog
-                                        },
+                                    modifier.clickable {
+                                        openOptionChooserDialog = !openOptionChooserDialog
+                                    },
                             )
                         },
+                        testTag = "smartIdCountryChooser",
                     )
 
                     if (!openOptionChooserDialog) {
@@ -522,160 +505,88 @@ fun SmartIdView(
                     }
                 }
 
-                Row(
+                PrimaryTextField(
                     modifier =
-                        modifier
-                            .fillMaxWidth()
-                            .padding(top = MPadding),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    OutlinedTextField(
-                        enabled = countryString.isNotEmpty(),
-                        label = {
-                            Text(text = personalCodeTitleText)
-                        },
-                        value =
-                            if (!isTalkBackEnabled(context)) {
-                                personalCode
-                            } else {
-                                personalCodeWithInvisibleSpaces.copy(
-                                    selection = TextRange(personalCodeWithInvisibleSpaces.text.length),
-                                )
+                        Modifier
+                            .padding(top = MSPadding)
+                            .focusRequester(personalCodeFocusRequester)
+                            .focusProperties {
+                                previous = countryFocusRequester
                             },
-                        singleLine = true,
-                        onValueChange = { newValue ->
-                            if (!isTalkBackEnabled(context)) {
-                                val rawText = newValue.text
-                                val cursorPosition = newValue.selection.start
+                    value =
+                        if (!isTalkBackEnabled(context)) {
+                            personalCode
+                        } else {
+                            personalCodeWithInvisibleSpaces
+                        },
+                    onValueChange = { newValue ->
+                        if (!isTalkBackEnabled(context)) {
+                            val rawText = newValue.text
+                            val cursorPosition = newValue.selection.start
 
-                                // Check if selected country is Latvia
-                                if (selectedCountry == 2) {
-                                    val allowedChars = rawText.filter { char -> char.isDigit() || char == '-' }
+                            if (selectedCountry == SmartIdCountry.LATVIA.index) {
+                                val allowedChars = rawText.filter { char -> char.isDigit() || char == '-' }
 
-                                    if (allowedChars != personalCode.text) {
-                                        val (formattedText, cursorPosition) =
-                                            smartIdViewModel
-                                                .formatLatvianPersonalCode(
-                                                    allowedChars,
-                                                    cursorPosition,
-                                                    personalCode.text,
-                                                )
-
-                                        personalCode =
-                                            TextFieldValue(
-                                                text = formattedText,
-                                                selection = TextRange(cursorPosition),
+                                if (allowedChars != personalCode.text) {
+                                    val (formattedText, cursorPosition) =
+                                        smartIdViewModel
+                                            .formatLatvianPersonalCode(
+                                                allowedChars,
+                                                cursorPosition,
+                                                personalCode.text,
                                             )
-                                    } else {
-                                        personalCode =
-                                            TextFieldValue(
-                                                text = allowedChars,
-                                                selection = TextRange(minOf(cursorPosition, allowedChars.length)),
-                                            )
-                                    }
-                                } else {
-                                    val cleaned = rawText.filter { char -> char.isDigit() }
-                                    val newCursorPosition = minOf(cursorPosition, cleaned.length)
 
                                     personalCode =
                                         TextFieldValue(
-                                            text = cleaned,
-                                            selection = TextRange(newCursorPosition),
+                                            text = formattedText,
+                                            selection = TextRange(cursorPosition),
+                                        )
+                                } else {
+                                    personalCode =
+                                        TextFieldValue(
+                                            text = allowedChars,
+                                            selection = TextRange(minOf(cursorPosition, allowedChars.length)),
                                         )
                                 }
                             } else {
-                                val noInvisibleElement = TextFieldValue(removeInvisibleElement(newValue.text))
+                                val cleaned = rawText.filter { char -> char.isDigit() }
+                                val newCursorPosition = minOf(cursorPosition, cleaned.length)
+
                                 personalCode =
-                                    noInvisibleElement.copy(
-                                        selection = TextRange(noInvisibleElement.text.length),
+                                    TextFieldValue(
+                                        text = cleaned,
+                                        selection = TextRange(newCursorPosition),
                                     )
                             }
-                        },
-                        modifier =
-                            modifier
-                                .focusRequester(personalCodeFocusRequester)
-                                .focusProperties {
-                                    previous = countryFocusRequester
-                                }.weight(1f)
-                                .semantics(mergeDescendants = true) {
-                                    testTagsAsResourceId = true
-                                }.testTag("smartIdPersonalCodeTextField"),
-                        trailingIcon = {
-                            if (!isTalkBackEnabled(context) && personalCode.text.isNotEmpty()) {
-                                IconButton(onClick = {
-                                    personalCode = TextFieldValue("")
-                                }) {
-                                    Icon(
-                                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                        contentDescription = "$clearButtonText $buttonName",
-                                    )
-                                }
-                            }
-                        },
-                        placeholder = {
-                            if (selectedCountry == 2) Text("123456-78901")
-                        },
-                        colors =
-                            OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-                            ),
-                        keyboardOptions =
-                            KeyboardOptions.Default.copy(
-                                imeAction = ImeAction.Done,
-                                keyboardType =
-                                    if (selectedCountry == 2) {
-                                        KeyboardType.Phone
-                                    } else {
-                                        KeyboardType.Number
-                                    },
-                            ),
-                        isError = !smartIdViewModel.isPersonalCodeValid(personalCode.text),
-                    )
-                    if (isTalkBackEnabled(context) && personalCode.text.isNotEmpty()) {
-                        IconButton(
-                            modifier =
-                                modifier
-                                    .align(Alignment.CenterVertically),
-                            onClick = {
-                                personalCode = TextFieldValue("")
-                                scope.launch(Main) {
-                                    personalCodeFocusRequester.requestFocus()
-                                    focusManager.clearFocus()
-                                    delay(200)
-                                    personalCodeFocusRequester.requestFocus()
-                                }
-                            },
-                        ) {
-                            Icon(
-                                modifier =
-                                    modifier
-                                        .size(iconSizeXXS)
-                                        .semantics {
-                                            testTagsAsResourceId = true
-                                        }.testTag("smartIdPersonalCodeRemoveIconButton"),
-                                imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                contentDescription = "$clearButtonText $buttonName",
-                            )
+                        } else {
+                            personalCode = TextFieldValue(removeInvisibleElement(newValue.text))
                         }
-                    }
-                }
-                if (personalCodeErrorText.isNotEmpty()) {
-                    Text(
-                        modifier =
-                            modifier
-                                .padding(top = XSPadding)
-                                .padding(bottom = MSPadding)
-                                .fillMaxWidth()
-                                .focusable(true)
-                                .semantics { contentDescription = personalCodeErrorText }
-                                .testTag("smartIdPersonalCodeErrorText"),
-                        text = personalCodeErrorText,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
+                    },
+                    singleLine = true,
+                    label = personalCodeTitleText,
+                    placeholder =
+                        if (selectedCountry == SmartIdCountry.LATVIA.index) {
+                            "123456-78901"
+                        } else {
+                            ""
+                        },
+                    readDigitByDigit = true,
+                    keyboardOptions =
+                        KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Done,
+                            keyboardType =
+                                if (selectedCountry == SmartIdCountry.LATVIA.index) {
+                                    KeyboardType.Phone
+                                } else {
+                                    KeyboardType.Number
+                                },
+                        ),
+                    isError = !smartIdViewModel.isPersonalCodeValid(personalCode.text),
+                    errorText = personalCodeErrorText,
+                    testTag = "smartIdPersonalCodeTextField",
+                    removeIconTestTag = "smartIdPersonalCodeRemoveIconButton",
+                    errorTestTag = "smartIdPersonalCodeErrorText",
+                )
             }
         }
     }

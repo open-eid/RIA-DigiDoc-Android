@@ -27,10 +27,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
@@ -38,8 +36,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,9 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -71,13 +65,12 @@ import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.VisualTransformation
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.Defaults.DEFAULT_UUID_VALUE
 import ee.ria.DigiDoc.domain.model.settings.UUIDSetting
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
+import ee.ria.DigiDoc.ui.component.shared.PrimaryTextField
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.theme.Dimensions.LPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
@@ -253,7 +246,7 @@ fun MobileIdAndSmartIdServicesComponent(
                 }
 
                 if (settingsUuidChoice.value == UUIDSetting.MANUAL.name) {
-                    Spacer(modifier = modifier.height(LPadding))
+//                    Spacer(modifier = modifier.height(LPadding))
 
                     Row(
                         modifier =
@@ -262,24 +255,25 @@ fun MobileIdAndSmartIdServicesComponent(
                         horizontalArrangement = Arrangement.Start,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        OutlinedTextField(
-                            enabled = settingsUuidChoice.value == UUIDSetting.MANUAL.name,
+                        PrimaryTextField(
+                            modifier =
+                                Modifier
+                                    .padding(vertical = LPadding)
+                                    .weight(1f),
                             value = settingsUuid,
-                            singleLine = true,
                             onValueChange = {
-                                settingsUuid = it.copy(selection = TextRange(it.text.length))
+                                settingsUuid = it
                                 setSettingsUuid(it.text)
                             },
-                            shape = RectangleShape,
-                            label = { Text(accessToMobileAndSmartIdServicesText) },
-                            modifier =
-                                modifier
-                                    .focusRequester(focusRequester)
-                                    .weight(1f)
-                                    .fillMaxWidth()
-                                    .semantics {
-                                        testTagsAsResourceId = true
-                                    }.testTag("mobileIdAndSmartIdServicesComponentTextField"),
+                            singleLine = true,
+                            enabled = settingsUuidChoice.value == UUIDSetting.MANUAL.name,
+                            label = accessToMobileAndSmartIdServicesText,
+                            isPasswordText = !passwordVisible,
+                            keyboardOptions =
+                                KeyboardOptions.Default.copy(
+                                    imeAction = ImeAction.Done,
+                                    keyboardType = KeyboardType.Password,
+                                ),
                             trailingIcon = {
                                 val image =
                                     if (passwordVisible) {
@@ -299,25 +293,13 @@ fun MobileIdAndSmartIdServicesComponent(
                                     modifier =
                                         modifier
                                             .semantics { traversalIndex = 9f }
-                                            .testTag("mainSettingsUUIDPasswordVisibleButton"),
+                                            .testTag("mobileIdAndSmartIdServicesComponentPasswordVisibleButton"),
                                     onClick = { passwordVisible = !passwordVisible },
                                 ) {
                                     Icon(imageVector = image, description)
                                 }
                             },
-                            textStyle = MaterialTheme.typography.titleSmall,
-                            visualTransformation =
-                                if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                            colors =
-                                OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                    unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-                                ),
-                            keyboardOptions =
-                                KeyboardOptions.Default.copy(
-                                    imeAction = ImeAction.Done,
-                                    keyboardType = KeyboardType.Password,
-                                ),
+                            testTag = "mobileIdAndSmartIdServicesComponentTextField",
                         )
 
                         if (isTalkBackEnabled(context) && settingsUuid.text.isNotEmpty()) {
@@ -335,7 +317,7 @@ fun MobileIdAndSmartIdServicesComponent(
                                         modifier
                                             .semantics {
                                                 testTagsAsResourceId = true
-                                            }.testTag("proxyServicesUsernameRemoveIconButton"),
+                                            }.testTag("mobileIdAndSmartIdServicesComponentRemoveIconButton"),
                                     imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
                                     contentDescription = "$clearButtonText $buttonName",
                                 )

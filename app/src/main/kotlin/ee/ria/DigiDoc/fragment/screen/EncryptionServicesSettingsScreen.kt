@@ -47,10 +47,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -70,13 +67,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -97,6 +90,7 @@ import ee.ria.DigiDoc.domain.model.settings.CDOCSetting
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
+import ee.ria.DigiDoc.ui.component.shared.PrimaryTextField
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.shared.dialog.OptionChooserDialog
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
@@ -107,7 +101,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.XSBorder
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.viewmodel.EncryptionServicesViewModel
@@ -117,7 +110,6 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
@@ -137,8 +129,6 @@ fun EncryptionServicesSettingsScreen(
     navController: NavHostController,
 ) {
     val context = LocalContext.current
-    val focusManager = LocalFocusManager.current
-    val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
     val snackBarScope = rememberCoroutineScope()
 
@@ -189,7 +179,7 @@ fun EncryptionServicesSettingsScreen(
 
     val allConfs = cdoc2Conf + (cdoc2ConfManual.uuid.toString() to cdoc2ConfManual)
 
-    val configurationNames: List<String> = allConfs.values.map { it.name }
+    val configurationNames = allConfs.values.map { it.name }
 
     val selectedCdoc2Conf = allConfs[selectedCDOC2Service] ?: cdoc2ConfManual
 
@@ -213,12 +203,7 @@ fun EncryptionServicesSettingsScreen(
     var fetchUrlText by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
             TextFieldValue(
-                text =
-                    if (!cdoc2FetchUrl.isEmpty()) {
-                        cdoc2FetchUrl
-                    } else {
-                        selectedCdoc2Conf.fetch
-                    },
+                text = if (cdoc2FetchUrl.isNotEmpty()) cdoc2FetchUrl else selectedCdoc2Conf.fetch,
                 selection = TextRange.Zero,
             ),
         )
@@ -227,12 +212,7 @@ fun EncryptionServicesSettingsScreen(
     var postUrlText by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
             TextFieldValue(
-                text =
-                    if (!cdoc2PostUrl.isEmpty()) {
-                        cdoc2PostUrl
-                    } else {
-                        selectedCdoc2Conf.post
-                    },
+                text = if (cdoc2PostUrl.isNotEmpty()) cdoc2PostUrl else selectedCdoc2Conf.post,
                 selection = TextRange.Zero,
             ),
         )
@@ -305,15 +285,10 @@ fun EncryptionServicesSettingsScreen(
     val addCertificateButtonText = stringResource(R.string.main_settings_timestamp_cert_add_certificate_button)
     val noCertificateFoundText = stringResource(R.string.main_settings_timestamp_cert_no_certificate_found)
 
-    val clearButtonText = stringResource(R.string.clear_text)
     val buttonName = stringResource(id = R.string.button_name)
 
     var openOptionChooserDialog by remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
-    val nameFocusRequester = remember { FocusRequester() }
-    val uuidFocusRequester = remember { FocusRequester() }
-    val fetchUrlFocusRequester = remember { FocusRequester() }
-    val postUrlFocusRequester = remember { FocusRequester() }
 
     LaunchedEffect(messages) {
         messages.forEach { message ->
@@ -473,6 +448,11 @@ fun EncryptionServicesSettingsScreen(
                             testTag = "encryptionServicesManuallySpecifiedKeySwitch",
                         )
 
+                        val isCustomServerEditable =
+                            cdocSetting == CDOCSetting.CDOC2 &&
+                                useKeyTransfer.value &&
+                                !useDefaultKeyTransferServer.value
+
                         if (useKeyTransfer.value) {
                             Box(
                                 modifier =
@@ -482,18 +462,12 @@ fun EncryptionServicesSettingsScreen(
                                             contentDescription = serverLabel
                                         },
                             ) {
-                                OutlinedTextField(
-                                    label = {
-                                        Text(serverLabel)
-                                    },
-                                    value = selectedCdoc2Conf.name,
+                                PrimaryTextField(
+                                    value = TextFieldValue(text = selectedCdoc2Conf.name),
                                     onValueChange = {},
                                     readOnly = true,
                                     singleLine = true,
-                                    modifier =
-                                        modifier
-                                            .fillMaxWidth()
-                                            .focusRequester(nameFocusRequester),
+                                    label = serverLabel,
                                     trailingIcon = {
                                         Icon(
                                             imageVector =
@@ -507,6 +481,7 @@ fun EncryptionServicesSettingsScreen(
                                                 },
                                         )
                                     },
+                                    testTag = "encryptionServicesServerTextField",
                                 )
 
                                 if (!openOptionChooserDialog) {
@@ -521,7 +496,8 @@ fun EncryptionServicesSettingsScreen(
                                                     interactionSource = interactionSource,
                                                     indication = null,
                                                 ).semantics {
-                                                    contentDescription = serverLabel
+                                                    contentDescription =
+                                                        "$serverLabel: ${selectedCdoc2Conf.name}"
                                                 },
                                     )
                                 } else {
@@ -573,250 +549,64 @@ fun EncryptionServicesSettingsScreen(
                                 }
                             }
 
-                            Spacer(modifier = modifier.padding(MSPadding))
+                            PrimaryTextField(
+                                modifier = Modifier.padding(vertical = MSPadding),
+                                value = uuidText,
+                                onValueChange = {
+                                    uuidText = it
+                                    encryptionServicesViewModel.setCdoc2Uuid(it.text)
+                                },
+                                singleLine = true,
+                                label = uuidLabel,
+                                enabled = isCustomServerEditable,
+                                keyboardOptions =
+                                    KeyboardOptions.Default.copy(
+                                        imeAction = ImeAction.Next,
+                                        keyboardType = KeyboardType.Text,
+                                    ),
+                                testTag = "encryptionServicesUuidTextField",
+                                removeIconTestTag = "encryptionServicesUuidRemoveIconButton",
+                            )
 
-                            Row(
-                                modifier =
-                                    modifier
-                                        .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Start,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                OutlinedTextField(
-                                    enabled =
-                                        cdocSetting == CDOCSetting.CDOC2 &&
-                                            useKeyTransfer.value &&
-                                            !useDefaultKeyTransferServer.value,
-                                    value = uuidText,
-                                    singleLine = true,
-                                    onValueChange = {
-                                        uuidText = it.copy(selection = TextRange(it.text.length))
-                                        encryptionServicesViewModel.setCdoc2Uuid(it.text)
-                                    },
-                                    shape = RectangleShape,
-                                    label = { Text(uuidLabel) },
-                                    modifier =
-                                        modifier
-                                            .focusRequester(uuidFocusRequester)
-                                            .weight(1f)
-                                            .fillMaxWidth()
-                                            .semantics {
-                                                testTagsAsResourceId = true
-                                            }.testTag("encryptionServicesUuidTextField"),
-                                    trailingIcon = {
-                                        if (!isTalkBackEnabled(context) && uuidText.text.isNotEmpty()) {
-                                            IconButton(onClick = {
-                                                uuidText = TextFieldValue("")
-                                            }) {
-                                                Icon(
-                                                    imageVector =
-                                                        ImageVector.vectorResource(
-                                                            R.drawable.ic_icon_remove,
-                                                        ),
-                                                    contentDescription = "$clearButtonText $buttonName",
-                                                )
-                                            }
-                                        }
-                                    },
-                                    colors =
-                                        OutlinedTextFieldDefaults.colors(
-                                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                            unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-                                        ),
-                                    keyboardOptions =
-                                        KeyboardOptions.Default.copy(
-                                            imeAction = ImeAction.Next,
-                                            keyboardType = KeyboardType.Text,
-                                        ),
-                                )
+                            PrimaryTextField(
+                                modifier = Modifier.padding(vertical = MSPadding),
+                                value = fetchUrlText,
+                                onValueChange = {
+                                    fetchUrlText = it
+                                    encryptionServicesViewModel.setCdoc2FetchUrl(it.text)
+                                },
+                                singleLine = true,
+                                label = fetchUrlLabel,
+                                enabled = isCustomServerEditable,
+                                keyboardOptions =
+                                    KeyboardOptions.Default.copy(
+                                        imeAction = ImeAction.Next,
+                                        keyboardType = KeyboardType.Uri,
+                                    ),
+                                testTag = "encryptionServicesFetchUrlTextField",
+                                removeIconTestTag = "encryptionServicesFetchUrlRemoveIconButton",
+                            )
 
-                                if (isTalkBackEnabled(context) && uuidText.text.isNotEmpty()) {
-                                    IconButton(onClick = {
-                                        uuidText = TextFieldValue("")
-                                        scope.launch(Main) {
-                                            uuidFocusRequester.requestFocus()
-                                            focusManager.clearFocus()
-                                            delay(200)
-                                            uuidFocusRequester.requestFocus()
-                                        }
-                                    }) {
-                                        Icon(
-                                            modifier =
-                                                modifier
-                                                    .semantics {
-                                                        testTagsAsResourceId = true
-                                                    }.testTag("encryptionServicesUuidRemoveIconButton"),
-                                            imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                            contentDescription = "$clearButtonText $buttonName",
-                                        )
-                                    }
-                                }
-                            }
+                            PrimaryTextField(
+                                modifier = Modifier.padding(vertical = MSPadding),
+                                value = postUrlText,
+                                onValueChange = {
+                                    postUrlText = it
+                                    encryptionServicesViewModel.setCdoc2PostUrl(it.text)
+                                },
+                                singleLine = true,
+                                label = postUrlLabel,
+                                enabled = isCustomServerEditable,
+                                keyboardOptions =
+                                    KeyboardOptions.Default.copy(
+                                        imeAction = ImeAction.Done,
+                                        keyboardType = KeyboardType.Uri,
+                                    ),
+                                testTag = "encryptionServicesPostUrlTextField",
+                                removeIconTestTag = "encryptionServicesPostUrlRemoveIconButton",
+                            )
 
-                            Spacer(modifier = modifier.height(MSPadding))
-
-                            Row(
-                                modifier =
-                                    modifier
-                                        .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Start,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                OutlinedTextField(
-                                    enabled =
-                                        cdocSetting == CDOCSetting.CDOC2 &&
-                                            useKeyTransfer.value &&
-                                            !useDefaultKeyTransferServer.value,
-                                    value = fetchUrlText,
-                                    singleLine = true,
-                                    onValueChange = {
-                                        fetchUrlText =
-                                            it.copy(selection = TextRange(it.text.length))
-                                        encryptionServicesViewModel.setCdoc2FetchUrl(it.text)
-                                    },
-                                    shape = RectangleShape,
-                                    label = { Text(fetchUrlLabel) },
-                                    modifier =
-                                        modifier
-                                            .focusRequester(fetchUrlFocusRequester)
-                                            .weight(1f)
-                                            .fillMaxWidth()
-                                            .semantics {
-                                                testTagsAsResourceId = true
-                                            }.testTag("encryptionServicesFetchUrlTextField"),
-                                    trailingIcon = {
-                                        if (!isTalkBackEnabled(context) && fetchUrlText.text.isNotEmpty()) {
-                                            IconButton(onClick = {
-                                                fetchUrlText = TextFieldValue("")
-                                            }) {
-                                                Icon(
-                                                    imageVector =
-                                                        ImageVector.vectorResource(
-                                                            R.drawable.ic_icon_remove,
-                                                        ),
-                                                    contentDescription = "$clearButtonText $buttonName",
-                                                )
-                                            }
-                                        }
-                                    },
-                                    colors =
-                                        OutlinedTextFieldDefaults.colors(
-                                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                            unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-                                        ),
-                                    keyboardOptions =
-                                        KeyboardOptions.Default.copy(
-                                            imeAction = ImeAction.Next,
-                                            keyboardType = KeyboardType.Uri,
-                                        ),
-                                )
-
-                                if (isTalkBackEnabled(context) && fetchUrlText.text.isNotEmpty()) {
-                                    IconButton(onClick = {
-                                        fetchUrlText = TextFieldValue("")
-                                        scope.launch(Main) {
-                                            fetchUrlFocusRequester.requestFocus()
-                                            focusManager.clearFocus()
-                                            delay(200)
-                                            fetchUrlFocusRequester.requestFocus()
-                                        }
-                                    }) {
-                                        Icon(
-                                            modifier =
-                                                modifier
-                                                    .semantics {
-                                                        testTagsAsResourceId = true
-                                                    }.testTag("encryptionServicesFetchUrlRemoveIconButton"),
-                                            imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                            contentDescription = "$clearButtonText $buttonName",
-                                        )
-                                    }
-                                }
-                            }
-
-                            Spacer(modifier = modifier.height(MSPadding))
-
-                            Row(
-                                modifier =
-                                    modifier
-                                        .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Start,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                OutlinedTextField(
-                                    enabled =
-                                        cdocSetting == CDOCSetting.CDOC2 &&
-                                            useKeyTransfer.value &&
-                                            !useDefaultKeyTransferServer.value,
-                                    value = postUrlText,
-                                    singleLine = true,
-                                    onValueChange = {
-                                        postUrlText = it.copy(selection = TextRange(it.text.length))
-                                        encryptionServicesViewModel.setCdoc2PostUrl(it.text)
-                                    },
-                                    shape = RectangleShape,
-                                    label = { Text(postUrlLabel) },
-                                    modifier =
-                                        modifier
-                                            .focusRequester(postUrlFocusRequester)
-                                            .weight(1f)
-                                            .fillMaxWidth()
-                                            .semantics {
-                                                testTagsAsResourceId = true
-                                            }.testTag("encryptionServicesPostUrlTextField"),
-                                    trailingIcon = {
-                                        if (!isTalkBackEnabled(context) && postUrlText.text.isNotEmpty()) {
-                                            IconButton(onClick = {
-                                                postUrlText = TextFieldValue("")
-                                            }) {
-                                                Icon(
-                                                    imageVector =
-                                                        ImageVector.vectorResource(
-                                                            R.drawable.ic_icon_remove,
-                                                        ),
-                                                    contentDescription = "$clearButtonText $buttonName",
-                                                )
-                                            }
-                                        }
-                                    },
-                                    colors =
-                                        OutlinedTextFieldDefaults.colors(
-                                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                            unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-                                        ),
-                                    keyboardOptions =
-                                        KeyboardOptions.Default.copy(
-                                            imeAction = ImeAction.Done,
-                                            keyboardType = KeyboardType.Uri,
-                                        ),
-                                )
-
-                                if (isTalkBackEnabled(context) && postUrlText.text.isNotEmpty()) {
-                                    IconButton(onClick = {
-                                        postUrlText = TextFieldValue("")
-                                        scope.launch(Main) {
-                                            postUrlFocusRequester.requestFocus()
-                                            focusManager.clearFocus()
-                                            delay(200)
-                                            postUrlFocusRequester.requestFocus()
-                                        }
-                                    }) {
-                                        Icon(
-                                            modifier =
-                                                modifier
-                                                    .semantics {
-                                                        testTagsAsResourceId = true
-                                                    }.testTag("encryptionServicesPostUrlRemoveIconButton"),
-                                            imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                            contentDescription = "$clearButtonText $buttonName",
-                                        )
-                                    }
-                                }
-                            }
-                            if (cdocSetting == CDOCSetting.CDOC2 &&
-                                useKeyTransfer.value &&
-                                !useDefaultKeyTransferServer.value
-                            ) {
+                            if (isCustomServerEditable) {
                                 Spacer(modifier = modifier.height(SPadding))
 
                                 Text(

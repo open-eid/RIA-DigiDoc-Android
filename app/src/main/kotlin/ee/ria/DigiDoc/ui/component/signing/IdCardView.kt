@@ -46,7 +46,6 @@ import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -101,12 +100,10 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.LPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXL
-import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.pin.PinCodeUtil.shouldShowPINCodeError
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
@@ -741,85 +738,26 @@ fun IdCardView(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(MSPadding),
                     ) {
-                        Row(
+                        SecurePinTextField(
                             modifier =
-                                modifier
-                                    .fillMaxWidth()
-                                    .padding(top = MSPadding),
-                            horizontalArrangement = Arrangement.Start,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            SecurePinTextField(
-                                modifier =
-                                    modifier
-                                        .weight(1f)
-                                        .zIndex(3f)
-                                        .semantics {
-                                            traversalIndex = 3f
-                                            testTagsAsResourceId = true
-                                        }.testTag("idCardPinTextField"),
-                                pin = pinCode,
-                                pinCodeLabel = pinText,
-                                pinNumberFocusRequester = pinCodeFocusRequester,
-                                previousFocusRequester = readyToSignFocusRequester,
-                                pinCodeTextEdited = pinCodeTextEdited,
-                                trailingIconContentDescription = "$clearButtonText $buttonName",
-                                isError =
-                                    pinCodeTextEdited.value &&
-                                        shouldShowPINCodeError(
-                                            pinCode.value,
-                                            codeType,
-                                        ),
-                            )
-                            if (isTalkBackEnabled(context) && pinCode.value.isNotEmpty()) {
-                                IconButton(
-                                    modifier =
-                                        modifier
-                                            .zIndex(4f)
-                                            .align(Alignment.CenterVertically)
-                                            .semantics {
-                                                traversalIndex = 4f
-                                                testTagsAsResourceId = true
-                                            }.testTag("idCardPinRemoveButton"),
-                                    onClick = {
-                                        pinCode.value = byteArrayOf()
-                                        scope.launch(Main) {
-                                            pinCodeFocusRequester.requestFocus()
-                                            focusManager.clearFocus()
-                                            delay(200)
-                                            pinCodeFocusRequester.requestFocus()
-                                        }
-                                    },
-                                ) {
-                                    Icon(
-                                        modifier =
-                                            modifier
-                                                .size(iconSizeXXS)
-                                                .semantics {
-                                                    testTagsAsResourceId = true
-                                                }.testTag("idCardPinRemoveIconButton"),
-                                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                        contentDescription = "$clearButtonText $buttonName",
-                                    )
-                                }
-                            }
-                        }
-
-                        if (pinCodeLengthErrorText.isNotEmpty()) {
-                            Text(
-                                modifier =
-                                    modifier
-                                        .padding(bottom = MSPadding)
-                                        .fillMaxWidth()
-                                        .focusable(true)
-                                        .semantics { contentDescription = pinCodeLengthErrorText }
-                                        .testTag("idCardPinError"),
-                                text = pinCodeLengthErrorText,
-                                textAlign = TextAlign.Start,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.error,
-                            )
-                        }
+                                Modifier
+                                    .focusRequester(pinCodeFocusRequester)
+                                    .semantics {
+                                        testTagsAsResourceId = true
+                                    }.testTag("idCardPinTextField"),
+                            pin = pinCode,
+                            label = pinText,
+                            pinCodeTextEdited = pinCodeTextEdited,
+                            isError =
+                                pinCodeTextEdited.value &&
+                                    shouldShowPINCodeError(
+                                        pinCode.value,
+                                        codeType,
+                                    ),
+                            errorText = pinCodeLengthErrorText,
+                            removeIconTestTag = "idCardPinRemoveIconButton",
+                            errorTestTag = "idCardPinError",
+                        )
                     }
                 }
             }

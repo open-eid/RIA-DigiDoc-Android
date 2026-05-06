@@ -35,7 +35,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -688,25 +687,20 @@ fun MyEidPinScreen(
                                                 testTagsAsResourceId = true
                                             }.testTag("myEidCurrentPinTextField"),
                                     pin = currentPinState,
-                                    pinCodeLabel = pinCodeLabel,
-                                    pinNumberFocusRequester = currentPinFocusRequester,
-                                    previousFocusRequester = pinChangeTitleFocusRequester,
+                                    label = pinCodeLabel,
+                                    focusRequester = currentPinFocusRequester,
                                     pinCodeTextEdited = null,
-                                    trailingIconContentDescription = "$clearButtonText $buttonName",
                                     isError = !isCurrentPinValid,
                                     keyboardImeAction = ImeAction.Next,
-                                    keyboardActions =
-                                        KeyboardActions(
-                                            onNext = {
-                                                if (isCurrentPinValid) {
-                                                    showCurrentPinField.value = false
-                                                    showNewRepeatPinField.value = false
-                                                    showNewPinField.value = true
-                                                } else {
-                                                    focusManager.clearFocus()
-                                                }
-                                            },
-                                        ),
+                                    onDone = {
+                                        if (isCurrentPinValid) {
+                                            showCurrentPinField.value = false
+                                            showNewRepeatPinField.value = false
+                                            showNewPinField.value = true
+                                        } else {
+                                            focusManager.clearFocus()
+                                        }
+                                    },
                                 )
                                 if (isTalkBackEnabled(context) && currentPinState.value.isNotEmpty()) {
                                     IconButton(
@@ -794,25 +788,20 @@ fun MyEidPinScreen(
                                                 testTagsAsResourceId = true
                                             }.testTag("myEidNewPinTextField"),
                                     pin = newPinState,
-                                    pinCodeLabel = pinCodeLabel,
-                                    pinNumberFocusRequester = newPinFocusRequester,
-                                    previousFocusRequester = newPinDescriptionFocusRequester,
+                                    label = pinCodeLabel,
+                                    focusRequester = newPinFocusRequester,
                                     pinCodeTextEdited = null,
-                                    trailingIconContentDescription = "$clearButtonText $buttonName",
                                     isError = !isNewPinValid,
                                     keyboardImeAction = ImeAction.Next,
-                                    keyboardActions =
-                                        KeyboardActions(
-                                            onNext = {
-                                                if (isNewPinValid) {
-                                                    showCurrentPinField.value = false
-                                                    showNewPinField.value = false
-                                                    showNewRepeatPinField.value = true
-                                                } else {
-                                                    focusManager.clearFocus()
-                                                }
-                                            },
-                                        ),
+                                    onDone = {
+                                        if (isNewPinValid) {
+                                            showCurrentPinField.value = false
+                                            showNewPinField.value = false
+                                            showNewRepeatPinField.value = true
+                                        } else {
+                                            focusManager.clearFocus()
+                                        }
+                                    }
                                 )
                                 if (isTalkBackEnabled(context) && newPinState.value.isNotEmpty()) {
                                     IconButton(
@@ -929,11 +918,9 @@ fun MyEidPinScreen(
                                                 testTagsAsResourceId = true
                                             }.testTag("myEidNewPinRepeatedTextField"),
                                     pin = newPinRepeatedState,
-                                    pinCodeLabel = pinCodeLabel,
-                                    pinNumberFocusRequester = newPinRepeatedFocusRequester,
-                                    previousFocusRequester = newPinRepeatedDescriptionFocusRequester,
+                                    label = pinCodeLabel,
+                                    focusRequester = newPinRepeatedFocusRequester,
                                     pinCodeTextEdited = null,
-                                    trailingIconContentDescription = "$clearButtonText $buttonName",
                                     isError = !isNewRepeatedPinValid,
                                 )
                                 if (isTalkBackEnabled(context) && newPinRepeatedState.value.isNotEmpty()) {

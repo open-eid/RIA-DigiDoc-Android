@@ -27,18 +27,14 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
@@ -46,11 +42,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -63,26 +55,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -104,13 +91,12 @@ import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager.NfcStatus
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.HrefMessageDialog
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
+import ee.ria.DigiDoc.ui.component.shared.PrimaryTextField
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
 import ee.ria.DigiDoc.ui.component.shared.SecurePinTextField
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
-import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.addInvisibleElement
@@ -124,7 +110,6 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -599,149 +584,55 @@ fun NFCView(
                                 testTagsAsResourceId = true
                             }.testTag("nfcViewContainer"),
                 ) {
-                    Row(
+                    PrimaryTextField(
                         modifier =
-                            modifier
-                                .fillMaxWidth()
-                                .padding(top = XSPadding),
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        OutlinedTextField(
-                            label = {
-                                Text(text = canNumberLabel)
+                            Modifier
+                                .padding(top = XSPadding)
+                                .focusRequester(canNumberFocusRequester)
+                                .testTag("nfcCanNumber"),
+                        value =
+                            if (!isTalkBackEnabled(context)) {
+                                canNumber
+                            } else {
+                                canNumberWithInvisibleSpaces
                             },
-                            value =
-                                if (!isTalkBackEnabled(context)) {
-                                    canNumber
-                                } else {
-                                    canNumberWithInvisibleSpaces.copy(
-                                        selection = TextRange(canNumberWithInvisibleSpaces.text.length),
-                                    )
-                                },
-                            singleLine = true,
-                            onValueChange = {
-                                canNumberTextEdited.value = true
+                        onValueChange = {
+                            canNumberTextEdited.value = true
 
+                            canNumber =
                                 if (!isTalkBackEnabled(context)) {
-                                    canNumber = it.copy(selection = TextRange(it.text.length))
+                                    it
                                 } else {
-                                    val noInvisibleElement =
-                                        TextFieldValue(removeInvisibleElement(it.text))
-                                    canNumber =
-                                        noInvisibleElement.copy(
-                                            selection =
-                                                TextRange(
-                                                    noInvisibleElement.text.length,
-                                                ),
-                                        )
+                                    TextFieldValue(removeInvisibleElement(it.text))
                                 }
-                            },
-                            modifier =
-                                modifier
-                                    .focusRequester(canNumberFocusRequester)
-                                    .then(
-                                        if (showPinField) {
-                                            modifier.focusProperties {
-                                                next = pinNumberFocusRequester
-                                            }
-                                        } else {
-                                            modifier
-                                        },
-                                    ).weight(1f)
-                                    .semantics(mergeDescendants = true) {
-                                        testTagsAsResourceId = true
-                                        contentDescription = canNumberLocationText
-                                    }.testTag("signatureUpdateNFCCAN"),
-                            trailingIcon = {
-                                if (!isTalkBackEnabled(context) && canNumber.text.isNotEmpty()) {
-                                    IconButton(onClick = {
-                                        canNumber = TextFieldValue("")
-                                    }) {
-                                        Icon(
-                                            imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                            contentDescription = "$clearButtonText $buttonName",
-                                        )
-                                    }
-                                }
-                            },
-                            colors =
-                                OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                    unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-                                ),
-                            keyboardOptions =
-                                if (showPinField) {
-                                    KeyboardOptions.Default.copy(
-                                        imeAction = ImeAction.Next,
-                                        keyboardType = KeyboardType.Number,
-                                    )
-                                } else {
-                                    KeyboardOptions.Default.copy(
-                                        imeAction = ImeAction.Done,
-                                        keyboardType = KeyboardType.Number,
-                                    )
-                                },
-                            isError =
-                                canNumberTextEdited.value &&
-                                    nfcViewModel.shouldShowCANNumberError(canNumber.text),
-                        )
-                        if (isTalkBackEnabled(context) && canNumber.text.isNotEmpty()) {
-                            IconButton(
-                                modifier =
-                                    modifier
-                                        .align(Alignment.CenterVertically),
-                                onClick = {
-                                    canNumber = TextFieldValue("")
-                                    scope.launch(Main) {
-                                        canNumberFocusRequester.requestFocus()
-                                        focusManager.clearFocus()
-                                        delay(200)
-                                        canNumberFocusRequester.requestFocus()
-                                    }
-                                },
-                            ) {
-                                Icon(
-                                    modifier =
-                                        modifier
-                                            .size(iconSizeXXS)
-                                            .semantics {
-                                                testTagsAsResourceId = true
-                                            }.testTag("nfcCanNumberRemoveIconButton"),
-                                    imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                    contentDescription = "$clearButtonText $buttonName",
-                                )
-                            }
-                        }
-                    }
-                    Text(
-                        text = canNumberLocationText,
-                        modifier =
-                            modifier
-                                .padding(vertical = XSPadding)
-                                .testTag("signatureInputMethodTitle")
-                                .notAccessible(),
-                        color = MaterialTheme.colorScheme.onSecondary,
-                        textAlign = TextAlign.Start,
-                        style = MaterialTheme.typography.labelMedium,
+                        },
+                        singleLine = true,
+                        label = canNumberLabel,
+                        readDigitByDigit = true,
+                        description = canNumberLocationText,
+                        onDone = {
+                            pinNumberFocusRequester.requestFocus()
+                        },
+                        keyboardOptions =
+                            KeyboardOptions.Default.copy(
+                                imeAction =
+                                    if (showPinField) {
+                                        ImeAction.Next
+                                    } else {
+                                        ImeAction.Done
+                                    },
+                                keyboardType = KeyboardType.Number,
+                            ),
+                        isError =
+                            canNumberTextEdited.value &&
+                                nfcViewModel.shouldShowCANNumberError(canNumber.text),
+                        errorText = canNumberErrorText,
+                        testTag = "nfcCanNumberTextField",
+                        removeIconTestTag = "nfcCanNumberRemoveIconButton",
+                        descriptionTestTag = "nfcCanNumberLocationText",
+                        errorTestTag = "nfcCanErrorText",
                     )
-                    if (canNumberErrorText.isNotEmpty()) {
-                        Text(
-                            modifier =
-                                modifier
-                                    .padding(top = XSPadding)
-                                    .padding(bottom = MSPadding)
-                                    .fillMaxWidth()
-                                    .focusable(enabled = true)
-                                    .semantics {
-                                        contentDescription = canNumberErrorText
-                                        testTagsAsResourceId = true
-                                    }.testTag("nfcCANErrorText"),
-                            text = canNumberErrorText,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
+
                     val pinCodeTextEdited = rememberSaveable { mutableStateOf(false) }
                     val pinCodeErrorText =
                         if (pinCodeTextEdited.value && pinCode.value.isNotEmpty()) {
@@ -764,83 +655,28 @@ fun NFCView(
                         }
 
                     if (showPinField) {
-                        Row(
+                        SecurePinTextField(
                             modifier =
-                                modifier
-                                    .fillMaxWidth()
-                                    .padding(top = XSPadding),
-                            horizontalArrangement = Arrangement.Start,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            SecurePinTextField(
-                                modifier =
-                                    modifier
-                                        .weight(1f)
-                                        .semantics {
-                                            testTagsAsResourceId = true
-                                        }.testTag("nfcPinTextField"),
-                                pin = pinCode,
-                                pinCodeLabel = pinCodeLabel,
-                                pinNumberFocusRequester = pinNumberFocusRequester,
-                                previousFocusRequester = canNumberFocusRequester,
-                                pinCodeTextEdited = pinCodeTextEdited,
-                                trailingIconContentDescription = "$clearButtonText $buttonName",
-                                isError =
-                                    pinCodeTextEdited.value &&
-                                        shouldShowPINCodeError(
-                                            pinCode.value,
-                                            codeType,
-                                        ),
-                            )
-                            if (isTalkBackEnabled(context) && pinCode.value.isNotEmpty()) {
-                                IconButton(
-                                    modifier =
-                                        modifier
-                                            .align(Alignment.CenterVertically)
-                                            .semantics {
-                                                traversalIndex = 9f
-                                                testTagsAsResourceId = true
-                                            }.testTag("nfcPinRemoveButton"),
-                                    onClick = {
-                                        pinCode.value = byteArrayOf()
-                                        scope.launch(Main) {
-                                            pinNumberFocusRequester.requestFocus()
-                                            focusManager.clearFocus()
-                                            delay(200)
-                                            pinNumberFocusRequester.requestFocus()
-                                        }
-                                    },
-                                ) {
-                                    Icon(
-                                        modifier =
-                                            modifier
-                                                .size(iconSizeXXS)
-                                                .semantics {
-                                                    testTagsAsResourceId = true
-                                                }.testTag("nfcPinRemoveIconButton"),
-                                        imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                        contentDescription = "$clearButtonText $buttonName",
-                                    )
-                                }
-                            }
-                        }
-
-                        if (pinCodeErrorText.isNotEmpty()) {
-                            Text(
-                                modifier =
-                                    modifier
-                                        .padding(vertical = XSPadding)
-                                        .fillMaxWidth()
-                                        .focusable(enabled = true)
-                                        .semantics {
-                                            contentDescription = pinCodeErrorText
-                                            testTagsAsResourceId = true
-                                        }.testTag("nfcPinErrorText"),
-                                text = pinCodeErrorText,
-                                color = MaterialTheme.colorScheme.error,
-                                style = MaterialTheme.typography.bodySmall,
-                            )
-                        }
+                                Modifier
+                                    .focusRequester(pinNumberFocusRequester)
+                                    .focusProperties {
+                                        previous = canNumberFocusRequester
+                                    }.semantics {
+                                        testTagsAsResourceId = true
+                                    }.testTag("nfcPinTextField"),
+                            pin = pinCode,
+                            label = pinCodeLabel,
+                            pinCodeTextEdited = pinCodeTextEdited,
+                            isError =
+                                pinCodeTextEdited.value &&
+                                    shouldShowPINCodeError(
+                                        pinCode.value,
+                                        codeType,
+                                    ),
+                            errorText = pinCodeErrorText,
+                            removeIconTestTag = "nfcPinRemoveButton",
+                            errorTestTag = "nfcPinError",
+                        )
                     }
                 }
             }
