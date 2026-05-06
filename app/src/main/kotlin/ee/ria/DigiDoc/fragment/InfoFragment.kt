@@ -39,6 +39,7 @@ import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.fragment.screen.InfoScreen
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -46,6 +47,7 @@ fun InfoFragment(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     sharedMenuViewModel: SharedMenuViewModel,
+    sharedSettingsViewModel: SharedSettingsViewModel,
 ) {
     Surface(
         modifier =
@@ -61,6 +63,7 @@ fun InfoFragment(
             navController = navController,
             modifier = modifier,
             sharedMenuViewModel = sharedMenuViewModel,
+            sharedSettingsViewModel = sharedSettingsViewModel,
         )
     }
 }
@@ -73,6 +76,7 @@ fun InfoFragmentPreview() {
         InfoFragment(
             navController = rememberNavController(),
             sharedMenuViewModel = hiltViewModel(),
+            sharedSettingsViewModel = hiltViewModel(),
         )
     }
 }

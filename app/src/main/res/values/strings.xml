@@ -502,9 +502,7 @@
     <string name="main_accessibility_introduction_screen_magnification_tools_android">Magnification (Android, built in) https://support.google.com/accessibility/android/answer/6006949?hl=en</string>
 
     <!-- Main About -->
-    <string name="main_about_1_logo_text">Eesti tuleviku heaks</string>
-    <string name="main_about_2_logo_text">Kaasrahastanud Euroopa Liit</string>
-    <string name="main_about_digidoc_and_el_logos">The project is supported by the European Regional Development Fund</string>
+    <string name="main_about_digidoc_and_el_logos">The project is co-funded by the European Union</string>
     <string name="main_about_ria_digidoc_title">RIA DigiDoc</string>
     <string name="main_about_version_title">version %1$s</string>
     <string name="main_about_info_title">Estonian ID software is issued by the Estonian Information System Authority. If you have any questions, please contact:</string>
