@@ -61,6 +61,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.asFlow
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.LPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
@@ -83,17 +84,18 @@ fun NFCSignatureUpdateContainer(
     val defaultMessage = stringResource(id = R.string.signature_update_nfc_hold)
     var message by remember { mutableStateOf(defaultMessage) }
 
+    val errorState by nfcViewModel.errorState.collectAsStateWithLifecycle()
+
     LaunchedEffect(nfcViewModel.message) {
         nfcViewModel.message.asFlow().collect { messageRes ->
             messageRes?.let { message = context.getString(it) }
         }
     }
 
-    LaunchedEffect(nfcViewModel.errorState) {
-        nfcViewModel.errorState.asFlow().collect { error ->
-            if (error != null) {
-                onError()
-            }
+    LaunchedEffect(errorState) {
+        errorState?.let { error ->
+            context.getString(error.message)
+            onError()
         }
     }
 

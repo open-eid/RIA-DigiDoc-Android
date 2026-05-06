@@ -77,7 +77,7 @@ fun HrefMessageDialogPreview() {
         HrefMessageDialog(
             text1 = R.string.main_diagnostics_restart_message,
             text2 = R.string.main_diagnostics_restart_message_restart_now,
-            linkText = R.string.main_diagnostics_restart_message_read_more,
+            linkText = R.string.read_more_here,
             linkUrl = R.string.main_diagnostics_restart_message_href,
         )
     }

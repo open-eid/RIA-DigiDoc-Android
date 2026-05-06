@@ -79,6 +79,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.asFlow
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.NFCConstants.CAN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN1_MIN_LENGTH
@@ -86,6 +87,7 @@ import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN2_MIN_LENGTH
 import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN_MAX_LENGTH
 import ee.ria.DigiDoc.domain.model.IdCardData
 import ee.ria.DigiDoc.domain.model.IdentityAction
+import ee.ria.DigiDoc.exceptions.NFCError
 import ee.ria.DigiDoc.idcard.CodeType
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager.NfcStatus
@@ -95,6 +97,7 @@ import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.PrimaryTextField
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
 import ee.ria.DigiDoc.ui.component.shared.SecurePinTextField
+import ee.ria.DigiDoc.ui.component.shared.dialog.WrongCanDialog
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
@@ -196,8 +199,13 @@ fun NFCView(
             ),
         )
     }
+    val errorState by nfcViewModel.errorState.collectAsStateWithLifecycle()
     var errorText by remember { mutableStateOf("") }
     val showErrorDialog = rememberSaveable { mutableStateOf(false) }
+    var showWrongCanDialog by remember { mutableStateOf(false) }
+    var doNotShowWrongCanDialogAgain by remember {
+        mutableStateOf(nfcViewModel.getDoNotShowWrongCanDialog())
+    }
     val focusManager = LocalFocusManager.current
     val saveFormParams = {
         val currentCan = canNumber.text
@@ -320,23 +328,18 @@ fun NFCView(
         }
     }
 
-    LaunchedEffect(nfcViewModel.errorState) {
-        nfcViewModel.errorState.asFlow().collect { errorState ->
-            errorState?.let {
-                withContext(Main) {
-                    pinCode.value.fill(0)
-                    if (errorState.first != 0) {
-                        errorText =
-                            context.getString(
-                                errorState.first,
-                                errorState.second,
-                                errorState.third,
-                            )
-                    }
+    LaunchedEffect(errorState) {
+        errorState?.let { error ->
+            if (error is NFCError.WrongCan && !doNotShowWrongCanDialogAgain) showWrongCanDialog = true
 
-                    nfcViewModel.resetErrorState()
+            errorText =
+                when (error) {
+                    is NFCError.PinBlocked -> context.getString(error.message, error.pinType)
+                    is NFCError.WrongPin -> context.getString(error.message, error.pinType, error.retriesLeft)
+                    else -> context.getString(error.message)
                 }
-            }
+
+            nfcViewModel.resetErrorState()
         }
     }
 
@@ -534,6 +537,18 @@ fun NFCView(
             }
             InvisibleElement(modifier = modifier)
         }
+    }
+
+    if (showWrongCanDialog) {
+        WrongCanDialog(
+            onDismiss = { shouldNotShowDialogAgain ->
+                if (shouldNotShowDialogAgain) {
+                    nfcViewModel.setDoNotShowWrongCanDialog(true)
+                    doNotShowWrongCanDialogAgain = true
+                }
+                showWrongCanDialog = false
+            },
+        )
     }
 
     Column(

@@ -636,6 +636,15 @@ class DataStoreTest {
     }
 
     @Test
+    fun dataStore_setDoNotShowWrongCanDialog_success() {
+        dataStore.setDoNotShowWrongCanDialog(true)
+
+        val result = dataStore.getDoNotShowWrongCanDialog()
+
+        assertTrue(result)
+    }
+
+    @Test
     fun dataStore_getWebEidRememberMe_defaultTrue() {
         val result = dataStore.getWebEidRememberMe()
 
@@ -682,6 +691,13 @@ class DataStoreTest {
         dataStore.setWebEidSessionActive(false)
 
         val result = dataStore.isWebEidSessionActive()
+
+        assertFalse(result)
+    }
+
+    @Test
+    fun dataStore_getDoNotShowWrongCanDialog_success() {
+        val result = dataStore.getDoNotShowWrongCanDialog()
 
         assertFalse(result)
     }

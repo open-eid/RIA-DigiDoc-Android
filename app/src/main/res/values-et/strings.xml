@@ -1,6 +1,10 @@
 <resources>
     <string name="main_home_version">versioon %1$s</string>
 
+    <string name="read_more_here">Loe täpsemalt siit</string>
+    <string name="do_not_show_again">Ära rohkem näita</string>
+    <string name="dialog">Dialoog</string>
+
     <!-- Home Screen actions -->
     <string name="main_home_open_document_title">Failid</string>
     <string name="main_home_open_document_description">Leia vajalik fail või dokument</string>
@@ -335,6 +339,8 @@
     <string name="signature_update_nfc_hold">Hoia ID-kaarti telefoni lähedal</string>
     <string name="signature_update_nfc_wrong_can">Vale CAN number</string>
     <string name="signature_update_nfc_detected">ID-kaardiga ühenduse loomine</string>
+    <string name="signature_update_nfc_wrong_can_message">NFC abil tehtud toimingutes kasutatakse CAN numbrit. Mitmekordsel CANi valesti sisestamisel võib NFC lukustuda.</string>
+    <string name="signature_update_nfc_wrong_can_url">https://www.id.ee/artikkel/digiallkirjastamine-ria-digidoc-mobiilirakenduses/</string>
 
     <string name="sign_button">Allkirjasta</string>
     <string name="next_button">Edasi</string>
@@ -525,7 +531,6 @@
     <string name="main_diagnostics_save_log">Salvesta logifail</string>
     <string name="main_diagnostics_restart_message">Logimise aktiveerimiseks taaskäivita RIA DigiDoc.</string>
     <string name="main_diagnostics_restart_message_href">https://www.id.ee/artikkel/logifaili-genereerimine-digidoc4-kliendis/</string>
-    <string name="main_diagnostics_restart_message_read_more">Loe täpsemalt siit</string>
     <string name="main_diagnostics_restart_message_restart_now">Taaskäivita rakendus?</string>
 
     <!-- Main Settings -->

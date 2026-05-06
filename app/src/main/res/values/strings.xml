@@ -1,6 +1,10 @@
 <resources>
     <string name="main_home_version">version %1$s</string>
 
+    <string name="read_more_here">Read more here</string>
+    <string name="do_not_show_again">Don\'t show again</string>
+    <string name="dialog">Dialog</string>
+
     <!-- Home Screen actions -->
     <string name="main_home_open_document_title">Files</string>
     <string name="main_home_open_document_description">Find the file or document you need</string>
@@ -335,6 +339,8 @@
     <string name="signature_update_nfc_wrong_can">Wrong CAN number</string>
     <string name="signature_update_nfc_hold">Hold your phone near the ID-card</string>
     <string name="signature_update_nfc_detected">Establishing connection with ID-card</string>
+    <string name="signature_update_nfc_wrong_can_message">NFC actions use the CAN number. NFC may lock up if CAN is entered incorrectly multiple times.</string>
+    <string name="signature_update_nfc_wrong_can_url">https://www.id.ee/en/article/digital-signing-in-ria-digidoc-mobile-application/</string>
 
     <string name="sign_button">Sign</string>
     <string name="next_button">Next</string>
@@ -525,7 +531,6 @@
     <string name="main_diagnostics_save_log">Save log</string>
     <string name="main_diagnostics_restart_message">Restart RIA DigiDoc to activate logging.</string>
     <string name="main_diagnostics_restart_message_href">https://www.id.ee/en/article/log-file-generation-in-digidoc4-client/</string>
-    <string name="main_diagnostics_restart_message_read_more">Read more here</string>
     <string name="main_diagnostics_restart_message_restart_now">Restart now?</string>
 
     <!-- Main Settings -->

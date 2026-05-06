@@ -348,18 +348,23 @@ fun MyEidPinScreen(
     }
 
     BackHandler {
-        if (showNewRepeatPinField.value) {
-            newPinRepeatedState.value = byteArrayOf()
-
-            showNewRepeatPinField.value = false
-            showCurrentPinField.value = false
-            showNewPinField.value = true
-        } else if (showCurrentPinField.value) {
-            resetPins()
-            sharedMyEidViewModel.resetScreenContent()
-            navController.navigateUp()
-        } else {
+        if (showNFCScreen.value) {
+            showNFCScreen.value = false
             resetToBeginning()
+        } else {
+            if (showNewRepeatPinField.value) {
+                newPinRepeatedState.value = byteArrayOf()
+
+                showNewRepeatPinField.value = false
+                showCurrentPinField.value = false
+                showNewPinField.value = true
+            } else if (showCurrentPinField.value) {
+                resetPins()
+                sharedMyEidViewModel.resetScreenContent()
+                navController.navigateUp()
+            } else {
+                resetToBeginning()
+            }
         }
     }
 
@@ -388,22 +393,27 @@ fun MyEidPinScreen(
                         R.string.back
                     },
                 onLeftButtonClick = {
-                    if (showNewRepeatPinField.value) {
-                        showNewRepeatPinField.value = false
-                        showCurrentPinField.value = false
-                        showNewPinField.value = true
-
-                        newPinRepeatedState.value = byteArrayOf()
-                    } else if (showNewPinField.value) {
+                    if (showNFCScreen.value) {
+                        showNFCScreen.value = false
                         resetToBeginning()
-
-                        newPinRepeatedState.value = byteArrayOf()
-
-                        newPinState.value = byteArrayOf()
                     } else {
-                        resetPins()
-                        sharedMyEidViewModel.resetScreenContent()
-                        navController.navigateUp()
+                        if (showNewRepeatPinField.value) {
+                            showNewRepeatPinField.value = false
+                            showCurrentPinField.value = false
+                            showNewPinField.value = true
+
+                            newPinRepeatedState.value = byteArrayOf()
+                        } else if (showNewPinField.value) {
+                            resetToBeginning()
+
+                            newPinRepeatedState.value = byteArrayOf()
+
+                            newPinState.value = byteArrayOf()
+                        } else {
+                            resetPins()
+                            sharedMyEidViewModel.resetScreenContent()
+                            navController.navigateUp()
+                        }
                     }
                 },
                 onRightSecondaryButtonClick = {
