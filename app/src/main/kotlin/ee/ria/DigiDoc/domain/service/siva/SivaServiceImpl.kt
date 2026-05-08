@@ -69,9 +69,10 @@ class SivaServiceImpl
         override suspend fun getTimestampedContainer(
             context: Context,
             parentContainer: SignedContainer,
+            isSivaConfirmed: Boolean,
         ): SignedContainer {
             try {
-                val nestedContainer = parentContainer.getNestedTimestampedContainer()
+                val nestedContainer = parentContainer.getNestedTimestampedContainer(isSivaConfirmed)
                 return SignedContainer(
                     context,
                     nestedContainer?.rawContainer(),

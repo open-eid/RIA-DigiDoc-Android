@@ -33,6 +33,7 @@ import androidx.lifecycle.ViewModel
 import com.google.common.io.ByteStreams
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import ee.ria.DigiDoc.common.Constant.PDF_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES
 import ee.ria.DigiDoc.common.container.Container
 import ee.ria.DigiDoc.cryptolib.Addressee
@@ -45,9 +46,11 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
+import ee.ria.DigiDoc.utilsLib.extensions.isCades
 import ee.ria.DigiDoc.utilsLib.extensions.isContainer
 import ee.ria.DigiDoc.utilsLib.extensions.isCryptoContainer
 import ee.ria.DigiDoc.utilsLib.extensions.isSignedPDF
+import ee.ria.DigiDoc.utilsLib.extensions.isXades
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import kotlinx.coroutines.delay
@@ -212,15 +215,17 @@ class SharedContainerViewModel
                         clickedDataFile,
                     ) ?: return ContainerFileOpeningResult.Error(IllegalStateException("Container data file is null"))
 
+                val isSignedPDF = containerDataFile.isSignedPDF(context)
+                val mainContainerIsSignedPDF = signedContainer?.isSignedPDF() == true
+
                 if (
                     containerDataFile.isContainer(context) ||
                     containerDataFile.isCryptoContainer() ||
-                    (signedContainer?.isSignedPDF() == false && containerDataFile.isSignedPDF(context))
+                    (!mainContainerIsSignedPDF && isSignedPDF)
                 ) {
-                    val mimetype = containerDataFile.mimeType(context)
                     ContainerFileOpeningResult.OpenNestedFile(
                         file = containerDataFile,
-                        needsSivaDialog = SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(mimetype),
+                        needsSivaDialog = isSivaDialogNeeded(containerDataFile, context, isSignedPDF),
                     )
                 } else {
                     ContainerFileOpeningResult.OpenWithFile(containerDataFile)
@@ -247,15 +252,16 @@ class SharedContainerViewModel
                     )
                         ?: return ContainerFileOpeningResult.Error(IllegalStateException("Container data file is null"))
 
+                val isSignedPDF = containerDataFile.isSignedPDF(context)
+
                 if (
                     containerDataFile.isContainer(context) ||
                     containerDataFile.isCryptoContainer() ||
-                    (containerDataFile.isSignedPDF(context))
+                    isSignedPDF
                 ) {
-                    val mimetype = containerDataFile.mimeType(context)
                     ContainerFileOpeningResult.OpenNestedFile(
                         file = containerDataFile,
-                        needsSivaDialog = SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(mimetype),
+                        needsSivaDialog = isSivaDialogNeeded(containerDataFile, context, isSignedPDF),
                     )
                 } else {
                     ContainerFileOpeningResult.OpenWithFile(containerDataFile)
@@ -264,6 +270,19 @@ class SharedContainerViewModel
                 errorLog("SharedContainerViewModel", "Unable to open container. Unable to get datafiles", ex)
                 ContainerFileOpeningResult.Error(ex)
             }
+        }
+
+        private fun isSivaDialogNeeded(
+            file: File,
+            context: Context,
+            isSignedPDF: Boolean,
+        ): Boolean {
+            val mimetype = file.mimeType(context)
+            val isXades = file.isXades(context)
+            val isCades = file.isCades(context)
+            val isSivaCandidate = SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(mimetype) && !isXades
+            val isSignedPdfFile = PDF_MIMETYPE == mimetype && isSignedPDF
+            return isSivaCandidate || isSignedPdfFile || isCades
         }
 
         @Throws(Exception::class)

@@ -236,6 +236,7 @@ class FileOpeningViewModel
                                 sivaRepository.getTimestampedContainer(
                                     context,
                                     signedContainer,
+                                    isSivaConfirmed,
                                 )
                             _signedContainer.postValue(nestedTimestampedContainer)
                         } else {

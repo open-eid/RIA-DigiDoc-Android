@@ -84,7 +84,7 @@ class SignedContainer
         }
 
         @Throws(Exception::class)
-        suspend fun getNestedTimestampedContainer(): SignedContainer? {
+        suspend fun getNestedTimestampedContainer(isSivaConfirmed: Boolean): SignedContainer? {
             if ((containerMimetype().equals(ASICS_MIMETYPE, ignoreCase = true) && getDataFiles().size == 1) ||
                 isCades() &&
                 !isXades()
@@ -99,7 +99,7 @@ class SignedContainer
                     return nestedTimestampedFile?.let {
                         SignedContainer(
                             context = context,
-                            container = open(context, it, true).rawContainer(),
+                            container = open(context, it, isSivaConfirmed).rawContainer(),
                             containerFile = it,
                             isExistingContainer = true,
                         )

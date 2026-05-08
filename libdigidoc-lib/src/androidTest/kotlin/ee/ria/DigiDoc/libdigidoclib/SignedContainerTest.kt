@@ -286,7 +286,7 @@ class SignedContainerTest {
         runTest {
             val signedContainer = openOrCreate(context, container, listOf(container), true)
 
-            val result = signedContainer.getNestedTimestampedContainer()
+            val result = signedContainer.getNestedTimestampedContainer(true)
 
             assertNull(result)
         }

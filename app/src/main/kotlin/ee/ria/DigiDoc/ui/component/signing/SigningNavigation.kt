@@ -359,7 +359,7 @@ fun SigningNavigation(
         showSivaDialog.value = false
         isSivaConfirmed = false
         nestedFile.value?.let { file ->
-            if (DDOC_MIMETYPE != file.mimeType(context)) {
+            if (DDOC_MIMETYPE != file.mimeType(context) && !file.isSignedPDF(context)) {
                 openNestedContainer(file, false)
             }
         }
