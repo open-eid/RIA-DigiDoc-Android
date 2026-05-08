@@ -174,7 +174,7 @@ class RecentDocumentsViewModelTest {
 
             viewModel.openSignatureDocument(tempFile, true)
 
-            verify(sivaRepository).getTimestampedContainer(anyOrNull(), anyOrNull())
+            verify(sivaRepository).getTimestampedContainer(anyOrNull(), anyOrNull(), anyOrNull())
         }
 
     @Test

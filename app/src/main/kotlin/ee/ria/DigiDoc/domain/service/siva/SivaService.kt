@@ -36,5 +36,6 @@ interface SivaService {
     suspend fun getTimestampedContainer(
         context: Context,
         parentContainer: SignedContainer,
+        isSivaConfirmed: Boolean,
     ): SignedContainer
 }

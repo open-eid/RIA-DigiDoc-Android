@@ -115,7 +115,7 @@ class RecentDocumentsViewModel
             if (sivaRepository.isTimestampedContainer(signedContainer) &&
                 !signedContainer.isXades()
             ) {
-                return sivaRepository.getTimestampedContainer(context, signedContainer)
+                return sivaRepository.getTimestampedContainer(context, signedContainer, isSivaConfirmed)
             }
 
             return SignedContainer.openOrCreate(context, document, listOf(document), isSivaConfirmed)

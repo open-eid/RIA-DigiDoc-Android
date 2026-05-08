@@ -45,5 +45,6 @@ class SivaRepositoryImpl
         override suspend fun getTimestampedContainer(
             context: Context,
             parentContainer: SignedContainer,
-        ): SignedContainer = sivaService.getTimestampedContainer(context, parentContainer)
+            isSivaConfirmed: Boolean,
+        ): SignedContainer = sivaService.getTimestampedContainer(context, parentContainer, isSivaConfirmed)
     }

@@ -121,6 +121,7 @@ import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.removeExtensionFromContainerFilename
 import ee.ria.DigiDoc.utilsLib.extensions.isContainer
+import ee.ria.DigiDoc.utilsLib.extensions.isSignedPDF
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
@@ -277,7 +278,8 @@ fun EncryptNavigation(
         { nestedContainer, isSivaConfirmed ->
             scope.launch(IO) {
                 try {
-                    val isSigningContainer = nestedContainer.isContainer(context)
+                    val isSigningContainer =
+                        nestedContainer.isContainer(context) || nestedContainer.isSignedPDF(context)
 
                     if (isSigningContainer) {
                         signingViewModel.openNestedContainer(
@@ -321,7 +323,7 @@ fun EncryptNavigation(
     val handleSivaCancel: () -> Unit = {
         showSivaDialog.value = false
         nestedFile.value?.let { file ->
-            if (DDOC_MIMETYPE != file.mimeType(context)) {
+            if (DDOC_MIMETYPE != file.mimeType(context) && !file.isSignedPDF(context)) {
                 openNestedContainer(file, false)
             }
         }

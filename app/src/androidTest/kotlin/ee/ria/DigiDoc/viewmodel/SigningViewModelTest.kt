@@ -484,9 +484,11 @@ class SigningViewModelTest {
                 )
 
             `when`(sivaRepository.isTimestampedContainer(signedContainer)).thenReturn(true)
-            `when`(sivaRepository.getTimestampedContainer(context, signedContainer)).thenReturn(timestampedContainer)
+            `when`(
+                sivaRepository.getTimestampedContainer(context, signedContainer, true),
+            ).thenReturn(timestampedContainer)
 
-            val tsContainer = viewModel.getTimestampedContainer(context, signedContainer)
+            val tsContainer = viewModel.getTimestampedContainer(context, signedContainer, true)
             assertNotNull(tsContainer)
         }
 
@@ -499,7 +501,7 @@ class SigningViewModelTest {
 
             `when`(sivaRepository.isTimestampedContainer(signedContainer)).thenReturn(false)
 
-            val container = viewModel.getTimestampedContainer(context, signedContainer)
+            val container = viewModel.getTimestampedContainer(context, signedContainer, false)
 
             assertNotNull(container)
         }
