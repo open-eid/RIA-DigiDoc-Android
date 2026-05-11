@@ -68,6 +68,8 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.whenever
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileNotFoundException
 import java.nio.charset.Charset
@@ -127,7 +129,9 @@ class SharedContainerViewModelTest {
     fun sharedContainerViewModel_saveContainerFile_success() {
         val file = createTempFileWithStringContent("test", "Test content")
         val intent = Intent()
-        intent.data = Uri.fromFile(file)
+        val uri = Uri.fromFile(file)
+        intent.data = uri
+        whenever(contentResolver.openOutputStream(uri)).thenReturn(ByteArrayOutputStream())
         val activityResult = ActivityResult(-1, intent)
         viewModel.saveContainerFile(file, activityResult)
     }

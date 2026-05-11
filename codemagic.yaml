@@ -23,7 +23,7 @@ workflows:
     instance_type: linux_x2
     environment:
       ubuntu: 24.04
-      java: 17
+      java: 21
       groups:
         - "google_services"
         - "repo_ria"
@@ -36,9 +36,9 @@ workflows:
       defaultCentralConfigurationUrl_input:
         description: Default Central Configuration URL
         type: choice
-        default: http://10.1.24.31/config/mobile
+        default: http://ria.test/config/mobile
         options:
-          - http://10.1.24.31/config/mobile
+          - http://ria.test/config/mobile
           - https://repo.ria/config
           - https://id.eesti.ee
           - https://id-test.eesti.ee
@@ -50,9 +50,9 @@ workflows:
       defaultCentralConfigurationTslUrl_input:
         description: Default Central Configuration TSL URL
         type: choice
-        default: http://10.1.24.31/tsl/trusted-test-mp.xml
+        default: http://ria.test/tsl/trusted-test-mp.xml
         options:
-          - http://10.1.24.31/tsl/trusted-test-mp.xml
+          - http://ria.test/tsl/trusted-test-mp.xml
           - https://ec.europa.eu/tools/lotl/eu-lotl.xml
           - https://open-eid.github.io/test-TL/tl-mp-test-EE.xml
       memberTsl_input:
@@ -101,7 +101,7 @@ workflows:
           wget "https://ec.europa.eu/tools/lotl/eu-lotl.xml" -P $TSL_FILES_DIR
 
           # Get repo.ria values from environmental variables, as CodeMagic doesn't have access to repo.ria domain
-          if [[ "${{ inputs.defaultCentralConfigurationTslUrl_input }}" == *"10.1.24.31"* ]]; then
+          if [[ "${{ inputs.defaultCentralConfigurationTslUrl_input }}" == *"ria.test"* ]]; then
             echo "Using repo.ria configuration"
             echo $REPO_RIA_DEFAULT_PROPERTIES | base64 --decode > $CONFIG_DIR/configuration.properties
             echo $REPO_RIA_CONFIG | base64 --decode > $CONFIG_DIR/default-config.json
@@ -118,7 +118,7 @@ workflows:
           if [ -f "$TSL_FILES_DIR/eu-lotl.xml" ]; then
             echo "Getting TSL (local LOTL)"
             # Repo.ria TSL files already in assets folder, doesn't need to download separately anymore
-            if [[ "${{ inputs.defaultCentralConfigurationTslUrl_input }}" == *"10.1.24.31"* ]]; then
+            if [[ "${{ inputs.defaultCentralConfigurationTslUrl_input }}" == *"ria.test"* ]]; then
               python3 scripts/TSLXMLDownloader.py --tslFile="$TSL_FILES_DIR/eu-lotl.xml" --countries="${{ inputs.memberTsl_input }}" --isDevBuild="True"
             else
               python3 scripts/TSLXMLDownloader.py --tslFile="$TSL_FILES_DIR/eu-lotl.xml" --tslTestFile="$TSL_FILES_DIR/$(basename ${{ inputs.defaultCentralConfigurationTslUrl_input }})" --countries="${{ inputs.memberTsl_input }}" --isDevBuild="True"
@@ -137,7 +137,7 @@ workflows:
       - name: Fetch default configuration
         script: |
           # Not running 'fetchAndPackageDefaultConfiguration' for repo.ria as necessary files are already setup
-          if [[ ! "${{ inputs.defaultCentralConfigurationTslUrl_input }}" == *"10.1.24.31"* ]]; then
+          if [[ ! "${{ inputs.defaultCentralConfigurationTslUrl_input }}" == *"ria.test"* ]]; then
             ./gradlew clean --no-daemon fetchAndPackageDefaultConfiguration --args="${{ inputs.defaultCentralConfigurationUrl_input }} ${{ inputs.defaultCentralConfigurationUpdateInterval_input }}" -Dorg.gradle.jvmargs="-Xmx4g"
           else
             echo "Skipping default configuration fetching for repo.ria"
@@ -180,10 +180,9 @@ workflows:
           cd $CM_BUILD_DIR
 
           ./gradlew connectedDebugAndroidTest \
-            -Pandroid.enableUnitTestCoverage=false \
-            -Pandroid.enableAndroidTestCoverage=false \
             -Dorg.gradle.jvmargs="-Xmx4g" \
-            -Dorg.gradle.daemon=false
+            -Dorg.gradle.daemon=false \
+            --no-configuration-cache
 
           adb logcat -d > emulator.log
         when:
@@ -223,7 +222,7 @@ workflows:
     instance_type: linux_x2
     environment:
       ubuntu: 24.04
-      java: 17
+      java: 21
       groups:
         - "google_services"
         - "debug"
@@ -305,10 +304,9 @@ workflows:
           cd $CM_BUILD_DIR
 
           ./gradlew connectedDebugAndroidTest \
-            -Pandroid.enableUnitTestCoverage=false \
-            -Pandroid.enableAndroidTestCoverage=false \
             -Dorg.gradle.jvmargs="-Xmx4g" \
-            -Dorg.gradle.daemon=false
+            -Dorg.gradle.daemon=false \
+            --no-configuration-cache
 
           adb logcat -d > emulator.log
       - name: Build RIA DigiDoc

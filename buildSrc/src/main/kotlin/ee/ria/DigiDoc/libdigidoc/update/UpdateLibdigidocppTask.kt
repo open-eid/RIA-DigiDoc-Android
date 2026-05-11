@@ -23,6 +23,7 @@ package ee.ria.DigiDoc.libdigidoc.update
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import java.io.File
@@ -45,6 +46,12 @@ import javax.tools.StandardJavaFileManager
 import javax.tools.ToolProvider
 
 open class UpdateLibdigidocppTask : DefaultTask() {
+    @get:Internal
+    lateinit var rootDir: File
+
+    @get:Internal
+    lateinit var projectDir: File
+
     companion object {
         private const val PREFIX = "libdigidocpp."
         private const val SUFFIX = ".zip"
@@ -74,7 +81,7 @@ open class UpdateLibdigidocppTask : DefaultTask() {
 
     @TaskAction
     fun run() {
-        val inputDir = File(project.rootDir, dir)
+        val inputDir = File(rootDir, dir)
         val outputDir = temporaryDir
         outputDir.deleteRecursively()
 
@@ -113,7 +120,7 @@ open class UpdateLibdigidocppTask : DefaultTask() {
         compile(sourceDir)
         jar(sourceDir, jarFile)
 
-        val destinationDir = File(project.projectDir, "libs")
+        val destinationDir = File(projectDir, "libs")
         jarFile.copyTo(destinationDir.resolve(JAR), overwrite = true)
     }
 
@@ -135,7 +142,7 @@ open class UpdateLibdigidocppTask : DefaultTask() {
                 }
             }
         }
-        val schemaDir = File(project.projectDir, "src/main/res/raw")
+        val schemaDir = File(projectDir, "src/main/res/raw")
         schemaZipFile.copyTo(File(schemaDir, SCHEMA), true)
     }
 
@@ -144,8 +151,8 @@ open class UpdateLibdigidocppTask : DefaultTask() {
         abi: String
     ) {
         val nativeLib = File(cacheDir, "lib/libdigidoc_java.so")
-        val destDirDebug = File(project.projectDir, "src/debug/jniLibs/$abi")
-        val destDirMain = File(project.projectDir, "src/main/jniLibs/$abi")
+        val destDirDebug = File(projectDir, "src/debug/jniLibs/$abi")
+        val destDirMain = File(projectDir, "src/main/jniLibs/$abi")
 
         nativeLib.copyTo(File(destDirDebug, "libdigidoc_java.so"), true)
         nativeLib.copyTo(File(destDirMain, "libdigidoc_java.so"), true)

@@ -1,14 +1,13 @@
 import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-val appAbiFilters = "arm64-v8a;armeabi-v7a;x86_64"
+val appAbiFilters = "arm64-v8a;armeabi-v7a;x86_64".split(';').map { it.trim() }
 
 plugins {
     jacoco
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.compose.compiler)
-    kotlin("kapt")
+    alias(libs.plugins.ksp)
     id("com.google.dagger.hilt.android")
     alias(libs.plugins.google.services)
     alias(libs.plugins.google.firebase.crashlytics)
@@ -19,6 +18,8 @@ tasks.register<JacocoReport>("jacocoFilteredReport") {
 
     group = "Reporting"
     description = "Generates filtered JaCoCo report excluding UI package and other noise"
+
+    val buildDir = layout.buildDirectory.get().asFile
 
     val coverageFiles =
         fileTree("$buildDir/outputs/code_coverage/debugAndroidTest/connected") {
@@ -85,7 +86,7 @@ android {
 
         ndk {
             abiFilters.clear()
-            abiFilters.addAll(appAbiFilters.split(';').map { it.trim() })
+            abiFilters.addAll(appAbiFilters)
         }
     }
 
@@ -113,8 +114,8 @@ android {
                 nativeSymbolUploadEnabled = true
                 mappingFileUploadEnabled = true
             }
-            enableUnitTestCoverage = true
-            enableAndroidTestCoverage = true
+            enableUnitTestCoverage = project.hasProperty("coverageEnabled")
+            enableAndroidTestCoverage = project.hasProperty("coverageEnabled")
         }
 
         release {
@@ -132,14 +133,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
-        }
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     buildFeatures {
@@ -157,6 +152,12 @@ android {
     }
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_21)
+    }
+}
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -166,6 +167,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.material.icons.core)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
@@ -179,7 +181,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.google.dagger.hilt.android)
     implementation(libs.firebase.crashlytics.ktx)
-    kapt(libs.google.dagger.hilt.android.compile)
+    ksp(libs.google.dagger.hilt.android.compile)
     implementation(libs.androidx.hilt)
     implementation(libs.kotlinx.coroutines.rx3)
 

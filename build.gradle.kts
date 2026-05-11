@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.androidLibrary) apply false
-    alias(libs.plugins.jetbrainsKotlinAndroid) apply false
+    alias(libs.plugins.ksp) apply false
     alias(libs.plugins.googleDagger) apply false
     alias(libs.plugins.jlleitschuhKtlint)
     alias(libs.plugins.jetbrainsKotlinJvm) apply false

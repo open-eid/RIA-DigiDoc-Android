@@ -44,7 +44,7 @@ class Addressee(
     var certType: CertType,
     var validTo: Date?,
     var concatKDFAlgorithmURI: String?,
-): Serializable {
+) : Serializable {
     constructor(cn: String, sn: String, certType: CertType, validTo: Date?, data: ByteArray) : this(
         data = data,
         identifier = "",

@@ -3,7 +3,7 @@
 * License: LGPL 2.1
 * &copy; Estonian Information System Authority
 
-# RIA-DigiDoc-Android v3
+# RIA-DigiDoc-Android
 
 Android application that allows signing containers with ID-card via USB reader, ID-card via NFC, Mobile-ID and Smart-ID.
 

@@ -23,9 +23,9 @@ package ee.ria.DigiDoc.libdigidoclib.utils
 
 import android.content.Context
 import android.content.res.Resources.NotFoundException
-import android.util.Log
 import ee.ria.DigiDoc.libdigidoclib.R
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
@@ -65,7 +65,7 @@ object FileUtils {
         try {
             schemaResourceInputStream = context.resources.openRawResource(R.raw.schema)
         } catch (nfe: NotFoundException) {
-            Log.e(LIBDIGIDOC_FILEUTILS_LOG_TAG, "Unable to get 'schema' resource", nfe)
+            errorLog(LIBDIGIDOC_FILEUTILS_LOG_TAG, "Unable to get 'schema' resource", nfe)
             throw nfe
         }
         schemaResourceInputStream.use { inputStream ->
