@@ -25,10 +25,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -59,14 +57,8 @@ fun TabView(
                 }.testTag(testTag)
                 .fillMaxSize(),
     ) {
-        TabRow(
+        SecondaryTabRow(
             selectedTabIndex = selectedTabIndex,
-            indicator = { tabPositions ->
-                TabRowDefaults.SecondaryIndicator(
-                    modifier = modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            },
         ) {
             tabItems.forEachIndexed { index, (title, _) ->
                 val isSelected = selectedTabIndex == index

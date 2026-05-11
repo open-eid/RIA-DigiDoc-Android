@@ -74,13 +74,13 @@ class FileOpeningServiceImpl : FileOpeningService {
                 displayName = it
                     .getString(0)
                     ?.let { name ->
-                        sanitizeString(name, "")?.trim()?.let {
-                            if (it.isEmpty() || it.startsWith(".")) {
-                                "$DEFAULT_FILENAME$it"
-                            } else if (it.endsWith(".")) {
+                        sanitizeString(name, "").trim().let { sanitizedString ->
+                            if (sanitizedString.isEmpty() || sanitizedString.startsWith(".")) {
+                                "$DEFAULT_FILENAME$sanitizedString"
+                            } else if (sanitizedString.endsWith(".")) {
                                 DEFAULT_FILENAME
                             } else {
-                                it
+                                sanitizedString
                             }
                         }
                     }?.let { sanitized ->

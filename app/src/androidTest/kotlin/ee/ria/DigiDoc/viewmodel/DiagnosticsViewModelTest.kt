@@ -332,7 +332,8 @@ class DiagnosticsViewModelTest {
     fun diagnosticsViewModel_saveFile_success() {
         val file = createTempFileWithStringContent("test", "Test content")
         val intent = Intent()
-        intent.data = Uri.fromFile(file)
+        val uri = Uri.fromFile(file)
+        intent.data = uri
         val activityResult = ActivityResult(-1, intent)
         viewModel.saveFile(file, activityResult)
     }

@@ -26,6 +26,9 @@ import org.gradle.api.Project
 
 open class LibcdocPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        project.tasks.register("updateLibcdoc", UpdateLibcdocTask::class.java)
+        project.tasks.register("updateLibcdoc", UpdateLibcdocTask::class.java) {
+            rootDir = project.rootDir
+            projectDir = project.projectDir
+        }
     }
 }

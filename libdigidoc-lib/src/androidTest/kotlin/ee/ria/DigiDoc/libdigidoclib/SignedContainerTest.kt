@@ -348,7 +348,7 @@ class SignedContainerTest {
                     },
                 )
 
-            assertEquals(testFile.name, result?.name)
+            assertEquals(testFile.name, result.name)
         }
 
     @Test

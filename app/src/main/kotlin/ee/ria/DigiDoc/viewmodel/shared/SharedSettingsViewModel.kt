@@ -128,6 +128,8 @@ class SharedSettingsViewModel
         private val _errorState = MutableStateFlow<Int?>(null)
         val errorState: StateFlow<Int?> = _errorState
 
+        private val defaultManualProxySettings = ManualProxy("", 80, "", "")
+
         init {
             CoroutineScope(Main).launch {
                 configurationRepository.observeConfigurationUpdates { newConfig ->
@@ -150,11 +152,13 @@ class SharedSettingsViewModel
         private fun resetProxySettings() {
             dataStore.setProxySetting(ProxySetting.NO_PROXY)
             clearProxySettings()
+            overrideLibdigidocppProxy(defaultManualProxySettings)
         }
 
         private fun clearProxySettings() {
-            val manualProxySettings = ManualProxy("", 80, "", "")
+            val manualProxySettings = defaultManualProxySettings
             setManualProxySettings(manualProxySettings)
+            overrideLibdigidocppProxy(defaultManualProxySettings)
         }
 
         private fun setManualProxySettings(manualProxy: ManualProxy) {
@@ -253,7 +257,7 @@ class SharedSettingsViewModel
             if (currentProxySetting == ProxySetting.MANUAL_PROXY) {
                 setManualProxySettings(manualProxySettings)
             } else if (currentProxySetting == ProxySetting.SYSTEM_PROXY) {
-                val systemSettings: ProxyConfig = ProxyUtil.getProxy(currentProxySetting, ManualProxy("", 80, "", ""))
+                val systemSettings: ProxyConfig = ProxyUtil.getProxy(currentProxySetting, defaultManualProxySettings)
                 val proxySettings: ManualProxy? = systemSettings.manualProxy()
                 if (proxySettings != null) {
                     overrideLibdigidocppProxy(proxySettings)
@@ -411,27 +415,19 @@ class SharedSettingsViewModel
         fun handleSivaFile(uri: Uri) {
             try {
                 val initialStream: InputStream? = contentResolver.openInputStream(uri)
-                val documentFile = DocumentFile.fromSingleUri(context, uri)
-                if (documentFile != null) {
-                    val sivaCertFolder = File(context.filesDir, DIR_SIVA_CERT)
-                    if (!sivaCertFolder.exists()) {
-                        val isFolderCreated = sivaCertFolder.mkdirs()
-                        debugLog(
-                            logTag,
-                            String.format("SiVa cert folder created: %s", isFolderCreated),
-                        )
-                    }
-
-                    var fileName = documentFile.name
-                    if (fileName.isNullOrEmpty()) {
-                        fileName = "sivaCert"
-                    }
-                    val sivaFile = File(sivaCertFolder, fileName)
-
-                    FileUtils.copyInputStreamToFile(initialStream, sivaFile)
-
-                    dataStore.setSettingsSivaCertName(sivaFile.name)
+                val sivaCertFolder = File(context.filesDir, DIR_SIVA_CERT)
+                if (!sivaCertFolder.exists()) {
+                    val isFolderCreated = sivaCertFolder.mkdirs()
+                    debugLog(logTag, String.format("SiVa cert folder created: %s", isFolderCreated))
                 }
+                val fileName =
+                    DocumentFile
+                        .fromSingleUri(context, uri)
+                        ?.name
+                        .takeUnless { it.isNullOrEmpty() } ?: "sivaCert"
+                val sivaFile = File(sivaCertFolder, fileName)
+                FileUtils.copyInputStreamToFile(initialStream, sivaFile)
+                dataStore.setSettingsSivaCertName(sivaFile.name)
             } catch (e: Exception) {
                 errorLog(logTag, "Unable to read SiVa certificate file data", e)
             }
@@ -440,27 +436,19 @@ class SharedSettingsViewModel
         fun handleTsaFile(uri: Uri) {
             try {
                 val initialStream: InputStream? = contentResolver.openInputStream(uri)
-                val documentFile = DocumentFile.fromSingleUri(context, uri)
-                if (documentFile != null) {
-                    val tsaCertFolder = File(context.filesDir, DIR_TSA_CERT)
-                    if (!tsaCertFolder.exists()) {
-                        val isFolderCreated = tsaCertFolder.mkdirs()
-                        debugLog(
-                            logTag,
-                            String.format("TSA cert folder created: %s", isFolderCreated),
-                        )
-                    }
-
-                    var fileName = documentFile.name
-                    if (fileName.isNullOrEmpty()) {
-                        fileName = "tsaCert"
-                    }
-                    val tsaFile = File(tsaCertFolder, fileName)
-
-                    FileUtils.copyInputStreamToFile(initialStream, tsaFile)
-
-                    dataStore.setTSACertName(tsaFile.name)
+                val tsaCertFolder = File(context.filesDir, DIR_TSA_CERT)
+                if (!tsaCertFolder.exists()) {
+                    val isFolderCreated = tsaCertFolder.mkdirs()
+                    debugLog(logTag, String.format("TSA cert folder created: %s", isFolderCreated))
                 }
+                val fileName =
+                    DocumentFile
+                        .fromSingleUri(context, uri)
+                        ?.name
+                        .takeUnless { it.isNullOrEmpty() } ?: "tsaCert"
+                val tsaFile = File(tsaCertFolder, fileName)
+                FileUtils.copyInputStreamToFile(initialStream, tsaFile)
+                dataStore.setTSACertName(tsaFile.name)
             } catch (e: Exception) {
                 errorLog(logTag, "Unable to read TSA certificate file data", e)
             }
@@ -469,27 +457,19 @@ class SharedSettingsViewModel
         fun handleCryptoCertFile(uri: Uri) {
             try {
                 val initialStream: InputStream? = contentResolver.openInputStream(uri)
-                val documentFile = DocumentFile.fromSingleUri(context, uri)
-                if (documentFile != null) {
-                    val cryptoCertFolder = File(context.filesDir, DIR_CRYPTO_CERT)
-                    if (!cryptoCertFolder.exists()) {
-                        val isFolderCreated = cryptoCertFolder.mkdirs()
-                        debugLog(
-                            logTag,
-                            String.format("Crypto cert folder created: %s", isFolderCreated),
-                        )
-                    }
-
-                    var fileName = documentFile.name
-                    if (fileName.isNullOrEmpty()) {
-                        fileName = "cryptoCert"
-                    }
-                    val cryptoCertFile = File(cryptoCertFolder, fileName)
-
-                    FileUtils.copyInputStreamToFile(initialStream, cryptoCertFile)
-
-                    dataStore.setCryptoCertName(cryptoCertFile.name)
+                val cryptoCertFolder = File(context.filesDir, DIR_CRYPTO_CERT)
+                if (!cryptoCertFolder.exists()) {
+                    val isFolderCreated = cryptoCertFolder.mkdirs()
+                    debugLog(logTag, String.format("Crypto cert folder created: %s", isFolderCreated))
                 }
+                val fileName =
+                    DocumentFile
+                        .fromSingleUri(context, uri)
+                        ?.name
+                        .takeUnless { it.isNullOrEmpty() } ?: "cryptoCert"
+                val cryptoCertFile = File(cryptoCertFolder, fileName)
+                FileUtils.copyInputStreamToFile(initialStream, cryptoCertFile)
+                dataStore.setCryptoCertName(cryptoCertFile.name)
             } catch (e: Exception) {
                 errorLog(logTag, "Unable to read Crypto certificate file data", e)
             }

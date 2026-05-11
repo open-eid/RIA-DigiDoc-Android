@@ -116,13 +116,7 @@ class FileUtilsTest {
         `when`(context.cacheDir).thenReturn(cacheDir)
         `when`(resources.openRawResource(anyInt())).thenReturn(inputStream)
 
-        try {
-            initSchema(context)
-        } catch (e: ZipException) {
-            assertEquals(ZipException::class.java, e.javaClass)
-            assertEquals("Bad zip entry: ../file.txt", e.message)
-            throw e
-        }
+        initSchema(context)
     }
 
     @Test

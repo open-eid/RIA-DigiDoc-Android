@@ -23,7 +23,7 @@ workflows:
     instance_type: linux_x2
     environment:
       ubuntu: 24.04
-      java: 17
+      java: 21
       groups:
         - "google_services"
         - "repo_ria"
@@ -180,10 +180,9 @@ workflows:
           cd $CM_BUILD_DIR
 
           ./gradlew connectedDebugAndroidTest \
-            -Pandroid.enableUnitTestCoverage=false \
-            -Pandroid.enableAndroidTestCoverage=false \
             -Dorg.gradle.jvmargs="-Xmx4g" \
-            -Dorg.gradle.daemon=false
+            -Dorg.gradle.daemon=false \
+            --no-configuration-cache
 
           adb logcat -d > emulator.log
         when:
@@ -223,7 +222,7 @@ workflows:
     instance_type: linux_x2
     environment:
       ubuntu: 24.04
-      java: 17
+      java: 21
       groups:
         - "google_services"
         - "debug"
@@ -305,10 +304,9 @@ workflows:
           cd $CM_BUILD_DIR
 
           ./gradlew connectedDebugAndroidTest \
-            -Pandroid.enableUnitTestCoverage=false \
-            -Pandroid.enableAndroidTestCoverage=false \
             -Dorg.gradle.jvmargs="-Xmx4g" \
-            -Dorg.gradle.daemon=false
+            -Dorg.gradle.daemon=false \
+            --no-configuration-cache
 
           adb logcat -d > emulator.log
       - name: Build RIA DigiDoc

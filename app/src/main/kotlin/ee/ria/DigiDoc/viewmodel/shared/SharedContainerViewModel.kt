@@ -339,9 +339,8 @@ class SharedContainerViewModel
                     contentResolver
                         .openOutputStream(it)
                         .use { outputStream ->
-                            if (outputStream != null) {
-                                ByteStreams.copy(inputStream, outputStream)
-                            }
+                            outputStream ?: throw FileNotFoundException("Unable to open output stream for URI: $it")
+                            ByteStreams.copy(inputStream, outputStream)
                         }
                 }
             }

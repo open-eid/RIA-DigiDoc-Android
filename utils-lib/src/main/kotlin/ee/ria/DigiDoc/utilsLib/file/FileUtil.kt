@@ -55,7 +55,6 @@ import java.io.OutputStreamWriter
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
-import java.util.Objects
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.SAXParserFactory
 
@@ -292,15 +291,15 @@ object FileUtil {
         content: String?,
     ) {
         val file = File(filePath)
-        val parentFile = Objects.requireNonNull(file.getParentFile())
-        if (!parentFile.exists()) {
-            val isDirsCreated = parentFile.mkdirs()
-            if (isDirsCreated) {
-                infoLog(LOG_TAG, "Directories created or already exist for $filePath")
-            }
-        }
         try {
-            FileOutputStream(file.getAbsoluteFile()).use { outputStream ->
+            val parentFile = file.parentFile ?: throw IOException("No parent directory for path: $filePath")
+            if (!parentFile.exists()) {
+                val isDirsCreated = parentFile.mkdirs()
+                if (isDirsCreated) {
+                    infoLog(LOG_TAG, "Directories created or already exist for $filePath")
+                }
+            }
+            FileOutputStream(file.absoluteFile).use { outputStream ->
                 OutputStreamWriter(outputStream, StandardCharsets.UTF_8)
                     .use { writer ->
                         writer.write(content)
@@ -316,14 +315,14 @@ object FileUtil {
         content: ByteArray?,
     ) {
         val file = File(filePath)
-        val parentFile = Objects.requireNonNull(file.getParentFile())
-        if (!parentFile.exists()) {
-            val isDirsCreated = parentFile.mkdirs()
-            if (isDirsCreated) {
-                infoLog(LOG_TAG, "Directories created or already exist for $filePath")
-            }
-        }
         try {
+            val parentFile = file.parentFile ?: throw IOException("No parent directory for path: $filePath")
+            if (!parentFile.exists()) {
+                val isDirsCreated = parentFile.mkdirs()
+                if (isDirsCreated) {
+                    infoLog(LOG_TAG, "Directories created or already exist for $filePath")
+                }
+            }
             FileOutputStream(file).use { os -> os.write(content) }
         } catch (e: IOException) {
             throw IllegalStateException("Failed to store file '$filePath'!", e)
@@ -481,7 +480,7 @@ object FileUtil {
                         start: Int,
                         length: Int,
                     ) {
-                        val text = java.lang.String(ch, start, length).trim()
+                        val text = ch?.let { String(it, start, length).trim() }.orEmpty()
                         if (text.isNotEmpty()) {
                             currentElement?.appendChild(document.createTextNode(text))
                         }

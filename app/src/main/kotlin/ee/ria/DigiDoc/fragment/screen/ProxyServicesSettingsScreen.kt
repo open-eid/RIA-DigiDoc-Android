@@ -282,6 +282,7 @@ fun ProxyServicesSettingsScreen(
                             .clickable {
                                 settingsProxyChoice.value = ProxySetting.NO_PROXY.name
                                 setProxySetting(ProxySetting.NO_PROXY)
+                                sharedSettingsViewModel.saveProxySettings(true, ManualProxy("", 80, "", ""))
                             },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -302,6 +303,7 @@ fun ProxyServicesSettingsScreen(
                         onClick = {
                             settingsProxyChoice.value = ProxySetting.NO_PROXY.name
                             setProxySetting(ProxySetting.NO_PROXY)
+                            sharedSettingsViewModel.saveProxySettings(true, ManualProxy("", 80, "", ""))
                         },
                     )
                 }
@@ -328,6 +330,7 @@ fun ProxyServicesSettingsScreen(
                             .clickable {
                                 settingsProxyChoice.value = ProxySetting.SYSTEM_PROXY.name
                                 setProxySetting(ProxySetting.SYSTEM_PROXY)
+                                sharedSettingsViewModel.saveProxySettings(true, ManualProxy("", 80, "", ""))
                             },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -348,6 +351,7 @@ fun ProxyServicesSettingsScreen(
                         onClick = {
                             settingsProxyChoice.value = ProxySetting.SYSTEM_PROXY.name
                             setProxySetting(ProxySetting.SYSTEM_PROXY)
+                            sharedSettingsViewModel.saveProxySettings(true, ManualProxy("", 80, "", ""))
                         },
                     )
                 }
@@ -372,8 +376,18 @@ fun ProxyServicesSettingsScreen(
                             .fillMaxWidth()
                             .padding(SPadding)
                             .clickable {
+                                val proxyPortValue = proxyPort.text.toIntOrNull() ?: 80
                                 settingsProxyChoice.value = ProxySetting.MANUAL_PROXY.name
                                 setProxySetting(ProxySetting.MANUAL_PROXY)
+                                sharedSettingsViewModel.saveProxySettings(
+                                    false,
+                                    ManualProxy(
+                                        host = proxyHost.text,
+                                        port = proxyPortValue,
+                                        username = proxyUsername.text,
+                                        password = proxyPassword.text,
+                                    ),
+                                )
                             },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -393,8 +407,18 @@ fun ProxyServicesSettingsScreen(
                                 },
                         selected = settingsProxyChoice.value == ProxySetting.MANUAL_PROXY.name,
                         onClick = {
+                            val proxyPortValue = proxyPort.text.toIntOrNull() ?: 80
                             settingsProxyChoice.value = ProxySetting.MANUAL_PROXY.name
                             setProxySetting(ProxySetting.MANUAL_PROXY)
+                            sharedSettingsViewModel.saveProxySettings(
+                                false,
+                                ManualProxy(
+                                    host = proxyHost.text,
+                                    port = proxyPortValue,
+                                    username = proxyUsername.text,
+                                    password = proxyPassword.text,
+                                ),
+                            )
                         },
                     )
                 }

@@ -22,7 +22,6 @@
 package ee.ria.DigiDoc.utilsLib.extensions
 
 import android.content.Context
-import android.util.Log
 import android.webkit.MimeTypeMap
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
 import com.tom_roush.pdfbox.pdmodel.PDDocument
@@ -40,6 +39,7 @@ import ee.ria.DigiDoc.utilsLib.file.FileUtil.getFileInContainerZip
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.parseXMLFile
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.readFileAsString
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.compress.archivers.zip.ZipFile
 import java.io.File
@@ -134,7 +134,7 @@ fun File.isSignedPDF(context: Context): Boolean {
             }
         }
     } catch (e: IOException) {
-        Log.e(FILE_EXTENSIONS_LOG_TAG, "Unable to check if PDF is signed", e)
+        errorLog(FILE_EXTENSIONS_LOG_TAG, "Unable to check if PDF is signed", e)
         false
     }
 }
@@ -145,7 +145,7 @@ fun File.md5Hash(): String {
             return DigestUtils.md5Hex(fis)
         }
     } catch (e: IOException) {
-        Log.e(FILE_EXTENSIONS_LOG_TAG, "Unable to get MD5 of file: ${this.name}", e)
+        errorLog(FILE_EXTENSIONS_LOG_TAG, "Unable to get MD5 of file: ${this.name}", e)
         return ""
     }
 }

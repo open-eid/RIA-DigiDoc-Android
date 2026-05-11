@@ -23,6 +23,7 @@ package ee.ria.DigiDoc.libcdoc.update
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import java.io.File
@@ -44,6 +45,12 @@ import javax.tools.StandardJavaFileManager
 import javax.tools.ToolProvider
 
 open class UpdateLibcdocTask : DefaultTask() {
+    @get:Internal
+    lateinit var rootDir: File
+
+    @get:Internal
+    lateinit var projectDir: File
+
     companion object {
         private const val PREFIX = "libcdoc."
         private const val SUFFIX = ".zip"
@@ -72,7 +79,7 @@ open class UpdateLibcdocTask : DefaultTask() {
 
     @TaskAction
     fun run() {
-        val inputDir = File(project.rootDir, dir)
+        val inputDir = File(rootDir, dir)
         val outputDir = temporaryDir
         outputDir.deleteRecursively()
 
@@ -110,7 +117,7 @@ open class UpdateLibcdocTask : DefaultTask() {
         compile(sourceDir)
         jar(sourceDir, jarFile)
 
-        val destinationDir = File(project.projectDir, "libs")
+        val destinationDir = File(projectDir, "libs")
         jarFile.copyTo(destinationDir.resolve(JAR), overwrite = true)
     }
 
@@ -119,8 +126,8 @@ open class UpdateLibcdocTask : DefaultTask() {
         abi: String
     ) {
         val nativeLib = File(cacheDir, "lib/libcdoc_java.so")
-        val destDirDebug = File(project.projectDir, "src/debug/jniLibs/$abi")
-        val destDirMain = File(project.projectDir, "src/main/jniLibs/$abi")
+        val destDirDebug = File(projectDir, "src/debug/jniLibs/$abi")
+        val destDirMain = File(projectDir, "src/main/jniLibs/$abi")
 
         nativeLib.copyTo(File(destDirDebug, "libcdoc_java.so"), true)
         nativeLib.copyTo(File(destDirMain, "libcdoc_java.so"), true)
@@ -173,7 +180,7 @@ open class UpdateLibcdocTask : DefaultTask() {
             while (zipInputStream.nextEntry.also { entry = it } != null) {
                 val entryName = entry?.name ?: throw ZipException("Invalid zip entry")
                 val entryFile = File(destination, entryName)
-                if (entry?.isDirectory == true) continue
+                if (entry.isDirectory) continue
 
                 if (!entryFile.toPath().normalize().startsWith(destination.toPath())) {
                     throw ZipException("Bad zip entry: $entryName")
