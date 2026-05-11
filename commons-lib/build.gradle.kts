@@ -2,8 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.jetbrainsKotlinAndroid)
-    kotlin("kapt")
+    alias(libs.plugins.ksp)
     id("com.google.dagger.hilt.android")
 }
 
@@ -19,14 +18,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
-        }
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     buildFeatures {
@@ -35,8 +28,8 @@ android {
 
     buildTypes {
         debug {
-            enableUnitTestCoverage = true
-            enableAndroidTestCoverage = true
+            enableUnitTestCoverage = project.hasProperty("coverageEnabled")
+            enableAndroidTestCoverage = project.hasProperty("coverageEnabled")
         }
     }
 
@@ -45,6 +38,12 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_21)
     }
 }
 
@@ -57,7 +56,7 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.bouncy.castle)
     implementation(libs.google.dagger.hilt.android)
-    kapt(libs.google.dagger.hilt.android.compile)
+    ksp(libs.google.dagger.hilt.android.compile)
     implementation(libs.androidx.hilt)
 
     androidTestImplementation(libs.byte.buddy)

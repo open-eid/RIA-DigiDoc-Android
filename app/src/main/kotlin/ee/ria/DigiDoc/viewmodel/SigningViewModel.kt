@@ -168,8 +168,8 @@ class SigningViewModel
                         ContainerUtil.getContainerDataFilesDir(context, it)
                     }
 
-                dataFiles.mapNotNullTo(uris) { dataFile ->
-                    container.getDataFile(dataFile, dataFilesDir)?.toUri()
+                dataFiles.mapTo(uris) { dataFile ->
+                    container.getDataFile(dataFile, dataFilesDir).toUri()
                 }
             }
 

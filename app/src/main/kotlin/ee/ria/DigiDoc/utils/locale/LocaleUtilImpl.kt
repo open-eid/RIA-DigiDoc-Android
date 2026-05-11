@@ -45,8 +45,6 @@ class LocaleUtilImpl
             val config = context.resources.configuration
             config.setLocale(locale)
             config.setLayoutDirection(locale)
-            val configurationContext = context.createConfigurationContext(config)
-            context.resources.updateConfiguration(config, context.resources.displayMetrics)
-            return configurationContext
+            return context.createConfigurationContext(config)
         }
     }

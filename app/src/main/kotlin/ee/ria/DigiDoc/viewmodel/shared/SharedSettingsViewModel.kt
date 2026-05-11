@@ -28,6 +28,7 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.R
@@ -54,7 +55,6 @@ import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.signing.CertificateUtil
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -128,8 +128,10 @@ class SharedSettingsViewModel
         private val _errorState = MutableStateFlow<Int?>(null)
         val errorState: StateFlow<Int?> = _errorState
 
+        private val defaultManualProxySettings = ManualProxy("", 80, "", "")
+
         init {
-            CoroutineScope(Main).launch {
+            viewModelScope.launch(Main) {
                 configurationRepository.observeConfigurationUpdates { newConfig ->
                     _updatedConfiguration.value = newConfig
                 }
@@ -153,8 +155,7 @@ class SharedSettingsViewModel
         }
 
         private fun clearProxySettings() {
-            val manualProxySettings = ManualProxy("", 80, "", "")
-            setManualProxySettings(manualProxySettings)
+            setManualProxySettings(defaultManualProxySettings)
         }
 
         private fun setManualProxySettings(manualProxy: ManualProxy) {
@@ -253,7 +254,7 @@ class SharedSettingsViewModel
             if (currentProxySetting == ProxySetting.MANUAL_PROXY) {
                 setManualProxySettings(manualProxySettings)
             } else if (currentProxySetting == ProxySetting.SYSTEM_PROXY) {
-                val systemSettings: ProxyConfig = ProxyUtil.getProxy(currentProxySetting, ManualProxy("", 80, "", ""))
+                val systemSettings: ProxyConfig = ProxyUtil.getProxy(currentProxySetting, defaultManualProxySettings)
                 val proxySettings: ManualProxy? = systemSettings.manualProxy()
                 if (proxySettings != null) {
                     overrideLibdigidocppProxy(proxySettings)
@@ -370,7 +371,7 @@ class SharedSettingsViewModel
                 }
             } else {
                 _tsaIssuedTo.value = null
-                _tsaIssuedTo.value = null
+                _tsaValidTo.value = null
                 _tsaCertificate.value = null
             }
         }
@@ -410,28 +411,22 @@ class SharedSettingsViewModel
 
         fun handleSivaFile(uri: Uri) {
             try {
-                val initialStream: InputStream? = contentResolver.openInputStream(uri)
-                val documentFile = DocumentFile.fromSingleUri(context, uri)
-                if (documentFile != null) {
-                    val sivaCertFolder = File(context.filesDir, DIR_SIVA_CERT)
-                    if (!sivaCertFolder.exists()) {
-                        val isFolderCreated = sivaCertFolder.mkdirs()
-                        debugLog(
-                            logTag,
-                            String.format("SiVa cert folder created: %s", isFolderCreated),
-                        )
-                    }
-
-                    var fileName = documentFile.name
-                    if (fileName.isNullOrEmpty()) {
-                        fileName = "sivaCert"
-                    }
-                    val sivaFile = File(sivaCertFolder, fileName)
-
-                    FileUtils.copyInputStreamToFile(initialStream, sivaFile)
-
-                    dataStore.setSettingsSivaCertName(sivaFile.name)
+                val initialStream: InputStream? =
+                    contentResolver.openInputStream(uri)
+                        ?: throw IllegalStateException("Unable to open input stream for SiVa certificate URI")
+                val sivaCertFolder = File(context.filesDir, DIR_SIVA_CERT)
+                if (!sivaCertFolder.exists()) {
+                    val isFolderCreated = sivaCertFolder.mkdirs()
+                    debugLog(logTag, String.format("SiVa cert folder created: %s", isFolderCreated))
                 }
+                val fileName =
+                    DocumentFile
+                        .fromSingleUri(context, uri)
+                        ?.name
+                        .takeUnless { it.isNullOrEmpty() } ?: "sivaCert"
+                val sivaFile = File(sivaCertFolder, fileName)
+                FileUtils.copyInputStreamToFile(initialStream, sivaFile)
+                dataStore.setSettingsSivaCertName(sivaFile.name)
             } catch (e: Exception) {
                 errorLog(logTag, "Unable to read SiVa certificate file data", e)
             }
@@ -439,28 +434,22 @@ class SharedSettingsViewModel
 
         fun handleTsaFile(uri: Uri) {
             try {
-                val initialStream: InputStream? = contentResolver.openInputStream(uri)
-                val documentFile = DocumentFile.fromSingleUri(context, uri)
-                if (documentFile != null) {
-                    val tsaCertFolder = File(context.filesDir, DIR_TSA_CERT)
-                    if (!tsaCertFolder.exists()) {
-                        val isFolderCreated = tsaCertFolder.mkdirs()
-                        debugLog(
-                            logTag,
-                            String.format("TSA cert folder created: %s", isFolderCreated),
-                        )
-                    }
-
-                    var fileName = documentFile.name
-                    if (fileName.isNullOrEmpty()) {
-                        fileName = "tsaCert"
-                    }
-                    val tsaFile = File(tsaCertFolder, fileName)
-
-                    FileUtils.copyInputStreamToFile(initialStream, tsaFile)
-
-                    dataStore.setTSACertName(tsaFile.name)
+                val initialStream: InputStream? =
+                    contentResolver.openInputStream(uri)
+                        ?: throw IllegalStateException("Unable to open input stream for TSA certificate URI")
+                val tsaCertFolder = File(context.filesDir, DIR_TSA_CERT)
+                if (!tsaCertFolder.exists()) {
+                    val isFolderCreated = tsaCertFolder.mkdirs()
+                    debugLog(logTag, String.format("TSA cert folder created: %s", isFolderCreated))
                 }
+                val fileName =
+                    DocumentFile
+                        .fromSingleUri(context, uri)
+                        ?.name
+                        .takeUnless { it.isNullOrEmpty() } ?: "tsaCert"
+                val tsaFile = File(tsaCertFolder, fileName)
+                FileUtils.copyInputStreamToFile(initialStream, tsaFile)
+                dataStore.setTSACertName(tsaFile.name)
             } catch (e: Exception) {
                 errorLog(logTag, "Unable to read TSA certificate file data", e)
             }
@@ -468,28 +457,22 @@ class SharedSettingsViewModel
 
         fun handleCryptoCertFile(uri: Uri) {
             try {
-                val initialStream: InputStream? = contentResolver.openInputStream(uri)
-                val documentFile = DocumentFile.fromSingleUri(context, uri)
-                if (documentFile != null) {
-                    val cryptoCertFolder = File(context.filesDir, DIR_CRYPTO_CERT)
-                    if (!cryptoCertFolder.exists()) {
-                        val isFolderCreated = cryptoCertFolder.mkdirs()
-                        debugLog(
-                            logTag,
-                            String.format("Crypto cert folder created: %s", isFolderCreated),
-                        )
-                    }
-
-                    var fileName = documentFile.name
-                    if (fileName.isNullOrEmpty()) {
-                        fileName = "cryptoCert"
-                    }
-                    val cryptoCertFile = File(cryptoCertFolder, fileName)
-
-                    FileUtils.copyInputStreamToFile(initialStream, cryptoCertFile)
-
-                    dataStore.setCryptoCertName(cryptoCertFile.name)
+                val initialStream: InputStream? =
+                    contentResolver.openInputStream(uri)
+                        ?: throw IllegalStateException("Unable to open input stream for crypto certificate URI")
+                val cryptoCertFolder = File(context.filesDir, DIR_CRYPTO_CERT)
+                if (!cryptoCertFolder.exists()) {
+                    val isFolderCreated = cryptoCertFolder.mkdirs()
+                    debugLog(logTag, String.format("Crypto cert folder created: %s", isFolderCreated))
                 }
+                val fileName =
+                    DocumentFile
+                        .fromSingleUri(context, uri)
+                        ?.name
+                        .takeUnless { it.isNullOrEmpty() } ?: "cryptoCert"
+                val cryptoCertFile = File(cryptoCertFolder, fileName)
+                FileUtils.copyInputStreamToFile(initialStream, cryptoCertFile)
+                dataStore.setCryptoCertName(cryptoCertFile.name)
             } catch (e: Exception) {
                 errorLog(logTag, "Unable to read Crypto certificate file data", e)
             }
@@ -531,16 +514,14 @@ class SharedSettingsViewModel
                 throw IllegalStateException("Failed to construct HTTP client", e)
             }
 
-            CoroutineScope(IO).launch {
+            viewModelScope.launch(IO) {
                 val call = httpClient.newCall(request)
                 try {
                     val response = call.execute()
                     if (response.code == 403) {
                         debugLog(logTag, "Forbidden error with proxy configuration")
                         _errorState.value = R.string.main_settings_proxy_check_username_and_password
-                    }
-
-                    if (response.code != 200) {
+                    } else if (response.code != 200) {
                         debugLog(logTag, "No Internet connection detected")
                         _errorState.value = R.string.main_settings_proxy_check_connection_unsuccessful
                     } else {
@@ -560,7 +541,6 @@ class SharedSettingsViewModel
                             "Received HTTP status 403 or failed to authenticate. " +
                                 "Unable to connect with proxy configuration",
                         )
-                        _errorState.value = R.string.main_settings_proxy_check_connection_unsuccessful
                     }
                     errorLog(logTag, "Unable to check Internet connection", e)
                     _errorState.value = R.string.main_settings_proxy_check_connection_unsuccessful

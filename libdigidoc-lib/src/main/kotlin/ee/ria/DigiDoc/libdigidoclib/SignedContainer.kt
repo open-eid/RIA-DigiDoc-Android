@@ -96,7 +96,7 @@ class SignedContainer
                     val containerDataFilesDir = ContainerUtil.getContainerDataFilesDir(context, containerRawFile)
                     val nestedTimestampedFile = getDataFile(DataFileWrapper(dataFile), containerDataFilesDir)
 
-                    return nestedTimestampedFile?.let {
+                    return nestedTimestampedFile.let {
                         SignedContainer(
                             context = context,
                             container = open(context, it, isSivaConfirmed).rawContainer(),
@@ -138,17 +138,15 @@ class SignedContainer
 
         suspend fun setName(filename: String) {
             val name = sanitizeString(filename, "")
-            val containerName = name?.let { ContainerUtil.addExtensionToContainerFilename(it) }
-            val newFile = containerName?.let { File(containerFile?.parent, it) }
+            val containerName = name.let { ContainerUtil.addExtensionToContainerFilename(it) }
+            val newFile = File(containerFile?.parent, containerName)
 
-            if (newFile != null) {
-                withContext(IO) {
-                    containerFile?.renameTo(newFile)
-                    containerFile = newFile
+            withContext(IO) {
+                containerFile?.renameTo(newFile)
+                containerFile = newFile
 
-                    containerFile?.let {
-                        container?.save(newFile.path)
-                    }
+                containerFile?.let {
+                    container?.save(newFile.path)
                 }
             }
         }
@@ -175,16 +173,14 @@ class SignedContainer
         fun getDataFile(
             dataFile: DataFileInterface,
             directory: File?,
-        ): File? {
-            val file = sanitizeString(dataFile.fileName, "")?.let { File(directory, it) }
+        ): File {
+            val file = File(directory, sanitizeString(dataFile.fileName, ""))
             val dataFiles = container?.dataFiles()
             if (dataFiles != null) {
                 for (i in dataFiles.indices) {
                     val containerDataFile = dataFiles[i]
                     if (dataFile.id == containerDataFile.id()) {
-                        if (file != null) {
-                            containerDataFile.saveAs(file.absolutePath)
-                        }
+                        containerDataFile.saveAs(file.absolutePath)
                         return file
                     }
                 }

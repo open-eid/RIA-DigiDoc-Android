@@ -774,7 +774,7 @@ fun MyEidPinScreen(
                                         } else {
                                             focusManager.clearFocus()
                                         }
-                                    }
+                                    },
                                 )
                                 if (isTalkBackEnabled(context) && newPinState.value.isNotEmpty()) {
                                     IconButton(

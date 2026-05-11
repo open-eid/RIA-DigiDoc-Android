@@ -200,9 +200,7 @@ class FileOpeningRepositoryImpl
         override fun isFileAlreadyInContainer(
             file: File,
             container: CryptoContainer,
-        ): Boolean =
-            container.dataFiles?.any { it?.name == file.name }
-                ?: false
+        ): Boolean = container.dataFiles.any { it.name == file.name }
 
         override fun isSivaConfirmationNeeded(
             context: Context,
@@ -272,10 +270,8 @@ class FileOpeningRepositoryImpl
             val dataFiles =
                 cryptoContainer.dataFiles
 
-            if (dataFiles != null) {
-                for (i in dataFiles.indices) {
-                    dataFiles[i]?.name?.let { containerFileNames.add(it) }
-                }
+            for (i in dataFiles.indices) {
+                dataFiles[i].name.let { containerFileNames.add(it) }
             }
 
             return containerFileNames

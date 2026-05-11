@@ -26,7 +26,8 @@ import java.io.Serializable
 
 class DataFileWrapper(
     dataFile: DataFile,
-) : DataFileInterface, Serializable {
+) : DataFileInterface,
+    Serializable {
     override val id: String = dataFile.id()
     override val fileName: String = dataFile.fileName()
     override val fileSize: Long = dataFile.fileSize()

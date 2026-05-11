@@ -31,7 +31,8 @@ import java.io.Serializable
 
 class SignatureWrapper(
     signature: Signature,
-) : SignatureInterface, Serializable {
+) : SignatureInterface,
+    Serializable {
     private val logTag = javaClass.simpleName
 
     override val id: String = signature.id()

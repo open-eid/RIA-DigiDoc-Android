@@ -415,9 +415,14 @@ fun EncryptNavigation(
         }
     }
 
-    val actionFile by remember { mutableStateOf<File?>(null) }
-
     var isSaved by remember { mutableStateOf(false) }
+
+    val fileToSave = remember { mutableStateOf<File?>(null) }
+
+    val saveFile: (File, String?, ActivityResultLauncher<Intent>) -> Unit = { file, mimetype, launcher ->
+        fileToSave.value = file
+        launchSaveFileChooser(file, mimetype, launcher)
+    }
 
     val selectedCryptoContainerTabIndex = rememberSaveable { mutableIntStateOf(0) }
 
@@ -430,23 +435,16 @@ fun EncryptNavigation(
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 try {
-                    actionFile?.let { file ->
-                        sharedContainerViewModel
-                            .getCryptoContainerDataFile(cryptoContainer, file)
-                            ?.let { sharedContainerViewModel.saveContainerFile(it, result) }
+                    fileToSave.value?.let { file ->
+                        sharedContainerViewModel.saveContainerFile(file, result)
                         showMessage(context, R.string.file_saved)
                         isSaved = true
-                    } ?: run {
-                        cryptoContainer?.file?.let {
-                            sharedContainerViewModel.saveContainerFile(it, result)
-                            showMessage(context, R.string.file_saved)
-                            isSaved = true
-                        } ?: showMessage(context, R.string.file_saved_error)
-                    }
+                    } ?: showMessage(context, R.string.file_saved_error)
                 } catch (_: Exception) {
                     showMessage(context, R.string.file_saved_error)
                 }
             }
+            fileToSave.value = null
         }
 
     BackHandler {
@@ -1089,7 +1087,7 @@ fun EncryptNavigation(
                 handleSivaConfirmation = handleSivaConfirmation,
                 context = context,
                 saveFileLauncher = saveFileLauncher,
-                saveFile = ::saveFile,
+                saveFile = saveFile,
                 openRemoveFileDialog = openRemoveFileDialog,
                 onBackButtonClick = {
                     handleBackButtonClick(
@@ -1119,7 +1117,7 @@ fun EncryptNavigation(
                 cryptoContainer = cryptoContainer,
                 onSignClick = onSignActionClick,
                 saveFileLauncher = saveFileLauncher,
-                saveFile = ::saveFile,
+                saveFile = saveFile,
             )
 
             RecipientBottomSheet(
@@ -1207,7 +1205,7 @@ private fun handleBackButtonClick(
     }
 }
 
-private fun saveFile(
+private fun launchSaveFileChooser(
     file: File,
     mimetype: String?,
     saveFileLauncher: ActivityResultLauncher<Intent>,
