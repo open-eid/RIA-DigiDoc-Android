@@ -7,6 +7,10 @@ scripts:
     name: "Get RIA DigiDoc version"
     script: |
       echo "APP_VERSION_NAME=$(sed -n 's/^versionName = "\(.*\)"/\1/p' gradle/libs.versions.toml)" >> $CM_ENV
+  - &install_android_sdk_37
+    name: "Install Android SDK 37"
+    script: |
+      $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platforms;android-37.0"
   - &get_google_services_json
     name: "Get Google Services configuration"
     script: |
@@ -70,6 +74,7 @@ workflows:
       - *set_android_sdk_location
       - *get_app_version
       - *get_google_services_json
+      - *install_android_sdk_37
       - name: "Setup debug keystore"
         script: |
           DEBUG_KEYSTORE_PATH="app/src/main/assets/keystore/debug.keystore"
@@ -230,6 +235,7 @@ workflows:
       - *set_android_sdk_location
       - *get_app_version
       - *get_google_services_json
+      - *install_android_sdk_37
       - name: "Setup debug keystore for tests"
         script: |
           DEBUG_KEYSTORE_PATH="app/src/main/assets/keystore/debug.keystore"
