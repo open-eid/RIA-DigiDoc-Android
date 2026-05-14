@@ -429,8 +429,10 @@ class NFCViewModelTest {
                 null,
             )
 
+            advanceUntilIdle()
             job.cancel()
 
+            assertTrue(values.isNotEmpty())
             assertNull(values.last())
 
             val signStatusObserver: Observer<Boolean?> = mock()

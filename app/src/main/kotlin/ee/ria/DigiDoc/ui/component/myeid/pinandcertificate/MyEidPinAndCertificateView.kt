@@ -78,6 +78,7 @@ fun MyEidPinAndCertificateView(
     linkUrl: String = "",
     isPinBlocked: Boolean = false,
     isPukBlocked: Boolean = false,
+    isNotActivated: Boolean = false,
     showForgotPin: Boolean = true,
     forgotPinText: String = "",
     onForgotPinClick: (() -> Unit)? = null,
@@ -130,6 +131,7 @@ fun MyEidPinAndCertificateView(
                     modifier =
                         modifier
                             .weight(1f)
+                            .padding(vertical = XSPadding)
                             .focusable()
                             .semantics(mergeDescendants = true) {
                                 this.contentDescription = "$title. $subtitle".lowercase()
@@ -179,7 +181,7 @@ fun MyEidPinAndCertificateView(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     OutlinedButton(
-                        enabled = !isPukBlocked,
+                        enabled = !isPukBlocked && !isNotActivated,
                         onClick = onForgotPinClick,
                         modifier =
                             modifier
@@ -209,7 +211,7 @@ fun MyEidPinAndCertificateView(
                     }
 
                     Button(
-                        enabled = !isPinBlocked,
+                        enabled = !isPinBlocked && !isNotActivated,
                         onClick = onChangePinClick ?: {},
                         modifier =
                             modifier

@@ -97,6 +97,7 @@ import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.PrimaryTextField
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
 import ee.ria.DigiDoc.ui.component.shared.SecurePinTextField
+import ee.ria.DigiDoc.ui.component.shared.dialog.CourierCardActivationDialog
 import ee.ria.DigiDoc.ui.component.shared.dialog.WrongCanDialog
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
@@ -110,6 +111,7 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.removeInvi
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.pin.PinCodeUtil.shouldShowPINCodeError
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
+import ee.ria.DigiDoc.utilsLib.extensions.clearSensitive
 import ee.ria.DigiDoc.viewmodel.NFCViewModel
 import ee.ria.DigiDoc.viewmodel.WebEidViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
@@ -144,6 +146,7 @@ fun NFCView(
     isValidToSign: (Boolean) -> Unit = {},
     isValidToDecrypt: (Boolean) -> Unit = {},
     isValidToWebEidAuthenticate: (Boolean) -> Unit = {},
+    onCourierCardDialogDismissed: () -> Unit = {},
     showPinField: Boolean = true,
     isValidToAuthenticate: (Boolean) -> Unit = {},
     signAction: (() -> Unit) -> Unit = {},
@@ -168,7 +171,7 @@ fun NFCView(
 
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
 
-    val personalData by nfcViewModel.userData.asFlow().collectAsState(null)
+    val userData by nfcViewModel.userData.asFlow().collectAsState(null)
 
     val dialogError by nfcViewModel.dialogError.asFlow().collectAsState(0)
 
@@ -206,6 +209,7 @@ fun NFCView(
     var doNotShowWrongCanDialogAgain by remember {
         mutableStateOf(nfcViewModel.getDoNotShowWrongCanDialog())
     }
+    val showCourierCardDialog = rememberSaveable { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val saveFormParams = {
         val currentCan = canNumber.text
@@ -224,6 +228,15 @@ fun NFCView(
 
     val canNumberFocusRequester = remember { FocusRequester() }
     val pinNumberFocusRequester = remember { FocusRequester() }
+
+    val isCourierCard = userData?.personalData != null && userData?.pin1CodeChanged == false
+    var isDecryptingWithCourierCard by rememberSaveable { mutableStateOf(false) }
+    val courierDialogMessage =
+        if (identityAction == IdentityAction.DECRYPT) {
+            R.string.id_card_courier_must_activate_to_decrypt
+        } else {
+            R.string.id_card_courier_must_activate_to_sign
+        }
     val canNumberWithInvisibleSpaces = TextFieldValue(addInvisibleElement(canNumber.text))
 
     val pinCode = remember { mutableStateOf(byteArrayOf()) }
@@ -290,11 +303,15 @@ fun NFCView(
         }
     }
 
+    LaunchedEffect(Unit) {
+        nfcViewModel.resetIdCardUserData()
+    }
+
     LaunchedEffect(nfcViewModel.shouldResetPIN) {
         nfcViewModel.shouldResetPIN.asFlow().collect { bool ->
             bool.let {
                 if (bool) {
-                    pinCode.value.fill(0)
+                    pinCode.value.clearSensitive()
                     nfcViewModel.resetShouldResetPIN()
                     pinCode.value = byteArrayOf()
                 }
@@ -346,7 +363,7 @@ fun NFCView(
     LaunchedEffect(nfcViewModel.signedContainer) {
         nfcViewModel.signedContainer.asFlow().collect { signedContainer ->
             signedContainer?.let {
-                pinCode.value.fill(0)
+                pinCode.value.clearSensitive()
                 sharedContainerViewModel.setSignedContainer(it)
                 nfcViewModel.resetSignedContainer()
                 onSuccess()
@@ -400,8 +417,22 @@ fun NFCView(
         }
     }
 
+    LaunchedEffect(nfcViewModel.courierCardDetected) {
+        nfcViewModel.courierCardDetected
+            .asFlow()
+            .filterNotNull()
+            .collect {
+                withContext(Main) {
+                    pinCode.value.clearSensitive()
+                    isDecryptingWithCourierCard = true
+                    showCourierCardDialog.value = true
+                    nfcViewModel.resetCourierCardDetected()
+                }
+            }
+    }
+
     LaunchedEffect(nfcViewModel.dialogError) {
-        pinCode.value.fill(0)
+        pinCode.value.clearSensitive()
         nfcViewModel.dialogError
             .asFlow()
             .filterNotNull()
@@ -429,9 +460,9 @@ fun NFCView(
         }
     }
 
-    LaunchedEffect(Unit, personalData, isAuthenticating) {
-        if (personalData != null && isAuthenticating && !isSigning) {
-            personalData?.let { data ->
+    LaunchedEffect(Unit, userData, isAuthenticating) {
+        if (userData != null && isAuthenticating && !isSigning) {
+            userData?.let { data ->
                 isAuthenticated(true, data)
                 nfcViewModel.resetIdCardUserData()
             }
@@ -462,21 +493,59 @@ fun NFCView(
         }
     }
 
+    LaunchedEffect(isCourierCard) {
+        if (isCourierCard) {
+            isValidToSign(false)
+            isValidToDecrypt(false)
+            if (identityAction == IdentityAction.SIGN ||
+                identityAction == IdentityAction.DECRYPT
+            ) {
+                showCourierCardDialog.value = true
+            }
+        } else {
+            showCourierCardDialog.value = false
+        }
+    }
+
+    if (errorText.isNotEmpty()) {
+        showMessage(errorText)
+        errorText = ""
+    }
+
+    if (showCourierCardDialog.value) {
+        CourierCardActivationDialog(
+            message = courierDialogMessage,
+            onDismiss = {
+                showCourierCardDialog.value = false
+                if (isDecryptingWithCourierCard) {
+                    isDecryptingWithCourierCard = false
+                    onError()
+                } else {
+                    onCourierCardDialogDismissed()
+                }
+            },
+        )
+    }
+
     if (showErrorDialog.value) {
         var text1Arg: Int? = null
         val text2 = null
         var linkText = 0
         var linkUrl = 0
-        if (dialogError == R.string.too_many_requests_message) {
-            text1Arg = R.string.id_card_conditional_speech
-            linkText = R.string.additional_information
-            linkUrl = R.string.too_many_requests_url
-        } else if (dialogError == R.string.invalid_time_slot_message) {
-            linkText = R.string.additional_information
-            linkUrl = R.string.invalid_time_slot_url
-        } else if (dialogError == R.string.sign_blocked_pin2_unchanged_message) {
-            linkText = R.string.additional_information
-            linkUrl = R.string.sign_blocked_pin2_unchanged_url
+        when (dialogError) {
+            R.string.too_many_requests_message -> {
+                text1Arg = R.string.id_card_conditional_speech
+                linkText = R.string.additional_information
+                linkUrl = R.string.too_many_requests_url
+            }
+            R.string.invalid_time_slot_message -> {
+                linkText = R.string.additional_information
+                linkUrl = R.string.invalid_time_slot_url
+            }
+            R.string.sign_blocked_pin2_unchanged_message -> {
+                linkText = R.string.additional_information
+                linkUrl = R.string.sign_blocked_pin2_unchanged_url
+            }
         }
         Box(modifier = modifier.fillMaxSize()) {
             if (!isAuthPin2UnchangedDialog) {

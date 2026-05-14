@@ -33,5 +33,6 @@ data class IdCardData(
     val pin1RetryCount: Int,
     val pin2RetryCount: Int,
     val pukRetryCount: Int,
+    val pin1CodeChanged: Boolean,
     val pin2CodeChanged: Boolean,
 )

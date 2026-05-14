@@ -648,6 +648,11 @@
     </plurals>
     <string name="myeid_pin_blocked">%1$s on blokeeritud, kuna %1$s-koodi on sisestatud 3 korda valesti.</string>
     <string name="myeid_pin_not_activated">Selle ID-kaardiga allkirjastamine ei ole veel võimalik. Allkirjastamiseks tuleb %1$s-koodi muuta.</string>
+    <string name="id_card_courier_warning_message">ID-kaardiga isikutuvastamine ja allkirjastamine ei ole veel võimalik. ID-kaardi kasutamiseks tuleb see aktiveerida Politsei- ja Piirivalveameti iseteeninduses.</string>
+    <string name="id_card_courier_activate_button">Aktiveeri ID-kaart</string>
+    <string name="id_card_courier_activate_url">https://www.politsei.ee/et/iseteenindus/</string>
+    <string name="id_card_courier_must_activate_to_sign">Allkirjastamiseks tuleb ID-kaart aktiveerida.</string>
+    <string name="id_card_courier_must_activate_to_decrypt">Dekrüpteerimiseks tuleb ID-kaart aktiveerida.</string>
     <string name="myeid_pin_blocked_with_unblock_message">%1$s on blokeeritud, kuna %1$s-koodi on sisestatud 3 korda valesti. Tühista blokeering, et %1$s taas kasutada.</string>
     <string name="myeid_puk_blocked">PUK on blokeeritud, kuna PUK-koodi on sisestatud 3 korda valesti. PUK-koodi ei saa ise lahti blokeerida.\n\nKuigi PUK-kood on blokeeritud, saab kõiki eID võimalusi kasutada, välja arvatud PUK-koodi vajavaid.\n\nUue PUK-koodi saamiseks külasta klienditeeninduspunkti, kust saad uue koodiümbriku uute koodidega.</string>
     <string name="myeid_puk_blocked_url">https://www.id.ee/artikkel/id-kaardi-pin-ja-puk-koodide-muutmine/</string>
