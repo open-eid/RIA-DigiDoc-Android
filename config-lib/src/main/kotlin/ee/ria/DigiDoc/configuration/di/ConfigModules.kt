@@ -82,10 +82,7 @@ class ConfigModules {
     ): CentralConfigurationRepository = CentralConfigurationRepositoryImpl(centralConfigurationService)
 
     @Provides
-    fun provideCentralConfigurationService(
-        userAgent: String,
-        configurationProperty: ConfigurationProperty,
-    ): CentralConfigurationService = CentralConfigurationServiceImpl(userAgent, configurationProperty)
+    fun provideCentralConfigurationService(impl: CentralConfigurationServiceImpl): CentralConfigurationService = impl
 
     @Singleton
     @Provides

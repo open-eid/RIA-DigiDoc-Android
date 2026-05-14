@@ -242,7 +242,7 @@ class NFCViewModel
 
                                 val signer = ExternalSigner(signerCert)
                                 signer.setProfile(SIGNATURE_PROFILE_TS)
-                                signer.setUserAgent(UserAgentUtil.getUserAgent(context, SendDiagnostics.NFC))
+                                signer.setUserAgent(UserAgentUtil.getAppInfo(context, SendDiagnostics.NFC))
 
                                 val dataToSignBytes =
                                     containerWrapper.prepareSignature(signer, container, signerCert, roleData)

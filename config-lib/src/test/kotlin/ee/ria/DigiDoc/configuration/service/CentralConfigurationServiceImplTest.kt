@@ -21,6 +21,9 @@
 
 package ee.ria.DigiDoc.configuration.service
 
+import android.content.Context
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepository
 import ee.ria.DigiDoc.network.proxy.ManualProxy
@@ -41,6 +44,10 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
+import org.mockito.ArgumentMatchers.anyInt
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 
 @ExperimentalCoroutinesApi
 class CentralConfigurationServiceImplTest {
@@ -52,15 +59,21 @@ class CentralConfigurationServiceImplTest {
 
     private lateinit var expectedBaseUrl: String
 
+    private lateinit var context: Context
     private lateinit var property: ConfigurationProperty
-
-    private val userAgent = "test-agent"
 
     @Before
     fun setup() {
+        val packageManager = mock(PackageManager::class.java)
+        context = mock(Context::class.java)
+        `when`(context.packageManager).thenReturn(packageManager)
+        `when`(context.packageName).thenReturn("test")
+        val packageInfo = mock(PackageInfo::class.java)
+        `when`(packageInfo.longVersionCode).thenReturn(0L)
+        `when`(packageManager.getPackageInfo(anyString(), anyInt())).thenReturn(packageInfo)
+
         Dispatchers.setMain(testDispatcher)
 
-        // Create a self-signed certificate for localhost
         val localhostCert =
             HeldCertificate
                 .Builder()
@@ -84,12 +97,12 @@ class CentralConfigurationServiceImplTest {
             OkHttpClient
                 .Builder()
                 .sslSocketFactory(clientCertificates.sslSocketFactory(), clientCertificates.trustManager)
-                .hostnameVerifier { _, _ -> true } // Accept "localhost" for testing
+                .hostnameVerifier { _, _ -> true }
                 .build()
 
         mockWebServer = MockWebServer()
         mockWebServer.useHttps(serverCertificates.sslSocketFactory(), false)
-        mockWebServer.start(0) // Automatically chooses a free port
+        mockWebServer.start(0)
 
         expectedBaseUrl = mockWebServer.url("/").toString().removeSuffix("/")
 
@@ -99,7 +112,7 @@ class CentralConfigurationServiceImplTest {
             )
 
         service =
-            object : CentralConfigurationServiceImpl(userAgent, property) {
+            object : CentralConfigurationServiceImpl(context, property) {
                 override fun constructHttpClient(
                     defaultTimeout: Long,
                     proxySetting: ProxySetting?,
@@ -158,7 +171,7 @@ class CentralConfigurationServiceImplTest {
 
     @Test
     fun centralConfigurationServiceImpl_constructHttpClient_createsClientWithProxy() {
-        val service = CentralConfigurationServiceImpl(userAgent, property)
+        val service = CentralConfigurationServiceImpl(context, property)
         val proxySetting = ProxySetting.MANUAL_PROXY
         val manualProxy = ManualProxy("localhost", 8888, "user", "pass")
 

@@ -32,7 +32,6 @@ class UserAgentInterceptor(
             chain
                 .request()
                 .newBuilder()
-                .addHeader("Content-Type", "application/json")
                 .addHeader("User-Agent", userAgent)
                 .build()
         return chain.proceed(request)

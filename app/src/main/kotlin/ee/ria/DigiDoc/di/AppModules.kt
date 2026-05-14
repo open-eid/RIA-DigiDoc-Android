@@ -57,7 +57,6 @@ import ee.ria.DigiDoc.domain.service.siva.SivaServiceImpl
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.manager.ActivityManager
 import ee.ria.DigiDoc.manager.ActivityManagerImpl
-import ee.ria.DigiDoc.network.utils.UserAgentUtil
 import ee.ria.DigiDoc.root.RootChecker
 import ee.ria.DigiDoc.root.RootCheckerImpl
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager
@@ -132,12 +131,6 @@ class AppModules {
 
     @Provides
     fun provideBuildVersionProvider(): BuildVersionProvider = BuildVersionProviderImpl()
-
-    @Provides
-    fun provideUserAgent(
-        @ApplicationContext context: Context,
-        buildVersionProvider: BuildVersionProvider,
-    ): String = UserAgentUtil.getUserAgent(context, buildVersionProvider)
 
     @Provides
     @Singleton

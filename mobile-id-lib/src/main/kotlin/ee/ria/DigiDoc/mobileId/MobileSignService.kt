@@ -341,7 +341,7 @@ class MobileSignServiceImpl
                         val signerCert = getCertificate(response.cert)
                         val signer = ExternalSigner(signerCert)
                         signer.setProfile(SIGNATURE_PROFILE_TS)
-                        signer.setUserAgent(UserAgentUtil.getUserAgent(context))
+                        signer.setUserAgent(UserAgentUtil.getAppInfo(context))
 
                         val dataToSignBytes =
                             Base64.getEncoder().encode(

@@ -61,7 +61,12 @@ dependencies {
     implementation(libs.androidx.hilt)
 
     testImplementation(libs.junit)
+    testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.okhttp3)
+    testImplementation(libs.okhttp3.tls)
+    testImplementation(libs.okhttp3.mockwebserver)
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.byte.buddy)

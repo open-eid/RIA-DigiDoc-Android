@@ -23,10 +23,12 @@ package ee.ria.DigiDoc.network.sid.rest
 
 import android.content.Context
 import com.takisoft.preferencex.BuildConfig
+import ee.ria.DigiDoc.network.configuration.interceptors.UserAgentInterceptor
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxyConfig
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.network.utils.ProxyUtil
+import ee.ria.DigiDoc.network.utils.UserAgentUtil
 import ee.ria.DigiDoc.network.utils.isLoggingEnabled
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
@@ -115,6 +117,7 @@ class ServiceGeneratorImpl : ServiceGenerator {
                 .writeTimeout(120, TimeUnit.SECONDS)
                 .pingInterval(3, TimeUnit.SECONDS)
                 .certificatePinner(trustedCertificates(sidSignServiceUrl, certBundle))
+                .addInterceptor(UserAgentInterceptor(UserAgentUtil.getUserAgent(context)))
                 .cache(null)
         addLoggingInterceptor(httpClientBuilder, context)
         return httpClientBuilder.build()
