@@ -53,6 +53,7 @@ class IdCardServiceImpl
                 val pin1RetryCounter = token.codeRetryCounter(CodeType.PIN1)
                 val pin2RetryCounter = token.codeRetryCounter(CodeType.PIN2)
                 val pukRetryCounter = token.codeRetryCounter(CodeType.PUK)
+                val pin1CodeChanged = token.pinChangedFlag(CodeType.PIN1)
                 val pin2CodeChanged = token.pinChangedFlag(CodeType.PIN2)
 
                 val authCertificate = ExtendedCertificate.create(authenticationCertificateData, certificateService)
@@ -66,6 +67,7 @@ class IdCardServiceImpl
                     pin1RetryCount = pin1RetryCounter,
                     pin2RetryCount = pin2RetryCounter,
                     pukRetryCount = pukRetryCounter,
+                    pin1CodeChanged = pin1CodeChanged == 1,
                     pin2CodeChanged = pin2CodeChanged == 1,
                 )
             }

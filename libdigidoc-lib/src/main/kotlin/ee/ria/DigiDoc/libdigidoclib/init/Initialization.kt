@@ -531,11 +531,14 @@ class Initialization
             ): String? {
                 val certFile: File? = getCertFile(context, fileName, certFolder)
                 if (certFile != null) {
-                    val fileContents: String = readFileContent(certFile.path)
-                    return fileContents
-                        .replace("-----BEGIN CERTIFICATE-----", "")
-                        .replace("-----END CERTIFICATE-----", "")
-                        .replace("\\s".toRegex(), "")
+                    return try {
+                        readFileContent(certFile.path)
+                            .replace("-----BEGIN CERTIFICATE-----", "")
+                            .replace("-----END CERTIFICATE-----", "")
+                            .replace("\\s".toRegex(), "")
+                    } catch (_: IllegalStateException) {
+                        null
+                    }
                 }
                 return null
             }
