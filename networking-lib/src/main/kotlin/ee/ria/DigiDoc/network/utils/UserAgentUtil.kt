@@ -21,14 +21,12 @@
 
 package ee.ria.DigiDoc.network.utils
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
 import android.os.Build
-import android.text.TextUtils
 import ee.ria.DigiDoc.common.BuildVersionProvider
 import ee.ria.DigiDoc.common.BuildVersionProviderImpl
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
@@ -44,38 +42,96 @@ enum class SendDiagnostics {
 object UserAgentUtil {
     private val LOG_TAG = javaClass.simpleName
     private val deviceNameFilters = listOf("Smart", "Reader", "Card")
+    private var libdigidocppVersion: String? = null
 
-    fun getUserAgent(
-        context: Context?,
-        buildVersionProvider: BuildVersionProvider = BuildVersionProviderImpl(),
-    ): String = getUserAgent(context, SendDiagnostics.None, buildVersionProvider)
+    fun setLibdigidocppVersion(version: String) {
+        libdigidocppVersion = version
+    }
 
-    fun getUserAgent(
-        context: Context?,
-        sendDiagnostics: SendDiagnostics,
+    fun resetLibdigidocppVersion() {
+        libdigidocppVersion = null
+    }
+
+    fun getAppInfo(
+        context: Context,
+        sendDiagnostics: SendDiagnostics = SendDiagnostics.None,
         buildVersionProvider: BuildVersionProvider = BuildVersionProviderImpl(),
     ): String {
-        val deviceProductNames = ArrayList<String?>()
-        val initializingMessage = StringBuilder()
-        if (context != null) {
-            for (device in getConnectedUsbDevices(context)) {
-                deviceProductNames.add(device.productName)
-            }
-            initializingMessage.append("riadigidoc/").append(getAppVersion(context, buildVersionProvider))
-            initializingMessage.append(" (Android ").append(Build.VERSION.RELEASE).append(")")
-            initializingMessage.append(" Lang: ").append(Locale.getDefault().language)
+        val sb = StringBuilder()
 
-            if (sendDiagnostics == SendDiagnostics.Devices && deviceProductNames.isNotEmpty()) {
-                initializingMessage
-                    .append(" Devices: ")
-                    .append(TextUtils.join(", ", deviceProductNames))
-            }
-            if (sendDiagnostics == SendDiagnostics.NFC) {
-                initializingMessage.append(" NFC: true")
+        sb.append("riadigidoc/").append(getAppVersion(context, buildVersionProvider))
+
+        sb.append(" (schema=1")
+        sb.append("; os=Android ").append(Build.VERSION.RELEASE)
+        sb.append("; lang=").append(Locale.getDefault().language)
+
+        val deviceType = if (isTablet(context)) "tablet" else "mobile"
+        val deviceModel =
+            sanitizeField(
+                Build.MODEL
+                    ?.lowercase()
+                    ?.replace(" ", "-")
+                    .orEmpty(),
+            )
+        sb.append("; devicetype=$deviceType/$deviceModel")
+
+        if (sendDiagnostics == SendDiagnostics.Devices) {
+            val deviceNames =
+                getConnectedUsbDevices(context).map { sanitizeField(it.productName ?: it.deviceName) }
+            if (deviceNames.isNotEmpty()) {
+                sb.append("; devices=").append(deviceNames.joinToString(", "))
             }
         }
-        return initializingMessage.toString()
+
+        if (sendDiagnostics == SendDiagnostics.NFC) {
+            sb.append("; nfc=true")
+        }
+
+        sb.append(")")
+
+        return sb.toString()
     }
+
+    fun getUserAgent(
+        context: Context,
+        sendDiagnostics: SendDiagnostics = SendDiagnostics.None,
+        buildVersionProvider: BuildVersionProvider = BuildVersionProviderImpl(),
+    ): String {
+        val sb = StringBuilder()
+
+        libdigidocppVersion?.let { version ->
+            val arch = Build.SUPPORTED_ABIS?.firstOrNull()?.let { normalizeArch(it) } ?: "unknown"
+            sb.append("LIB libdigidocpp/").append(version)
+            sb.append(" (").append(arch).append(") ")
+        }
+
+        sb.append("APP ").append(getAppInfo(context, sendDiagnostics, buildVersionProvider))
+
+        return sb.toString()
+    }
+
+    // Remove non-ASCII and delimiters so a field can't break the header or its structure
+    private fun sanitizeField(value: String): String =
+        value
+            .filter { it.code in 0x20..0x7e }
+            .replace(Regex("[;()]"), "")
+            .trim()
+
+    private fun isTablet(context: Context): Boolean =
+        try {
+            context.resources.configuration.smallestScreenWidthDp >= 600
+        } catch (_: Exception) {
+            false
+        }
+
+    private fun normalizeArch(abi: String): String =
+        when {
+            abi.startsWith("arm64") -> "arm64"
+            abi.startsWith("armeabi") -> "arm"
+            abi.startsWith("x86_64") -> "x86_64"
+            abi.startsWith("x86") -> "x86"
+            else -> abi
+        }
 
     private fun getConnectedUsbDevices(context: Context): List<UsbDevice> {
         val usbManager = context.getSystemService(Context.USB_SERVICE) as UsbManager
@@ -108,20 +164,15 @@ object UserAgentUtil {
     private fun getAppVersion(
         context: Context,
         buildVersionProvider: BuildVersionProvider,
-    ): StringBuilder {
-        val versionName = StringBuilder()
+    ): String =
         try {
-            versionName
-                .append(getPackageInfo(context, buildVersionProvider).versionName)
-                .append(".")
-                .append(getPackageInfo(context, buildVersionProvider).longVersionCode)
+            val info = getPackageInfo(context, buildVersionProvider)
+            "${info.versionName}.${info.longVersionCode}"
         } catch (e: PackageManager.NameNotFoundException) {
             errorLog(LOG_TAG, "Failed getting app version from package info", e)
+            "unknown"
         }
-        return versionName
-    }
 
-    @SuppressLint("NewApi")
     @Throws(PackageManager.NameNotFoundException::class)
     private fun getPackageInfo(
         context: Context,

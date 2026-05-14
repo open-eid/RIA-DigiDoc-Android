@@ -21,6 +21,8 @@
 
 package ee.ria.DigiDoc.configuration.service
 
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepository
 import ee.ria.DigiDoc.network.configuration.interceptors.NetworkInterceptor
@@ -29,6 +31,7 @@ import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxyConfig
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.network.utils.ProxyUtil
+import ee.ria.DigiDoc.network.utils.UserAgentUtil
 import okhttp3.Authenticator
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
@@ -70,7 +73,7 @@ interface CentralConfigurationService {
 open class CentralConfigurationServiceImpl
     @Inject
     constructor(
-        private val userAgent: String,
+        @param:ApplicationContext private val context: Context,
         private val configurationProperty: ConfigurationProperty,
     ) : CentralConfigurationService {
         private val defaultTimeout = 5L
@@ -132,7 +135,7 @@ open class CentralConfigurationServiceImpl
                     HttpLoggingInterceptor().apply {
                         level = HttpLoggingInterceptor.Level.BODY
                     },
-                ).addInterceptor(UserAgentInterceptor(userAgent))
+                ).addInterceptor(UserAgentInterceptor(UserAgentUtil.getUserAgent(context)))
                 .addInterceptor(NetworkInterceptor())
                 .hostnameVerifier(OkHostnameVerifier)
                 .connectTimeout(defaultTimeout, TimeUnit.SECONDS)

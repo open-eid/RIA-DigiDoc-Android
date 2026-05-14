@@ -128,7 +128,8 @@ class Initialization
                 context,
                 isLoggingEnabled,
             )
-            digidoc.initializeLib(UserAgentUtil.getUserAgent(context), path)
+            digidoc.initializeLib(UserAgentUtil.getAppInfo(context), path)
+            UserAgentUtil.setLibdigidocppVersion(digidoc.version())
             isInitialized = true
         }
 

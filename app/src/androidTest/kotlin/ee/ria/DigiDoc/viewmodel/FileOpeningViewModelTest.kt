@@ -143,7 +143,7 @@ class FileOpeningViewModelTest {
                         ConfigurationLoaderImpl(
                             Gson(),
                             CentralConfigurationRepositoryImpl(
-                                CentralConfigurationServiceImpl("Tests", ConfigurationProperty()),
+                                CentralConfigurationServiceImpl(context, ConfigurationProperty()),
                             ),
                             ConfigurationProperty(),
                             ConfigurationPropertiesImpl(),
