@@ -21,7 +21,6 @@
 
 package ee.ria.DigiDoc.domain.preferences
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Resources
@@ -88,79 +87,54 @@ class DataStore
             }
         }
 
-        fun getCanNumber(): String {
-            val encryptedPreferences: SharedPreferences? = getEncryptedPreferences(context)
-            if (encryptedPreferences != null) {
-                return encryptedPreferences.getString(
-                    resources.getString(R.string.main_settings_can_key),
-                    "",
-                ) ?: ""
+        fun getCanNumber(): String =
+            runEncrypted(context, "Unable to read CAN") {
+                EncryptedPreferences.getString(context, resources.getString(R.string.main_settings_can_key))
             }
-            errorLog(
-                logTag,
-                "Unable to read CAN",
-            )
-            return ""
-        }
 
         fun setCanNumber(can: String) {
-            val encryptedPreferences: SharedPreferences? = getEncryptedPreferences(context)
-            if (encryptedPreferences != null) {
-                encryptedPreferences.edit {
-                    putString(resources.getString(R.string.main_settings_can_key), can)
-                }
-                return
+            runEncryptedWrite(context, "Unable to save CAN") {
+                EncryptedPreferences.putString(context, resources.getString(R.string.main_settings_can_key), can)
             }
-            errorLog(logTag, "Unable to save CAN")
         }
 
-        fun getSigningCertificate(): String {
-            val encryptedPrefs = getEncryptedPreferences(context)
-            if (encryptedPrefs == null) {
-                errorLog(logTag, "Unable to read signing certificate")
-                return ""
+        fun getSigningCertificate(): String =
+            runEncrypted(context, "Unable to read signing certificate") {
+                val currentCan = getCanNumber()
+                val key = "${resources.getString(R.string.main_settings_signing_cert_key)}_$currentCan"
+                EncryptedPreferences.getString(context, key)
             }
 
-            val currentCan = getCanNumber()
-            val key = "${resources.getString(R.string.main_settings_signing_cert_key)}_$currentCan"
-            return encryptedPrefs.getString(key, "") ?: ""
-        }
-
-        @SuppressLint("ApplySharedPref")
         fun setSigningCertificate(cert: String) {
-            val encryptedPrefs = getEncryptedPreferences(context)
-            if (encryptedPrefs == null) {
-                errorLog(logTag, "Unable to save signing certificate")
-                return
+            runEncryptedWrite(context, "Unable to save signing certificate") {
+                val currentCanNumber = getCanNumber()
+                val key = "${resources.getString(R.string.main_settings_signing_cert_key)}_$currentCanNumber"
+                EncryptedPreferences.putString(context, key, cert)
             }
-
-            val currentCanNumber = getCanNumber()
-            val key = "${resources.getString(R.string.main_settings_signing_cert_key)}_$currentCanNumber"
-            val editor = encryptedPrefs.edit()
-
-            editor.remove(key).commit()
-            if (cert.isNotEmpty()) editor.putString(key, cert).commit()
         }
 
-        fun getTemporaryCanNumber(): String {
-            val encryptedPrefs = getEncryptedPreferences(context)
-            return encryptedPrefs?.getString(
-                resources.getString(R.string.main_settings_temporary_can_key),
-                "",
-            ) ?: ""
-        }
+        fun getTemporaryCanNumber(): String =
+            runEncrypted(context, "Unable to read temporary CAN") {
+                EncryptedPreferences.getString(context, resources.getString(R.string.main_settings_temporary_can_key))
+            }
 
         fun setTemporaryCanNumber(can: String) {
-            val encryptedPrefs = getEncryptedPreferences(context)
-            encryptedPrefs?.edit {
-                putString(resources.getString(R.string.main_settings_temporary_can_key), can)
+            runEncryptedWrite(context, "Unable to save temporary CAN") {
+                EncryptedPreferences.putString(
+                    context,
+                    resources.getString(R.string.main_settings_temporary_can_key),
+                    can,
+                )
             }
         }
 
         fun clearTemporaryCanNumber() {
-            val encryptedPrefs = getEncryptedPreferences(context)
-            encryptedPrefs?.edit {
-                remove(resources.getString(R.string.main_settings_temporary_can_key))
+            runEncryptedWrite(context, "Unable to clear temporary CAN") {
+                EncryptedPreferences.putString(
+                    context,
+                    resources.getString(R.string.main_settings_temporary_can_key),
+                    "",
+                )
             }
         }
 
@@ -172,15 +146,14 @@ class DataStore
 
         fun getWebEidRememberMe(): Boolean = preferences.getBoolean("web_eid_remember_me", true)
 
-        fun isWebEidSessionActive(): Boolean {
-            val prefs = getEncryptedPreferences(context)
-            return prefs?.getBoolean("web_eid_session_active", false) ?: false
-        }
+        fun isWebEidSessionActive(): Boolean =
+            runEncrypted(context, "Unable to read Web eID session state") {
+                EncryptedPreferences.getString(context, "web_eid_session_active", false.toString())
+            }.toBoolean()
 
         fun setWebEidSessionActive(active: Boolean) {
-            val prefs = getEncryptedPreferences(context)
-            prefs?.edit {
-                putBoolean("web_eid_session_active", active)
+            runEncryptedWrite(context, "Unable to save Web eID session state") {
+                EncryptedPreferences.putString(context, "web_eid_session_active", active.toString())
             }
         }
 
@@ -756,26 +729,22 @@ class DataStore
             ) ?: ""
 
         fun setProxyPassword(password: String) {
-            getEncryptedPreferences(context)?.edit {
-                putString(
+            runEncryptedWrite(context, "Unable to set proxy password") {
+                EncryptedPreferences.putString(
+                    context,
                     resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_password_key),
                     password,
                 )
             }
-            errorLog(logTag, "Unable to set proxy password")
         }
 
-        fun getProxyPassword(): String {
-            val encryptedPreferences: SharedPreferences? = getEncryptedPreferences(context)
-            if (encryptedPreferences != null) {
-                return encryptedPreferences.getString(
+        fun getProxyPassword(): String =
+            runEncrypted(context, "Unable to get proxy password") {
+                EncryptedPreferences.getString(
+                    context,
                     resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_password_key),
-                    "",
-                ) ?: ""
+                )
             }
-            errorLog(logTag, "Unable to get proxy password")
-            return ""
-        }
 
         fun getLocale(): Locale? {
             val locale = preferences.getString(KEY_LOCALE, null)
@@ -818,16 +787,31 @@ class DataStore
             preferences.edit { putString(THEME_SETTING, themeSetting.mode) }
         }
 
-        private fun getEncryptedPreferences(context: Context): SharedPreferences? =
+        private fun runEncrypted(
+            context: Context,
+            errorMessage: String,
+            operation: () -> String,
+        ): String =
             try {
-                EncryptedPreferences.getEncryptedPreferences(context)
+                operation()
             } catch (e: GeneralSecurityException) {
-                errorLog(logTag, "Unable to get encrypted preferences", e)
+                errorLog(logTag, errorMessage, e)
                 showMessage(context, R.string.error_general_client)
-                null
+                ""
             } catch (e: IOException) {
-                errorLog(logTag, "Unable to get encrypted preferences", e)
+                errorLog(logTag, errorMessage, e)
                 showMessage(context, R.string.error_general_client)
-                null
+                ""
             }
+
+        private fun runEncryptedWrite(
+            context: Context,
+            errorMessage: String,
+            operation: () -> Unit,
+        ) {
+            runEncrypted(context, errorMessage) {
+                operation()
+                ""
+            }
+        }
     }

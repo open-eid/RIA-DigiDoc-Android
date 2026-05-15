@@ -23,6 +23,12 @@ package ee.ria.DigiDoc
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
+import ee.ria.DigiDoc.init.EncryptedPreferencesMigration
 
 @HiltAndroidApp
-class RIADigiDocApp : Application()
+class RIADigiDocApp : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        EncryptedPreferencesMigration.migrate(this)
+    }
+}

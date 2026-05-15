@@ -38,8 +38,19 @@ fun ColoredRecipientStatusText(
     modifier: Modifier = Modifier,
     expired: Boolean = false,
 ) {
-    val tagBackgroundColor = if (!expired) MaterialTheme.extendedColorScheme.successContainer else MaterialTheme.colorScheme.errorContainer
-    val tagContentColor = if (!expired) MaterialTheme.extendedColorScheme.onSuccessContainer else MaterialTheme.colorScheme.onErrorContainer
+    val tagBackgroundColor =
+        if (!expired) {
+            MaterialTheme.extendedColorScheme.successContainer
+        } else {
+            MaterialTheme.colorScheme.errorContainer
+        }
+
+    val tagContentColor =
+        if (!expired) {
+            MaterialTheme.extendedColorScheme.onSuccessContainer
+        } else {
+            MaterialTheme.colorScheme.onErrorContainer
+        }
 
     FlowRow(
         modifier = modifier,

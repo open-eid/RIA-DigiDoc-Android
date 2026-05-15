@@ -189,9 +189,7 @@ object ProxyUtil {
                 ?: ""
         val password: String =
             try {
-                EncryptedPreferences
-                    .getEncryptedPreferences(context)
-                    .getString(context.getString(R.string.main_settings_proxy_password_key), "") ?: ""
+                EncryptedPreferences.getString(context, context.getString(R.string.main_settings_proxy_password_key))
             } catch (_: IOException) {
                 ""
             } catch (_: GeneralSecurityException) {

@@ -112,8 +112,7 @@ fun StatusSnackbar(message: SnackBarMessage) {
                     elevation = LElevation,
                     shape = RoundedCornerShape(MSCornerRadius),
                     ambientColor = Color.Transparent,
-                )
-                .clip(RoundedCornerShape(MSCornerRadius))
+                ).clip(RoundedCornerShape(MSCornerRadius))
                 .background(color = backgroundColor),
     ) {
         Row(

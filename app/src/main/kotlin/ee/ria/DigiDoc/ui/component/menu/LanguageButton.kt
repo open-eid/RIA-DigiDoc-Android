@@ -83,7 +83,7 @@ fun LanguageButton(
         colors =
             ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
-                contentColor = Color.White
+                contentColor = Color.White,
             ),
         contentPadding =
             PaddingValues(

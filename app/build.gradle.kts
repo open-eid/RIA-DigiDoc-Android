@@ -186,6 +186,8 @@ dependencies {
     ksp(libs.google.dagger.hilt.android.compile)
     implementation(libs.androidx.hilt)
     implementation(libs.kotlinx.coroutines.rx3)
+    // TODO: Remove later. Needed only for one-time migration of old EncryptedSharedPreferences data
+    implementation(libs.androidx.security.crypto)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockito.kotlin)
