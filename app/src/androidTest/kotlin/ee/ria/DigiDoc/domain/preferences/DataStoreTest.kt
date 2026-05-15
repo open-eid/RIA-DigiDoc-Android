@@ -22,7 +22,6 @@
 package ee.ria.DigiDoc.domain.preferences
 
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.common.Constant.Defaults.DEFAULT_UUID_VALUE
@@ -83,12 +82,7 @@ class DataStoreTest {
             preferences.edit().remove(key).apply()
         }
 
-        val encryptedPreferences: SharedPreferences = EncryptedPreferences.getEncryptedPreferences(context)
-
-        encryptedPreferences.all?.clear()
-        encryptedPreferences.all?.forEach { (key, _) ->
-            encryptedPreferences.edit().remove(key).apply()
-        }
+        EncryptedPreferences.clear(context)
     }
 
     @Test

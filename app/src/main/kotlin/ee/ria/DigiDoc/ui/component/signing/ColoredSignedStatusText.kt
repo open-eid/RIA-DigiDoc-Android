@@ -51,8 +51,20 @@ fun ColoredSignedStatusText(
             status == ValidatorInterface.Status.Warning ||
             status == ValidatorInterface.Status.NonQSCD
 
-    val tagBackgroundColor = if (isSignatureValidOrWarning) MaterialTheme.extendedColorScheme.successContainer else MaterialTheme.colorScheme.errorContainer
-    val tagContentColor = if (isSignatureValidOrWarning) MaterialTheme.extendedColorScheme.onSuccessContainer else MaterialTheme.colorScheme.onErrorContainer
+    val tagBackgroundColor =
+        if (isSignatureValidOrWarning) {
+            MaterialTheme.extendedColorScheme.successContainer
+        } else {
+            MaterialTheme.colorScheme.errorContainer
+        }
+
+    val tagContentColor =
+        if (isSignatureValidOrWarning) {
+            MaterialTheme.extendedColorScheme.onSuccessContainer
+        } else {
+            MaterialTheme.colorScheme.onErrorContainer
+        }
+
     val additionalTextColor =
         if (status == ValidatorInterface.Status.Valid) {
             MaterialTheme.extendedColorScheme.onWarningContainer

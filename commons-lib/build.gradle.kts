@@ -52,7 +52,6 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    implementation(libs.androidx.security.crypto)
     implementation(libs.guava)
     implementation(libs.bouncy.castle)
     implementation(libs.google.dagger.hilt.android)

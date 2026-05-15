@@ -270,14 +270,11 @@ class Initialization
             try {
                 val sharedPreferences: SharedPreferences =
                     PreferenceManager.getDefaultSharedPreferences(context)
-                val encryptedPreferences: SharedPreferences =
-                    EncryptedPreferences.getEncryptedPreferences(context)
-
                 overrideProxy(
                     sharedPreferences.getString(hostPreferenceKey, hostDefaultValue),
                     sharedPreferences.getInt(portPreferenceKey, portDefaultValue),
                     sharedPreferences.getString(usernamePreferenceKey, usernameDefaultValue),
-                    encryptedPreferences.getString(passwordPreferenceKey, passwordDefaultValue),
+                    EncryptedPreferences.getString(context, passwordPreferenceKey, passwordDefaultValue),
                 )
             } catch (e: IllegalStateException) {
                 errorLog(libdigidocInitLogTag, "Error initializing proxy", e)

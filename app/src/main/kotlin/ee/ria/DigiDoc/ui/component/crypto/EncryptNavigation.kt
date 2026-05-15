@@ -639,8 +639,7 @@ fun EncryptNavigation(
                     .focusGroup()
                     .semantics {
                         testTagsAsResourceId = true
-                    }
-                    .testTag("encryptContainer"),
+                    }.testTag("encryptContainer"),
         ) {
             var actionRecipient by remember { mutableStateOf<Addressee?>(null) }
 
@@ -695,8 +694,7 @@ fun EncryptNavigation(
                                             .semantics {
                                                 heading()
                                                 testTagsAsResourceId = true
-                                            }
-                                            .testTag("encryptionTitle"),
+                                            }.testTag("encryptionTitle"),
                                     text = stringResource(R.string.crypto_new_title),
                                     style = MaterialTheme.typography.headlineMedium,
                                     color = MaterialTheme.colorScheme.onBackground,
@@ -774,8 +772,7 @@ fun EncryptNavigation(
                                                 .size(loadingBarSize)
                                                 .semantics {
                                                     this.contentDescription = dataFilesLoading
-                                                }
-                                                .testTag("dataFilesLoadingProgress"),
+                                                }.testTag("dataFilesLoadingProgress"),
                                     )
                                 }
                             }
@@ -790,8 +787,7 @@ fun EncryptNavigation(
                                                 .semantics {
                                                     heading()
                                                     testTagsAsResourceId = true
-                                                }
-                                                .testTag("encryptDocumentsTitle"),
+                                                }.testTag("encryptDocumentsTitle"),
                                         text = containerFilesDescription,
                                         style = MaterialTheme.typography.bodyMedium,
                                         textAlign = TextAlign.Start,

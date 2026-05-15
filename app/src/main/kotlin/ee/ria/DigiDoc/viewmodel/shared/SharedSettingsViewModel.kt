@@ -522,13 +522,21 @@ class SharedSettingsViewModel
                     val response = call.execute()
                     if (response.code == 403) {
                         debugLog(logTag, "Forbidden error with proxy configuration")
-                        _errorState.value = SnackBarMessage(context.getString(R.string.main_settings_proxy_check_username_and_password))
+                        _errorState.value =
+                            SnackBarMessage(context.getString(R.string.main_settings_proxy_check_username_and_password))
                     } else if (response.code != 200) {
                         debugLog(logTag, "No Internet connection detected")
-                        _errorState.value = SnackBarMessage(context.getString(R.string.main_settings_proxy_check_connection_unsuccessful))
+                        _errorState.value =
+                            SnackBarMessage(
+                                context.getString(R.string.main_settings_proxy_check_connection_unsuccessful),
+                            )
                     } else {
                         debugLog(logTag, "Internet connection detected successfully")
-                        _errorState.value = SnackBarMessage(context.getString(R.string.main_settings_proxy_check_connection_success), SnackbarType.SUCCESS)
+                        _errorState.value =
+                            SnackBarMessage(
+                                context.getString(R.string.main_settings_proxy_check_connection_success),
+                                SnackbarType.SUCCESS,
+                            )
                     }
                 } catch (e: IOException) {
                     val message = e.message
@@ -545,7 +553,8 @@ class SharedSettingsViewModel
                         )
                     }
                     errorLog(logTag, "Unable to check Internet connection", e)
-                    _errorState.value = SnackBarMessage(context.getString(R.string.main_settings_proxy_check_connection_unsuccessful))
+                    _errorState.value =
+                        SnackBarMessage(context.getString(R.string.main_settings_proxy_check_connection_unsuccessful))
                 }
             }
         }

@@ -46,8 +46,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -86,6 +84,7 @@ import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
 import ee.ria.DigiDoc.ui.component.shared.DynamicText
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
+import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.signing.NFCView
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
@@ -95,7 +94,6 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
-import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.viewmodel.WebEidViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
@@ -131,9 +129,7 @@ fun WebEidScreen(
     var nfcSupported by remember { mutableStateOf(false) }
 
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
-    val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val messages by SnackBarManager.messages.collectAsState(emptyList())
     val dialogError by viewModel.dialogError.collectAsState()
     var rememberMe by rememberSaveable {
         mutableStateOf(sharedSettingsViewModel.dataStore.getWebEidRememberMe())
@@ -150,15 +146,6 @@ fun WebEidScreen(
         }
     }
 
-    LaunchedEffect(messages) {
-        messages.forEach { message ->
-            scope.launch {
-                snackBarHostState.showSnackbar(message)
-            }
-            SnackBarManager.removeMessage(message)
-        }
-    }
-
     LaunchedEffect(authRequest, certificateRequest) {
         if (authRequest != null || certificateRequest != null) {
             if (!sharedSettingsViewModel.dataStore.isWebEidSessionActive()) {
@@ -169,12 +156,7 @@ fun WebEidScreen(
     }
 
     Scaffold(
-        snackbarHost = {
-            SnackbarHost(
-                modifier = modifier.padding(vertical = SPadding),
-                hostState = snackBarHostState,
-            )
-        },
+        snackbarHost = { StatusSnackbarHost() },
         topBar = {
             TopBar(
                 modifier = modifier,
