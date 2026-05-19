@@ -1,9 +1,9 @@
 [versions]
-compileSdkVersion = "36"
+compileSdkVersion = "37"
 minSdkVersion = "33"
-targetSdkVersion = "36"
+targetSdkVersion = "37"
 versionCode = "74" # Updated via CodeMagic pipeline.
-versionName = "3.0.5"
+versionName = "3.1.0"
 
 agp = "8.13.0"
 algp = "8.13.0"
