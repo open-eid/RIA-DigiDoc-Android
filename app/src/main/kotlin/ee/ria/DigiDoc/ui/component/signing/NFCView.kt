@@ -123,7 +123,7 @@ fun NFCView(
     identityAction: IdentityAction,
     isSigning: Boolean = false,
     isDecrypting: Boolean = false,
-    isAuthenticating: Boolean,
+    isAuthenticating: Boolean = false,
     onError: () -> Unit = {},
     onSuccess: () -> Unit = {},
     isAddingRoleAndAddress: Boolean = false,
@@ -135,12 +135,12 @@ fun NFCView(
     isValidToSign: (Boolean) -> Unit = {},
     isValidToDecrypt: (Boolean) -> Unit = {},
     showPinField: Boolean = true,
-    isValidToAuthenticate: (Boolean) -> Unit,
+    isValidToAuthenticate: (Boolean) -> Unit = {},
     signAction: (() -> Unit) -> Unit = {},
     decryptAction: (() -> Unit) -> Unit = {},
     cancelAction: (() -> Unit) -> Unit = {},
     cancelDecryptAction: (() -> Unit) -> Unit = {},
-    isAuthenticated: (Boolean, IdCardData) -> Unit,
+    isAuthenticated: (Boolean, IdCardData) -> Unit = { _, _ -> },
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()

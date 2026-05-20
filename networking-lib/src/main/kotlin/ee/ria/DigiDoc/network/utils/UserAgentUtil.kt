@@ -33,7 +33,6 @@ import ee.ria.DigiDoc.common.BuildVersionProvider
 import ee.ria.DigiDoc.common.BuildVersionProviderImpl
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import java.util.Locale
-import java.util.Objects
 import java.util.stream.Collectors
 
 enum class SendDiagnostics {
@@ -90,18 +89,12 @@ object UserAgentUtil {
                     deviceNameFilters
                         .stream()
                         .anyMatch { charSequence: String ->
-                            Objects
-                                .requireNonNull<String?>(value.productName)
-                                .contains(
-                                    charSequence,
-                                )
+                            value.productName?.contains(charSequence) == true
                         } ||
                         deviceNameFilters
                             .stream()
                             .anyMatch { charSequence: String ->
-                                value.deviceName.contains(
-                                    charSequence,
-                                )
+                                value.deviceName.contains(charSequence)
                             }
                 }.collect(
                     Collectors.toMap<Map.Entry<String, UsbDevice>, String, UsbDevice>(

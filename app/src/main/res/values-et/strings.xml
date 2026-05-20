@@ -198,8 +198,6 @@
 
     <string name="signature_update_signature_add_method_mobile_id">mobiil-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
-    <string name="signature_update_signature_add_method_id_card">ID-kaart kaardilugeja abil</string>
-    <string name="signature_update_signature_add_method_id_card_accessibility">ID-kaart kaardilugeja abil</string>
     <string name="signature_update_signature_add_method_nfc">ID-kaart NFC abil</string>
     <string name="signature_update_signature_add_method_nfc_accessibility">ID-kaart N F C abil</string>
     <string name="signature_update_signature_add_success">Allkiri lisatud</string>

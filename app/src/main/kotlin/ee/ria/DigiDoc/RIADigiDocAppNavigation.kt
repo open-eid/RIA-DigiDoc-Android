@@ -37,7 +37,6 @@ import ee.ria.DigiDoc.fragment.AccessibilityFragment
 import ee.ria.DigiDoc.fragment.AdvancedSettingsFragment
 import ee.ria.DigiDoc.fragment.CryptoFileOpeningFragment
 import ee.ria.DigiDoc.fragment.DecryptFragment
-import ee.ria.DigiDoc.fragment.DecryptMethodChooserFragment
 import ee.ria.DigiDoc.fragment.DiagnosticsFragment
 import ee.ria.DigiDoc.fragment.EncryptFragment
 import ee.ria.DigiDoc.fragment.EncryptRecipientFragment
@@ -49,7 +48,6 @@ import ee.ria.DigiDoc.fragment.InitFragment
 import ee.ria.DigiDoc.fragment.LanguageChooserFragment
 import ee.ria.DigiDoc.fragment.MyEidFragment
 import ee.ria.DigiDoc.fragment.MyEidIdentificationFragment
-import ee.ria.DigiDoc.fragment.MyEidIdentificationMethodChooserFragment
 import ee.ria.DigiDoc.fragment.MyEidPinFragment
 import ee.ria.DigiDoc.fragment.ProxyServicesSettingsFragment
 import ee.ria.DigiDoc.fragment.RecentDocumentsFragment
@@ -188,14 +186,6 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
                 sharedSettingsViewModel = sharedSettingsViewModel,
                 sharedMenuViewModel = sharedMenuViewModel,
                 sharedContainerViewModel = sharedContainerViewModel,
-            )
-        }
-        composable(route = Route.DecryptMethodScreen.route) {
-            DecryptMethodChooserFragment(
-                modifier = Modifier.safeDrawingPadding(),
-                navController = navController,
-                sharedSettingsViewModel = sharedSettingsViewModel,
-                sharedMenuViewModel = sharedMenuViewModel,
             )
         }
         composable(route = Route.Accessibility.route) {
@@ -341,14 +331,6 @@ fun RIADigiDocAppScreen(externalFileUris: List<Uri>) {
                 sharedMenuViewModel = sharedMenuViewModel,
                 sharedContainerViewModel = sharedContainerViewModel,
                 sharedMyEidViewModel = sharedMyEidViewModel,
-            )
-        }
-        composable(route = Route.MyEidIdentificationMethodScreen.route) {
-            MyEidIdentificationMethodChooserFragment(
-                modifier = Modifier.safeDrawingPadding(),
-                navController = navController,
-                sharedSettingsViewModel = sharedSettingsViewModel,
-                sharedMenuViewModel = sharedMenuViewModel,
             )
         }
         composable(route = Route.ContainerNotificationsScreen.route) {

@@ -32,33 +32,26 @@ import ee.ria.DigiDoc.MainActivity
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant
 import ee.ria.DigiDoc.domain.model.IdCardData
-import ee.ria.DigiDoc.domain.model.myeid.MyEidIdentificationMethodSetting
 import ee.ria.DigiDoc.domain.model.pin.PinChangeVariant
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.domain.service.IdCardService
 import ee.ria.DigiDoc.idcard.CodeType
 import ee.ria.DigiDoc.idcard.CodeVerificationException
 import ee.ria.DigiDoc.idcard.Token
-import ee.ria.DigiDoc.smartcardreader.SmartCardReader
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderException
-import ee.ria.DigiDoc.smartcardreader.SmartCardReaderManager
-import ee.ria.DigiDoc.smartcardreader.SmartCardReaderStatus
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReader
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager
 import ee.ria.DigiDoc.ui.component.myeid.pinandcertificate.PinChangeContent
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
-import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import org.bouncycastle.util.encoders.Hex
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -92,9 +85,6 @@ class SharedMyEidViewModelTest {
     lateinit var errorStateObserver: Observer<Triple<Int, String?, Int?>?>
 
     @Mock
-    lateinit var idCardStatusObserver: Observer<SmartCardReaderStatus?>
-
-    @Mock
     lateinit var idCardDataObserver: Observer<IdCardData?>
 
     @Mock
@@ -102,15 +92,6 @@ class SharedMyEidViewModelTest {
 
     @Mock
     lateinit var isPinBlockedObserver: Observer<Boolean?>
-
-    @Mock
-    lateinit var identificationMethodObserver: Observer<MyEidIdentificationMethodSetting?>
-
-    @Mock
-    lateinit var mockSmartCardReaderManager: SmartCardReaderManager
-
-    @Mock
-    lateinit var mockSmartCardReader: SmartCardReader
 
     @Mock
     lateinit var mockNfcSmartCardReader: NfcSmartCardReader
@@ -137,11 +118,8 @@ class SharedMyEidViewModelTest {
         dataStore = DataStore(context)
         nfcSmartCardReaderManager = NfcSmartCardReaderManager()
 
-        `when`(mockSmartCardReaderManager.status()).thenReturn(Observable.just(SmartCardReaderStatus.IDLE))
-
         viewModel =
             SharedMyEidViewModel(
-                mockSmartCardReaderManager,
                 mockIdCardService,
                 nfcSmartCardReaderManager,
                 dataStore,
@@ -150,22 +128,12 @@ class SharedMyEidViewModelTest {
         viewModel.idCardData.observeForever(idCardDataObserver)
         viewModel.pinChangingState.observeForever(pinChangingStateObserver)
         viewModel.isPinBlocked.observeForever(isPinBlockedObserver)
-        viewModel.identificationMethod.observeForever(identificationMethodObserver)
-        viewModel.idCardStatus.observeForever(idCardStatusObserver)
         viewModel.errorState.observeForever(errorStateObserver)
     }
 
     @After
     fun tearDown() {
         Dispatchers.resetMain()
-    }
-
-    @Test
-    fun sharedMyEidViewModel_setIdentificationMethod_success() {
-        val identificationMethod = MyEidIdentificationMethodSetting.ID_CARD
-        viewModel.setIdentificationMethod(identificationMethod)
-
-        assertEquals(identificationMethod, viewModel.identificationMethod.value)
     }
 
     @Test
@@ -610,48 +578,6 @@ class SharedMyEidViewModelTest {
     }
 
     @Test
-    fun sharedMyEidViewModel_getToken_success() {
-        viewModel.setIdentificationMethod(MyEidIdentificationMethodSetting.ID_CARD)
-
-        `when`(mockSmartCardReaderManager.connectedReader()).thenReturn(mockSmartCardReader)
-        `when`(mockSmartCardReader.atr()).thenReturn(Hex.decode("3bdb960080b1fe451f830012233f536549440f9000f1"))
-
-        var resultToken: Token? = null
-        var resultError: Exception? = null
-
-        activityRule.scenario.onActivity { activity ->
-            viewModel.getToken(activity) { token, error ->
-                resultToken = token
-                resultError = error
-            }
-        }
-
-        assertNotNull(resultToken)
-        assertNull(resultError)
-    }
-
-    @Test
-    fun sharedMyEidViewModel_getToken_returnsSmartCardReaderException() {
-        viewModel.setIdentificationMethod(MyEidIdentificationMethodSetting.ID_CARD)
-
-        `when`(mockSmartCardReaderManager.connectedReader()).thenReturn(mockSmartCardReader)
-        `when`(mockSmartCardReader.atr()).thenReturn(byteArrayOf(49, 50, 51, 52))
-
-        var resultToken: Token? = null
-        var resultError: Exception? = null
-
-        activityRule.scenario.onActivity { activity ->
-            viewModel.getToken(activity) { token, error ->
-                resultToken = token
-                resultError = error
-            }
-        }
-
-        assertNull(resultToken)
-        assertNotNull(resultError)
-    }
-
-    @Test
     fun sharedMyEidViewModel_resetScreenContent_success() =
         runTest {
             viewModel.resetScreenContent()
@@ -687,24 +613,15 @@ class SharedMyEidViewModelTest {
         }
 
     @Test
-    fun sharedMyEidViewModel_resetIdentificationMethod_success() =
-        runTest {
-            viewModel.resetIdentificationMethod()
-            assertNull(viewModel.identificationMethod.value)
-        }
-
-    @Test
     fun sharedMyEidViewModel_resetValues_success() =
         runTest {
             viewModel.resetErrorState()
             viewModel.resetIsPinBlocked()
             viewModel.resetScreenContent()
             viewModel.resetPinChangingState()
-            viewModel.resetIdentificationMethod()
             assertNull(viewModel.errorState.value)
             assertFalse(viewModel.isPinBlocked.value == true)
             assertNull(viewModel.pinScreenContent.value)
             assertFalse(viewModel.pinChangingState.value == true)
-            assertNull(viewModel.identificationMethod.value)
         }
 }

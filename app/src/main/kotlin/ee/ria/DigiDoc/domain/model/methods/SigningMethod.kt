@@ -29,7 +29,6 @@ enum class SigningMethod(
     @param:StringRes val label: Int,
 ) {
     NFC("NFC", R.string.signature_update_signature_add_method_nfc),
-    ID_CARD("IDCard", R.string.signature_update_signature_add_method_id_card),
     MOBILE_ID("MobileId", R.string.signature_update_signature_add_method_mobile_id),
     SMART_ID("SmartId", R.string.signature_update_signature_add_method_smart_id),
 }

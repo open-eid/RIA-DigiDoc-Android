@@ -41,7 +41,6 @@ object Constant {
         const val SIGNING_SCREEN = "signing_route"
         const val ENCRYPT_SCREEN = "encrypt_route"
         const val DECRYPT_SCREEN = "decrypt_route"
-        const val DECRYPT_METHOD_SCREEN = "decrypt_method_route"
         const val ACCESSIBILITY_SCREEN = "accessibility_route"
         const val INFO_SCREEN = "info_route"
         const val DIAGNOSTICS_SCREEN = "diagnostics_route"
@@ -64,7 +63,6 @@ object Constant {
         const val PROXY_SERVICES_SCREEN = "proxy_services_route"
         const val CONTAINER_NOTIFICATIONS_SCREEN = "container_notifications_route"
         const val MYEID_IDENTIFICATION_SCREEN = "myeid_identification_route"
-        const val MYEID_IDENTIFICATION_METHOD_SCREEN = "myeid_identification_method_route"
         const val MYEID_SCREEN = "myeid_screen_route"
         const val MYEID_PIN_SCREEN = "myeid_pin_screen_route"
     }

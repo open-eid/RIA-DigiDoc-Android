@@ -27,7 +27,6 @@ import ee.ria.DigiDoc.utils.Constant.Routes.CERTIFICATE_DETAIL_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.CONTAINER_NOTIFICATIONS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.CRYPTO_FILE_CHOOSING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.CRYPTO_SCREEN
-import ee.ria.DigiDoc.utils.Constant.Routes.DECRYPT_METHOD_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.DECRYPT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.DIAGNOSTICS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.EID_SCREEN
@@ -37,7 +36,6 @@ import ee.ria.DigiDoc.utils.Constant.Routes.ENCRYPT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.HOME_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.INFO_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.INIT_SCREEN
-import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_IDENTIFICATION_METHOD_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_IDENTIFICATION_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_PIN_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_SCREEN
@@ -75,7 +73,6 @@ class RouteTest {
         assertEquals(SIGNING_SCREEN, Route.Signing.route)
         assertEquals(ENCRYPT_SCREEN, Route.Encrypt.route)
         assertEquals(DECRYPT_SCREEN, Route.DecryptScreen.route)
-        assertEquals(DECRYPT_METHOD_SCREEN, Route.DecryptMethodScreen.route)
         assertEquals(ACCESSIBILITY_SCREEN, Route.Accessibility.route)
         assertEquals(INFO_SCREEN, Route.Info.route)
         assertEquals(DIAGNOSTICS_SCREEN, Route.Diagnostics.route)
@@ -98,7 +95,6 @@ class RouteTest {
         assertEquals(PROXY_SERVICES_SCREEN, Route.ProxyServicesScreen.route)
         assertEquals(CONTAINER_NOTIFICATIONS_SCREEN, Route.ContainerNotificationsScreen.route)
         assertEquals(MYEID_IDENTIFICATION_SCREEN, Route.MyEidIdentificationScreen.route)
-        assertEquals(MYEID_IDENTIFICATION_METHOD_SCREEN, Route.MyEidIdentificationMethodScreen.route)
         assertEquals(MYEID_SCREEN, Route.MyEidScreen.route)
         assertEquals(MYEID_PIN_SCREEN, Route.MyEidPinScreen.route)
     }

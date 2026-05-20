@@ -54,7 +54,6 @@ import ee.ria.DigiDoc.domain.service.fileopening.FileOpeningService
 import ee.ria.DigiDoc.domain.service.fileopening.FileOpeningServiceImpl
 import ee.ria.DigiDoc.domain.service.siva.SivaService
 import ee.ria.DigiDoc.domain.service.siva.SivaServiceImpl
-import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.manager.ActivityManager
 import ee.ria.DigiDoc.manager.ActivityManagerImpl
@@ -164,11 +163,8 @@ class AppModules {
     fun provideCrashDetector(crashlytics: FirebaseCrashlytics): CrashDetector = CrashDetectorImpl(crashlytics)
 
     @Provides
-    fun provideIdCardService(
-        @ApplicationContext context: Context,
-        containerWrapper: ContainerWrapper,
-        certificateService: CertificateService,
-    ): IdCardService = IdCardServiceImpl(context, containerWrapper, certificateService)
+    fun provideIdCardService(certificateService: CertificateService): IdCardService =
+        IdCardServiceImpl(certificateService)
 
     @Provides
     fun provideTextToSpeechWrapper(

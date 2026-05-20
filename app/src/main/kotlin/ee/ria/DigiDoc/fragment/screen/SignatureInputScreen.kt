@@ -84,7 +84,6 @@ import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.shared.notificationPermissionRequester
-import ee.ria.DigiDoc.ui.component.signing.IdCardView
 import ee.ria.DigiDoc.ui.component.signing.MobileIdView
 import ee.ria.DigiDoc.ui.component.signing.NFCView
 import ee.ria.DigiDoc.ui.component.signing.SmartIdView
@@ -121,7 +120,6 @@ fun SignatureInputScreen(
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
     val getIsAskRoleAndAddressRequested = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
     var rememberMe by rememberSaveable { mutableStateOf(true) }
-    var isIdCardProcessStarted by rememberSaveable { mutableStateOf(false) }
     var isSigning by rememberSaveable { mutableStateOf(false) }
     var isAddingRoleAndAddress by rememberSaveable { mutableStateOf(false) }
     val chosenMethod by remember {
@@ -216,7 +214,7 @@ fun SignatureInputScreen(
                 style = MaterialTheme.typography.headlineMedium,
             )
 
-            if (!isSigning && !isIdCardProcessStarted && !isAddingRoleAndAddress) {
+            if (!isSigning && !isAddingRoleAndAddress) {
                 Column(
                     modifier =
                         modifier
@@ -341,48 +339,6 @@ fun SignatureInputScreen(
                         },
                     )
 
-                SigningMethod.ID_CARD ->
-                    IdCardView(
-                        modifier = modifier,
-                        activity = context,
-                        onError = {
-                            isSigning = false
-                            isAddingRoleAndAddress = false
-                            cancelAction()
-                        },
-                        onSuccess = {
-                            isSigning = false
-                            isAddingRoleAndAddress = false
-                            navController.navigateUp()
-                        },
-                        isStarted = { started ->
-                            if (started) {
-                                isIdCardProcessStarted = true
-                            }
-                        },
-                        isSigning = isSigning,
-                        isAddingRoleAndAddress = isAddingRoleAndAddress,
-                        isAuthenticating = false,
-                        sharedSettingsViewModel = sharedSettingsViewModel,
-                        sharedContainerViewModel = sharedContainerViewModel,
-                        isValidToSign = { isValid ->
-                            isValidToSign = isValid
-                        },
-                        signAction = { action ->
-                            signAction = {
-                                isSigning = true
-                                action()
-                            }
-                        },
-                        cancelAction = { action ->
-                            isSigning = false
-                            isAddingRoleAndAddress = false
-                            cancelAction = action
-                        },
-                        isAuthenticated = { _, _ -> {} },
-                        identityAction = IdentityAction.SIGN,
-                    )
-
                 SigningMethod.NFC ->
                     NFCView(
                         modifier = modifier,
@@ -423,7 +379,7 @@ fun SignatureInputScreen(
             }
 
             if (!isSigning && (chosenMethod != SigningMethod.NFC || nfcSupported)) {
-                if (chosenMethod != SigningMethod.ID_CARD && !isAddingRoleAndAddress) {
+                if (!isAddingRoleAndAddress) {
                     SettingsSwitchItem(
                         modifier = modifier,
                         checked = rememberMe,

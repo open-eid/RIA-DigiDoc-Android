@@ -25,12 +25,10 @@ import android.app.Activity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant
 import ee.ria.DigiDoc.domain.model.IdCardData
-import ee.ria.DigiDoc.domain.model.myeid.MyEidIdentificationMethodSetting
 import ee.ria.DigiDoc.domain.model.pin.PinChangeVariant
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.domain.service.IdCardService
@@ -40,19 +38,13 @@ import ee.ria.DigiDoc.idcard.DateOfBirthUtil
 import ee.ria.DigiDoc.idcard.Token
 import ee.ria.DigiDoc.idcard.TokenWithPace
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderException
-import ee.ria.DigiDoc.smartcardreader.SmartCardReaderManager
-import ee.ria.DigiDoc.smartcardreader.SmartCardReaderStatus
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReader
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager
 import ee.ria.DigiDoc.ui.component.myeid.pinandcertificate.PinChangeContent
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx3.asFlow
 import java.security.cert.X509Certificate
 import java.text.SimpleDateFormat
 import java.time.ZoneId
@@ -66,7 +58,6 @@ import kotlin.math.abs
 class SharedMyEidViewModel
     @Inject
     constructor(
-        private val smartCardReaderManager: SmartCardReaderManager,
         private val idCardService: IdCardService,
         private val nfcSmartCardReaderManager: NfcSmartCardReaderManager,
         private val dataStore: DataStore,
@@ -75,9 +66,6 @@ class SharedMyEidViewModel
 
         private val _pinScreenContent = MutableStateFlow<PinChangeContent?>(null)
         val pinScreenContent: StateFlow<PinChangeContent?> = _pinScreenContent
-
-        private val _idCardStatus = MutableLiveData(SmartCardReaderStatus.IDLE)
-        val idCardStatus: LiveData<SmartCardReaderStatus?> = _idCardStatus
 
         private val _idCardData = MutableLiveData<IdCardData?>(null)
         val idCardData: LiveData<IdCardData?> = _idCardData
@@ -90,21 +78,6 @@ class SharedMyEidViewModel
 
         private val _isPinBlocked = MutableLiveData<Boolean>(false)
         val isPinBlocked: LiveData<Boolean> = _isPinBlocked
-
-        private val _identificationMethod = MutableLiveData<MyEidIdentificationMethodSetting?>(null)
-        val identificationMethod: LiveData<MyEidIdentificationMethodSetting?> = _identificationMethod
-
-        init {
-            viewModelScope.launch(Main) {
-                smartCardReaderManager.status().asFlow().distinctUntilChanged().collect { status ->
-                    _idCardStatus.postValue(status)
-                }
-            }
-        }
-
-        fun setIdentificationMethod(identificationMethod: MyEidIdentificationMethodSetting) {
-            _identificationMethod.postValue(identificationMethod)
-        }
 
         fun setIdCardData(idCardData: IdCardData) {
             _idCardData.postValue(idCardData)
@@ -355,37 +328,23 @@ class SharedMyEidViewModel
             onResult: (Token?, Exception?) -> Unit,
         ) {
             try {
-                when (identificationMethod.value) {
-                    MyEidIdentificationMethodSetting.NFC -> {
-                        nfcSmartCardReaderManager.startDiscovery(activity) { reader, error ->
-                            if (error != null) {
-                                onResult(null, error)
-                                return@startDiscovery
-                            }
-
-                            if (reader == null) {
-                                onResult(
-                                    null,
-                                    SmartCardReaderException(
-                                        activity.getString(R.string.error_general_client),
-                                    ),
-                                )
-                                return@startDiscovery
-                            }
-
-                            handleNfcToken(reader, onResult)
-                        }
+                nfcSmartCardReaderManager.startDiscovery(activity) { reader, error ->
+                    if (error != null) {
+                        onResult(null, error)
+                        return@startDiscovery
                     }
 
-                    else -> {
-                        try {
-                            val reader = smartCardReaderManager.connectedReader()
-                            val token = Token.create(reader)
-                            onResult(token, null)
-                        } catch (e: Exception) {
-                            onResult(null, e)
-                        }
+                    if (reader == null) {
+                        onResult(
+                            null,
+                            SmartCardReaderException(
+                                activity.getString(R.string.error_general_client),
+                            ),
+                        )
+                        return@startDiscovery
                     }
+
+                    handleNfcToken(reader, onResult)
                 }
             } catch (e: Exception) {
                 onResult(null, e)
@@ -424,10 +383,6 @@ class SharedMyEidViewModel
             _isPinBlocked.postValue(false)
         }
 
-        fun resetIdentificationMethod() {
-            _identificationMethod.postValue(null)
-        }
-
         fun resetValues() {
             resetErrorState()
             resetIsPinBlocked()
@@ -437,7 +392,6 @@ class SharedMyEidViewModel
 
         fun handleBackButton() {
             resetValues()
-            resetIdentificationMethod()
             resetIdCardData()
         }
     }
