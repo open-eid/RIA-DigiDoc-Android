@@ -44,7 +44,6 @@ class ConstantTest {
         assertEquals("signing_route", Constant.Routes.SIGNING_SCREEN)
         assertEquals("encrypt_route", Constant.Routes.ENCRYPT_SCREEN)
         assertEquals("decrypt_route", Constant.Routes.DECRYPT_SCREEN)
-        assertEquals("decrypt_method_route", Constant.Routes.DECRYPT_METHOD_SCREEN)
         assertEquals("accessibility_route", Constant.Routes.ACCESSIBILITY_SCREEN)
         assertEquals("info_route", Constant.Routes.INFO_SCREEN)
         assertEquals("diagnostics_route", Constant.Routes.DIAGNOSTICS_SCREEN)
@@ -66,7 +65,6 @@ class ConstantTest {
         assertEquals("proxy_services_route", Constant.Routes.PROXY_SERVICES_SCREEN)
         assertEquals("container_notifications_route", Constant.Routes.CONTAINER_NOTIFICATIONS_SCREEN)
         assertEquals("myeid_identification_route", Constant.Routes.MYEID_IDENTIFICATION_SCREEN)
-        assertEquals("myeid_identification_method_route", Constant.Routes.MYEID_IDENTIFICATION_METHOD_SCREEN)
         assertEquals("myeid_screen_route", Constant.Routes.MYEID_SCREEN)
         assertEquals("myeid_pin_screen_route", Constant.Routes.MYEID_PIN_SCREEN)
     }

@@ -198,8 +198,6 @@
 
     <string name="signature_update_signature_add_method_mobile_id">mobile-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
-    <string name="signature_update_signature_add_method_id_card">ID-card via USB</string>
-    <string name="signature_update_signature_add_method_id_card_accessibility">ID-card via U S B</string>
     <string name="signature_update_signature_add_method_nfc">ID-card via NFC</string>
     <string name="signature_update_signature_add_method_nfc_accessibility">ID-card via N F C</string>
     <string name="signature_update_signature_add_success">Signature added</string>

@@ -80,11 +80,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant
-import ee.ria.DigiDoc.domain.model.myeid.MyEidIdentificationMethodSetting
 import ee.ria.DigiDoc.idcard.CodeType
 import ee.ria.DigiDoc.idcard.PaceTunnelException
 import ee.ria.DigiDoc.smartcardreader.ApduResponseException
-import ee.ria.DigiDoc.smartcardreader.SmartCardReaderStatus
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.shared.PrimaryOutlinedButton
 import ee.ria.DigiDoc.ui.component.shared.SecurePinTextField
@@ -95,7 +93,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeM
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
-import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
@@ -132,11 +129,7 @@ fun MyEidPinScreen(
 
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
-    val idCardStatus by sharedMyEidViewModel.idCardStatus.asFlow().collectAsState(SmartCardReaderStatus.IDLE)
-
     val idCardData by sharedMyEidViewModel.idCardData.asFlow().collectAsState(null)
-
-    val identificationMethod by sharedMyEidViewModel.identificationMethod.asFlow().collectAsState(null)
 
     val content by sharedMyEidViewModel.pinScreenContent.collectAsState()
 
@@ -369,24 +362,6 @@ fun MyEidPinScreen(
         }
     }
 
-    LaunchedEffect(idCardStatus) {
-        idCardStatus?.let { status ->
-            if (idCardData?.personalData != null) {
-                when (status) {
-                    SmartCardReaderStatus.CARD_DETECTED -> {}
-                    else -> {
-                        navController.navigate(Route.MyEidIdentificationScreen.route) {
-                            popUpTo(Route.Home.route) {
-                                inclusive = false
-                            }
-                            launchSingleTop = true
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     BackHandler {
         if (showNewRepeatPinField.value) {
             newPinRepeatedState.value = byteArrayOf()
@@ -471,9 +446,7 @@ fun MyEidPinScreen(
                     contentColor = MaterialTheme.colorScheme.surface,
                     enabled = isNewRepeatedPinValid,
                 ) {
-                    if (identificationMethod == MyEidIdentificationMethodSetting.NFC) {
-                        showNFCScreen.value = true
-                    }
+                    showNFCScreen.value = true
 
                     scope.launch(IO) {
                         if (activity == null) {

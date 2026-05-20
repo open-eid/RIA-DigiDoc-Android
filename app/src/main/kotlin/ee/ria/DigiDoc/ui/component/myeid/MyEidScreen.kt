@@ -72,7 +72,6 @@ import ee.ria.DigiDoc.domain.model.pin.PinChangeVariant
 import ee.ria.DigiDoc.idcard.CardType
 import ee.ria.DigiDoc.idcard.CodeType
 import ee.ria.DigiDoc.idcard.DateOfBirthUtil
-import ee.ria.DigiDoc.smartcardreader.SmartCardReaderStatus
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.myeid.mydata.MyEidMyDataView
 import ee.ria.DigiDoc.ui.component.myeid.pinandcertificate.MyEidPinAndCertificateView
@@ -108,8 +107,6 @@ fun MyEidScreen(
     val messages by SnackBarManager.messages.collectAsState(emptyList())
 
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
-
-    val idCardStatus by sharedMyEidViewModel.idCardStatus.asFlow().collectAsState(SmartCardReaderStatus.IDLE)
 
     val idCardData by sharedMyEidViewModel.idCardData.asFlow().collectAsState(null)
 
@@ -223,24 +220,6 @@ fun MyEidScreen(
                 snackBarHostState.showSnackbar(message)
             }
             SnackBarManager.removeMessage(message)
-        }
-    }
-
-    LaunchedEffect(idCardStatus) {
-        idCardStatus?.let { status ->
-            if (idCardData?.personalData != null) {
-                when (status) {
-                    SmartCardReaderStatus.CARD_DETECTED -> {}
-                    else -> {
-                        navController.navigate(Route.MyEidIdentificationScreen.route) {
-                            popUpTo(Route.Home.route) {
-                                inclusive = false
-                            }
-                            launchSingleTop = true
-                        }
-                    }
-                }
-            }
         }
     }
 

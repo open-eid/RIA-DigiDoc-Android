@@ -103,9 +103,4 @@ class ConstantTest {
         assertEquals(4, Constant.MyEID.PIN1_MINIMUM_LENGTH)
         assertEquals(12, Constant.MyEID.PIN_MAXIMUM_LENGTH)
     }
-
-    @Test
-    fun testCryptoSettings() {
-        assertEquals("DECRYPT_METHOD_SETTING", Constant.Crypto.DECRYPT_METHOD_SETTING)
-    }
 }

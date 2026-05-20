@@ -21,9 +21,6 @@
 
 package ee.ria.DigiDoc.domain.service
 
-import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
-import ee.ria.DigiDoc.common.Constant.SignatureRequest.SIGNATURE_PROFILE_TS
 import ee.ria.DigiDoc.common.certificate.CertificateService
 import ee.ria.DigiDoc.common.model.ExtendedCertificate
 import ee.ria.DigiDoc.domain.model.IdCardData
@@ -31,14 +28,7 @@ import ee.ria.DigiDoc.idcard.CertificateType
 import ee.ria.DigiDoc.idcard.CodeType
 import ee.ria.DigiDoc.idcard.CodeVerificationException
 import ee.ria.DigiDoc.idcard.Token
-import ee.ria.DigiDoc.libdigidoclib.SignedContainer
-import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
-import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
-import ee.ria.DigiDoc.network.utils.SendDiagnostics
-import ee.ria.DigiDoc.network.utils.UserAgentUtil
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderException
-import ee.ria.libdigidocpp.ExternalSigner
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -48,21 +38,8 @@ import javax.inject.Singleton
 class IdCardServiceImpl
     @Inject
     constructor(
-        @param:ApplicationContext private val context: Context,
-        private val containerWrapper: ContainerWrapper,
         private val certificateService: CertificateService,
     ) : IdCardService {
-        @Throws(Exception::class)
-        override suspend fun signContainer(
-            token: Token,
-            container: SignedContainer,
-            pin2: ByteArray,
-            roleData: RoleData?,
-        ): SignedContainer =
-            withContext(IO) {
-                sign(container, token, pin2, roleData)
-            }
-
         @Throws(Exception::class)
         override suspend fun data(token: Token): IdCardData =
             withContext(Main) {
@@ -73,7 +50,7 @@ class IdCardServiceImpl
                 val pin1RetryCounter = token.codeRetryCounter(CodeType.PIN1)
                 val pin2RetryCounter = token.codeRetryCounter(CodeType.PIN2)
                 val pukRetryCounter = token.codeRetryCounter(CodeType.PUK)
-                val pin2CodeChanged = token.pinChangedFlag()
+                val pin2CodeChanged = token.pinChangedFlag(CodeType.PIN2)
 
                 val authCertificate = ExtendedCertificate.create(authenticationCertificateData, certificateService)
                 val signCertificate = ExtendedCertificate.create(signingCertificateData, certificateService)
@@ -110,44 +87,5 @@ class IdCardServiceImpl
         ): IdCardData {
             token.unblockAndChangeCode(currentPuk, codeType, newPin)
             return data(token)
-        }
-
-        @Throws(Exception::class)
-        private suspend fun sign(
-            signedContainer: SignedContainer,
-            token: Token,
-            pin2: ByteArray,
-            roleData: RoleData?,
-        ): SignedContainer {
-            val idCardData = data(token)
-            val signCertificateData = idCardData.signCertificate.data
-
-            val dataToSign: ByteArray?
-
-            val signer = ExternalSigner(signCertificateData)
-            signer.setProfile(SIGNATURE_PROFILE_TS)
-            signer.setUserAgent(UserAgentUtil.getUserAgent(context, SendDiagnostics.Devices))
-
-            dataToSign =
-                containerWrapper.prepareSignature(
-                    signer,
-                    signedContainer,
-                    signCertificateData,
-                    roleData,
-                )
-
-            val signatureData =
-                token.calculateSignature(
-                    pin2,
-                    dataToSign,
-                    idCardData.signCertificate.ellipticCurve,
-                )
-
-            containerWrapper.finalizeSignature(
-                signer,
-                signedContainer,
-                signatureData,
-            )
-            return signedContainer
         }
     }

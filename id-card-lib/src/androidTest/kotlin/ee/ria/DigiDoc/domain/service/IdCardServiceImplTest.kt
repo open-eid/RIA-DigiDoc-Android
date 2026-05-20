@@ -24,12 +24,9 @@ package ee.ria.DigiDoc.domain.service
 import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
-import ee.ria.DigiDoc.common.Constant
-import ee.ria.DigiDoc.common.R
 import ee.ria.DigiDoc.common.certificate.CertificateService
 import ee.ria.DigiDoc.common.model.EIDType
 import ee.ria.DigiDoc.common.model.ExtendedCertificate
-import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifierImpl
 import ee.ria.DigiDoc.configuration.loader.ConfigurationLoaderImpl
@@ -42,14 +39,9 @@ import ee.ria.DigiDoc.idcard.CodeType
 import ee.ria.DigiDoc.idcard.CodeVerificationException
 import ee.ria.DigiDoc.idcard.PersonalData
 import ee.ria.DigiDoc.idcard.Token
-import ee.ria.DigiDoc.libdigidoclib.SignedContainer
-import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
-import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.libdigidoclib.init.LibdigidocLibraryLoader
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderException
-import ee.ria.DigiDoc.utilsLib.signing.CertificateUtil
-import ee.ria.libdigidocpp.ExternalSigner
 import kotlinx.coroutines.runBlocking
 import org.bouncycastle.asn1.x509.ExtendedKeyUsage
 import org.bouncycastle.asn1.x509.KeyUsage
@@ -65,54 +57,13 @@ import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doNothing
-import org.mockito.kotlin.eq
-import java.io.File
 
 @RunWith(MockitoJUnitRunner::class)
 class IdCardServiceImplTest {
-    private lateinit var context: Context
     private lateinit var idCardService: IdCardServiceImpl
     private lateinit var certificateService: CertificateService
-    private lateinit var containerWrapper: ContainerWrapper
-    private lateinit var containerFile: File
 
     private val token = Mockito.mock(Token::class.java)
-    private lateinit var existingContainer: SignedContainer
-
-    private val cert =
-        "MIIGGzCCBQOgAwIBAgIQDmRuJmtGcd4j6HiqQzw0hzANBgkqhkiG9w0BAQsFADBZ\n" +
-            "MQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMTMwMQYDVQQDEypE\n" +
-            "aWdpQ2VydCBHbG9iYWwgRzIgVExTIFJTQSBTSEEyNTYgMjAyMCBDQTEwHhcNMjMw\n" +
-            "ODMxMDAwMDAwWhcNMjQwOTMwMjM1OTU5WjBXMQswCQYDVQQGEwJFRTEQMA4GA1UE\n" +
-            "BxMHVGFsbGlubjEhMB8GA1UECgwYUmlpZ2kgSW5mb3PDvHN0ZWVtaSBBbWV0MRMw\n" +
-            "EQYDVQQDDAoqLmVlc3RpLmVlMHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEIbJjZD5M\n" +
-            "fjpd2P6FDuNclnN0hp/1ANWr05wK6/Nl/BIR/rr702rV2Y17uoBukHA4TvChN3P8\n" +
-            "YMHloK+TcXmjy+CQpRQtYUvm+meobN0NWSdKGASqtX9C4E6RYQKcs2mXo4IDjTCC\n" +
-            "A4kwHwYDVR0jBBgwFoAUdIWAwGbH3zfez70pN6oDHb7tzRcwHQYDVR0OBBYEFB/b\n" +
-            "eFjCUl4v17Qy2g1AgqvJwOaHMB8GA1UdEQQYMBaCCiouZWVzdGkuZWWCCGVlc3Rp\n" +
-            "LmVlMA4GA1UdDwEB/wQEAwIHgDAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUH\n" +
-            "AwIwgZ8GA1UdHwSBlzCBlDBIoEagRIZCaHR0cDovL2NybDMuZGlnaWNlcnQuY29t\n" +
-            "L0RpZ2lDZXJ0R2xvYmFsRzJUTFNSU0FTSEEyNTYyMDIwQ0ExLTEuY3JsMEigRqBE\n" +
-            "hkJodHRwOi8vY3JsNC5kaWdpY2VydC5jb20vRGlnaUNlcnRHbG9iYWxHMlRMU1JT\n" +
-            "QVNIQTI1NjIwMjBDQTEtMS5jcmwwPgYDVR0gBDcwNTAzBgZngQwBAgIwKTAnBggr\n" +
-            "BgEFBQcCARYbaHR0cDovL3d3dy5kaWdpY2VydC5jb20vQ1BTMIGHBggrBgEFBQcB\n" +
-            "AQR7MHkwJAYIKwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmRpZ2ljZXJ0LmNvbTBRBggr\n" +
-            "BgEFBQcwAoZFaHR0cDovL2NhY2VydHMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0R2xv\n" +
-            "YmFsRzJUTFNSU0FTSEEyNTYyMDIwQ0ExLTEuY3J0MAkGA1UdEwQCMAAwggF+Bgor\n" +
-            "BgEEAdZ5AgQCBIIBbgSCAWoBaAB2AO7N0GTV2xrOxVy3nbTNE6Iyh0Z8vOzew1FI\n" +
-            "WUZxH7WbAAABikpp0YgAAAQDAEcwRQIhAOuRDRbH2F/4xj+4psS1uN7agonxJpSX\n" +
-            "7l1m9CpJX/gkAiBFDEGuoEijUPdQ3M5ibV6YsXW4648t7mkR0W56XiNZYAB2AEiw\n" +
-            "42vapkc0D+VqAvqdMOscUgHLVt0sgdm7v6s52IRzAAABikppz/EAAAQDAEcwRQIh\n" +
-            "ALEE3j07957wr2WLsozkjmXPepYu5p/iTZx65kYtO47aAiAKS1VoZ0mMssYUcwmY\n" +
-            "s5FB79zNnVW5rXD4heRSFvpT9AB2ANq2v2s/tbYin5vCu1xr6HCRcWy7UYSFNL2k\n" +
-            "PTBI1/urAAABikpp0BkAAAQDAEcwRQIgOuq96euO9Aade5R6HfpNGEciZUfbgW+o\n" +
-            "MmstOl3YqAUCIQDsafdu8nlmkNrN7h8uuqVXBqyv9J/u0WU80dAxPCGBiTANBgkq\n" +
-            "hkiG9w0BAQsFAAOCAQEAaCYTTF6Sps1YXdD6kKiYkslaxzql6D/F9Imog4pJXRZH\n" +
-            "7ye5kHuGOPFfnUQEqOziOspZCusX2Bz4DK4I/oc4cQnMxQHIDdF4H/GS/2aBbU/R\n" +
-            "4Ustgxkd4PCdxOn6lVux8aFDCRKrNBrUF1/970StNuh8tatyYvDEenwC0F3l2hRB\n" +
-            "Q3FYZMYkR9H8FM314a/sGST6lQiKJq2hrziMWilOwKxc88MBz9H9CYrEsCMI65iH\n" +
-            "vWA8njofxSYdM5NHhxTxhHKn6qZxHSjiQvF9edUYTQ4wwTczmHuqYY2qxYh6WUzR\n" +
-            "yaKSeng9fe8ZVZdjOwmCa9ZdgjQYMZbDezMt+oRp2Q=="
 
     companion object {
         private var context: Context = InstrumentationRegistry.getInstrumentation().targetContext
@@ -143,141 +94,8 @@ class IdCardServiceImplTest {
 
     @Before
     fun setUp() {
-        runBlocking {
-            context = InstrumentationRegistry.getInstrumentation().targetContext
-            certificateService = Mockito.mock(CertificateService::class.java)
-            containerWrapper = Mockito.mock(ContainerWrapper::class.java)
-            idCardService = IdCardServiceImpl(context, containerWrapper, certificateService)
-
-            containerFile =
-                AssetFile.Companion.getResourceFileAsFile(
-                    context,
-                    "example.asice",
-                    R.raw.example,
-                )
-
-            existingContainer =
-                SignedContainer.Companion.openOrCreate(
-                    context,
-                    containerFile,
-                    listOf(containerFile),
-                    true,
-                )
-        }
-    }
-
-    @Test
-    fun idCardService_signContainer_success() {
-        val certPemString = (Constant.PEM_BEGIN_CERT + "\n" + cert + "\n" + Constant.PEM_END_CERT).trimIndent()
-
-        val testData =
-            certPemString.let {
-                CertificateUtil.x509Certificate(it).encoded
-            }
-
-        val mockPersonalData = Mockito.mock(PersonalData::class.java)
-        val keyUsage = Mockito.mock(KeyUsage::class.java)
-        val extendedKeyUsage = Mockito.mock(ExtendedKeyUsage::class.java)
-
-        Mockito.`when`(token.personalData()).thenReturn(mockPersonalData)
-
-        Mockito
-            .`when`(certificateService.parseCertificate(anyOrNull()))
-            .thenReturn(Mockito.mock(X509CertificateHolder::class.java))
-        Mockito
-            .`when`(certificateService.extractEIDType(any()))
-            .thenReturn(EIDType.ID_CARD)
-        Mockito.`when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
-        Mockito.`when`(certificateService.extractExtendedKeyUsage(any())).thenReturn(extendedKeyUsage)
-
-        Mockito
-            .`when`(
-                token.calculateSignature(
-                    anyOrNull(),
-                    anyOrNull(),
-                    ArgumentMatchers.anyBoolean(),
-                ),
-            ).thenReturn(testData)
-
-        Mockito.`when`(token.certificate(CertificateType.AUTHENTICATION)).thenReturn(testData)
-        Mockito.`when`(token.certificate(CertificateType.SIGNING)).thenReturn(testData)
-
-        doNothing()
-            .`when`(
-                containerWrapper,
-            ).finalizeSignature(any<ExternalSigner>(), eq(existingContainer), eq(testData))
-
-        runBlocking {
-            val signedContainer =
-                idCardService.signContainer(
-                    token,
-                    existingContainer,
-                    testData,
-                    null,
-                )
-
-            Assert.assertNotNull(signedContainer)
-        }
-    }
-
-    @Test
-    fun idCardService_signContainer_successWithRoleData() {
-        val certPemString = (Constant.PEM_BEGIN_CERT + "\n" + cert + "\n" + Constant.PEM_END_CERT).trimIndent()
-
-        val testData =
-            certPemString.let {
-                CertificateUtil.x509Certificate(it).encoded
-            }
-
-        val mockPersonalData = Mockito.mock(PersonalData::class.java)
-        val keyUsage = Mockito.mock(KeyUsage::class.java)
-        val extendedKeyUsage = Mockito.mock(ExtendedKeyUsage::class.java)
-
-        Mockito.`when`(token.personalData()).thenReturn(mockPersonalData)
-
-        Mockito
-            .`when`(certificateService.parseCertificate(anyOrNull()))
-            .thenReturn(Mockito.mock(X509CertificateHolder::class.java))
-        Mockito
-            .`when`(certificateService.extractEIDType(any()))
-            .thenReturn(EIDType.ID_CARD)
-        Mockito.`when`(certificateService.extractKeyUsage(any())).thenReturn(keyUsage)
-        Mockito.`when`(certificateService.extractExtendedKeyUsage(any())).thenReturn(extendedKeyUsage)
-
-        Mockito
-            .`when`(
-                token.calculateSignature(
-                    anyOrNull(),
-                    anyOrNull(),
-                    ArgumentMatchers.anyBoolean(),
-                ),
-            ).thenReturn(testData)
-
-        Mockito.`when`(token.certificate(CertificateType.AUTHENTICATION)).thenReturn(testData)
-        Mockito.`when`(token.certificate(CertificateType.SIGNING)).thenReturn(testData)
-
-        doNothing()
-            .`when`(
-                containerWrapper,
-            ).finalizeSignature(any<ExternalSigner>(), eq(existingContainer), eq(testData))
-
-        runBlocking {
-            val signedContainer =
-                idCardService.signContainer(
-                    token,
-                    existingContainer,
-                    testData,
-                    RoleData(
-                        listOf("role"),
-                        "city",
-                        "state",
-                        "country",
-                        "zip",
-                    ),
-                )
-
-            Assert.assertNotNull(signedContainer)
-        }
+        certificateService = Mockito.mock(CertificateService::class.java)
+        idCardService = IdCardServiceImpl(certificateService)
     }
 
     @Test

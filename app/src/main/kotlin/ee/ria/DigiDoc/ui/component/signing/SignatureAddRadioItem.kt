@@ -50,15 +50,6 @@ data class SignatureAddRadioItem(
                 testTag = "signatureUpdateSignatureAddMethodNFC",
             ),
             SignatureAddRadioItem(
-                label = R.string.signature_update_signature_add_method_id_card,
-                method = SigningMethod.ID_CARD,
-                contentDescription =
-                    stringResource(
-                        id = R.string.signature_update_signature_add_method_id_card_accessibility,
-                    ).lowercase(),
-                testTag = "signatureUpdateSignatureAddMethodIdCard",
-            ),
-            SignatureAddRadioItem(
                 label = R.string.signature_update_signature_add_method_mobile_id,
                 method = SigningMethod.MOBILE_ID,
                 contentDescription =

@@ -27,7 +27,6 @@ import ee.ria.DigiDoc.utils.Constant.Routes.CERTIFICATE_DETAIL_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.CONTAINER_NOTIFICATIONS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.CRYPTO_FILE_CHOOSING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.CRYPTO_SCREEN
-import ee.ria.DigiDoc.utils.Constant.Routes.DECRYPT_METHOD_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.DECRYPT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.DIAGNOSTICS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.EID_SCREEN
@@ -37,7 +36,6 @@ import ee.ria.DigiDoc.utils.Constant.Routes.ENCRYPT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.HOME_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.INFO_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.INIT_SCREEN
-import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_IDENTIFICATION_METHOD_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_IDENTIFICATION_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_PIN_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_SCREEN
@@ -84,8 +82,6 @@ sealed class Route(
 
     data object DecryptScreen : Route(DECRYPT_SCREEN)
 
-    data object DecryptMethodScreen : Route(DECRYPT_METHOD_SCREEN)
-
     data object Accessibility : Route(ACCESSIBILITY_SCREEN)
 
     data object Info : Route(INFO_SCREEN)
@@ -129,8 +125,6 @@ sealed class Route(
     data object ContainerNotificationsScreen : Route(CONTAINER_NOTIFICATIONS_SCREEN)
 
     data object MyEidIdentificationScreen : Route(MYEID_IDENTIFICATION_SCREEN)
-
-    data object MyEidIdentificationMethodScreen : Route(MYEID_IDENTIFICATION_METHOD_SCREEN)
 
     data object MyEidScreen : Route(MYEID_SCREEN)
 
