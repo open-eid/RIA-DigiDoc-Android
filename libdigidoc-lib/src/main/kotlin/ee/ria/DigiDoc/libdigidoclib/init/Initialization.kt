@@ -138,7 +138,18 @@ class Initialization
                 context,
                 isLoggingEnabled,
             )
-            digidoc.initializeLib(UserAgentUtil.getAppInfo(context), path)
+
+            val appInfo = UserAgentUtil.getAppInfo(context)
+
+            try {
+                digidoc.initializeLib(appInfo, path)
+            } catch (e: RuntimeException) {
+                errorLog(libdigidocInitLogTag, "Unable to initialize TSL: ${e.message}", e)
+            } catch (e: Exception) {
+                errorLog(libdigidocInitLogTag, "Unable to initialize Libdigidocpp: ${e.message}", e)
+                throw e
+            }
+
             UserAgentUtil.setLibdigidocppVersion(digidoc.version())
             debugLog(libdigidocInitLogTag, "Initialized libdigidocpp ${digidoc.version()} (TSL cache: $path)")
             isInitialized = true

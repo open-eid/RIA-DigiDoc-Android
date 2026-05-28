@@ -557,7 +557,7 @@ class DataStoreTest {
     fun dataStore_getLibdigidocppVersion_success() {
         val result = dataStore.getLibdigidocppVersion()
 
-        assertEquals("4.3.0.40", result)
+        assertEquals("4.5.0.52", result)
     }
 
     @Test
