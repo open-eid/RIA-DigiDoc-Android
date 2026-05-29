@@ -102,7 +102,7 @@ open class UpdateLibcdocTask : DefaultTask() {
 
         log("Updating from $zipFile")
         val cacheDir = File(outputDir, PREFIX + ABI_FILES[abi])
-        unzip(zipFile, cacheDir)
+        unzip(zipFile, outputDir)
 
         generateAndCopyJar(cacheDir)
         copyNativeLibraries(cacheDir, abi)

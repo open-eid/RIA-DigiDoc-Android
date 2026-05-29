@@ -21,7 +21,7 @@
 
 package ee.ria.DigiDoc.cryptolib
 
-import ee.ria.cdoc.Recipient.parseLabel
+import ee.ria.cdoc.Lock.parseLabel
 import org.bouncycastle.asn1.ASN1InputStream
 import org.bouncycastle.asn1.ASN1OctetString
 import org.bouncycastle.asn1.ASN1Sequence
