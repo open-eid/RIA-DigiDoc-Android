@@ -30,7 +30,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -57,7 +57,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
-import ee.ria.DigiDoc.ui.theme.OnPrimary
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -82,11 +81,9 @@ fun LanguageButton(
         shape = RectangleShape,
         onClick = onClickItem,
         colors =
-            ButtonColors(
+            ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
-                contentColor = OnPrimary,
-                disabledContainerColor = Color.Transparent,
-                disabledContentColor = Color.Transparent,
+                contentColor = Color.White
             ),
         contentPadding =
             PaddingValues(

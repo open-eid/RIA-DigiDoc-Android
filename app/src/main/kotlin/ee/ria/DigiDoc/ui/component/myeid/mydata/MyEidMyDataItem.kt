@@ -51,11 +51,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.TagBadge
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
-import ee.ria.DigiDoc.ui.theme.Green_2_50
-import ee.ria.DigiDoc.ui.theme.Green_2_700
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.ui.theme.Red50
-import ee.ria.DigiDoc.ui.theme.Red500
+import ee.ria.DigiDoc.ui.theme.extendedColorScheme
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -130,15 +127,15 @@ fun MyEidMyDataItem(
                 text = status.getLocalized(context),
                 backgroundColor =
                     if (status == MyEidDocumentStatus.VALID) {
-                        Green_2_50
+                        MaterialTheme.extendedColorScheme.successContainer
                     } else {
-                        Red500
+                        MaterialTheme.colorScheme.errorContainer
                     },
                 contentColor =
                     if (status == MyEidDocumentStatus.VALID) {
-                        Green_2_700
+                        MaterialTheme.extendedColorScheme.onSuccessContainer
                     } else {
-                        Red50
+                        MaterialTheme.colorScheme.onErrorContainer
                     },
             )
         }

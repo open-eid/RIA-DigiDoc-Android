@@ -36,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -91,6 +92,7 @@ fun InitScreen(
             Text(
                 text = stringResource(id = R.string.digidoc_all_caps),
                 style = MaterialTheme.typography.displayLarge,
+                color = Color.White,
                 modifier =
                     modifier
                         .padding(bottom = LPadding)
@@ -110,6 +112,7 @@ fun InitScreen(
         Text(
             text = stringResource(id = R.string.ria),
             style = MaterialTheme.typography.displaySmall,
+            color = Color.White,
             modifier =
                 modifier
                     .padding(bottom = MPadding)

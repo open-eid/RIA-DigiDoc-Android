@@ -39,6 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -53,33 +54,28 @@ val buttonRoundCornerShape = RoundedCornerShape(MCornerRadius)
 private val DarkColorScheme =
     darkColorScheme(
         primary = DarkPrimary,
-        onPrimary = DarkOnPrimary,
         primaryContainer = DarkPrimaryContainer,
-        onPrimaryContainer = DarkOnPrimaryContainer,
         secondary = DarkSecondaryContainer,
-        onSecondary = DarkOnSecondaryContainer,
         secondaryContainer = DarkSecondaryContainer,
-        onSecondaryContainer = DarkOnSecondaryContainer,
-        tertiary = DarkTertiary,
-        onTertiary = DarkOnTertiary,
-        tertiaryContainer = DarkTertiaryContainer,
-        onTertiaryContainer = DarkOnTertiaryContainer,
         error = DarkError,
-        onError = DarkOnError,
         errorContainer = DarkErrorContainer,
+        onPrimary = DarkOnPrimary,
+        onPrimaryContainer = DarkOnPrimaryContainer,
+        onSecondary = DarkOnSecondaryContainer,
+        onSecondaryContainer = DarkOnSecondaryContainer,
+        onError = DarkOnError,
         onErrorContainer = DarkOnErrorContainer,
-        background = Black,
-        onBackground = White,
         outline = DarkOutline,
         outlineVariant = DarkOutlineVariant,
         surface = DarkSurface,
-        surfaceVariant = DarkSurfaceVariant,
-        onSurface = DarkOnSurface,
-        onSurfaceVariant = DarkOnSurfaceVariant,
         surfaceContainer = DarkSurfaceContainer,
+        surfaceContainerLowest = DarkSurfaceContainerLowest,
         surfaceContainerLow = DarkSurfaceContainerLow,
         surfaceContainerHigh = DarkSurfaceContainerHigh,
         surfaceContainerHighest = DarkSurfaceContainerHighest,
+        surfaceVariant = DarkSurfaceVariant,
+        onSurface = DarkOnSurface,
+        onSurfaceVariant = DarkOnSurfaceVariant,
         inversePrimary = DarkInversePrimary,
         inverseSurface = DarkInverseSurface,
         inverseOnSurface = DarkInverseOnSurface,
@@ -88,37 +84,64 @@ private val DarkColorScheme =
 private val LightColorScheme =
     lightColorScheme(
         primary = LightPrimary,
-        onPrimary = LightOnPrimary,
         primaryContainer = LightPrimaryContainer,
-        onPrimaryContainer = LightOnPrimaryContainer,
         secondary = LightSecondaryContainer,
-        onSecondary = LightOnSecondaryContainer,
         secondaryContainer = LightSecondaryContainer,
-        onSecondaryContainer = LightOnSecondaryContainer,
-        tertiary = LightTertiary,
-        onTertiary = LightOnTertiary,
-        tertiaryContainer = LightTertiaryContainer,
-        onTertiaryContainer = LightOnTertiaryContainer,
         error = LightError,
-        onError = LightOnError,
         errorContainer = LightErrorContainer,
+        onPrimary = LightOnPrimary,
+        onPrimaryContainer = LightOnPrimaryContainer,
+        onSecondary = LightOnSecondaryContainer,
+        onSecondaryContainer = LightOnSecondaryContainer,
+        onError = LightOnError,
         onErrorContainer = LightOnErrorContainer,
-        background = White,
-        onBackground = Black,
         outline = LightOutline,
         outlineVariant = LightOutlineVariant,
         surface = LightSurface,
-        surfaceVariant = LightSurfaceVariant,
-        onSurface = LightOnSurface,
-        onSurfaceVariant = LightOnSurfaceVariant,
         surfaceContainer = LightSurfaceContainer,
+        surfaceContainerLowest = LightSurfaceContainerLowest,
         surfaceContainerLow = LightSurfaceContainerLow,
         surfaceContainerHigh = LightSurfaceContainerHigh,
         surfaceContainerHighest = LightSurfaceContainerHighest,
+        surfaceVariant = LightSurfaceVariant,
+        onSurface = LightOnSurface,
+        onSurfaceVariant = LightOnSurfaceVariant,
         inversePrimary = LightInversePrimary,
         inverseSurface = LightInverseSurface,
         inverseOnSurface = LightInverseOnSurface,
     )
+
+private val DarkExtendedColors =
+    ExtendedColorScheme(
+        success = DarkSuccess,
+        successContainer = DarkSuccessContainer,
+        onSuccess = DarkOnSuccess,
+        onSuccessContainer = DarkOnSuccessContainer,
+        warning = DarkWarning,
+        warningContainer = DarkWarningContainer,
+        onWarning = DarkOnWarning,
+        onWarningContainer = DarkOnWarningContainer,
+    )
+
+private val LightExtendedColors =
+    ExtendedColorScheme(
+        success = LightSuccess,
+        successContainer = LightSuccessContainer,
+        onSuccess = LightOnSuccess,
+        onSuccessContainer = LightOnSuccessContainer,
+        warning = LightWarning,
+        warningContainer = LightWarningContainer,
+        onWarning = LightOnWarning,
+        onWarningContainer = LightOnWarningContainer,
+    )
+
+val LocalExtendedColorScheme =
+    staticCompositionLocalOf<ExtendedColorScheme> {
+        error("No ExtendedColorScheme provided")
+    }
+
+val MaterialTheme.extendedColorScheme: ExtendedColorScheme
+    @Composable get() = LocalExtendedColorScheme.current
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -154,6 +177,7 @@ fun RIADigiDocTheme(
             useDarkTheme -> DarkColorScheme
             else -> LightColorScheme
         }
+    val extendedColors = if (useDarkTheme) DarkExtendedColors else LightExtendedColors
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
@@ -167,17 +191,19 @@ fun RIADigiDocTheme(
         }
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = getTypography(),
-        content = {
-            AccessibilityFocusProvider(
-                focusColor = accessibilityFocusColor,
-                alpha = accessibilityFocusAlpha,
-                content = content,
-            )
-        },
-    )
+    CompositionLocalProvider(LocalExtendedColorScheme provides extendedColors) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = getTypography(),
+            content = {
+                AccessibilityFocusProvider(
+                    focusColor = accessibilityFocusColor,
+                    alpha = accessibilityFocusAlpha,
+                    content = content,
+                )
+            },
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
