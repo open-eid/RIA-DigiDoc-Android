@@ -51,8 +51,9 @@ import ee.ria.cdoc.Configuration
 import ee.ria.cdoc.CryptoBackend
 import ee.ria.cdoc.DataBuffer
 import ee.ria.cdoc.FileInfo
-import ee.ria.cdoc.ILogger
 import ee.ria.cdoc.Lock
+import ee.ria.cdoc.LogLevel
+import ee.ria.cdoc.Logger
 import ee.ria.cdoc.NetworkBackend
 import ee.ria.cdoc.Recipient
 import kotlinx.coroutines.Dispatchers.IO
@@ -375,7 +376,7 @@ class CryptoContainer
                         if (version == 2 && cdoc2Settings.getUseOnlineEncryption()) {
                             val serverId = cdoc2Settings.getCDOC2UUID()
                             recipients.forEach { addressee ->
-                                val recipient = Recipient.makeServer("", addressee.data, serverId)
+                                val recipient = Recipient.makeCertificate("", addressee.data, serverId)
                                 if (cdocWriter.addRecipient(recipient) != 0L) {
                                     throw CryptoException("Failed to add recipient")
                                 }
@@ -498,24 +499,17 @@ class CryptoContainer
 
             fun setLogging(isLoggingEnabled: Boolean) {
                 if (isLoggingEnabled) {
-                    logger.SetMinLogLevel(ILogger.LogLevel.LEVEL_TRACE)
+                    logger.setMinLogLevel(LogLevel.LEVEL_TRACE)
                     if (!loggingIsSet) {
-                        ILogger.addLogger(logger)
+                        CDoc.setLogger(logger)
                         loggingIsSet = true
                     }
-                    val lgr = ILogger.getLogger()
-
-                    lgr.LogMessage(
-                        ILogger.LogLevel.LEVEL_DEBUG,
-                        "CryptoContainer",
-                        450,
-                        "Set libcdoc logging: true",
-                    )
+                    CDoc.log(LogLevel.LEVEL_DEBUG, "CryptoContainer", 450, "Set libcdoc logging: true")
                 }
             }
 
-            class JavaLogger : ILogger() {
-                override fun LogMessage(
+            class JavaLogger : Logger() {
+                override fun logMessage(
                     level: LogLevel?,
                     file: String?,
                     line: Int,
