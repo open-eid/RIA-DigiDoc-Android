@@ -30,27 +30,27 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
@@ -59,15 +59,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.window.Dialog
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
 import ee.ria.DigiDoc.ui.component.shared.PrimaryTextField
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.crypto.PasswordUtil.isPasswordValid
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -95,162 +94,164 @@ fun EncryptPasswordDialog(
     val requirementNumber = stringResource(R.string.crypto_password_requirement_number)
     val requirementUppercase = stringResource(R.string.crypto_password_requirement_uppercase)
     val requirementLowercase = stringResource(R.string.crypto_password_requirement_lowercase)
-    val requirementStrings = listOf(requirementLength, requirementNumber, requirementUppercase, requirementLowercase)
-    val requirementsContentDescription = "$requirementsTitle: ${listOf(
-        stringResource(R.string.crypto_password_requirement_length_tts),
-        stringResource(R.string.crypto_password_requirement_number_tts),
-        requirementUppercase,
-        requirementLowercase,
-    ).joinToString(", ")}"
+    val requirementLengthTts = stringResource(R.string.crypto_password_requirement_length_tts)
+    val requirementNumberTts = stringResource(R.string.crypto_password_requirement_number_tts)
+    val requirementStrings =
+        remember(requirementLength, requirementNumber, requirementUppercase, requirementLowercase) {
+            listOf(requirementLength, requirementNumber, requirementUppercase, requirementLowercase)
+        }
+    val requirementsContentDescription =
+        remember(
+            requirementsTitle,
+            requirementLengthTts,
+            requirementNumberTts,
+            requirementUppercase,
+            requirementLowercase,
+        ) {
+            "$requirementsTitle: ${
+                listOf(
+                    requirementLengthTts,
+                    requirementNumberTts,
+                    requirementUppercase,
+                    requirementLowercase,
+                ).joinToString(", ")
+            }"
+        }
 
-    Dialog(onDismissRequest = onDismiss) {
+    val passwordValid by remember { derivedStateOf { isPasswordValid(password.text) } }
+    val passwordIsError = password.text.isNotEmpty() && !passwordValid
+    val passwordsMatch = password.text == repeatPassword.text
+    val repeatPasswordIsError = repeatPassword.text.isNotEmpty() && !passwordsMatch
+
+    PasswordDialogScaffold(
+        modifier = modifier,
+        title = stringResource(R.string.crypto_encrypt_tab_password),
+        okButtonTitle = R.string.encrypt_button,
+        okButtonEnabled = passwordValid && passwordsMatch,
+        onDismiss = onDismiss,
+        onOkButtonClick = { onEncrypt(keyLabel.text, password.text) },
+        cancelButtonTestTag = "encryptPasswordDialogCancelButton",
+        okButtonTestTag = "encryptPasswordDialogEncryptButton",
+    ) {
+        PrimaryTextField(
+            modifier = modifier.fillMaxWidth(),
+            value = keyLabel,
+            onValueChange = { keyLabel = it },
+            label = keyLabelLabel,
+            placeholder = keyLabelLabel,
+            description = stringResource(R.string.crypto_password_key_label_hint),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+        )
+
+        Spacer(modifier = modifier.height(MPadding))
+
         Surface(
+            modifier = modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            shape = MaterialTheme.shapes.small,
+        ) {
+            Row(
+                modifier = modifier.padding(SPadding),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_m3_info_48dp_wght400),
+                    contentDescription = null,
+                    modifier = modifier.size(iconSizeXXS),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+                Spacer(modifier = modifier.width(XSPadding))
+                Text(
+                    text = stringResource(R.string.crypto_password_secure_place_info),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+        }
+
+        Spacer(modifier = modifier.height(MPadding))
+
+        Column(
             modifier =
                 modifier
                     .fillMaxWidth()
-                    .verticalScroll(rememberScrollState()),
-            shape = MaterialTheme.shapes.extraLarge,
-            color = MaterialTheme.colorScheme.surface,
+                    .semantics { isTraversalGroup = true },
         ) {
+            PrimaryTextField(
+                modifier =
+                    modifier
+                        .fillMaxWidth()
+                        .semantics {
+                            isTraversalGroup = true
+                            traversalIndex = 1f
+                        },
+                value = password,
+                onValueChange = { password = it },
+                label = passwordLabel,
+                placeholder = passwordLabel,
+                isPasswordText = true,
+                isError = passwordIsError,
+                keyboardOptions =
+                    KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Next,
+                    ),
+            )
+
+            Spacer(modifier = modifier.height(SPadding))
+
+            val requirementColor: Color =
+                if (passwordIsError) {
+                    MaterialTheme.colorScheme.error
+                } else {
+                    MaterialTheme.colorScheme.onSecondaryContainer
+                }
+
             Column(
                 modifier =
                     modifier
-                        .padding(MPadding)
-                        .fillMaxWidth(),
-                horizontalAlignment = Alignment.Start,
+                        .fillMaxWidth()
+                        .clearAndSetSemantics {
+                            traversalIndex = 0f
+                            contentDescription = requirementsContentDescription
+                        },
             ) {
-                Text(
-                    text = stringResource(R.string.crypto_encrypt_tab_password),
-                    modifier =
-                        modifier
-                            .fillMaxWidth()
-                            .semantics { heading() },
-                    style = MaterialTheme.typography.titleLarge,
-                    textAlign = TextAlign.Start,
-                )
-
-                Spacer(modifier = modifier.height(MPadding))
-
-                PrimaryTextField(
-                    modifier = modifier.fillMaxWidth(),
-                    value = keyLabel,
-                    onValueChange = { keyLabel = it },
-                    label = keyLabelLabel,
-                    placeholder = keyLabelLabel,
-                    description = stringResource(R.string.crypto_password_key_label_hint),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                )
-
-                Spacer(modifier = modifier.height(MPadding))
-
-                Surface(
-                    modifier = modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = MaterialTheme.shapes.small,
-                ) {
-                    Row(
-                        modifier = modifier.padding(SPadding),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_m3_info_48dp_wght400),
-                            contentDescription = null,
-                            modifier = modifier.size(iconSizeXXS),
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
-                        Spacer(modifier = modifier.width(XSPadding))
-                        Text(
-                            text = stringResource(R.string.crypto_password_secure_place_info),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                    }
-                }
-
-                Spacer(modifier = modifier.height(MPadding))
-
-                Column(
-                    modifier =
-                        modifier
-                            .fillMaxWidth()
-                            .semantics { isTraversalGroup = true },
-                ) {
-                    PrimaryTextField(
-                        modifier =
-                            modifier
-                                .fillMaxWidth()
-                                .semantics {
-                                    isTraversalGroup = true
-                                    traversalIndex = 1f
-                                },
-                        value = password,
-                        onValueChange = { password = it },
-                        label = passwordLabel,
-                        placeholder = passwordLabel,
-                        isPasswordText = true,
-                        keyboardOptions =
-                            KeyboardOptions(
-                                keyboardType = KeyboardType.Password,
-                                imeAction = ImeAction.Next,
-                            ),
+                requirementStrings.forEach { req ->
+                    Text(
+                        text = "• $req",
+                        modifier = modifier.fillMaxWidth(),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = requirementColor,
+                        textAlign = TextAlign.Start,
                     )
-
-                    Spacer(modifier = modifier.height(SPadding))
-
-                    Column(
-                        modifier =
-                            modifier
-                                .fillMaxWidth()
-                                .clearAndSetSemantics {
-                                    traversalIndex = 0f
-                                    contentDescription = requirementsContentDescription
-                                },
-                    ) {
-                        requirementStrings.forEach { req ->
-                            Text(
-                                text = "• $req",
-                                modifier = modifier.fillMaxWidth(),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                textAlign = TextAlign.Start,
-                            )
-                        }
-                    }
                 }
-
-                Spacer(modifier = modifier.height(MPadding))
-
-                PrimaryTextField(
-                    modifier = modifier.fillMaxWidth(),
-                    value = repeatPassword,
-                    onValueChange = { repeatPassword = it },
-                    label = repeatPasswordLabel,
-                    placeholder = repeatPasswordLabel,
-                    isPasswordText = true,
-                    keyboardOptions =
-                        KeyboardOptions(
-                            keyboardType = KeyboardType.Password,
-                            imeAction = ImeAction.Done,
-                        ),
-                )
-
-                Spacer(modifier = modifier.height(MPadding))
-
-                CancelAndOkButtonRow(
-                    modifier = modifier,
-                    cancelButtonClick = onDismiss,
-                    okButtonClick = { onEncrypt(keyLabel.text, password.text) },
-                    okButtonEnabled = password.text.isNotEmpty() && password.text == repeatPassword.text,
-                    cancelButtonTitle = R.string.cancel_button,
-                    okButtonTitle = R.string.encrypt_button,
-                    cancelButtonContentDescription =
-                        stringResource(R.string.cancel_button).lowercase(),
-                    okButtonContentDescription =
-                        stringResource(R.string.encrypt_button).lowercase(),
-                    cancelButtonTestTag = "encryptPasswordDialogCancelButton",
-                    okButtonTestTag = "encryptPasswordDialogEncryptButton",
-                )
             }
+        }
+
+        Spacer(modifier = modifier.height(MPadding))
+
+        PrimaryTextField(
+            modifier = modifier.fillMaxWidth(),
+            value = repeatPassword,
+            onValueChange = { repeatPassword = it },
+            label = repeatPasswordLabel,
+            placeholder = repeatPasswordLabel,
+            isPasswordText = true,
+            isError = repeatPasswordIsError,
+            keyboardOptions =
+                KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done,
+                ),
+        )
+
+        if (repeatPasswordIsError) {
+            Text(
+                modifier = modifier.fillMaxWidth().padding(top = XSPadding),
+                text = stringResource(R.string.crypto_password_mismatch),
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+            )
         }
     }
 }

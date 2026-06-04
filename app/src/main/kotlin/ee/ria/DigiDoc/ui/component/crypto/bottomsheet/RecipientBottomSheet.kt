@@ -28,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.cryptolib.Addressee
+import ee.ria.DigiDoc.cryptolib.CertType
 import ee.ria.DigiDoc.domain.model.bottomSheet.BottomSheetButton
 import ee.ria.DigiDoc.ui.component.shared.BottomSheet
 import ee.ria.DigiDoc.utils.Route
@@ -43,9 +44,14 @@ fun RecipientBottomSheet(
     sharedRecipientViewModel: SharedRecipientViewModel,
     navController: NavController,
     isRecipientRemoveShown: Boolean = false,
+    isDecryptShown: Boolean = false,
+    onDecrypt: (Addressee) -> Unit = {},
     openRemoveRecipientDialog: MutableState<Boolean>,
     onRecipientRemove: (Addressee?) -> Unit,
 ) {
+    val clickedPasswordRecipient =
+        clickedRecipient.value?.takeIf { it.certType == CertType.PasswordType }
+
     BottomSheet(
         modifier = modifier,
         showSheet = showSheet.value,
@@ -55,6 +61,17 @@ fun RecipientBottomSheet(
         },
         buttons =
             listOf(
+                BottomSheetButton(
+                    showButton = isDecryptShown && clickedPasswordRecipient != null,
+                    icon = R.drawable.ic_m3_encrypted_off_48dp_wght400,
+                    text = stringResource(R.string.decrypt_button),
+                    contentDescription = "${stringResource(
+                        R.string.decrypt_button,
+                    )} ${formatNumbers(clickedPasswordRecipient?.identifier ?: "")}",
+                    onClick = {
+                        clickedPasswordRecipient?.let(onDecrypt)
+                    },
+                ),
                 BottomSheetButton(
                     icon = R.drawable.ic_m3_expand_content_48dp_wght400,
                     text = stringResource(R.string.recipient_details_title),

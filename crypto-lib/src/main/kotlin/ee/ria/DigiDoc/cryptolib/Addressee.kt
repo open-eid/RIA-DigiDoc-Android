@@ -35,101 +35,118 @@ import java.io.Serializable
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import java.util.Date
+import java.util.Objects
 
 private const val LOG_TAG = "Addressee"
 
-class Addressee(
-    var data: ByteArray,
-    var identifier: String,
-    var serialNumber: String?,
-    var givenName: String?,
-    var surname: String?,
-    var certType: CertType,
-    var validTo: Date?,
-    var concatKDFAlgorithmURI: String?,
+data class Addressee(
+    val data: ByteArray,
+    val identifier: String,
+    val serialNumber: String?,
+    val givenName: String?,
+    val surname: String?,
+    val certType: CertType,
+    val validTo: Date?,
+    val concatKDFAlgorithmURI: String?,
+    val keyLabel: String? = null,
+    val serverId: String? = null,
+    val transactionId: String? = null,
+    val lockLabel: String? = null,
+    val lockType: String? = null,
+    val lockIndex: Int? = null,
 ) : Serializable {
-    var keyLabel: String? = null
-    var serverId: String? = null
-    var transactionId: String? = null
-
-    constructor(cn: String, sn: String, certType: CertType, validTo: Date?, data: ByteArray) : this(
-        data = data,
-        identifier = "",
-        serialNumber = "",
-        givenName = null,
-        surname = null,
-        certType = certType,
-        validTo = validTo,
-        concatKDFAlgorithmURI = "",
-    ) {
-        val split = cn.split(',').map { it.trim() }
-        if (split.size > 1) {
-            surname = split[0]
-            givenName = split[1]
-            identifier = split[2]
-        } else {
-            surname = null
-            givenName = null
-            identifier = cn
-        }
-        serialNumber = sn
-    }
-
-    constructor(cert: ByteArray) : this(
-        cn = extractCNFromCertificate(cert),
-        sn = extractSerialNumberFromCertificate(cert),
-        certType = extractCertTypeFromCertificate(cert),
-        validTo = extractValidToFromCertificate(cert),
-        data = cert,
-    )
-
-    constructor(label: String, pub: ByteArray, concatKDFAlgorithmURI: String) : this(
-        data = pub,
-        identifier = "",
-        serialNumber = "",
-        givenName = null,
-        surname = null,
-        certType = CertType.UnknownType,
-        validTo = null,
-        concatKDFAlgorithmURI = concatKDFAlgorithmURI,
-    ) {
-        val info = parseLabel(label)
-        val cn = info["cn"]
-        val type = info["type"]
-        val serverExp = info["server_exp"]
-        val sn = info["serial_number"]
-
-        val certType =
-            when (type) {
-                "cert" -> CertType.IDCardType
-                "ID-card" -> CertType.IDCardType
-                "Digi-ID" -> CertType.DigiIDType
-                "Digi-ID E-RESIDENT" -> CertType.EResidentType
-                else -> CertType.UnknownType
-            }
-
-        val validTo = serverExp?.toLongOrNull()?.let { Date(it * 1000) }
-
-        val split = cn?.split(',')?.map { it.trim() }
-        if (split != null) {
-            if (split.size > 1) {
-                this.surname = split[0]
-                this.givenName = split[1]
-                this.identifier = split[2]
+    companion object {
+        fun fromCN(
+            cn: String,
+            sn: String,
+            certType: CertType,
+            validTo: Date?,
+            data: ByteArray,
+        ): Addressee {
+            val split = cn.split(',').map { it.trim() }
+            return if (split.size > 1) {
+                Addressee(
+                    data = data,
+                    identifier = split[2],
+                    serialNumber = sn,
+                    givenName = split[1],
+                    surname = split[0],
+                    certType = certType,
+                    validTo = validTo,
+                    concatKDFAlgorithmURI = "",
+                )
             } else {
-                this.surname = null
-                this.givenName = null
-                this.identifier = cn
+                Addressee(
+                    data = data,
+                    identifier = cn,
+                    serialNumber = sn,
+                    givenName = null,
+                    surname = null,
+                    certType = certType,
+                    validTo = validTo,
+                    concatKDFAlgorithmURI = "",
+                )
             }
         }
-        this.serialNumber = sn
-        this.certType = certType
-        this.validTo = validTo
-        this.data = pub
-        this.concatKDFAlgorithmURI = concatKDFAlgorithmURI
-    }
 
-    private companion object {
+        fun fromCert(cert: ByteArray): Addressee =
+            fromCN(
+                cn = extractCNFromCertificate(cert),
+                sn = extractSerialNumberFromCertificate(cert),
+                certType = extractCertTypeFromCertificate(cert),
+                validTo = extractValidToFromCertificate(cert),
+                data = cert,
+            )
+
+        fun fromLabel(
+            label: String,
+            pub: ByteArray,
+            concatKDFAlgorithmURI: String,
+        ): Addressee {
+            val info = parseLabel(label)
+            val cn = info["cn"]
+            val type = info["type"]
+            val serverExp = info["server_exp"]
+            val sn = info["serial_number"]
+
+            val certType =
+                when (type) {
+                    "cert" -> CertType.IDCardType
+                    "ID-card" -> CertType.IDCardType
+                    "Digi-ID" -> CertType.DigiIDType
+                    "Digi-ID E-RESIDENT" -> CertType.EResidentType
+                    else -> CertType.UnknownType
+                }
+
+            val validTo = serverExp?.toLongOrNull()?.let { Date(it * 1000) }
+
+            val split = cn?.split(',')?.map { it.trim() }
+            val surname: String?
+            val givenName: String?
+            val identifier: String?
+
+            if (split != null && split.size > 1) {
+                surname = split[0]
+                givenName = split[1]
+                identifier = split[2]
+            } else {
+                surname = null
+                givenName = null
+                identifier = cn
+            }
+
+            return Addressee(
+                data = pub,
+                identifier = identifier ?: "",
+                serialNumber = sn,
+                givenName = givenName,
+                surname = surname,
+                certType = certType,
+                validTo = validTo,
+                concatKDFAlgorithmURI = concatKDFAlgorithmURI,
+            )
+        }
+
         private fun extractCNFromCertificate(cert: ByteArray): String =
             try {
                 val certificate =
@@ -138,12 +155,10 @@ class Addressee(
                         .generateCertificate(cert.inputStream()) as X509Certificate
                 val principal = certificate.subjectX500Principal
 
-                // Use Bouncy Castle for proper DN parsing
                 val x500Name = X500Name.getInstance(principal.encoded)
                 val cnAttributes = x500Name.getRDNs(BCStyle.CN)
 
                 if (cnAttributes.isNotEmpty()) {
-                    // Get all CN values and join them with commas (like the Swift version)
                     cnAttributes
                         .flatMap { rdn ->
                             rdn.typesAndValues.map { IETFUtils.valueToString(it.value) }
@@ -164,12 +179,10 @@ class Addressee(
                         .generateCertificate(cert.inputStream()) as X509Certificate
                 val principal = certificate.subjectX500Principal
 
-                // Use Bouncy Castle for proper DN parsing
                 val x500Name = X500Name.getInstance(principal.encoded)
                 val serialNumberAttributes = x500Name.getRDNs(BCStyle.SERIALNUMBER)
 
                 if (serialNumberAttributes.isNotEmpty()) {
-                    // Get all Serial number values and join them with commas
                     serialNumberAttributes
                         .flatMap { rdn ->
                             rdn.typesAndValues.map { IETFUtils.valueToString(it.value) }
@@ -224,4 +237,39 @@ class Addressee(
                 null
             }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Addressee) return false
+        return data.contentEquals(other.data) &&
+            identifier == other.identifier &&
+            serialNumber == other.serialNumber &&
+            givenName == other.givenName &&
+            surname == other.surname &&
+            certType == other.certType &&
+            validTo == other.validTo &&
+            concatKDFAlgorithmURI == other.concatKDFAlgorithmURI &&
+            keyLabel == other.keyLabel &&
+            serverId == other.serverId &&
+            transactionId == other.transactionId &&
+            lockLabel == other.lockLabel &&
+            lockType == other.lockType
+    }
+
+    override fun hashCode(): Int =
+        Objects.hash(
+            data.contentHashCode(),
+            identifier,
+            serialNumber,
+            givenName,
+            surname,
+            certType,
+            validTo,
+            concatKDFAlgorithmURI,
+            keyLabel,
+            serverId,
+            transactionId,
+            lockLabel,
+            lockType,
+        )
 }

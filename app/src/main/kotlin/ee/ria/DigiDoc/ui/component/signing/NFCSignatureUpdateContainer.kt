@@ -51,9 +51,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
@@ -63,11 +61,11 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.component.shared.StatusAnnouncer
 import ee.ria.DigiDoc.ui.theme.Dimensions.LPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXL
-import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.NFCViewModel
@@ -169,32 +167,8 @@ private fun NfcStatusMessage(message: String) {
                     .padding(SPadding)
                     .testTag("nfcDialogText"),
         )
-        NfcStatusAnnouncer(message = message)
+        StatusAnnouncer(message = message)
     }
-}
-
-@Composable
-private fun NfcStatusAnnouncer(message: String) {
-    var announcement by remember { mutableStateOf("") }
-    var isInitialMessage by remember { mutableStateOf(true) }
-
-    LaunchedEffect(message) {
-        if (isInitialMessage) {
-            isInitialMessage = false
-        } else {
-            announcement = message
-        }
-    }
-
-    Box(
-        modifier =
-            Modifier
-                .size(invisibleElementHeight)
-                .semantics {
-                    liveRegion = LiveRegionMode.Assertive
-                    contentDescription = announcement
-                },
-    )
 }
 
 @Preview(showBackground = true)

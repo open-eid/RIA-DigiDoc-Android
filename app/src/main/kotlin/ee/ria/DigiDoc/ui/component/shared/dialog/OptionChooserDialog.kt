@@ -38,7 +38,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -76,7 +75,6 @@ fun OptionChooserDialog(
     val focusRequester = remember { FocusRequester() }
 
     var currentChoice by remember { mutableIntStateOf(selectedChoice) }
-    var selectedOption by remember { mutableStateOf(choices[selectedChoice]) }
 
     val optionText = stringResource(id = R.string.option)
 
@@ -122,7 +120,6 @@ fun OptionChooserDialog(
                                 role = Role.RadioButton,
                                 onClick = {
                                     currentChoice = index
-                                    selectedOption = choices[index]
                                 },
                             ).semantics {
                                 testTagsAsResourceId = true
@@ -141,7 +138,7 @@ fun OptionChooserDialog(
                         style = MaterialTheme.typography.bodyLarge,
                     )
                     RadioButton(
-                        selected = selectedOption == choices[index],
+                        selected = index == currentChoice,
                         onClick = null,
                     )
                 }

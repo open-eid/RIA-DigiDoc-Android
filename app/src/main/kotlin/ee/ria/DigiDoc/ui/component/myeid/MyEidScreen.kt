@@ -72,6 +72,7 @@ import ee.ria.DigiDoc.ui.component.myeid.mydata.MyEidMyDataView
 import ee.ria.DigiDoc.ui.component.myeid.pinandcertificate.MyEidPinAndCertificateView
 import ee.ria.DigiDoc.ui.component.shared.HrefDynamicText
 import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
+import ee.ria.DigiDoc.ui.component.shared.TabItem
 import ee.ria.DigiDoc.ui.component.shared.TabView
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.shared.dialog.PinGuideDialog
@@ -262,7 +263,7 @@ fun MyEidScreen(
                     selectedTabIndex = selectedMyEidTabIndex.intValue,
                     onTabSelected = { index -> selectedMyEidTabIndex.intValue = index },
                     listOf(
-                        Pair(
+                        TabItem(
                             stringResource(R.string.myeid_my_data),
                         ) {
                             val personalData = idCardData?.personalData
@@ -297,7 +298,7 @@ fun MyEidScreen(
                                     },
                             )
                         },
-                        Pair(
+                        TabItem(
                             stringResource(R.string.myeid_pins_and_certificates),
                         ) {
                             LazyColumn(

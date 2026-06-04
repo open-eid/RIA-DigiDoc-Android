@@ -66,6 +66,7 @@ import ee.ria.DigiDoc.ui.component.shared.DynamicText
 import ee.ria.DigiDoc.ui.component.shared.ExpandableButton
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
+import ee.ria.DigiDoc.ui.component.shared.TabItem
 import ee.ria.DigiDoc.ui.component.shared.TabView
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.signing.ColoredSignedStatusText
@@ -322,7 +323,7 @@ fun SignerDetailsView(
                             selectedSignedContainerTabIndex.intValue = index
                         },
                         listOf(
-                            Pair(
+                            TabItem(
                                 stringResource(R.string.signature_details_role_and_address_title),
                             ) {
                                 RolesDetailsView(
@@ -331,7 +332,7 @@ fun SignerDetailsView(
                                     sharedSignatureViewModel = sharedSignatureViewModel,
                                 )
                             },
-                            Pair(
+                            TabItem(
                                 stringResource(R.string.signature_details_signer_details_title),
                             ) {
                                 SignerDetails(

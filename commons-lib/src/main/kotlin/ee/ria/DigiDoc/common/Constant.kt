@@ -216,4 +216,9 @@ object Constant {
         const val PUK_MINIMUM_LENGTH = 8
         const val PIN_MAXIMUM_LENGTH = 12
     }
+
+    object Crypto {
+        const val PASSWORD_MINIMUM_LENGTH = 20
+        const val PASSWORD_MAXIMUM_LENGTH = 64
+    }
 }

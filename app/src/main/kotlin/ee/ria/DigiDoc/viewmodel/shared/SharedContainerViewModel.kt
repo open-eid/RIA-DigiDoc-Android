@@ -95,6 +95,9 @@ class SharedContainerViewModel
         private val _decryptIDCardStatus = MutableStateFlow<Boolean?>(null)
         val decryptIDCardStatus: StateFlow<Boolean?> = _decryptIDCardStatus.asStateFlow()
 
+        private val _containerEncrypted = MutableStateFlow<Boolean?>(null)
+        val containerEncrypted: StateFlow<Boolean?> = _containerEncrypted.asStateFlow()
+
         private val _externalFileUris = MutableStateFlow<List<Uri>>(listOf())
         val externalFileUris: StateFlow<List<Uri>> = _externalFileUris.asStateFlow()
 
@@ -139,12 +142,20 @@ class SharedContainerViewModel
         fun setCryptoContainer(
             cryptoContainer: CryptoContainer?,
             overwriteContainer: Boolean = false,
+            containerEncrypted: Boolean = false,
         ) {
             _cryptoContainer.value = cryptoContainer
             if (overwriteContainer) {
                 removeLastContainer()
             }
+            if (containerEncrypted) {
+                _containerEncrypted.value = true
+            }
             addNestedContainer(cryptoContainer)
+        }
+
+        fun resetContainerEncrypted() {
+            _containerEncrypted.value = null
         }
 
         fun setExternalFileUris(uris: List<Uri>) {

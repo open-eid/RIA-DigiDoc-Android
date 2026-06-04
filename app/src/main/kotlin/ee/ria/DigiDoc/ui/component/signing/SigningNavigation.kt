@@ -67,6 +67,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -74,16 +75,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
@@ -106,7 +104,9 @@ import ee.ria.DigiDoc.ui.component.shared.DataFileItem
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
+import ee.ria.DigiDoc.ui.component.shared.StatusAnnouncer
 import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
+import ee.ria.DigiDoc.ui.component.shared.TabItem
 import ee.ria.DigiDoc.ui.component.shared.TabView
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
@@ -123,7 +123,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil
@@ -148,6 +147,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
 import java.io.File
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -175,6 +175,23 @@ fun SigningNavigation(
 
     val signatureAddedSuccess = remember { mutableStateOf(false) }
     val signatureAddedSuccessText = stringResource(id = R.string.signature_update_signature_add_success)
+
+    var statusAnnouncement by remember { mutableStateOf("") }
+
+    LaunchedEffect(signatureAddedSuccess.value) {
+        if (signatureAddedSuccess.value) {
+            showMessage(signatureAddedSuccessText, SnackbarType.SUCCESS)
+            withFrameNanos { }
+            statusAnnouncement = signatureAddedSuccessText
+        }
+    }
+
+    LaunchedEffect(statusAnnouncement) {
+        if (statusAnnouncement.isNotEmpty()) {
+            delay(1.seconds)
+            statusAnnouncement = ""
+        }
+    }
 
     val isNestedContainer = sharedContainerViewModel.isNestedContainer(signedContainer)
     val isXadesContainer = signedContainer?.isXades() == true
@@ -783,26 +800,7 @@ fun SigningNavigation(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start,
             ) {
-                if (signatureAddedSuccess.value) {
-                    // Make sure text is announced when TalkBack is enabled by having its own element
-                    if (isTalkBackEnabled(context)) {
-                        Box(
-                            modifier =
-                                Modifier
-                                    .size(0.0001.dp),
-                        ) {
-                            Text(
-                                text = signatureAddedSuccessText,
-                                modifier =
-                                    Modifier.semantics {
-                                        liveRegion = LiveRegionMode.Assertive
-                                    },
-                            )
-                        }
-                    }
-                    showMessage(signatureAddedSuccessText, SnackbarType.SUCCESS)
-                    signatureAddedSuccess.value = false
-                }
+                StatusAnnouncer(message = statusAnnouncement)
 
                 LazyColumn(
                     state = listState,
@@ -936,7 +934,7 @@ fun SigningNavigation(
                                         selectedTabIndex = selectedSignedContainerTabIndex.intValue,
                                         onTabSelected = { index -> selectedSignedContainerTabIndex.intValue = index },
                                         listOf(
-                                            Pair(
+                                            TabItem(
                                                 stringResource(R.string.signing_documents_title),
                                             ) {
                                                 DataFileItem(
@@ -946,7 +944,7 @@ fun SigningNavigation(
                                                     onDataFileMoreOptionsActionButtonClick,
                                                 )
                                             },
-                                            Pair(
+                                            TabItem(
                                                 stringResource(R.string.signing_container_signatures_title),
                                             ) {
                                                 Column {
