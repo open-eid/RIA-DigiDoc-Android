@@ -33,6 +33,7 @@ import ee.ria.DigiDoc.cryptolib.exception.ContainerDataFilesEmptyException
 import ee.ria.DigiDoc.cryptolib.exception.CryptoException
 import ee.ria.DigiDoc.cryptolib.exception.DataFilesEmptyException
 import ee.ria.DigiDoc.cryptolib.exception.RecipientsEmptyException
+import ee.ria.DigiDoc.cryptolib.exception.WrongPasswordException
 import ee.ria.DigiDoc.idcard.Token
 import ee.ria.DigiDoc.network.utils.ProxyUtil
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderException
@@ -53,6 +54,7 @@ import ee.ria.cdoc.CryptoBackend
 import ee.ria.cdoc.DataBuffer
 import ee.ria.cdoc.FileInfo
 import ee.ria.cdoc.Lock
+import ee.ria.cdoc.Lock.parseLabel
 import ee.ria.cdoc.LogLevel
 import ee.ria.cdoc.Logger
 import ee.ria.cdoc.NetworkBackend
@@ -75,6 +77,7 @@ import javax.inject.Singleton
 import kotlin.concurrent.withLock
 
 private const val LOG_TAG = "CryptoContainer"
+private const val PASSWORD_KDF_ITER = 600000 // OWASP recommended minimum for PBKDF2-HMAC-SHA256
 
 @Singleton
 class CryptoContainer
@@ -176,6 +179,13 @@ class CryptoContainer
             private val encryptOperation = Mutex()
             private val decryptOperation = ReentrantLock()
 
+            private fun parsedLockLabel(label: String?): String =
+                try {
+                    parseLabel(label.orEmpty())["label"].orEmpty()
+                } catch (_: Exception) {
+                    label.orEmpty()
+                }
+
             @Throws(CryptoException::class)
             private suspend fun open(
                 context: Context,
@@ -186,24 +196,25 @@ class CryptoContainer
                 val dataFiles = cdoc1?.dataFileNames?.map { File(it) }.orEmpty()
                 debugLog(LOG_TAG, "Parsed CDOC1 content: ${cdoc1 != null}, data file count: ${dataFiles.size}")
 
-                val cdocReader = CDocReader.createReader(file.path, null, null, null)
-                debugLog(LOG_TAG, "Reader created: (version ${cdocReader.version})")
                 val lockAddressees =
                     withContext(IO) {
+                        val cdocReader = CDocReader.createReader(file.path, null, null, null)
+                        debugLog(LOG_TAG, "Reader created: (version ${cdocReader.version})")
                         try {
-                            cdocReader.locks.map(::addresseeOf)
+                            cdocReader.locks.mapIndexed { index, lock -> addresseeOf(lock, index) }
                         } finally {
                             cdocReader.delete()
                         }
                     }
 
-                val cdoc1Recipients = cdoc1?.recipientCertificates?.map { Addressee(it) }.orEmpty()
+                val cdoc1Recipients = cdoc1?.recipientCertificates?.map { Addressee.fromCert(it) }.orEmpty()
                 val recipients =
                     if (cdoc1Recipients.isNotEmpty()) {
-                        cdoc1Recipients.onEach { recipient ->
+                        cdoc1Recipients.map { recipient ->
                             lockAddressees
                                 .firstOrNull { it.data.contentEquals(recipient.data) }
-                                ?.let { recipient.concatKDFAlgorithmURI = it.concatKDFAlgorithmURI }
+                                ?.let { recipient.copy(concatKDFAlgorithmURI = it.concatKDFAlgorithmURI) }
+                                ?: recipient
                         }
                     } else {
                         lockAddressees
@@ -221,32 +232,63 @@ class CryptoContainer
                 )
             }
 
-            private fun addresseeOf(lock: Lock): Addressee {
+            private fun addresseeOf(
+                lock: Lock,
+                lockIndex: Int,
+            ): Addressee {
                 debugLog(
                     LOG_TAG,
                     "Mapping lock to addressee with label ${lock.label}. " +
                         "Is CDOC1: ${lock.isCDoc1}, is PKI: ${lock.isPKI}, is symmetric: ${lock.isSymmetric}",
                 )
-                return when {
-                    lock.isCDoc1 ->
-                        Addressee(lock.getBytes(Lock.Params.CERT)).apply {
-                            if (!lock.isRSA) {
-                                concatKDFAlgorithmURI = lock.getString(Lock.Params.CONCAT_DIGEST)
+                val addressee =
+                    when {
+                        lock.isCDoc1 -> {
+                            val certAddressee = Addressee.fromCert(lock.getBytes(Lock.Params.CERT) ?: ByteArray(0))
+                            if (lock.isRSA) {
+                                certAddressee
+                            } else {
+                                certAddressee.copy(concatKDFAlgorithmURI = lock.getString(Lock.Params.CONCAT_DIGEST))
                             }
                         }
-                    lock.isPKI -> Addressee(lock.label, lock.getBytes(Lock.Params.RCPT_KEY), "")
-                    lock.isSymmetric -> Addressee(lock.label, "", CertType.UnknownType, null, ByteArray(0))
-                    else -> {
-                        debugLog(LOG_TAG, "Unknown lock type for label ${lock.label}, mapping to 'Unknown capsule'")
-                        Addressee("Unknown capsule", ByteArray(0), "")
-                    }
-                }.apply {
-                    keyLabel = lock.label.takeIf { it.isNotBlank() }
-                    if (lock.type == Lock.Type.SERVER) {
-                        serverId = lock.getString(Lock.Params.KEYSERVER_ID).takeIf { it.isNotBlank() }
-                        transactionId = lock.getString(Lock.Params.TRANSACTION_ID).takeIf { it.isNotBlank() }
-                    }
+                        lock.isPKI ->
+                            Addressee.fromLabel(
+                                lock.label,
+                                if (lock.type == Lock.Type.PUBLIC_KEY) {
+                                    lock.getBytes(Lock.Params.RCPT_KEY) ?: ByteArray(0)
+                                } else {
+                                    ByteArray(0)
+                                },
+                                "",
+                            )
+                        lock.type == Lock.Type.PASSWORD ->
+                            Addressee(
+                                data = ByteArray(0),
+                                identifier = parsedLockLabel(lock.label),
+                                serialNumber = null,
+                                givenName = null,
+                                surname = null,
+                                certType = CertType.PasswordType,
+                                validTo = null,
+                                concatKDFAlgorithmURI = null,
+                                lockLabel = lock.label,
+                                lockType = lock.type.name,
+                            )
+                        lock.isSymmetric ->
+                            Addressee.fromCN(lock.label, "", CertType.UnknownType, null, ByteArray(0))
+                        else -> {
+                            debugLog(LOG_TAG, "Unknown lock type for label ${lock.label}, mapping to 'Unknown capsule'")
+                            Addressee.fromLabel("Unknown capsule", ByteArray(0), "")
+                        }
+                    }.copy(keyLabel = lock.label.takeIf { it.isNotBlank() }, lockIndex = lockIndex)
+
+                if (lock.type != Lock.Type.SERVER) {
+                    return addressee
                 }
+                return addressee.copy(
+                    serverId = lock.getString(Lock.Params.KEYSERVER_ID).takeIf { it.isNotBlank() },
+                    transactionId = lock.getString(Lock.Params.TRANSACTION_ID).takeIf { it.isNotBlank() },
+                )
             }
 
             @Throws(CryptoException::class)
@@ -352,60 +394,120 @@ class CryptoContainer
                 }
 
             @Throws(CryptoException::class)
-            suspend fun encrypt(
+            suspend fun decryptWithPassword(
+                context: Context,
+                file: File,
+                recipients: List<Addressee>,
+                password: ByteArray,
+                cdoc2Settings: CDOC2Settings,
+                configurationRepository: ConfigurationRepository,
+                lockIndex: Int? = null,
+            ): CryptoContainer {
+                val backend = PasswordCryptoBackend(password)
+                val conf = CryptoLibConf(cdoc2Settings)
+                val configurationProvider = configurationRepository.getConfiguration()
+                val network = Network(cdoc2Settings, configurationProvider, context)
+
+                debugLog(LOG_TAG, "Decrypting '${file.name}' with password")
+
+                return withContext(IO) {
+                    decryptOperation.withLock {
+                        val cdocReader =
+                            CDocReader.createReader(file.path, conf, backend, network)
+                        if (cdocReader == null) throw WrongPasswordException()
+                        try {
+                            val locks = cdocReader.locks.toList()
+                            val selectedLock = lockIndex?.takeIf { locks.getOrNull(it)?.type == Lock.Type.PASSWORD }
+                            if (lockIndex != null && selectedLock == null) {
+                                errorLog(
+                                    LOG_TAG,
+                                    "Password lock index $lockIndex is not a password lock in '${file.name}' " +
+                                        "(${locks.size} lock(s)) — falling back to the first password lock",
+                                )
+                            }
+                            val lockIdx = selectedLock ?: locks.indexOfFirst { it.type == Lock.Type.PASSWORD }
+                            if (lockIdx < 0) throw CryptoException("No password lock found in container")
+                            debugLog(LOG_TAG, "Using password lock at index $lockIdx")
+
+                            val fmk = cdocReader.getFMK(lockIdx)
+                            if (fmk == null || fmk.isEmpty()) throw WrongPasswordException()
+
+                            if (cdocReader.beginDecryption(fmk) !=
+                                0L
+                            ) {
+                                throw CryptoException("Failed to begin decryption")
+                            }
+                            val dataFiles =
+                                try {
+                                    decryptFiles(context, file, cdocReader)
+                                } catch (exc: CDocException) {
+                                    errorLog(LOG_TAG, "Wrong password entered for '${file.name}'")
+                                    throw WrongPasswordException(exc)
+                                }
+                            if (cdocReader.finishDecryption() !=
+                                0L
+                            ) {
+                                throw CryptoException("Failed to finish decryption")
+                            }
+
+                            debugLog(
+                                LOG_TAG,
+                                "Successfully decrypted '${file.name}' — ${dataFiles.size} file(s) extracted",
+                            )
+                            create(context, file, dataFiles, recipients, decrypted = true, encrypted = false)
+                        } finally {
+                            cdocReader.delete()
+                        }
+                    }
+                }
+            }
+
+            @Throws(CryptoException::class)
+            private fun decryptFiles(
+                context: Context,
+                containerFile: File,
+                cdocReader: CDocReader,
+            ): ArrayList<File> {
+                val dataFiles = ArrayList<File>()
+                val fi = FileInfo()
+                val savedNames = mutableSetOf<String>()
+                val dir = ContainerUtil.getContainerDataFilesDir(context, containerFile)
+
+                // Some file names crash the app if libcdoc logs them while reading
+                logger.setMinLogLevel(LogLevel.LEVEL_INFO)
+                try {
+                    var result: Long = cdocReader.nextFile(fi)
+                    while (result == CDoc.OK.toLong()) {
+                        val tmp = uniqueFileName(sanitizeString(File(fi.name).name, ""), savedNames)
+                        savedNames.add(tmp)
+                        val fileToSave = File(dir, tmp)
+                        FileOutputStream(fileToSave).use { ofs -> cdocReader.readFile(ofs) }
+                        dataFiles.add(fileToSave)
+                        debugLog(LOG_TAG, "Decrypted data file: $tmp")
+                        result = cdocReader.nextFile(fi)
+                    }
+                } catch (exc: IOException) {
+                    throw CryptoException("IO Exception: ${exc.message}", exc)
+                } finally {
+                    logger.setMinLogLevel(libcdocLogLevel)
+                }
+                return dataFiles
+            }
+
+            @Throws(CryptoException::class)
+            private suspend fun writeEncryptedContainer(
                 context: Context,
                 file: File,
                 dataFiles: List<File>,
-                recipients: List<Addressee>,
-                cdoc2Settings: CDOC2Settings,
-                configurationRepository: ConfigurationRepository,
-            ): CryptoContainer {
-                if (dataFiles.isEmpty()) {
-                    throw DataFilesEmptyException("Cannot create an empty crypto container")
-                }
-
-                if (recipients.isEmpty()) {
-                    throw RecipientsEmptyException("Cannot create crypto container without recipients")
-                }
-                return withContext(IO) {
+                createWriter: () -> CDocWriter,
+                addRecipients: suspend (CDocWriter) -> Unit,
+            ): CryptoContainer =
+                withContext(IO) {
                     encryptOperation.withLock {
-                        val configurationProvider = configurationRepository.getConfiguration()
-                        val conf = CryptoLibConf(cdoc2Settings)
-                        val network = Network(cdoc2Settings, configurationProvider, context)
-
-                        val version =
-                            if (file.extension == CDOC2_EXTENSION) {
-                                2
-                            } else {
-                                1
-                            }
-
-                        debugLog(
-                            LOG_TAG,
-                            "Encrypting container (CDOC version $version, " +
-                                "online key transfer: ${version == 2 && cdoc2Settings.getUseOnlineEncryption()})",
-                        )
-
-                        val cdocWriter = CDocWriter.createWriter(version, file.path, conf, null, network)
+                        val cdocWriter = createWriter()
                         var encryptionFinished = false
                         try {
-                            if (version == 2 && cdoc2Settings.getUseOnlineEncryption()) {
-                                val serverId = cdoc2Settings.getCDOC2UUID()
-                                recipients.forEach { addressee ->
-                                    currentCoroutineContext().ensureActive()
-                                    val recipient = Recipient.makeCertificate("", addressee.data, serverId)
-                                    if (cdocWriter.addRecipient(recipient) != 0L) {
-                                        throw CryptoException("Failed to add recipient")
-                                    }
-                                }
-                            } else {
-                                recipients.forEach { addressee ->
-                                    val recipient = Recipient.makeCertificate("", addressee.data)
-                                    if (cdocWriter.addRecipient(recipient) != 0L) {
-                                        throw CryptoException("Failed to add recipient")
-                                    }
-                                }
-                            }
+                            addRecipients(cdocWriter)
 
                             currentCoroutineContext().ensureActive()
 
@@ -431,7 +533,7 @@ class CryptoContainer
                                 throw CryptoException("Failed to finish encryption")
                             }
                             encryptionFinished = true
-                            debugLog(LOG_TAG, "Encryption finished successfully")
+                            debugLog(LOG_TAG, "Successfully encrypted '${file.name}'")
                         } catch (exc: IOException) {
                             errorLog(LOG_TAG, "IO Exception: ${exc.message}", exc)
                             throw CryptoException("IO Exception: ${exc.message}", exc)
@@ -455,6 +557,97 @@ class CryptoContainer
                         open(context, file)
                     }
                 }
+
+            @Throws(CryptoException::class)
+            suspend fun encryptWithPassword(
+                context: Context,
+                file: File,
+                dataFiles: List<File>,
+                keyLabel: String,
+                password: ByteArray,
+                cdoc2Settings: CDOC2Settings,
+                configurationRepository: ConfigurationRepository,
+            ): CryptoContainer {
+                if (dataFiles.isEmpty()) {
+                    throw DataFilesEmptyException("Cannot create an empty crypto container")
+                }
+                val backend = PasswordCryptoBackend(password)
+                val conf = CryptoLibConf(cdoc2Settings)
+                val configurationProvider = configurationRepository.getConfiguration()
+                val network = Network(cdoc2Settings, configurationProvider, context)
+
+                debugLog(LOG_TAG, "Encrypting '${file.name}' with password, key label: '$keyLabel'")
+
+                return writeEncryptedContainer(
+                    context = context,
+                    file = file,
+                    dataFiles = dataFiles,
+                    createWriter = { CDocWriter.createWriter(2, file.path, conf, backend, network) },
+                    addRecipients = { cdocWriter ->
+                        val recipient = Recipient.makeSymmetric("", PASSWORD_KDF_ITER)
+                        recipient.setLabelValue("label", keyLabel)
+                        if (cdocWriter.addRecipient(recipient) != 0L) {
+                            throw CryptoException("Failed to add password recipient")
+                        }
+                    },
+                )
+            }
+
+            suspend fun encrypt(
+                context: Context,
+                file: File,
+                dataFiles: List<File>,
+                recipients: List<Addressee>,
+                cdoc2Settings: CDOC2Settings,
+                configurationRepository: ConfigurationRepository,
+            ): CryptoContainer {
+                if (dataFiles.isEmpty()) {
+                    throw DataFilesEmptyException("Cannot create an empty crypto container")
+                }
+
+                if (recipients.isEmpty()) {
+                    throw RecipientsEmptyException("Cannot create crypto container without recipients")
+                }
+
+                val configurationProvider = configurationRepository.getConfiguration()
+                val conf = CryptoLibConf(cdoc2Settings)
+                val network = Network(cdoc2Settings, configurationProvider, context)
+
+                val version =
+                    if (file.extension == CDOC2_EXTENSION) {
+                        2
+                    } else {
+                        1
+                    }
+                val useOnlineEncryption = version == 2 && cdoc2Settings.getUseOnlineEncryption()
+
+                debugLog(
+                    LOG_TAG,
+                    "Encrypting container (CDOC version $version, " +
+                        "online key transfer: $useOnlineEncryption)",
+                )
+
+                return writeEncryptedContainer(
+                    context = context,
+                    file = file,
+                    dataFiles = dataFiles,
+                    createWriter = { CDocWriter.createWriter(version, file.path, conf, null, network) },
+                    addRecipients = { cdocWriter ->
+                        val serverId = if (useOnlineEncryption) cdoc2Settings.getCDOC2UUID() else null
+                        recipients.forEach { addressee ->
+                            currentCoroutineContext().ensureActive()
+                            val recipient =
+                                if (serverId != null) {
+                                    Recipient.makeCertificate("", addressee.data, serverId)
+                                } else {
+                                    Recipient.makeCertificate("", addressee.data)
+                                }
+                            if (cdocWriter.addRecipient(recipient) != 0L) {
+                                throw CryptoException("Failed to add recipient")
+                            }
+                        }
+                    },
+                )
             }
 
             @Throws(CryptoException::class)
@@ -629,6 +822,18 @@ class CryptoContainer
                     algorithm: CryptoBackend.HashAlgorithm,
                     digest: ByteArray,
                 ): Long = token.sign(dst, algorithm, digest, 0)
+            }
+
+            private class PasswordCryptoBackend(
+                private val password: ByteArray,
+            ) : CryptoBackend() {
+                override fun getSecret(
+                    dst: DataBuffer,
+                    idx: Int,
+                ): Long {
+                    dst.data = password
+                    return CDoc.OK.toLong()
+                }
             }
         }
     }

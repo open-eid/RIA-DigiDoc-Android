@@ -182,7 +182,7 @@ class RecipientRepositoryImpl
                         for (value in attribute.rawValues) {
                             val certificate = ExtendedCertificate.create(value.value, certificateService)
                             if (isSuitableKeyAndNotMobileId(certificate)) {
-                                builder.add(Addressee(certificate.data))
+                                builder.add(Addressee.fromCert(certificate.data))
                             }
                         }
                     }

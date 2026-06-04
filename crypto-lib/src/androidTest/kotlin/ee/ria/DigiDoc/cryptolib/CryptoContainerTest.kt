@@ -860,7 +860,7 @@ class CryptoContainerTest {
                     true,
                 ).apply()
 
-            val recipient = Addressee(Base64.getDecoder().decode(authCert))
+            val recipient = Addressee.fromCert(Base64.getDecoder().decode(authCert))
 
             val testFiles = listOf(testFile)
             val container = openOrCreate(context, testFile, testFiles, cdoc2Settings)
@@ -890,7 +890,7 @@ class CryptoContainerTest {
                     true,
                 ).apply()
 
-            val recipient = Addressee(Base64.getDecoder().decode(authCert))
+            val recipient = Addressee.fromCert(Base64.getDecoder().decode(authCert))
 
             val testFiles: List<File> = listOf()
             val container = openOrCreate(context, testFile, testFiles, cdoc2Settings)
@@ -932,7 +932,7 @@ class CryptoContainerTest {
                     "https://cdoc2.id.ee:8443",
                 ).apply()
 
-            val recipient = Addressee(Base64.getDecoder().decode(authCert))
+            val recipient = Addressee.fromCert(Base64.getDecoder().decode(authCert))
 
             val testFiles = listOf(testFile)
             val container = openOrCreate(context, testFile, testFiles, cdoc2Settings)
@@ -958,7 +958,7 @@ class CryptoContainerTest {
                     false,
                 ).apply()
 
-            val recipient = Addressee(Base64.getDecoder().decode(authCert))
+            val recipient = Addressee.fromCert(Base64.getDecoder().decode(authCert))
 
             val testFiles = listOf(testFile)
             val container = openOrCreate(context, testFile, testFiles, cdoc2Settings)
@@ -982,7 +982,7 @@ class CryptoContainerTest {
                     true,
                 ).apply()
 
-            val recipient = Addressee(Base64.getDecoder().decode(authCert))
+            val recipient = Addressee.fromCert(Base64.getDecoder().decode(authCert))
 
             val testFiles = listOf(testFile)
             val container = openOrCreate(context, testFile, testFiles, cdoc2Settings)
@@ -999,7 +999,7 @@ class CryptoContainerTest {
                     true,
                 ).apply()
 
-            val recipient = Addressee(Base64.getDecoder().decode(authCert))
+            val recipient = Addressee.fromCert(Base64.getDecoder().decode(authCert))
 
             val testFiles = listOf(testFile)
             val container = openOrCreate(context, testFile, testFiles, cdoc2Settings)
@@ -1197,7 +1197,7 @@ class CryptoContainerTest {
 
             val dataFiles = listOf(testFile)
             val cryptoContainer = openOrCreate(context, testFile, dataFiles, cdoc2Settings)
-            cryptoContainer.addRecipients(listOf(Addressee(Base64.getDecoder().decode(authCert))))
+            cryptoContainer.addRecipients(listOf(Addressee.fromCert(Base64.getDecoder().decode(authCert))))
             assertEquals(1, cryptoContainer.getRecipients().size)
         }
 
@@ -1245,7 +1245,7 @@ class CryptoContainerTest {
 
             val dataFiles = listOf(testFile)
             val cryptoContainer = openOrCreate(context, testFile, dataFiles, cdoc2Settings)
-            val recipient = Addressee(Base64.getDecoder().decode(authCert))
+            val recipient = Addressee.fromCert(Base64.getDecoder().decode(authCert))
             cryptoContainer.addRecipients(listOf(recipient))
             cryptoContainer.removeRecipient(recipient)
             assertEquals(0, cryptoContainer.getRecipients().size)
@@ -1263,7 +1263,7 @@ class CryptoContainerTest {
 
             val dataFiles = listOf(testFile)
             val cryptoContainer = openOrCreate(context, testFile, dataFiles, cdoc2Settings)
-            val recipient = Addressee(Base64.getDecoder().decode(authCert))
+            val recipient = Addressee.fromCert(Base64.getDecoder().decode(authCert))
             cryptoContainer.removeRecipient(recipient)
             assertEquals(0, cryptoContainer.getRecipients().size)
         }

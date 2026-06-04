@@ -55,6 +55,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -89,7 +90,9 @@ import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
 import ee.ria.DigiDoc.ui.component.shared.PreventResize
 import ee.ria.DigiDoc.ui.component.shared.Recipient
+import ee.ria.DigiDoc.ui.component.shared.StatusAnnouncer
 import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
+import ee.ria.DigiDoc.ui.component.shared.TabItem
 import ee.ria.DigiDoc.ui.component.shared.TabView
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
@@ -104,6 +107,7 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccess
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utils.snackbar.SnackbarType
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator
 import ee.ria.DigiDoc.viewmodel.EncryptRecipientViewModel
 import ee.ria.DigiDoc.viewmodel.EncryptViewModel
@@ -115,6 +119,10 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.time.Duration.Companion.seconds
+
+private const val RECIPIENT_TAB_INDEX = 0
+private const val PASSWORD_TAB_INDEX = 1
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -126,6 +134,7 @@ fun EncryptRecipientScreen(
     sharedRecipientViewModel: SharedRecipientViewModel,
     encryptRecipientViewModel: EncryptRecipientViewModel = hiltViewModel(),
 ) {
+    val logTag = "EncryptRecipientScreen"
     val context = LocalContext.current
 
     val scope = rememberCoroutineScope()
@@ -143,12 +152,16 @@ fun EncryptRecipientScreen(
     val containerEncryptedSuccess = remember { mutableStateOf(false) }
     val containerEncryptedSuccessText = stringResource(id = R.string.crypto_create_success)
 
+    var statusAnnouncement by remember { mutableStateOf("") }
+
     val containerRecipientList =
         remember {
             mutableStateOf(
                 encryptRecipientViewModel.getContainerRecipientList(sharedContainerViewModel),
             )
         }
+
+    val hasRecipients = containerRecipientList.value.isNotEmpty()
     val showRecipientBottomSheet = remember { mutableStateOf(false) }
     var actionRecipient by rememberSaveable { mutableStateOf<Addressee?>(null) }
     val clickedRecipient = rememberSaveable { mutableStateOf<Addressee?>(null) }
@@ -183,7 +196,7 @@ fun EncryptRecipientScreen(
                 },
         )
     val isCdoc2 = encryptViewModel.cdocSetting == CDOCSetting.CDOC2
-    var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
+    var selectedTabIndex by rememberSaveable { mutableIntStateOf(RECIPIENT_TAB_INDEX) }
 
     val tabRecipientTitle = stringResource(R.string.crypto_encrypt_tab_recipient)
     val tabPasswordTitle = stringResource(R.string.crypto_encrypt_tab_password)
@@ -206,10 +219,8 @@ fun EncryptRecipientScreen(
                     containerRecipientList.value =
                         encryptRecipientViewModel
                             .getContainerRecipientList(sharedContainerViewModel)
-                    sendAccessibilityEvent(
-                        context,
-                        recipientAddedSuccessText,
-                    )
+                    withFrameNanos { }
+                    statusAnnouncement = recipientAddedSuccessText
                     encryptRecipientViewModel.handleIsRecipientAdded(false)
                 }
             }
@@ -221,10 +232,6 @@ fun EncryptRecipientScreen(
             if (isContainerEncrypted) {
                 withContext(Main) {
                     containerEncryptedSuccess.value = true
-                    sendAccessibilityEvent(
-                        context,
-                        containerEncryptedSuccessText,
-                    )
                     delay(2000)
 
                     encryptRecipientViewModel.handleIsContainerEncrypted(false)
@@ -275,6 +282,19 @@ fun EncryptRecipientScreen(
         }
     }
 
+    LaunchedEffect(statusAnnouncement) {
+        if (statusAnnouncement.isNotEmpty()) {
+            delay(1.seconds)
+            statusAnnouncement = ""
+        }
+    }
+
+    LaunchedEffect(hasRecipients) {
+        if (hasRecipients && selectedTabIndex == PASSWORD_TAB_INDEX) {
+            selectedTabIndex = RECIPIENT_TAB_INDEX
+        }
+    }
+
     Scaffold(
         modifier =
             modifier
@@ -304,7 +324,7 @@ fun EncryptRecipientScreen(
         },
         bottomBar = {
             if (cryptoContainer != null) {
-                if (isCdoc2 && selectedTabIndex == 1) {
+                if (isCdoc2 && selectedTabIndex == PASSWORD_TAB_INDEX) {
                     EncryptButtonBottomBar(
                         modifier = modifier,
                         encryptButtonIcon = R.drawable.ic_m3_arrow_forward_48dp_wght400,
@@ -334,54 +354,10 @@ fun EncryptRecipientScreen(
             isBottomSheetVisible = isSettingsMenuBottomSheetVisible,
         )
 
-        if (isCdoc2) {
-            Column(
-                modifier = modifier.padding(paddingValues).fillMaxSize(),
-            ) {
-                TabView(
-                    modifier = modifier,
-                    testTag = "encryptRecipientTabView",
-                    selectedTabIndex = selectedTabIndex,
-                    onTabSelected = { index ->
-                        selectedTabIndex = index
-                        if (index != 0) expanded = false
-                    },
-                    tabItems =
-                        listOf(
-                            Pair(tabRecipientTitle) {
-                                RecipientTabContent(
-                                    modifier = Modifier.fillMaxSize(),
-                                    expanded = expanded,
-                                    onExpandedChange = { expanded = it },
-                                    searchText = searchText,
-                                    onSearchTextChange = encryptRecipientViewModel::onSearchTextChange,
-                                    invalidPersonalCodeMessage = invalidPersonalCodeMessage,
-                                    onSearch = { encryptRecipientViewModel.onQueryTextChange(it) },
-                                    onDismissSearch = dismissSearch,
-                                    recipientList = recipientList,
-                                    hasSearched = hasSearched,
-                                    containerRecipientList = containerRecipientList.value,
-                                    onAddRecipientToContainer = { recipient ->
-                                        encryptRecipientViewModel.addRecipientToContainer(
-                                            recipient,
-                                            sharedContainerViewModel,
-                                        )
-                                    },
-                                    onRecipientClick = { recipient ->
-                                        clickedRecipient.value = recipient
-                                        showRecipientBottomSheet.value = true
-                                    },
-                                )
-                            },
-                            Pair(tabPasswordTitle) {
-                                PasswordTabContent(modifier = Modifier.fillMaxSize())
-                            },
-                        ),
-                )
-            }
-        } else {
+        @Composable
+        fun RecipientTab(tabModifier: Modifier) {
             RecipientTabContent(
-                modifier = Modifier.padding(paddingValues).fillMaxWidth(),
+                modifier = tabModifier,
                 expanded = expanded,
                 onExpandedChange = { expanded = it },
                 searchText = searchText,
@@ -405,11 +381,55 @@ fun EncryptRecipientScreen(
             )
         }
 
+        if (isCdoc2) {
+            Column(
+                modifier = modifier.padding(paddingValues).fillMaxSize(),
+            ) {
+                StatusAnnouncer(message = statusAnnouncement)
+
+                TabView(
+                    modifier = modifier,
+                    testTag = "encryptRecipientTabView",
+                    selectedTabIndex = selectedTabIndex,
+                    onTabSelected = { index ->
+                        selectedTabIndex = index
+                        if (index != RECIPIENT_TAB_INDEX) expanded = false
+                    },
+                    tabItems =
+                        listOf(
+                            TabItem(tabRecipientTitle) {
+                                RecipientTab(Modifier.fillMaxSize())
+                            },
+                            TabItem(tabPasswordTitle, enabled = !hasRecipients) {
+                                PasswordTabContent(modifier = Modifier.fillMaxSize())
+                            },
+                        ),
+                )
+            }
+        } else {
+            Column(
+                modifier = modifier.padding(paddingValues).fillMaxWidth(),
+            ) {
+                StatusAnnouncer(message = statusAnnouncement)
+
+                RecipientTab(Modifier.fillMaxWidth())
+            }
+        }
+
         if (showPasswordDialog.value) {
             EncryptPasswordDialog(
                 modifier = modifier,
                 onDismiss = { showPasswordDialog.value = false },
-                onEncrypt = { _, _ -> showPasswordDialog.value = false },
+                onEncrypt = { keyLabel, password ->
+                    debugLog(logTag, "User submitted password encryption dialog")
+                    showPasswordDialog.value = false
+                    encryptionButtonEnabled.value = false
+                    encryptRecipientViewModel.encryptWithPassword(
+                        keyLabel = keyLabel,
+                        password = password.toByteArray(Charsets.UTF_8),
+                        sharedContainerViewModel = sharedContainerViewModel,
+                    )
+                },
             )
         }
 

@@ -34,6 +34,7 @@ import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.cryptolib.Addressee
 import ee.ria.DigiDoc.cryptolib.CDOC2Settings
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
+import ee.ria.DigiDoc.cryptolib.exception.CryptoException
 import ee.ria.DigiDoc.cryptolib.exception.DataFilesEmptyException
 import ee.ria.DigiDoc.cryptolib.exception.RecipientsEmptyException
 import ee.ria.DigiDoc.cryptolib.repository.RecipientRepository
@@ -62,7 +63,9 @@ class EncryptRecipientViewModel
         private val cdoc2Settings: CDOC2Settings,
         private val configurationRepository: ConfigurationRepository,
     ) : ViewModel() {
-        private val logTag = "EncryptRecipientViewModel"
+        companion object {
+            private const val LOG_TAG = "EncryptRecipientViewModel"
+        }
 
         private val _errorState = MutableLiveData<Int?>(null)
         val errorState: LiveData<Int?> = _errorState
@@ -104,7 +107,7 @@ class EncryptRecipientViewModel
 
         fun encrypt(cryptoContainer: CryptoContainer?) {
             if (cryptoContainer == null) {
-                errorLog(logTag, "Unable to encrypt: crypto container is 'null'")
+                errorLog(LOG_TAG, "Unable to encrypt: crypto container is 'null'")
                 _errorState.postValue(R.string.crypto_encrypt_error)
                 return
             }
@@ -120,7 +123,7 @@ class EncryptRecipientViewModel
             encryptionJob =
                 viewModelScope.launch {
                     try {
-                        debugLog(logTag, "Encrypting crypto container")
+                        debugLog(LOG_TAG, "Encrypting crypto container")
                         val encrypted =
                             CryptoContainer.encrypt(
                                 context = context,
@@ -132,18 +135,18 @@ class EncryptRecipientViewModel
                             )
                         _encryptedContainer.postValue(encrypted)
                         handleIsContainerEncrypted(true)
-                        debugLog(logTag, "Crypto container encrypted successfully")
+                        debugLog(LOG_TAG, "Crypto container encrypted successfully")
                     } catch (ex: DataFilesEmptyException) {
-                        errorLog(logTag, "Unable to encrypt: container has no data files", ex)
+                        errorLog(LOG_TAG, "Unable to encrypt: container has no data files", ex)
                         _errorState.postValue(R.string.crypto_encrypt_data_files_empty_error)
                     } catch (ex: RecipientsEmptyException) {
-                        errorLog(logTag, "Unable to encrypt: container has no recipients", ex)
+                        errorLog(LOG_TAG, "Unable to encrypt: container has no recipients", ex)
                         _errorState.postValue(R.string.crypto_encrypt_recipients_empty_error)
                     } catch (e: CancellationException) {
-                        debugLog(logTag, "Encryption cancelled")
+                        debugLog(LOG_TAG, "Encryption cancelled")
                         throw e
                     } catch (ex: Exception) {
-                        errorLog(logTag, "Unable to encrypt crypto container", ex)
+                        errorLog(LOG_TAG, "Unable to encrypt crypto container", ex)
                         _errorState.postValue(R.string.crypto_encrypt_error)
                     } finally {
                         if (generation == encryptionGeneration) {
@@ -154,7 +157,7 @@ class EncryptRecipientViewModel
         }
 
         fun cancelEncryption() {
-            debugLog(logTag, "Cancelling encryption")
+            debugLog(LOG_TAG, "Cancelling encryption")
             encryptionJob?.cancel()
             encryptionJob = null
             _isEncrypting.value = false
@@ -172,15 +175,15 @@ class EncryptRecipientViewModel
                         try {
                             allRecipients = recipientRepository.find(context, text)
                         } catch (nce: NoInternetConnectionException) {
-                            errorLog(logTag, "Unable to get LDAP addressees. No Internet connection", nce)
+                            errorLog(LOG_TAG, "Unable to get LDAP addressees. No Internet connection", nce)
                             _errorState.postValue(R.string.no_internet_connection)
                         } catch (e: Exception) {
-                            errorLog(logTag, "Unable to get LDAP addressees", e)
+                            errorLog(LOG_TAG, "Unable to get LDAP addressees", e)
                             _errorState.postValue(R.string.error_general_client)
                         }
 
                         if (allRecipients.second >= 50) {
-                            debugLog(logTag, "Found ${allRecipients.second} addressees")
+                            debugLog(LOG_TAG, "Found ${allRecipients.second} addressees")
                             _errorState.postValue(R.string.crypto_recipients_too_many_results)
                         }
 
@@ -222,6 +225,100 @@ class EncryptRecipientViewModel
 
             sharedContainerViewModel.setCryptoContainer(cryptoContainer)
             handleIsRecipientAdded(true)
+        }
+
+        fun encryptWithPassword(
+            keyLabel: String,
+            password: ByteArray,
+            sharedContainerViewModel: SharedContainerViewModel,
+        ): Job? {
+            if (encryptionJob?.isActive == true) {
+                password.fill(0)
+                return encryptionJob
+            }
+
+            // Cancelling cannot stop an encryption that is already running, so an old one can still be
+            // finishing while a new one starts. Only the newest one returns the screen to normal when it ends.
+            val generation = ++encryptionGeneration
+            _isEncrypting.value = true
+            encryptionJob =
+                viewModelScope.launch {
+                    try {
+                        val cryptoContainer = sharedContainerViewModel.cryptoContainer.value
+                        if (cryptoContainer == null) {
+                            errorLog(LOG_TAG, "Cannot encrypt — no container is open")
+                            _errorState.postValue(R.string.crypto_encrypt_error)
+                            return@launch
+                        }
+
+                        debugLog(
+                            LOG_TAG,
+                            "Encrypting '${cryptoContainer.file.name}' with password, key label: '$keyLabel'",
+                        )
+                        val encrypted =
+                            CryptoContainer.encryptWithPassword(
+                                context = context,
+                                file = cryptoContainer.file,
+                                dataFiles = cryptoContainer.dataFiles,
+                                keyLabel = keyLabel,
+                                password = password,
+                                cdoc2Settings = cdoc2Settings,
+                                configurationRepository = configurationRepository,
+                            )
+                        debugLog(LOG_TAG, "Container encrypted successfully")
+                        sharedContainerViewModel.setCryptoContainer(
+                            encrypted,
+                            overwriteContainer = true,
+                            containerEncrypted = true,
+                        )
+                        handleIsContainerEncrypted(true)
+                    } catch (ex: DataFilesEmptyException) {
+                        errorLog(LOG_TAG, "Cannot encrypt — container has no data files", ex)
+                        _errorState.postValue(R.string.crypto_encrypt_data_files_empty_error)
+                    } catch (ex: CancellationException) {
+                        debugLog(LOG_TAG, "Encryption cancelled")
+                        throw ex
+                    } catch (ex: Exception) {
+                        errorLog(LOG_TAG, "Failed to encrypt container with password", ex)
+                        _errorState.postValue(R.string.crypto_encrypt_error)
+                    } finally {
+                        password.fill(0)
+                        if (generation == encryptionGeneration) {
+                            _isEncrypting.value = false
+                        }
+                    }
+                }
+            return encryptionJob
+        }
+
+        suspend fun decryptContainerWithPassword(
+            password: ByteArray,
+            sharedContainerViewModel: SharedContainerViewModel,
+            lockIndex: Int? = null,
+        ) {
+            try {
+                val cryptoContainer =
+                    sharedContainerViewModel.cryptoContainer.value
+                        ?: throw CryptoException("No container to decrypt")
+                debugLog(LOG_TAG, "Decrypting '${cryptoContainer.file.name}' with password")
+                val decrypted =
+                    CryptoContainer.decryptWithPassword(
+                        context = context,
+                        file = cryptoContainer.file,
+                        recipients = cryptoContainer.recipients,
+                        password = password,
+                        cdoc2Settings = cdoc2Settings,
+                        configurationRepository = configurationRepository,
+                        lockIndex = lockIndex,
+                    )
+                debugLog(LOG_TAG, "Container decrypted successfully")
+                sharedContainerViewModel.setCryptoContainer(decrypted, overwriteContainer = true)
+            } catch (e: Exception) {
+                errorLog(LOG_TAG, "Failed to decrypt container with password", e)
+                throw e
+            } finally {
+                password.fill(0)
+            }
         }
 
         fun getMimetype(file: File): String? = mimeTypeResolver.mimeType(file)

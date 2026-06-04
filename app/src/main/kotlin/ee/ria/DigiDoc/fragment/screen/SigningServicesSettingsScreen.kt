@@ -48,6 +48,7 @@ import ee.ria.DigiDoc.ui.component.settings.advanced.signingservices.MobileIdAnd
 import ee.ria.DigiDoc.ui.component.settings.advanced.signingservices.TimestampServicesComponent
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
+import ee.ria.DigiDoc.ui.component.shared.TabItem
 import ee.ria.DigiDoc.ui.component.shared.TabView
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
@@ -111,7 +112,7 @@ fun SigningServicesSettingsScreen(
                 selectedTabIndex = selectedSigningServiceTabIndex.intValue,
                 onTabSelected = { index -> selectedSigningServiceTabIndex.intValue = index },
                 listOf(
-                    Pair(
+                    TabItem(
                         stringResource(R.string.main_settings_timestamp_services_title),
                     ) {
                         TimestampServicesComponent(
@@ -121,7 +122,7 @@ fun SigningServicesSettingsScreen(
                             navController = navController,
                         )
                     },
-                    Pair(
+                    TabItem(
                         stringResource(R.string.main_settings_mobile_id_and_smart_id_title),
                     ) {
                         MobileIdAndSmartIdServicesComponent(

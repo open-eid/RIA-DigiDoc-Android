@@ -41,13 +41,21 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
 
+private const val DISABLED_TAB_ALPHA = 0.38f
+
+data class TabItem(
+    val title: String,
+    val enabled: Boolean = true,
+    val content: @Composable () -> Unit,
+)
+
 @Composable
 fun TabView(
     modifier: Modifier = Modifier,
     testTag: String = "tabView",
     selectedTabIndex: Int = 0,
     onTabSelected: (Int) -> Unit,
-    tabItems: List<Pair<String, @Composable () -> Unit>>,
+    tabItems: List<TabItem>,
 ) {
     Column(
         modifier =
@@ -60,19 +68,19 @@ fun TabView(
         SecondaryTabRow(
             selectedTabIndex = selectedTabIndex,
         ) {
-            tabItems.forEachIndexed { index, (title, _) ->
+            tabItems.forEachIndexed { index, tabItem ->
                 val isSelected = selectedTabIndex == index
                 val selectedTab =
                     stringResource(
                         R.string.signature_update_signature_selected_container_tab,
-                        title,
+                        tabItem.title,
                         index + 1,
                         tabItems.size,
                     )
                 val unselectedTab =
                     stringResource(
                         R.string.signature_update_signature_unselected_container_tab,
-                        title,
+                        tabItem.title,
                         index + 1,
                         tabItems.size,
                     )
@@ -84,11 +92,17 @@ fun TabView(
                             stateDescription = if (isSelected) selectedTab else unselectedTab
                             this.role = androidx.compose.ui.semantics.Role.Button
                         },
-                    text = { Text(text = title) },
+                    text = { Text(text = tabItem.title) },
                     selected = isSelected,
+                    enabled = tabItem.enabled,
                     onClick = { onTabSelected(index) },
                     selectedContentColor = MaterialTheme.colorScheme.primary,
-                    unselectedContentColor = MaterialTheme.colorScheme.onSurface,
+                    unselectedContentColor =
+                        if (tabItem.enabled) {
+                            MaterialTheme.colorScheme.onSurface
+                        } else {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = DISABLED_TAB_ALPHA)
+                        },
                 )
             }
         }
@@ -97,7 +111,7 @@ fun TabView(
             modifier = modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
-            tabItems[selectedTabIndex].second()
+            tabItems[selectedTabIndex].content()
         }
     }
 }
@@ -106,7 +120,11 @@ fun TabView(
 @Composable
 fun TabViewPreview() {
     TabView(
-        tabItems = listOf(Pair("Tab 1", {}), Pair("Tab 2", {})),
+        tabItems =
+            listOf(
+                TabItem("Tab 1") {},
+                TabItem("Tab 2", enabled = false) {},
+            ),
         onTabSelected = {},
     )
 }
