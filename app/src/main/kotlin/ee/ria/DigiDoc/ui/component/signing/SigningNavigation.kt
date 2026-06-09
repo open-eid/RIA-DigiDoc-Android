@@ -109,6 +109,7 @@ import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TabItem
 import ee.ria.DigiDoc.ui.component.shared.TabView
 import ee.ria.DigiDoc.ui.component.shared.TopBar
+import ee.ria.DigiDoc.ui.component.shared.dialog.SingleButtonDialog
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
 import ee.ria.DigiDoc.ui.component.shared.handler.containerFileOpeningHandler
 import ee.ria.DigiDoc.ui.component.signing.bottombar.SigningBottomBar
@@ -133,11 +134,14 @@ import ee.ria.DigiDoc.utilsLib.extensions.isContainer
 import ee.ria.DigiDoc.utilsLib.extensions.isSignedPDF
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.viewmodel.EncryptViewModel
+import ee.ria.DigiDoc.viewmodel.ExtendSignaturesResult
 import ee.ria.DigiDoc.viewmodel.SigningViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
+import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -147,6 +151,8 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
 import java.io.File
 import kotlin.time.Duration.Companion.seconds
+
+private const val LOG_TAG = "SigningNavigation"
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -158,6 +164,7 @@ fun SigningNavigation(
     sharedSignatureViewModel: SharedSignatureViewModel,
     signingViewModel: SigningViewModel = hiltViewModel(),
     encryptViewModel: EncryptViewModel = hiltViewModel(),
+    sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
 ) {
     val signedContainer by sharedContainerViewModel.signedContainer.collectAsState()
     val shouldResetContainer by signingViewModel.shouldResetSignedContainer.asFlow().collectAsState(false)
@@ -304,9 +311,14 @@ fun SigningNavigation(
     val listState = rememberLazyListState()
 
     val showContainerCloseConfirmationDialog = rememberSaveable { mutableStateOf(false) }
+    val showExtendSignaturesConfirmDialog = rememberSaveable { mutableStateOf(false) }
 
     val showSivaDialog = rememberSaveable { mutableStateOf(false) }
     val nestedFile = rememberSaveable { mutableStateOf<File?>(null) }
+
+    val showExtendSivaDialog = rememberSaveable { mutableStateOf(false) }
+    val showExtendWrappedDialog = rememberSaveable { mutableStateOf(false) }
+    val extendedContainerFile = rememberSaveable { mutableStateOf<File?>(null) }
 
     val showContainerBottomSheet = rememberSaveable { mutableStateOf(false) }
     val showDataFileBottomSheet = rememberSaveable { mutableStateOf(false) }
@@ -382,6 +394,29 @@ fun SigningNavigation(
         }
     }
 
+    val handleExtendResult: (Boolean) -> Unit = { isSivaConfirmed ->
+        extendedContainerFile.value?.let { file ->
+            showLoadingScreen.value = true
+            scope.launch(IO) {
+                try {
+                    signingViewModel.openNestedContainer(
+                        context,
+                        file,
+                        sharedContainerViewModel,
+                        isSivaConfirmed,
+                        overwriteContainer = true,
+                    )
+                } catch (e: Exception) {
+                    errorLog(LOG_TAG, "Unable to open extended container", e)
+                }
+                withContext(Main) {
+                    showLoadingScreen.value = false
+                    showExtendWrappedDialog.value = true
+                }
+            }
+        }
+    }
+
     val onDataFileClick: (DataFileInterface) -> Unit = { dataFile ->
         showDataFileBottomSheet.value = false
 
@@ -444,6 +479,12 @@ fun SigningNavigation(
         }
     }
 
+    val onExtendSignaturesActionClick: () -> Unit = {
+        debugLog(LOG_TAG, "Extend signatures button clicked, showing confirmation dialog")
+        showContainerBottomSheet.value = false
+        showExtendSignaturesConfirmDialog.value = true
+    }
+
     var isSaved by remember { mutableStateOf(false) }
 
     val selectedSignedContainerTabIndex = rememberSaveable { mutableIntStateOf(0) }
@@ -504,6 +545,7 @@ fun SigningNavigation(
         sharedContainerViewModel.signedMidStatus.collect { status ->
             status?.let {
                 if (status == MobileCreateSignatureProcessStatus.OK) {
+                    extendToLTA(sharedSettingsViewModel, signedContainer) { showLoadingScreen.value = it }
                     signatures = signedContainer?.getSignatures() ?: emptyList()
                     withContext(Main) {
                         selectedSignedContainerTabIndex.intValue = 1
@@ -521,6 +563,7 @@ fun SigningNavigation(
         sharedContainerViewModel.signedSidStatus.collect { status ->
             status?.let {
                 if (status == SessionStatusResponseProcessStatus.OK) {
+                    extendToLTA(sharedSettingsViewModel, signedContainer) { showLoadingScreen.value = it }
                     signatures = signedContainer?.getSignatures() ?: emptyList()
                     withContext(Main) {
                         signatureAddedSuccess.value = true
@@ -538,6 +581,7 @@ fun SigningNavigation(
         sharedContainerViewModel.signedNFCStatus.collect { status ->
             status?.let {
                 if (status == true) {
+                    extendToLTA(sharedSettingsViewModel, signedContainer) { showLoadingScreen.value = it }
                     signatures = signedContainer?.getSignatures() ?: emptyList()
                     withContext(Main) {
                         signatureAddedSuccess.value = true
@@ -555,6 +599,7 @@ fun SigningNavigation(
         sharedContainerViewModel.signedIDCardStatus.collect { status ->
             status?.let {
                 if (status == true) {
+                    extendToLTA(sharedSettingsViewModel, signedContainer) { showLoadingScreen.value = it }
                     signatures = signedContainer?.getSignatures() ?: emptyList()
                     withContext(Main) {
                         signatureAddedSuccess.value = true
@@ -1167,6 +1212,24 @@ fun SigningNavigation(
                 onResult = handleResult,
             )
 
+            SivaConfirmationDialog(
+                showDialog = showExtendSivaDialog,
+                modifier = modifier,
+                onResult = handleExtendResult,
+            )
+
+            if (showExtendWrappedDialog.value) {
+                SingleButtonDialog(
+                    modifier = modifier,
+                    title = stringResource(R.string.extend_signatures_wrapped_title),
+                    message = stringResource(R.string.extend_signatures_wrapped_message),
+                    buttonText = stringResource(R.string.ok_button),
+                    onButtonClick = {
+                        showExtendWrappedDialog.value = false
+                    },
+                )
+            }
+
             DataFileBottomSheet(
                 modifier = modifier,
                 showSheet = showDataFileBottomSheet.value,
@@ -1208,8 +1271,14 @@ fun SigningNavigation(
                         signedContainer,
                         isNestedContainer,
                     ),
+                isExtendSignaturesButtonShown =
+                    signingViewModel.isExtendSignaturesButtonShown(
+                        signedContainer,
+                        isNestedContainer,
+                    ),
                 signedContainer = signedContainer,
                 onEncryptClick = onEncryptActionClick,
+                onExtendSignaturesClick = onExtendSignaturesActionClick,
                 saveFileLauncher = saveFileLauncher,
                 saveFile = ::saveFile,
             )
@@ -1232,6 +1301,67 @@ fun SigningNavigation(
 
             if (showLoadingScreen.value) {
                 LoadingScreen(modifier = modifier)
+            }
+
+            if (showExtendSignaturesConfirmDialog.value) {
+                MessageDialog(
+                    modifier = modifier,
+                    title = stringResource(R.string.extend_signatures),
+                    message = stringResource(R.string.extend_signatures_confirm_message),
+                    showIcons = false,
+                    dismissButtonText = stringResource(R.string.cancel_button),
+                    confirmButtonText = stringResource(R.string.extend_button),
+                    dismissButtonContentDescription = stringResource(R.string.cancel_button),
+                    confirmButtonContentDescription = stringResource(R.string.extend_signatures),
+                    onDismissRequest = {
+                        showExtendSignaturesConfirmDialog.value = false
+                    },
+                    onDismissButton = {
+                        showExtendSignaturesConfirmDialog.value = false
+                    },
+                    onConfirmButton = {
+                        debugLog(LOG_TAG, "User confirmed signature extension")
+                        showExtendSignaturesConfirmDialog.value = false
+                        selectedSignedContainerTabIndex.intValue = 1
+                        val container = signedContainer
+                        if (container != null) {
+                            showLoadingScreen.value = true
+                            scope.launch(IO) {
+                                val result =
+                                    signingViewModel.extendSignatures(context, container, sharedContainerViewModel)
+                                withContext(Main) {
+                                    showLoadingScreen.value = false
+                                    when (result) {
+                                        is ExtendSignaturesResult.ExtendedInPlace -> {
+                                            signatures = result.signatures
+                                            showMessage(
+                                                context,
+                                                R.string.extend_signatures_success,
+                                                SnackbarType.SUCCESS,
+                                            )
+                                        }
+
+                                        is ExtendSignaturesResult.Wrapped -> {
+                                            signatures = result.signatures
+                                            extendedContainerFile.value = result.file
+                                            if (result.needsSiva) {
+                                                showExtendSivaDialog.value = true
+                                            } else {
+                                                showExtendWrappedDialog.value = true
+                                            }
+                                        }
+
+                                        ExtendSignaturesResult.NoInternet ->
+                                            showMessage(context, R.string.no_internet_connection)
+
+                                        ExtendSignaturesResult.Error ->
+                                            showMessage(context, R.string.extend_signatures_error)
+                                    }
+                                }
+                            }
+                        }
+                    },
+                )
             }
 
             if (showContainerCloseConfirmationDialog.value) {
@@ -1318,6 +1448,9 @@ private fun handleBackButtonClick(
             }
         }
     } else {
+        sharedContainerViewModel.resetSignedContainer()
+        sharedContainerViewModel.resetCryptoContainer()
+        sharedContainerViewModel.resetContainerNotifications()
         sharedContainerViewModel.clearContainers()
         signingViewModel.handleBackButton()
         navController.navigateUp()
@@ -1344,6 +1477,27 @@ private fun saveFile(
         saveFileLauncher.launch(saveIntent)
     } catch (_: ActivityNotFoundException) {
         // No activity to handle this kind of files
+    }
+}
+
+private suspend fun extendToLTA(
+    sharedSettingsViewModel: SharedSettingsViewModel,
+    signedContainer: SignedContainer?,
+    setLoading: (Boolean) -> Unit,
+) {
+    val shouldExtend =
+        withContext(IO) {
+            sharedSettingsViewModel.dataStore.getSettingsDefaultLTA() && signedContainer?.isDdoc() != true
+        }
+    if (!shouldExtend) return
+    withContext(Main) { setLoading(true) }
+    try {
+        signedContainer?.extendSignature()
+        debugLog(LOG_TAG, "Auto LTA extension completed for: ${signedContainer?.getName()}")
+    } catch (e: Exception) {
+        errorLog(LOG_TAG, "Auto LTA extension failed for: ${signedContainer?.getName()}", e)
+    } finally {
+        withContext(Main) { setLoading(false) }
     }
 }
 

@@ -37,6 +37,14 @@
     <string name="signed_container_title">Allkirjastatud ümbrik</string>
     <string name="documents_add_button">Lisa veel faile</string>
     <string name="container_save">Salvesta ümbrik</string>
+    <string name="extend_signatures">Pikenda allkirju</string>
+    <string name="extend_button">Pikenda</string>
+    <string name="extend_signatures_confirm_message">Kõik ümbriku allkirjad pikendatakse LTA formaati.</string>
+    <string name="extend_signatures_success">Allkirja(de) pikendamine õnnestus</string>
+    <string name="extend_signatures_error">Allkirja(de) pikendamine ebaõnnestus</string>
+    <string name="extend_signatures_wrapped_title">Konteineri kehtivust ei saa pikendada</string>
+    <string name="extend_signatures_wrapped_message">Allkirjade pikendamine ebaõnnestus ja konteiner pakiti ajatempliga konteinerisse.</string>
+    <string name="signature_valid_until">Arhiivi ajatempel kehtib kuni: %1$s</string>
     <string name="save">Salvesta</string>
     <string name="container_has">Ümbrikus </string>
     <string name="more_options">Veel valikuid</string>
@@ -365,7 +373,6 @@
     <string name="sign_button">Allkirjasta</string>
     <string name="next_button">Edasi</string>
     <string name="add_signature_button">Lisa uus allkiri</string>
-    <string name="extend_signature_button">Pikenda allkirja kehtivust</string>
     <string name="share_button">Jaga</string>
     <string name="share_button_accessibility">Jaga ümbrikut</string>
     <string name="yes_button">JAH</string>
@@ -460,6 +467,9 @@
     <string name="ocsp_time_label">Kehtivuskinnituse aeg</string>
     <string name="ocsp_time_utc_label">Kehtivuskinnituse aeg (UTC)</string>
     <string name="signers_mobile_time_label">Allkirjastaja telefoni kellaaeg (UTC)</string>
+    <string name="archive_timestamp_label">Arhiivi ajatempel:</string>
+    <string name="archive_ts_certificate_issuer_label">Arhiivi ajatempliteenuse sertifikaadi väljaandja:</string>
+    <string name="archive_ts_certificate_label">Arhiivi ajatempliteenuse sertifikaat:</string>
 
     <!-- Certificate Details -->
     <string name="certificate_details_title">Sertifikaadi detailid</string>
@@ -590,7 +600,10 @@
     <string name="main_settings_crypto_services_title">Krüpteerimisseaded</string>
     <string name="main_settings_timestamp_services_title">Ajatempliteenus</string>
     <string name="main_settings_mobile_id_and_smart_id_title">Mobiil-ID ja Smart-ID</string>
+    <string name="main_settings_default_lta_tab_title">Arhiveerimise ajatempel (LTA)</string>
     <string name="main_settings_ask_role_and_address_title">Küsi rolli ja aadressi igal allkirjastamisel</string>
+    <string name="main_settings_default_lta_disabled">Ei kasuta allkirjastamisel arhiveerimise ajatempli (LTA) vormingut</string>
+    <string name="main_settings_default_lta_enabled">Kasuta allkirjastamisel arhiveerimise ajatempli (LTA) vormingut</string>
     <string name="main_settings_role_title">Roll / resolutsioon</string>
     <string name="main_settings_city_title">Linn</string>
     <string name="main_settings_county_title">Maakond</string>

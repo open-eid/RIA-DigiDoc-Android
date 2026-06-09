@@ -58,6 +58,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -104,7 +105,6 @@ import ee.ria.DigiDoc.viewmodel.EncryptionServicesViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -126,6 +126,7 @@ fun EncryptionServicesSettingsScreen(
     navController: NavHostController,
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
@@ -265,7 +266,7 @@ fun EncryptionServicesSettingsScreen(
                     navController.popBackStack()
                     return@rememberLauncherForActivityResult
                 }
-                CoroutineScope(Dispatchers.IO).launch {
+                scope.launch(Dispatchers.IO) {
                     sharedSettingsViewModel.handleCryptoCertFile(uri)
                     withContext(Main) {
                         sharedSettingsViewModel.updateCryptoCertData(context)

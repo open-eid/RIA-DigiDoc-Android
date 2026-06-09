@@ -69,7 +69,7 @@ class EncryptViewModel
         val shouldResetCryptoContainer: LiveData<Boolean?> = _shouldResetCryptoContainer
 
         fun handleBackButton() {
-            _shouldResetCryptoContainer.postValue(true)
+            _shouldResetCryptoContainer.value = true
         }
 
         fun isEncryptedContainer(cryptoContainer: CryptoContainer?): Boolean = cryptoContainer?.encrypted == true

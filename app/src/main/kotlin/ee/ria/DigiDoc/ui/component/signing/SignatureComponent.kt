@@ -246,6 +246,9 @@ fun SignatureComponent(
                                             .padding(vertical = SBorder)
                                             .focusable(false)
                                             .notAccessible(),
+                                    validUntil = if (!isTimestamped) signature.validUntil else null,
+                                    isSignatureExtended =
+                                        !isTimestamped && signature.archiveTimeStampCertificateDer.isNotEmpty(),
                                 )
                                 if (!signature.signerRoles.isEmpty()) {
                                     Text(

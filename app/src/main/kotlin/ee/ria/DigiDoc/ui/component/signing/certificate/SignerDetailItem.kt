@@ -56,6 +56,7 @@ data class SignerDetailItem(
         ocspIssuerName: String?,
         tsSubjectName: String?,
         ocspSubjectName: String?,
+        archiveTimestampCertInfo: List<ArchiveTimestampCertInfo>,
     ): List<SignerDetailItem> {
         val signersCertificate =
             if (signature.isDigitalSeal) {
@@ -82,189 +83,233 @@ data class SignerDetailItem(
         val ocspProducedAtUtc = DateUtil.getFormattedDateTime(signature.ocspProducedAt, true)
         val signersMobileTime = DateUtil.getFormattedDateTime(signature.claimedSigningTime, true)
 
-        return listOf(
-            SignerDetailItem(
-                icon = 0,
-                label = R.string.signer_certificate_issuer_label,
-                value = signerIssuerName,
-                contentDescription =
-                    if (signerIssuerName != null) {
+        val detailItems =
+            listOf(
+                SignerDetailItem(
+                    icon = 0,
+                    label = R.string.signer_certificate_issuer_label,
+                    value = signerIssuerName,
+                    contentDescription =
+                        if (signerIssuerName != null) {
+                            "${stringResource(
+                                id = R.string.signer_certificate_issuer_label,
+                            )} $signerIssuerName"
+                        } else {
+                            ""
+                        },
+                    testTag = "signersCertificateIssuer",
+                ),
+                SignerDetailItem(
+                    label = R.string.signers_certificate_label,
+                    value = signersCertificate,
+                    certificate = signature.signingCertificateDer.x509Certificate(),
+                    contentDescription =
                         "${stringResource(
-                            id = R.string.signer_certificate_issuer_label,
-                        )} $signerIssuerName"
-                    } else {
-                        ""
-                    },
-                testTag = "signersCertificateIssuer",
-            ),
-            SignerDetailItem(
-                label = R.string.signers_certificate_label,
-                value = signersCertificate,
-                certificate = signature.signingCertificateDer.x509Certificate(),
-                contentDescription =
-                    "${stringResource(
-                        id = R.string.signers_certificate_label,
-                    )}, $signersCertificate",
-                formatForAccessibility = true,
-                testTag = "signersCertificate",
-            ),
-            SignerDetailItem(
-                icon = R.drawable.ic_m3_open_in_new_48dp_wght400,
-                isLink = true,
-                label = R.string.signature_method_label,
-                value = signatureMethod,
-                contentDescription =
-                    "${stringResource(
-                        id = R.string.signature_method_label,
-                    )}, link $signatureMethod",
-                testTag = "signatureDetailMethod",
-            ),
-            SignerDetailItem(
-                icon = 0,
-                label = R.string.container_format_label,
-                value = containerFormat,
-                contentDescription =
-                    "${stringResource(
-                        id = R.string.container_format_label,
-                    )}, $containerFormat",
-                testTag = "containerDetailFormat",
-            ),
-            SignerDetailItem(
-                icon = 0,
-                label = R.string.signature_format_label,
-                value = signatureFormat,
-                contentDescription =
-                    "${stringResource(
-                        id = R.string.signature_format_label,
-                    )}, $signatureFormat",
-                testTag = "signatureDetailFormat",
-            ),
-            SignerDetailItem(
-                icon = 0,
-                label = R.string.signed_file_count_label,
-                value = signedFileCount,
-                contentDescription =
-                    "${stringResource(
-                        id = R.string.signed_file_count_label,
-                    )}, $signedFileCount",
-                testTag = "containerDetailSignedFileCount",
-            ),
-            SignerDetailItem(
-                icon = 0,
-                label = R.string.signature_timestamp_label,
-                value = timestampTime,
-                contentDescription =
-                    "${stringResource(
-                        id = R.string.signature_timestamp_label,
-                    )}, $timestampTime",
-                testTag = "signatureDetailTimestamp",
-            ),
-            SignerDetailItem(
-                icon = 0,
-                label = R.string.signature_timestamp_utc_label,
-                value = timestampTimeUtc,
-                contentDescription =
-                    "${stringResource(
-                        id = R.string.signature_timestamp_utc_label,
-                    )}, $timestampTimeUtc",
-                testTag = "signatureDetailTimestampUTC",
-            ),
-            SignerDetailItem(
-                icon = 0,
-                label = R.string.hash_value_of_signature_label,
-                value = hashValue,
-                contentDescription =
-                    "${stringResource(
-                        id = R.string.hash_value_of_signature_label,
-                    )}, $hashValue",
-                testTag = "signatureDetailHashValue",
-            ),
-            SignerDetailItem(
-                icon = 0,
-                label = R.string.ts_certificate_issuer_label,
-                value = tsIssuerName,
-                contentDescription =
-                    if (tsIssuerName != null) {
+                            id = R.string.signers_certificate_label,
+                        )}, $signersCertificate",
+                    formatForAccessibility = true,
+                    testTag = "signersCertificate",
+                ),
+                SignerDetailItem(
+                    icon = R.drawable.ic_m3_open_in_new_48dp_wght400,
+                    isLink = true,
+                    label = R.string.signature_method_label,
+                    value = signatureMethod,
+                    contentDescription =
                         "${stringResource(
-                            id = R.string.ts_certificate_issuer_label,
-                        )}, $tsIssuerName"
-                    } else {
-                        ""
-                    },
-                testTag = "signatureDetailTimestampCertificateIssuer",
-            ),
-            SignerDetailItem(
-                label = R.string.ts_certificate_label,
-                value = tsSubjectName,
-                certificate = signature.timeStampCertificateDer.x509Certificate(),
-                contentDescription =
-                    if (tsSubjectName != null) {
+                            id = R.string.signature_method_label,
+                        )}, link $signatureMethod",
+                    testTag = "signatureDetailMethod",
+                ),
+                SignerDetailItem(
+                    icon = 0,
+                    label = R.string.container_format_label,
+                    value = containerFormat,
+                    contentDescription =
                         "${stringResource(
-                            id = R.string.ts_certificate_label,
-                        )}, $tsSubjectName"
-                    } else {
-                        ""
-                    },
-                testTag = "signatureDetailTimestampCertificate",
-            ),
-            SignerDetailItem(
-                icon = 0,
-                label = R.string.ocsp_certificate_issuer_label,
-                value = ocspIssuerName,
-                contentDescription =
-                    if (ocspIssuerName != null) {
+                            id = R.string.container_format_label,
+                        )}, $containerFormat",
+                    testTag = "containerDetailFormat",
+                ),
+                SignerDetailItem(
+                    icon = 0,
+                    label = R.string.signature_format_label,
+                    value = signatureFormat,
+                    contentDescription =
                         "${stringResource(
-                            id = R.string.ocsp_certificate_issuer_label,
-                        )}, $ocspIssuerName"
-                    } else {
-                        ""
-                    },
-                testTag = "signatureDetailOCSPCertificateIssuer",
-            ),
-            SignerDetailItem(
-                label = R.string.ocsp_certificate_label,
-                value = ocspSubjectName,
-                certificate = signature.ocspCertificateDer.x509Certificate(),
-                contentDescription =
-                    if (ocspSubjectName != null) {
+                            id = R.string.signature_format_label,
+                        )}, $signatureFormat",
+                    testTag = "signatureDetailFormat",
+                ),
+                SignerDetailItem(
+                    icon = 0,
+                    label = R.string.signed_file_count_label,
+                    value = signedFileCount,
+                    contentDescription =
                         "${stringResource(
-                            id = R.string.ocsp_certificate_label,
-                        )}, $ocspSubjectName"
-                    } else {
-                        ""
-                    },
-                testTag = "signatureDetailOCSPCertificate",
-            ),
-            SignerDetailItem(
-                icon = 0,
-                label = R.string.ocsp_time_label,
-                value = ocspProducedAt,
-                contentDescription =
-                    "${stringResource(
-                        id = R.string.ocsp_time_label,
-                    )}, $ocspProducedAt",
-                testTag = "signatureDetailOCSPTime",
-            ),
-            SignerDetailItem(
-                icon = 0,
-                label = R.string.ocsp_time_utc_label,
-                value = ocspProducedAtUtc,
-                contentDescription =
-                    "${stringResource(
-                        id = R.string.ocsp_time_utc_label,
-                    )}, $ocspProducedAtUtc",
-                testTag = "signatureDetailOCSPTimeUTC",
-            ),
-            SignerDetailItem(
-                icon = 0,
-                label = R.string.signers_mobile_time_label,
-                value = signersMobileTime,
-                contentDescription =
-                    "${stringResource(
-                        id = R.string.signers_mobile_time_label,
-                    )}, $signersMobileTime",
-                testTag = "signatureDetailSignersMobileTimeUTC",
-            ),
-        )
+                            id = R.string.signed_file_count_label,
+                        )}, $signedFileCount",
+                    testTag = "containerDetailSignedFileCount",
+                ),
+                SignerDetailItem(
+                    icon = 0,
+                    label = R.string.signature_timestamp_label,
+                    value = timestampTime,
+                    contentDescription =
+                        "${stringResource(
+                            id = R.string.signature_timestamp_label,
+                        )}, $timestampTime",
+                    testTag = "signatureDetailTimestamp",
+                ),
+                SignerDetailItem(
+                    icon = 0,
+                    label = R.string.signature_timestamp_utc_label,
+                    value = timestampTimeUtc,
+                    contentDescription =
+                        "${stringResource(
+                            id = R.string.signature_timestamp_utc_label,
+                        )}, $timestampTimeUtc",
+                    testTag = "signatureDetailTimestampUTC",
+                ),
+                SignerDetailItem(
+                    icon = 0,
+                    label = R.string.hash_value_of_signature_label,
+                    value = hashValue,
+                    contentDescription =
+                        "${stringResource(
+                            id = R.string.hash_value_of_signature_label,
+                        )}, $hashValue",
+                    testTag = "signatureDetailHashValue",
+                ),
+                SignerDetailItem(
+                    icon = 0,
+                    label = R.string.ts_certificate_issuer_label,
+                    value = tsIssuerName,
+                    contentDescription =
+                        if (tsIssuerName != null) {
+                            "${stringResource(
+                                id = R.string.ts_certificate_issuer_label,
+                            )}, $tsIssuerName"
+                        } else {
+                            ""
+                        },
+                    testTag = "signatureDetailTimestampCertificateIssuer",
+                ),
+                SignerDetailItem(
+                    label = R.string.ts_certificate_label,
+                    value = tsSubjectName,
+                    certificate = signature.timeStampCertificateDer.x509Certificate(),
+                    contentDescription =
+                        if (tsSubjectName != null) {
+                            "${stringResource(
+                                id = R.string.ts_certificate_label,
+                            )}, $tsSubjectName"
+                        } else {
+                            ""
+                        },
+                    testTag = "signatureDetailTimestampCertificate",
+                ),
+                SignerDetailItem(
+                    icon = 0,
+                    label = R.string.ocsp_certificate_issuer_label,
+                    value = ocspIssuerName,
+                    contentDescription =
+                        if (ocspIssuerName != null) {
+                            "${stringResource(
+                                id = R.string.ocsp_certificate_issuer_label,
+                            )}, $ocspIssuerName"
+                        } else {
+                            ""
+                        },
+                    testTag = "signatureDetailOCSPCertificateIssuer",
+                ),
+                SignerDetailItem(
+                    label = R.string.ocsp_certificate_label,
+                    value = ocspSubjectName,
+                    certificate = signature.ocspCertificateDer.x509Certificate(),
+                    contentDescription =
+                        if (ocspSubjectName != null) {
+                            "${stringResource(
+                                id = R.string.ocsp_certificate_label,
+                            )}, $ocspSubjectName"
+                        } else {
+                            ""
+                        },
+                    testTag = "signatureDetailOCSPCertificate",
+                ),
+                SignerDetailItem(
+                    icon = 0,
+                    label = R.string.ocsp_time_label,
+                    value = ocspProducedAt,
+                    contentDescription =
+                        "${stringResource(
+                            id = R.string.ocsp_time_label,
+                        )}, $ocspProducedAt",
+                    testTag = "signatureDetailOCSPTime",
+                ),
+                SignerDetailItem(
+                    icon = 0,
+                    label = R.string.ocsp_time_utc_label,
+                    value = ocspProducedAtUtc,
+                    contentDescription =
+                        "${stringResource(
+                            id = R.string.ocsp_time_utc_label,
+                        )}, $ocspProducedAtUtc",
+                    testTag = "signatureDetailOCSPTimeUTC",
+                ),
+                SignerDetailItem(
+                    icon = 0,
+                    label = R.string.signers_mobile_time_label,
+                    value = signersMobileTime,
+                    contentDescription =
+                        "${stringResource(
+                            id = R.string.signers_mobile_time_label,
+                        )}, $signersMobileTime",
+                    testTag = "signatureDetailSignersMobileTimeUTC",
+                ),
+            )
+
+        return buildList {
+            addAll(detailItems)
+            signature.archiveTimeStamps.zip(archiveTimestampCertInfo).forEachIndexed { index, (ts, names) ->
+                val archiveTimestampTime = DateUtil.getFormattedDateTime(ts.time, false)
+                add(
+                    SignerDetailItem(
+                        icon = 0,
+                        label = R.string.archive_timestamp_label,
+                        value = archiveTimestampTime,
+                        contentDescription =
+                            "${stringResource(
+                                id = R.string.archive_timestamp_label,
+                            )}, $archiveTimestampTime",
+                        testTag = "archiveTimestamp$index",
+                    ),
+                )
+                add(
+                    SignerDetailItem(
+                        icon = 0,
+                        label = R.string.archive_ts_certificate_issuer_label,
+                        value = names.issuer,
+                        contentDescription =
+                            "${stringResource(
+                                id = R.string.archive_ts_certificate_issuer_label,
+                            )}, ${names.issuer}",
+                        testTag = "archiveTsCertificateIssuer$index",
+                    ),
+                )
+                add(
+                    SignerDetailItem(
+                        label = R.string.archive_ts_certificate_label,
+                        value = names.subject,
+                        certificate = ts.certificate,
+                        contentDescription =
+                            "${stringResource(
+                                id = R.string.archive_ts_certificate_label,
+                            )}, ${names.subject}",
+                        testTag = "archiveTsCertificate$index",
+                    ),
+                )
+            }
+        }
     }
 }

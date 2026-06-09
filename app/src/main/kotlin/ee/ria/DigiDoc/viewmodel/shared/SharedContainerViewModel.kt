@@ -134,8 +134,14 @@ class SharedContainerViewModel
             _decryptIDCardStatus.value = decryptStatus
         }
 
-        fun setSignedContainer(signedContainer: SignedContainer?) {
+        fun setSignedContainer(
+            signedContainer: SignedContainer?,
+            overwriteContainer: Boolean = false,
+        ) {
             _signedContainer.value = signedContainer
+            if (overwriteContainer) {
+                removeLastContainer()
+            }
             addNestedContainer(signedContainer)
         }
 

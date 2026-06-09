@@ -65,7 +65,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
@@ -73,6 +72,7 @@ import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.atLeastOnce
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import java.io.File
@@ -546,6 +546,13 @@ class SigningViewModelTest {
         }
 
     @Test
+    fun signingViewModel_isContainerWithTimestamps_returnFalseWhenContainerIsNull() {
+        val isContainerWithTimestamps = viewModel.isContainerWithTimestamps(null)
+
+        assertFalse(isContainerWithTimestamps)
+    }
+
+    @Test
     fun signingViewModel_getMimetype_success() =
         runTest {
             `when`(mimeTypeCache.getMimeType(anyOrNull())).thenReturn(ASICE_MIMETYPE)
@@ -595,5 +602,50 @@ class SigningViewModelTest {
             val mimetype = viewModel.getMimetype(file)
 
             assertEquals("text/plain", mimetype)
+        }
+
+    @Test
+    fun signingViewModel_isExtendSignaturesButtonShown_returnTrueWithSignedContainerNotNested() =
+        runTest {
+            val file = getResourceFileAsFile(context, "example.asice", R.raw.example)
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
+
+            val isExtendSignaturesButtonShown = viewModel.isExtendSignaturesButtonShown(container, false)
+
+            assertTrue(isExtendSignaturesButtonShown)
+        }
+
+    @Test
+    fun signingViewModel_isExtendSignaturesButtonShown_returnFalseWhenContainerIsNull() {
+        val isExtendSignaturesButtonShown = viewModel.isExtendSignaturesButtonShown(null, false)
+
+        assertFalse(isExtendSignaturesButtonShown)
+    }
+
+    @Test
+    fun signingViewModel_isExtendSignaturesButtonShown_returnFalseWhenContainerIsUnsigned() =
+        runTest {
+            val file =
+                getResourceFileAsFile(
+                    context,
+                    "example_no_signatures.asice",
+                    R.raw.example_no_signatures,
+                )
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
+
+            val isExtendSignaturesButtonShown = viewModel.isExtendSignaturesButtonShown(container, false)
+
+            assertFalse(isExtendSignaturesButtonShown)
+        }
+
+    @Test
+    fun signingViewModel_isExtendSignaturesButtonShown_returnFalseWhenContainerIsNested() =
+        runTest {
+            val file = getResourceFileAsFile(context, "example.asice", R.raw.example)
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
+
+            val isExtendSignaturesButtonShown = viewModel.isExtendSignaturesButtonShown(container, true)
+
+            assertFalse(isExtendSignaturesButtonShown)
         }
 }

@@ -234,6 +234,7 @@ class SharedSettingsViewModel
             dataStore.setSettingsUUID(DEFAULT_UUID_VALUE)
             dataStore.setSettingsTSAUrl(updatedConfiguration.value?.tsaUrl ?: "")
             setSettingsAskRoleAndAddress(false)
+            dataStore.setSettingsDefaultLTA(false)
             dataStore.setIsTsaCertificateViewVisible(false)
             val certFile =
                 FileUtil.getCertFile(context, dataStore.getTSACertName(), DIR_TSA_CERT)

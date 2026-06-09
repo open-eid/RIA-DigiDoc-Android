@@ -44,6 +44,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
+import ee.ria.DigiDoc.ui.component.settings.advanced.signingservices.LTAComponent
 import ee.ria.DigiDoc.ui.component.settings.advanced.signingservices.MobileIdAndSmartIdServicesComponent
 import ee.ria.DigiDoc.ui.component.settings.advanced.signingservices.TimestampServicesComponent
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
@@ -126,6 +127,14 @@ fun SigningServicesSettingsScreen(
                         stringResource(R.string.main_settings_mobile_id_and_smart_id_title),
                     ) {
                         MobileIdAndSmartIdServicesComponent(
+                            modifier,
+                            sharedSettingsViewModel = sharedSettingsViewModel,
+                        )
+                    },
+                    TabItem(
+                        stringResource(R.string.main_settings_default_lta_tab_title),
+                    ) {
+                        LTAComponent(
                             modifier,
                             sharedSettingsViewModel = sharedSettingsViewModel,
                         )

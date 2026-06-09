@@ -1286,6 +1286,7 @@ private fun handleBackButtonClick(
     } else {
         sharedContainerViewModel.resetSignedContainer()
         sharedContainerViewModel.resetCryptoContainer()
+        sharedContainerViewModel.resetContainerNotifications()
         sharedContainerViewModel.clearContainers()
         encryptViewModel.handleBackButton()
         if (!navController.popBackStack(Route.Home.route, inclusive = false)) {

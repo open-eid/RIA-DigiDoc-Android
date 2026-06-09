@@ -88,6 +88,23 @@ fun File.isCades(context: Context): Boolean {
     }
 }
 
+fun File.containsDdoc(): Boolean =
+    try {
+        ZipFile
+            .Builder()
+            .setFile(this)
+            .get()
+            .use { zip ->
+                zip.entries
+                    .asSequence()
+                    .filterNot { it.isDirectory }
+                    .any { File(it.name).extension.equals(DDOC_EXTENSION, ignoreCase = true) }
+            }
+    } catch (e: IOException) {
+        debugLog(FILE_EXTENSIONS_LOG_TAG, "File is not a container", e)
+        false
+    }
+
 fun File.mimeType(context: Context): String {
     val extension = extension.lowercase()
 
