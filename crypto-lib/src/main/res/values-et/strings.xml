@@ -7,4 +7,5 @@
     <string name="crypto_container_cert_type_mobile_id_type">Mobile-ID</string>
     <string name="crypto_container_cert_type_smart_id_type">Smart-ID</string>
     <string name="crypto_container_cert_type_e_seal_type">Krüpteerimissertifikaat</string>
+    <string name="crypto_recipient_type_password">Parool</string>
 </resources>

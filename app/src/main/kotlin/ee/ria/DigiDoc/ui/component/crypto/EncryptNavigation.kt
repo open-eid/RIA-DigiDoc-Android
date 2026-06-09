@@ -85,6 +85,7 @@ import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
 import ee.ria.DigiDoc.cryptolib.Addressee
+import ee.ria.DigiDoc.cryptolib.CertType
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.ui.component.crypto.bottombar.CryptoNextBottomBar
@@ -265,6 +266,8 @@ fun EncryptNavigation(
     val listState = rememberLazyListState()
 
     val showContainerCloseConfirmationDialog = rememberSaveable { mutableStateOf(false) }
+    val showDecryptPasswordDialog = rememberSaveable { mutableStateOf(false) }
+    var decryptPasswordKeyLabel by rememberSaveable { mutableStateOf("") }
 
     val showContainerBottomSheet = remember { mutableStateOf(false) }
     val showDataFileBottomSheet = remember { mutableStateOf(false) }
@@ -739,9 +742,18 @@ fun EncryptNavigation(
                                 onLeftActionButtonClick = {},
                                 onRightActionButtonClick = {
                                     if (encryptViewModel.isDecryptButtonShown(cryptoContainer, isNestedContainer)) {
-                                        showLoadingScreen.value = true
-                                        navController.navigate(Route.DecryptScreen.route)
-                                        showLoadingScreen.value = false
+                                        val passwordRecipient =
+                                            cryptoContainer
+                                                ?.recipients
+                                                ?.firstOrNull { it.certType == CertType.PasswordType }
+                                        if (passwordRecipient != null) {
+                                            decryptPasswordKeyLabel = passwordRecipient.identifier
+                                            showDecryptPasswordDialog.value = true
+                                        } else {
+                                            showLoadingScreen.value = true
+                                            navController.navigate(Route.DecryptScreen.route)
+                                            showLoadingScreen.value = false
+                                        }
                                     } else if (encryptViewModel.isEncryptButtonShown(
                                             cryptoContainer,
                                             isNestedContainer,
@@ -1009,6 +1021,15 @@ fun EncryptNavigation(
                         InvisibleElement(modifier = modifier)
                     }
                 }
+            }
+
+            if (showDecryptPasswordDialog.value) {
+                DecryptPasswordDialog(
+                    modifier = modifier,
+                    keyLabel = decryptPasswordKeyLabel,
+                    onDismiss = { showDecryptPasswordDialog.value = false },
+                    onDecrypt = { _ -> showDecryptPasswordDialog.value = false },
+                )
             }
 
             SivaConfirmationDialog(

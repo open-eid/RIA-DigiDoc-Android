@@ -35,6 +35,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,11 +71,14 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.addInvisibleElement
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun PrimaryTextField(
@@ -114,11 +118,16 @@ fun PrimaryTextField(
     val clearButtonText = stringResource(R.string.clear_text)
     val buttonName = stringResource(R.string.button_name)
 
-    Column(
-        modifier =
+    LaunchedEffect(errorText) {
+        if (errorText.isNotEmpty()) {
+            sendAccessibilityEvent(context, getAccessibilityEventType(), errorText)
+        }
+    }
+
+    Column(modifier = 
             modifier.semantics {
                 isTraversalGroup = true
-            },
+            }
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -136,11 +145,18 @@ fun PrimaryTextField(
                                 editingStarted = false
                             }
                         }.semantics {
-                            if (readDigitByDigit && value.text.isNotEmpty() && value.text.all { it.isDigit() }) {
-                                contentDescription = value.text.split("").joinToString(" ")
-                            } else if (isPasswordText) {
-                                contentDescription = ""
-                            }
+                            contentDescription =
+                                if (readDigitByDigit && value.text.isNotEmpty() && value.text.all { it.isDigit() }) {
+                                    value.text.split("").joinToString(" ")
+                                } else if (isPasswordText) {
+                                    ""
+                                } else {
+                                    if (description.isNotEmpty()) {
+                                        "$label, $description: ${value.text}"
+                                    } else {
+                                        "$label: ${value.text}"
+                                    }
+                                }
                             testTagsAsResourceId = true
                         }.then(if (testTag.isNotEmpty()) Modifier.testTag(testTag) else Modifier),
                 enabled = enabled,
@@ -207,7 +223,7 @@ fun PrimaryTextField(
                     scope.launch(Main) {
                         focusRequester.requestFocus()
                         focusManager.clearFocus()
-                        delay(200)
+                        delay(200.milliseconds)
                         focusRequester.requestFocus()
                     }
                 }) {
