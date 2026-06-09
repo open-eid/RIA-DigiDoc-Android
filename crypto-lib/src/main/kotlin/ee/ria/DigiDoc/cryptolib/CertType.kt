@@ -29,6 +29,7 @@ enum class CertType {
     MobileIDType,
     SmartIDType,
     ESealType,
+    PasswordType,
 }
 
 fun certType(policies: List<String>): CertType {

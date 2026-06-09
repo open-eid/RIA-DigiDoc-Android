@@ -38,5 +38,6 @@ object RecipientCertTypeUtil {
             CertType.MobileIDType -> context.getString(R.string.crypto_container_cert_type_mobile_id_type)
             CertType.SmartIDType -> context.getString(R.string.crypto_container_cert_type_smart_id_type)
             CertType.ESealType -> context.getString(R.string.crypto_container_cert_type_e_seal_type)
+            CertType.PasswordType -> context.getString(R.string.crypto_recipient_type_password)
         }
 }

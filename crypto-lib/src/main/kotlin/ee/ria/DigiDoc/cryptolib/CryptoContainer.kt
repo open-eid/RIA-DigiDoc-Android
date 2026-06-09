@@ -55,6 +55,7 @@ import ee.ria.cdoc.ILogger
 import ee.ria.cdoc.Lock
 import ee.ria.cdoc.NetworkBackend
 import ee.ria.cdoc.Recipient
+import ee.ria.cdoc.Recipient.parseLabel
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils

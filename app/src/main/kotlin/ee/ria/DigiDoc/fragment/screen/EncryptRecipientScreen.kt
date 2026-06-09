@@ -26,6 +26,7 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -48,6 +49,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -76,7 +78,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.cryptolib.Addressee
+import ee.ria.DigiDoc.domain.model.settings.CDOCSetting
+import ee.ria.DigiDoc.ui.component.crypto.EncryptPasswordDialog
 import ee.ria.DigiDoc.ui.component.crypto.bottombar.EncryptBottomBar
+import ee.ria.DigiDoc.ui.component.crypto.bottombar.EncryptButtonBottomBar
 import ee.ria.DigiDoc.ui.component.crypto.bottomsheet.RecipientBottomSheet
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
@@ -85,6 +90,7 @@ import ee.ria.DigiDoc.ui.component.shared.MessageDialog
 import ee.ria.DigiDoc.ui.component.shared.PreventResize
 import ee.ria.DigiDoc.ui.component.shared.Recipient
 import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
+import ee.ria.DigiDoc.ui.component.shared.TabView
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
@@ -101,6 +107,7 @@ import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utils.snackbar.SnackbarType
 import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator
 import ee.ria.DigiDoc.viewmodel.EncryptRecipientViewModel
+import ee.ria.DigiDoc.viewmodel.EncryptViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedRecipientViewModel
@@ -124,12 +131,11 @@ fun EncryptRecipientScreen(
 
     val scope = rememberCoroutineScope()
 
-    val focusManager = LocalFocusManager.current
-
     val cryptoContainer by sharedContainerViewModel.cryptoContainer.asFlow().collectAsState(null)
 
     val showLoading = remember { mutableStateOf(false) }
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
+    val showPasswordDialog = rememberSaveable { mutableStateOf(false) }
 
     val recipientAddedSuccess = remember { mutableStateOf(false) }
     val recipientAddedSuccessText = stringResource(id = R.string.crypto_recipients_recipient_add_success)
@@ -170,7 +176,19 @@ fun EncryptRecipientScreen(
         sendAccessibilityEvent(context, getAccessibilityEventType(), recipientRemovalCancelled)
     }
 
-    val listState = rememberLazyListState()
+    val encryptViewModel: EncryptViewModel =
+        hiltViewModel(
+            viewModelStoreOwner =
+                remember {
+                    navController.getBackStackEntry(Route.Encrypt.route)
+                },
+        )
+    val isCdoc2 = encryptViewModel.cdocSetting == CDOCSetting.CDOC2
+    var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
+
+    val tabRecipientTitle = stringResource(R.string.crypto_encrypt_tab_recipient)
+    val tabPasswordTitle = stringResource(R.string.crypto_encrypt_tab_password)
+
     var expanded by rememberSaveable { mutableStateOf(false) }
     val searchText by encryptRecipientViewModel.searchText.collectAsState()
     val recipientList by encryptRecipientViewModel.recipientList.collectAsState()
@@ -275,20 +293,31 @@ fun EncryptRecipientScreen(
         },
         bottomBar = {
             if (cryptoContainer != null) {
-                EncryptBottomBar(
-                    modifier = modifier,
-                    isEncryptButtonEnabled = encryptionButtonEnabled.value,
-                    onEncryptClick = {
-                        if (encryptionButtonEnabled.value) {
-                            encryptionButtonEnabled.value = false
-                            showLoading.value = true
-                            scope.launch(Main) {
-                                encryptRecipientViewModel.encryptContainer(sharedContainerViewModel)
-                                showLoading.value = false
+                if (isCdoc2 && selectedTabIndex == 1) {
+                    EncryptButtonBottomBar(
+                        modifier = modifier,
+                        encryptButtonIcon = R.drawable.ic_m3_arrow_forward_48dp_wght400,
+                        encryptButtonName = R.string.next_button,
+                        encryptButtonContentDescription = R.string.next_button,
+                        isEncryptButtonEnabled = true,
+                        onEncryptButtonClick = { showPasswordDialog.value = true },
+                    )
+                } else {
+                    EncryptBottomBar(
+                        modifier = modifier,
+                        isEncryptButtonEnabled = encryptionButtonEnabled.value,
+                        onEncryptClick = {
+                            if (encryptionButtonEnabled.value) {
+                                encryptionButtonEnabled.value = false
+                                showLoading.value = true
+                                scope.launch(Main) {
+                                    encryptRecipientViewModel.encryptContainer(sharedContainerViewModel)
+                                    showLoading.value = false
+                                }
                             }
-                        }
-                    },
-                )
+                        },
+                    )
+                }
             }
         },
     ) { paddingValues ->
@@ -297,268 +326,83 @@ fun EncryptRecipientScreen(
             isBottomSheetVisible = isSettingsMenuBottomSheetVisible,
         )
 
-        Column(
-            modifier =
-                modifier
-                    .padding(paddingValues)
-                    .fillMaxWidth(),
-            horizontalAlignment = Alignment.Start,
-        ) {
-            if (!expanded) {
-                Text(
-                    text = stringResource(id = R.string.crypto_container_recipients_title),
-                    maxLines = 2,
-                    modifier =
-                        modifier
-                            .fillMaxWidth()
-                            .padding(SPadding)
-                            .semantics { heading() }
-                            .focusable(enabled = true)
-                            .focusTarget()
-                            .focusProperties { canFocus = true },
-                    textAlign = TextAlign.Start,
-                    style = MaterialTheme.typography.headlineSmall,
-                )
-            }
-            val searchBarPadding =
-                if (!expanded) {
-                    SPadding
-                } else {
-                    zeroPadding
-                }
-            SearchBar(
-                modifier =
-                    modifier
-                        .padding(horizontal = searchBarPadding),
-                inputField = {
-                    SearchBarDefaults.InputField(
-                        modifier =
-                            modifier
-                                .fillMaxWidth()
-                                .wrapContentHeight(),
-                        query = searchText,
-                        onQueryChange = encryptRecipientViewModel::onSearchTextChange,
-                        onSearch = {
-                            if (searchText.isDigitsOnly() &&
-                                searchText.length == 11 &&
-                                !PersonalCodeValidator.isPersonalCodeValid(searchText)
-                            ) {
-                                showMessage(invalidPersonalCodeMessage)
-                                return@InputField
-                            }
-                            encryptRecipientViewModel.onQueryTextChange(searchText)
-                            focusManager.clearFocus()
-                        },
-                        expanded = expanded,
-                        enabled = true,
-                        placeholder = {
-                            PreventResize {
-                                Text(stringResource(id = R.string.crypto_recipients_search))
-                            }
-                        },
-                        leadingIcon = {
-                            Icon(
-                                modifier =
-                                    modifier
-                                        .size(iconSizeXXS),
-                                imageVector = ImageVector.vectorResource(R.drawable.ic_m3_search_48dp_wght400),
-                                contentDescription = null,
-                            )
-                        },
-                        trailingIcon = {
-                            if (expanded) {
-                                IconButton(
-                                    modifier =
-                                        modifier
-                                            .padding(end = XSPadding)
-                                            .size(iconSizeXXS)
-                                            .testTag("searchCancelButton"),
-                                    onClick = dismissSearch,
-                                    content = {
-                                        Icon(
-                                            imageVector =
-                                                ImageVector.vectorResource(
-                                                    R.drawable.ic_m3_close_48dp_wght400,
-                                                ),
-                                            contentDescription =
-                                                stringResource(
-                                                    id = R.string.crypto_recipients_search_cancel,
-                                                ),
+        if (isCdoc2) {
+            Column(
+                modifier = modifier.padding(paddingValues).fillMaxSize(),
+            ) {
+                TabView(
+                    modifier = modifier,
+                    testTag = "encryptRecipientTabView",
+                    selectedTabIndex = selectedTabIndex,
+                    onTabSelected = { index ->
+                        selectedTabIndex = index
+                        if (index != 0) expanded = false
+                    },
+                    tabItems =
+                        listOf(
+                            Pair(tabRecipientTitle) {
+                                RecipientTabContent(
+                                    modifier = Modifier.fillMaxSize(),
+                                    expanded = expanded,
+                                    onExpandedChange = { expanded = it },
+                                    searchText = searchText,
+                                    onSearchTextChange = encryptRecipientViewModel::onSearchTextChange,
+                                    invalidPersonalCodeMessage = invalidPersonalCodeMessage,
+                                    onSearch = { encryptRecipientViewModel.onQueryTextChange(it) },
+                                    onDismissSearch = dismissSearch,
+                                    recipientList = recipientList,
+                                    hasSearched = hasSearched,
+                                    containerRecipientList = containerRecipientList.value,
+                                    onAddRecipientToContainer = { recipient ->
+                                        encryptRecipientViewModel.addRecipientToContainer(
+                                            recipient,
+                                            sharedContainerViewModel,
                                         )
                                     },
+                                    onRecipientClick = { recipient ->
+                                        clickedRecipient.value = recipient
+                                        showRecipientBottomSheet.value = true
+                                    },
                                 )
-                            }
-                        },
-                        onExpandedChange = { expanded = it },
-                        colors = inputFieldColors(),
-                        interactionSource = null,
-                    )
-                },
+                            },
+                            Pair(tabPasswordTitle) {
+                                PasswordTabContent(modifier = Modifier.fillMaxSize())
+                            },
+                        ),
+                )
+            }
+        } else {
+            RecipientTabContent(
+                modifier = Modifier.padding(paddingValues).fillMaxWidth(),
                 expanded = expanded,
                 onExpandedChange = { expanded = it },
-            ) {
-                LazyColumn(
-                    state = listState,
-                    modifier = modifier.testTag("lazyColumnScrollView"),
-                ) {
-                    if (recipientList.isNotEmpty()) {
-                        item {
-                            HorizontalDivider(
-                                modifier =
-                                    modifier
-                                        .fillMaxWidth()
-                                        .padding(SPadding)
-                                        .height(dividerHeight),
-                            )
-                        }
-                        items(recipientList) { recipient ->
-                            Recipient(
-                                recipient = recipient,
-                                isMoreOptionsButtonShown = false,
-                                onClick = {
-                                    encryptRecipientViewModel.addRecipientToContainer(
-                                        recipient,
-                                        sharedContainerViewModel,
-                                    )
-                                },
-                            )
-                            HorizontalDivider(
-                                modifier =
-                                    modifier
-                                        .fillMaxWidth()
-                                        .padding(SPadding)
-                                        .height(dividerHeight),
-                            )
-                        }
-                    } else if (hasSearched) {
-                        item {
-                            Box(
-                                modifier =
-                                    modifier
-                                        .fillParentMaxSize()
-                                        .padding(SPadding),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Text(
-                                    modifier =
-                                        modifier
-                                            .testTag("encryptRecipientsListEmpty"),
-                                    textAlign = TextAlign.Center,
-                                    text = stringResource(id = R.string.crypto_recipients_search_empty),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                )
-                            }
-                        }
-                    }
-                    if (containerRecipientList.value.isNotEmpty()) {
-                        item {
-                            Text(
-                                modifier =
-                                    modifier
-                                        .padding(horizontal = SPadding)
-                                        .padding(top = SPadding)
-                                        .semantics {
-                                            heading()
-                                            testTagsAsResourceId = true
-                                        }.testTag("encryptRecentlyAddedRecipientsListTitle"),
-                                text = stringResource(R.string.crypto_container_latest_recipients_title),
-                                style = MaterialTheme.typography.bodyMedium,
-                                textAlign = TextAlign.Start,
-                            )
-                        }
-                        items(containerRecipientList.value) { recipient ->
-                            Recipient(
-                                recipient = recipient,
-                                isMoreOptionsButtonShown = true,
-                                onClick = {
-                                    clickedRecipient.value = recipient
-                                    showRecipientBottomSheet.value = true
-                                },
-                            )
-                            HorizontalDivider(
-                                modifier =
-                                    modifier
-                                        .fillMaxWidth()
-                                        .padding(SPadding)
-                                        .height(dividerHeight),
-                            )
-                        }
-                    }
+                searchText = searchText,
+                onSearchTextChange = encryptRecipientViewModel::onSearchTextChange,
+                invalidPersonalCodeMessage = invalidPersonalCodeMessage,
+                onSearch = { encryptRecipientViewModel.onQueryTextChange(it) },
+                onDismissSearch = dismissSearch,
+                recipientList = recipientList,
+                hasSearched = hasSearched,
+                containerRecipientList = containerRecipientList.value,
+                onAddRecipientToContainer = { recipient ->
+                    encryptRecipientViewModel.addRecipientToContainer(
+                        recipient,
+                        sharedContainerViewModel,
+                    )
+                },
+                onRecipientClick = { recipient ->
+                    clickedRecipient.value = recipient
+                    showRecipientBottomSheet.value = true
+                },
+            )
+        }
 
-                    item {
-                        Spacer(
-                            modifier = modifier.height(invisibleElementHeight),
-                        )
-                        if (listState.reachedBottom()) {
-                            InvisibleElement(modifier = modifier)
-                        }
-                    }
-                }
-            }
-            if (!expanded) {
-                LazyColumn(
-                    state = listState,
-                    modifier = modifier.testTag("lazyColumnScrollView"),
-                ) {
-                    item {
-                        Text(
-                            modifier =
-                                modifier
-                                    .padding(horizontal = SPadding)
-                                    .padding(top = SPadding)
-                                    .semantics {
-                                        heading()
-                                        testTagsAsResourceId = true
-                                    }.testTag("encryptRecipientsDescription"),
-                            text = stringResource(R.string.crypto_recipients_description),
-                            textAlign = TextAlign.Start,
-                        )
-                    }
-                    if (containerRecipientList.value.isNotEmpty()) {
-                        item {
-                            Text(
-                                modifier =
-                                    modifier
-                                        .padding(horizontal = SPadding)
-                                        .padding(top = SPadding)
-                                        .semantics {
-                                            heading()
-                                            testTagsAsResourceId = true
-                                        }.testTag("encryptRecipientsListTitle"),
-                                text = stringResource(R.string.crypto_container_added_recipients_title),
-                                style = MaterialTheme.typography.bodyMedium,
-                                textAlign = TextAlign.Start,
-                            )
-                        }
-                        items(containerRecipientList.value) { recipient ->
-                            Recipient(
-                                recipient = recipient,
-                                onClick = {
-                                    clickedRecipient.value = recipient
-                                    showRecipientBottomSheet.value = true
-                                },
-                            )
-                            HorizontalDivider(
-                                modifier =
-                                    modifier
-                                        .fillMaxWidth()
-                                        .padding(SPadding)
-                                        .height(dividerHeight),
-                            )
-                        }
-
-                        item {
-                            Spacer(
-                                modifier = modifier.height(invisibleElementHeight),
-                            )
-                            if (listState.reachedBottom()) {
-                                InvisibleElement(modifier = modifier)
-                            }
-                        }
-                    }
-                }
-            }
+        if (showPasswordDialog.value) {
+            EncryptPasswordDialog(
+                modifier = modifier,
+                onDismiss = { showPasswordDialog.value = false },
+                onEncrypt = { _, _ -> showPasswordDialog.value = false },
+            )
         }
 
         if (openRemoveRecipientDialog.value) {
@@ -588,7 +432,7 @@ fun EncryptRecipientScreen(
             )
         }
 
-        if (showLoading.value == true) {
+        if (showLoading.value) {
             LoadingScreen(modifier = modifier)
         }
 
@@ -603,6 +447,273 @@ fun EncryptRecipientScreen(
             onRecipientRemove = { actionRecipient = it },
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@Composable
+private fun RecipientTabContent(
+    modifier: Modifier = Modifier,
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    searchText: String,
+    onSearchTextChange: (String) -> Unit,
+    invalidPersonalCodeMessage: String,
+    onSearch: (String) -> Unit,
+    onDismissSearch: () -> Unit,
+    recipientList: List<Addressee>,
+    hasSearched: Boolean,
+    containerRecipientList: List<Addressee>,
+    onAddRecipientToContainer: (Addressee) -> Unit,
+    onRecipientClick: (Addressee) -> Unit,
+) {
+    val focusManager = LocalFocusManager.current
+    val searchListState = rememberLazyListState()
+    val mainListState = rememberLazyListState()
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.Start,
+    ) {
+        if (!expanded) {
+            Text(
+                text = stringResource(id = R.string.crypto_container_recipients_title),
+                maxLines = 2,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(SPadding)
+                        .semantics { heading() }
+                        .focusable(enabled = true)
+                        .focusTarget()
+                        .focusProperties { canFocus = true },
+                textAlign = TextAlign.Start,
+                style = MaterialTheme.typography.headlineSmall,
+            )
+        }
+        val searchBarPadding = if (!expanded) SPadding else zeroPadding
+        SearchBar(
+            modifier = Modifier.padding(horizontal = searchBarPadding),
+            inputField = {
+                SearchBarDefaults.InputField(
+                    modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+                    query = searchText,
+                    onQueryChange = onSearchTextChange,
+                    onSearch = {
+                        if (searchText.isDigitsOnly() &&
+                            searchText.length == 11 &&
+                            !PersonalCodeValidator.isPersonalCodeValid(searchText)
+                        ) {
+                            showMessage(invalidPersonalCodeMessage)
+                            return@InputField
+                        }
+                        onSearch(searchText)
+                        focusManager.clearFocus()
+                    },
+                    expanded = expanded,
+                    enabled = true,
+                    placeholder = {
+                        PreventResize {
+                            Text(stringResource(id = R.string.crypto_recipients_search))
+                        }
+                    },
+                    leadingIcon = {
+                        Icon(
+                            modifier = Modifier.size(iconSizeXXS),
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_m3_search_48dp_wght400),
+                            contentDescription = null,
+                        )
+                    },
+                    trailingIcon = {
+                        if (expanded) {
+                            IconButton(
+                                modifier =
+                                    Modifier
+                                        .padding(end = XSPadding)
+                                        .size(iconSizeXXS)
+                                        .testTag("searchCancelButton"),
+                                onClick = onDismissSearch,
+                                content = {
+                                    Icon(
+                                        imageVector = ImageVector.vectorResource(R.drawable.ic_m3_close_48dp_wght400),
+                                        contentDescription =
+                                            stringResource(
+                                                id = R.string.crypto_recipients_search_cancel,
+                                            ),
+                                    )
+                                },
+                            )
+                        }
+                    },
+                    onExpandedChange = onExpandedChange,
+                    colors = inputFieldColors(),
+                    interactionSource = null,
+                )
+            },
+            expanded = expanded,
+            onExpandedChange = onExpandedChange,
+        ) {
+            LazyColumn(
+                state = searchListState,
+                modifier = Modifier.testTag("lazyColumnScrollView"),
+            ) {
+                if (recipientList.isNotEmpty()) {
+                    item {
+                        HorizontalDivider(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(SPadding)
+                                    .height(dividerHeight),
+                        )
+                    }
+                    items(recipientList) { recipient ->
+                        RecipientItem(
+                            recipient = recipient,
+                            isMoreOptionsButtonShown = false,
+                            onClick = { onAddRecipientToContainer(it) },
+                        )
+                    }
+                } else if (hasSearched) {
+                    item {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillParentMaxSize()
+                                    .padding(SPadding),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                modifier = Modifier.testTag("encryptRecipientsListEmpty"),
+                                textAlign = TextAlign.Center,
+                                text = stringResource(id = R.string.crypto_recipients_search_empty),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                        }
+                    }
+                }
+                if (containerRecipientList.isNotEmpty()) {
+                    item {
+                        Text(
+                            modifier =
+                                Modifier
+                                    .padding(horizontal = SPadding)
+                                    .padding(top = SPadding)
+                                    .semantics {
+                                        heading()
+                                        testTagsAsResourceId = true
+                                    }.testTag("encryptRecentlyAddedRecipientsListTitle"),
+                            text = stringResource(R.string.crypto_container_latest_recipients_title),
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Start,
+                        )
+                    }
+                    items(containerRecipientList) { recipient ->
+                        RecipientItem(
+                            recipient = recipient,
+                            onClick = { onRecipientClick(it) },
+                        )
+                    }
+                }
+                item {
+                    Spacer(modifier = Modifier.height(invisibleElementHeight))
+                    if (searchListState.reachedBottom()) {
+                        InvisibleElement(modifier = Modifier)
+                    }
+                }
+            }
+        }
+        if (!expanded) {
+            LazyColumn(
+                state = mainListState,
+                modifier = Modifier.testTag("lazyColumnScrollView"),
+            ) {
+                item {
+                    Text(
+                        modifier =
+                            Modifier
+                                .padding(horizontal = SPadding)
+                                .padding(top = SPadding)
+                                .semantics {
+                                    heading()
+                                    testTagsAsResourceId = true
+                                }.testTag("encryptRecipientsDescription"),
+                        text = stringResource(R.string.crypto_recipients_description),
+                        textAlign = TextAlign.Start,
+                    )
+                }
+                if (containerRecipientList.isNotEmpty()) {
+                    item {
+                        Text(
+                            modifier =
+                                Modifier
+                                    .padding(horizontal = SPadding)
+                                    .padding(top = SPadding)
+                                    .semantics {
+                                        heading()
+                                        testTagsAsResourceId = true
+                                    }.testTag("encryptRecipientsListTitle"),
+                            text = stringResource(R.string.crypto_container_added_recipients_title),
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Start,
+                        )
+                    }
+                    items(containerRecipientList) { recipient ->
+                        RecipientItem(
+                            recipient = recipient,
+                            onClick = { onRecipientClick(it) },
+                        )
+                    }
+                    item {
+                        Spacer(modifier = Modifier.height(invisibleElementHeight))
+                        if (mainListState.reachedBottom()) {
+                            InvisibleElement(modifier = Modifier)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PasswordTabContent(modifier: Modifier = Modifier) {
+    LazyColumn(modifier = modifier) {
+        item {
+            Text(
+                modifier =
+                    Modifier
+                        .padding(horizontal = SPadding)
+                        .padding(top = SPadding)
+                        .semantics {
+                            heading()
+                            testTagsAsResourceId = true
+                        }.testTag("encryptPasswordDescription"),
+                text = stringResource(R.string.crypto_password_encryption_description),
+                textAlign = TextAlign.Start,
+            )
+        }
+    }
+}
+
+@Composable
+private fun RecipientItem(
+    recipient: Addressee,
+    isMoreOptionsButtonShown: Boolean = true,
+    onClick: (Addressee) -> Unit = {},
+) {
+    Recipient(
+        recipient = recipient,
+        isMoreOptionsButtonShown = isMoreOptionsButtonShown,
+        onClick = onClick,
+    )
+    HorizontalDivider(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(SPadding)
+                .height(dividerHeight),
+    )
 }
 
 @Preview(showBackground = true)

@@ -49,6 +49,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
@@ -99,7 +100,7 @@ fun CryptoDataFilesLocked(modifier: Modifier = Modifier) {
 
             Spacer(modifier = modifier.width(SPadding))
 
-            Column(modifier = modifier.weight(1f)) {
+            Column(modifier = modifier.weight(1f).padding(bottom = MSPadding)) {
                 Text(
                     modifier =
                         modifier

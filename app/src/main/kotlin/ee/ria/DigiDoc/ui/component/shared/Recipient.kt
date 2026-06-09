@@ -85,28 +85,27 @@ fun Recipient(
     val recipientText = stringResource(id = R.string.crypto_recipient_title)
     val buttonName = stringResource(id = R.string.button_name)
 
+    val isPasswordRecipient = recipient.certType == CertType.PasswordType
     val nameText =
-        if (PersonalCodeValidator.isPersonalCodeValid(recipient.identifier)) {
-            formatName(recipient.surname, recipient.givenName, recipient.identifier)
-        } else {
-            formatCompanyName(recipient.identifier, recipient.serialNumber)
+        when {
+            isPasswordRecipient -> recipient.identifier
+            PersonalCodeValidator.isPersonalCodeValid(recipient.identifier) ->
+                formatName(recipient.surname, recipient.givenName, recipient.identifier)
+            else -> formatCompanyName(recipient.identifier, recipient.serialNumber)
         }
-    val certTypeText = getRecipientCertTypeText(LocalContext.current, recipient.certType)
+    val certTypeText = getRecipientCertTypeText(context, recipient.certType)
     val certValidTo =
-        recipient.validTo
-            ?.let {
-                dateFormat.format(
-                    it,
-                )
-            }?.let {
-                stringResource(
-                    R.string.crypto_cert_valid_to,
-                    it,
-                )
-            } ?: ""
+        if (isPasswordRecipient) {
+            ""
+        } else {
+            recipient.validTo
+                ?.let { dateFormat.format(it) }
+                ?.let { stringResource(R.string.crypto_cert_valid_to, it) }
+                ?: ""
+        }
 
     val iconRes =
-        if (recipient.surname.isNullOrEmpty() && recipient.givenName.isNullOrEmpty()) {
+        if (isPasswordRecipient || (recipient.surname.isNullOrEmpty() && recipient.givenName.isNullOrEmpty())) {
             R.drawable.ic_m3_domain_48dp_wght400
         } else {
             R.drawable.ic_m3_encrypted_48dp_wght400

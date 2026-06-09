@@ -34,6 +34,8 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.CDOC1_EXTENSION
 import ee.ria.DigiDoc.cryptolib.CDOC2Settings
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
+import ee.ria.DigiDoc.domain.model.settings.CDOCSetting
+import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
@@ -57,8 +59,11 @@ class EncryptViewModel
         private val contentResolver: ContentResolver,
         private val fileOpeningRepository: FileOpeningRepository,
         private val cdoc2Settings: CDOC2Settings,
+        private val dataStore: DataStore,
     ) : ViewModel() {
         private val logTag = javaClass.simpleName
+
+        val cdocSetting: CDOCSetting = dataStore.getCdocSetting(false)
 
         private val _shouldResetCryptoContainer = MutableLiveData(false)
         val shouldResetCryptoContainer: LiveData<Boolean?> = _shouldResetCryptoContainer
