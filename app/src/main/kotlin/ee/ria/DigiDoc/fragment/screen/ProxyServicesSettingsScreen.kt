@@ -157,6 +157,17 @@ fun ProxyServicesSettingsScreen(
 
     val isValidPortNumber = sharedSettingsViewModel.dataStore::isValidPortNumber
 
+    val saveManualProxySettings = {
+        sharedSettingsViewModel.saveProxySettings(
+            ManualProxy(
+                host = proxyHost.text,
+                port = proxyPort.text.toIntOrNull() ?: 80,
+                username = proxyUsername.text,
+                password = proxyPassword.text,
+            ),
+        )
+    }
+
     val proxyPortErrorText =
         if (proxyPort.text.isNotEmpty()) {
             if (!isValidPortNumber(proxyPort.text)) {
@@ -401,6 +412,7 @@ fun ProxyServicesSettingsScreen(
                             onValueChange = {
                                 proxyHost = it
                                 setProxyHost(it.text)
+                                saveManualProxySettings()
                             },
                             singleLine = true,
                             label = stringResource(R.string.main_settings_proxy_host),
@@ -428,6 +440,7 @@ fun ProxyServicesSettingsScreen(
                                 if (isValidPortNumber(it.text)) {
                                     setProxyPort(it.text.toInt())
                                 }
+                                saveManualProxySettings()
                             },
                             singleLine = true,
                             label = stringResource(R.string.main_settings_proxy_port),
@@ -455,6 +468,7 @@ fun ProxyServicesSettingsScreen(
                             onValueChange = {
                                 proxyUsername = it
                                 setProxyUsername(it.text)
+                                saveManualProxySettings()
                             },
                             singleLine = true,
                             label = stringResource(R.string.main_settings_proxy_username),
@@ -480,6 +494,7 @@ fun ProxyServicesSettingsScreen(
                             onValueChange = {
                                 proxyPassword = it
                                 setProxyPassword(it.text)
+                                saveManualProxySettings()
                             },
                             singleLine = true,
                             label = stringResource(R.string.main_settings_proxy_password),

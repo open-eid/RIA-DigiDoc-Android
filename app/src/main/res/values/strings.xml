@@ -37,6 +37,14 @@
     <string name="signed_container_title">Signed container</string>
     <string name="documents_add_button">Add more files</string>
     <string name="container_save">Save container</string>
+    <string name="extend_signatures">Extend signatures</string>
+    <string name="extend_button">Extend</string>
+    <string name="extend_signatures_confirm_message">All signatures in the container will be extended to LTA format.</string>
+    <string name="extend_signatures_success">Signature(s) extended successfully</string>
+    <string name="extend_signatures_error">Failed to extend signature(s)</string>
+    <string name="extend_signatures_wrapped_title">Container validity cannot be extended</string>
+    <string name="extend_signatures_wrapped_message">Failed to extend signatures and wrapped to timestamped container.</string>
+    <string name="signature_valid_until">Archive timestamp valid until: %1$s</string>
     <string name="save">Save</string>
     <string name="container_has">Container has</string>
     <string name="more_options">More options</string>
@@ -365,7 +373,6 @@
     <string name="sign_button">Sign</string>
     <string name="next_button">Next</string>
     <string name="add_signature_button">Add new signature</string>
-    <string name="extend_signature_button">Extend signature validity</string>
     <string name="share_button">Share</string>
     <string name="share_button_accessibility">Share container</string>
     <string name="yes_button">YES</string>
@@ -460,6 +467,9 @@
     <string name="ocsp_time_label">OCSP time:</string>
     <string name="ocsp_time_utc_label">OCSP time (UTC):</string>
     <string name="signers_mobile_time_label">Signer\'s mobile time:</string>
+    <string name="archive_timestamp_label">Archive Timestamp:</string>
+    <string name="archive_ts_certificate_issuer_label">Archive TS Certificate issuer:</string>
+    <string name="archive_ts_certificate_label">Archive TS Certificate:</string>
 
     <!-- Certificate Details -->
     <string name="certificate_details_title">Certificate details</string>
@@ -590,7 +600,10 @@
     <string name="main_settings_crypto_services_title">Encryption settings</string>
     <string name="main_settings_timestamp_services_title">Time-Stamping service</string>
     <string name="main_settings_mobile_id_and_smart_id_title">Mobile-ID and Smart-ID</string>
+    <string name="main_settings_default_lta_tab_title">Long Term Archival (LTA)</string>
     <string name="main_settings_ask_role_and_address_title">Ask role and address info on signing</string>
+    <string name="main_settings_default_lta_disabled">Do not use Long Term Archival (LTA) format when signing</string>
+    <string name="main_settings_default_lta_enabled">Use Long Term Archival (LTA) format when signing</string>
     <string name="main_settings_role_title">Role / resolution</string>
     <string name="main_settings_city_title">City</string>
     <string name="main_settings_county_title">State</string>

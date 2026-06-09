@@ -50,6 +50,7 @@ fun SignerDetails(
     ocspIssuerName: String,
     tsSubjectName: String,
     ocspSubjectName: String,
+    archiveTimestampCertInfo: List<ArchiveTimestampCertInfo>,
     sharedContainerViewModel: SharedContainerViewModel,
     sharedCertificateViewModel: SharedCertificateViewModel,
     navController: NavController,
@@ -73,6 +74,7 @@ fun SignerDetails(
                 ocspIssuerName = ocspIssuerName,
                 tsSubjectName = tsSubjectName,
                 ocspSubjectName = ocspSubjectName,
+                archiveTimestampCertInfo = archiveTimestampCertInfo,
                 sharedContainerViewModel = sharedContainerViewModel,
             ).forEach { navigationItem ->
                 if (!navigationItem.value.isNullOrEmpty()) {

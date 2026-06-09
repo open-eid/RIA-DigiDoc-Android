@@ -176,6 +176,7 @@ class SharedSettingsViewModelTest {
         assertEquals(DEFAULT_UUID_VALUE, dataStore.getSettingsUUID())
         assertEquals("", dataStore.getSettingsTSAUrl())
         assertFalse(dataStore.getSettingsAskRoleAndAddress())
+        assertFalse(dataStore.getSettingsDefaultLTA())
         assertFalse(dataStore.getIsTsaCertificateViewVisible())
 
         assertEquals("", dataStore.getTSACertName())
@@ -195,6 +196,15 @@ class SharedSettingsViewModelTest {
         assertEquals(80, dataStore.getProxyPort())
         assertEquals("", dataStore.getProxyUsername())
         assertEquals("", dataStore.getProxyPassword())
+    }
+
+    @Test
+    fun sharedSettingsViewModel_resetToDefaultSettings_resetsDefaultLTAToFalse() {
+        dataStore.setSettingsDefaultLTA(true)
+
+        viewModel.resetToDefaultSettings()
+
+        assertFalse(dataStore.getSettingsDefaultLTA())
     }
 
     @Test

@@ -40,8 +40,10 @@ fun ContainerBottomSheet(
     isEditContainerButtonShown: Boolean = true,
     openEditContainerNameDialog: MutableState<Boolean>,
     isEncryptButtonShown: Boolean = true,
+    isExtendSignaturesButtonShown: Boolean = true,
     signedContainer: SignedContainer?,
     onEncryptClick: () -> Unit,
+    onExtendSignaturesClick: () -> Unit,
     saveFileLauncher: ActivityResultLauncher<Intent>,
     saveFile: (File, String?, ActivityResultLauncher<Intent>) -> Unit,
 ) {
@@ -90,6 +92,16 @@ fun ContainerBottomSheet(
                     )} ${signedContainer?.getName() ?: ""} $buttonName",
                     isExtraActionButtonShown = true,
                     onClick = onEncryptClick,
+                ),
+                BottomSheetButton(
+                    showButton = isExtendSignaturesButtonShown,
+                    icon = R.drawable.ic_m3_more_time_48dp_wght400,
+                    text = stringResource(R.string.extend_signatures),
+                    contentDescription = "${stringResource(
+                        R.string.extend_signatures,
+                    )} ${signedContainer?.getName() ?: ""} $buttonName",
+                    isExtraActionButtonShown = false,
+                    onClick = onExtendSignaturesClick,
                 ),
             ),
     )

@@ -31,6 +31,7 @@ object Constant {
 
     object SignatureRequest {
         const val SIGNATURE_PROFILE_TS = "time-stamp"
+        const val SIGNATURE_PROFILE_TSA = "time-stamp-archive"
         private const val ESTONIAN_PHONE_CODE = "372"
         const val PLUS_PREFIXED_ESTONIAN_PHONE_CODE = "+$ESTONIAN_PHONE_CODE"
         const val FIRST_NUMBER_IN_ESTONIAN_MOBILE_NUMBER = "5"
@@ -150,7 +151,8 @@ object Constant {
 
     const val CONTAINER_MIME_TYPE = "application/octet-stream"
     const val DEFAULT_MIME_TYPE = "text/plain"
-    private val ASICS_CONTAINER_EXTENSIONS: Set<String> = setOf("asics", "scs")
+    const val ASICS_EXTENSION = "asics"
+    private val ASICS_CONTAINER_EXTENSIONS: Set<String> = setOf(ASICS_EXTENSION, "scs")
 
     const val DDOC_EXTENSION = "ddoc"
     const val PDF_EXTENSION = "pdf"

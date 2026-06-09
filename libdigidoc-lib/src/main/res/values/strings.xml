@@ -7,6 +7,6 @@
     <string name="signing_container_signature_status_non_qscd">(Restrictions)</string>
     <string name="signing_container_signature_status_invalid">Signature is invalid</string>
     <string name="signing_container_signature_status_unknown">Signature is unknown</string>
-    <string name="signing_container_timestamp_status_invalid">Timestamp is not valid</string>
+    <string name="signing_container_timestamp_status_invalid">Timestamp is invalid</string>
     <string name="signing_container_timestamp_status_unknown">Timestamp is unknown</string>
 </resources>

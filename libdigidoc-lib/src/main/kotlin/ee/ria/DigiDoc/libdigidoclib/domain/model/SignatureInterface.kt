@@ -22,6 +22,7 @@
 package ee.ria.DigiDoc.libdigidoclib.domain.model
 
 import java.io.Serializable
+import java.util.Date
 
 interface SignatureInterface : Serializable {
     val id: String
@@ -51,4 +52,6 @@ interface SignatureInterface : Serializable {
     val isDigitalSeal: Boolean
 
     val validator: ValidatorInterface
+    val validUntil: Date? get() = null
+    val archiveTimeStamps: List<ArchiveTimestamp> get() = emptyList()
 }

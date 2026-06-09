@@ -142,6 +142,13 @@ fun SignerDetailsView(
         certificateDetailViewModel.getSubjectCommonName(
             signature?.timeStampCertificateDer?.x509Certificate(),
         )
+    val archiveTimestampCertInfo =
+        (signature?.archiveTimeStamps ?: emptyList()).map { ts ->
+            ArchiveTimestampCertInfo(
+                issuer = certificateDetailViewModel.getIssuerCommonName(ts.certificate),
+                subject = certificateDetailViewModel.getSubjectCommonName(ts.certificate),
+            )
+        }
     val ocspSubjectName =
         certificateDetailViewModel.getSubjectCommonName(
             signature?.ocspCertificateDer?.x509Certificate(),
@@ -282,6 +289,9 @@ fun SignerDetailsView(
                                         .padding(vertical = SBorder)
                                         .focusable(false)
                                         .notAccessible(),
+                                validUntil = if (!isTimestamp) signature.validUntil else null,
+                                isSignatureExtended =
+                                    !isTimestamp && signature.archiveTimeStampCertificateDer.isNotEmpty(),
                             )
                         }
                     }
@@ -344,6 +354,7 @@ fun SignerDetailsView(
                                     ocspIssuerName = ocspIssuerName,
                                     tsSubjectName = tsSubjectName,
                                     ocspSubjectName = ocspSubjectName,
+                                    archiveTimestampCertInfo = archiveTimestampCertInfo,
                                     sharedContainerViewModel = sharedContainerViewModel,
                                     sharedCertificateViewModel = sharedCertificateViewModel,
                                     navController = navController,

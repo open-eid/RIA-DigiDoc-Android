@@ -310,6 +310,32 @@ class DataStoreTest {
     }
 
     @Test
+    fun dataStore_getSettingsDefaultLTA_returnFalseByDefault() {
+        val result = dataStore.getSettingsDefaultLTA()
+
+        assertFalse(result)
+    }
+
+    @Test
+    fun dataStore_setSettingsDefaultLTA_returnTrueWhenEnabled() {
+        dataStore.setSettingsDefaultLTA(true)
+
+        val result = dataStore.getSettingsDefaultLTA()
+
+        assertTrue(result)
+    }
+
+    @Test
+    fun dataStore_setSettingsDefaultLTA_returnFalseWhenDisabled() {
+        dataStore.setSettingsDefaultLTA(true)
+        dataStore.setSettingsDefaultLTA(false)
+
+        val result = dataStore.getSettingsDefaultLTA()
+
+        assertFalse(result)
+    }
+
+    @Test
     fun dataStore_getSettingsAllowScreenshots_success() {
         val result = dataStore.getSettingsAllowScreenshots()
 

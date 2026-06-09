@@ -34,6 +34,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.UNSIGNABLE_CONTAINER_EXTENSIONS
 import ee.ria.DigiDoc.common.Constant.UNSIGNABLE_CONTAINER_MIMETYPES
+import ee.ria.DigiDoc.common.exception.NoInternetConnectionException
 import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
@@ -41,10 +42,14 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureInterface
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
+import ee.ria.DigiDoc.utilsLib.extensions.containsDdoc
+import ee.ria.DigiDoc.utilsLib.extensions.isCades
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -53,6 +58,22 @@ import org.apache.commons.io.FilenameUtils
 import java.io.File
 import java.util.Locale
 import javax.inject.Inject
+
+sealed interface ExtendSignaturesResult {
+    data class ExtendedInPlace(
+        val signatures: List<SignatureInterface>,
+    ) : ExtendSignaturesResult
+
+    data class Wrapped(
+        val signatures: List<SignatureInterface>,
+        val file: File?,
+        val needsSiva: Boolean,
+    ) : ExtendSignaturesResult
+
+    data object NoInternet : ExtendSignaturesResult
+
+    data object Error : ExtendSignaturesResult
+}
 
 @HiltViewModel
 class SigningViewModel
@@ -72,7 +93,7 @@ class SigningViewModel
         val hasEmptyFiles: StateFlow<Boolean> = _hasEmptyFiles
 
         fun handleBackButton() {
-            _shouldResetSignedContainer.postValue(true)
+            _shouldResetSignedContainer.value = true
         }
 
         fun isExistingContainerNoSignatures(signedContainer: SignedContainer?): Boolean =
@@ -135,6 +156,11 @@ class SigningViewModel
             signedContainer: SignedContainer?,
             isNestedContainer: Boolean,
         ): Boolean = signedContainer?.isSigned() == false && !isNestedContainer
+
+        fun isExtendSignaturesButtonShown(
+            signedContainer: SignedContainer?,
+            isNestedContainer: Boolean,
+        ): Boolean = signedContainer?.isSigned() == true && !isNestedContainer
 
         fun isRoleEmpty(signature: SignatureInterface): Boolean =
             signature.signerRoles.isEmpty() &&
@@ -202,6 +228,7 @@ class SigningViewModel
             nestedFile: File?,
             sharedContainerViewModel: SharedContainerViewModel,
             isSivaConfirmed: Boolean,
+            overwriteContainer: Boolean = false,
         ) {
             if (nestedFile != null) {
                 val nestedContainer =
@@ -215,9 +242,9 @@ class SigningViewModel
                 if (ASICS_MIMETYPE == nestedFile.mimeType(context)) {
                     val timestampedNestedContainer =
                         getTimestampedContainer(context, nestedContainer, isSivaConfirmed)
-                    sharedContainerViewModel.setSignedContainer(timestampedNestedContainer)
+                    sharedContainerViewModel.setSignedContainer(timestampedNestedContainer, overwriteContainer)
                 } else {
-                    sharedContainerViewModel.setSignedContainer(nestedContainer)
+                    sharedContainerViewModel.setSignedContainer(nestedContainer, overwriteContainer)
                 }
             }
         }
@@ -251,6 +278,39 @@ class SigningViewModel
         suspend fun isTimestampedContainer(signedContainer: SignedContainer): Boolean =
             sivaRepository.isTimestampedContainer(signedContainer) &&
                 !signedContainer.isXades()
+
+        suspend fun extendSignatures(
+            context: Context,
+            signedContainer: SignedContainer,
+            sharedContainerViewModel: SharedContainerViewModel,
+        ): ExtendSignaturesResult =
+            withContext(IO) {
+                try {
+                    debugLog(logTag, "Extending signatures of '${signedContainer.getName()}' to LTA")
+                    val extended = signedContainer.extendSignatures()
+                    val isWrapped = extended !== signedContainer
+                    if (isWrapped) {
+                        withContext(Main) {
+                            sharedContainerViewModel.setSignedContainer(extended, overwriteContainer = true)
+                        }
+                    }
+                    val signatures = extended.getSignatures()
+                    if (!isWrapped) {
+                        debugLog(logTag, "Extended ${signatures.size} signature(s) in place")
+                        return@withContext ExtendSignaturesResult.ExtendedInPlace(signatures)
+                    }
+                    val file = extended.getContainerFile()
+                    val needsSiva = file != null && (file.containsDdoc() || file.isCades(context))
+                    debugLog(logTag, "Wrapped into a new timestamped container '${file?.name}', with SiVa: $needsSiva")
+                    ExtendSignaturesResult.Wrapped(signatures, file, needsSiva)
+                } catch (e: NoInternetConnectionException) {
+                    errorLog(logTag, "No internet connection while extending signatures", e)
+                    ExtendSignaturesResult.NoInternet
+                } catch (e: Exception) {
+                    errorLog(logTag, "Failed to extend signatures: ${signedContainer.getName()}", e)
+                    ExtendSignaturesResult.Error
+                }
+            }
 
         suspend fun createContainerForSignedPDF(
             context: Context,

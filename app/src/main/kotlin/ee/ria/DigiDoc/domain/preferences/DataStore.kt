@@ -497,6 +497,21 @@ class DataStore
             }
         }
 
+        fun getSettingsDefaultLTA(): Boolean =
+            preferences.getBoolean(
+                resources.getString(R.string.main_settings_default_lta_key),
+                false,
+            )
+
+        fun setSettingsDefaultLTA(isEnabled: Boolean) {
+            preferences.edit {
+                putBoolean(
+                    resources.getString(R.string.main_settings_default_lta_key),
+                    isEnabled,
+                )
+            }
+        }
+
         fun getRoles(): String =
             preferences.getString(
                 resources.getString(R.string.main_settings_role_key),

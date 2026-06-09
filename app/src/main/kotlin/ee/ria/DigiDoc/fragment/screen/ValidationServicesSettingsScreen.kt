@@ -23,13 +23,10 @@ package ee.ria.DigiDoc.fragment.screen
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,10 +35,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -54,13 +48,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -75,6 +65,7 @@ import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.network.siva.SivaSetting
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
+import ee.ria.DigiDoc.ui.component.settings.shared.SettingsRadioCard
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.PrimaryTextField
 import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
@@ -82,15 +73,10 @@ import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.theme.Dimensions.LPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.XSBorder
-import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
-import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -106,10 +92,7 @@ fun ValidationServicesSettingsScreen(
     navController: NavHostController,
 ) {
     val context = LocalContext.current
-    val focusManager = LocalFocusManager.current
     val scope = rememberCoroutineScope()
-
-    val focusRequester = remember { FocusRequester() }
 
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
@@ -149,7 +132,7 @@ fun ValidationServicesSettingsScreen(
                     navController.popBackStack()
                     return@rememberLauncherForActivityResult
                 }
-                CoroutineScope(Dispatchers.IO).launch {
+                scope.launch(Dispatchers.IO) {
                     sharedSettingsViewModel.handleSivaFile(uri)
                     withContext(Main) {
                         sharedSettingsViewModel.updateSivaData(settingsSivaServiceUrl.text, context)
@@ -157,8 +140,6 @@ fun ValidationServicesSettingsScreen(
                 }
             },
         )
-
-    var urlText by remember { mutableStateOf(defaultSivaServiceUrl) }
 
     val issuedToTitleText = stringResource(R.string.main_settings_timestamp_cert_issued_to_title)
     val validToTitleText = stringResource(R.string.main_settings_timestamp_cert_valid_to_title)
@@ -169,7 +150,6 @@ fun ValidationServicesSettingsScreen(
     val useDefaultAccessText = stringResource(R.string.main_settings_siva_default_access_title)
     val useManualAccessText = stringResource(R.string.main_settings_siva_default_manual_access_title)
 
-    val clearButtonText = stringResource(R.string.clear_text)
     val buttonName = stringResource(id = R.string.button_name)
 
     // Reset SiVa URL when the user navigates away from this screen and has set default choice
@@ -226,206 +206,129 @@ fun ValidationServicesSettingsScreen(
                         },
             )
 
-            Card(
-                modifier =
-                    modifier
-                        .fillMaxWidth()
-                        .padding(top = XSPadding, bottom = SPadding),
-                shape = buttonRoundedCornerShape,
-                border =
-                    BorderStroke(
-                        width = XSBorder,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    ),
-                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-            ) {
-                Row(
-                    modifier =
-                        modifier
-                            .fillMaxWidth()
-                            .padding(SPadding)
-                            .clickable {
-                                settingsSivaServiceChoice.value = SivaSetting.DEFAULT.name
-                                setSivaSetting(SivaSetting.DEFAULT)
-                            },
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = useDefaultAccessText,
-                        modifier =
-                            modifier
-                                .weight(1f)
-                                .notAccessible(),
-                    )
-                    RadioButton(
-                        modifier =
-                            modifier
-                                .semantics {
-                                    contentDescription = useDefaultAccessText
-                                },
-                        selected = settingsSivaServiceChoice.value == SivaSetting.DEFAULT.name,
-                        onClick = {
-                            settingsSivaServiceChoice.value = SivaSetting.DEFAULT.name
-                            setSivaSetting(SivaSetting.DEFAULT)
-                        },
-                    )
-                }
-            }
+            SettingsRadioCard(
+                modifier = modifier,
+                label = useDefaultAccessText,
+                selected = settingsSivaServiceChoice.value == SivaSetting.DEFAULT.name,
+                onClick = {
+                    settingsSivaServiceChoice.value = SivaSetting.DEFAULT.name
+                    setSivaSetting(SivaSetting.DEFAULT)
+                },
+            )
 
-            Card(
-                modifier =
-                    modifier
-                        .fillMaxWidth()
-                        .padding(top = XSPadding, bottom = SPadding),
-                shape = buttonRoundedCornerShape,
-                border =
-                    BorderStroke(
-                        width = XSBorder,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    ),
-                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+            SettingsRadioCard(
+                modifier = modifier,
+                label = useManualAccessText,
+                selected = settingsSivaServiceChoice.value == SivaSetting.MANUAL.name,
+                onClick = {
+                    settingsSivaServiceChoice.value = SivaSetting.MANUAL.name
+                    setSivaSetting(SivaSetting.MANUAL)
+                },
             ) {
-                Column(
-                    modifier =
-                        modifier
-                            .padding(SPadding)
-                            .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Row(
+                if (settingsSivaServiceChoice.value == SivaSetting.MANUAL.name) {
+                    PrimaryTextField(
+                        modifier =
+                            Modifier
+                                .padding(vertical = LPadding),
+                        value = settingsSivaServiceUrl,
+                        onValueChange = {
+                            settingsSivaServiceUrl = it
+                            setSettingsSivaUrl(it.text)
+                        },
+                        singleLine = true,
+                        label = stringResource(R.string.main_settings_siva_service_url),
+                        enabled = settingsSivaServiceChoice.value == SivaSetting.MANUAL.name,
+                        keyboardOptions =
+                            KeyboardOptions.Default.copy(
+                                imeAction = ImeAction.Done,
+                                keyboardType = KeyboardType.Uri,
+                            ),
+                        testTag = "validationServicesComponentTextField",
+                        removeIconTestTag = "validationServicesRemoveIconButton",
+                    )
+
+                    Spacer(modifier = modifier.height(SPadding))
+
+                    Text(
                         modifier =
                             modifier
-                                .clickable {
-                                    settingsSivaServiceChoice.value = SivaSetting.MANUAL.name
-                                    setSivaSetting(SivaSetting.MANUAL)
+                                .fillMaxWidth()
+                                .semantics {
+                                    heading()
                                 },
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
+                        text = stringResource(R.string.main_settings_siva_certificate_title),
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+
+                    if (sivaCertificate != null) {
                         Text(
-                            text = useManualAccessText,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier =
-                                modifier
-                                    .weight(1f)
-                                    .notAccessible(),
+                            modifier = modifier.fillMaxWidth(),
+                            text = "$issuedToTitleText $issuedTo",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        RadioButton(
-                            modifier =
-                                modifier
-                                    .semantics {
-                                        contentDescription = useManualAccessText
-                                    },
-                            selected = settingsSivaServiceChoice.value == SivaSetting.MANUAL.name,
-                            onClick = {
-                                settingsSivaServiceChoice.value = SivaSetting.MANUAL.name
-                                setSivaSetting(SivaSetting.MANUAL)
-                            },
+
+                        Text(
+                            modifier = modifier.fillMaxWidth(),
+                            text = "$validToTitleText $validTo",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    } else {
+                        Text(
+                            modifier = modifier.fillMaxWidth(),
+                            text = noCertificateFoundText,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
 
-                    if (settingsSivaServiceChoice.value == SivaSetting.MANUAL.name) {
-                        PrimaryTextField(
-                            modifier =
-                                Modifier
-                                    .padding(vertical = LPadding),
-                            value = settingsSivaServiceUrl,
-                            onValueChange = {
-                                settingsSivaServiceUrl = it
-                                setSettingsSivaUrl(it.text)
-                            },
-                            singleLine = true,
-                            label = stringResource(R.string.main_settings_siva_service_url),
-                            enabled = settingsSivaServiceChoice.value == SivaSetting.MANUAL.name,
-                            keyboardOptions =
-                                KeyboardOptions.Default.copy(
-                                    imeAction = ImeAction.Done,
-                                    keyboardType = KeyboardType.Uri,
-                                ),
-                            testTag = "validationServicesComponentTextField",
-                            removeIconTestTag = "validationServicesRemoveIconButton",
-                        )
+                    Spacer(modifier = modifier.height(SPadding))
 
-                        Text(
-                            modifier =
-                                modifier
-                                    .fillMaxWidth()
-                                    .semantics {
-                                        heading()
-                                    },
-                            text = stringResource(R.string.main_settings_siva_certificate_title),
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
-
+                    FlowRow(
+                        modifier = modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
                         if (sivaCertificate != null) {
-                            Text(
-                                modifier = modifier.fillMaxWidth(),
-                                text = "$issuedToTitleText $issuedTo",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-
-                            Text(
-                                modifier = modifier.fillMaxWidth(),
-                                text = "$validToTitleText $validTo",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        } else {
-                            Text(
-                                modifier = modifier.fillMaxWidth(),
-                                text = noCertificateFoundText,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-
-                        Spacer(modifier = modifier.height(SPadding))
-
-                        FlowRow(
-                            modifier = modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End,
-                            verticalArrangement = Arrangement.Center,
-                        ) {
-                            if (sivaCertificate != null) {
-                                TextButton(onClick = {
-                                    sivaCertificate?.let {
-                                        sharedCertificateViewModel.setCertificate(
-                                            it,
-                                        )
-                                        navController.navigate(
-                                            Route.CertificateDetail.route,
-                                        )
-                                    }
-                                }) {
-                                    Text(
-                                        modifier =
-                                            modifier
-                                                .semantics {
-                                                    contentDescription =
-                                                        "$showCertificateButtonText $buttonName"
-                                                    testTagsAsResourceId = true
-                                                }.testTag("validationServicesShowCertificateActionButton"),
-                                        text = showCertificateButtonText,
-                                        color = MaterialTheme.colorScheme.primary,
+                            TextButton(onClick = {
+                                sivaCertificate?.let {
+                                    sharedCertificateViewModel.setCertificate(
+                                        it,
+                                    )
+                                    navController.navigate(
+                                        Route.CertificateDetail.route,
                                     )
                                 }
-                            }
-
-                            TextButton(onClick = {
-                                filePicker.launch("*/*")
                             }) {
                                 Text(
                                     modifier =
                                         modifier
                                             .semantics {
                                                 contentDescription =
-                                                    "$addCertificateButtonText $buttonName"
+                                                    "$showCertificateButtonText $buttonName"
                                                 testTagsAsResourceId = true
-                                            }.testTag("validationServicesAddCertificateActionButton"),
-                                    text = addCertificateButtonText,
+                                            }.testTag("validationServicesShowCertificateActionButton"),
+                                    text = showCertificateButtonText,
                                     color = MaterialTheme.colorScheme.primary,
                                 )
                             }
+                        }
+
+                        TextButton(onClick = {
+                            filePicker.launch("*/*")
+                        }) {
+                            Text(
+                                modifier =
+                                    modifier
+                                        .semantics {
+                                            contentDescription =
+                                                "$addCertificateButtonText $buttonName"
+                                            testTagsAsResourceId = true
+                                        }.testTag("validationServicesAddCertificateActionButton"),
+                                text = addCertificateButtonText,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
                         }
                     }
                 }

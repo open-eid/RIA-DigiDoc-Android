@@ -23,12 +23,16 @@ package ee.ria.DigiDoc.libdigidoclib
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
+import ee.ria.DigiDoc.common.Constant.ASICE_MIMETYPE
+import ee.ria.DigiDoc.common.Constant.ASICS_EXTENSION
 import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DDOC_EXTENSION
 import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DEFAULT_CONTAINER_EXTENSION
 import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
 import ee.ria.DigiDoc.common.Constant.NON_LEGACY_CONTAINER_EXTENSIONS
+import ee.ria.DigiDoc.common.Constant.SignatureRequest.SIGNATURE_PROFILE_TS
+import ee.ria.DigiDoc.common.Constant.SignatureRequest.SIGNATURE_PROFILE_TSA
 import ee.ria.DigiDoc.common.exception.NoInternetConnectionException
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileInterface
 import ee.ria.DigiDoc.libdigidoclib.domain.model.DataFileWrapper
@@ -48,7 +52,9 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.libdigidocpp.Container
 import ee.ria.libdigidocpp.ContainerOpenCB
+import ee.ria.libdigidocpp.ExternalSigner
 import ee.ria.libdigidocpp.Signature
+import ee.ria.libdigidocpp.digidoc
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
 import java.io.File
@@ -79,8 +85,7 @@ class SignedContainer
         @Throws(Exception::class)
         suspend fun getNestedTimestampedContainer(isSivaConfirmed: Boolean): SignedContainer? {
             if ((containerMimetype().equals(ASICS_MIMETYPE, ignoreCase = true) && getDataFiles().size == 1) ||
-                isCades() &&
-                !isXades()
+                (isCades() && !isXades())
             ) {
                 val dataFile = container?.dataFiles()?.firstOrNull()
                 val containerRawFile = containerFile
@@ -159,6 +164,80 @@ class SignedContainer
                     }
                 }
                 container.save()
+            }
+        }
+
+        @Throws(Exception::class)
+        suspend fun extendSignature() =
+            withContext(libdigidocppDispatcher) {
+                extendSignatures(listOfNotNull(container?.signatures()?.lastOrNull()))
+            }
+
+        @Throws(Exception::class)
+        suspend fun extendSignatures(): SignedContainer =
+            withContext(libdigidocppDispatcher) {
+                val rawContainer = container ?: throw IllegalStateException("No container to extend")
+                val signatures = rawContainer.signatures() ?: emptyList()
+                if (canExtend(signatures)) {
+                    extendSignatures(signatures)
+                    this@SignedContainer
+                } else {
+                    wrapIntoTimestampedAsics(rawContainer)
+                }
+            }
+
+        private suspend fun canExtend(signatures: List<Signature>): Boolean {
+            if (signatures.isEmpty()) return false
+            if (isCades() || isXades()) return false
+            val mediaType = containerMimetype()
+            if (mediaType.equals(ASICS_MIMETYPE, ignoreCase = true)) return true
+            if (!mediaType.equals(ASICE_MIMETYPE, ignoreCase = true)) return false
+            return signatures.all { it.profile().lowercase().contains(SIGNATURE_PROFILE_TS) } &&
+                !hasInvalidSignatures()
+        }
+
+        private suspend fun hasInvalidSignatures(): Boolean =
+            getSignatures().any { it.validator.status == ValidatorInterface.Status.Invalid }
+
+        private suspend fun wrapIntoTimestampedAsics(rawContainer: Container): SignedContainer =
+            try {
+                val signingCert =
+                    rawContainer
+                        .signatures()
+                        ?.lastOrNull()
+                        ?.signingCertificate()
+                        ?.encoded
+                        ?: throw IllegalStateException("No signing certificate available to extend")
+                val signer = ExternalSigner(signingCert).apply { setUserAgent(digidoc.userAgent()) }
+                val wrappedContainer =
+                    Container.extendContainerValidity(rawContainer, signer)
+                        ?: throw IllegalStateException("Failed to wrap container into a timestamped ASiC-S")
+                val baseName = ContainerUtil.removeExtensionFromContainerFilename(getName())
+                val asicsFile =
+                    ContainerUtil.generateSignatureContainerFile(context, "$baseName.$ASICS_EXTENSION")
+                wrappedContainer.save(asicsFile.path)
+                debugLog(LOG_TAG, "Legacy container wrapped into ASiC-S: ${asicsFile.name}")
+                SignedContainer(context, wrappedContainer, asicsFile, isExistingContainer = true)
+            } catch (e: Exception) {
+                errorLog(LOG_TAG, "Unable to extend container validity", e)
+                handleContainerException(context, e)
+            }
+
+        private fun extendSignatures(signatures: List<Signature>) {
+            if (signatures.isEmpty()) {
+                debugLog(LOG_TAG, "No signatures to extend")
+                return
+            }
+            try {
+                signatures.forEachIndexed { index, signature ->
+                    debugLog(LOG_TAG, "Extending signature ${index + 1}/${signatures.size}: ${signature.id()}")
+                    signature.extendSignatureProfile(SIGNATURE_PROFILE_TSA)
+                }
+                container?.save()
+                debugLog(LOG_TAG, "Container saved after extending ${signatures.size} signature(s)")
+            } catch (e: Exception) {
+                errorLog(LOG_TAG, "Unable to extend signatures", e)
+                handleContainerException(context, e)
             }
         }
 

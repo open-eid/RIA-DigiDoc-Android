@@ -29,6 +29,7 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.libdigidocpp.Signature
 import java.io.IOException
 import java.io.Serializable
+import java.util.Date
 
 class SignatureWrapper(
     signature: Signature,
@@ -106,6 +107,23 @@ class SignatureWrapper(
     }
 
     override val validator: ValidatorInterface = ValidatorWrapper(Signature.Validator(signature))
+
+    override val archiveTimeStamps: List<ArchiveTimestamp> =
+        try {
+            signature.ArchiveTimeStamps().mapNotNull { tsaInfo ->
+                try {
+                    ArchiveTimestamp(time = tsaInfo.time, certificate = tsaInfo.cert)
+                } catch (e: Exception) {
+                    errorLog(logTag, "Unable to parse archive timestamp entry", e)
+                    null
+                }
+            }
+        } catch (e: Exception) {
+            errorLog(logTag, "Unable to get archive timestamps", e)
+            emptyList()
+        }
+
+    override val validUntil: Date? = archiveTimeStamps.lastOrNull()?.certificate?.notAfter
 
     private fun signatureName(signature: Signature): String {
         var commonName: String?

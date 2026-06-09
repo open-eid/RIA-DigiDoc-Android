@@ -80,6 +80,7 @@
     <string name="main_settings_open_all_filetypes_key">mainSettingsOpenAllFilesTypes</string>
     <string name="main_settings_allow_screenshots_key">mainSettingsAllowScreenshots</string>
     <string name="main_settings_ask_role_and_address_key">mainSettingsAskRoleAndAddress</string>
+    <string name="main_settings_default_lta_key">mainSettingsDefaultLTA</string>
     <string name="main_settings_tsa_cert_view">mainSettingsTSACertView</string>
 
     <!-- Diagnostics -->
