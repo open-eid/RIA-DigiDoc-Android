@@ -46,6 +46,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -55,6 +56,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.theme.Dimensions.MElevation
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSCornerRadius
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
@@ -94,10 +96,10 @@ fun ShareButtonBottomBar(
             modifier =
                 modifier
                     .shadow(
-                        elevation = MSCornerRadius,
+                        elevation = MElevation,
                         shape = RoundedCornerShape(MSCornerRadius),
-                        ambientColor = MaterialTheme.colorScheme.onSurface,
-                        spotColor = MaterialTheme.colorScheme.onSurface,
+                        ambientColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        spotColor = Color.Black,
                     ).clip(buttonRoundedCornerShape)
                     .semantics {
                         contentDescription = shareButtonContentDescriptionText

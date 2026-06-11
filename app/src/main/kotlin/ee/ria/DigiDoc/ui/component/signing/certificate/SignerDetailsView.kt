@@ -39,17 +39,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -72,6 +65,7 @@ import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.shared.DynamicText
 import ee.ria.DigiDoc.ui.component.shared.ExpandableButton
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
+import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TabView
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.signing.ColoredSignedStatusText
@@ -84,7 +78,6 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumb
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil.getSignatureStatusText
-import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatName
 import ee.ria.DigiDoc.utilsLib.extensions.x509Certificate
 import ee.ria.DigiDoc.viewmodel.CertificateDetailViewModel
@@ -92,7 +85,6 @@ import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSignatureViewModel
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -105,11 +97,6 @@ fun SignerDetailsView(
     sharedContainerViewModel: SharedContainerViewModel,
     certificateDetailViewModel: CertificateDetailViewModel = hiltViewModel(),
 ) {
-    val snackBarHostState = remember { SnackbarHostState() }
-    val snackBarScope = rememberCoroutineScope()
-
-    val messages by SnackBarManager.messages.collectAsState(emptyList())
-
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
     val signature = sharedSignatureViewModel.signature.value
@@ -165,28 +152,14 @@ fun SignerDetailsView(
         handleBackButtonClick(navController, sharedSignatureViewModel)
     }
 
-    LaunchedEffect(messages) {
-        messages.forEach { message ->
-            snackBarScope.launch {
-                snackBarHostState.showSnackbar(message)
-            }
-            SnackBarManager.removeMessage(message)
-        }
-    }
-
     if (signature != null) {
         Scaffold(
-            snackbarHost = {
-                SnackbarHost(
-                    modifier = modifier.padding(vertical = SPadding),
-                    hostState = snackBarHostState,
-                )
-            },
             modifier =
                 modifier
                     .semantics {
                         testTagsAsResourceId = true
                     }.testTag("signatureDetailsScreen"),
+            snackbarHost = { StatusSnackbarHost() },
             topBar = {
                 TopBar(
                     modifier = modifier,

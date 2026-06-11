@@ -54,8 +54,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -108,6 +106,7 @@ import ee.ria.DigiDoc.ui.component.shared.DataFileItem
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
+import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TabView
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
@@ -129,8 +128,8 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBack
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil
-import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
+import ee.ria.DigiDoc.utils.snackbar.SnackbarType
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.removeExtensionFromContainerFilename
 import ee.ria.DigiDoc.utilsLib.extensions.isContainer
@@ -415,7 +414,7 @@ fun SigningNavigation(
                 )
 
                 withContext(Main) {
-                    showMessage(context, R.string.converted_to_crypto_container)
+                    showMessage(context, R.string.converted_to_crypto_container, SnackbarType.SUCCESS)
                 }
 
                 delay(2000)
@@ -438,11 +437,6 @@ fun SigningNavigation(
 
     val selectedSignedContainerTabIndex = rememberSaveable { mutableIntStateOf(0) }
 
-    val snackBarHostState = remember { SnackbarHostState() }
-    val snackBarScope = rememberCoroutineScope()
-
-    val messages by SnackBarManager.messages.collectAsState(emptyList())
-
     val containerNotifications by sharedContainerViewModel.containerNotifications.collectAsState()
 
     val saveFileLauncher =
@@ -453,13 +447,13 @@ fun SigningNavigation(
                         sharedContainerViewModel
                             .getContainerDataFile(signedContainer, datafile)
                             ?.let { sharedContainerViewModel.saveContainerFile(it, result) }
-                        showMessage(context, R.string.file_saved)
+                        showMessage(context, R.string.file_saved, SnackbarType.SUCCESS)
                         clickedDataFile.value = null
                         isSaved = true
                     } ?: run {
                         signedContainer?.getContainerFile()?.let {
                             sharedContainerViewModel.saveContainerFile(it, result)
-                            showMessage(context, R.string.file_saved)
+                            showMessage(context, R.string.file_saved, SnackbarType.SUCCESS)
                             isSaved = true
                         } ?: showMessage(context, R.string.file_saved_error)
                     }
@@ -684,22 +678,10 @@ fun SigningNavigation(
 
     LaunchedEffect(filesAdded) {
         when {
-            filesAdded == 1 -> showMessage(context, R.string.file_added)
-            filesAdded > 1 -> showMessage(context, R.string.files_added)
+            filesAdded == 1 -> showMessage(context, R.string.file_added, SnackbarType.SUCCESS)
+            filesAdded > 1 -> showMessage(context, R.string.files_added, SnackbarType.SUCCESS)
         }
         sharedContainerViewModel.resetAddedFilesCount()
-    }
-
-    LaunchedEffect(messages) {
-        messages.forEach { message ->
-            snackBarScope.launch {
-                snackBarHostState.showSnackbar(
-                    message = message,
-                    withDismissAction = true,
-                )
-            }
-            SnackBarManager.removeMessage(message)
-        }
     }
 
     if (signedContainerExists == false) {
@@ -707,17 +689,12 @@ fun SigningNavigation(
     }
 
     Scaffold(
-        snackbarHost = {
-            SnackbarHost(
-                modifier = modifier.padding(vertical = SPadding),
-                hostState = snackBarHostState,
-            )
-        },
         modifier =
             modifier
                 .semantics {
                     testTagsAsResourceId = true
                 }.testTag("signingScreen"),
+        snackbarHost = { StatusSnackbarHost() },
         topBar = {
             TopBar(
                 modifier = modifier,
@@ -828,7 +805,7 @@ fun SigningNavigation(
                             )
                         }
                     }
-                    showMessage(signatureAddedSuccessText)
+                    showMessage(signatureAddedSuccessText, SnackbarType.SUCCESS)
                     signatureAddedSuccess.value = false
                 }
 

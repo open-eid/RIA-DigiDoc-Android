@@ -43,8 +43,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SearchBarDefaults.inputFieldColors
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -86,6 +84,7 @@ import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
 import ee.ria.DigiDoc.ui.component.shared.PreventResize
 import ee.ria.DigiDoc.ui.component.shared.Recipient
+import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
@@ -98,8 +97,8 @@ import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
-import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
+import ee.ria.DigiDoc.utils.snackbar.SnackbarType
 import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator
 import ee.ria.DigiDoc.viewmodel.EncryptRecipientViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
@@ -127,10 +126,6 @@ fun EncryptRecipientScreen(
 
     val focusManager = LocalFocusManager.current
 
-    val snackBarHostState = remember { SnackbarHostState() }
-    val snackBarScope = rememberCoroutineScope()
-
-    val messages by SnackBarManager.messages.collectAsState(emptyList())
     val cryptoContainer by sharedContainerViewModel.cryptoContainer.asFlow().collectAsState(null)
 
     val showLoading = remember { mutableStateOf(false) }
@@ -242,41 +237,27 @@ fun EncryptRecipientScreen(
         }
     }
 
-    LaunchedEffect(messages) {
-        messages.forEach { message ->
-            snackBarScope.launch {
-                snackBarHostState.showSnackbar(message)
-            }
-            SnackBarManager.removeMessage(message)
-        }
-    }
-
     LaunchedEffect(recipientAddedSuccess.value) {
         if (recipientAddedSuccess.value) {
-            showMessage(recipientAddedSuccessText)
+            showMessage(recipientAddedSuccessText, SnackbarType.SUCCESS)
             recipientAddedSuccess.value = false
         }
     }
 
     LaunchedEffect(containerEncryptedSuccess.value) {
         if (containerEncryptedSuccess.value) {
-            showMessage(containerEncryptedSuccessText)
+            showMessage(containerEncryptedSuccessText, SnackbarType.SUCCESS)
             containerEncryptedSuccess.value = false
         }
     }
 
     Scaffold(
-        snackbarHost = {
-            SnackbarHost(
-                modifier = modifier.padding(vertical = SPadding),
-                hostState = snackBarHostState,
-            )
-        },
         modifier =
             modifier
                 .semantics {
                     testTagsAsResourceId = true
                 }.testTag("encryptRecipientsScreen"),
+        snackbarHost = { StatusSnackbarHost() },
         topBar = {
             if (!expanded) {
                 TopBar(

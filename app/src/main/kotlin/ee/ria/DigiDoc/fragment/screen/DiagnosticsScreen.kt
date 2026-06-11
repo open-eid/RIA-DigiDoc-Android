@@ -42,17 +42,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -79,6 +75,7 @@ import ee.ria.DigiDoc.ui.component.shared.HrefMessageDialog
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.PrimaryOutlinedButton
 import ee.ria.DigiDoc.ui.component.shared.SpannableBoldText
+import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
@@ -86,8 +83,8 @@ import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
-import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
+import ee.ria.DigiDoc.utils.snackbar.SnackbarType
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
 import ee.ria.DigiDoc.viewmodel.DiagnosticsViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
@@ -109,11 +106,6 @@ fun DiagnosticsScreen(
     diagnosticsViewModel: DiagnosticsViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
-
-    val snackBarHostState = remember { SnackbarHostState() }
-    val snackBarScope = rememberCoroutineScope()
-
-    val messages by SnackBarManager.messages.collectAsState(emptyList())
 
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
     val currentConfiguration by
@@ -143,7 +135,7 @@ fun DiagnosticsScreen(
                 actionFile?.let { file ->
                     diagnosticsViewModel.saveFile(file, result)
                 }
-                showMessage(context, R.string.file_saved)
+                showMessage(context, R.string.file_saved, SnackbarType.SUCCESS)
             }
         }
 
@@ -153,7 +145,7 @@ fun DiagnosticsScreen(
                 actionFile?.let { file ->
                     diagnosticsViewModel.saveFile(file, result)
                 }
-                showMessage(context, R.string.file_saved)
+                showMessage(context, R.string.file_saved, SnackbarType.SUCCESS)
                 enableOneTimeLogGeneration = false
                 diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(false)
                 diagnosticsViewModel.dataStore.setIsLogFileGenerationRunning(false)
@@ -163,27 +155,13 @@ fun DiagnosticsScreen(
             }
         }
 
-    LaunchedEffect(messages) {
-        messages.forEach { message ->
-            snackBarScope.launch {
-                snackBarHostState.showSnackbar(message)
-            }
-            SnackBarManager.removeMessage(message)
-        }
-    }
-
     Scaffold(
-        snackbarHost = {
-            SnackbarHost(
-                modifier = modifier.padding(vertical = SPadding),
-                hostState = snackBarHostState,
-            )
-        },
         modifier =
             modifier
                 .semantics {
                     testTagsAsResourceId = true
                 }.testTag("diagnosticsScreen"),
+        snackbarHost = { StatusSnackbarHost() },
         topBar = {
             TopBar(
                 modifier = modifier,
