@@ -39,8 +39,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,7 +47,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -76,13 +73,13 @@ import ee.ria.DigiDoc.ui.component.main.CrashDialog
 import ee.ria.DigiDoc.ui.component.menu.MainMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.menu.OpenMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
+import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeM
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.viewmodel.HomeViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -109,11 +106,6 @@ fun HomeScreen(
 
     val openMenuAddFileNavigateTo = remember { mutableStateOf(Route.SigningFileChoosing.route) }
 
-    val snackBarHostState = remember { SnackbarHostState() }
-    val snackBarScope = rememberCoroutineScope()
-
-    val messages by SnackBarManager.messages.collectAsState(emptyList())
-
     BackHandler {
         activity?.finish()
     }
@@ -125,15 +117,6 @@ fun HomeScreen(
             CoroutineScope(IO).launch {
                 homeViewModel.sendUnsentReports()
             }
-        }
-    }
-
-    LaunchedEffect(messages) {
-        messages.forEach { message ->
-            snackBarScope.launch {
-                snackBarHostState.showSnackbar(message)
-            }
-            SnackBarManager.removeMessage(message)
         }
     }
 
@@ -165,12 +148,6 @@ fun HomeScreen(
     }
 
     Scaffold(
-        snackbarHost = {
-            SnackbarHost(
-                modifier = modifier.padding(vertical = SPadding),
-                hostState = snackBarHostState,
-            )
-        },
         modifier =
             modifier
                 .fillMaxSize()
@@ -178,6 +155,7 @@ fun HomeScreen(
                 .semantics {
                     testTagsAsResourceId = true
                 }.testTag("homeScreen"),
+        snackbarHost = { StatusSnackbarHost() },
         topBar = {
             TopBar(
                 modifier =

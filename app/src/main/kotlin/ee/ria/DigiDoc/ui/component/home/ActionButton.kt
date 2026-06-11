@@ -60,6 +60,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.MiddleEllipsizeMultilineText
+import ee.ria.DigiDoc.ui.theme.Dimensions.LElevation
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XXSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
@@ -87,113 +88,113 @@ fun ActionButton(
             ),
         elevation =
             CardDefaults.elevatedCardElevation(
-                defaultElevation = XXSPadding,
+                defaultElevation = LElevation,
             ),
         modifier = modifier.fillMaxWidth().padding(vertical = XSPadding),
     ) {
-            Button(
+        Button(
+            modifier =
+                modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .semantics {
+                        testTagsAsResourceId = true
+                    }.testTag(testTag),
+            shape = buttonRoundedCornerShape,
+            onClick = onClickItem,
+            colors =
+                ButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    disabledContainerColor = Color.Transparent,
+                    disabledContentColor = Color.Transparent,
+                ),
+            contentPadding = PaddingValues(XSPadding),
+        ) {
+            ConstraintLayout(
                 modifier =
                     modifier
-                        .fillMaxWidth()
                         .wrapContentHeight()
-                        .semantics {
-                            testTagsAsResourceId = true
-                        }.testTag(testTag),
-                shape = buttonRoundedCornerShape,
-                onClick = onClickItem,
-                colors =
-                    ButtonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                        contentColor = MaterialTheme.colorScheme.onSurface,
-                        disabledContainerColor = Color.Transparent,
-                        disabledContentColor = Color.Transparent,
-                    ),
-                contentPadding = PaddingValues(XSPadding),
+                        .fillMaxWidth()
+                        .align(Alignment.CenterVertically),
             ) {
-                ConstraintLayout(
+                val (
+                    actionButtonIcon,
+                    actionButtonColumn,
+                ) = createRefs()
+                Box(
                     modifier =
                         modifier
-                            .wrapContentHeight()
-                            .fillMaxWidth()
-                            .align(Alignment.CenterVertically),
+                            .constrainAs(actionButtonIcon) {
+                                start.linkTo(parent.start)
+                                top.linkTo(parent.top)
+                                bottom.linkTo(parent.bottom)
+                            }.wrapContentHeight()
+                            .padding(XSPadding),
                 ) {
-                    val (
-                        actionButtonIcon,
-                        actionButtonColumn,
-                    ) = createRefs()
                     Box(
                         modifier =
-                            modifier
-                                .constrainAs(actionButtonIcon) {
-                                    start.linkTo(parent.start)
-                                    top.linkTo(parent.top)
-                                    bottom.linkTo(parent.bottom)
-                                }.wrapContentHeight()
-                                .padding(XSPadding),
+                            Modifier
+                                .wrapContentHeight()
+                                .background(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    shape = CircleShape,
+                                ),
                     ) {
-                        Box(
-                            modifier =
-                                Modifier
-                                    .wrapContentHeight()
-                                    .background(
-                                        color = MaterialTheme.colorScheme.primary,
-                                        shape = CircleShape,
-                                    ),
-                        ) {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(id = icon),
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimary,
-                                modifier =
-                                    modifier
-                                        .padding(XSPadding)
-                                        .size(iconSizeXXS)
-                                        .wrapContentHeight(align = Alignment.CenterVertically),
-                            )
-                        }
-                    }
-                    Column(
-                        modifier =
-                            modifier
-                                .wrapContentHeight(align = Alignment.CenterVertically)
-                                .fillMaxWidth()
-                                .padding(end = iconSizeXXS + XSPadding * 5)
-                                .constrainAs(actionButtonColumn) {
-                                    start.linkTo(actionButtonIcon.end)
-                                    top.linkTo(parent.top)
-                                    bottom.linkTo(parent.bottom)
-                                },
-                    ) {
-                        Text(
-                            text = titleText,
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = icon),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary,
                             modifier =
                                 modifier
-                                    .padding(start = XXSPadding, bottom = XSPadding / 2)
-                                    .wrapContentHeight(align = Alignment.CenterVertically)
-                                    .semantics {
-                                        this.contentDescription = contentDescription
-                                    },
-                            style = MaterialTheme.typography.titleMedium,
-                            textAlign = TextAlign.Start,
-                        )
-
-                        MiddleEllipsizeMultilineText(
-                            modifier =
-                                modifier
-                                    .padding(horizontal = XXSPadding)
-                                    .wrapContentHeight(align = Alignment.CenterVertically)
-                                    .focusable(false)
-                                    .semantics {
-                                        this.contentDescription = contentDescription
-                                    }.testTag("actionButtonDescription"),
-                            text = description,
-                            maxLines = 4,
-                            textColor = MaterialTheme.colorScheme.onSurface.toArgb(),
-                            textStyle = MaterialTheme.typography.bodyMedium,
+                                    .padding(XSPadding)
+                                    .size(iconSizeXXS)
+                                    .wrapContentHeight(align = Alignment.CenterVertically),
                         )
                     }
                 }
+                Column(
+                    modifier =
+                        modifier
+                            .wrapContentHeight(align = Alignment.CenterVertically)
+                            .fillMaxWidth()
+                            .padding(end = iconSizeXXS + XSPadding * 5)
+                            .constrainAs(actionButtonColumn) {
+                                start.linkTo(actionButtonIcon.end)
+                                top.linkTo(parent.top)
+                                bottom.linkTo(parent.bottom)
+                            },
+                ) {
+                    Text(
+                        text = titleText,
+                        modifier =
+                            modifier
+                                .padding(start = XXSPadding, bottom = XSPadding / 2)
+                                .wrapContentHeight(align = Alignment.CenterVertically)
+                                .semantics {
+                                    this.contentDescription = contentDescription
+                                },
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.Start,
+                    )
+
+                    MiddleEllipsizeMultilineText(
+                        modifier =
+                            modifier
+                                .padding(horizontal = XXSPadding)
+                                .wrapContentHeight(align = Alignment.CenterVertically)
+                                .focusable(false)
+                                .semantics {
+                                    this.contentDescription = contentDescription
+                                }.testTag("actionButtonDescription"),
+                        text = description,
+                        maxLines = 4,
+                        textColor = MaterialTheme.colorScheme.onSurface.toArgb(),
+                        textStyle = MaterialTheme.typography.bodyMedium,
+                    )
+                }
             }
+        }
     }
 }
 
@@ -202,7 +203,7 @@ fun ActionButton(
 @Composable
 fun SettingsItemPreview() {
     RIADigiDocTheme {
-        Surface(color = MaterialTheme.colorScheme.surface) {
+        Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 ActionButton(
                     title = R.string.main_home_crypto_title,

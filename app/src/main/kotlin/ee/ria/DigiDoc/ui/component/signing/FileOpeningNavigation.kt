@@ -25,7 +25,6 @@ import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -50,7 +49,6 @@ import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
-import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.FileOpeningViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
@@ -71,11 +69,6 @@ fun FileOpeningNavigation(
     val context = LocalContext.current
 
     val scope = rememberCoroutineScope()
-
-    val snackBarHostState = remember { SnackbarHostState() }
-    val snackBarScope = rememberCoroutineScope()
-
-    val messages by SnackBarManager.messages.collectAsState(emptyList())
 
     val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
     val cryptoContainer by sharedContainerViewModel.cryptoContainer.asFlow().collectAsState(null)
@@ -277,15 +270,6 @@ fun FileOpeningNavigation(
                     }
                 }
             }
-        }
-    }
-
-    LaunchedEffect(messages) {
-        messages.forEach { message ->
-            snackBarScope.launch {
-                snackBarHostState.showSnackbar(message)
-            }
-            SnackBarManager.removeMessage(message)
         }
     }
 

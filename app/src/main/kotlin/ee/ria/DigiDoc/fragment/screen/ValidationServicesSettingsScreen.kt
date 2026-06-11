@@ -43,13 +43,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -80,6 +77,7 @@ import ee.ria.DigiDoc.network.siva.SivaSetting
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.PrimaryTextField
+import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.theme.Dimensions.LPadding
@@ -89,7 +87,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.extensions.notAccessible
-import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
@@ -113,11 +110,6 @@ fun ValidationServicesSettingsScreen(
     val scope = rememberCoroutineScope()
 
     val focusRequester = remember { FocusRequester() }
-
-    val snackBarHostState = remember { SnackbarHostState() }
-    val snackBarScope = rememberCoroutineScope()
-
-    val messages by SnackBarManager.messages.collectAsState(emptyList())
 
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
@@ -180,15 +172,6 @@ fun ValidationServicesSettingsScreen(
     val clearButtonText = stringResource(R.string.clear_text)
     val buttonName = stringResource(id = R.string.button_name)
 
-    LaunchedEffect(messages) {
-        messages.forEach { message ->
-            snackBarScope.launch {
-                snackBarHostState.showSnackbar(message)
-            }
-            SnackBarManager.removeMessage(message)
-        }
-    }
-
     // Reset SiVa URL when the user navigates away from this screen and has set default choice
     DisposableEffect(Unit) {
         onDispose {
@@ -199,17 +182,12 @@ fun ValidationServicesSettingsScreen(
     }
 
     Scaffold(
-        snackbarHost = {
-            SnackbarHost(
-                modifier = modifier.padding(vertical = SPadding),
-                hostState = snackBarHostState,
-            )
-        },
         modifier =
             modifier
                 .semantics {
                     testTagsAsResourceId = true
                 }.testTag("validationServicesSettingsScreen"),
+        snackbarHost = { StatusSnackbarHost() },
         topBar = {
             TopBar(
                 modifier = modifier,

@@ -52,8 +52,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -101,6 +99,7 @@ import ee.ria.DigiDoc.ui.component.shared.CryptoDataFilesLocked
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
+import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TabView
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
@@ -116,8 +115,8 @@ import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
-import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
+import ee.ria.DigiDoc.utils.snackbar.SnackbarType
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.removeExtensionFromContainerFilename
 import ee.ria.DigiDoc.utilsLib.extensions.isContainer
@@ -385,7 +384,7 @@ fun EncryptNavigation(
                 )
 
                 withContext(Main) {
-                    showMessage(context, R.string.converted_to_signed_container)
+                    showMessage(context, R.string.converted_to_signed_container, SnackbarType.SUCCESS)
                 }
 
                 delay(2000)
@@ -426,18 +425,13 @@ fun EncryptNavigation(
 
     val selectedCryptoContainerTabIndex = rememberSaveable { mutableIntStateOf(0) }
 
-    val snackBarHostState = remember { SnackbarHostState() }
-    val snackBarScope = rememberCoroutineScope()
-
-    val messages by SnackBarManager.messages.collectAsState(emptyList())
-
     val saveFileLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 try {
                     fileToSave.value?.let { file ->
                         sharedContainerViewModel.saveContainerFile(file, result)
-                        showMessage(context, R.string.file_saved)
+                        showMessage(context, R.string.file_saved, SnackbarType.SUCCESS)
                         isSaved = true
                     } ?: showMessage(context, R.string.file_saved_error)
                 } catch (_: Exception) {
@@ -538,15 +532,6 @@ fun EncryptNavigation(
         }
     }
 
-    LaunchedEffect(messages) {
-        messages.forEach { message ->
-            snackBarScope.launch {
-                snackBarHostState.showSnackbar(message)
-            }
-            SnackBarManager.removeMessage(message)
-        }
-    }
-
     LaunchedEffect(sharedContainerViewModel.decryptNFCStatus) {
         sharedContainerViewModel.decryptNFCStatus.asFlow().collect { status ->
             status?.let {
@@ -560,7 +545,7 @@ fun EncryptNavigation(
                         )
                         containerDecryptedSuccess.value = false
                         sharedContainerViewModel.setDecryptNFCStatus(null)
-                        showMessage(containerDecryptedSuccessText)
+                        showMessage(containerDecryptedSuccessText, SnackbarType.SUCCESS)
                     }
                 }
             }
@@ -580,7 +565,7 @@ fun EncryptNavigation(
                         )
                         containerDecryptedSuccess.value = false
                         sharedContainerViewModel.setDecryptIDCardStatus(null)
-                        showMessage(containerDecryptedSuccessText)
+                        showMessage(containerDecryptedSuccessText, SnackbarType.SUCCESS)
                     }
                 }
             }
@@ -589,24 +574,19 @@ fun EncryptNavigation(
 
     LaunchedEffect(filesAdded) {
         when {
-            filesAdded == 1 -> showMessage(context, R.string.file_added)
-            filesAdded > 1 -> showMessage(context, R.string.files_added)
+            filesAdded == 1 -> showMessage(context, R.string.file_added, SnackbarType.SUCCESS)
+            filesAdded > 1 -> showMessage(context, R.string.files_added, SnackbarType.SUCCESS)
         }
         sharedContainerViewModel.resetAddedFilesCount()
     }
 
     Scaffold(
-        snackbarHost = {
-            SnackbarHost(
-                modifier = modifier.padding(vertical = SPadding),
-                hostState = snackBarHostState,
-            )
-        },
         modifier =
             modifier
                 .semantics {
                     testTagsAsResourceId = true
                 }.testTag("encryptScreen"),
+        snackbarHost = { StatusSnackbarHost() },
         topBar = {
             TopBar(
                 modifier = modifier,
@@ -702,12 +682,12 @@ fun EncryptNavigation(
                 horizontalAlignment = Alignment.Start,
             ) {
                 if (containerEncryptedSuccess.value == true) {
-                    showMessage(containerEncryptedSuccessText)
+                    showMessage(containerEncryptedSuccessText, SnackbarType.SUCCESS)
                     containerEncryptedSuccess.value = false
                 }
 
                 if (containerDecryptedSuccess.value == true) {
-                    showMessage(containerDecryptedSuccessText)
+                    showMessage(containerDecryptedSuccessText, SnackbarType.SUCCESS)
                     containerDecryptedSuccess.value = false
                 }
 

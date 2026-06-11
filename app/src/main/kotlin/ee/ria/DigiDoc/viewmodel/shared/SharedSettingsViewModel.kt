@@ -51,6 +51,8 @@ import ee.ria.DigiDoc.network.siva.SivaSetting
 import ee.ria.DigiDoc.network.utils.NetworkUtil.constructClientBuilder
 import ee.ria.DigiDoc.network.utils.ProxyUtil
 import ee.ria.DigiDoc.network.utils.UserAgentUtil
+import ee.ria.DigiDoc.utils.snackbar.SnackBarMessage
+import ee.ria.DigiDoc.utils.snackbar.SnackbarType
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
@@ -125,8 +127,8 @@ class SharedSettingsViewModel
         private val _cryptoCertificate = MutableStateFlow<X509Certificate?>(null)
         val cryptoCertificate: StateFlow<X509Certificate?> = _cryptoCertificate
 
-        private val _errorState = MutableStateFlow<Int?>(null)
-        val errorState: StateFlow<Int?> = _errorState
+        private val _errorState = MutableStateFlow<SnackBarMessage?>(null)
+        val errorState: StateFlow<SnackBarMessage?> = _errorState
 
         private val defaultManualProxySettings = ManualProxy("", 80, "", "")
 
@@ -146,7 +148,7 @@ class SharedSettingsViewModel
             resetCryptoSettings()
 
             resetCertificateInfo()
-            resetErrors()
+            resetErrorState()
         }
 
         private fun resetProxySettings() {
@@ -490,7 +492,7 @@ class SharedSettingsViewModel
             _cryptoCertificate.value = null
         }
 
-        private fun resetErrors() {
+        fun resetErrorState() {
             _errorState.value = null
         }
 
@@ -520,13 +522,13 @@ class SharedSettingsViewModel
                     val response = call.execute()
                     if (response.code == 403) {
                         debugLog(logTag, "Forbidden error with proxy configuration")
-                        _errorState.value = R.string.main_settings_proxy_check_username_and_password
+                        _errorState.value = SnackBarMessage(context.getString(R.string.main_settings_proxy_check_username_and_password))
                     } else if (response.code != 200) {
                         debugLog(logTag, "No Internet connection detected")
-                        _errorState.value = R.string.main_settings_proxy_check_connection_unsuccessful
+                        _errorState.value = SnackBarMessage(context.getString(R.string.main_settings_proxy_check_connection_unsuccessful))
                     } else {
                         debugLog(logTag, "Internet connection detected successfully")
-                        _errorState.value = R.string.main_settings_proxy_check_connection_success
+                        _errorState.value = SnackBarMessage(context.getString(R.string.main_settings_proxy_check_connection_success), SnackbarType.SUCCESS)
                     }
                 } catch (e: IOException) {
                     val message = e.message
@@ -543,7 +545,7 @@ class SharedSettingsViewModel
                         )
                     }
                     errorLog(logTag, "Unable to check Internet connection", e)
-                    _errorState.value = R.string.main_settings_proxy_check_connection_unsuccessful
+                    _errorState.value = SnackBarMessage(context.getString(R.string.main_settings_proxy_check_connection_unsuccessful))
                 }
             }
         }

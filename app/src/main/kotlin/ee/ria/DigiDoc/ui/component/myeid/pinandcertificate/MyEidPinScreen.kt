@@ -40,8 +40,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -76,7 +74,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.asFlow
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant
@@ -86,6 +83,7 @@ import ee.ria.DigiDoc.smartcardreader.ApduResponseException
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.shared.PrimaryOutlinedButton
 import ee.ria.DigiDoc.ui.component.shared.SecurePinTextField
+import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.signing.NFCSignatureUpdateContainer
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
@@ -97,8 +95,8 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessi
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.notAccessible
-import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
+import ee.ria.DigiDoc.utils.snackbar.SnackbarType
 import ee.ria.DigiDoc.viewmodel.NFCViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMyEidViewModel
@@ -121,11 +119,7 @@ fun MyEidPinScreen(
     val activity = LocalActivity.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val snackBarHostState = remember { SnackbarHostState() }
-    val snackBarScope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
-
-    val messages by SnackBarManager.messages.collectAsStateWithLifecycle(emptyList())
 
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
@@ -287,20 +281,11 @@ fun MyEidPinScreen(
         }
     }
 
-    LaunchedEffect(messages) {
-        messages.forEach { message ->
-            snackBarScope.launch {
-                snackBarHostState.showSnackbar(message)
-            }
-            SnackBarManager.removeMessage(message)
-        }
-    }
-
     LaunchedEffect(pinChangingState) {
         if (pinChangingState == true) {
             sharedMyEidViewModel.resetPinChangingState()
             resetPins()
-            showMessage(pinChangedSuccess)
+            showMessage(pinChangedSuccess, SnackbarType.SUCCESS)
             navController.navigateUp()
         }
     }
@@ -379,17 +364,12 @@ fun MyEidPinScreen(
     }
 
     Scaffold(
-        snackbarHost = {
-            SnackbarHost(
-                modifier = modifier.padding(vertical = SPadding),
-                hostState = snackBarHostState,
-            )
-        },
         modifier =
             modifier
                 .semantics {
                     testTagsAsResourceId = true
                 }.testTag("myEidPinScreen"),
+        snackbarHost = { StatusSnackbarHost() },
         topBar = {
             TopBar(
                 modifier = modifier,

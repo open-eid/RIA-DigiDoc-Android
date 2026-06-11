@@ -24,31 +24,52 @@ package ee.ria.DigiDoc.utils.snackbar
 import android.content.Context
 import androidx.annotation.StringRes
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 object SnackBarManager {
-    private val _messages = MutableStateFlow<List<String>>(emptyList())
-    val messages: SharedFlow<List<String>> = _messages
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
-    fun showMessage(message: String) {
-        CoroutineScope(Main).launch {
-            _messages.value = _messages.value + message
+    private val queue = mutableListOf<SnackBarMessage>()
+    private val _currentMessage = MutableStateFlow<SnackBarMessage?>(null)
+    val currentMessage: StateFlow<SnackBarMessage?> = _currentMessage.asStateFlow()
+
+    private var isPresenting = false
+
+    fun showMessage(
+        text: String,
+        type: SnackbarType = SnackbarType.ERROR,
+    ) {
+        scope.launch {
+            val message = SnackBarMessage(text, type)
+            if (queue.lastOrNull() == message) return@launch
+            queue.add(message)
+            processNext()
         }
     }
 
     fun showMessage(
         context: Context,
-        @StringRes message: Int,
+        @StringRes resId: Int,
+        type: SnackbarType = SnackbarType.ERROR,
     ) {
-        CoroutineScope(Main).launch {
-            _messages.value = _messages.value + context.getString(message)
-        }
+        showMessage(context.getString(resId), type)
     }
 
-    fun removeMessage(message: String) {
-        _messages.value = _messages.value.filter { it != message }
+    private fun processNext() {
+        if (isPresenting || queue.isEmpty()) return
+        isPresenting = true
+        _currentMessage.value = queue.removeAt(0)
+        scope.launch {
+            delay(4_000)
+            _currentMessage.value = null
+            isPresenting = false
+            processNext()
+        }
     }
 }

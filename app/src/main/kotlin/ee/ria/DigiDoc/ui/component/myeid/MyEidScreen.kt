@@ -37,18 +37,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -76,18 +71,17 @@ import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.myeid.mydata.MyEidMyDataView
 import ee.ria.DigiDoc.ui.component.myeid.pinandcertificate.MyEidPinAndCertificateView
 import ee.ria.DigiDoc.ui.component.shared.HrefDynamicText
+import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TabView
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.shared.dialog.PinGuideDialog
 import ee.ria.DigiDoc.ui.theme.Dimensions.LINE_HEIGHT
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utilsLib.date.DateUtil.formattedDateTime
 import ee.ria.DigiDoc.utilsLib.extensions.x509Certificate
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMyEidViewModel
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -100,11 +94,6 @@ fun MyEidScreen(
     sharedMyEidViewModel: SharedMyEidViewModel,
 ) {
     val listState = rememberLazyListState()
-
-    val snackBarHostState = remember { SnackbarHostState() }
-    val snackBarScope = rememberCoroutineScope()
-
-    val messages by SnackBarManager.messages.collectAsState(emptyList())
 
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
@@ -214,27 +203,13 @@ fun MyEidScreen(
         }
     }
 
-    LaunchedEffect(messages) {
-        messages.forEach { message ->
-            snackBarScope.launch {
-                snackBarHostState.showSnackbar(message)
-            }
-            SnackBarManager.removeMessage(message)
-        }
-    }
-
     Scaffold(
-        snackbarHost = {
-            SnackbarHost(
-                modifier = modifier.padding(vertical = SPadding),
-                hostState = snackBarHostState,
-            )
-        },
         modifier =
             modifier
                 .semantics {
                     testTagsAsResourceId = true
                 }.testTag("myEidScreen"),
+        snackbarHost = { StatusSnackbarHost() },
         topBar = {
             TopBar(
                 modifier = modifier,

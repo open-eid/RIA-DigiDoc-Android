@@ -63,4 +63,8 @@ object Dimensions {
 
     // Line height
     const val LINE_HEIGHT = 20f
+
+    // Elevation
+    val MElevation = 2.dp
+    val LElevation = 4.dp
 }
