@@ -404,6 +404,9 @@ class CryptoContainerTest {
 
             assertNotNull(result)
             assertEquals(containerCDOC1.name, result.name)
+            assertEquals(1, cryptoContainer.getDataFiles().size)
+            assertEquals("soe_30-04-2025_uus-sadama-16-3.jpeg", cryptoContainer.getDataFiles().first().name)
+            assertEquals(1, cryptoContainer.getRecipients().size)
         }
 
     @Test
@@ -444,6 +447,7 @@ class CryptoContainerTest {
 
             assertNotNull(result)
             assertEquals(containerRIACDOC1.name, result.name)
+            assertEquals(3, cryptoContainer.getRecipients().size)
         }
 
     @Test
