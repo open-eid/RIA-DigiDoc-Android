@@ -70,9 +70,7 @@ dependencies {
     api(libs.guava)
     implementation(libs.unboundid.ldapsdk)
     implementation(libs.okhttp3)
-    implementation(libs.cdoc4j)
     implementation(libs.preferencex)
-    implementation(libs.stax.api)
 
     testImplementation(libs.junit)
 

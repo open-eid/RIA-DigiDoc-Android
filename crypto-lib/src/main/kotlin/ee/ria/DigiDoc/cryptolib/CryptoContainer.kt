@@ -63,7 +63,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
-import org.openeid.cdoc4j.CDOCParser
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -180,7 +179,10 @@ class CryptoContainer
                 context: Context,
                 file: File,
             ): CryptoContainer {
-                val cdoc1 = if (file.extension == CDOC1_EXTENSION) openCDOC1(context, file) else null
+                debugLog(LOG_TAG, "Opening crypto container: ${file.name} (extension ${file.extension})")
+                val cdoc1 = if (file.extension == CDOC1_EXTENSION) parseCdoc1(file) else null
+                val dataFiles = cdoc1?.dataFileNames?.map { File(it) }.orEmpty()
+                debugLog(LOG_TAG, "Parsed CDOC1 content: ${cdoc1 != null}, data file count: ${dataFiles.size}")
 
                 val cdocReader = CDocReader.createReader(file.path, null, null, null)
                 debugLog(LOG_TAG, "Reader created: (version ${cdocReader.version})")
@@ -193,7 +195,7 @@ class CryptoContainer
                         }
                     }
 
-                val cdoc1Recipients = cdoc1?.getRecipients().orEmpty()
+                val cdoc1Recipients = cdoc1?.recipientCertificates?.map { Addressee(it) }.orEmpty()
                 val recipients =
                     if (cdoc1Recipients.isNotEmpty()) {
                         cdoc1Recipients.onEach { recipient ->
@@ -204,62 +206,7 @@ class CryptoContainer
                     } else {
                         lockAddressees
                     }
-
-                return create(
-                    context,
-                    file,
-                    cdoc1?.getDataFiles().orEmpty(),
-                    recipients,
-                    decrypted = false,
-                    encrypted = true,
-                    isExistingContainer = true,
-                )
-            }
-
-            private fun addresseeOf(lock: Lock): Addressee =
-                when {
-                    lock.isCDoc1 ->
-                        Addressee(lock.getBytes(Lock.Params.CERT)).apply {
-                            if (!lock.isRSA) {
-                                concatKDFAlgorithmURI = lock.getString(Lock.Params.CONCAT_DIGEST)
-                            }
-                        }
-                    lock.isPKI -> Addressee(lock.label, lock.getBytes(Lock.Params.RCPT_KEY), "")
-                    lock.isSymmetric -> Addressee(lock.label, "", CertType.UnknownType, null, ByteArray(0))
-                    else -> Addressee("Unknown capsule", ByteArray(0), "")
-                }.apply {
-                    keyLabel = lock.label.takeIf { it.isNotBlank() }
-                    if (lock.type == Lock.Type.SERVER) {
-                        serverId = lock.getString(Lock.Params.KEYSERVER_ID).takeIf { it.isNotBlank() }
-                        transactionId = lock.getString(Lock.Params.TRANSACTION_ID).takeIf { it.isNotBlank() }
-                    }
-                }
-
-            @Throws(CryptoException::class)
-            suspend fun openCDOC1(
-                context: Context,
-                file: File,
-            ): CryptoContainer {
-                val dataFiles = ArrayList<File>()
-                val recipients = ArrayList<Addressee>()
-
-                withContext(IO) {
-                    try {
-                        FileInputStream(file).use { dataFilesStream ->
-                            CDOCParser.getDataFileNames(dataFilesStream).forEach { dataFileName ->
-                                dataFiles.add(File(dataFileName))
-                            }
-                        }
-                        FileInputStream(file).use { recipientsStream ->
-                            CDOCParser.getRecipients(recipientsStream).forEach { recipient ->
-                                val addressee = Addressee(recipient.certificate.encoded)
-                                recipients.add(addressee)
-                            }
-                        }
-                    } catch (e: Exception) {
-                        throw CryptoException("Can't open crypto container", e)
-                    }
-                }
+                debugLog(LOG_TAG, "Resolved ${recipients.size} recipient(s) for container ${file.name}")
 
                 return create(
                     context,
@@ -271,6 +218,46 @@ class CryptoContainer
                     isExistingContainer = true,
                 )
             }
+
+            private fun addresseeOf(lock: Lock): Addressee {
+                debugLog(
+                    LOG_TAG,
+                    "Mapping lock to addressee with label ${lock.label}. " +
+                        "Is CDOC1: ${lock.isCDoc1}, is PKI: ${lock.isPKI}, is symmetric: ${lock.isSymmetric}",
+                )
+                return when {
+                    lock.isCDoc1 ->
+                        Addressee(lock.getBytes(Lock.Params.CERT)).apply {
+                            if (!lock.isRSA) {
+                                concatKDFAlgorithmURI = lock.getString(Lock.Params.CONCAT_DIGEST)
+                            }
+                        }
+                    lock.isPKI -> Addressee(lock.label, lock.getBytes(Lock.Params.RCPT_KEY), "")
+                    lock.isSymmetric -> Addressee(lock.label, "", CertType.UnknownType, null, ByteArray(0))
+                    else -> {
+                        debugLog(LOG_TAG, "Unknown lock type for label ${lock.label}, mapping to 'Unknown capsule'")
+                        Addressee("Unknown capsule", ByteArray(0), "")
+                    }
+                }.apply {
+                    keyLabel = lock.label.takeIf { it.isNotBlank() }
+                    if (lock.type == Lock.Type.SERVER) {
+                        serverId = lock.getString(Lock.Params.KEYSERVER_ID).takeIf { it.isNotBlank() }
+                        transactionId = lock.getString(Lock.Params.TRANSACTION_ID).takeIf { it.isNotBlank() }
+                    }
+                }
+            }
+
+            @Throws(CryptoException::class)
+            private suspend fun parseCdoc1(file: File): Cdoc1Content =
+                withContext(IO) {
+                    debugLog(LOG_TAG, "Parsing CDOC1 container: ${file.name}")
+                    try {
+                        FileInputStream(file).use { Cdoc1Parser.parse(it) }
+                    } catch (e: Exception) {
+                        errorLog(LOG_TAG, "Can't open crypto container: ${e.message}", e)
+                        throw CryptoException("Can't open crypto container", e)
+                    }
+                }
 
             @Throws(CryptoException::class, SmartCardReaderException::class)
             fun decrypt(
@@ -317,11 +304,12 @@ class CryptoContainer
                         if (cdocReader.beginDecryption(fmk) != 0L) {
                             throw CryptoException("Failed to begin decryption")
                         }
+                        debugLog(LOG_TAG, "Decryption started for container ${file.name}")
 
-                        val fi = FileInfo()
-                        var result: Long = cdocReader.nextFile(fi)
+                        val fileInfo = FileInfo()
+                        var result: Long = cdocReader.nextFile(fileInfo)
                         while (result == CDoc.OK.toLong()) {
-                            val ofile = File(fi.name)
+                            val ofile = File(fileInfo.name)
                             val dir =
                                 ContainerUtil.getContainerDataFilesDir(
                                     context,
@@ -333,12 +321,14 @@ class CryptoContainer
                                 cdocReader.readFile(ofs)
                             }
                             dataFiles.add(fileToSave)
-                            result = cdocReader.nextFile(fi)
+                            debugLog(LOG_TAG, "Decrypted data file: $tmp")
+                            result = cdocReader.nextFile(fileInfo)
                         }
 
                         if (cdocReader.finishDecryption() != 0L) {
                             throw CryptoException("Failed to finish decryption")
                         }
+                        debugLog(LOG_TAG, "Decryption finished, ${dataFiles.size} data file(s) extracted")
 
                         create(
                             context,
@@ -349,6 +339,7 @@ class CryptoContainer
                             encrypted = false,
                         )
                     } catch (exc: IOException) {
+                        errorLog(LOG_TAG, "IO Exception while decrypting container: ${exc.message}", exc)
                         throw CryptoException("IO Exception: ${exc.message}", exc)
                     } finally {
                         cdocReader.delete()

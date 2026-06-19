@@ -21,6 +21,7 @@
 
 package ee.ria.DigiDoc.cryptolib
 
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.cdoc.Lock.parseLabel
 import org.bouncycastle.asn1.ASN1InputStream
 import org.bouncycastle.asn1.ASN1OctetString
@@ -34,6 +35,8 @@ import java.io.Serializable
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import java.util.Date
+
+private const val LOG_TAG = "Addressee"
 
 class Addressee(
     var data: ByteArray,
@@ -148,7 +151,8 @@ class Addressee(
                 } else {
                     ""
                 }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                errorLog(LOG_TAG, "Unable to extract CN from certificate", e)
                 ""
             }
 
@@ -173,7 +177,8 @@ class Addressee(
                 } else {
                     ""
                 }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                errorLog(LOG_TAG, "Unable to extract serial number from certificate", e)
                 ""
             }
 
@@ -201,7 +206,8 @@ class Addressee(
                     }
                 }
                 CertType.UnknownType
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                errorLog(LOG_TAG, "Unable to extract certificate type", e)
                 CertType.UnknownType
             }
         }
@@ -213,7 +219,8 @@ class Addressee(
                         .getInstance("X.509")
                         .generateCertificate(cert.inputStream()) as X509Certificate
                 certificate.notAfter
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                errorLog(LOG_TAG, "Unable to extract validTo from certificate", e)
                 null
             }
     }
