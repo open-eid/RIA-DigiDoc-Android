@@ -169,64 +169,59 @@ class CryptoContainer
                 context: Context,
                 file: File,
             ): CryptoContainer {
-                val dataFiles = ArrayList<File>()
-                var recipients = ArrayList<Addressee>()
-                if (file.extension == CDOC1_EXTENSION) {
-                    val cdoc1Container = openCDOC1(context, file)
-                    dataFiles.addAll(cdoc1Container.getDataFiles())
-                    recipients.addAll(cdoc1Container.getRecipients())
-                }
+                val cdoc1 = if (file.extension == CDOC1_EXTENSION) openCDOC1(context, file) else null
 
-                val addressees = ArrayList<Addressee>()
                 val cdocReader = CDocReader.createReader(file.path, null, null, null)
                 debugLog(LOG_TAG, "Reader created: (version ${cdocReader.version})")
-
-                withContext(IO) {
-                    cdocReader.locks.forEach { lock ->
-                        if (lock.isCertificate) {
-                            var concatKDFAlgorithmURI = ""
-                            if (!lock.isRSA) {
-                                concatKDFAlgorithmURI = lock.getString(Lock.Params.CONCAT_DIGEST)
-                            }
-                            addressees.add(
-                                Addressee(lock.label, lock.getBytes(Lock.Params.CERT), concatKDFAlgorithmURI),
-                            )
-                        } else if (lock.isPKI) {
-                            addressees.add(
-                                Addressee(lock.label, lock.getBytes(Lock.Params.RCPT_KEY), ""),
-                            )
-                        } else if (lock.isSymmetric) {
-                            addressees.add(
-                                Addressee(lock.label, "", CertType.UnknownType, null, ByteArray(0)),
-                            )
-                        } else {
-                            addressees.add(Addressee("Unknown capsule", ByteArray(0), ""))
+                val lockAddressees =
+                    withContext(IO) {
+                        try {
+                            cdocReader.locks.map(::addresseeOf)
+                        } finally {
+                            cdocReader.delete()
                         }
                     }
-                    cdocReader.delete()
-                }
 
-                if (!recipients.isEmpty()) {
-                    addressees.forEach { addressee ->
-                        recipients.forEach { recipient ->
-                            if (addressee.data.contentEquals(recipient.data)) {
-                                recipient.concatKDFAlgorithmURI = addressee.concatKDFAlgorithmURI
-                            }
+                val cdoc1Recipients = cdoc1?.getRecipients().orEmpty()
+                val recipients =
+                    if (cdoc1Recipients.isNotEmpty()) {
+                        cdoc1Recipients.onEach { recipient ->
+                            lockAddressees
+                                .firstOrNull { it.data.contentEquals(recipient.data) }
+                                ?.let { recipient.concatKDFAlgorithmURI = it.concatKDFAlgorithmURI }
                         }
+                    } else {
+                        lockAddressees
                     }
-                } else {
-                    recipients = addressees
-                }
 
                 return create(
                     context,
                     file,
-                    dataFiles,
+                    cdoc1?.getDataFiles().orEmpty(),
                     recipients,
                     decrypted = false,
                     encrypted = true,
                 )
             }
+
+            private fun addresseeOf(lock: Lock): Addressee =
+                when {
+                    lock.isCDoc1 ->
+                        Addressee(lock.getBytes(Lock.Params.CERT)).apply {
+                            if (!lock.isRSA) {
+                                concatKDFAlgorithmURI = lock.getString(Lock.Params.CONCAT_DIGEST)
+                            }
+                        }
+                    lock.isPKI -> Addressee(lock.label, lock.getBytes(Lock.Params.RCPT_KEY), "")
+                    lock.isSymmetric -> Addressee(lock.label, "", CertType.UnknownType, null, ByteArray(0))
+                    else -> Addressee("Unknown capsule", ByteArray(0), "")
+                }.apply {
+                    keyLabel = lock.label.takeIf { it.isNotBlank() }
+                    if (lock.type == Lock.Type.SERVER) {
+                        serverId = lock.getString(Lock.Params.KEYSERVER_ID).takeIf { it.isNotBlank() }
+                        transactionId = lock.getString(Lock.Params.TRANSACTION_ID).takeIf { it.isNotBlank() }
+                    }
+                }
 
             @Throws(CryptoException::class)
             suspend fun openCDOC1(

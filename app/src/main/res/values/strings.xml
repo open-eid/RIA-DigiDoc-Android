@@ -405,6 +405,9 @@
     <string name="recipient_details_certificate_issuer_label">Recipient\'s Certificate issuer:</string>
     <string name="recipient_details_concat_kdf_algorithm_url">ConcatKDF reference method:</string>
     <string name="recipient_details_certificate_valid_to_label">Recipient\'s Certificate expiry date:</string>
+    <string name="recipient_details_key_label">Recipient\'s technical details:</string>
+    <string name="recipient_details_keyserver_label">Server identifier:</string>
+    <string name="recipient_details_transaction_label">Transaction identifier:</string>
 
     <!-- Signature Details -->
     <string name="signature_error_details_title">Warnings</string>

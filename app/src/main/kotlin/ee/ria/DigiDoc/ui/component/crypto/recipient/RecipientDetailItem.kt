@@ -47,13 +47,19 @@ data class RecipientDetailItem(
         recipientFormattedName: String?,
         recipientIssuerName: String?,
         recipientConcatKDFAlgorithmURI: String?,
-    ): List<RecipientDetailItem> =
-        listOf(
+    ): List<RecipientDetailItem> {
+        val recipientCertificate = recipient.data.x509Certificate()
+        return listOf(
             RecipientDetailItem(
-                icon = R.drawable.ic_m3_expand_content_48dp_wght400,
+                icon =
+                    if (recipientCertificate != null) {
+                        R.drawable.ic_m3_expand_content_48dp_wght400
+                    } else {
+                        0
+                    },
                 label = R.string.recipient_details_name_label,
                 value = recipientFormattedName,
-                certificate = recipient.data.x509Certificate(),
+                certificate = recipientCertificate,
                 contentDescription =
                     if (value != null) {
                         "${stringResource(
@@ -111,5 +117,24 @@ data class RecipientDetailItem(
                     },
                 testTag = "recipientCertificateValidTo",
             ),
+            RecipientDetailItem(
+                icon = 0,
+                label = R.string.recipient_details_key_label,
+                value = recipient.keyLabel,
+                testTag = "recipientKeyLabel",
+            ),
+            RecipientDetailItem(
+                icon = 0,
+                label = R.string.recipient_details_keyserver_label,
+                value = recipient.serverId,
+                testTag = "recipientServerId",
+            ),
+            RecipientDetailItem(
+                icon = 0,
+                label = R.string.recipient_details_transaction_label,
+                value = recipient.transactionId,
+                testTag = "recipientTransactionId",
+            ),
         )
+    }
 }

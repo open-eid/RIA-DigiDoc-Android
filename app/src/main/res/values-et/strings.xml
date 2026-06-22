@@ -405,6 +405,9 @@
     <string name="recipient_details_certificate_issuer_label">Adressaadi sertifikaadi väljaandja:</string>
     <string name="recipient_details_concat_kdf_algorithm_url">ConcatKDF referaatmeetod:</string>
     <string name="recipient_details_certificate_valid_to_label">Adressaadi sertifikaadi aegumiskuupäev:</string>
+    <string name="recipient_details_key_label">Adressaadi tehnilised andmed:</string>
+    <string name="recipient_details_keyserver_label">Serveri identifikaator:</string>
+    <string name="recipient_details_transaction_label">Transaktsiooni identifikaator:</string>
 
     <!-- Signature Details -->
     <string name="signature_error_details_title">Hoiatused</string>
