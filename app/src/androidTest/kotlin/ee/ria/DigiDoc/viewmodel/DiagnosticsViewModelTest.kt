@@ -179,6 +179,8 @@ class DiagnosticsViewModelTest {
             )
         proxySetting = ProxySetting.NO_PROXY
         manualProxy = ManualProxy("", 80, "", "")
+        dataStore.setProxySetting(ProxySetting.NO_PROXY)
+        dataStore.setProxyUsername("")
     }
 
     @Test
@@ -424,6 +426,51 @@ class DiagnosticsViewModelTest {
         val cdoc2KeyServerUUID = viewModel.getCdoc2KeyServerUUID(configurationProvider)
 
         assertEquals(DEFAULT_UUID_VALUE, cdoc2KeyServerUUID)
+    }
+
+    @Test
+    fun diagnosticsViewModel_getProxyConfig_returnsNoneForNoProxy() {
+        dataStore.setProxySetting(ProxySetting.NO_PROXY)
+
+        val result = viewModel.getProxyConfig()
+
+        assertEquals("NONE", result)
+    }
+
+    @Test
+    fun diagnosticsViewModel_getProxyConfig_returnsSystemForSystemProxy() {
+        dataStore.setProxySetting(ProxySetting.SYSTEM_PROXY)
+
+        val result = viewModel.getProxyConfig()
+
+        assertEquals("SYSTEM", result)
+    }
+
+    @Test
+    fun diagnosticsViewModel_getProxyConfig_returnsManualForManualProxy() {
+        dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
+
+        val result = viewModel.getProxyConfig()
+
+        assertEquals("MANUAL", result)
+    }
+
+    @Test
+    fun diagnosticsViewModel_isProxyAuthEnabled_returnTrueWhenUsernameSet() {
+        dataStore.setProxyUsername("username")
+
+        val result = viewModel.isProxyAuthEnabled()
+
+        assertTrue(result)
+    }
+
+    @Test
+    fun diagnosticsViewModel_isProxyAuthEnabled_returnFalseWhenUsernameEmpty() {
+        dataStore.setProxyUsername("")
+
+        val result = viewModel.isProxyAuthEnabled()
+
+        assertFalse(result)
     }
 
     @Suppress("SameParameterValue")
