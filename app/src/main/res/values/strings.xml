@@ -194,8 +194,6 @@
     <string name="signature_update_method_title">Choose a signing method</string>
     <string name="signature_update_method_save_button">Save selection</string>
 
-    <string name="converted_to_signed_container">Converted to signed document!</string>
-
     <string name="signature_update_signature_add_method_mobile_id">mobile-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
     <string name="signature_update_signature_add_method_nfc">ID-card via NFC</string>

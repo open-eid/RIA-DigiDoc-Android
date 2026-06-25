@@ -373,36 +373,6 @@ fun EncryptNavigation(
         clickedRecipient.value = recipient
     }
 
-    val onSignActionClick: () -> Unit = {
-        showLoadingScreen.value = true
-        scope.launch(IO) {
-            try {
-                encryptViewModel.openSignedContainer(
-                    context,
-                    cryptoContainer,
-                    sharedContainerViewModel,
-                )
-
-                withContext(Main) {
-                    showMessage(context, R.string.converted_to_signed_container, SnackbarType.SUCCESS)
-                }
-
-                delay(2000)
-                withContext(Main) {
-                    navController.navigate(Route.Signing.route) {
-                        popUpTo(Route.Home.route) {
-                            inclusive = false
-                        }
-                        launchSingleTop = true
-                    }
-                    showLoadingScreen.value = true
-                }
-            } catch (_: Exception) {
-                showMessage(context, R.string.container_load_error)
-            }
-        }
-    }
-
     val onEncryptClick = {
         if (encryptionButtonEnabled.value) {
             encryptionButtonEnabled.value = false
@@ -669,7 +639,8 @@ fun EncryptNavigation(
                     .focusGroup()
                     .semantics {
                         testTagsAsResourceId = true
-                    }.testTag("encryptContainer"),
+                    }
+                    .testTag("encryptContainer"),
         ) {
             var actionRecipient by remember { mutableStateOf<Addressee?>(null) }
 
@@ -724,7 +695,8 @@ fun EncryptNavigation(
                                             .semantics {
                                                 heading()
                                                 testTagsAsResourceId = true
-                                            }.testTag("encryptionTitle"),
+                                            }
+                                            .testTag("encryptionTitle"),
                                     text = stringResource(R.string.crypto_new_title),
                                     style = MaterialTheme.typography.headlineMedium,
                                     color = MaterialTheme.colorScheme.onBackground,
@@ -752,11 +724,7 @@ fun EncryptNavigation(
                             ContainerNameView(
                                 icon = containerNameIcon,
                                 name = cryptoContainerName,
-                                showLeftActionButton =
-                                    encryptViewModel.isSignButtonShown(
-                                        cryptoContainer,
-                                        isNestedContainer,
-                                    ),
+                                showLeftActionButton = false,
                                 showRightActionButton =
                                     encryptViewModel.isDecryptButtonShown(
                                         cryptoContainer,
@@ -770,7 +738,7 @@ fun EncryptNavigation(
                                 rightActionButtonName = rightActionButtonName,
                                 leftActionButtonContentDescription = R.string.sign_button,
                                 rightActionButtonContentDescription = rightActionButtonName,
-                                onLeftActionButtonClick = onSignActionClick,
+                                onLeftActionButtonClick = {},
                                 onRightActionButtonClick = {
                                     if (encryptViewModel.isDecryptButtonShown(cryptoContainer, isNestedContainer)) {
                                         showLoadingScreen.value = true
@@ -806,7 +774,8 @@ fun EncryptNavigation(
                                                 .size(loadingBarSize)
                                                 .semantics {
                                                     this.contentDescription = dataFilesLoading
-                                                }.testTag("dataFilesLoadingProgress"),
+                                                }
+                                                .testTag("dataFilesLoadingProgress"),
                                     )
                                 }
                             }
@@ -821,7 +790,8 @@ fun EncryptNavigation(
                                                 .semantics {
                                                     heading()
                                                     testTagsAsResourceId = true
-                                                }.testTag("encryptDocumentsTitle"),
+                                                }
+                                                .testTag("encryptDocumentsTitle"),
                                         text = containerFilesDescription,
                                         style = MaterialTheme.typography.bodyMedium,
                                         textAlign = TextAlign.Start,
@@ -1093,9 +1063,7 @@ fun EncryptNavigation(
                                 cryptoContainer?.hasRecipients() == true
                         )
                 ),
-                isSignButtonShown = !isNestedContainer && encryptViewModel.isEncryptedContainer(cryptoContainer),
                 cryptoContainer = cryptoContainer,
-                onSignClick = onSignActionClick,
                 saveFileLauncher = saveFileLauncher,
                 saveFile = saveFile,
             )

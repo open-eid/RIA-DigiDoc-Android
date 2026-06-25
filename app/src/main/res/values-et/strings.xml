@@ -194,8 +194,6 @@
     <string name="signature_update_method_title">Vali allkirjastamise meetod</string>
     <string name="signature_update_method_save_button">Salvesta valik</string>
 
-    <string name="converted_to_signed_container">Konverteeritud allkirjadokumendiks!</string>
-
     <string name="signature_update_signature_add_method_mobile_id">mobiil-ID</string>
     <string name="signature_update_signature_add_method_smart_id">Smart-ID</string>
     <string name="signature_update_signature_add_method_nfc">ID-kaart NFC abil</string>
