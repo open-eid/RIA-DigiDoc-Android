@@ -45,6 +45,7 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccess
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -200,11 +201,17 @@ class DiagnosticsViewModel
 
         @Throws(Exception::class)
         suspend fun updateConfiguration(context: Context) {
-            configurationLoader.loadCentralConfiguration(
-                context,
-                dataStore.getProxySetting(),
-                dataStore.getManualProxySettings(),
-            )
+            try {
+                configurationLoader.loadCentralConfiguration(
+                    context,
+                    dataStore.getProxySetting(),
+                    dataStore.getManualProxySettings(),
+                )
+                debugLog(logTag, "Central configuration update successful")
+            } catch (ex: Exception) {
+                errorLog(logTag, "Central configuration update failed", ex)
+                throw ex
+            }
         }
 
         fun saveFile(

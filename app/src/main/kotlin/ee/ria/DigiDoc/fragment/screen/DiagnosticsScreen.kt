@@ -233,9 +233,12 @@ fun DiagnosticsScreen(
                         CoroutineScope(Dispatchers.IO).launch {
                             try {
                                 diagnosticsViewModel.updateConfiguration(context)
+                                withContext(Main) {
+                                    showMessage(context, R.string.configuration_update_success)
+                                }
                             } catch (_: Exception) {
                                 withContext(Main) {
-                                    showMessage(context, R.string.no_internet_connection)
+                                    showMessage(context, R.string.configuration_update_failed)
                                 }
                             }
                         }

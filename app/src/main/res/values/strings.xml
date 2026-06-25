@@ -460,6 +460,8 @@
 
     <string name="configuration_is_already_up_to_date">configuration is already up-to-date</string>
     <string name="configuration_updated">Configuration updated</string>
+    <string name="configuration_update_success">RIA DigiDoc configuration update was successful</string>
+    <string name="configuration_update_failed">Please check your internet connection and network settings</string>
     <string name="language_changed">Language changed</string>
     <string name="theme_changed">Theme changed</string>
     <string name="setting_value_changed">Setting value changed</string>
