@@ -538,6 +538,29 @@ fun DiagnosticsScreen(
                     stringResource(id = R.string.main_diagnostics_cdoc2_default_keyserver_title),
                     diagnosticsViewModel.getCdoc2KeyServerUUID(currentConfiguration),
                 )
+                SpannableBoldText(
+                    modifier = modifier,
+                    stringResource(id = R.string.main_diagnostics_settings_title),
+                    "",
+                )
+                DiagnosticsText(
+                    modifier =
+                        modifier
+                            .semantics {
+                                testTagsAsResourceId = true
+                            }.testTag("mainDiagnosticsProxyConfig"),
+                    stringResource(id = R.string.main_diagnostics_proxy_config_title),
+                    diagnosticsViewModel.getProxyConfig(),
+                )
+                DiagnosticsText(
+                    modifier =
+                        modifier
+                            .semantics {
+                                testTagsAsResourceId = true
+                            }.testTag("mainDiagnosticsProxyAuth"),
+                    stringResource(id = R.string.main_diagnostics_proxy_auth_title),
+                    diagnosticsViewModel.isProxyAuthEnabled().toString(),
+                )
                 HorizontalDivider(
                     modifier =
                         modifier

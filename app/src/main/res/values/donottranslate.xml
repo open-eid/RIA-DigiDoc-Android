@@ -99,6 +99,9 @@
     <string name="main_diagnostics_cdoc2_default_title">CDOC2-DEFAULT:\u0020</string>
     <string name="main_diagnostics_cdoc2_use_keyserver_title">CDOC2-USE-KEYSERVER:\u0020</string>
     <string name="main_diagnostics_cdoc2_default_keyserver_title">CDOC2-DEFAULT-KEYSERVER:\u0020</string>
+    <string name="main_diagnostics_settings_title">Settings:</string>
+    <string name="main_diagnostics_proxy_config_title">Proxy config:\u0020</string>
+    <string name="main_diagnostics_proxy_auth_title">Proxy auth:\u0020</string>
 
     <string name="main_diagnostics_date_title">DATE:\u0020</string>
     <string name="main_diagnostics_serial_title">SERIAL:\u0020</string>

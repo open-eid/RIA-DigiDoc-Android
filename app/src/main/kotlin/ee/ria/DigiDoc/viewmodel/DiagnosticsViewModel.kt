@@ -40,6 +40,7 @@ import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.configuration.utils.TSLUtil
 import ee.ria.DigiDoc.domain.model.settings.CDOCSetting
 import ee.ria.DigiDoc.domain.preferences.DataStore
+import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
@@ -162,6 +163,15 @@ class DiagnosticsViewModel
             val defaultKeyServer = currentConfiguration?.cdoc2DefaultKeyServer ?: DEFAULT_UUID_VALUE
             return dataStore.getCDOC2UUID(defaultKeyServer)
         }
+
+        fun getProxyConfig(): String =
+            when (dataStore.getProxySetting()) {
+                ProxySetting.NO_PROXY -> "NONE"
+                ProxySetting.SYSTEM_PROXY -> "SYSTEM"
+                ProxySetting.MANUAL_PROXY -> "MANUAL"
+            }
+
+        fun isProxyAuthEnabled(): Boolean = dataStore.getProxyUsername().isNotEmpty()
 
         fun getTslCacheData(context: Context): List<String> {
             val tslCacheList = ArrayList<String>()
@@ -388,6 +398,24 @@ class DiagnosticsViewModel
                                 R.string.main_diagnostics_cdoc2_default_keyserver_title,
                             )
                         } ${getCdoc2KeyServerUUID(currentConfiguration)}",
+                    )
+
+                    // Settings
+                    appendLine()
+                    appendLine(context.getString(R.string.main_diagnostics_settings_title))
+                    appendLine(
+                        "${
+                            context.getString(
+                                R.string.main_diagnostics_proxy_config_title,
+                            )
+                        } ${getProxyConfig()}",
+                    )
+                    appendLine(
+                        "${
+                            context.getString(
+                                R.string.main_diagnostics_proxy_auth_title,
+                            )
+                        } ${isProxyAuthEnabled()}",
                     )
 
                     // Category
