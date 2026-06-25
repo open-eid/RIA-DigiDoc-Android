@@ -357,7 +357,7 @@
     <string name="encrypt_button_accessibility">Krüpteeri dokument</string>
     <string name="decrypt_button">Dekrüpteeri</string>
     <string name="decrypt_button_accessibility">Dekrüpteeri dokument</string>
-    <string name="converted_to_crypto_container">Konverteeritud turvaümbrikuks!</string>
+    <string name="converted_to_crypto_container">Teisendatud krüptoümbrikuks!</string>
 
     <!-- Accessibility -->
     <string name="file_added">Fail edukalt lisatud</string>
