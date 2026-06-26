@@ -838,8 +838,15 @@ fun SigningNavigation(
                                     textAlign = TextAlign.Start,
                                 )
                             }
+                            val containerNameIcon =
+                                if (signingViewModel.isContainerWithoutSignatures(signedContainer)) {
+                                    R.drawable.ic_m3_folder_48dp_wght400
+                                } else {
+                                    R.drawable.ic_m3_stylus_note_48dp_wght400
+                                }
+
                             ContainerNameView(
-                                icon = R.drawable.ic_m3_stylus_note_48dp_wght400,
+                                icon = containerNameIcon,
                                 name = signedContainerName,
                                 showLeftActionButton =
                                     signedContainer?.isSigned() == true &&
