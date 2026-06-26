@@ -113,6 +113,7 @@ class MainActivity :
             }
 
         if (rootChecker.isRooted()) {
+            isAppReady = true
             setContent {
                 RIADigiDocTheme(darkTheme = useDarkMode) {
                     RootFragment()
