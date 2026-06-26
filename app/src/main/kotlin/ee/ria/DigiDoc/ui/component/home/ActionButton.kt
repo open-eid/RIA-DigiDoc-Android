@@ -30,12 +30,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
@@ -62,11 +60,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.component.shared.MiddleEllipsizeMultilineText
-import ee.ria.DigiDoc.ui.theme.Dimensions.MSCornerRadius
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
-import ee.ria.DigiDoc.ui.theme.Dimensions.buttonShadowElevation
+import ee.ria.DigiDoc.ui.theme.Dimensions.XXSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
-import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
 
@@ -83,35 +79,18 @@ fun ActionButton(
 ) {
     val titleText = stringResource(id = title)
 
-    Box(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .padding(vertical = XSPadding),
-        contentAlignment = Alignment.Center,
+    Card(
+        shape = buttonRoundedCornerShape,
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            ),
+        elevation =
+            CardDefaults.elevatedCardElevation(
+                defaultElevation = XXSPadding,
+            ),
+        modifier = modifier.fillMaxWidth().padding(vertical = XSPadding),
     ) {
-        Box(
-            modifier =
-                modifier
-                    .matchParentSize()
-                    .offset(y = buttonShadowElevation)
-                    .background(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = RoundedCornerShape(MSCornerRadius),
-                    ),
-        )
-        Card(
-            shape = buttonRoundedCornerShape,
-            colors =
-                CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                ),
-            elevation =
-                CardDefaults.elevatedCardElevation(
-                    defaultElevation = buttonShadowElevation,
-                ),
-            modifier = modifier.padding(bottom = zeroPadding),
-        ) {
             Button(
                 modifier =
                     modifier
@@ -157,7 +136,7 @@ fun ActionButton(
                                 Modifier
                                     .wrapContentHeight()
                                     .background(
-                                        color = MaterialTheme.colorScheme.primaryContainer,
+                                        color = MaterialTheme.colorScheme.primary,
                                         shape = CircleShape,
                                     ),
                         ) {
@@ -189,7 +168,7 @@ fun ActionButton(
                             text = titleText,
                             modifier =
                                 modifier
-                                    .padding(bottom = XSPadding / 2)
+                                    .padding(start = XXSPadding, bottom = XSPadding / 2)
                                     .wrapContentHeight(align = Alignment.CenterVertically)
                                     .semantics {
                                         this.contentDescription = contentDescription
@@ -201,7 +180,7 @@ fun ActionButton(
                         MiddleEllipsizeMultilineText(
                             modifier =
                                 modifier
-                                    .padding(zeroPadding)
+                                    .padding(horizontal = XXSPadding)
                                     .wrapContentHeight(align = Alignment.CenterVertically)
                                     .focusable(false)
                                     .semantics {
@@ -215,7 +194,6 @@ fun ActionButton(
                     }
                 }
             }
-        }
     }
 }
 

@@ -31,7 +31,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -85,22 +85,15 @@ fun PrimaryButton(
         contentPadding = PaddingValues(zeroPadding),
         enabled = enabled,
         colors =
-            ButtonColors(
+            ButtonDefaults.buttonColors(
                 containerColor = containerColor,
                 contentColor = contentColor,
-                disabledContainerColor = MaterialTheme.colorScheme.background,
-                disabledContentColor = MaterialTheme.colorScheme.tertiary,
             ),
         border =
             if (isSubButton) {
                 BorderStroke(
                     width = SBorder,
                     color = contentColor,
-                )
-            } else if (!enabled) {
-                BorderStroke(
-                    width = SBorder,
-                    color = MaterialTheme.colorScheme.tertiary,
                 )
             } else {
                 BorderStroke(noBorderStroke, Transparent)

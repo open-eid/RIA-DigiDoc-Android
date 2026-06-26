@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,8 +42,8 @@ data class VerticalButtonConfig(
     val contentDescription: String = "",
     val isEnabled: Boolean = true,
     val isSubButton: Boolean = true,
-    val containerColor: Color = Color.White,
-    val contentColor: Color = Color.Blue,
+    val containerColor: Color,
+    val contentColor: Color,
     val onClick: () -> Unit = {},
     val testTag: String = "",
 )
@@ -85,9 +86,13 @@ fun VerticalButtonColumnPreview() {
                 listOf(
                     VerticalButtonConfig(
                         title = R.string.ok_button,
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
                     ),
                     VerticalButtonConfig(
                         title = R.string.cancel_button,
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
                     ),
                 ),
         )

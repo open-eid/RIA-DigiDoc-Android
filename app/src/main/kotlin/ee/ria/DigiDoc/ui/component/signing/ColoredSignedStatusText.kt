@@ -34,11 +34,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.ui.component.shared.TagBadge
-import ee.ria.DigiDoc.ui.theme.Green_2_50
-import ee.ria.DigiDoc.ui.theme.Green_2_700
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.ui.theme.Red50
-import ee.ria.DigiDoc.ui.theme.Red800
+import ee.ria.DigiDoc.ui.theme.extendedColorScheme
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -54,11 +51,11 @@ fun ColoredSignedStatusText(
             status == ValidatorInterface.Status.Warning ||
             status == ValidatorInterface.Status.NonQSCD
 
-    val tagBackgroundColor = if (isSignatureValidOrWarning) Green_2_50 else Red50
-    val tagContentColor = if (isSignatureValidOrWarning) Green_2_700 else Red800
+    val tagBackgroundColor = if (isSignatureValidOrWarning) MaterialTheme.extendedColorScheme.successContainer else MaterialTheme.colorScheme.errorContainer
+    val tagContentColor = if (isSignatureValidOrWarning) MaterialTheme.extendedColorScheme.onSuccessContainer else MaterialTheme.colorScheme.onErrorContainer
     val additionalTextColor =
         if (status == ValidatorInterface.Status.Valid) {
-            Red800
+            MaterialTheme.extendedColorScheme.onWarningContainer
         } else {
             MaterialTheme.colorScheme.onErrorContainer
         }

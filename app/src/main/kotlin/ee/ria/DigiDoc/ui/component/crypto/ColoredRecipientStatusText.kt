@@ -24,14 +24,12 @@ package ee.ria.DigiDoc.ui.component.crypto
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import ee.ria.DigiDoc.ui.component.shared.TagBadge
-import ee.ria.DigiDoc.ui.theme.Green_2_50
-import ee.ria.DigiDoc.ui.theme.Green_2_700
-import ee.ria.DigiDoc.ui.theme.Red50
-import ee.ria.DigiDoc.ui.theme.Red800
+import ee.ria.DigiDoc.ui.theme.extendedColorScheme
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -40,8 +38,8 @@ fun ColoredRecipientStatusText(
     modifier: Modifier = Modifier,
     expired: Boolean = false,
 ) {
-    val tagBackgroundColor = if (!expired) Green_2_50 else Red50
-    val tagContentColor = if (!expired) Green_2_700 else Red800
+    val tagBackgroundColor = if (!expired) MaterialTheme.extendedColorScheme.successContainer else MaterialTheme.colorScheme.errorContainer
+    val tagContentColor = if (!expired) MaterialTheme.extendedColorScheme.onSuccessContainer else MaterialTheme.colorScheme.onErrorContainer
 
     FlowRow(
         modifier = modifier,

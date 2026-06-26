@@ -649,4 +649,4 @@ fun MyEidScreen(
     )
 }
 
-fun getAlphaForBlockedState(isBlocked: Boolean) = if (!isBlocked) 1f else 0.7f
+fun getAlphaForBlockedState(isBlocked: Boolean) = if (!isBlocked) 1f else 0.8f

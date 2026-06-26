@@ -49,7 +49,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -65,7 +64,6 @@ import androidx.core.net.toUri
 import androidx.lifecycle.asFlow
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
-import ee.ria.DigiDoc.ui.theme.Red500
 import ee.ria.DigiDoc.utilsLib.text.TextUtil
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -212,8 +210,8 @@ fun TopBar(
                             badge = {
                                 if (extraButtonItemCount > 0) {
                                     Badge(
-                                        containerColor = Red500,
-                                        contentColor = Color.White,
+                                        containerColor = MaterialTheme.colorScheme.error,
+                                        contentColor = MaterialTheme.colorScheme.onError,
                                     ) {
                                         Text("$extraButtonItemCount")
                                     }

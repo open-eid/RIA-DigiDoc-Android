@@ -46,7 +46,6 @@ fun getTypography(): Typography {
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Light,
                     fontStyle = FontStyle.Normal,
-                    color = OnPrimary,
                     textAlign = TextAlign.Center,
                     // Disable ligatures
                     fontFeatureSettings = "'liga' off, 'clig' off",
@@ -57,7 +56,6 @@ fun getTypography(): Typography {
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Normal,
                     fontStyle = FontStyle.Normal,
-                    color = OnPrimary,
                     textAlign = TextAlign.Center,
                     // Disable ligatures
                     fontFeatureSettings = "'liga' off, 'clig' off",
