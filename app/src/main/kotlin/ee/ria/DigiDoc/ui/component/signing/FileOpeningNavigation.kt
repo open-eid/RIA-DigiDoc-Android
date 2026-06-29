@@ -70,8 +70,8 @@ fun FileOpeningNavigation(
 
     val scope = rememberCoroutineScope()
 
-    val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
-    val cryptoContainer by sharedContainerViewModel.cryptoContainer.asFlow().collectAsState(null)
+    val signedContainer by sharedContainerViewModel.signedContainer.collectAsState()
+    val cryptoContainer by sharedContainerViewModel.cryptoContainer.collectAsState()
     val externalFileUris by sharedContainerViewModel.externalFileUris.collectAsState()
     val showSivaDialog = rememberSaveable { mutableStateOf(false) }
     var isExternalFile by rememberSaveable { mutableStateOf(false) }

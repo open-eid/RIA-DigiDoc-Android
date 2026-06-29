@@ -42,6 +42,7 @@ import ee.ria.DigiDoc.common.model.FileOpeningMethod
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.getFileInDirectory
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
@@ -67,10 +68,21 @@ object ContainerUtil {
         file: File,
     ): File {
         val containerFile = generateSignatureContainerFile(context, file.name)
-        file.inputStream().use { inputStream ->
-            containerFile.outputStream().use { outputStream ->
-                inputStream.copyTo(outputStream)
+        debugLog(
+            LOG_TAG,
+            "Copying to signed_containers: src: ${file.name}, size: ${file.length()}, dst: ${containerFile.name}",
+        )
+        try {
+            file.inputStream().use { inputStream ->
+                containerFile.outputStream().use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
             }
+            debugLog(LOG_TAG, "Container copy successful: ${containerFile.name}, size: ${containerFile.length()}")
+        } catch (e: Exception) {
+            errorLog(LOG_TAG, "Failed to copy to signed_containers: src: ${file.name}", e)
+            containerFile.delete()
+            throw e
         }
         return containerFile
     }

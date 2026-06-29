@@ -27,8 +27,6 @@ import android.net.Uri
 import android.os.Build
 import androidx.activity.result.ActivityResult
 import androidx.compose.runtime.mutableStateListOf
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.common.io.ByteStreams
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -56,6 +54,7 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
@@ -69,71 +68,71 @@ class SharedContainerViewModel
         @param:ApplicationContext private val context: Context,
         private val contentResolver: ContentResolver,
     ) : ViewModel() {
-        private val _signedContainer = MutableLiveData<SignedContainer?>()
-        val signedContainer: LiveData<SignedContainer?> = _signedContainer
+        private val _signedContainer = MutableStateFlow<SignedContainer?>(null)
+        val signedContainer: StateFlow<SignedContainer?> = _signedContainer.asStateFlow()
 
-        private val _cryptoContainer = MutableLiveData<CryptoContainer?>()
-        val cryptoContainer: LiveData<CryptoContainer?> = _cryptoContainer
+        private val _cryptoContainer = MutableStateFlow<CryptoContainer?>(null)
+        val cryptoContainer: StateFlow<CryptoContainer?> = _cryptoContainer.asStateFlow()
 
         private val _nestedContainers = mutableStateListOf<Container?>()
         val nestedContainers: List<Container?> get() = _nestedContainers
 
-        private val _signedMidStatus = MutableLiveData<MobileCreateSignatureProcessStatus?>(null)
-        val signedMidStatus: LiveData<MobileCreateSignatureProcessStatus?> = _signedMidStatus
+        private val _signedMidStatus = MutableStateFlow<MobileCreateSignatureProcessStatus?>(null)
+        val signedMidStatus: StateFlow<MobileCreateSignatureProcessStatus?> = _signedMidStatus.asStateFlow()
 
-        private val _signedSidStatus = MutableLiveData<SessionStatusResponseProcessStatus?>(null)
-        val signedSidStatus: LiveData<SessionStatusResponseProcessStatus?> = _signedSidStatus
+        private val _signedSidStatus = MutableStateFlow<SessionStatusResponseProcessStatus?>(null)
+        val signedSidStatus: StateFlow<SessionStatusResponseProcessStatus?> = _signedSidStatus.asStateFlow()
 
-        private val _signedNFCStatus = MutableLiveData<Boolean?>(null)
-        val signedNFCStatus: LiveData<Boolean?> = _signedNFCStatus
+        private val _signedNFCStatus = MutableStateFlow<Boolean?>(null)
+        val signedNFCStatus: StateFlow<Boolean?> = _signedNFCStatus.asStateFlow()
 
-        private val _signedIDCardStatus = MutableLiveData<Boolean?>(null)
-        val signedIDCardStatus: LiveData<Boolean?> = _signedIDCardStatus
+        private val _signedIDCardStatus = MutableStateFlow<Boolean?>(null)
+        val signedIDCardStatus: StateFlow<Boolean?> = _signedIDCardStatus.asStateFlow()
 
-        private val _decryptNFCStatus = MutableLiveData<Boolean?>(null)
-        val decryptNFCStatus: LiveData<Boolean?> = _decryptNFCStatus
+        private val _decryptNFCStatus = MutableStateFlow<Boolean?>(null)
+        val decryptNFCStatus: StateFlow<Boolean?> = _decryptNFCStatus.asStateFlow()
 
-        private val _decryptIDCardStatus = MutableLiveData<Boolean?>(null)
-        val decryptIDCardStatus: LiveData<Boolean?> = _decryptIDCardStatus
+        private val _decryptIDCardStatus = MutableStateFlow<Boolean?>(null)
+        val decryptIDCardStatus: StateFlow<Boolean?> = _decryptIDCardStatus.asStateFlow()
 
         private val _externalFileUris = MutableStateFlow<List<Uri>>(listOf())
-        val externalFileUris: StateFlow<List<Uri>> = _externalFileUris
+        val externalFileUris: StateFlow<List<Uri>> = _externalFileUris.asStateFlow()
 
         private val _containerNotifications = MutableStateFlow<List<ContainerNotificationType>>(listOf())
-        val containerNotifications: StateFlow<List<ContainerNotificationType>> = _containerNotifications
+        val containerNotifications: StateFlow<List<ContainerNotificationType>> = _containerNotifications.asStateFlow()
 
-        private val _isSivaConfirmed = MutableLiveData<Boolean>(true)
-        val isSivaConfirmed: LiveData<Boolean> = _isSivaConfirmed
+        private val _isSivaConfirmed = MutableStateFlow<Boolean>(true)
+        val isSivaConfirmed: StateFlow<Boolean> = _isSivaConfirmed.asStateFlow()
 
         private val _addedFilesCount = MutableStateFlow<Int>(0)
-        val addedFilesCount: StateFlow<Int> = _addedFilesCount
+        val addedFilesCount: StateFlow<Int> = _addedFilesCount.asStateFlow()
 
         fun setSignedSidStatus(signedStatus: SessionStatusResponseProcessStatus?) {
-            _signedSidStatus.postValue(signedStatus)
+            _signedSidStatus.value = signedStatus
         }
 
         fun setSignedMidStatus(signedStatus: MobileCreateSignatureProcessStatus?) {
-            _signedMidStatus.postValue(signedStatus)
+            _signedMidStatus.value = signedStatus
         }
 
         fun setSignedNFCStatus(signedStatus: Boolean?) {
-            _signedNFCStatus.postValue(signedStatus)
+            _signedNFCStatus.value = signedStatus
         }
 
         fun setDecryptNFCStatus(decryptStatus: Boolean?) {
-            _decryptNFCStatus.postValue(decryptStatus)
+            _decryptNFCStatus.value = decryptStatus
         }
 
         fun setSignedIDCardStatus(signedStatus: Boolean?) {
-            _signedIDCardStatus.postValue(signedStatus)
+            _signedIDCardStatus.value = signedStatus
         }
 
         fun setDecryptIDCardStatus(decryptStatus: Boolean?) {
-            _decryptIDCardStatus.postValue(decryptStatus)
+            _decryptIDCardStatus.value = decryptStatus
         }
 
         fun setSignedContainer(signedContainer: SignedContainer?) {
-            _signedContainer.postValue(signedContainer)
+            _signedContainer.value = signedContainer
             addNestedContainer(signedContainer)
         }
 
@@ -141,7 +140,7 @@ class SharedContainerViewModel
             cryptoContainer: CryptoContainer?,
             overwriteContainer: Boolean = false,
         ) {
-            _cryptoContainer.postValue(cryptoContainer)
+            _cryptoContainer.value = cryptoContainer
             if (overwriteContainer) {
                 removeLastContainer()
             }
@@ -157,11 +156,11 @@ class SharedContainerViewModel
         }
 
         fun resetSignedContainer() {
-            _signedContainer.postValue(null)
+            _signedContainer.value = null
         }
 
         fun resetCryptoContainer() {
-            _cryptoContainer.postValue(null)
+            _cryptoContainer.value = null
         }
 
         fun removeLastContainer() {
@@ -306,9 +305,9 @@ class SharedContainerViewModel
             dataFile: File?,
         ) {
             dataFile?.let { cryptoContainer?.removeDataFile(it) }
-            _cryptoContainer.postValue(null)
+            _cryptoContainer.value = null
             delay(100L)
-            _cryptoContainer.postValue(cryptoContainer)
+            _cryptoContainer.value = cryptoContainer
         }
 
         @Throws(Exception::class)
@@ -317,9 +316,9 @@ class SharedContainerViewModel
             recipient: Addressee?,
         ) {
             recipient?.let { cryptoContainer?.removeRecipient(it) }
-            _cryptoContainer.postValue(null)
+            _cryptoContainer.value = null
             delay(100L)
-            _cryptoContainer.postValue(cryptoContainer)
+            _cryptoContainer.value = cryptoContainer
         }
 
         @Throws(Exception::class)
@@ -343,9 +342,9 @@ class SharedContainerViewModel
             dataFile: DataFileInterface?,
         ) {
             dataFile?.let { signedContainer?.removeDataFile(it) }
-            _signedContainer.postValue(null)
+            _signedContainer.value = null
             delay(100L)
-            _signedContainer.postValue(signedContainer)
+            _signedContainer.value = signedContainer
         }
 
         @Throws(FileNotFoundException::class, IOException::class)
@@ -370,9 +369,9 @@ class SharedContainerViewModel
             signature: SignatureInterface?,
         ) {
             signature?.let { signedContainer?.removeSignature(it) }
-            _signedContainer.postValue(null)
+            _signedContainer.value = null
             delay(100L)
-            _signedContainer.postValue(signedContainer)
+            _signedContainer.value = signedContainer
         }
 
         fun setContainerNotifications(notifications: List<ContainerNotificationType>) {

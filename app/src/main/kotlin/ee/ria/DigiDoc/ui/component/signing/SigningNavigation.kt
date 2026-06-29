@@ -161,7 +161,7 @@ fun SigningNavigation(
     signingViewModel: SigningViewModel = hiltViewModel(),
     encryptViewModel: EncryptViewModel = hiltViewModel(),
 ) {
-    val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
+    val signedContainer by sharedContainerViewModel.signedContainer.collectAsState()
     val shouldResetContainer by signingViewModel.shouldResetSignedContainer.asFlow().collectAsState(false)
     val context = LocalContext.current
 
@@ -193,7 +193,7 @@ fun SigningNavigation(
 
     var isSignaturesCountLoaded by remember { mutableStateOf(false) }
 
-    val isParentContainerSivaConfirmed = sharedContainerViewModel.isSivaConfirmed.value == true
+    val isParentContainerSivaConfirmed = sharedContainerViewModel.isSivaConfirmed.value
     var isSivaConfirmed by remember { mutableStateOf(isParentContainerSivaConfirmed) }
     var isTimestampedContainer by remember { mutableStateOf(false) }
 
@@ -490,7 +490,7 @@ fun SigningNavigation(
     }
 
     LaunchedEffect(sharedContainerViewModel.signedMidStatus) {
-        sharedContainerViewModel.signedMidStatus.asFlow().collect { status ->
+        sharedContainerViewModel.signedMidStatus.collect { status ->
             status?.let {
                 if (status == MobileCreateSignatureProcessStatus.OK) {
                     signatures = signedContainer?.getSignatures() ?: emptyList()
@@ -507,7 +507,7 @@ fun SigningNavigation(
     }
 
     LaunchedEffect(sharedContainerViewModel.signedSidStatus) {
-        sharedContainerViewModel.signedSidStatus.asFlow().collect { status ->
+        sharedContainerViewModel.signedSidStatus.collect { status ->
             status?.let {
                 if (status == SessionStatusResponseProcessStatus.OK) {
                     signatures = signedContainer?.getSignatures() ?: emptyList()
@@ -524,7 +524,7 @@ fun SigningNavigation(
     }
 
     LaunchedEffect(sharedContainerViewModel.signedNFCStatus) {
-        sharedContainerViewModel.signedNFCStatus.asFlow().collect { status ->
+        sharedContainerViewModel.signedNFCStatus.collect { status ->
             status?.let {
                 if (status == true) {
                     signatures = signedContainer?.getSignatures() ?: emptyList()
@@ -541,7 +541,7 @@ fun SigningNavigation(
     }
 
     LaunchedEffect(sharedContainerViewModel.signedIDCardStatus) {
-        sharedContainerViewModel.signedIDCardStatus.asFlow().collect { status ->
+        sharedContainerViewModel.signedIDCardStatus.collect { status ->
             status?.let {
                 if (status == true) {
                     signatures = signedContainer?.getSignatures() ?: emptyList()
@@ -1103,9 +1103,10 @@ fun SigningNavigation(
                             onDismissButton = dismissRemoveFileDialog,
                             onConfirmButton = {
                                 if ((signedContainer?.rawContainer()?.dataFiles()?.size ?: 0) == 1) {
-                                    signedContainer?.getContainerFile()?.delete()
+                                    val containerFile = signedContainer?.getContainerFile()
                                     sharedContainerViewModel.resetSignedContainer()
                                     sharedContainerViewModel.resetContainerNotifications()
+                                    containerFile?.delete()
                                     handleBackButtonClick(navController, signingViewModel, sharedContainerViewModel)
                                 } else {
                                     scope.launch(IO) {
@@ -1290,11 +1291,11 @@ fun SigningNavigation(
                     onConfirmButton = {
                         showContainerCloseConfirmationDialog.value = false
                         val containerFile = signedContainer?.getContainerFile()
+                        sharedContainerViewModel.resetSignedContainer()
+                        sharedContainerViewModel.resetContainerNotifications()
                         if (containerFile?.exists() == true) {
                             containerFile.delete()
                         }
-                        sharedContainerViewModel.resetSignedContainer()
-                        sharedContainerViewModel.resetContainerNotifications()
                         handleBackButtonClick(navController, signingViewModel, sharedContainerViewModel)
                     },
                 )

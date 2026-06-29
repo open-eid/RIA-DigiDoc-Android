@@ -29,11 +29,12 @@ import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.getNameFromFileName
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.normalizeUri
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.IOException
 import java.io.InputStream
-import java.io.OutputStream
 import javax.inject.Singleton
 
 @Singleton
@@ -91,14 +92,28 @@ class FileOpeningServiceImpl : FileOpeningService {
 
         cursor?.close()
 
-        val inputStream: InputStream? = contentResolver.openInputStream(uri)
-        val outputFile = File(context.cacheDir, displayName)
-        val outputStream: OutputStream = outputFile.outputStream()
+        val uriInfo = "scheme: ${uri.scheme}, authority: ${uri.authority}"
+        debugLog(logTag, "Opening file: $uriInfo, name: $displayName")
 
-        inputStream?.use { input ->
-            outputStream.use { output ->
-                input.copyTo(output)
+        val inputStream: InputStream =
+            contentResolver.openInputStream(uri)
+                ?: run {
+                    errorLog(logTag, "openInputStream returned null for $uriInfo, name: $displayName")
+                    throw IOException("Cannot open input stream for URI: $uriInfo")
+                }
+        val outputFile = File(context.cacheDir, displayName)
+
+        try {
+            inputStream.use { input ->
+                outputFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
             }
+            debugLog(logTag, "File copied successfully - name: $displayName, size: ${outputFile.length()}")
+        } catch (e: Exception) {
+            errorLog(logTag, "Failed to copy file - $uriInfo name: $displayName", e)
+            outputFile.delete()
+            throw e
         }
 
         return outputFile
