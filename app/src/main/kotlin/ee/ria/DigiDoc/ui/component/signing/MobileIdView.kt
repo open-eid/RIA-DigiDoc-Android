@@ -118,7 +118,7 @@ fun MobileIdView(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
+    val signedContainer by sharedContainerViewModel.signedContainer.collectAsState()
     val dialogError by mobileIdViewModel.dialogError.asFlow().collectAsState(0)
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
 

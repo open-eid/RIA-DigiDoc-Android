@@ -151,7 +151,7 @@ fun EncryptNavigation(
     encryptViewModel: EncryptViewModel = hiltViewModel(),
     encryptRecipientViewModel: EncryptRecipientViewModel = hiltViewModel(),
 ) {
-    val cryptoContainer by sharedContainerViewModel.cryptoContainer.asFlow().collectAsState(null)
+    val cryptoContainer by sharedContainerViewModel.cryptoContainer.collectAsState()
     val shouldResetContainer by encryptViewModel.shouldResetCryptoContainer.asFlow().collectAsState(false)
     val context = LocalContext.current
 
@@ -506,7 +506,7 @@ fun EncryptNavigation(
     }
 
     LaunchedEffect(sharedContainerViewModel.decryptNFCStatus) {
-        sharedContainerViewModel.decryptNFCStatus.asFlow().collect { status ->
+        sharedContainerViewModel.decryptNFCStatus.collect { status ->
             status?.let {
                 if (status == true) {
                     withContext(Main) {
@@ -526,7 +526,7 @@ fun EncryptNavigation(
     }
 
     LaunchedEffect(sharedContainerViewModel.decryptIDCardStatus) {
-        sharedContainerViewModel.decryptIDCardStatus.asFlow().collect { status ->
+        sharedContainerViewModel.decryptIDCardStatus.collect { status ->
             status?.let {
                 if (status == true) {
                     withContext(Main) {
@@ -949,8 +949,9 @@ fun EncryptNavigation(
                             onDismissButton = dismissRemoveFileDialog,
                             onConfirmButton = {
                                 if ((cryptoContainer?.dataFiles?.size ?: 0) == 1) {
-                                    cryptoContainer?.file?.delete()
+                                    val containerFile = cryptoContainer?.file
                                     sharedContainerViewModel.resetCryptoContainer()
+                                    containerFile?.delete()
                                     handleBackButtonClick(
                                         navController,
                                         encryptViewModel,

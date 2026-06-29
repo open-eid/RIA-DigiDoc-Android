@@ -131,7 +131,7 @@ fun EncryptRecipientScreen(
 
     val scope = rememberCoroutineScope()
 
-    val cryptoContainer by sharedContainerViewModel.cryptoContainer.asFlow().collectAsState(null)
+    val cryptoContainer by sharedContainerViewModel.cryptoContainer.collectAsState()
 
     val showLoading = remember { mutableStateOf(false) }
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }

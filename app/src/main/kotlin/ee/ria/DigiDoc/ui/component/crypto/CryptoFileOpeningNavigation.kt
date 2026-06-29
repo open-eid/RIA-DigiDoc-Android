@@ -62,7 +62,7 @@ fun CryptoFileOpeningNavigation(
 ) {
     val context = LocalContext.current
 
-    val cryptoContainer by sharedContainerViewModel.cryptoContainer.asFlow().collectAsState(null)
+    val cryptoContainer by sharedContainerViewModel.cryptoContainer.collectAsState()
     val externalFileUris by sharedContainerViewModel.externalFileUris.collectAsState()
     var isExternalFile by remember { mutableStateOf(false) }
     var fileUris by remember { mutableStateOf<List<Uri>>(emptyList()) }

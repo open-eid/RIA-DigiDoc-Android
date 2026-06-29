@@ -164,8 +164,8 @@ fun NFCView(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val signedContainer by sharedContainerViewModel.signedContainer.asFlow().collectAsState(null)
-    val cryptoContainer by sharedContainerViewModel.cryptoContainer.asFlow().collectAsState(null)
+    val signedContainer by sharedContainerViewModel.signedContainer.collectAsState()
+    val cryptoContainer by sharedContainerViewModel.cryptoContainer.collectAsState()
     var nfcStatus by remember { mutableStateOf(nfcViewModel.getNFCStatus(activity)) }
     var nfcImage by remember { mutableIntStateOf(R.drawable.ic_icon_nfc) }
 

@@ -22,6 +22,7 @@
 package ee.ria.DigiDoc.utilsLib.extensions
 
 import android.content.Context
+import android.util.Log
 import android.webkit.MimeTypeMap
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
 import com.tom_roush.pdfbox.pdmodel.PDDocument
@@ -53,6 +54,7 @@ private const val FILE_EXTENSIONS_LOG_TAG = "FileExtensions"
 fun File.isPDF(context: Context): Boolean = PDF_MIMETYPE == mimeType(context) || PDF_EXTENSION == extension
 
 fun File.isXades(context: Context): Boolean {
+    if (!exists()) return false
     val tempContainerFiles = File(context.filesDir, "tempContainerFiles")
 
     try {
@@ -70,6 +72,7 @@ fun File.isXades(context: Context): Boolean {
 }
 
 fun File.isCades(context: Context): Boolean {
+    if (!exists()) return false
     val tempContainerFiles = File(context.filesDir, "tempContainerFiles")
 
     try {
@@ -88,6 +91,13 @@ fun File.isCades(context: Context): Boolean {
 
 fun File.mimeType(context: Context): String {
     val extension = extension.lowercase()
+
+    if (!exists()) {
+        return MimeTypeMap
+            .getSingleton()
+            .getMimeTypeFromExtension(extension)
+            ?.takeIf { it.isNotEmpty() } ?: DEFAULT_MIME_TYPE
+    }
 
     val tempContainerFiles = File(context.filesDir, "tempContainerFiles")
     try {
