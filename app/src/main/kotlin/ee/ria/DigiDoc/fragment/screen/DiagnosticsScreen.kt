@@ -79,6 +79,7 @@ import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
+import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
@@ -264,8 +265,12 @@ fun DiagnosticsScreen(
                 SettingsSwitchItem(
                     modifier =
                         modifier
-                            .padding(XSPadding)
-                            .semantics {
+                            .padding(
+                                start = XSPadding,
+                                end = XSPadding,
+                                top = XSPadding,
+                                bottom = zeroPadding,
+                            ).semantics {
                                 testTagsAsResourceId = true
                             }.testTag("mainDiagnosticsLogging"),
                     checked = enableOneTimeLogGeneration,
@@ -325,6 +330,57 @@ fun DiagnosticsScreen(
                 }
 
                 SpannableBoldText(
+                    modifier = modifier,
+                    stringResource(id = R.string.main_diagnostics_central_configuration_title),
+                    "",
+                )
+                DiagnosticsText(
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsCentralConfigurationDate",
+                    labelRes = R.string.main_diagnostics_date_title,
+                    value = currentConfiguration?.metaInf?.date ?: "",
+                )
+                DiagnosticsText(
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsCentralConfigurationSerial",
+                    labelRes = R.string.main_diagnostics_serial_title,
+                    value = currentConfiguration?.metaInf?.serial.toString(),
+                )
+                DiagnosticsText(
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsCentralConfigurationUrl",
+                    labelRes = R.string.main_diagnostics_url_title,
+                    value = currentConfiguration?.metaInf?.url ?: "",
+                )
+                DiagnosticsText(
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsCentralConfigurationVersion",
+                    labelRes = R.string.main_diagnostics_version_title,
+                    value = currentConfiguration?.metaInf?.version.toString(),
+                )
+                DiagnosticsText(
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsCentralConfigurationUpdateDate",
+                    labelRes = R.string.main_diagnostics_configuration_update_date,
+                    value = diagnosticsViewModel.getConfigurationDate(currentConfiguration?.configurationUpdateDate),
+                )
+                DiagnosticsText(
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsCentralConfigurationLastCheck",
+                    labelRes = R.string.main_diagnostics_configuration_last_check_date,
+                    value =
+                        diagnosticsViewModel.getConfigurationDate(
+                            currentConfiguration?.configurationLastUpdateCheckDate,
+                        ),
+                )
+                HorizontalDivider(
+                    modifier =
+                        modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = XSPadding)
+                            .padding(top = SPadding),
+                )
+                SpannableBoldText(
                     modifier =
                         modifier
                             .semantics {
@@ -368,13 +424,10 @@ fun DiagnosticsScreen(
                         )
                     }
                 DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsLibdigidocppVersion"),
-                    stringResource(id = R.string.main_diagnostics_libdigidocpp_title),
-                    libdigidocppVersion.value,
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsLibdigidocppVersion",
+                    labelRes = R.string.main_diagnostics_libdigidocpp_title,
+                    value = libdigidocppVersion.value,
                 )
                 HorizontalDivider(
                     modifier =
@@ -389,103 +442,70 @@ fun DiagnosticsScreen(
                     "",
                 )
                 DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsConfigUrl"),
-                    stringResource(id = R.string.main_diagnostics_config_url_title),
-                    currentConfiguration?.metaInf?.url ?: "",
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsConfigUrl",
+                    labelRes = R.string.main_diagnostics_config_url_title,
+                    value = currentConfiguration?.metaInf?.url ?: "",
                 )
                 DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsTslUrl"),
-                    stringResource(id = R.string.main_diagnostics_tsl_url_title),
-                    currentConfiguration?.tslUrl ?: "",
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsTslUrl",
+                    labelRes = R.string.main_diagnostics_tsl_url_title,
+                    value = currentConfiguration?.tslUrl ?: "",
                 )
                 DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsSivaUrl"),
-                    stringResource(id = R.string.main_diagnostics_siva_url_title),
-                    diagnosticsViewModel.getSivaUrl(),
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsSivaUrl",
+                    labelRes = R.string.main_diagnostics_siva_url_title,
+                    value = diagnosticsViewModel.getSivaUrl(),
                 )
                 DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsTsaUrl"),
-                    stringResource(id = R.string.main_diagnostics_tsa_url_title),
-                    diagnosticsViewModel.getTsaUrl(),
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsTsaUrl",
+                    labelRes = R.string.main_diagnostics_tsa_url_title,
+                    value = diagnosticsViewModel.getTsaUrl(),
                 )
                 DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsLdapPersonUrl"),
-                    stringResource(id = R.string.main_diagnostics_ldap_person_url_title),
-                    currentConfiguration?.ldapPersonUrls?.joinToString(", ") ?: "",
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsLdapPersonUrl",
+                    labelRes = R.string.main_diagnostics_ldap_person_url_title,
+                    value = currentConfiguration?.ldapPersonUrls?.joinToString(", ") ?: "",
                 )
                 DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsLdapCorpUrl"),
-                    stringResource(id = R.string.main_diagnostics_ldap_corp_url_title),
-                    currentConfiguration?.ldapCorpUrl ?: "",
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsLdapCorpUrl",
+                    labelRes = R.string.main_diagnostics_ldap_corp_url_title,
+                    value = currentConfiguration?.ldapCorpUrl ?: "",
                 )
                 DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsMobileIDUrl"),
-                    stringResource(id = R.string.main_diagnostics_mid_proxy_url_title),
-                    currentConfiguration?.midRestUrl ?: "",
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsMobileIDUrl",
+                    labelRes = R.string.main_diagnostics_mid_proxy_url_title,
+                    value = currentConfiguration?.midRestUrl ?: "",
                 )
                 DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsMobileIDSKUrl"),
-                    stringResource(id = R.string.main_diagnostics_mid_sk_url_title),
-                    currentConfiguration?.midSkRestUrl ?: "",
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsMobileIDSKUrl",
+                    labelRes = R.string.main_diagnostics_mid_sk_url_title,
+                    value = currentConfiguration?.midSkRestUrl ?: "",
                 )
                 DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsSmartIDUrlV2"),
-                    stringResource(id = R.string.main_diagnostics_sid_v2_proxy_url_title),
-                    currentConfiguration?.sidV2RestUrl ?: "",
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsSmartIDUrlV2",
+                    labelRes = R.string.main_diagnostics_sid_v2_proxy_url_title,
+                    value = currentConfiguration?.sidV2RestUrl ?: "",
                 )
                 DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsSmartIDSKUrlV2"),
-                    stringResource(id = R.string.main_diagnostics_sid_v2_sk_url_title),
-                    currentConfiguration?.sidV2SkRestUrl ?: "",
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsSmartIDSKUrlV2",
+                    labelRes = R.string.main_diagnostics_sid_v2_sk_url_title,
+                    value = currentConfiguration?.sidV2SkRestUrl ?: "",
                 )
                 DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsRpUuid"),
-                    stringResource(id = R.string.main_diagnostics_rpuuid_title),
-                    stringResource(diagnosticsViewModel.getRpUuid()),
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsRpUuid",
+                    labelRes = R.string.main_diagnostics_rpuuid_title,
+                    value = stringResource(diagnosticsViewModel.getRpUuid()),
                 )
                 SpannableBoldText(
                     modifier = modifier,
@@ -493,31 +513,22 @@ fun DiagnosticsScreen(
                     "",
                 )
                 DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsCdoc2Default"),
-                    stringResource(id = R.string.main_diagnostics_cdoc2_default_title),
-                    diagnosticsViewModel.isCdoc2Selected(currentConfiguration).toString(),
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsCdoc2Default",
+                    labelRes = R.string.main_diagnostics_cdoc2_default_title,
+                    value = diagnosticsViewModel.isCdoc2Selected(currentConfiguration).toString(),
                 )
                 DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsCdoc2UseKeyserver"),
-                    stringResource(id = R.string.main_diagnostics_cdoc2_use_keyserver_title),
-                    diagnosticsViewModel.isCdoc2KeyServerUsed(currentConfiguration).toString(),
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsCdoc2UseKeyserver",
+                    labelRes = R.string.main_diagnostics_cdoc2_use_keyserver_title,
+                    value = diagnosticsViewModel.isCdoc2KeyServerUsed(currentConfiguration).toString(),
                 )
                 DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsCdoc2DefaultKeyserver"),
-                    stringResource(id = R.string.main_diagnostics_cdoc2_default_keyserver_title),
-                    diagnosticsViewModel.getCdoc2KeyServerUUID(currentConfiguration),
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsCdoc2DefaultKeyserver",
+                    labelRes = R.string.main_diagnostics_cdoc2_default_keyserver_title,
+                    value = diagnosticsViewModel.getCdoc2KeyServerUUID(currentConfiguration),
                 )
                 SpannableBoldText(
                     modifier = modifier,
@@ -525,22 +536,16 @@ fun DiagnosticsScreen(
                     "",
                 )
                 DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsProxyConfig"),
-                    stringResource(id = R.string.main_diagnostics_proxy_config_title),
-                    diagnosticsViewModel.getProxyConfig(),
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsProxyConfig",
+                    labelRes = R.string.main_diagnostics_proxy_config_title,
+                    value = diagnosticsViewModel.getProxyConfig(),
                 )
                 DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsProxyAuth"),
-                    stringResource(id = R.string.main_diagnostics_proxy_auth_title),
-                    diagnosticsViewModel.isProxyAuthEnabled().toString(),
+                    modifier = modifier,
+                    testTag = "mainDiagnosticsProxyAuth",
+                    labelRes = R.string.main_diagnostics_proxy_auth_title,
+                    value = diagnosticsViewModel.isProxyAuthEnabled().toString(),
                 )
                 HorizontalDivider(
                     modifier =
@@ -572,73 +577,6 @@ fun DiagnosticsScreen(
                                 .padding(top = SPadding),
                     )
                 }
-                SpannableBoldText(
-                    modifier = modifier,
-                    stringResource(id = R.string.main_diagnostics_central_configuration_title),
-                    "",
-                )
-                DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsCentralConfigurationDate"),
-                    stringResource(id = R.string.main_diagnostics_date_title),
-                    currentConfiguration?.metaInf?.date ?: "",
-                )
-                DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsCentralConfigurationSerial"),
-                    stringResource(id = R.string.main_diagnostics_serial_title),
-                    currentConfiguration?.metaInf?.serial.toString(),
-                )
-                DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsCentralConfigurationUrl"),
-                    stringResource(id = R.string.main_diagnostics_url_title),
-                    currentConfiguration?.metaInf?.url ?: "",
-                )
-                DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsCentralConfigurationVersion"),
-                    stringResource(id = R.string.main_diagnostics_version_title),
-                    currentConfiguration?.metaInf?.version.toString(),
-                )
-                DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsCentralConfigurationUpdateDate"),
-                    stringResource(id = R.string.main_diagnostics_configuration_update_date),
-                    diagnosticsViewModel.getConfigurationDate(currentConfiguration?.configurationUpdateDate),
-                )
-                DiagnosticsText(
-                    modifier =
-                        modifier
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }.testTag("mainDiagnosticsCentralConfigurationLastCheck"),
-                    stringResource(id = R.string.main_diagnostics_configuration_last_check_date),
-                    diagnosticsViewModel.getConfigurationDate(currentConfiguration?.configurationLastUpdateCheckDate),
-                )
-                HorizontalDivider(
-                    modifier =
-                        modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = XSPadding)
-                            .padding(top = SPadding),
-                )
-
                 if (openRestartConfirmationDialog.value) {
                     BasicAlertDialog(
                         modifier =
