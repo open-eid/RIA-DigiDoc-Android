@@ -507,18 +507,22 @@ object FileUtil {
     }
 
     fun getExternalFileUris(intent: Intent): List<Uri> {
-        val externalFileUris = mutableListOf<Uri>()
-        intent.data?.takeIf { it.scheme in ALLOWED_FILE_SCHEMES }?.let { externalFileUris.add(it) }
-        intent.clipData?.let { clipData ->
-            for (i in 0 until clipData.itemCount) {
-                clipData
-                    .getItemAt(
-                        i,
-                    )?.uri
-                    ?.takeIf { it.scheme in ALLOWED_FILE_SCHEMES }
-                    ?.let { externalFileUris.add(it) }
+        val clipData = intent.clipData
+        val data = intent.data
+        val uris =
+            when {
+                // The same file can be in both clipData and data, so read clipData only to avoid duplicates.
+                clipData != null && clipData.itemCount > 0 ->
+                    (0 until clipData.itemCount).mapNotNull { clipData.getItemAt(it)?.uri }
+                // If there is no clipData, take the file from data, or from a share (EXTRA_STREAM).
+                data != null -> listOf(data)
+                intent.action == Intent.ACTION_SEND ->
+                    listOfNotNull(intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java))
+                intent.action == Intent.ACTION_SEND_MULTIPLE ->
+                    intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM, Uri::class.java).orEmpty()
+                else -> emptyList()
             }
-        }
-        return externalFileUris
+        // Only file-backed schemes are openable. Drop web (https) and deep-link (e.g. web-eid-mobile) URIs.
+        return uris.filter { it.scheme in ALLOWED_FILE_SCHEMES }
     }
 }

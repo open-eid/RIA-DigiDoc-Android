@@ -126,10 +126,10 @@ class MainActivity :
 
         val componentClassName = this.javaClass.name
 
+        val externalFileUris = if (savedInstanceState == null) getExternalFileUris(intent) else emptyList()
         val locale = dataStore.getLocale() ?: getLocale("en")
         val webEidUri = intent.data?.takeIf { WebEidUriUtil.isWebEidUri(it) }
         val browserPackage = if (webEidUri != null) resolveBrowserPackage(intent) else null
-        val externalFileUris = getExternalFileUris(intent)
 
         localeUtil.updateLocale(applicationContext, locale)
 
