@@ -29,7 +29,6 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -37,7 +36,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -90,7 +88,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeM
-import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
@@ -138,9 +135,6 @@ fun MyEidPinScreen(
     val pinErrorText = rememberSaveable { mutableStateOf("") }
 
     val actionContinue = stringResource(R.string.action_continue)
-
-    val clearButtonText = stringResource(R.string.clear_text)
-    val buttonName = stringResource(id = R.string.button_name)
 
     val codeType = content?.codeType ?: CodeType.PIN1
     val isForgottenPin = content?.isForgottenPin == true
@@ -632,72 +626,33 @@ fun MyEidPinScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 style = MaterialTheme.typography.titleLarge,
                             )
-                            Row(
+                            SecurePinTextField(
                                 modifier =
                                     modifier
                                         .fillMaxWidth()
-                                        .padding(top = MPadding),
-                                horizontalArrangement = Arrangement.Start,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                SecurePinTextField(
-                                    modifier =
-                                        modifier
-                                            .weight(1f)
-                                            .zIndex(3f)
-                                            .semantics {
-                                                traversalIndex = 3f
-                                                testTagsAsResourceId = true
-                                            }.testTag("myEidCurrentPinTextField"),
-                                    pin = currentPinState,
-                                    label = pinCodeLabel,
-                                    focusRequester = currentPinFocusRequester,
-                                    pinCodeTextEdited = null,
-                                    isError = !isCurrentPinValid,
-                                    keyboardImeAction = ImeAction.Next,
-                                    onDone = {
-                                        if (isCurrentPinValid) {
-                                            showCurrentPinField.value = false
-                                            showNewRepeatPinField.value = false
-                                            showNewPinField.value = true
-                                        } else {
-                                            focusManager.clearFocus()
-                                        }
-                                    },
-                                )
-                                if (isTalkBackEnabled(context) && currentPinState.value.isNotEmpty()) {
-                                    IconButton(
-                                        modifier =
-                                            modifier
-                                                .zIndex(4f)
-                                                .align(Alignment.CenterVertically)
-                                                .semantics {
-                                                    traversalIndex = 4f
-                                                    testTagsAsResourceId = true
-                                                }.testTag("myEidCurrentPinRemoveButton"),
-                                        onClick = {
-                                            currentPinState.value = byteArrayOf()
-                                            scope.launch(Main) {
-                                                currentPinFocusRequester.requestFocus()
-                                                focusManager.clearFocus()
-                                                delay(200)
-                                                currentPinFocusRequester.requestFocus()
-                                            }
-                                        },
-                                    ) {
-                                        Icon(
-                                            modifier =
-                                                modifier
-                                                    .size(iconSizeXXS)
-                                                    .semantics {
-                                                        testTagsAsResourceId = true
-                                                    }.testTag("idCardCurrentPinRemoveIconButton"),
-                                            imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                            contentDescription = "$clearButtonText $buttonName",
-                                        )
+                                        .padding(top = MPadding)
+                                        .zIndex(3f)
+                                        .semantics {
+                                            traversalIndex = 3f
+                                            testTagsAsResourceId = true
+                                        }.testTag("myEidCurrentPinTextField"),
+                                pin = currentPinState,
+                                label = pinCodeLabel,
+                                focusRequester = currentPinFocusRequester,
+                                pinCodeTextEdited = null,
+                                isError = !isCurrentPinValid,
+                                keyboardImeAction = ImeAction.Next,
+                                removeIconTestTag = "myEidCurrentPinRemoveButton",
+                                onDone = {
+                                    if (isCurrentPinValid) {
+                                        showCurrentPinField.value = false
+                                        showNewRepeatPinField.value = false
+                                        showNewPinField.value = true
+                                    } else {
+                                        focusManager.clearFocus()
                                     }
-                                }
-                            }
+                                },
+                            )
                             Text(
                                 modifier =
                                     modifier
@@ -733,72 +688,33 @@ fun MyEidPinScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 style = MaterialTheme.typography.titleLarge,
                             )
-                            Row(
+                            SecurePinTextField(
                                 modifier =
                                     modifier
                                         .fillMaxWidth()
-                                        .padding(top = MPadding),
-                                horizontalArrangement = Arrangement.Start,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                SecurePinTextField(
-                                    modifier =
-                                        modifier
-                                            .weight(1f)
-                                            .zIndex(7f)
-                                            .semantics {
-                                                traversalIndex = 7f
-                                                testTagsAsResourceId = true
-                                            }.testTag("myEidNewPinTextField"),
-                                    pin = newPinState,
-                                    label = pinCodeLabel,
-                                    focusRequester = newPinFocusRequester,
-                                    pinCodeTextEdited = null,
-                                    isError = !isNewPinValid,
-                                    keyboardImeAction = ImeAction.Next,
-                                    onDone = {
-                                        if (isNewPinValid) {
-                                            showCurrentPinField.value = false
-                                            showNewPinField.value = false
-                                            showNewRepeatPinField.value = true
-                                        } else {
-                                            focusManager.clearFocus()
-                                        }
-                                    },
-                                )
-                                if (isTalkBackEnabled(context) && newPinState.value.isNotEmpty()) {
-                                    IconButton(
-                                        modifier =
-                                            modifier
-                                                .zIndex(8f)
-                                                .align(Alignment.CenterVertically)
-                                                .semantics {
-                                                    traversalIndex = 8f
-                                                    testTagsAsResourceId = true
-                                                }.testTag("myEidNewPinRemoveButton"),
-                                        onClick = {
-                                            newPinState.value = byteArrayOf()
-                                            scope.launch(Main) {
-                                                newPinFocusRequester.requestFocus()
-                                                focusManager.clearFocus()
-                                                delay(200)
-                                                newPinFocusRequester.requestFocus()
-                                            }
-                                        },
-                                    ) {
-                                        Icon(
-                                            modifier =
-                                                modifier
-                                                    .size(iconSizeXXS)
-                                                    .semantics {
-                                                        testTagsAsResourceId = true
-                                                    }.testTag("idCardNewPinRemoveIconButton"),
-                                            imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                            contentDescription = "$clearButtonText $buttonName",
-                                        )
+                                        .padding(top = MPadding)
+                                        .zIndex(7f)
+                                        .semantics {
+                                            traversalIndex = 7f
+                                            testTagsAsResourceId = true
+                                        }.testTag("myEidNewPinTextField"),
+                                pin = newPinState,
+                                label = pinCodeLabel,
+                                focusRequester = newPinFocusRequester,
+                                pinCodeTextEdited = null,
+                                isError = !isNewPinValid,
+                                keyboardImeAction = ImeAction.Next,
+                                removeIconTestTag = "myEidNewPinRemoveButton",
+                                onDone = {
+                                    if (isNewPinValid) {
+                                        showCurrentPinField.value = false
+                                        showNewPinField.value = false
+                                        showNewRepeatPinField.value = true
+                                    } else {
+                                        focusManager.clearFocus()
                                     }
-                                }
-                            }
+                                },
+                            )
                             Text(
                                 modifier =
                                     modifier
@@ -863,62 +779,23 @@ fun MyEidPinScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 style = MaterialTheme.typography.titleLarge,
                             )
-                            Row(
+                            SecurePinTextField(
                                 modifier =
                                     modifier
                                         .fillMaxWidth()
-                                        .padding(top = MPadding),
-                                horizontalArrangement = Arrangement.Start,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                SecurePinTextField(
-                                    modifier =
-                                        modifier
-                                            .weight(1f)
-                                            .zIndex(11f)
-                                            .semantics {
-                                                traversalIndex = 11f
-                                                testTagsAsResourceId = true
-                                            }.testTag("myEidNewPinRepeatedTextField"),
-                                    pin = newPinRepeatedState,
-                                    label = pinCodeLabel,
-                                    focusRequester = newPinRepeatedFocusRequester,
-                                    pinCodeTextEdited = null,
-                                    isError = !isNewRepeatedPinValid,
-                                )
-                                if (isTalkBackEnabled(context) && newPinRepeatedState.value.isNotEmpty()) {
-                                    IconButton(
-                                        modifier =
-                                            modifier
-                                                .zIndex(12f)
-                                                .align(Alignment.CenterVertically)
-                                                .semantics {
-                                                    traversalIndex = 12f
-                                                    testTagsAsResourceId = true
-                                                }.testTag("myEidNewPinRepeatedRemoveButton"),
-                                        onClick = {
-                                            newPinRepeatedState.value = byteArrayOf()
-                                            scope.launch(Main) {
-                                                newPinRepeatedFocusRequester.requestFocus()
-                                                focusManager.clearFocus()
-                                                delay(200)
-                                                newPinRepeatedFocusRequester.requestFocus()
-                                            }
-                                        },
-                                    ) {
-                                        Icon(
-                                            modifier =
-                                                modifier
-                                                    .size(iconSizeXXS)
-                                                    .semantics {
-                                                        testTagsAsResourceId = true
-                                                    }.testTag("idCardNewPinRepeatedRemoveIconButton"),
-                                            imageVector = ImageVector.vectorResource(R.drawable.ic_icon_remove),
-                                            contentDescription = "$clearButtonText $buttonName",
-                                        )
-                                    }
-                                }
-                            }
+                                        .padding(top = MPadding)
+                                        .zIndex(11f)
+                                        .semantics {
+                                            traversalIndex = 11f
+                                            testTagsAsResourceId = true
+                                        }.testTag("myEidNewPinRepeatedTextField"),
+                                pin = newPinRepeatedState,
+                                label = pinCodeLabel,
+                                focusRequester = newPinRepeatedFocusRequester,
+                                pinCodeTextEdited = null,
+                                isError = !isNewRepeatedPinValid,
+                                removeIconTestTag = "myEidNewPinRepeatedRemoveButton",
+                            )
                             Text(
                                 modifier =
                                     modifier

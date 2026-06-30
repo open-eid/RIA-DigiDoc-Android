@@ -69,6 +69,7 @@ import androidx.compose.ui.text.style.TextAlign
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.addInvisibleElement
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import kotlinx.coroutines.Dispatchers.Main
@@ -266,4 +267,12 @@ fun PrimaryTextField(
             )
         }
     }
+}
+
+fun talkBackTextFieldValue(text: String): TextFieldValue {
+    val withInvisibleElements = addInvisibleElement(text)
+    return TextFieldValue(
+        text = withInvisibleElements,
+        selection = TextRange(withInvisibleElements.length),
+    )
 }
