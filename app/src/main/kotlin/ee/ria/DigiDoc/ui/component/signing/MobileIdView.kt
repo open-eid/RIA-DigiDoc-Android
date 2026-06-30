@@ -78,13 +78,13 @@ import ee.ria.DigiDoc.ui.component.shared.HrefMessageDialog
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.PrimaryTextField
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
+import ee.ria.DigiDoc.ui.component.shared.talkBackTextFieldValue
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.addInvisibleElement
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.removeInvisibleElement
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
@@ -190,8 +190,8 @@ fun MobileIdView(
     val phoneNumberFocusRequester = remember { FocusRequester() }
     val personalCodeFocusRequester = remember { FocusRequester() }
 
-    val phoneNumberWithInvisibleSpaces = TextFieldValue(addInvisibleElement(countryCodeAndPhone.text))
-    val personalCodeWithInvisibleSpaces = TextFieldValue(addInvisibleElement(personalCode.text))
+    val phoneNumberWithInvisibleSpaces = talkBackTextFieldValue(countryCodeAndPhone.text)
+    val personalCodeWithInvisibleSpaces = talkBackTextFieldValue(personalCode.text)
 
     BackHandler {
         if (isSigning) {

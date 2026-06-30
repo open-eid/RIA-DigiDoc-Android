@@ -99,13 +99,13 @@ import ee.ria.DigiDoc.ui.component.shared.RoleDataView
 import ee.ria.DigiDoc.ui.component.shared.SecurePinTextField
 import ee.ria.DigiDoc.ui.component.shared.dialog.CourierCardActivationDialog
 import ee.ria.DigiDoc.ui.component.shared.dialog.WrongCanDialog
+import ee.ria.DigiDoc.ui.component.shared.talkBackTextFieldValue
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.addInvisibleElement
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.removeInvisibleElement
 import ee.ria.DigiDoc.utils.extensions.notAccessible
@@ -237,7 +237,7 @@ fun NFCView(
         } else {
             R.string.id_card_courier_must_activate_to_sign
         }
-    val canNumberWithInvisibleSpaces = TextFieldValue(addInvisibleElement(canNumber.text))
+    val canNumberWithInvisibleSpaces = talkBackTextFieldValue(canNumber.text)
 
     val pinCode = remember { mutableStateOf(byteArrayOf()) }
 

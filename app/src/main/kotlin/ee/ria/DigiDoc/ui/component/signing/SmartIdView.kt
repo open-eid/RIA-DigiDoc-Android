@@ -91,13 +91,13 @@ import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.PrimaryTextField
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
 import ee.ria.DigiDoc.ui.component.shared.dialog.OptionChooserDialog
+import ee.ria.DigiDoc.ui.component.shared.talkBackTextFieldValue
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.addInvisibleElement
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.removeInvisibleElement
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
@@ -184,7 +184,7 @@ fun SmartIdView(
     val clearButtonText = stringResource(R.string.clear_text)
     val buttonName = stringResource(id = R.string.button_name)
 
-    val personalCodeWithInvisibleSpaces = TextFieldValue(addInvisibleElement(personalCode.text))
+    val personalCodeWithInvisibleSpaces = talkBackTextFieldValue(personalCode.text)
 
     val smartIdChallengeNotificationId = Constant.SmartIdConstants.NOTIFICATION_PERMISSION_CODE
 
