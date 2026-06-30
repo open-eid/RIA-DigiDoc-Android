@@ -717,6 +717,14 @@ class SignedContainerTest {
             assertTrue(pdfContainer.getName().endsWith("pdf"))
         }
 
+    @Test
+    fun signedContainer_isExistingContainer_trueForSignedPdf() =
+        runTest {
+            val signedContainer = openOrCreate(context, signedPdfDocument, listOf(signedPdfDocument), true)
+
+            assertTrue(signedContainer.isExistingContainer())
+        }
+
     @Suppress("SameParameterValue")
     private fun createTempFileWithStringContent(
         filename: String,

@@ -82,6 +82,7 @@ class CryptoContainer
         val recipients: ArrayList<Addressee>,
         val decrypted: Boolean,
         val encrypted: Boolean,
+        val isExistingContainer: Boolean = false,
     ) : Container {
         fun containerMimetype(): String = CONTAINER_MIME_TYPE
 
@@ -202,6 +203,7 @@ class CryptoContainer
                     recipients,
                     decrypted = false,
                     encrypted = true,
+                    isExistingContainer = true,
                 )
             }
 
@@ -257,6 +259,7 @@ class CryptoContainer
                     recipients,
                     decrypted = false,
                     encrypted = true,
+                    isExistingContainer = true,
                 )
             }
 
@@ -429,6 +432,7 @@ class CryptoContainer
                 recipients: List<Addressee>,
                 decrypted: Boolean,
                 encrypted: Boolean,
+                isExistingContainer: Boolean = false,
             ): CryptoContainer =
                 CryptoContainer(
                     context,
@@ -437,6 +441,7 @@ class CryptoContainer
                     ArrayList(recipients),
                     decrypted,
                     encrypted,
+                    isExistingContainer,
                 )
 
             @Throws(Exception::class)

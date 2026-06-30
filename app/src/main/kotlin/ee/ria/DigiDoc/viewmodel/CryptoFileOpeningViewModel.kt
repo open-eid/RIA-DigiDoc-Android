@@ -160,6 +160,8 @@ class CryptoFileOpeningViewModel
                 }
             } else {
                 try {
+                    val files = urisToFile(context, contentResolver, uris)
+
                     val cryptoContainer =
                         fileOpeningRepository.openOrCreateCryptoContainer(
                             context,
@@ -169,7 +171,9 @@ class CryptoFileOpeningViewModel
 
                     _cryptoContainer.postValue(cryptoContainer)
 
-                    _filesAdded.postValue(urisToFile(context, contentResolver, uris))
+                    if (!cryptoContainer.isExistingContainer) {
+                        _filesAdded.postValue(files)
+                    }
                 } catch (e: Exception) {
                     _cryptoContainer.postValue(null)
                     _launchFilePicker.postValue(false)

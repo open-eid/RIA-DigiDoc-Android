@@ -75,6 +75,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
@@ -491,6 +492,44 @@ class FileOpeningViewModelTest {
         }
 
     @Test
+    fun fileOpeningViewModel_handleFiles_openExistingSignedContainer_doesNotEmitFileAdded() =
+        runTest {
+            val uri: Uri = mock()
+            val uris = listOf(uri)
+            val containerFile =
+                getResourceFileAsFile(context, "example.asice", ee.ria.DigiDoc.common.R.raw.example)
+            val isSivaConfirmed = true
+
+            val signedContainer =
+                runBlocking {
+                    SignedContainer.openOrCreate(context, containerFile, listOf(containerFile), isSivaConfirmed)
+                }
+
+            `when`(
+                fileOpeningRepository.uriToFile(context, contentResolver, uri),
+            ).thenReturn(containerFile)
+            `when`(
+                fileOpeningRepository.openOrCreateContainer(
+                    context,
+                    contentResolver,
+                    uris,
+                    isSivaConfirmed,
+                ),
+            ).thenReturn(signedContainer)
+            `when`(sivaRepository.isTimestampedContainer(signedContainer)).thenReturn(false)
+
+            viewModel.handleFiles(
+                context,
+                uris,
+                isSivaConfirmed = isSivaConfirmed,
+                fileOpeningMethod = FileOpeningMethod.ALL,
+            )
+
+            verify(filesAddedObserver, never()).onChanged(listOf(containerFile))
+            verify(signedContainerObserver, atLeastOnce()).onChanged(signedContainer)
+        }
+
+    @Test
     fun fileOpeningViewModel_handleFiles_cryptoFileSuccess() =
         runTest {
             val uri: Uri = mock()
@@ -528,7 +567,7 @@ class FileOpeningViewModelTest {
                 fileOpeningMethod = FileOpeningMethod.ALL,
             )
 
-            verify(filesAddedObserver, atLeastOnce()).onChanged(listOf(file))
+            verify(filesAddedObserver, never()).onChanged(listOf(file))
             verify(cryptoContainerObserver, atLeastOnce()).onChanged(cryptoContainer)
         }
 
