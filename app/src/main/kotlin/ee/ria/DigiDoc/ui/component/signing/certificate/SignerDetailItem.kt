@@ -75,7 +75,9 @@ data class SignerDetailItem(
             SignerDetailItem(
                 label = R.string.signers_certificate_label,
                 value =
-                    if (isTimestamp) {
+                    if (signature.isDigitalSeal) {
+                        signature.signedBy
+                    } else if (isTimestamp) {
                         NameUtil.formatName(signature.signedBy).uppercase()
                     } else {
                         NameUtil.formatName(signature.signedBy)

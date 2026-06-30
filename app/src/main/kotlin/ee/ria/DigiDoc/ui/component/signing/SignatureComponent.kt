@@ -111,7 +111,12 @@ fun SignatureComponent(
     } else {
         Column {
             signatures.forEachIndexed { index, signature ->
-                val nameText = formatName(signature.name)
+                val nameText =
+                    if (signature.isDigitalSeal) {
+                        signature.name
+                    } else {
+                        formatName(signature.name)
+                    }
                 val statusText =
                     if (isTimestamped) {
                         getTimestampStatusText(LocalContext.current, signature.validator.status)
@@ -172,10 +177,15 @@ fun SignatureComponent(
                                         .wrapContentHeight(),
                                 contentAlignment = Alignment.Center,
                             ) {
-                                val iconTestTagSuffix = if (isTimestamped) "Timestamp" else "Signature"
+                                val iconTestTagSuffix =
+                                    if (isTimestamped || signature.isDigitalSeal) {
+                                        "Timestamp"
+                                    } else {
+                                        "Signature"
+                                    }
                                 Icon(
                                     imageVector =
-                                        if (isTimestamped) {
+                                        if (isTimestamped || signature.isDigitalSeal) {
                                             ImageVector.vectorResource(R.drawable.ic_m3_approval_48dp_wght400)
                                         } else {
                                             ImageVector.vectorResource(R.drawable.ic_icon_signature)
@@ -214,6 +224,7 @@ fun SignatureComponent(
                                             }.testTag("signatureComponentSignatureName"),
                                     name = nameText,
                                     allCaps = isTimestamped || showNameAsAllCaps,
+                                    formatName = !signature.isDigitalSeal,
                                 )
                                 Text(
                                     text = signedTime,

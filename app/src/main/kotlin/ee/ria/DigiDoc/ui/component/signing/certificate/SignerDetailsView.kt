@@ -229,7 +229,12 @@ fun SignerDetailsView(
                         )
                         Spacer(modifier = modifier.width(SPadding))
 
-                        val nameText = formatName(signature.name)
+                        val nameText =
+                            if (signature.isDigitalSeal) {
+                                signature.name
+                            } else {
+                                formatName(signature.name)
+                            }
                         val statusText =
                             getSignatureStatusText(
                                 LocalContext.current,
@@ -258,7 +263,8 @@ fun SignerDetailsView(
                                         }.testTag("signatureDetailsSignatureName")
                                         .notAccessible(),
                                 nameText,
-                                allCaps = isTimestamp,
+                                allCaps = isTimestamp && signature.isDigitalSeal.not(),
+                                formatName = signature.isDigitalSeal.not(),
                             )
                             ColoredSignedStatusText(
                                 text = statusText,
