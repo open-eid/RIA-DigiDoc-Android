@@ -1224,7 +1224,7 @@ fun SigningNavigation(
                 modifier = modifier,
                 showSheet = showSignatureBottomSheet,
                 clickedSignature = clickedSignature,
-                isTimestamp = isTimestampedContainer,
+                isTimestamp = isTimestampedContainer || clickedSignature.value?.isDigitalSeal == true,
                 signedContainer = signedContainer,
                 signingViewModel = signingViewModel,
                 sharedSignatureViewModel = sharedSignatureViewModel,

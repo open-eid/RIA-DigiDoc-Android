@@ -23,6 +23,7 @@ package ee.ria.DigiDoc.libdigidoclib.domain.model
 
 import ee.ria.DigiDoc.common.certificate.CertificateServiceImpl
 import ee.ria.DigiDoc.common.model.Certificate
+import ee.ria.DigiDoc.common.model.EIDType
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.libdigidocpp.Signature
@@ -91,6 +92,18 @@ class SignatureWrapper(
             debugLog(logTag, "Can't get archive time stamp certificate DER", e)
             ByteArray(0)
         }
+
+    override val isDigitalSeal: Boolean = isCertificateDigitalSeal(signingCertificateDer)
+
+    companion object {
+        fun isCertificateDigitalSeal(signingCertificateDer: ByteArray): Boolean =
+            try {
+                val certService = CertificateServiceImpl()
+                certService.extractEIDType(certService.parseCertificate(signingCertificateDer)) == EIDType.E_SEAL
+            } catch (_: Exception) {
+                false
+            }
+    }
 
     override val validator: ValidatorInterface = ValidatorWrapper(Signature.Validator(signature))
 

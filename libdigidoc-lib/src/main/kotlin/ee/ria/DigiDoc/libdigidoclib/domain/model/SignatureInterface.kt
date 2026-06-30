@@ -48,6 +48,7 @@ interface SignatureInterface : Serializable {
     val ocspCertificateDer: ByteArray
     val timeStampCertificateDer: ByteArray
     val archiveTimeStampCertificateDer: ByteArray
+    val isDigitalSeal: Boolean
 
     val validator: ValidatorInterface
 }
