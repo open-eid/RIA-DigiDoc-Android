@@ -168,8 +168,10 @@ class MainActivity :
             fileTypeSetup.initializeApplicationFileTypesAssociation(componentClassName)
             librarySetup.setupLibraries(applicationContext, isLoggingEnabled)
 
-            ContainerUtil.removeSignatureContainersDir(applicationContext)
-            ContainerUtil.removeCryptoContainersDir(applicationContext)
+            if (savedInstanceState == null) {
+                ContainerUtil.removeSignatureContainersDir(applicationContext)
+                ContainerUtil.removeCryptoContainersDir(applicationContext)
+            }
 
             isAppReady = true
 

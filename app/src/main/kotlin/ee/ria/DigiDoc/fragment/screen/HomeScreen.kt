@@ -80,7 +80,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeM
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.HomeViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
@@ -108,13 +107,6 @@ fun HomeScreen(
 
     BackHandler {
         activity?.finish()
-    }
-
-    LaunchedEffect(snackbarMessage) {
-        snackbarMessage?.let { message ->
-            showMessage(context, message)
-            savedStateHandle?.set("snackbar_message", null)
-        }
     }
 
     LaunchedEffect(homeViewModel.didAppCrashOnPreviousExecution(), hasUnsentReports) {
