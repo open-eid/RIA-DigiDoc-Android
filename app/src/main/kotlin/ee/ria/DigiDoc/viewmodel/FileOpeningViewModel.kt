@@ -206,6 +206,8 @@ class FileOpeningViewModel
                             uris.size == 1 && file.isCryptoContainer()
                         } == true
 
+                    val opensExistingContainer: Boolean
+
                     if ((fileOpeningMethod == FileOpeningMethod.ALL || isExternalFile) && isCdoc) {
                         val cryptoContainer =
                             fileOpeningRepository.openOrCreateCryptoContainer(
@@ -215,6 +217,7 @@ class FileOpeningViewModel
                             )
 
                         _cryptoContainer.postValue(cryptoContainer)
+                        opensExistingContainer = cryptoContainer.isExistingContainer
                     } else {
                         val signedContainer =
                             fileOpeningRepository.openOrCreateContainer(
@@ -242,9 +245,12 @@ class FileOpeningViewModel
                         } else {
                             _signedContainer.postValue(signedContainer)
                         }
+                        opensExistingContainer = signedContainer.isExistingContainer()
                     }
 
-                    _filesAdded.postValue(urisToFile(context, contentResolver, uris))
+                    if (!opensExistingContainer) {
+                        _filesAdded.postValue(files)
+                    }
                 } catch (e: Exception) {
                     _signedContainer.postValue(null)
                     _launchFilePicker.postValue(false)

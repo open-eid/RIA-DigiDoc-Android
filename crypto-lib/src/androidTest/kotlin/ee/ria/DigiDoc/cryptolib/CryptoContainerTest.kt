@@ -63,6 +63,7 @@ import kotlinx.coroutines.test.runTest
 import org.apache.commons.io.FileUtils
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
@@ -1279,6 +1280,30 @@ class CryptoContainerTest {
             file
         }
     }
+
+    @Test
+    fun cryptoContainer_isExistingContainer_trueForExistingCdoc() =
+        runTest {
+            val cryptoContainer = openOrCreate(context, containerCDOC1, listOf(containerCDOC1), cdoc2Settings)
+
+            assertTrue(cryptoContainer.isExistingContainer)
+        }
+
+    @Test
+    fun cryptoContainer_isExistingContainer_falseForPlainFile() =
+        runTest {
+            val cryptoContainer = openOrCreate(context, testFile, listOf(testFile), cdoc2Settings)
+
+            assertFalse(cryptoContainer.isExistingContainer)
+        }
+
+    @Test
+    fun cryptoContainer_isExistingContainer_falseWhenForced() =
+        runTest {
+            val cryptoContainer = openOrCreate(context, containerCDOC1, listOf(containerCDOC1), cdoc2Settings, true)
+
+            assertFalse(cryptoContainer.isExistingContainer)
+        }
 
     @Suppress("SameParameterValue")
     private fun createTempFileWithStringContent(
