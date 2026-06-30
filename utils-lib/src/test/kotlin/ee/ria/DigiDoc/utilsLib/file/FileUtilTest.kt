@@ -175,30 +175,60 @@ class FileUtilTest {
         }
 
     @Test
-    fun fileUtil_getExternalFileUris_clipDataFiltersOutNonAllowedSchemes() =
+    fun fileUtil_getExternalFileUris_returnsSingleUriWhenFileInBothDataAndClipData() =
         runBlocking {
             val mockIntent = mock(Intent::class.java)
             val mockClipData = mock(ClipData::class.java)
-            val mockClipDataItem1 = mock(ClipData.Item::class.java)
-            val mockClipDataItem2 = mock(ClipData.Item::class.java)
-            val mockUri1 = mock(Uri::class.java)
-            val mockUri2 = mock(Uri::class.java)
+            val mockClipDataItem = mock(ClipData.Item::class.java)
+            val mockUri = mock(Uri::class.java)
 
-            `when`(mockUri1.scheme).thenReturn("content")
-            `when`(mockUri2.scheme).thenReturn("https")
-            `when`(mockClipDataItem1.uri).thenReturn(mockUri1)
-            `when`(mockClipDataItem2.uri).thenReturn(mockUri2)
-
-            `when`(mockClipData.getItemAt(0)).thenReturn(mockClipDataItem1)
-            `when`(mockClipData.getItemAt(1)).thenReturn(mockClipDataItem2)
-            `when`(mockClipData.itemCount).thenReturn(2)
-
+            `when`(mockUri.scheme).thenReturn("content")
+            `when`(mockIntent.data).thenReturn(mockUri)
+            `when`(mockClipDataItem.uri).thenReturn(mockUri)
+            `when`(mockClipData.getItemAt(0)).thenReturn(mockClipDataItem)
+            `when`(mockClipData.itemCount).thenReturn(1)
             `when`(mockIntent.clipData).thenReturn(mockClipData)
 
             val externalFileUris = FileUtil.getExternalFileUris(mockIntent)
 
             assertEquals(1, externalFileUris.size)
+            assertEquals(mockUri, externalFileUris.first())
+        }
+
+    @Test
+    fun fileUtil_getExternalFileUris_fallsBackToExtraStreamForActionSend() =
+        runBlocking {
+            val mockIntent = mock(Intent::class.java)
+            val mockUri = mock(Uri::class.java)
+
+            `when`(mockUri.scheme).thenReturn("content")
+            `when`(mockIntent.action).thenReturn(Intent.ACTION_SEND)
+            `when`(mockIntent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)).thenReturn(mockUri)
+
+            val externalFileUris = FileUtil.getExternalFileUris(mockIntent)
+
+            assertEquals(1, externalFileUris.size)
+            assertEquals(mockUri, externalFileUris.first())
+        }
+
+    @Test
+    fun fileUtil_getExternalFileUris_fallsBackToExtraStreamForActionSendMultiple() =
+        runBlocking {
+            val mockIntent = mock(Intent::class.java)
+            val mockUri1 = mock(Uri::class.java)
+            val mockUri2 = mock(Uri::class.java)
+
+            `when`(mockUri1.scheme).thenReturn("content")
+            `when`(mockUri2.scheme).thenReturn("content")
+            `when`(mockIntent.action).thenReturn(Intent.ACTION_SEND_MULTIPLE)
+            `when`(mockIntent.getParcelableArrayListExtra(Intent.EXTRA_STREAM, Uri::class.java))
+                .thenReturn(arrayListOf(mockUri1, mockUri2))
+
+            val externalFileUris = FileUtil.getExternalFileUris(mockIntent)
+
+            assertEquals(2, externalFileUris.size)
             assertEquals(mockUri1, externalFileUris.first())
+            assertEquals(mockUri2, externalFileUris.last())
         }
 
     @Test
