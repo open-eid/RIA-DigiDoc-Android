@@ -184,6 +184,8 @@ fun SigningNavigation(
     val isDdocContainer = signedContainer?.isDdoc() == true
     var isEmptyFileInContainer by remember { mutableStateOf(false) }
     val isSaveContainerShown = rememberSaveable { mutableStateOf(false) }
+    val isEditContainerButtonShown = signingViewModel.isBottomContainerButtonShown(signedContainer, isNestedContainer)
+    val isEncryptButtonShown = signingViewModel.isEncryptButtonShown(signedContainer, isNestedContainer)
 
     var validSignaturesCount by remember { mutableIntStateOf(0) }
     var unknownSignaturesCount by remember { mutableIntStateOf(0) }
@@ -469,9 +471,8 @@ fun SigningNavigation(
         if (!isNestedContainer && isSaveContainerShown.value) {
             showContainerCloseConfirmationDialog.value = true
         } else {
-            ContainerUtil.removeSignatureContainersDir(context)
-
             handleBackButtonClick(
+                context,
                 navController,
                 signingViewModel,
                 sharedContainerViewModel,
@@ -664,13 +665,11 @@ fun SigningNavigation(
             isSaveContainerShown.value = false
             if (showContainerCloseConfirmationDialog.value) {
                 showContainerCloseConfirmationDialog.value = false
-                ContainerUtil.removeSignatureContainersDir(context)
-
                 handleBackButtonClick(
+                    context,
                     navController,
                     signingViewModel,
                     sharedContainerViewModel,
-                    true,
                 )
             }
             @Suppress("AssignedValueIsNeverRead")
@@ -724,9 +723,8 @@ fun SigningNavigation(
                     if (!isNestedContainer && isSaveContainerShown.value) {
                         showContainerCloseConfirmationDialog.value = true
                     } else {
-                        ContainerUtil.removeSignatureContainersDir(context)
-
                         handleBackButtonClick(
+                            context,
                             navController,
                             signingViewModel,
                             sharedContainerViewModel,
@@ -863,11 +861,7 @@ fun SigningNavigation(
                                             isXadesContainer,
                                             isCadesContainer,
                                         ),
-                                showRightActionButton =
-                                    signingViewModel.isEncryptButtonShown(
-                                        signedContainer,
-                                        isNestedContainer,
-                                    ),
+                                showRightActionButton = isEncryptButtonShown,
                                 leftActionButtonName = R.string.signature_update_signature_add,
                                 rightActionButtonName = R.string.encrypt_button,
                                 leftActionButtonContentDescription = R.string.signature_update_signature_add,
@@ -892,21 +886,10 @@ fun SigningNavigation(
                                 },
                                 onRightActionButtonClick = onEncryptActionClick,
                                 onMoreOptionsActionButtonClick = {
-                                    val isEditContainerButtonShown =
-                                        signingViewModel.isBottomContainerButtonShown(
-                                            signedContainer,
-                                            isNestedContainer,
-                                        )
-                                    val isEncryptButtonShown =
-                                        signingViewModel.isEncryptButtonShown(
-                                            signedContainer,
-                                            isNestedContainer,
-                                        )
-                                    showContainerBottomSheet.value = (
+                                    showContainerBottomSheet.value =
                                         isSaveContainerShown.value ||
-                                            isEditContainerButtonShown ||
-                                            isEncryptButtonShown
-                                    )
+                                        isEditContainerButtonShown ||
+                                        isEncryptButtonShown
                                 },
                             )
                         }
@@ -1130,8 +1113,12 @@ fun SigningNavigation(
                                     signedContainer?.getContainerFile()?.delete()
                                     sharedContainerViewModel.resetSignedContainer()
                                     sharedContainerViewModel.resetContainerNotifications()
-                                    ContainerUtil.removeSignatureContainersDir(context)
-                                    handleBackButtonClick(navController, signingViewModel, sharedContainerViewModel)
+                                    handleBackButtonClick(
+                                        context,
+                                        navController,
+                                        signingViewModel,
+                                        sharedContainerViewModel,
+                                    )
                                 } else {
                                     scope.launch(IO) {
                                         try {
@@ -1227,6 +1214,7 @@ fun SigningNavigation(
                 openRemoveFileDialog = openRemoveFileDialog,
                 onBackButtonClick = {
                     handleBackButtonClick(
+                        context,
                         navController,
                         signingViewModel,
                         sharedContainerViewModel,
@@ -1237,17 +1225,9 @@ fun SigningNavigation(
                 modifier = modifier,
                 showSheet = showContainerBottomSheet,
                 isSaveButtonShown = isSaveContainerShown.value,
-                isEditContainerButtonShown =
-                    signingViewModel.isBottomContainerButtonShown(
-                        signedContainer,
-                        isNestedContainer,
-                    ),
+                isEditContainerButtonShown = isEditContainerButtonShown,
                 openEditContainerNameDialog = openEditContainerNameDialog,
-                isEncryptButtonShown =
-                    signingViewModel.isEncryptButtonShown(
-                        signedContainer,
-                        isNestedContainer,
-                    ),
+                isEncryptButtonShown = isEncryptButtonShown,
                 signedContainer = signedContainer,
                 onEncryptClick = onEncryptActionClick,
                 saveFileLauncher = saveFileLauncher,
@@ -1332,10 +1312,9 @@ fun SigningNavigation(
                     },
                     onConfirmButton = {
                         showContainerCloseConfirmationDialog.value = false
-                        ContainerUtil.removeSignatureContainersDir(context)
                         sharedContainerViewModel.resetSignedContainer()
                         sharedContainerViewModel.resetContainerNotifications()
-                        handleBackButtonClick(navController, signingViewModel, sharedContainerViewModel)
+                        handleBackButtonClick(context, navController, signingViewModel, sharedContainerViewModel)
                     },
                 )
             }
@@ -1365,10 +1344,10 @@ private suspend fun createContainerForSignedPDF(
 }
 
 private fun handleBackButtonClick(
+    context: Context,
     navController: NavHostController,
     signingViewModel: SigningViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
-    containerSavedSuccess: Boolean = false,
 ) {
     sharedContainerViewModel.resetExternalFileUris()
     sharedContainerViewModel.resetIsSivaConfirmed()
@@ -1386,14 +1365,9 @@ private fun handleBackButtonClick(
             }
         }
     } else {
+        ContainerUtil.removeSignatureContainersDir(context)
         sharedContainerViewModel.clearContainers()
         signingViewModel.handleBackButton()
-
-        if (containerSavedSuccess) {
-            navController.previousBackStackEntry
-                ?.savedStateHandle
-                ?.set("snackbar_message", R.string.signature_saved_container_success)
-        }
         navController.navigateUp()
     }
 }
