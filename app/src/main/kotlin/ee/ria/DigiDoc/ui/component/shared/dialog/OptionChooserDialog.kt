@@ -23,13 +23,13 @@ package ee.ria.DigiDoc.ui.component.shared.dialog
 
 import android.content.res.Configuration
 import androidx.annotation.StringRes
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -48,6 +48,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -78,7 +79,6 @@ fun OptionChooserDialog(
     var selectedOption by remember { mutableStateOf(choices[selectedChoice]) }
 
     val optionText = stringResource(id = R.string.option)
-    val optionSelectedText = stringResource(id = R.string.option_selected)
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -117,10 +117,18 @@ fun OptionChooserDialog(
                             .fillMaxWidth()
                             .padding(vertical = SPadding)
                             .padding(start = XSPadding)
-                            .clickable {
-                                currentChoice = index
-                                selectedOption = choices[currentChoice]
-                            },
+                            .selectable(
+                                selected = index == currentChoice,
+                                role = Role.RadioButton,
+                                onClick = {
+                                    currentChoice = index
+                                    selectedOption = choices[index]
+                                },
+                            ).semantics {
+                                testTagsAsResourceId = true
+                                this.contentDescription =
+                                    String.format(optionText, choices[index].lowercase())
+                            }.testTag("optionChooser$index"),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
@@ -133,28 +141,8 @@ fun OptionChooserDialog(
                         style = MaterialTheme.typography.bodyLarge,
                     )
                     RadioButton(
-                        modifier =
-                            modifier
-                                .semantics {
-                                    testTagsAsResourceId = true
-                                    this.contentDescription =
-                                        if (index == currentChoice) {
-                                            String.format(
-                                                optionSelectedText,
-                                                choices[index].lowercase(),
-                                            )
-                                        } else {
-                                            String.format(
-                                                optionText,
-                                                choices[index].lowercase(),
-                                            )
-                                        }
-                                }.testTag("optionChooser$index"),
                         selected = selectedOption == choices[index],
-                        onClick = {
-                            currentChoice = index
-                            selectedOption = choices[index]
-                        },
+                        onClick = null,
                     )
                 }
                 HorizontalDivider()
@@ -188,8 +176,8 @@ fun OptionChooserDialogPreview() {
             title = R.string.choose_server_option,
             choices =
                 listOf(
-                    stringResource(R.string.option),
-                    stringResource(R.string.option),
+                    "Server 1",
+                    "Server 2",
                 ),
             cancelButtonClick = {},
             okButtonClick = {},

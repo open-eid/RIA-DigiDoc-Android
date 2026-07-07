@@ -473,8 +473,7 @@
     <string name="main_menu_encrypt_container_accessibility">Krüpteeri ümbrik</string>
 
     <string name="choose_server_option">Vali server</string>
-    <string name="option">Valik</string>
-    <string name="option_selected">Valik %1$s valitud</string>
+    <string name="option">Valik %1$s</string>
 
     <string name="option_ria">RIA</string>
     <string name="option_key_transfer">Kasuta krüpteerimiseks võtmeedastusserverit</string>
