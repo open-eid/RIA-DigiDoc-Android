@@ -23,6 +23,7 @@ package ee.ria.DigiDoc.ui.component.shared
 
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -55,21 +56,46 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
                         testTagsAsResourceId = true
                     }.testTag("loadingScreen"),
         ) {
-            Box(
-                modifier =
-                    modifier
-                        .fillMaxSize()
-                        .padding(vertical = MPadding)
-                        .testTag("activityOverlay"),
-                contentAlignment = Alignment.Center,
-            ) {
-                CircularProgressIndicator(
-                    modifier =
-                        modifier
-                            .size(loadingBarSize)
-                            .testTag("activityIndicator"),
-                )
-            }
+            LoadingIndicator(modifier = modifier)
         }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun ContentLoadingScreen(
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
+) {
+    Surface(
+        modifier =
+            modifier
+                .padding(contentPadding)
+                .fillMaxSize()
+                .focusGroup()
+                .semantics {
+                    testTagsAsResourceId = true
+                }.testTag("loadingScreen"),
+    ) {
+        LoadingIndicator(modifier = modifier)
+    }
+}
+
+@Composable
+private fun LoadingIndicator(modifier: Modifier = Modifier) {
+    Box(
+        modifier =
+            modifier
+                .fillMaxSize()
+                .padding(vertical = MPadding)
+                .testTag("activityOverlay"),
+        contentAlignment = Alignment.Center,
+    ) {
+        CircularProgressIndicator(
+            modifier =
+                modifier
+                    .size(loadingBarSize)
+                    .testTag("activityIndicator"),
+        )
     }
 }

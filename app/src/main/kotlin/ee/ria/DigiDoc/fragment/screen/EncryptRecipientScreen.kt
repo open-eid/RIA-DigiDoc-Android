@@ -84,8 +84,8 @@ import ee.ria.DigiDoc.ui.component.crypto.bottombar.EncryptBottomBar
 import ee.ria.DigiDoc.ui.component.crypto.bottombar.EncryptButtonBottomBar
 import ee.ria.DigiDoc.ui.component.crypto.bottomsheet.RecipientBottomSheet
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
+import ee.ria.DigiDoc.ui.component.shared.ContentLoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
-import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
 import ee.ria.DigiDoc.ui.component.shared.PreventResize
 import ee.ria.DigiDoc.ui.component.shared.Recipient
@@ -132,7 +132,7 @@ fun EncryptRecipientScreen(
 
     val cryptoContainer by sharedContainerViewModel.cryptoContainer.collectAsState()
 
-    val showLoading = remember { mutableStateOf(false) }
+    val isEncrypting by encryptRecipientViewModel.isEncrypting.collectAsState()
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
     val showPasswordDialog = rememberSaveable { mutableStateOf(false) }
 
@@ -242,6 +242,15 @@ fun EncryptRecipientScreen(
         }
     }
 
+    LaunchedEffect(encryptRecipientViewModel.encryptedContainer) {
+        encryptRecipientViewModel.encryptedContainer.asFlow().collect { encrypted ->
+            encrypted?.let {
+                sharedContainerViewModel.setCryptoContainer(it, true)
+                encryptRecipientViewModel.resetEncryptedContainer()
+            }
+        }
+    }
+
     LaunchedEffect(encryptRecipientViewModel.errorState) {
         encryptRecipientViewModel.errorState.asFlow().collect { error ->
             error?.let {
@@ -274,12 +283,17 @@ fun EncryptRecipientScreen(
                 }.testTag("encryptRecipientsScreen"),
         snackbarHost = { StatusSnackbarHost() },
         topBar = {
-            if (!expanded) {
+            if (!expanded || isEncrypting) {
                 TopBar(
                     modifier = modifier,
                     sharedMenuViewModel = sharedMenuViewModel,
                     title = null,
+                    showRightSideIcons = !isEncrypting,
                     onLeftButtonClick = {
+                        if (isEncrypting) {
+                            encryptRecipientViewModel.cancelEncryption()
+                            encryptionButtonEnabled.value = true
+                        }
                         navController.navigateUp()
                     },
                     onRightSecondaryButtonClick = {
@@ -296,21 +310,18 @@ fun EncryptRecipientScreen(
                         encryptButtonIcon = R.drawable.ic_m3_arrow_forward_48dp_wght400,
                         encryptButtonName = R.string.next_button,
                         encryptButtonContentDescription = R.string.next_button,
-                        isEncryptButtonEnabled = true,
+                        isEncryptButtonEnabled = !isEncrypting,
                         onEncryptButtonClick = { showPasswordDialog.value = true },
                     )
                 } else {
                     EncryptBottomBar(
                         modifier = modifier,
-                        isEncryptButtonEnabled = encryptionButtonEnabled.value,
+                        isEncryptButtonEnabled = encryptionButtonEnabled.value && !isEncrypting,
                         onEncryptClick = {
                             if (encryptionButtonEnabled.value) {
                                 encryptionButtonEnabled.value = false
-                                showLoading.value = true
-                                scope.launch(Main) {
-                                    encryptRecipientViewModel.encryptContainer(sharedContainerViewModel)
-                                    showLoading.value = false
-                                }
+                                expanded = false
+                                encryptRecipientViewModel.encrypt(cryptoContainer)
                             }
                         },
                     )
@@ -429,8 +440,8 @@ fun EncryptRecipientScreen(
             )
         }
 
-        if (showLoading.value) {
-            LoadingScreen(modifier = modifier)
+        if (isEncrypting) {
+            ContentLoadingScreen(modifier = modifier, contentPadding = paddingValues)
         }
 
         RecipientBottomSheet(

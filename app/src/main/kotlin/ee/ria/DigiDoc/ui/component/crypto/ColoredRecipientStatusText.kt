@@ -35,21 +35,25 @@ import ee.ria.DigiDoc.ui.theme.extendedColorScheme
 @Composable
 fun ColoredRecipientStatusText(
     text: String,
+    status: RecipientDecryptionStatus,
     modifier: Modifier = Modifier,
-    expired: Boolean = false,
 ) {
     val tagBackgroundColor =
-        if (!expired) {
-            MaterialTheme.extendedColorScheme.successContainer
-        } else {
-            MaterialTheme.colorScheme.errorContainer
+        when (status) {
+            RecipientDecryptionStatus.NOT_ENCRYPTED -> MaterialTheme.colorScheme.surfaceVariant
+            RecipientDecryptionStatus.NOT_ENCRYPTED_EXPIRED,
+            RecipientDecryptionStatus.EXPIRED,
+            -> MaterialTheme.colorScheme.errorContainer
+            RecipientDecryptionStatus.VALID -> MaterialTheme.extendedColorScheme.successContainer
         }
 
     val tagContentColor =
-        if (!expired) {
-            MaterialTheme.extendedColorScheme.onSuccessContainer
-        } else {
-            MaterialTheme.colorScheme.onErrorContainer
+        when (status) {
+            RecipientDecryptionStatus.NOT_ENCRYPTED -> MaterialTheme.colorScheme.onSurface
+            RecipientDecryptionStatus.NOT_ENCRYPTED_EXPIRED,
+            RecipientDecryptionStatus.EXPIRED,
+            -> MaterialTheme.colorScheme.onErrorContainer
+            RecipientDecryptionStatus.VALID -> MaterialTheme.extendedColorScheme.onSuccessContainer
         }
 
     FlowRow(

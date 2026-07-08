@@ -283,7 +283,7 @@ fun NFCView(
     var isCanNumberReadOnly by remember { mutableStateOf(isCanNumberReadOnly) }
 
     BackHandler {
-        nfcViewModel.handleBackButton()
+        nfcViewModel.handleBackButton(activity)
         sharedSettingsViewModel.dataStore.clearTemporaryCanNumber()
         sharedSettingsViewModel.dataStore.setWebEidSessionActive(false)
         if (isSigning || isDecrypting || isAuthenticating) {
@@ -817,23 +817,23 @@ fun NFCView(
                             }
                         }
                         cancelAction {
-                            nfcViewModel.handleBackButton()
+                            nfcViewModel.handleBackButton(activity)
                             scope.launch(IO) {
                                 signedContainer?.let { nfcViewModel.cancelNFCSignWorkRequest(it) }
                             }
                         }
                         cancelDecryptAction {
-                            nfcViewModel.handleBackButton()
+                            nfcViewModel.handleBackButton(activity)
                             nfcViewModel.cancelNfcOperation()
                         }
 
                         cancelWebEidAuthenticateAction {
-                            nfcViewModel.handleBackButton()
+                            nfcViewModel.handleBackButton(activity)
                             nfcViewModel.cancelNfcOperation()
                         }
 
                         cancelWebEidSignAction {
-                            nfcViewModel.handleBackButton()
+                            nfcViewModel.handleBackButton(activity)
                             nfcViewModel.cancelNfcOperation()
                         }
                     }

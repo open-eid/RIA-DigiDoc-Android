@@ -95,10 +95,10 @@ import ee.ria.DigiDoc.ui.component.crypto.bottomsheet.RecipientBottomSheet
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.EditValueDialog
 import ee.ria.DigiDoc.ui.component.shared.ContainerNameView
+import ee.ria.DigiDoc.ui.component.shared.ContentLoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.CryptoDataFileItem
 import ee.ria.DigiDoc.ui.component.shared.CryptoDataFilesLocked
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
-import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
 import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TabView
@@ -163,6 +163,13 @@ fun EncryptNavigation(
 
     val isNestedContainer = sharedContainerViewModel.isNestedContainer(cryptoContainer)
 
+    val isUnencryptedCryptoContainer =
+        with(encryptViewModel) {
+            !isEncryptedContainer(cryptoContainer) &&
+                !isDecryptedContainer(cryptoContainer) &&
+                !isNestedContainer
+        }
+
     val containerEncryptedSuccess = remember { mutableStateOf(false) }
     val containerEncryptedSuccessText = stringResource(id = R.string.crypto_create_success)
     val containerDecryptedSuccess = remember { mutableStateOf(false) }
@@ -171,6 +178,7 @@ fun EncryptNavigation(
     val emptyFileInContainerText = stringResource(id = R.string.crypto_empty_file_message)
 
     val showLoadingScreen = remember { mutableStateOf(false) }
+    val isEncrypting by encryptRecipientViewModel.isEncrypting.collectAsState()
 
     val openRemoveFileDialog = rememberSaveable { mutableStateOf(false) }
     val fileRemoved = stringResource(id = R.string.file_removed)
@@ -375,11 +383,7 @@ fun EncryptNavigation(
     val onEncryptClick = {
         if (encryptionButtonEnabled.value) {
             encryptionButtonEnabled.value = false
-            showLoadingScreen.value = true
-            scope.launch(Main) {
-                encryptRecipientViewModel.encryptContainer(sharedContainerViewModel)
-                showLoadingScreen.value = false
-            }
+            encryptRecipientViewModel.encrypt(cryptoContainer)
         }
     }
 
@@ -410,8 +414,11 @@ fun EncryptNavigation(
             fileToSave.value = null
         }
 
-    BackHandler {
-        if (!isNestedContainer && encryptViewModel.isEncryptedContainer(cryptoContainer)) {
+    val handleClose = {
+        if (isEncrypting) {
+            encryptRecipientViewModel.cancelEncryption()
+            encryptionButtonEnabled.value = true
+        } else if (!isNestedContainer && encryptViewModel.isEncryptedContainer(cryptoContainer)) {
             showContainerCloseConfirmationDialog.value = true
         } else {
             handleBackButtonClick(
@@ -420,6 +427,10 @@ fun EncryptNavigation(
                 sharedContainerViewModel,
             )
         }
+    }
+
+    BackHandler {
+        handleClose()
     }
 
     DisposableEffect(shouldResetContainer) {
@@ -456,11 +467,21 @@ fun EncryptNavigation(
         }
     }
 
+    LaunchedEffect(encryptRecipientViewModel.encryptedContainer) {
+        encryptRecipientViewModel.encryptedContainer.asFlow().collect { encrypted ->
+            encrypted?.let {
+                sharedContainerViewModel.setCryptoContainer(it, true)
+                encryptRecipientViewModel.resetEncryptedContainer()
+            }
+        }
+    }
+
     LaunchedEffect(encryptRecipientViewModel.errorState) {
         encryptRecipientViewModel.errorState.asFlow().collect { error ->
             error?.let {
                 showMessage(context, error)
                 encryptionButtonEnabled.value = true
+                encryptRecipientViewModel.resetErrorState()
             }
         }
     }
@@ -563,21 +584,18 @@ fun EncryptNavigation(
                         ?.let { R.string.signing_container_documents_title },
                 leftIcon =
                     when {
+                        isEncrypting -> R.drawable.ic_m3_arrow_back_48dp_wght400
                         isNestedContainer -> R.drawable.ic_m3_arrow_back_48dp_wght400
                         else -> R.drawable.ic_m3_close_48dp_wght400
                     },
-                leftIconContentDescription = R.string.crypto_close_container_title,
-                onLeftButtonClick = {
-                    if (!isNestedContainer && encryptViewModel.isEncryptedContainer(cryptoContainer)) {
-                        showContainerCloseConfirmationDialog.value = true
+                leftIconContentDescription =
+                    if (isEncrypting) {
+                        R.string.cancel_button
                     } else {
-                        handleBackButtonClick(
-                            navController,
-                            encryptViewModel,
-                            sharedContainerViewModel,
-                        )
-                    }
-                },
+                        R.string.crypto_close_container_title
+                    },
+                showRightSideIcons = !isEncrypting,
+                onLeftButtonClick = handleClose,
                 onRightSecondaryButtonClick = {
                     isSettingsMenuBottomSheetVisible.value = true
                 },
@@ -617,7 +635,7 @@ fun EncryptNavigation(
                         ),
                     isShareButtonShown = encryptViewModel.isShareButtonShown(cryptoContainer),
                     onEncryptClick = onEncryptClick,
-                    encryptionButtonEnabled = encryptionButtonEnabled.value,
+                    encryptionButtonEnabled = encryptionButtonEnabled.value && !isEncrypting,
                 )
             }
         },
@@ -674,15 +692,7 @@ fun EncryptNavigation(
                                 text = removeExtensionFromContainerFilename(cryptoContainerName),
                             )
                         cryptoContainer?.let {
-                            val isInitialCryptoContainer =
-                                with(encryptViewModel) {
-                                    isContainerWithoutRecipients(cryptoContainer) &&
-                                        !isEncryptedContainer(cryptoContainer) &&
-                                        !isDecryptedContainer(cryptoContainer) &&
-                                        !isNestedContainer
-                                }
-
-                            if (isInitialCryptoContainer) {
+                            if (isUnencryptedCryptoContainer) {
                                 Text(
                                     modifier =
                                         modifier
@@ -843,7 +853,11 @@ fun EncryptNavigation(
                                                     showRecipientsLoadingIndicator.value,
                                                     recipientsLoading,
                                                     onRecipientItemClick,
-                                                    !encryptViewModel.isCDOC1Container(cryptoContainer),
+                                                    isCDOC2Container =
+                                                        !encryptViewModel.isCDOC1Container(cryptoContainer),
+                                                    isEncryptedOrDecrypted =
+                                                        encryptViewModel.isEncryptedContainer(cryptoContainer) ||
+                                                            encryptViewModel.isDecryptedContainer(cryptoContainer),
                                                 )
                                             },
                                         ),
@@ -1061,10 +1075,7 @@ fun EncryptNavigation(
             EncryptContainerBottomSheet(
                 modifier = modifier,
                 showSheet = showContainerBottomSheet,
-                isEditContainerButtonShown =
-                    !isNestedContainer &&
-                        !encryptViewModel.isEncryptedContainer(cryptoContainer) &&
-                        !encryptViewModel.isDecryptedContainer(cryptoContainer),
+                isEditContainerButtonShown = isUnencryptedCryptoContainer,
                 openEditContainerNameDialog = openEditContainerNameDialog,
                 isSaveButtonShown = (
                     encryptViewModel.isEncryptedContainer(cryptoContainer) ||
@@ -1091,8 +1102,8 @@ fun EncryptNavigation(
                 onRecipientRemove = { actionRecipient = it },
             )
 
-            if (showLoadingScreen.value) {
-                LoadingScreen(modifier = modifier)
+            if (showLoadingScreen.value || isEncrypting) {
+                ContentLoadingScreen(modifier = modifier)
             }
 
             if (showContainerCloseConfirmationDialog.value) {
