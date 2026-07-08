@@ -1305,6 +1305,80 @@ class CryptoContainerTest {
             assertFalse(cryptoContainer.isExistingContainer)
         }
 
+    @Test
+    fun cdoc2Settings_isManualKeyServerUrl_matchesWhenRequestUrlHasPath() {
+        setManualKeyServerUrls("https://keyserver.example.com")
+
+        assertTrue(cdoc2Settings.isManualKeyServerUrl("https://keyserver.example.com/key-capsules"))
+    }
+
+    @Test
+    fun cdoc2Settings_isManualKeyServerUrl_matchesSchemelessManualUrl() {
+        setManualKeyServerUrls("keyserver.example.com:8443")
+
+        assertTrue(cdoc2Settings.isManualKeyServerUrl("https://keyserver.example.com:8443/key-capsules"))
+    }
+
+    @Test
+    fun cdoc2Settings_isManualKeyServerUrl_matchesExplicitDefaultPortAgainstImplicitOne() {
+        setManualKeyServerUrls("https://keyserver.example.com:443")
+
+        assertTrue(cdoc2Settings.isManualKeyServerUrl("https://keyserver.example.com/key-capsules"))
+    }
+
+    @Test
+    fun cdoc2Settings_isManualKeyServerUrl_falseWhenPortDiffers() {
+        setManualKeyServerUrls("https://keyserver.example.com:8443")
+
+        assertFalse(cdoc2Settings.isManualKeyServerUrl("https://keyserver.example.com/key-capsules"))
+    }
+
+    @Test
+    fun cdoc2Settings_isManualKeyServerUrl_falseWhenSchemeDefaultPortDiffers() {
+        setManualKeyServerUrls("keyserver.example.com")
+
+        assertFalse(cdoc2Settings.isManualKeyServerUrl("http://keyserver.example.com/key-capsules"))
+    }
+
+    @Test
+    fun cdoc2Settings_isManualKeyServerUrl_matchesHostContainingUnderscore() {
+        setManualKeyServerUrls("https://key_server.example.com")
+
+        assertTrue(cdoc2Settings.isManualKeyServerUrl("https://key_server.example.com/key-capsules"))
+    }
+
+    @Test
+    fun cdoc2Settings_isManualKeyServerUrl_falseWhenNoManualServerConfigured() {
+        assertFalse(cdoc2Settings.isManualKeyServerUrl("https://keyserver.example.com/key-capsules"))
+    }
+
+    @Test
+    fun cdoc2Settings_isManualKeyServerUrl_falseWhenUrlIsUnparseable() {
+        setManualKeyServerUrls("https://keyserver.example.com")
+
+        assertFalse(cdoc2Settings.isManualKeyServerUrl("not a url"))
+    }
+
+    @Test
+    fun cdoc2Settings_isManualKeyServerUrl_falseWhenUrlIsNull() {
+        setManualKeyServerUrls("https://keyserver.example.com")
+
+        assertFalse(cdoc2Settings.isManualKeyServerUrl(null))
+    }
+
+    @Suppress("SameParameterValue")
+    private fun setManualKeyServerUrls(url: String) {
+        preferences
+            .edit()
+            .putString(
+                resources.getString(R.string.crypto_settings_use_cdoc2_post_url),
+                url,
+            ).putString(
+                resources.getString(R.string.crypto_settings_use_cdoc2_fetch_url),
+                url,
+            ).commit()
+    }
+
     @Suppress("SameParameterValue")
     private fun createTempFileWithStringContent(
         filename: String,

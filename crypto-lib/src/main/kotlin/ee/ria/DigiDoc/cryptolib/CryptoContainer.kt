@@ -57,6 +57,10 @@ import ee.ria.cdoc.Logger
 import ee.ria.cdoc.NetworkBackend
 import ee.ria.cdoc.Recipient
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
 import org.openeid.cdoc4j.CDOCParser
@@ -64,11 +68,11 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
 import java.util.Base64
+import java.util.concurrent.locks.ReentrantLock
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.concurrent.withLock
 
 private const val LOG_TAG = "CryptoContainer"
 
@@ -165,6 +169,11 @@ class CryptoContainer
         companion object {
             val logger = JavaLogger()
             var loggingIsSet = false
+
+            // Encryption can pause and resume midway, so it needs the coroutine-friendly Mutex.
+            // Decryption runs start-to-finish in one go, so a plain lock (ReentrantLock) is enough.
+            private val encryptOperation = Mutex()
+            private val decryptOperation = ReentrantLock()
 
             @Throws(CryptoException::class)
             private suspend fun open(
@@ -273,74 +282,78 @@ class CryptoContainer
                 smartToken: Token,
                 cdoc2Settings: CDOC2Settings,
                 configurationRepository: ConfigurationRepository,
-            ): CryptoContainer {
-                val token = SmartCardTokenWrapper(pin, smartToken)
-                val conf = CryptoLibConf(cdoc2Settings)
-                val configurationProvider = configurationRepository.getConfiguration()
+            ): CryptoContainer =
+                decryptOperation.withLock {
+                    val token = SmartCardTokenWrapper(pin, smartToken)
+                    val conf = CryptoLibConf(cdoc2Settings)
+                    val configurationProvider = configurationRepository.getConfiguration()
 
-                if (authCert == null || authCert.isEmpty()) {
-                    throw CryptoException("Failed to get auth certificate")
-                }
-                val network = CryptoLibNetworkBackend(cdoc2Settings, configurationProvider, context, authCert, token)
-                val dataFiles = ArrayList<File>()
-
-                val cdocReader = CDocReader.createReader(file.path, conf, token, network)
-                debugLog(LOG_TAG, "Reader created: (version ${cdocReader.version})")
-                val idx = cdocReader.getLockForCert(authCert)
-
-                if (idx < 0) {
-                    throw CryptoException("Failed to get lock for certificate")
-                }
-
-                val fmk = cdocReader.getFMK(idx.toInt())
-
-                if (token.lastError != null) {
-                    throw token.lastError as Throwable
-                }
-
-                if (fmk.isEmpty()) {
-                    throw CryptoException("Failed to get FMK")
-                }
-
-                if (cdocReader.beginDecryption(fmk) != 0L) {
-                    throw CryptoException("Failed to begin decryption")
-                }
-
-                val fi = FileInfo()
-                var result: Long = cdocReader.nextFile(fi)
-                try {
-                    while (result == CDoc.OK.toLong()) {
-                        val ofile = File(fi.name)
-                        val dir =
-                            ContainerUtil.getContainerDataFilesDir(
-                                context,
-                                file,
-                            )
-                        val tmp = sanitizeString(ofile.name, "")
-                        val fileToSave = File(dir, tmp)
-                        val ofs: OutputStream = FileOutputStream(fileToSave)
-                        cdocReader.readFile(ofs)
-                        dataFiles.add(fileToSave)
-                        ofs.close()
-                        result = cdocReader.nextFile(fi)
+                    if (authCert == null || authCert.isEmpty()) {
+                        throw CryptoException("Failed to get auth certificate")
                     }
-                } catch (exc: IOException) {
-                    throw CryptoException("IO Exception: ${exc.message}", exc)
-                }
+                    val network =
+                        CryptoLibNetworkBackend(cdoc2Settings, configurationProvider, context, authCert, token)
+                    val dataFiles = ArrayList<File>()
 
-                if (cdocReader.finishDecryption() != 0L) {
-                    throw CryptoException("Failed to finish decryption")
-                }
+                    val cdocReader = CDocReader.createReader(file.path, conf, token, network)
+                    debugLog(LOG_TAG, "Reader created: (version ${cdocReader.version})")
+                    try {
+                        val idx = cdocReader.getLockForCert(authCert)
 
-                return create(
-                    context,
-                    file,
-                    dataFiles,
-                    recipients,
-                    decrypted = true,
-                    encrypted = false,
-                )
-            }
+                        if (idx < 0) {
+                            throw CryptoException("Failed to get lock for certificate")
+                        }
+
+                        val fmk = cdocReader.getFMK(idx.toInt())
+
+                        if (token.lastError != null) {
+                            throw token.lastError as Throwable
+                        }
+
+                        if (fmk.isEmpty()) {
+                            throw CryptoException("Failed to get FMK")
+                        }
+
+                        if (cdocReader.beginDecryption(fmk) != 0L) {
+                            throw CryptoException("Failed to begin decryption")
+                        }
+
+                        val fi = FileInfo()
+                        var result: Long = cdocReader.nextFile(fi)
+                        while (result == CDoc.OK.toLong()) {
+                            val ofile = File(fi.name)
+                            val dir =
+                                ContainerUtil.getContainerDataFilesDir(
+                                    context,
+                                    file,
+                                )
+                            val tmp = sanitizeString(ofile.name, "")
+                            val fileToSave = File(dir, tmp)
+                            FileOutputStream(fileToSave).use { ofs ->
+                                cdocReader.readFile(ofs)
+                            }
+                            dataFiles.add(fileToSave)
+                            result = cdocReader.nextFile(fi)
+                        }
+
+                        if (cdocReader.finishDecryption() != 0L) {
+                            throw CryptoException("Failed to finish decryption")
+                        }
+
+                        create(
+                            context,
+                            file,
+                            dataFiles,
+                            recipients,
+                            decrypted = true,
+                            encrypted = false,
+                        )
+                    } catch (exc: IOException) {
+                        throw CryptoException("IO Exception: ${exc.message}", exc)
+                    } finally {
+                        cdocReader.delete()
+                    }
+                }
 
             @Throws(CryptoException::class)
             suspend fun encrypt(
@@ -358,70 +371,94 @@ class CryptoContainer
                 if (recipients.isEmpty()) {
                     throw RecipientsEmptyException("Cannot create crypto container without recipients")
                 }
-                val configurationProvider = configurationRepository.getConfiguration()
-                val conf = CryptoLibConf(cdoc2Settings)
+                return withContext(IO) {
+                    encryptOperation.withLock {
+                        val configurationProvider = configurationRepository.getConfiguration()
+                        val conf = CryptoLibConf(cdoc2Settings)
+                        val network = Network(cdoc2Settings, configurationProvider, context)
 
-                val network = Network(cdoc2Settings, configurationProvider, context)
+                        val version =
+                            if (file.extension == CDOC2_EXTENSION) {
+                                2
+                            } else {
+                                1
+                            }
 
-                val version =
-                    if (file.extension == CDOC2_EXTENSION) {
-                        2
-                    } else {
-                        1
-                    }
+                        debugLog(
+                            LOG_TAG,
+                            "Encrypting container (CDOC version $version, " +
+                                "online key transfer: ${version == 2 && cdoc2Settings.getUseOnlineEncryption()})",
+                        )
 
-                val cdocWriter = CDocWriter.createWriter(version, file.path, conf, null, network)
-                try {
-                    withContext(IO) {
-                        if (version == 2 && cdoc2Settings.getUseOnlineEncryption()) {
-                            val serverId = cdoc2Settings.getCDOC2UUID()
-                            recipients.forEach { addressee ->
-                                val recipient = Recipient.makeCertificate("", addressee.data, serverId)
-                                if (cdocWriter.addRecipient(recipient) != 0L) {
-                                    throw CryptoException("Failed to add recipient")
+                        val cdocWriter = CDocWriter.createWriter(version, file.path, conf, null, network)
+                        var encryptionFinished = false
+                        try {
+                            if (version == 2 && cdoc2Settings.getUseOnlineEncryption()) {
+                                val serverId = cdoc2Settings.getCDOC2UUID()
+                                recipients.forEach { addressee ->
+                                    currentCoroutineContext().ensureActive()
+                                    val recipient = Recipient.makeCertificate("", addressee.data, serverId)
+                                    if (cdocWriter.addRecipient(recipient) != 0L) {
+                                        throw CryptoException("Failed to add recipient")
+                                    }
+                                }
+                            } else {
+                                recipients.forEach { addressee ->
+                                    val recipient = Recipient.makeCertificate("", addressee.data)
+                                    if (cdocWriter.addRecipient(recipient) != 0L) {
+                                        throw CryptoException("Failed to add recipient")
+                                    }
                                 }
                             }
-                        } else {
-                            recipients.forEach { addressee ->
-                                val recipient = Recipient.makeCertificate("", addressee.data)
-                                if (cdocWriter.addRecipient(recipient) != 0L) {
-                                    throw CryptoException("Failed to add recipient")
+
+                            currentCoroutineContext().ensureActive()
+
+                            if (cdocWriter.beginEncryption() != 0L) {
+                                throw CryptoException("Failed to begin encryption")
+                            }
+
+                            dataFiles.forEach { dataFile ->
+                                currentCoroutineContext().ensureActive()
+                                val bytes = FileInputStream(dataFile).use { it.readBytes() }
+                                if (cdocWriter.addFile(dataFile.name, bytes.size.toLong()) != 0L) {
+                                    throw CryptoException("Failed to add file")
+                                }
+
+                                if (cdocWriter.writeData(bytes) != 0L) {
+                                    throw CryptoException("Failed to write data")
+                                }
+                            }
+
+                            currentCoroutineContext().ensureActive()
+
+                            if (cdocWriter.finishEncryption() != 0L) {
+                                throw CryptoException("Failed to finish encryption")
+                            }
+                            encryptionFinished = true
+                            debugLog(LOG_TAG, "Encryption finished successfully")
+                        } catch (exc: IOException) {
+                            errorLog(LOG_TAG, "IO Exception: ${exc.message}", exc)
+                            throw CryptoException("IO Exception: ${exc.message}", exc)
+                        } catch (exc: CDocException) {
+                            errorLog(LOG_TAG, "CDoc Exception ${exc.code}: ${exc.message}", exc)
+                            throw CryptoException("CDoc Exception ${exc.code}: ${exc.message}", exc)
+                        } finally {
+                            cdocWriter.delete()
+                            if (!encryptionFinished) {
+                                // A cancelled or failed run leaves a half-written container behind.
+                                // Emptying it restores the placeholder the container started as, so it
+                                // cannot show up as a broken entry in recent documents.
+                                try {
+                                    FileOutputStream(file).use { }
+                                } catch (exc: IOException) {
+                                    errorLog(LOG_TAG, "Unable to empty unfinished container file", exc)
                                 }
                             }
                         }
-                    }
-                    if (cdocWriter.beginEncryption() != 0L) {
-                        throw CryptoException("Failed to begin encryption")
-                    }
-                    withContext(IO) {
-                        dataFiles.forEach { dataFile ->
-                            val ifs: InputStream = FileInputStream(dataFile)
-                            val bytes = ifs.readBytes()
-                            if (cdocWriter.addFile(dataFile.name, bytes.size.toLong()) != 0L) {
-                                throw CryptoException("Failed to add file")
-                            }
 
-                            if (cdocWriter.writeData(bytes) != 0L) {
-                                throw CryptoException("Failed to write data")
-                            }
-                            ifs.close()
-                        }
+                        open(context, file)
                     }
-
-                    if (cdocWriter.finishEncryption() != 0L) {
-                        throw CryptoException("Failed to finish encryption")
-                    }
-                } catch (exc: IOException) {
-                    errorLog(LOG_TAG, "IO Exception: ${exc.message}", exc)
-                    throw CryptoException("IO Exception: ${exc.message}", exc)
-                } catch (exc: CDocException) {
-                    errorLog(LOG_TAG, "CDoc Exception ${exc.code}: ${exc.message}", exc)
-                    throw CryptoException("CDoc Exception ${exc.code}: ${exc.message}", exc)
-                } finally {
-                    cdocWriter.delete()
                 }
-
-                return open(context, file)
             }
 
             @Throws(CryptoException::class)
@@ -548,11 +585,14 @@ class CryptoContainer
                         val certBytes = Base64.getDecoder().decode(cert)
                         dst?.addCertificate(certBytes)
                     }
-                    val certFromSettings = cdoc2Settings.getCDOC2Cert()
+                    val certFromSettings =
+                        if (cdoc2Settings.isManualKeyServerUrl(url)) cdoc2Settings.getCDOC2Cert() else null
                     if (certFromSettings != null) {
-                        val certBytes =
-                            Base64.getDecoder().decode(certFromSettings)
-                        dst?.addCertificate(certBytes)
+                        try {
+                            dst?.addCertificate(Base64.getDecoder().decode(certFromSettings))
+                        } catch (e: IllegalArgumentException) {
+                            errorLog(LOG_TAG, "Failed to decode manual key-server certificate", e)
+                        }
                     }
 
                     return CDoc.OK.toLong()

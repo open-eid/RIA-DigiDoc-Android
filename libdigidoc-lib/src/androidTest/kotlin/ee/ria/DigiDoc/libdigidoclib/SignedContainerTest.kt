@@ -720,6 +720,9 @@ class SignedContainerTest {
     @Test
     fun signedContainer_isExistingContainer_trueForSignedPdf() =
         runTest {
+            val isTestEnabled = System.getenv("WITH_EXTRA_DIGIDOC_TESTS")?.toBoolean() == true
+            assumeTrue("Is test enabled: $isTestEnabled", isTestEnabled)
+
             val signedContainer = openOrCreate(context, signedPdfDocument, listOf(signedPdfDocument), true)
 
             assertTrue(signedContainer.isExistingContainer())

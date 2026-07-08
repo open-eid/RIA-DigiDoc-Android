@@ -82,7 +82,8 @@ fun RecipientComponent(
     showRecipientsLoadingIndicator: Boolean,
     recipientsLoadingContentDescription: String,
     onClick: (Addressee) -> Unit,
-    isCDOC2Container: Boolean = false,
+    isCDOC2Container: Boolean,
+    isEncryptedOrDecrypted: Boolean,
 ) {
     val recipientText = stringResource(R.string.crypto_recipient_title)
     val buttonName = stringResource(id = R.string.button_name)
@@ -114,41 +115,37 @@ fun RecipientComponent(
                         formatCompanyName(recipient.identifier, recipient.serialNumber)
                     }
                 val certTypeText = getRecipientCertTypeText(LocalContext.current, recipient.certType)
-                var expired = false
-                var certValidTo =
-                    recipient.validTo
-                        ?.let {
-                            dateFormat.format(
-                                it,
-                            )
-                        }?.let {
-                            stringResource(
-                                R.string.crypto_cert_valid_to,
-                                it,
-                            )
-                        } ?: ""
+                val formattedValidTo = recipient.validTo?.let { dateFormat.format(it) }
 
-                val decryptionValidToText =
-                    if (isCDOC2Container) {
-                        certValidTo = ""
-
-                        recipient.validTo?.let { validToDate ->
-                            val formattedDate = dateFormat.format(validToDate)
-                            if (validToDate.before(Date())) {
-                                expired = true
-                                stringResource(
-                                    R.string.crypto_decryption_expired,
-                                    formattedDate,
-                                )
-                            } else {
-                                stringResource(
-                                    R.string.crypto_decryption_valid_to,
-                                    formattedDate,
-                                )
-                            }
-                        } ?: ""
+                val certValidTo =
+                    if (!isCDOC2Container && formattedValidTo != null) {
+                        stringResource(R.string.crypto_cert_valid_to, formattedValidTo)
                     } else {
                         ""
+                    }
+
+                val isExpired = recipient.validTo?.before(Date()) == true
+
+                val decryptionStatus =
+                    when {
+                        !isCDOC2Container || formattedValidTo == null -> null
+                        !isEncryptedOrDecrypted && isExpired -> RecipientDecryptionStatus.NOT_ENCRYPTED_EXPIRED
+                        !isEncryptedOrDecrypted -> RecipientDecryptionStatus.NOT_ENCRYPTED
+                        isExpired -> RecipientDecryptionStatus.EXPIRED
+                        else -> RecipientDecryptionStatus.VALID
+                    }
+
+                val decryptionValidToText =
+                    when (decryptionStatus) {
+                        RecipientDecryptionStatus.NOT_ENCRYPTED ->
+                            stringResource(R.string.crypto_recipient_expires_on, formattedValidTo.orEmpty())
+                        RecipientDecryptionStatus.NOT_ENCRYPTED_EXPIRED ->
+                            stringResource(R.string.crypto_recipient_expired_on, formattedValidTo.orEmpty())
+                        RecipientDecryptionStatus.EXPIRED ->
+                            stringResource(R.string.crypto_decryption_expired, formattedValidTo.orEmpty())
+                        RecipientDecryptionStatus.VALID ->
+                            stringResource(R.string.crypto_decryption_valid_to, formattedValidTo.orEmpty())
+                        null -> ""
                     }
 
                 Card(
@@ -237,10 +234,10 @@ fun RecipientComponent(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     style = MaterialTheme.typography.bodyMedium,
                                 )
-                                if (decryptionValidToText.isNotEmpty()) {
+                                if (decryptionStatus != null) {
                                     ColoredRecipientStatusText(
                                         text = decryptionValidToText,
-                                        expired = expired,
+                                        status = decryptionStatus,
                                         modifier =
                                             modifier
                                                 .padding(vertical = SBorder)

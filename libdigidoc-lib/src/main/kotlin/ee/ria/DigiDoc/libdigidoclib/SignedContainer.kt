@@ -394,10 +394,12 @@ class SignedContainer
                     message.startsWith("Failed to connect to host") ||
                         message.startsWith("Failed to create proxy connection with host") ||
                         message.startsWith("Failed to create connection with host") -> {
+                        errorLog(LOG_TAG, "Unable to open container, connection to host failed", e)
                         throw NoInternetConnectionException(context)
                     }
 
                     message.startsWith("Failed to create ssl connection with host") -> {
+                        errorLog(LOG_TAG, "Unable to open container, SSL connection to host failed", e)
                         throw SSLHandshakeException(context)
                     }
 

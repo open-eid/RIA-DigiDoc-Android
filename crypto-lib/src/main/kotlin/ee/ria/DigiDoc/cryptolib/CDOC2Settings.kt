@@ -29,6 +29,8 @@ import ee.ria.DigiDoc.common.Constant.DIR_CRYPTO_CERT
 import ee.ria.DigiDoc.common.Constant.Defaults.DEFAULT_UUID_VALUE
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import javax.inject.Inject
 
 class CDOC2Settings
@@ -40,6 +42,7 @@ class CDOC2Settings
         private var preferences: SharedPreferences =
             PreferenceManager.getDefaultSharedPreferences(context)
         private var resources: Resources = context.resources
+        private val logTag = "CDOC2Settings"
 
         fun getUseEncryption(): Boolean {
             val defaultValue = configurationRepository.getConfiguration()?.cdoc2Default ?: false
@@ -116,5 +119,26 @@ class CDOC2Settings
                     .replace("\\s".toRegex(), "")
             }
             return null
+        }
+
+        fun isManualKeyServerUrl(url: String?): Boolean {
+            val target = url?.let(::hostAndPort) ?: return false
+            val manualUrls =
+                listOf(
+                    preferences.getString(resources.getString(R.string.crypto_settings_use_cdoc2_post_url), "") ?: "",
+                    preferences.getString(resources.getString(R.string.crypto_settings_use_cdoc2_fetch_url), "") ?: "",
+                )
+            return manualUrls.any { manual ->
+                manual.isNotBlank() && hostAndPort(manual) == target
+            }
+        }
+
+        private fun hostAndPort(url: String): String? {
+            val parsed = (if (url.contains("://")) url else "https://$url").toHttpUrlOrNull()
+            if (parsed == null) {
+                errorLog(logTag, "Unable to parse key server URL, manual certificate not applied")
+                return null
+            }
+            return "${parsed.host}:${parsed.port}"
         }
     }

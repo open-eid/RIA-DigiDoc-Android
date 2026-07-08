@@ -171,6 +171,8 @@
     <string name="crypto_recipient_title">Adressaat</string>
     <string name="crypto_decryption_valid_to">Dekrüpteerimine võimalik kuni %1$s</string>
     <string name="crypto_decryption_expired">Dekrüpteerimise võimalus aegus %1$s</string>
+    <string name="crypto_recipient_expires_on">Aegub %1$s</string>
+    <string name="crypto_recipient_expired_on">Aegus %1$s</string>
     <string name="crypto_cert_valid_to">(kehtiv kuni %1$s)</string>
     <string name="crypto_documents_title">Ümbriku failid</string>
     <string name="crypto_encrypted_documents_title">Krüpteeritud failid</string>
@@ -609,8 +611,8 @@
     <string name="main_settings_crypto_use_cdoc2">Kasuta krüpteerimiseks CDOC2 failiformaati</string>
     <string name="main_settings_crypto_server">Server</string>
     <string name="main_settings_crypto_uuid">UUID</string>
-    <string name="main_settings_crypto_fetch_url">Fetch URL</string>
-    <string name="main_settings_crypto_post_url">Post URL</string>
+    <string name="main_settings_crypto_fetch_url">Vastuvõtmise URL</string>
+    <string name="main_settings_crypto_post_url">Saatmise URL</string>
 
     <!-- My eID -->
     <string name="myeid_identification_method_title">Vali isiku tuvastamise meetod</string>

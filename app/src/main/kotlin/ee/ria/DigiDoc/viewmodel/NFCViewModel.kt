@@ -732,7 +732,11 @@ class NFCViewModel
             )
         }
 
-        fun handleBackButton() {
+        fun handleBackButton(activity: Activity) {
+            debugLog(logTag, "Back pressed - stopping NFC reader mode and resetting state")
+            stopNFCDetectionTimeout()
+            nfcSmartCardReaderManager.disableNfcReaderMode()
+            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             _shouldResetPIN.postValue(true)
             resetValues()
         }

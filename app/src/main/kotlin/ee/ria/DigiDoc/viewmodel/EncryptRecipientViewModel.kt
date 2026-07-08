@@ -41,11 +41,14 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
 
@@ -82,12 +85,83 @@ class EncryptRecipientViewModel
         private val _hasSearched = MutableLiveData(false)
         val hasSearched: LiveData<Boolean> = _hasSearched
 
+        private var encryptionJob: Job? = null
+        private var encryptionGeneration = 0
+
+        private val _isEncrypting = MutableStateFlow(false)
+        val isEncrypting = _isEncrypting.asStateFlow()
+
+        private val _encryptedContainer = MutableLiveData<CryptoContainer?>(null)
+        val encryptedContainer: LiveData<CryptoContainer?> = _encryptedContainer
+
         fun handleIsRecipientAdded(isRecipientAdded: Boolean) {
             _isRecipientAdded.postValue(isRecipientAdded)
         }
 
         fun handleIsContainerEncrypted(isContainerEncrypted: Boolean) {
             _isContainerEncrypted.postValue(isContainerEncrypted)
+        }
+
+        fun encrypt(cryptoContainer: CryptoContainer?) {
+            if (cryptoContainer == null) {
+                errorLog(logTag, "Unable to encrypt: crypto container is 'null'")
+                _errorState.postValue(R.string.crypto_encrypt_error)
+                return
+            }
+
+            if (encryptionJob?.isActive == true) {
+                return
+            }
+
+            // Cancelling cannot stop an encryption that is already running, so an old one can still be
+            // finishing while a new one starts. Only the newest one returns the screen to normal when it ends.
+            val generation = ++encryptionGeneration
+            _isEncrypting.value = true
+            encryptionJob =
+                viewModelScope.launch {
+                    try {
+                        debugLog(logTag, "Encrypting crypto container")
+                        val encrypted =
+                            CryptoContainer.encrypt(
+                                context = context,
+                                file = cryptoContainer.file,
+                                dataFiles = cryptoContainer.dataFiles,
+                                recipients = cryptoContainer.recipients,
+                                cdoc2Settings = cdoc2Settings,
+                                configurationRepository = configurationRepository,
+                            )
+                        _encryptedContainer.postValue(encrypted)
+                        handleIsContainerEncrypted(true)
+                        debugLog(logTag, "Crypto container encrypted successfully")
+                    } catch (ex: DataFilesEmptyException) {
+                        errorLog(logTag, "Unable to encrypt: container has no data files", ex)
+                        _errorState.postValue(R.string.crypto_encrypt_data_files_empty_error)
+                    } catch (ex: RecipientsEmptyException) {
+                        errorLog(logTag, "Unable to encrypt: container has no recipients", ex)
+                        _errorState.postValue(R.string.crypto_encrypt_recipients_empty_error)
+                    } catch (e: CancellationException) {
+                        debugLog(logTag, "Encryption cancelled")
+                        throw e
+                    } catch (ex: Exception) {
+                        errorLog(logTag, "Unable to encrypt crypto container", ex)
+                        _errorState.postValue(R.string.crypto_encrypt_error)
+                    } finally {
+                        if (generation == encryptionGeneration) {
+                            _isEncrypting.value = false
+                        }
+                    }
+                }
+        }
+
+        fun cancelEncryption() {
+            debugLog(logTag, "Cancelling encryption")
+            encryptionJob?.cancel()
+            encryptionJob = null
+            _isEncrypting.value = false
+        }
+
+        fun resetEncryptedContainer() {
+            _encryptedContainer.value = null
         }
 
         private fun filterRecipients() =
@@ -148,33 +222,6 @@ class EncryptRecipientViewModel
 
             sharedContainerViewModel.setCryptoContainer(cryptoContainer)
             handleIsRecipientAdded(true)
-        }
-
-        suspend fun encryptContainer(sharedContainerViewModel: SharedContainerViewModel) {
-            var cryptoContainer = sharedContainerViewModel.cryptoContainer.value
-            if (cryptoContainer != null) {
-                try {
-                    cryptoContainer =
-                        CryptoContainer.encrypt(
-                            context = context,
-                            file = cryptoContainer.file,
-                            dataFiles = cryptoContainer.dataFiles,
-                            recipients = cryptoContainer.recipients,
-                            cdoc2Settings = cdoc2Settings,
-                            configurationRepository = configurationRepository,
-                        )
-                    sharedContainerViewModel.setCryptoContainer(cryptoContainer, true)
-                    handleIsContainerEncrypted(true)
-                } catch (_: DataFilesEmptyException) {
-                    _errorState.postValue(R.string.crypto_encrypt_data_files_empty_error)
-                } catch (_: RecipientsEmptyException) {
-                    _errorState.postValue(R.string.crypto_encrypt_recipients_empty_error)
-                } catch (_: Exception) {
-                    _errorState.postValue(R.string.crypto_encrypt_error)
-                }
-            } else {
-                _errorState.postValue(R.string.crypto_encrypt_error)
-            }
         }
 
         fun getMimetype(file: File): String? = mimeTypeResolver.mimeType(file)
