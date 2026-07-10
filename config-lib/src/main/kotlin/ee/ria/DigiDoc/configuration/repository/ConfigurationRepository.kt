@@ -34,5 +34,5 @@ interface ConfigurationRepository {
         manualProxy: ManualProxy,
     ): ConfigurationProvider?
 
-    suspend fun observeConfigurationUpdates(onUpdate: (ConfigurationProvider) -> Unit)
+    suspend fun observeConfigurationUpdates(onUpdate: suspend (ConfigurationProvider) -> Unit)
 }

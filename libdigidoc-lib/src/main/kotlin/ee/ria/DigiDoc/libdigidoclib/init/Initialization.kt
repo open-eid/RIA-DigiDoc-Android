@@ -56,8 +56,10 @@ import ee.ria.libdigidocpp.Conf
 import ee.ria.libdigidocpp.DigiDocConf
 import ee.ria.libdigidocpp.digidoc
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -82,6 +84,10 @@ class Initialization
         private var sivaUrlChangeListener: OnSharedPreferenceChangeListener? = null
         private var sivaCertChangeListener: OnSharedPreferenceChangeListener? = null
 
+        private val configApplyDispatcher = Default.limitedParallelism(1)
+        private val configScope = CoroutineScope(SupervisorJob() + configApplyDispatcher)
+        private var lastAppliedConfiguration: ConfigurationProvider? = null
+
         /**
          * Initialize libdigidoc-lib.
          *
@@ -93,6 +99,7 @@ class Initialization
             isLoggingEnabled: Boolean = false,
         ) {
             if (isInitialized) {
+                debugLog(libdigidocInitLogTag, "libdigidocpp is already initialized; only refreshing the log level")
                 setLibdigidocppLogLevel(isLoggingEnabled)
                 throw AlreadyInitializedException("Libdigidocpp is already initialized")
             }
@@ -111,6 +118,10 @@ class Initialization
                     throw erre
                 }
 
+                debugLog(
+                    libdigidocInitLogTag,
+                    "TSL cache directory contains: ${getSchemaDir(context).list()?.joinToString() ?: "(empty)"}",
+                )
                 initLibDigiDocpp(
                     context,
                     getSchemaPath(context),
@@ -119,7 +130,7 @@ class Initialization
             }
         }
 
-        private fun initLibDigiDocpp(
+        private suspend fun initLibDigiDocpp(
             context: Context,
             path: String,
             isLoggingEnabled: Boolean,
@@ -130,10 +141,11 @@ class Initialization
             )
             digidoc.initializeLib(UserAgentUtil.getAppInfo(context), path)
             UserAgentUtil.setLibdigidocppVersion(digidoc.version())
+            debugLog(libdigidocInitLogTag, "Initialized libdigidocpp ${digidoc.version()} (TSL cache: $path)")
             isInitialized = true
         }
 
-        private fun initLibDigiDocConfiguration(
+        private suspend fun initLibDigiDocConfiguration(
             context: Context,
             isLoggingEnabled: Boolean,
         ) {
@@ -185,10 +197,41 @@ class Initialization
             loadConfiguration(context)
         }
 
-        private fun overrideConfiguration(
+        private suspend fun overrideConfiguration(
             context: Context,
             configurationProvider: ConfigurationProvider,
-        ) {
+        ) = withContext(configApplyDispatcher) {
+            val newSerial = configurationProvider.metaInf.serial
+            val normalizedConfiguration =
+                configurationProvider.copy(
+                    configurationLastUpdateCheckDate = null,
+                    configurationUpdateDate = null,
+                )
+            val lastSerial = lastAppliedConfiguration?.metaInf?.serial
+            if (lastSerial != null && newSerial < lastSerial) {
+                debugLog(
+                    libdigidocInitLogTag,
+                    "Ignoring older configuration (serial $newSerial < applied $lastSerial)",
+                )
+                return@withContext
+            }
+            if (normalizedConfiguration == lastAppliedConfiguration) {
+                debugLog(
+                    libdigidocInitLogTag,
+                    "Configuration unchanged (serial $newSerial); skipping re-apply",
+                )
+                return@withContext
+            }
+            debugLog(
+                libdigidocInitLogTag,
+                "Applying configuration to libdigidocpp — " +
+                    "TSL URL: ${configurationProvider.tslUrl}, TSA URL: ${configurationProvider.tsaUrl}, " +
+                    "SiVa URL: ${configurationProvider.sivaUrl}, " +
+                    "TSL signer certs: ${configurationProvider.tslCerts.size}, " +
+                    "trust bundle certs: ${configurationProvider.certBundle.size}, " +
+                    "config serial: $newSerial",
+            )
+
             overrideTSLUrl(configurationProvider.tslUrl)
             overrideTSLCert(configurationProvider.tslCerts)
             overrideSivaUrl(configurationProvider.sivaUrl)
@@ -228,6 +271,8 @@ class Initialization
                 sivaCertPreferenceKey,
                 configurationProvider.certBundle,
             )
+
+            lastAppliedConfiguration = normalizedConfiguration
         }
 
         private fun forcePKCS12Certificate() {
@@ -417,10 +462,20 @@ class Initialization
             }
         }
 
-        private fun loadConfiguration(context: Context) {
-            configurationRepository.getConfiguration()?.let { overrideConfiguration(context, it) }
-            CoroutineScope(Main).launch {
+        private suspend fun loadConfiguration(context: Context) {
+            val current = configurationRepository.getConfiguration()
+            debugLog(
+                libdigidocInitLogTag,
+                if (current == null) {
+                    "No cached configuration yet; will apply it once it is loaded"
+                } else {
+                    "Applying cached configuration"
+                },
+            )
+            current?.let { overrideConfiguration(context, it) }
+            configScope.launch {
                 configurationRepository.observeConfigurationUpdates { newConfig ->
+                    debugLog(libdigidocInitLogTag, "Configuration updated; reapplying it to libdigidocpp")
                     overrideConfiguration(context, newConfig)
                 }
             }

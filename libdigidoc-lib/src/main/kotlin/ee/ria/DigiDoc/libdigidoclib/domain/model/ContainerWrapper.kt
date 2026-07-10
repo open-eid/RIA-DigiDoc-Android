@@ -22,6 +22,8 @@
 package ee.ria.DigiDoc.libdigidoclib.domain.model
 
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.text.TextUtil.removeEmptyStrings
 import ee.ria.libdigidocpp.ExternalSigner
 import ee.ria.libdigidocpp.Signature
@@ -46,6 +48,7 @@ interface ContainerWrapper {
 
 class ContainerWrapperImpl : ContainerWrapper {
     private lateinit var signature: Signature
+    private val logTag = "Libdigidoc-ContainerWrapper"
 
     @Throws(CertificateException::class)
     override fun prepareSignature(
@@ -54,6 +57,7 @@ class ContainerWrapperImpl : ContainerWrapper {
         cert: ByteArray?,
         roleData: RoleData?,
     ): ByteArray {
+        debugLog(logTag, "Preparing signature (with role data: ${roleData != null})")
         signature =
             when {
                 roleData != null && signedContainer != null -> {
@@ -75,7 +79,9 @@ class ContainerWrapperImpl : ContainerWrapper {
                 }
                 else -> throw IllegalStateException("Unable to get container")
             }
-        return signature.dataToSign()
+        val dataToSign = signature.dataToSign()
+        debugLog(logTag, "Signature prepared (${dataToSign.size} bytes to sign)")
+        return dataToSign
     }
 
     override fun finalizeSignature(
@@ -84,7 +90,14 @@ class ContainerWrapperImpl : ContainerWrapper {
         signatureArray: ByteArray,
     ) {
         signature.setSignatureValue(signatureArray)
-        signature.extendSignatureProfile(signer)
+        debugLog(logTag, "Extending signature profile (fetches OCSP confirmation and timestamp)")
+        try {
+            signature.extendSignatureProfile(signer)
+        } catch (e: Exception) {
+            errorLog(logTag, "Unable to extend signature profile: ${e.message}", e)
+            throw e
+        }
         signedContainer?.rawContainer()?.save()
+        debugLog(logTag, "Signature finalized and container saved")
     }
 }
