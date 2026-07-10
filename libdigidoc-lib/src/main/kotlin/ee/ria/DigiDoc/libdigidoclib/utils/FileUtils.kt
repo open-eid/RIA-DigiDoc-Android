@@ -68,6 +68,8 @@ object FileUtils {
             errorLog(LIBDIGIDOC_FILEUTILS_LOG_TAG, "Unable to get 'schema' resource", nfe)
             throw nfe
         }
+        debugLog(LIBDIGIDOC_FILEUTILS_LOG_TAG, "Extracting XML schema into ${schemaDir.absolutePath}")
+        val extractedFiles = mutableListOf<String>()
         schemaResourceInputStream.use { inputStream ->
             ZipInputStream(inputStream).use { zipInputStream ->
                 var entry: ZipEntry?
@@ -78,9 +80,11 @@ object FileUtils {
                         throw ZipException("Bad zip entry: $entryName")
                     }
                     Files.copy(zipInputStream, Paths.get(entryFile.toURI()), StandardCopyOption.REPLACE_EXISTING)
+                    extractedFiles.add(entryName)
                 }
             }
         }
+        debugLog(LIBDIGIDOC_FILEUTILS_LOG_TAG, "Extracted schema files: ${extractedFiles.joinToString()}")
     }
 
     private fun isChild(

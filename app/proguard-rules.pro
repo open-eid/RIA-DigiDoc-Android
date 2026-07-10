@@ -105,6 +105,12 @@
 -keep,allowobfuscation,allowshrinking class com.google.gson.** { *; }
 -keep,allowobfuscation,allowshrinking class * extends com.google.gson.** { *; }
 
+# Keep ConfigurationProvider's List<String> cert fields (tslCerts / certBundle),
+-keepclassmembers,allowobfuscation class ee.ria.DigiDoc.** {
+    @com.google.gson.annotations.SerializedName <fields>;
+    @com.google.gson.annotations.JsonAdapter <fields>;
+}
+
 # BouncyCastle
 -keep class org.bouncycastle.** { *; }
 

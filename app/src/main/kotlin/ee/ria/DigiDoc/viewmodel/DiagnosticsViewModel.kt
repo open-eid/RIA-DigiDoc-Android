@@ -28,6 +28,7 @@ import androidx.activity.result.ActivityResult
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.common.io.ByteStreams
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -48,7 +49,6 @@ import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import org.xmlpull.v1.XmlPullParserException
@@ -89,26 +89,24 @@ class DiagnosticsViewModel
         }
 
         fun observeConfigurationUpdates(context: Context) {
-            CoroutineScope(Main).launch {
+            viewModelScope.launch(Main) {
                 configurationRepository.observeConfigurationUpdates { newConfig ->
-                    CoroutineScope(Main).launch {
-                        if (updatedConfiguration.value != null) {
-                            val messageResId =
-                                if (newConfig.configurationUpdateDate !==
-                                    updatedConfiguration.value?.configurationUpdateDate
-                                ) {
-                                    R.string.configuration_updated
-                                } else {
-                                    R.string.configuration_is_already_up_to_date
-                                }
-                            sendAccessibilityEvent(
-                                context,
-                                getAccessibilityEventType(),
-                                context.getString(messageResId),
-                            )
-                        }
-                        _updatedConfiguration.value = newConfig
+                    if (updatedConfiguration.value != null) {
+                        val messageResId =
+                            if (newConfig.configurationUpdateDate !=
+                                updatedConfiguration.value?.configurationUpdateDate
+                            ) {
+                                R.string.configuration_updated
+                            } else {
+                                R.string.configuration_is_already_up_to_date
+                            }
+                        sendAccessibilityEvent(
+                            context,
+                            getAccessibilityEventType(),
+                            context.getString(messageResId),
+                        )
                     }
+                    _updatedConfiguration.value = newConfig
                 }
             }
         }

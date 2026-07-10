@@ -48,7 +48,7 @@ class ConfigurationRepositoryImpl
             return getConfiguration()
         }
 
-        override suspend fun observeConfigurationUpdates(onUpdate: (ConfigurationProvider) -> Unit) {
+        override suspend fun observeConfigurationUpdates(onUpdate: suspend (ConfigurationProvider) -> Unit) {
             configurationLoader
                 .getConfigurationFlow()
                 .filterNotNull()

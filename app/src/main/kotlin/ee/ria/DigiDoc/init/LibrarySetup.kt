@@ -33,7 +33,8 @@ import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.libdigidoclib.init.LibdigidocLibraryLoader
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.withContext
 import java.io.InterruptedIOException
 import java.net.SocketTimeoutException
@@ -52,6 +53,7 @@ class LibrarySetup
         private val libdigidocLibraryLoader: LibdigidocLibraryLoader,
     ) {
         private val logTag = "LibrarySetup"
+        private var isConfigured = false
 
         suspend fun setupLibraries(
             context: Context,
@@ -60,28 +62,34 @@ class LibrarySetup
             libdigidocLibraryLoader.init(context)
 
             cryptoInitialization.init(isLoggingEnabled)
-            try {
-                TSLUtil.setupTSLFiles(context)
-                configurationLoader.initConfiguration(
-                    context,
-                    dataStore.getProxySetting(),
-                    dataStore.getManualProxySettings(),
-                )
-            } catch (ex: Exception) {
-                if (ex !is UnknownHostException &&
-                    ex !is SocketTimeoutException &&
-                    ex !is InterruptedIOException
-                ) {
-                    errorLog(
-                        logTag,
-                        "Unable to initialize configuration: ",
-                        ex,
-                    )
-                    withContext(Dispatchers.Main) {
-                        SnackBarManager.showMessage(
+
+            if (!isConfigured) {
+                withContext(IO) {
+                    try {
+                        TSLUtil.setupTSLFiles(context)
+                        configurationLoader.initConfiguration(
                             context,
-                            R.string.configuration_initialization_failed,
+                            dataStore.getProxySetting(),
+                            dataStore.getManualProxySettings(),
                         )
+                        isConfigured = true
+                    } catch (ex: Exception) {
+                        if (ex !is UnknownHostException &&
+                            ex !is SocketTimeoutException &&
+                            ex !is InterruptedIOException
+                        ) {
+                            errorLog(
+                                logTag,
+                                "Unable to initialize configuration: ",
+                                ex,
+                            )
+                            withContext(Main) {
+                                SnackBarManager.showMessage(
+                                    context,
+                                    R.string.configuration_initialization_failed,
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -91,7 +99,7 @@ class LibrarySetup
             } catch (e: Exception) {
                 if (e !is AlreadyInitializedException) {
                     errorLog(logTag, "Unable to initialize libdigidocpp", e)
-                    withContext(Dispatchers.Main) {
+                    withContext(Main) {
                         Toast
                             .makeText(
                                 context,

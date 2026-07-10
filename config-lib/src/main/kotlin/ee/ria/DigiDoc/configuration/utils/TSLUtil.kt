@@ -61,6 +61,8 @@ object TSLUtil {
         }
 
         createDirectoryIfNotExist(destination)
+
+        debugLog(logTag, "Setting up TSL files in cache; bundled in assets: ${tslFiles?.joinToString() ?: "none"}")
         if (!tslFiles.isNullOrEmpty()) {
             for (fileName in tslFiles) {
                 if (isXMLFile(fileName) && shouldCopyTSL(context, assetsPath, fileName, destination)) {
@@ -68,6 +70,7 @@ object TSLUtil {
                     val tslFile = File(destination, fileName)
                     setFileDateAttributes(tslFile)
                     removeExistingETag(tslFile.path)
+                    debugLog(logTag, "Copied TSL '$fileName' from assets into cache (${tslFile.length()} bytes)")
                 }
             }
         }
@@ -82,20 +85,28 @@ object TSLUtil {
         fileName: String,
         destinationDir: String,
     ): Boolean {
-        if (!FileUtil.fileExists(File(destinationDir, fileName).path)) {
+        val cachedFile = File(destinationDir, fileName)
+        if (!FileUtil.fileExists(cachedFile.path)) {
+            debugLog(logTag, "TSL '$fileName' is not in the cache yet; copying it from assets")
             return true
         } else {
             try {
                 context.assets
                     .open(File(sourcePath, fileName).path)
                     .use { assetsTSLInputStream ->
-                        FileInputStream(File(destinationDir, fileName))
+                        FileInputStream(cachedFile)
                             .use { cachedTSLInputStream ->
                                 val assetsTslVersion: Int =
                                     readSequenceNumber(assetsTSLInputStream)
                                 val cachedTslVersion: Int =
                                     readSequenceNumber(cachedTSLInputStream)
-                                return assetsTslVersion > cachedTslVersion
+                                val isAssetNewer = assetsTslVersion > cachedTslVersion
+                                debugLog(
+                                    logTag,
+                                    "TSL '$fileName': assets version $assetsTslVersion, cached version " +
+                                        "$cachedTslVersion — ${if (isAssetNewer) "updating cache" else "cache is up to date"}",
+                                )
+                                return isAssetNewer
                             }
                     }
             } catch (e: Exception) {
