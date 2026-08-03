@@ -49,6 +49,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -89,9 +90,7 @@ import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
 import ee.ria.DigiDoc.viewmodel.DiagnosticsViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -106,6 +105,7 @@ fun DiagnosticsScreen(
     diagnosticsViewModel: DiagnosticsViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
     val currentConfiguration by
@@ -208,16 +208,14 @@ fun DiagnosticsScreen(
                         ).lowercase(),
                     title = R.string.main_diagnostics_configuration_check_for_update_button,
                     onClickItem = {
-                        CoroutineScope(Dispatchers.IO).launch {
+                        scope.launch {
                             try {
-                                diagnosticsViewModel.updateConfiguration(context)
-                                withContext(Main) {
-                                    showMessage(context, R.string.configuration_update_success)
+                                withContext(Dispatchers.IO) {
+                                    diagnosticsViewModel.updateConfiguration(context)
                                 }
+                                showMessage(context, R.string.configuration_update_success, SnackbarType.SUCCESS)
                             } catch (_: Exception) {
-                                withContext(Main) {
-                                    showMessage(context, R.string.configuration_update_failed)
-                                }
+                                showMessage(context, R.string.configuration_update_failed)
                             }
                         }
                     },
