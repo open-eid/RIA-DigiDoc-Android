@@ -40,6 +40,12 @@
 
 -keep public class * extends java.lang.Exception { *; }
 
+# MOPPAND-1721
+-keep class ee.ria.DigiDoc.** implements java.io.Serializable { *; }
+-keep class ee.ria.DigiDoc.** implements android.os.Parcelable { *; }
+
+-keepnames class * extends java.lang.Enum
+
 -keep public class * extends retrofit2.** { *; }
 -keep public class * extends okhttp3.** { *; }
 -keep public class * implements retrofit2.** { *; }
