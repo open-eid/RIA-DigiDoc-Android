@@ -134,18 +134,6 @@
     <string name="signing_close_container_message">Oled sulgemas ümbrikut. Palun vali, mida ümbrikuga edasi teha: </string>
     <string name="container_notifications">Ümbriku teavitused</string>
 
-    <!-- Recent Documents -->
-    <string name="document">Dokument</string>
-    <string name="recent_documents_search">Otsi ümbrikku…</string>
-    <string name="recent_documents_search_cancel">Katkesta ümbriku otsing</string>
-    <string name="recent_documents_search_empty">Hiljutisi ümbrikke ei leitud</string>
-    <string name="recent_documents_title">Hiljutised ümbrikud</string>
-    <string name="recent_documents_empty_message">Ümbrikud puuduvad</string>
-    <string name="recent_documents_remove_button">Eemalda ümbrik</string>
-    <string name="recent_documents_remove_confirmation_message">Soovid eemaldada ümbriku?</string>
-    <string name="recent_documents_cancel_container_removal_button">Katkesta ümbriku eemaldamine</string>
-    <string name="recent_documents_confirm_container_removal_button">Kinnita ümbriku eemaldamine</string>
-
     <!-- SiVa -->
     <string name="siva_send_message_dialog">Seda tüüpi allkirjastatud dokument edastatakse digitaalallkirjade kehtivuse kontrollimiseks valideerimisteenusele SiVa. Digitaalallkirjade kehtivuse kontrollimisel edastatud andmete kohta loe lähemalt veebilehelt</string>
     <string name="siva_read_here">siit.</string>
@@ -192,6 +180,8 @@
     <string name="crypto_decrypt_title">Ümbriku dekrüpteerimine</string>
     <string name="crypto_decrypt_method">Dekrüpteerimise meetod</string>
 
+    <string name="crypto_saved_container_success">Krüptokonteineri salvestamine õnnestus</string>
+
     <!-- Signature Add -->
     <string name="signature_update_title">Ümbriku allkirjastamine</string>
     <string name="signature_update_name_update_name">Ümbriku nimi</string>
@@ -204,6 +194,8 @@
     <string name="signature_update_signature_add_method_nfc_accessibility">ID-kaart N F C abil</string>
     <string name="signature_update_signature_add_success">Allkiri lisatud</string>
     <string name="signature_update_signature_add">Lisa allkiri</string>
+
+    <string name="signature_saved_container_success">Allkirjastatud konteineri salvestamine õnnestus</string>
 
     <string name="signature_update_signature_selected_method_mobile_id">Allkirjastamise viisiks on mobiil-ID, vahekaart %1$d / %2$d</string>
     <string name="signature_update_signature_selected_method_smart_id">Allkirjastamise viisiks on Smart-ID, vahekaart %1$d / %2$d</string>

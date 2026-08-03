@@ -50,7 +50,6 @@ import ee.ria.DigiDoc.fragment.MyEidFragment
 import ee.ria.DigiDoc.fragment.MyEidIdentificationFragment
 import ee.ria.DigiDoc.fragment.MyEidPinFragment
 import ee.ria.DigiDoc.fragment.ProxyServicesSettingsFragment
-import ee.ria.DigiDoc.fragment.RecentDocumentsFragment
 import ee.ria.DigiDoc.fragment.RootFragment
 import ee.ria.DigiDoc.fragment.SignatureInputFragment
 import ee.ria.DigiDoc.fragment.SignatureMethodFragment
@@ -186,6 +185,16 @@ fun RIADigiDocAppScreen(
                 sharedRecipientViewModel = sharedRecipientViewModel,
             )
         }
+        composable(route = Route.Encrypted.route) {
+            EncryptFragment(
+                modifier = Modifier.safeDrawingPadding(),
+                navController = navController,
+                sharedMenuViewModel = sharedMenuViewModel,
+                sharedContainerViewModel = sharedContainerViewModel,
+                sharedRecipientViewModel = sharedRecipientViewModel,
+                withEncryption = true,
+            )
+        }
         composable(route = Route.DecryptScreen.route) {
             DecryptFragment(
                 modifier = Modifier.safeDrawingPadding(),
@@ -216,33 +225,6 @@ fun RIADigiDocAppScreen(
                 navController = navController,
                 sharedMenuViewModel = sharedMenuViewModel,
                 sharedSettingsViewModel = sharedSettingsViewModel,
-            )
-        }
-        composable(route = Route.RecentDocuments.route) {
-            RecentDocumentsFragment(
-                modifier = Modifier.safeDrawingPadding(),
-                navController = navController,
-                sharedMenuViewModel = sharedMenuViewModel,
-                sharedContainerViewModel = sharedContainerViewModel,
-                fileOpeningMethod = FileOpeningMethod.ALL,
-            )
-        }
-        composable(route = Route.RecentDocumentsFromSigning.route) {
-            RecentDocumentsFragment(
-                modifier = Modifier.safeDrawingPadding(),
-                navController = navController,
-                sharedMenuViewModel = sharedMenuViewModel,
-                sharedContainerViewModel = sharedContainerViewModel,
-                fileOpeningMethod = FileOpeningMethod.SIGNING,
-            )
-        }
-        composable(route = Route.RecentDocumentsFromEncrypt.route) {
-            RecentDocumentsFragment(
-                modifier = Modifier.safeDrawingPadding(),
-                navController = navController,
-                sharedMenuViewModel = sharedMenuViewModel,
-                sharedContainerViewModel = sharedContainerViewModel,
-                fileOpeningMethod = FileOpeningMethod.CRYPTO,
             )
         }
         composable(route = Route.Settings.route) {

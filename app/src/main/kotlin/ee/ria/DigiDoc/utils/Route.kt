@@ -30,6 +30,7 @@ import ee.ria.DigiDoc.utils.Constant.Routes.CRYPTO_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.DECRYPT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.DIAGNOSTICS_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.EID_SCREEN
+import ee.ria.DigiDoc.utils.Constant.Routes.ENCRYPTED_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ENCRYPTION_SERVICES_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ENCRYPT_RECIPIENT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ENCRYPT_SCREEN
@@ -40,9 +41,6 @@ import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_IDENTIFICATION_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_PIN_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.MYEID_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.PROXY_SERVICES_SCREEN
-import ee.ria.DigiDoc.utils.Constant.Routes.RECENT_DOCUMENTS_FROM_ENCRYPT_SCREEN
-import ee.ria.DigiDoc.utils.Constant.Routes.RECENT_DOCUMENTS_SCREEN
-import ee.ria.DigiDoc.utils.Constant.Routes.RECENT_DOCUMENTS_SCREEN_FROM_SIGNING_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.RECIPIENT_DETAIL_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.ROOT_SCREEN
 import ee.ria.DigiDoc.utils.Constant.Routes.SETTINGS_LANGUAGE_CHOOSER_SCREEN
@@ -81,6 +79,8 @@ sealed class Route(
 
     data object Encrypt : Route(ENCRYPT_SCREEN)
 
+    data object Encrypted : Route(ENCRYPTED_SCREEN)
+
     data object DecryptScreen : Route(DECRYPT_SCREEN)
 
     data object Accessibility : Route(ACCESSIBILITY_SCREEN)
@@ -94,12 +94,6 @@ sealed class Route(
     data object CertificateDetail : Route(CERTIFICATE_DETAIL_SCREEN)
 
     data object RecipientDetail : Route(RECIPIENT_DETAIL_SCREEN)
-
-    data object RecentDocuments : Route(RECENT_DOCUMENTS_SCREEN)
-
-    data object RecentDocumentsFromSigning : Route(RECENT_DOCUMENTS_SCREEN_FROM_SIGNING_SCREEN)
-
-    data object RecentDocumentsFromEncrypt : Route(RECENT_DOCUMENTS_FROM_ENCRYPT_SCREEN)
 
     data object Settings : Route(SETTINGS_SCREEN)
 

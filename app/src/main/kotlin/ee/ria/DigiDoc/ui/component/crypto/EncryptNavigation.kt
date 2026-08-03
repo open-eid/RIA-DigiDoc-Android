@@ -23,6 +23,7 @@ package ee.ria.DigiDoc.ui.component.crypto
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.widget.Toast
@@ -117,6 +118,7 @@ import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccess
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utils.snackbar.SnackbarType
+import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.removeExtensionFromContainerFilename
 import ee.ria.DigiDoc.utilsLib.extensions.isContainer
@@ -149,6 +151,7 @@ fun EncryptNavigation(
     signingViewModel: SigningViewModel = hiltViewModel(),
     encryptViewModel: EncryptViewModel = hiltViewModel(),
     encryptRecipientViewModel: EncryptRecipientViewModel = hiltViewModel(),
+    withEncryption: Boolean = false,
 ) {
     val cryptoContainer by sharedContainerViewModel.cryptoContainer.asFlow().collectAsState(null)
     val shouldResetContainer by encryptViewModel.shouldResetCryptoContainer.asFlow().collectAsState(false)
@@ -162,6 +165,14 @@ fun EncryptNavigation(
     val clickedRecipient = remember { mutableStateOf<Addressee?>(null) }
 
     val isNestedContainer = sharedContainerViewModel.isNestedContainer(cryptoContainer)
+    val isSaveContainerShown = rememberSaveable { mutableStateOf(false) }
+    val isWithEncryptionHandled = rememberSaveable { mutableStateOf(false) }
+    val isEditContainerButtonShown =
+        !isNestedContainer &&
+            !encryptViewModel.isEncryptedContainer(cryptoContainer) &&
+            !encryptViewModel.isDecryptedContainer(cryptoContainer)
+    val isSignButtonShown =
+        !isNestedContainer && encryptViewModel.isEncryptedContainer(cryptoContainer)
 
     val containerEncryptedSuccess = remember { mutableStateOf(false) }
     val containerEncryptedSuccessText = stringResource(id = R.string.crypto_create_success)
@@ -189,7 +200,7 @@ fun EncryptNavigation(
             stringResource(id = R.string.document_remove_last_confirmation_message)
     }
     val closeContainerMessage = stringResource(id = R.string.crypto_close_container_message)
-    val removeContainerMessage = stringResource(id = R.string.remove_container)
+    val confirmCloseContainerMessage = stringResource(id = R.string.crypto_close_container_title)
     val saveContainerMessage = stringResource(id = R.string.container_save)
     val dismissRemoveFileDialog = {
         closeRemoveFileDialog()
@@ -401,7 +412,16 @@ fun EncryptNavigation(
                 try {
                     fileToSave.value?.let { file ->
                         sharedContainerViewModel.saveContainerFile(file, result)
-                        showMessage(context, R.string.file_saved, SnackbarType.SUCCESS)
+                        val isContainerFile = file.absolutePath == cryptoContainer?.file?.absolutePath
+                        showMessage(
+                            context,
+                            if (isContainerFile) {
+                                R.string.crypto_saved_container_success
+                            } else {
+                                R.string.file_saved
+                            },
+                            SnackbarType.SUCCESS,
+                        )
                         isSaved = true
                     } ?: showMessage(context, R.string.file_saved_error)
                 } catch (_: Exception) {
@@ -412,10 +432,11 @@ fun EncryptNavigation(
         }
 
     BackHandler {
-        if (!isNestedContainer && encryptViewModel.isEncryptedContainer(cryptoContainer)) {
+        if (!isNestedContainer && isSaveContainerShown.value) {
             showContainerCloseConfirmationDialog.value = true
         } else {
             handleBackButtonClick(
+                context,
                 navController,
                 encryptViewModel,
                 sharedContainerViewModel,
@@ -436,6 +457,13 @@ fun EncryptNavigation(
         sharedContainerViewModel.setCryptoContainer(sharedContainerViewModel.currentContainer() as? CryptoContainer)
     }
 
+    LaunchedEffect(withEncryption) {
+        if (withEncryption && !isWithEncryptionHandled.value) {
+            isSaveContainerShown.value = true
+            isWithEncryptionHandled.value = true
+        }
+    }
+
     LaunchedEffect(encryptRecipientViewModel.isContainerEncrypted) {
         encryptRecipientViewModel.isContainerEncrypted.asFlow().collect { isContainerEncrypted ->
             if (isContainerEncrypted) {
@@ -453,6 +481,7 @@ fun EncryptNavigation(
 
                     delay(500)
                     encryptionButtonEnabled.value = true
+                    isSaveContainerShown.value = true
                 }
             }
         }
@@ -490,14 +519,17 @@ fun EncryptNavigation(
 
     LaunchedEffect(isSaved) {
         if (isSaved) {
+            isSaveContainerShown.value = false
             if (showContainerCloseConfirmationDialog.value) {
                 showContainerCloseConfirmationDialog.value = false
                 handleBackButtonClick(
+                    context,
                     navController,
                     encryptViewModel,
                     sharedContainerViewModel,
                 )
             }
+            @Suppress("AssignedValueIsNeverRead")
             isSaved = false
         }
     }
@@ -505,7 +537,7 @@ fun EncryptNavigation(
     LaunchedEffect(sharedContainerViewModel.decryptNFCStatus) {
         sharedContainerViewModel.decryptNFCStatus.asFlow().collect { status ->
             status?.let {
-                if (status == true) {
+                if (status) {
                     withContext(Main) {
                         containerDecryptedSuccess.value = true
                         sendAccessibilityEvent(
@@ -525,7 +557,7 @@ fun EncryptNavigation(
     LaunchedEffect(sharedContainerViewModel.decryptIDCardStatus) {
         sharedContainerViewModel.decryptIDCardStatus.asFlow().collect { status ->
             status?.let {
-                if (status == true) {
+                if (status) {
                     withContext(Main) {
                         containerDecryptedSuccess.value = true
                         sendAccessibilityEvent(
@@ -572,10 +604,11 @@ fun EncryptNavigation(
                     },
                 leftIconContentDescription = R.string.crypto_close_container_title,
                 onLeftButtonClick = {
-                    if (!isNestedContainer && encryptViewModel.isEncryptedContainer(cryptoContainer)) {
+                    if (!isNestedContainer && isSaveContainerShown.value) {
                         showContainerCloseConfirmationDialog.value = true
                     } else {
                         handleBackButtonClick(
+                            context,
                             navController,
                             encryptViewModel,
                             sharedContainerViewModel,
@@ -651,18 +684,20 @@ fun EncryptNavigation(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start,
             ) {
-                if (containerEncryptedSuccess.value == true) {
+                if (containerEncryptedSuccess.value) {
                     showMessage(containerEncryptedSuccessText, SnackbarType.SUCCESS)
                     containerEncryptedSuccess.value = false
+                    isSaveContainerShown.value = true
                 }
 
-                if (containerDecryptedSuccess.value == true) {
+                if (containerDecryptedSuccess.value) {
                     showMessage(containerDecryptedSuccessText, SnackbarType.SUCCESS)
                     containerDecryptedSuccess.value = false
                 }
 
                 if (encryptViewModel.isEmptyFileInContainer(cryptoContainer) &&
-                    !encryptViewModel.isEncryptedContainer(cryptoContainer)
+                    !encryptViewModel.isEncryptedContainer(cryptoContainer) &&
+                    !encryptViewModel.isDecryptedContainer(cryptoContainer)
                 ) {
                     showMessage(emptyFileInContainerText)
                 }
@@ -751,7 +786,10 @@ fun EncryptNavigation(
                                     }
                                 },
                                 onMoreOptionsActionButtonClick = {
-                                    showContainerBottomSheet.value = true
+                                    showContainerBottomSheet.value =
+                                        isSaveContainerShown.value ||
+                                        isEditContainerButtonShown ||
+                                        isSignButtonShown
                                 },
                             )
                         }
@@ -881,9 +919,11 @@ fun EncryptNavigation(
                             subtitle = stringResource(id = R.string.crypto_containter_update_name),
                             editValue = containerName,
                             onEditValueChange = {
+                                @Suppress("AssignedValueIsNeverRead")
                                 containerName = it
                             },
                             onClearValueClick = {
+                                @Suppress("AssignedValueIsNeverRead")
                                 containerName = TextFieldValue("")
                             },
                             cancelButtonClick = dismissEditContainerNameDialog,
@@ -940,6 +980,7 @@ fun EncryptNavigation(
                                     cryptoContainer?.file?.delete()
                                     sharedContainerViewModel.resetCryptoContainer()
                                     handleBackButtonClick(
+                                        context,
                                         navController,
                                         encryptViewModel,
                                         sharedContainerViewModel,
@@ -1037,28 +1078,19 @@ fun EncryptNavigation(
                 openRemoveFileDialog = openRemoveFileDialog,
                 onBackButtonClick = {
                     handleBackButtonClick(
+                        context,
                         navController,
                         encryptViewModel,
                         sharedContainerViewModel,
                     )
                 },
             )
-
             EncryptContainerBottomSheet(
                 modifier = modifier,
                 showSheet = showContainerBottomSheet,
-                isEditContainerButtonShown =
-                    !isNestedContainer &&
-                        !encryptViewModel.isEncryptedContainer(cryptoContainer) &&
-                        !encryptViewModel.isDecryptedContainer(cryptoContainer),
+                isEditContainerButtonShown = isEditContainerButtonShown,
                 openEditContainerNameDialog = openEditContainerNameDialog,
-                isSaveButtonShown = (
-                    encryptViewModel.isEncryptedContainer(cryptoContainer) ||
-                        (
-                            encryptViewModel.isDecryptedContainer(cryptoContainer) &&
-                                cryptoContainer?.hasRecipients() == true
-                        )
-                ),
+                isSaveButtonShown = isSaveContainerShown.value,
                 cryptoContainer = cryptoContainer,
                 saveFileLauncher = saveFileLauncher,
                 saveFile = saveFile,
@@ -1082,38 +1114,50 @@ fun EncryptNavigation(
             }
 
             if (showContainerCloseConfirmationDialog.value) {
+                val dismissIcon =
+                    if (isSaveContainerShown.value) {
+                        R.drawable.ic_m3_download_48dp_wght400
+                    } else {
+                        R.drawable.ic_m3_cancel_48dp_wght400
+                    }
+                val dismissButtonText =
+                    if (isSaveContainerShown.value) {
+                        stringResource(R.string.save)
+                    } else {
+                        stringResource(R.string.cancel_button)
+                    }
                 MessageDialog(
                     modifier = modifier,
                     title = stringResource(R.string.crypto_close_container_title),
                     message = closeContainerMessage,
                     showIcons = true,
-                    dismissIcon = R.drawable.ic_m3_download_48dp_wght400,
+                    dismissIcon = dismissIcon,
                     confirmIcon = R.drawable.ic_m3_delete_48dp_wght400,
-                    dismissButtonText = stringResource(R.string.save),
-                    confirmButtonText = stringResource(R.string.remove_title),
+                    dismissButtonText = dismissButtonText,
+                    confirmButtonText = stringResource(R.string.close_button),
                     dismissButtonContentDescription = saveContainerMessage,
-                    confirmButtonContentDescription = removeContainerMessage,
+                    confirmButtonContentDescription = confirmCloseContainerMessage,
                     onDismissRequest = {
                         showContainerCloseConfirmationDialog.value = false
                     },
                     onDismissButton = {
-                        val file = cryptoContainer?.file
-                        if (file != null) {
-                            saveFile(
-                                file,
-                                cryptoContainer?.containerMimetype(),
-                                saveFileLauncher,
-                            )
+                        if (isSaveContainerShown.value) {
+                            val file = cryptoContainer?.file
+                            if (file != null) {
+                                saveFile(
+                                    file,
+                                    cryptoContainer?.containerMimetype(),
+                                    saveFileLauncher,
+                                )
+                            }
+                        } else {
+                            showContainerCloseConfirmationDialog.value = false
                         }
                     },
                     onConfirmButton = {
                         showContainerCloseConfirmationDialog.value = false
-                        val containerFile = cryptoContainer?.file
-                        if (containerFile?.exists() == true) {
-                            containerFile.delete()
-                        }
                         sharedContainerViewModel.resetCryptoContainer()
-                        handleBackButtonClick(navController, encryptViewModel, sharedContainerViewModel)
+                        handleBackButtonClick(context, navController, encryptViewModel, sharedContainerViewModel)
                     },
                 )
             }
@@ -1122,6 +1166,7 @@ fun EncryptNavigation(
 }
 
 private fun handleBackButtonClick(
+    context: Context,
     navController: NavHostController,
     encryptViewModel: EncryptViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
@@ -1130,8 +1175,7 @@ private fun handleBackButtonClick(
     sharedContainerViewModel.resetIsSivaConfirmed()
     if (sharedContainerViewModel.nestedContainers.size > 1) {
         sharedContainerViewModel.removeLastContainer()
-        val currentContainer = sharedContainerViewModel.currentContainer()
-        when (currentContainer) {
+        when (val currentContainer = sharedContainerViewModel.currentContainer()) {
             is SignedContainer -> {
                 sharedContainerViewModel.resetCryptoContainer()
                 sharedContainerViewModel.setSignedContainer(currentContainer)
@@ -1143,6 +1187,7 @@ private fun handleBackButtonClick(
             }
         }
     } else {
+        ContainerUtil.removeCryptoContainersDir(context)
         sharedContainerViewModel.clearContainers()
         encryptViewModel.handleBackButton()
         navController.navigateUp()

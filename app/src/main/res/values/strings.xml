@@ -134,18 +134,6 @@
     <string name="signing_close_container_message">You are about to close the container. Please choose what to do with the container: </string>
     <string name="container_notifications">Container notifications</string>
 
-    <!-- Recent Documents -->
-    <string name="document">Document</string>
-    <string name="recent_documents_search">Search container…</string>
-    <string name="recent_documents_search_cancel">Cancel search container</string>
-    <string name="recent_documents_search_empty">No recent containers found</string>
-    <string name="recent_documents_title">Recent containers</string>
-    <string name="recent_documents_empty_message">No recent containers</string>
-    <string name="recent_documents_remove_button">Remove container</string>
-    <string name="recent_documents_remove_confirmation_message">Remove container?</string>
-    <string name="recent_documents_cancel_container_removal_button">Cancel container removal</string>
-    <string name="recent_documents_confirm_container_removal_button">Confirm container removal</string>
-
     <!-- SiVa -->
     <string name="siva_send_message_dialog">This type of signed document will be transmitted to the Digital Signature Validation Service SiVa to verify the validity of the digital signature. Read more information about transmitted data to Digital Signature Validation Service on the website</string>
     <string name="siva_read_here">here.</string>
@@ -192,6 +180,8 @@
     <string name="crypto_decrypt_title">Container decryption</string>
     <string name="crypto_decrypt_method">Decryption method</string>
 
+    <string name="crypto_saved_container_success">Crypto container saved successfully</string>
+
     <!-- Signature Add -->
     <string name="signature_update_title">Container signing</string>
     <string name="signature_update_name_update_name">Container name</string>
@@ -204,6 +194,8 @@
     <string name="signature_update_signature_add_method_nfc_accessibility">ID-card via N F C</string>
     <string name="signature_update_signature_add_success">Signature added</string>
     <string name="signature_update_signature_add">Add signature</string>
+
+    <string name="signature_saved_container_success">Signed container saved successfully</string>
 
     <string name="signature_update_signature_selected_method_mobile_id">Signing option Mobile-ID, tab %1$d of %2$d</string>
     <string name="signature_update_signature_selected_method_smart_id">Signing option Smart-ID, tab %1$d of %2$d</string>

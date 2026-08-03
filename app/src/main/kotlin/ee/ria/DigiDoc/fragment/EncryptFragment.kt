@@ -50,6 +50,7 @@ fun EncryptFragment(
     sharedMenuViewModel: SharedMenuViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
     sharedRecipientViewModel: SharedRecipientViewModel,
+    withEncryption: Boolean = false,
 ) {
     Surface(
         modifier =
@@ -67,6 +68,7 @@ fun EncryptFragment(
             sharedMenuViewModel = sharedMenuViewModel,
             sharedContainerViewModel = sharedContainerViewModel,
             sharedRecipientViewModel = sharedRecipientViewModel,
+            withEncryption = withEncryption,
         )
     }
 }

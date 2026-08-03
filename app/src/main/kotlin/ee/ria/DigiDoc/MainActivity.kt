@@ -52,6 +52,7 @@ import ee.ria.DigiDoc.utils.locale.LocaleUtilImpl
 import ee.ria.DigiDoc.utils.secure.SecureUtil
 import ee.ria.DigiDoc.utilsLib.R.string.main_diagnostics_logging_key
 import ee.ria.DigiDoc.utilsLib.R.string.main_diagnostics_logging_running_key
+import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.getExternalFileUris
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.getLogsDirectory
 import ee.ria.DigiDoc.utilsLib.locale.LocaleUtil.getLocale
@@ -167,6 +168,11 @@ class MainActivity :
             )
             fileTypeSetup.initializeApplicationFileTypesAssociation(componentClassName)
             librarySetup.setupLibraries(applicationContext, isLoggingEnabled)
+
+            if (savedInstanceState == null) {
+                ContainerUtil.removeSignatureContainersDir(applicationContext)
+                ContainerUtil.removeCryptoContainersDir(applicationContext)
+            }
 
             isAppReady = true
 

@@ -41,6 +41,7 @@ fun EncryptScreen(
     sharedMenuViewModel: SharedMenuViewModel,
     sharedContainerViewModel: SharedContainerViewModel,
     sharedRecipientViewModel: SharedRecipientViewModel,
+    withEncryption: Boolean = false,
 ) {
     EncryptNavigation(
         modifier = modifier,
@@ -48,6 +49,7 @@ fun EncryptScreen(
         sharedMenuViewModel = sharedMenuViewModel,
         sharedContainerViewModel = sharedContainerViewModel,
         sharedRecipientViewModel = sharedRecipientViewModel,
+        withEncryption = withEncryption,
     )
 }
 
