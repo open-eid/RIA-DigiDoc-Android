@@ -1,11 +1,16 @@
 name: RIA DigiDoc Android
-on: [push]
+on:
+  push:
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 3 * * 1" # Weekly
 env:
   BUILD_NUMBER: ${{ github.run_number }}
 jobs:
   ubuntu:
     name: Build on Ubuntu
-    if: contains(github.repository, 'open-eid/RIA-DigiDoc-Android')
+    if: contains(github.repository, 'open-eid/RIA-DigiDoc-Android') && github.event_name == 'push'
     runs-on: ubuntu-latest
     env:
       APK_RELEASE_DIRECTORY: "app/build/outputs/apk/release"
@@ -92,3 +97,71 @@ jobs:
         with:
           name: "RIA_DigiDoc_debug_${{ env.APP_VERSION_NAME }}.${{ env.BUILD_NUMBER }}"
           path: ${{ github.workspace }}/${{ env.APK_RELEASE_DIRECTORY }}/RIA_DigiDoc_debug_${{ env.APP_VERSION_NAME }}.${{ env.BUILD_NUMBER }}.apk
+
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    if: >-
+      contains(github.repository, 'open-eid/RIA-DigiDoc-Android') &&
+      (github.event_name == 'pull_request' ||
+       github.event_name == 'schedule' ||
+       github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    concurrency:
+      group: codeql-${{ matrix.language }}-${{ github.ref }}
+      cancel-in-progress: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: java-kotlin
+            build-mode: manual
+          - language: actions
+            build-mode: none
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          config-file: ./.github/codeql/codeql-config.yml
+
+      - name: Setup JDK
+        if: matrix.build-mode == 'manual'
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 21
+
+      - name: Set up Android SDK
+        if: matrix.build-mode == 'manual'
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Gradle
+        if: matrix.build-mode == 'manual'
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Prepare build inputs
+        if: matrix.build-mode == 'manual'
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          echo -n "$GOOGLE_SERVICES_JSON" | base64 --decode > "${{ github.workspace }}/app/google-services.json"
+
+      - name: Build for CodeQL
+        if: matrix.build-mode == 'manual'
+        run: |
+          ./gradlew --no-daemon --no-configuration-cache fetchAndPackageDefaultConfiguration
+          ./gradlew --no-daemon --no-configuration-cache --no-build-cache compileDebugKotlin
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:${{ matrix.language }}"

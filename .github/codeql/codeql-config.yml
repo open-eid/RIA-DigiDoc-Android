@@ -1,0 +1,7 @@
+name: "RIA DigiDoc Android CodeQL config"
+
+paths-ignore:
+  - "**/build/**"
+  - "**/src/test/**"
+  - "**/src/androidTest/**"
+  - "docs/**"
