@@ -42,7 +42,6 @@ import ee.ria.DigiDoc.ui.theme.BlueBackground
 import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utilsLib.locale.LocaleUtil.getLocale
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
@@ -86,7 +85,6 @@ fun LanguageChoiceButtonGroup(
                     sharedSettingsViewModel.recreateActivity()
                     sendAccessibilityEvent(
                         context,
-                        getAccessibilityEventType(),
                         languageChanged,
                     )
                     onClickAction()

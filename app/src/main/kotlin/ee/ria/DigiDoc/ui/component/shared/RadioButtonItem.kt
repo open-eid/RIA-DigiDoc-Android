@@ -36,7 +36,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -75,7 +74,6 @@ fun RadioButtonItem(
                 onSelect()
                 sendAccessibilityEvent(
                     context,
-                    getAccessibilityEventType(),
                     changedText,
                 )
             },

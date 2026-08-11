@@ -56,6 +56,6 @@ class AccessibilityUtilTest {
     @Test
     fun accessibilityUtilTest_sendAccessibilityEvent_success() {
         // This is a void method, so we're just testing that it doesn't throw an exception
-        sendAccessibilityEvent(context, 0, "Test")
+        sendAccessibilityEvent(context, "Test")
     }
 }

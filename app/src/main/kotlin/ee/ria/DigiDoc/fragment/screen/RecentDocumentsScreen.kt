@@ -94,7 +94,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
@@ -179,7 +178,7 @@ fun RecentDocumentsScreen(
     }
     val dismissRemoveDocumentDialog = {
         closeDocumentDialog()
-        sendAccessibilityEvent(context, getAccessibilityEventType(), documentRemovalCancelled)
+        sendAccessibilityEvent(context, documentRemovalCancelled)
     }
 
     val listState = rememberLazyListState()
@@ -553,7 +552,7 @@ fun RecentDocumentsScreen(
                     recentDocumentList.value = recentDocumentsViewModel.getRecentDocumentList(fileOpeningMethod)
                     dismissSearch()
                     closeDocumentDialog()
-                    sendAccessibilityEvent(context, getAccessibilityEventType(), documentRemoved)
+                    sendAccessibilityEvent(context, documentRemoved)
                 },
             )
         }

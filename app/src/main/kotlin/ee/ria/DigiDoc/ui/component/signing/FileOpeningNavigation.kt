@@ -47,7 +47,6 @@ import ee.ria.DigiDoc.common.model.FileOpeningMethod
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.viewmodel.FileOpeningViewModel
@@ -210,7 +209,6 @@ fun FileOpeningNavigation(
 
                 sendAccessibilityEvent(
                     context,
-                    getAccessibilityEventType(),
                     announcementText,
                 )
                 fileOpeningViewModel.resetFilesAdded()

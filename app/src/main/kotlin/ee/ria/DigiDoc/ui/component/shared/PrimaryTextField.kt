@@ -71,7 +71,6 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.addInvisibleElement
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.notAccessible
@@ -120,7 +119,7 @@ fun PrimaryTextField(
 
     LaunchedEffect(errorText) {
         if (errorText.isNotEmpty()) {
-            sendAccessibilityEvent(context, getAccessibilityEventType(), errorText)
+            sendAccessibilityEvent(context, errorText)
         }
     }
 

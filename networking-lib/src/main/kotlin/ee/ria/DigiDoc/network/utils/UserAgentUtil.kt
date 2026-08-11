@@ -27,8 +27,6 @@ import android.content.pm.PackageManager
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
 import android.os.Build
-import ee.ria.DigiDoc.common.BuildVersionProvider
-import ee.ria.DigiDoc.common.BuildVersionProviderImpl
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import java.util.Locale
 import java.util.stream.Collectors
@@ -55,11 +53,10 @@ object UserAgentUtil {
     fun getAppInfo(
         context: Context,
         sendDiagnostics: SendDiagnostics = SendDiagnostics.None,
-        buildVersionProvider: BuildVersionProvider = BuildVersionProviderImpl(),
     ): String {
         val sb = StringBuilder()
 
-        sb.append("riadigidoc/").append(getAppVersion(context, buildVersionProvider))
+        sb.append("riadigidoc/").append(getAppVersion(context))
 
         sb.append(" (schema=1")
         sb.append("; os=Android ").append(Build.VERSION.RELEASE)
@@ -95,7 +92,6 @@ object UserAgentUtil {
     fun getUserAgent(
         context: Context,
         sendDiagnostics: SendDiagnostics = SendDiagnostics.None,
-        buildVersionProvider: BuildVersionProvider = BuildVersionProviderImpl(),
     ): String {
         val sb = StringBuilder()
 
@@ -105,7 +101,7 @@ object UserAgentUtil {
             sb.append(" (").append(arch).append(") ")
         }
 
-        sb.append("APP ").append(getAppInfo(context, sendDiagnostics, buildVersionProvider))
+        sb.append("APP ").append(getAppInfo(context, sendDiagnostics))
 
         return sb.toString()
     }
@@ -161,12 +157,9 @@ object UserAgentUtil {
         return ArrayList(smartDevices.values)
     }
 
-    private fun getAppVersion(
-        context: Context,
-        buildVersionProvider: BuildVersionProvider,
-    ): String =
+    private fun getAppVersion(context: Context): String =
         try {
-            val info = getPackageInfo(context, buildVersionProvider)
+            val info = getPackageInfo(context)
             "${info.versionName}.${info.longVersionCode}"
         } catch (e: PackageManager.NameNotFoundException) {
             errorLog(LOG_TAG, "Failed getting app version from package info", e)
@@ -174,15 +167,7 @@ object UserAgentUtil {
         }
 
     @Throws(PackageManager.NameNotFoundException::class)
-    private fun getPackageInfo(
-        context: Context,
-        buildVersionProvider: BuildVersionProvider,
-    ): PackageInfo =
-        if (buildVersionProvider.getSDKInt() >= Build.VERSION_CODES.TIRAMISU) {
-            context.packageManager
-                .getPackageInfo(context.packageName, PackageManager.PackageInfoFlags.of(0))
-        } else {
-            context.packageManager
-                .getPackageInfo(context.packageName, 0)
-        }
+    private fun getPackageInfo(context: Context): PackageInfo =
+        context.packageManager
+            .getPackageInfo(context.packageName, PackageManager.PackageInfoFlags.of(0))
 }

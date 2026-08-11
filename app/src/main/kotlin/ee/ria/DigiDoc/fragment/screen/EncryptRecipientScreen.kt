@@ -100,7 +100,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
@@ -173,7 +172,7 @@ fun EncryptRecipientScreen(
     }
     val dismissRemoveRecipientDialog = {
         closeRecipientDialog()
-        sendAccessibilityEvent(context, getAccessibilityEventType(), recipientRemovalCancelled)
+        sendAccessibilityEvent(context, recipientRemovalCancelled)
     }
 
     val encryptViewModel: EncryptViewModel =
@@ -209,7 +208,6 @@ fun EncryptRecipientScreen(
                             .getContainerRecipientList(sharedContainerViewModel)
                     sendAccessibilityEvent(
                         context,
-                        getAccessibilityEventType(),
                         recipientAddedSuccessText,
                     )
                     encryptRecipientViewModel.handleIsRecipientAdded(false)
@@ -225,7 +223,6 @@ fun EncryptRecipientScreen(
                     containerEncryptedSuccess.value = true
                     sendAccessibilityEvent(
                         context,
-                        getAccessibilityEventType(),
                         containerEncryptedSuccessText,
                     )
                     delay(2000)
@@ -427,7 +424,7 @@ fun EncryptRecipientScreen(
                     }
 
                     closeRecipientDialog()
-                    sendAccessibilityEvent(context, getAccessibilityEventType(), recipientRemoved)
+                    sendAccessibilityEvent(context, recipientRemoved)
                 },
             )
         }

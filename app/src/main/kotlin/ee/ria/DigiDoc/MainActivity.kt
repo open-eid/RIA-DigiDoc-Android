@@ -217,6 +217,9 @@ class MainActivity :
                         setPackage(pkg)
                     }
                 @Suppress("QueryPermissionsNeeded")
-                packageManager.resolveActivity(browseIntent, PackageManager.MATCH_DEFAULT_ONLY) != null
+                packageManager.resolveActivity(
+                    browseIntent,
+                    PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()),
+                ) != null
             }
 }

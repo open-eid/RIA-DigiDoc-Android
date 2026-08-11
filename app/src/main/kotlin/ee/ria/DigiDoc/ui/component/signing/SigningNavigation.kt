@@ -123,7 +123,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
@@ -230,7 +229,6 @@ fun SigningNavigation(
         closeRemoveFileDialog()
         sendAccessibilityEvent(
             context,
-            getAccessibilityEventType(),
             fileRemovalCancelled,
         )
     }
@@ -246,7 +244,6 @@ fun SigningNavigation(
         openEditContainerNameDialog.value = false
         sendAccessibilityEvent(
             context,
-            getAccessibilityEventType(),
             containerNameChangeCancelled,
         )
     }
@@ -273,7 +270,6 @@ fun SigningNavigation(
         closeSignatureDialog()
         sendAccessibilityEvent(
             context,
-            getAccessibilityEventType(),
             signatureRemovalCancelled,
         )
     }
@@ -612,7 +608,7 @@ fun SigningNavigation(
             }
             val newTime = System.currentTimeMillis()
             if (newTime >= (pastTime + 2 * 1000)) {
-                sendAccessibilityEvent(context, getAccessibilityEventType(), signaturesLoaded)
+                sendAccessibilityEvent(context, signaturesLoaded)
             }
         }
     }
@@ -638,7 +634,6 @@ fun SigningNavigation(
                 isSignaturesCountLoaded = true
                 sendAccessibilityEvent(
                     context,
-                    getAccessibilityEventType(),
                     announcementText,
                 )
             }
@@ -1062,7 +1057,6 @@ fun SigningNavigation(
                                 openEditContainerNameDialog.value = false
                                 sendAccessibilityEvent(
                                     context,
-                                    getAccessibilityEventType(),
                                     containerNameChanged,
                                 )
                             },
@@ -1123,7 +1117,7 @@ fun SigningNavigation(
                                     }
                                 }
                                 closeRemoveFileDialog()
-                                sendAccessibilityEvent(context, getAccessibilityEventType(), fileRemoved)
+                                sendAccessibilityEvent(context, fileRemoved)
                             },
                         )
                         InvisibleElement(modifier = modifier)
@@ -1167,7 +1161,7 @@ fun SigningNavigation(
                                     )
                                 }
                                 closeSignatureDialog()
-                                sendAccessibilityEvent(context, getAccessibilityEventType(), signatureRemoved)
+                                sendAccessibilityEvent(context, signatureRemoved)
                             },
                         )
                         InvisibleElement(modifier = modifier)
