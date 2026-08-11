@@ -113,7 +113,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
@@ -196,7 +195,6 @@ fun EncryptNavigation(
         closeRemoveFileDialog()
         sendAccessibilityEvent(
             context,
-            getAccessibilityEventType(),
             fileRemovalCancelled,
         )
     }
@@ -212,7 +210,6 @@ fun EncryptNavigation(
         openEditContainerNameDialog.value = false
         sendAccessibilityEvent(
             context,
-            getAccessibilityEventType(),
             containerNameChangeCancelled,
         )
     }
@@ -246,7 +243,6 @@ fun EncryptNavigation(
         closeRecipientDialog()
         sendAccessibilityEvent(
             context,
-            getAccessibilityEventType(),
             recipientRemovalCancelled,
         )
     }
@@ -446,7 +442,6 @@ fun EncryptNavigation(
                     containerEncryptedSuccess.value = true
                     sendAccessibilityEvent(
                         context,
-                        getAccessibilityEventType(),
                         containerEncryptedSuccessText,
                     )
                     delay(2000)
@@ -478,7 +473,7 @@ fun EncryptNavigation(
             showRecipientsLoadingIndicator.value = false
             val newTime = System.currentTimeMillis()
             if (newTime >= (pastTime + 2 * 1000)) {
-                sendAccessibilityEvent(context, getAccessibilityEventType(), recipientsLoaded)
+                sendAccessibilityEvent(context, recipientsLoaded)
             }
         }
     }
@@ -513,7 +508,6 @@ fun EncryptNavigation(
                         containerDecryptedSuccess.value = true
                         sendAccessibilityEvent(
                             context,
-                            getAccessibilityEventType(),
                             containerDecryptedSuccessText,
                         )
                         containerDecryptedSuccess.value = false
@@ -533,7 +527,6 @@ fun EncryptNavigation(
                         containerDecryptedSuccess.value = true
                         sendAccessibilityEvent(
                             context,
-                            getAccessibilityEventType(),
                             containerDecryptedSuccessText,
                         )
                         containerDecryptedSuccess.value = false
@@ -908,7 +901,6 @@ fun EncryptNavigation(
                                 openEditContainerNameDialog.value = false
                                 sendAccessibilityEvent(
                                     context,
-                                    getAccessibilityEventType(),
                                     containerNameChanged,
                                 )
                             },
@@ -972,7 +964,7 @@ fun EncryptNavigation(
                                     }
                                 }
                                 closeRemoveFileDialog()
-                                sendAccessibilityEvent(context, getAccessibilityEventType(), fileRemoved)
+                                sendAccessibilityEvent(context, fileRemoved)
                             },
                         )
                         InvisibleElement(modifier = modifier)
@@ -1016,7 +1008,7 @@ fun EncryptNavigation(
                                     )
                                 }
                                 closeRecipientDialog()
-                                sendAccessibilityEvent(context, getAccessibilityEventType(), recipientRemoved)
+                                sendAccessibilityEvent(context, recipientRemoved)
                             },
                         )
                         InvisibleElement(modifier = modifier)

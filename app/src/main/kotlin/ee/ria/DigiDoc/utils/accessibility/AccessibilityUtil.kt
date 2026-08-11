@@ -22,25 +22,16 @@
 package ee.ria.DigiDoc.utils.accessibility
 
 import android.content.Context
-import android.os.Build
 import android.view.accessibility.AccessibilityEvent
-import android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
 import android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED
 import android.view.accessibility.AccessibilityManager
 
 class AccessibilityUtil {
     companion object {
-        fun getAccessibilityEventType(): Int =
-            if (Build.VERSION.SDK_INT >= 34) {
-                TYPE_VIEW_ACCESSIBILITY_FOCUSED
-            } else {
-                TYPE_ANNOUNCEMENT
-            }
-
         fun sendAccessibilityEvent(
             context: Context,
-            eventType: Int,
             eventText: CharSequence,
+            eventType: Int = TYPE_VIEW_ACCESSIBILITY_FOCUSED,
         ) {
             val accessibilityManager =
                 context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager

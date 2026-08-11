@@ -84,7 +84,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utils.snackbar.SnackbarType
@@ -132,7 +131,7 @@ fun DiagnosticsScreen(
         enableOneTimeLogGeneration = false
         diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(false)
         closeRestartConfirmationDialog()
-        sendAccessibilityEvent(context, getAccessibilityEventType(), settingValueChangeCancelled)
+        sendAccessibilityEvent(context, settingValueChangeCancelled)
     }
     val saveFileLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -155,7 +154,7 @@ fun DiagnosticsScreen(
                 diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(false)
                 diagnosticsViewModel.dataStore.setIsLogFileGenerationRunning(false)
                 diagnosticsViewModel.resetLogs(context)
-                sendAccessibilityEvent(context, getAccessibilityEventType(), settingValueChanged)
+                sendAccessibilityEvent(context, settingValueChanged)
                 sharedSettingsViewModel.recreateActivity(true)
             }
         }
@@ -287,7 +286,6 @@ fun DiagnosticsScreen(
                             diagnosticsViewModel.resetLogs(context)
                             sendAccessibilityEvent(
                                 context,
-                                getAccessibilityEventType(),
                                 settingValueChanged,
                             )
                             sharedSettingsViewModel.recreateActivity(true)
@@ -628,7 +626,6 @@ fun DiagnosticsScreen(
                                         closeRestartConfirmationDialog()
                                         sendAccessibilityEvent(
                                             context,
-                                            getAccessibilityEventType(),
                                             settingValueChanged,
                                         )
                                         sharedSettingsViewModel.recreateActivity(true)

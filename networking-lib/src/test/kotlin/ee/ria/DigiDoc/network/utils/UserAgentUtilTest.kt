@@ -29,7 +29,6 @@ import android.content.res.Resources
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
 import android.os.Build
-import ee.ria.DigiDoc.common.BuildVersionProvider
 import ee.ria.DigiDoc.network.utils.UserAgentUtil.getAppInfo
 import ee.ria.DigiDoc.network.utils.UserAgentUtil.getUserAgent
 import junit.framework.TestCase.assertEquals
@@ -38,10 +37,13 @@ import junit.framework.TestCase.assertTrue
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentMatchers.anyInt
+import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.MockedStatic
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.mockStatic
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.any
 import java.util.Locale
 
 class UserAgentUtilTest {
@@ -50,7 +52,8 @@ class UserAgentUtilTest {
     private lateinit var usbDevice: UsbDevice
     private lateinit var packageManager: PackageManager
     private lateinit var packageInfo: PackageInfo
-    private lateinit var buildVersionProvider: BuildVersionProvider
+
+    private lateinit var packageInfoFlags: MockedStatic<PackageManager.PackageInfoFlags>
 
     private val expectedDeviceModel =
         Build.MODEL
@@ -73,11 +76,15 @@ class UserAgentUtilTest {
         packageInfo.versionName = "1.2.3"
         `when`(packageInfo.longVersionCode).thenReturn(1234L)
 
-        buildVersionProvider = mock(BuildVersionProvider::class.java)
+        packageInfoFlags = mockStatic(PackageManager.PackageInfoFlags::class.java)
+        packageInfoFlags
+            .`when`<PackageManager.PackageInfoFlags> { PackageManager.PackageInfoFlags.of(anyLong()) }
+            .thenReturn(mock(PackageManager.PackageInfoFlags::class.java))
     }
 
     @After
     fun tearDown() {
+        packageInfoFlags.close()
         Locale.setDefault(originalLocale)
     }
 
@@ -86,7 +93,7 @@ class UserAgentUtilTest {
         mockPackageManagerHandling()
         mockUsbManagerHandling()
 
-        val result = getUserAgent(context, buildVersionProvider = buildVersionProvider)
+        val result = getUserAgent(context)
 
         assertEquals(
             "APP riadigidoc/1.2.3.1234 (schema=1; os=Android ${Build.VERSION.RELEASE}; lang=en; devicetype=mobile/$expectedDeviceModel)",
@@ -99,7 +106,7 @@ class UserAgentUtilTest {
         mockPackageManagerHandling()
         mockUsbManagerHandling()
 
-        val result = getUserAgent(context, SendDiagnostics.None, buildVersionProvider)
+        val result = getUserAgent(context, SendDiagnostics.None)
 
         assertFalse(result.contains("devices="))
     }
@@ -121,7 +128,7 @@ class UserAgentUtilTest {
                 }
             } ?: "unknown"
 
-        val result = getUserAgent(context, buildVersionProvider = buildVersionProvider)
+        val result = getUserAgent(context)
 
         assertEquals(
             "LIB libdigidocpp/4.5.6.40 ($expectedArch) APP riadigidoc/1.2.3.1234 (schema=1; os=Android ${Build.VERSION.RELEASE}; lang=en; devicetype=mobile/$expectedDeviceModel)",
@@ -140,7 +147,7 @@ class UserAgentUtilTest {
         `when`(resources.configuration).thenReturn(configuration)
         `when`(context.resources).thenReturn(resources)
 
-        val result = getUserAgent(context, buildVersionProvider = buildVersionProvider)
+        val result = getUserAgent(context)
 
         assertTrue(result.contains("devicetype=tablet/"))
     }
@@ -149,12 +156,11 @@ class UserAgentUtilTest {
     fun userAgentUtil_getUserAgent_returnUnknownAppVersionOnPackageNotFound() {
         `when`(context.packageManager).thenReturn(packageManager)
         `when`(context.packageName).thenReturn("App")
-        `when`(packageManager.getPackageInfo(anyString(), anyInt()))
+        `when`(packageManager.getPackageInfo(anyString(), any<PackageManager.PackageInfoFlags>()))
             .thenThrow(PackageManager.NameNotFoundException())
         mockUsbManagerHandling()
-        `when`(buildVersionProvider.getSDKInt()).thenReturn(Build.VERSION.SDK_INT)
 
-        val result = getUserAgent(context, buildVersionProvider = buildVersionProvider)
+        val result = getUserAgent(context)
 
         assertTrue(result.contains("APP riadigidoc/unknown "))
     }
@@ -167,7 +173,7 @@ class UserAgentUtilTest {
         mockUsbManagerHandling(devices)
         `when`(usbDevice.productName).thenReturn("Smart Card Reader 1")
 
-        val result = getUserAgent(context, SendDiagnostics.Devices, buildVersionProvider)
+        val result = getUserAgent(context, SendDiagnostics.Devices)
 
         assertEquals(
             "APP riadigidoc/1.2.3.1234 (schema=1; os=Android ${Build.VERSION.RELEASE}; lang=en; devicetype=mobile/$expectedDeviceModel; devices=Smart Card Reader 1)",
@@ -180,7 +186,7 @@ class UserAgentUtilTest {
         mockPackageManagerHandling()
         mockUsbManagerHandling()
 
-        val result = getUserAgent(context, SendDiagnostics.Devices, buildVersionProvider)
+        val result = getUserAgent(context, SendDiagnostics.Devices)
 
         assertFalse(result.contains("devices="))
     }
@@ -194,7 +200,7 @@ class UserAgentUtilTest {
         `when`(usbDevice.productName).thenReturn("Keyboard")
         `when`(usbDevice.deviceName).thenReturn("/dev/bus/usb/001/001")
 
-        val result = getUserAgent(context, SendDiagnostics.Devices, buildVersionProvider)
+        val result = getUserAgent(context, SendDiagnostics.Devices)
 
         assertFalse(result.contains("devices="))
     }
@@ -207,7 +213,7 @@ class UserAgentUtilTest {
         mockUsbManagerHandling(devices)
         `when`(usbDevice.productName).thenReturn("Smart;Card(Reader)\r\n1")
 
-        val result = getUserAgent(context, SendDiagnostics.Devices, buildVersionProvider)
+        val result = getUserAgent(context, SendDiagnostics.Devices)
 
         assertTrue(result.contains("devices=SmartCardReader1)"))
         assertFalse(result.contains("\r"))
@@ -222,7 +228,7 @@ class UserAgentUtilTest {
         mockUsbManagerHandling(devices)
         `when`(usbDevice.deviceName).thenReturn("/dev/bus/usb/001/Card-Reader")
 
-        val result = getUserAgent(context, SendDiagnostics.Devices, buildVersionProvider)
+        val result = getUserAgent(context, SendDiagnostics.Devices)
 
         assertTrue(result.contains("devices="))
     }
@@ -240,7 +246,7 @@ class UserAgentUtilTest {
         `when`(usbDevice2.productName).thenReturn("Smart Card Reader 2")
         `when`(usbDevice2.deviceName).thenReturn("/dev/bus/usb/001/002")
 
-        val result = getUserAgent(context, SendDiagnostics.Devices, buildVersionProvider)
+        val result = getUserAgent(context, SendDiagnostics.Devices)
 
         assertTrue(result.contains("Some Card Reader"))
         assertTrue(result.contains("Smart Card Reader 2"))
@@ -251,7 +257,7 @@ class UserAgentUtilTest {
         mockPackageManagerHandling()
         mockUsbManagerHandling()
 
-        val result = getUserAgent(context, SendDiagnostics.NFC, buildVersionProvider)
+        val result = getUserAgent(context, SendDiagnostics.NFC)
 
         assertEquals(
             "APP riadigidoc/1.2.3.1234 (schema=1; os=Android ${Build.VERSION.RELEASE}; lang=en; devicetype=mobile/$expectedDeviceModel; nfc=true)",
@@ -264,7 +270,7 @@ class UserAgentUtilTest {
         mockPackageManagerHandling()
         mockUsbManagerHandling()
 
-        val result = getAppInfo(context, buildVersionProvider = buildVersionProvider)
+        val result = getAppInfo(context)
 
         assertEquals(
             "riadigidoc/1.2.3.1234 (schema=1; os=Android ${Build.VERSION.RELEASE}; lang=en; devicetype=mobile/$expectedDeviceModel)",
@@ -278,7 +284,7 @@ class UserAgentUtilTest {
         mockUsbManagerHandling()
         UserAgentUtil.setLibdigidocppVersion("4.5.6.40")
 
-        val result = getAppInfo(context, buildVersionProvider = buildVersionProvider)
+        val result = getAppInfo(context)
 
         // "LIB" and "APP" prefixes must not appear — libdigidocpp adds it itself
         assertFalse(result.contains("LIB "))
@@ -293,7 +299,7 @@ class UserAgentUtilTest {
         mockUsbManagerHandling(devices)
         `when`(usbDevice.productName).thenReturn("Smart Card Reader 1")
 
-        val result = getAppInfo(context, SendDiagnostics.Devices, buildVersionProvider)
+        val result = getAppInfo(context, SendDiagnostics.Devices)
 
         assertEquals(
             "riadigidoc/1.2.3.1234 (schema=1; os=Android ${Build.VERSION.RELEASE}; lang=en; devicetype=mobile/$expectedDeviceModel; devices=Smart Card Reader 1)",
@@ -306,7 +312,7 @@ class UserAgentUtilTest {
         mockPackageManagerHandling()
         mockUsbManagerHandling()
 
-        val result = getAppInfo(context, SendDiagnostics.NFC, buildVersionProvider)
+        val result = getAppInfo(context, SendDiagnostics.NFC)
 
         assertEquals(
             "riadigidoc/1.2.3.1234 (schema=1; os=Android ${Build.VERSION.RELEASE}; lang=en; devicetype=mobile/$expectedDeviceModel; nfc=true)",
@@ -314,11 +320,11 @@ class UserAgentUtilTest {
         )
     }
 
-    private fun mockPackageManagerHandling(sdkInt: Int = Build.VERSION.SDK_INT) {
+    private fun mockPackageManagerHandling() {
         `when`(context.packageManager).thenReturn(packageManager)
         `when`(context.packageName).thenReturn("App")
-        `when`(packageManager.getPackageInfo(anyString(), anyInt())).thenReturn(packageInfo)
-        `when`(buildVersionProvider.getSDKInt()).thenReturn(sdkInt)
+        `when`(packageManager.getPackageInfo(anyString(), any<PackageManager.PackageInfoFlags>()))
+            .thenReturn(packageInfo)
     }
 
     private fun mockUsbManagerHandling(devices: HashMap<String, UsbDevice> = hashMapOf()) {

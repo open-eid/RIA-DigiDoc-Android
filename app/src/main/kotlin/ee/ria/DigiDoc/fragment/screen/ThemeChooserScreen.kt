@@ -56,7 +56,6 @@ import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
@@ -120,7 +119,6 @@ fun ThemeChooserScreen(
                                 setThemeSetting(sharedSettingsViewModel, themeItem.setting)
                                 sendAccessibilityEvent(
                                     context,
-                                    getAccessibilityEventType(),
                                     themeChanged,
                                 )
                             },

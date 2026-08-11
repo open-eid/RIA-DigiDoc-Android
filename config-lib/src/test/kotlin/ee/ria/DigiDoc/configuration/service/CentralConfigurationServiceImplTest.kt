@@ -44,10 +44,13 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentMatchers.anyInt
+import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.MockedStatic
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.mockStatic
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.any
 
 @ExperimentalCoroutinesApi
 class CentralConfigurationServiceImplTest {
@@ -62,6 +65,8 @@ class CentralConfigurationServiceImplTest {
     private lateinit var context: Context
     private lateinit var property: ConfigurationProperty
 
+    private lateinit var packageInfoFlags: MockedStatic<PackageManager.PackageInfoFlags>
+
     @Before
     fun setup() {
         val packageManager = mock(PackageManager::class.java)
@@ -70,7 +75,12 @@ class CentralConfigurationServiceImplTest {
         `when`(context.packageName).thenReturn("test")
         val packageInfo = mock(PackageInfo::class.java)
         `when`(packageInfo.longVersionCode).thenReturn(0L)
-        `when`(packageManager.getPackageInfo(anyString(), anyInt())).thenReturn(packageInfo)
+        packageInfoFlags = mockStatic(PackageManager.PackageInfoFlags::class.java)
+        packageInfoFlags
+            .`when`<PackageManager.PackageInfoFlags> { PackageManager.PackageInfoFlags.of(anyLong()) }
+            .thenReturn(mock(PackageManager.PackageInfoFlags::class.java))
+        `when`(packageManager.getPackageInfo(anyString(), any<PackageManager.PackageInfoFlags>()))
+            .thenReturn(packageInfo)
 
         Dispatchers.setMain(testDispatcher)
 
@@ -123,6 +133,7 @@ class CentralConfigurationServiceImplTest {
 
     @After
     fun tearDown() {
+        packageInfoFlags.close()
         Dispatchers.resetMain()
         mockWebServer.shutdown()
     }

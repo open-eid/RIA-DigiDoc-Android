@@ -351,7 +351,8 @@ object ContainerUtil {
         // Remove app from "Share" and "Open with" menu
         val excludedExtraComponents = ArrayList<ComponentName>()
         val packageManager: PackageManager = context.packageManager
-        val resolveInfos: List<ResolveInfo> = packageManager.queryIntentActivities(shareIntent, 0)
+        val resolveInfos: List<ResolveInfo> =
+            packageManager.queryIntentActivities(shareIntent, PackageManager.ResolveInfoFlags.of(0L))
 
         val appPackageName = context.packageName
         resolveInfos.forEach { resolveInfo ->

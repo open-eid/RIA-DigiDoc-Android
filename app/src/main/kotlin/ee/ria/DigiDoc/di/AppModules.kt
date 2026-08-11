@@ -33,8 +33,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import ee.ria.DigiDoc.common.BuildVersionProvider
-import ee.ria.DigiDoc.common.BuildVersionProviderImpl
 import ee.ria.DigiDoc.common.certificate.CertificateService
 import ee.ria.DigiDoc.configuration.deserializer.Cdoc2ConfDeserializer
 import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
@@ -128,9 +126,6 @@ class AppModules {
     @Provides
     @Singleton
     fun provideCryptoInitialization(): CryptoInitialization = CryptoInitialization()
-
-    @Provides
-    fun provideBuildVersionProvider(): BuildVersionProvider = BuildVersionProviderImpl()
 
     @Provides
     @Singleton

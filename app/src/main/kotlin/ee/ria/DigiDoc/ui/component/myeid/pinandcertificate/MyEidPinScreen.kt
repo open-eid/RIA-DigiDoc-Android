@@ -88,7 +88,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.MPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeM
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.notAccessible
@@ -269,7 +268,6 @@ fun MyEidPinScreen(
         if (isTalkBackEnabled(context) && pinErrorText.value.isNotEmpty()) {
             sendAccessibilityEvent(
                 context,
-                getAccessibilityEventType(),
                 pinErrorText.value.lowercase(),
             )
         }

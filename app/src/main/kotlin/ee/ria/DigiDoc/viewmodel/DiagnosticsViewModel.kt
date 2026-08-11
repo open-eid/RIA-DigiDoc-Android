@@ -42,7 +42,6 @@ import ee.ria.DigiDoc.configuration.utils.TSLUtil
 import ee.ria.DigiDoc.domain.model.settings.CDOCSetting
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.network.proxy.ProxySetting
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.getAccessibilityEventType
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
@@ -102,7 +101,6 @@ class DiagnosticsViewModel
                             }
                         sendAccessibilityEvent(
                             context,
-                            getAccessibilityEventType(),
                             context.getString(messageResId),
                         )
                     }
