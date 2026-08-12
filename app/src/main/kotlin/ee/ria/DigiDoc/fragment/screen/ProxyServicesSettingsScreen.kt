@@ -90,6 +90,7 @@ import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
+import ee.ria.DigiDoc.utils.snackbar.SnackbarType
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.Dispatchers.Main
@@ -192,7 +193,13 @@ fun ProxyServicesSettingsScreen(
         sharedSettingsViewModel.errorState.collect { errorState ->
             errorState?.let {
                 withContext(Main) {
-                    showMessage(it.text, it.type)
+                    val type =
+                        if (it == R.string.main_settings_proxy_check_connection_success) {
+                            SnackbarType.SUCCESS
+                        } else {
+                            SnackbarType.ERROR
+                        }
+                    showMessage(context, it, type)
                     sharedSettingsViewModel.resetErrorState()
                 }
             }
@@ -254,7 +261,7 @@ fun ProxyServicesSettingsScreen(
                             .clickable {
                                 settingsProxyChoice.value = ProxySetting.NO_PROXY.name
                                 setProxySetting(ProxySetting.NO_PROXY)
-                                sharedSettingsViewModel.saveProxySettings(true, ManualProxy("", 80, "", ""))
+                                sharedSettingsViewModel.saveProxySettings()
                             },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -275,7 +282,7 @@ fun ProxyServicesSettingsScreen(
                         onClick = {
                             settingsProxyChoice.value = ProxySetting.NO_PROXY.name
                             setProxySetting(ProxySetting.NO_PROXY)
-                            sharedSettingsViewModel.saveProxySettings(true, ManualProxy("", 80, "", ""))
+                            sharedSettingsViewModel.saveProxySettings()
                         },
                     )
                 }
@@ -302,7 +309,7 @@ fun ProxyServicesSettingsScreen(
                             .clickable {
                                 settingsProxyChoice.value = ProxySetting.SYSTEM_PROXY.name
                                 setProxySetting(ProxySetting.SYSTEM_PROXY)
-                                sharedSettingsViewModel.saveProxySettings(true, ManualProxy("", 80, "", ""))
+                                sharedSettingsViewModel.saveProxySettings()
                             },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -323,7 +330,7 @@ fun ProxyServicesSettingsScreen(
                         onClick = {
                             settingsProxyChoice.value = ProxySetting.SYSTEM_PROXY.name
                             setProxySetting(ProxySetting.SYSTEM_PROXY)
-                            sharedSettingsViewModel.saveProxySettings(true, ManualProxy("", 80, "", ""))
+                            sharedSettingsViewModel.saveProxySettings()
                         },
                     )
                 }
@@ -352,7 +359,6 @@ fun ProxyServicesSettingsScreen(
                                 settingsProxyChoice.value = ProxySetting.MANUAL_PROXY.name
                                 setProxySetting(ProxySetting.MANUAL_PROXY)
                                 sharedSettingsViewModel.saveProxySettings(
-                                    false,
                                     ManualProxy(
                                         host = proxyHost.text,
                                         port = proxyPortValue,
@@ -383,7 +389,6 @@ fun ProxyServicesSettingsScreen(
                             settingsProxyChoice.value = ProxySetting.MANUAL_PROXY.name
                             setProxySetting(ProxySetting.MANUAL_PROXY)
                             sharedSettingsViewModel.saveProxySettings(
-                                false,
                                 ManualProxy(
                                     host = proxyHost.text,
                                     port = proxyPortValue,

@@ -97,7 +97,6 @@ object ProxyUtil {
                             response.request
                                 .newBuilder()
                                 .header("Proxy-Authorization", credential)
-                                .header("Authorization", credential)
                                 .build()
                         }
                 }
@@ -110,32 +109,15 @@ object ProxyUtil {
                         if (hasRetried(response)) {
                             return@Authenticator null
                         }
-                        val credential =
-                            manualProxySettings?.username.let { username ->
-                                manualProxySettings?.password.let { password ->
-                                    if (username != null) {
-                                        if (password != null) {
-                                            Credentials.basic(
-                                                username,
-                                                password,
-                                            )
-                                        } else {
-                                            null
-                                        }
-                                    } else {
-                                        null
-                                    }
-                                }
-                            }
-                        if (credential != null) {
-                            response.request
-                                .newBuilder()
-                                .header("Proxy-Authorization", credential)
-                                .header("Authorization", credential)
-                                .build()
-                        } else {
-                            null
+                        val username = manualProxySettings?.username
+                        val password = manualProxySettings?.password
+                        if (username.isNullOrEmpty() || password == null) {
+                            return@Authenticator null
                         }
+                        response.request
+                            .newBuilder()
+                            .header("Proxy-Authorization", Credentials.basic(username, password))
+                            .build()
                     }
                 return getProxyConfig(manualProxySettings, authenticator).join()
             }
@@ -162,7 +144,7 @@ object ProxyUtil {
                     manualProxy,
                 )
             }
-            ProxyConfig(null, authenticator ?: Authenticator.Companion.NONE, null)
+            ProxyConfig(null, Authenticator.Companion.NONE, null)
         }
     }
 

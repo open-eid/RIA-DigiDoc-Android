@@ -43,7 +43,6 @@ import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxyConfig
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.network.utils.ProxyUtil
-import ee.ria.DigiDoc.network.utils.ProxyUtil.getManualProxySettings
 import ee.ria.DigiDoc.network.utils.ProxyUtil.getProxySetting
 import ee.ria.DigiDoc.network.utils.UserAgentUtil
 import ee.ria.DigiDoc.utilsLib.extensions.removeWhitespaces
@@ -156,42 +155,38 @@ class Initialization
             forcePKCS12Certificate()
 
             val proxySetting: ProxySetting? = getProxySetting(context)
-            val manualProxy: ManualProxy = getManualProxySettings(context)
-            val proxyConfig: ProxyConfig = ProxyUtil.getProxy(proxySetting, manualProxy)
-            val proxySettings = proxyConfig.manualProxy()
 
-            val proxyHostPreferenceKey =
-                context.resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_host_key)
-            val proxyPortPreferenceKey =
-                context.resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_port_key)
-            val proxyUsernamePreferenceKey =
-                context.resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_username_key)
-            val proxyPasswordPreferenceKey =
-                context.resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_password_key)
-
-            if (proxySetting == ProxySetting.SYSTEM_PROXY) {
-                if (proxySettings != null) {
-                    overrideProxy(
-                        proxySettings.host,
-                        proxySettings.port,
-                        proxySettings.username,
-                        proxySettings.password,
-                    )
-                } else {
-                    overrideProxy("", 80, "", "")
+            when (proxySetting) {
+                ProxySetting.SYSTEM_PROXY -> {
+                    val proxyConfig: ProxyConfig = ProxyUtil.getProxy(proxySetting, ManualProxy("", 80, "", ""))
+                    val proxySettings = proxyConfig.manualProxy()
+                    if (proxySettings != null) {
+                        overrideProxy(
+                            proxySettings.host,
+                            proxySettings.port,
+                            proxySettings.username,
+                            proxySettings.password,
+                        )
+                    } else {
+                        overrideProxy("", 80, "", "")
+                    }
                 }
-            } else {
-                initProxy(
-                    context,
-                    proxyHostPreferenceKey,
-                    "",
-                    proxyPortPreferenceKey,
-                    80,
-                    proxyUsernamePreferenceKey,
-                    "",
-                    proxyPasswordPreferenceKey,
-                    "",
-                )
+
+                ProxySetting.MANUAL_PROXY -> {
+                    initProxy(
+                        context,
+                        context.resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_host_key),
+                        "",
+                        context.resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_port_key),
+                        80,
+                        context.resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_username_key),
+                        "",
+                        context.resources.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_password_key),
+                        "",
+                    )
+                }
+
+                ProxySetting.NO_PROXY, null -> overrideProxy("", 80, "", "")
             }
 
             loadConfiguration(context)

@@ -25,12 +25,15 @@ import android.content.Context
 import com.google.common.collect.ImmutableList
 import com.unboundid.asn1.ASN1OctetString
 import com.unboundid.ldap.sdk.LDAPConnection
+import com.unboundid.ldap.sdk.LDAPConnectionOptions
 import com.unboundid.ldap.sdk.LDAPException
+import com.unboundid.ldap.sdk.NameResolver
 import com.unboundid.ldap.sdk.ResultCode
 import com.unboundid.ldap.sdk.SearchRequest
 import com.unboundid.ldap.sdk.SearchScope
 import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl
 import com.unboundid.util.LDAPTestUtils
+import com.unboundid.util.ssl.HostNameSSLSocketVerifier
 import com.unboundid.util.ssl.SSLUtil
 import com.unboundid.util.ssl.TLSCipherSuiteSelector
 import ee.ria.DigiDoc.common.Constant.BASE_DN
@@ -44,16 +47,28 @@ import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.cryptolib.Addressee
 import ee.ria.DigiDoc.cryptolib.exception.CryptoException
 import ee.ria.DigiDoc.cryptolib.ldap.LdapFilter
+import ee.ria.DigiDoc.network.proxy.ManualProxy
+import ee.ria.DigiDoc.network.proxy.ProxyAuthenticationException
+import ee.ria.DigiDoc.network.proxy.ProxyTunnelSocketFactory
+import ee.ria.DigiDoc.network.utils.NetworkUtil
+import ee.ria.DigiDoc.network.utils.ProxyUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import org.bouncycastle.asn1.x509.KeyPurposeId
 import org.bouncycastle.asn1.x509.KeyUsage
 import java.io.IOException
+import java.net.InetAddress
 import java.security.GeneralSecurityException
+import java.security.KeyStore
+import java.security.cert.CertificateFactory
+import java.util.Base64
 import javax.inject.Inject
 import javax.inject.Singleton
+import javax.net.SocketFactory
 import javax.net.ssl.SSLSocketFactory
+import javax.net.ssl.TrustManager
+import javax.net.ssl.TrustManagerFactory
 
 @Singleton
 class RecipientRepositoryImpl
@@ -63,6 +78,7 @@ class RecipientRepositoryImpl
         private val certificateService: CertificateService,
     ) : RecipientRepository {
         private val logTag = "RecipientRepositoryImpl"
+        private val proxyConnectTimeoutMillis = NetworkUtil.DEFAULT_TIMEOUT * 1000
 
         @Throws(CryptoException::class, NoInternetConnectionException::class)
         override suspend fun find(
@@ -137,17 +153,78 @@ class RecipientRepositoryImpl
             ldapFilter: LdapFilter,
         ): Pair<List<Addressee>, Int> {
             try {
-                LDAPConnection(getDefaultKeystoreSslSocketFactory()).use { connection ->
+                val tunnelProxy = tunnelProxy(context, url)
+                LDAPConnection(
+                    socketFactory(tunnelProxy, url),
+                    connectionOptions(tunnelProxy != null),
+                ).use { connection ->
                     connection.connect(url, LDAP_PORT)
                     return executeSearch(connection, ldapFilter, dn)
                 }
             } catch (e: Exception) {
+                proxyAuthenticationFailure(e)?.let { throw it }
                 if (e is LDAPException && e.resultCode.equals(ResultCode.CONNECT_ERROR)) {
                     throw NoInternetConnectionException(context)
                 }
                 throw CryptoException("Finding recipients failed", e)
             }
         }
+
+        private fun connectionOptions(isTunnelled: Boolean): LDAPConnectionOptions =
+            LDAPConnectionOptions().apply {
+                sslSocketVerifier = HostNameSSLSocketVerifier(true)
+                if (isTunnelled) {
+                    nameResolver = TunnelledNameResolver
+                    connectTimeoutMillis = proxyConnectTimeoutMillis * 3
+                }
+            }
+
+        private fun tunnelProxy(
+            context: Context,
+            url: String?,
+        ): ManualProxy? {
+            if (url == null) {
+                return null
+            }
+            return ProxyUtil
+                .getProxyValues(
+                    ProxyUtil.getProxySetting(context),
+                    ProxyUtil.getManualProxySettings(context),
+                )?.takeIf { it.host.isNotEmpty() }
+        }
+
+        @Throws(GeneralSecurityException::class)
+        private fun socketFactory(
+            tunnelProxy: ManualProxy?,
+            url: String?,
+        ): SocketFactory {
+            val sslSocketFactory = getDefaultKeystoreSslSocketFactory()
+            if (url == null) {
+                return sslSocketFactory
+            }
+            return ProxyTunnelSocketFactory(
+                tunnelProxy,
+                url,
+                LDAP_PORT,
+                sslSocketFactory,
+                proxyConnectTimeoutMillis,
+            )
+        }
+
+        private object TunnelledNameResolver : NameResolver() {
+            override fun getByName(host: String?): InetAddress = InetAddress.getLoopbackAddress()
+
+            override fun getAllByName(host: String?): Array<InetAddress> = arrayOf(InetAddress.getLoopbackAddress())
+
+            override fun toString(buffer: StringBuilder) {
+                buffer.append("TunnelledNameResolver()")
+            }
+        }
+
+        private fun proxyAuthenticationFailure(throwable: Throwable): ProxyAuthenticationException? =
+            generateSequence(throwable) { it.cause }
+                .filterIsInstance<ProxyAuthenticationException>()
+                .firstOrNull()
 
         @Throws(LDAPException::class, IOException::class)
         private fun executeSearch(
@@ -210,7 +287,29 @@ class RecipientRepositoryImpl
         private fun getDefaultKeystoreSslSocketFactory(): SSLSocketFactory {
             TLSCipherSuiteSelector.setAllowSHA1(true)
             TLSCipherSuiteSelector.setAllowRSAKeyExchange(true)
-            return SSLUtil().createSSLSocketFactory()
+            val ldapCerts = configurationRepository.getConfiguration()?.ldapCerts ?: listOf()
+            if (ldapCerts.isEmpty()) {
+                return SSLUtil().createSSLSocketFactory()
+            }
+            return SSLUtil(ldapTrustManagers(ldapCerts)).createSSLSocketFactory()
+        }
+
+        @Throws(GeneralSecurityException::class, IOException::class)
+        private fun ldapTrustManagers(ldapCerts: List<String>): Array<TrustManager> {
+            val certificateFactory = CertificateFactory.getInstance("X.509")
+            val keyStore = KeyStore.getInstance(KeyStore.getDefaultType())
+            keyStore.load(null, null)
+            ldapCerts.forEachIndexed { index, ldapCert ->
+                val certificate =
+                    certificateFactory.generateCertificate(
+                        Base64.getMimeDecoder().decode(ldapCert).inputStream(),
+                    )
+                keyStore.setCertificateEntry("ldap-$index", certificate)
+            }
+            val trustManagerFactory =
+                TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+            trustManagerFactory.init(keyStore)
+            return trustManagerFactory.trustManagers
         }
 
         private fun isSuitableKeyAndNotMobileId(certificate: ExtendedCertificate): Boolean =
