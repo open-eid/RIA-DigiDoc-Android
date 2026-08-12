@@ -407,6 +407,8 @@ class DataStoreTest {
 
     @Test
     fun dataStore_getProxySetting_success() {
+        dataStore.setProxySetting(ProxySetting.NO_PROXY)
+
         val result = dataStore.getProxySetting()
 
         assertEquals(ProxySetting.NO_PROXY, result)
@@ -576,6 +578,11 @@ class DataStoreTest {
 
     @Test
     fun dataStore_getManualProxySettings_success() {
+        dataStore.setProxyHost("")
+        dataStore.setProxyPort(80)
+        dataStore.setProxyUsername("")
+        dataStore.setProxyPassword("")
+
         val result = dataStore.getManualProxySettings()
 
         assertEquals("", result.host)

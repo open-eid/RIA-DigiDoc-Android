@@ -412,6 +412,7 @@ class NFCViewModelTest {
             viewModel.message.removeObserver(messageObserver)
         }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun nfcViewModel_performNFCSignWorkRequest_success() =
         runTest {
@@ -446,6 +447,7 @@ class NFCViewModelTest {
             viewModel.message.removeObserver(messageObserver)
         }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun nfcViewModel_performNFCSignWorkRequest_nullContainer() =
         runTest {
