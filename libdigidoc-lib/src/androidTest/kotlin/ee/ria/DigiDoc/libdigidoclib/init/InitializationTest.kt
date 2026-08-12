@@ -24,6 +24,8 @@ package ee.ria.DigiDoc.libdigidoclib.init
 import android.content.Context
 import android.content.res.Resources
 import android.content.res.Resources.NotFoundException
+import androidx.core.content.edit
+import androidx.preference.PreferenceManager
 import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.common.Constant.Defaults.DEFAULT_UUID_VALUE
 import ee.ria.DigiDoc.common.testfiles.asset.AssetFile.Companion.getResourceFileAsFile
@@ -31,6 +33,8 @@ import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer.Companion.openOrCreate
 import ee.ria.DigiDoc.libdigidoclib.exceptions.AlreadyInitializedException
+import ee.ria.DigiDoc.network.proxy.ProxySetting
+import ee.ria.libdigidocpp.DigiDocConf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
@@ -129,6 +133,7 @@ class InitializationTest {
         LibdigidocLibraryLoader().init(context)
         initialization = Initialization(configurationRepository)
         resetInitialization()
+        setProxyPreferences(ProxySetting.NO_PROXY, "", 80)
     }
 
     @Test
@@ -205,6 +210,50 @@ class InitializationTest {
                 initialization.init(context)
                 initialization.init(context)
             }
+        }
+    }
+
+    @Test
+    fun initialization_init_doesNotApplyManualProxyWhenNoProxyIsChosen() {
+        setProxyPreferences(ProxySetting.NO_PROXY, "proxyHost", 8080)
+
+        `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
+        runTest {
+            initialization.init(context)
+        }
+
+        assertEquals("", DigiDocConf.instance().proxyHost())
+    }
+
+    @Test
+    fun initialization_init_appliesManualProxyWhenManualProxyIsChosen() {
+        setProxyPreferences(ProxySetting.MANUAL_PROXY, "proxyHost", 8080)
+
+        `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
+        runTest {
+            initialization.init(context)
+        }
+
+        val proxyHost = DigiDocConf.instance().proxyHost()
+        val proxyPort = DigiDocConf.instance().proxyPort()
+        initialization.overrideProxy("", 80, "", "")
+
+        assertEquals("proxyHost", proxyHost)
+        assertEquals("8080", proxyPort)
+    }
+
+    private fun setProxyPreferences(
+        proxySetting: ProxySetting,
+        host: String,
+        port: Int,
+    ) {
+        PreferenceManager.getDefaultSharedPreferences(context).edit {
+            putString(
+                context.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_setting_key),
+                proxySetting.name,
+            )
+            putString(context.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_host_key), host)
+            putInt(context.getString(ee.ria.DigiDoc.network.R.string.main_settings_proxy_port_key), port)
         }
     }
 }

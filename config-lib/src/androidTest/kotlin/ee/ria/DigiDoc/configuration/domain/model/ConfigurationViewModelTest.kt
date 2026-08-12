@@ -114,32 +114,33 @@ class ConfigurationViewModelTest {
 
     private fun createMockConfigurationProvider(): ConfigurationProvider =
         ConfigurationProvider(
-            ConfigurationProvider.MetaInf("url", "date", 1, 1),
-            "sivaUrl",
-            mapOf(
-                DEFAULT_UUID_VALUE to
-                    ConfigurationProvider.CDOC2Conf(
-                        uuid = UUID.randomUUID(),
-                        name = "RIA",
-                        post = "https://cdoc2.id.ee:8443",
-                        fetch = "https://cdoc2.id.ee:8444",
-                    ),
-            ),
-            false,
-            false,
-            DEFAULT_UUID_VALUE,
-            "tslUrl",
-            emptyList(),
-            "tsaUrl",
-            "ldapPersonUrl",
+            metaInf = ConfigurationProvider.MetaInf("url", "date", 1, 1),
+            sivaUrl = "sivaUrl",
+            cdoc2Conf =
+                mapOf(
+                    DEFAULT_UUID_VALUE to
+                        ConfigurationProvider.CDOC2Conf(
+                            uuid = UUID.randomUUID(),
+                            name = "RIA",
+                            post = "https://cdoc2.id.ee:8443",
+                            fetch = "https://cdoc2.id.ee:8444",
+                        ),
+                ),
+            cdoc2Default = false,
+            cdoc2UseKeyServer = false,
+            cdoc2DefaultKeyServer = DEFAULT_UUID_VALUE,
+            tslUrl = "tslUrl",
+            tslCerts = emptyList(),
+            tsaUrl = "tsaUrl",
+            ldapPersonUrl = "ldapPersonUrl",
             ldapPersonUrls = listOf("ldapPersonUrl"),
-            "ldapCorpUrl",
-            "midRestUrl",
-            "midSkRestUrl",
-            "sidV2RestUrl",
-            "sidV2SkRestUrl",
-            emptyList(),
-            Date(),
-            Date(),
+            ldapCorpUrl = "ldapCorpUrl",
+            midRestUrl = "midRestUrl",
+            midSkRestUrl = "midSkRestUrl",
+            sidV2RestUrl = "sidV2RestUrl",
+            sidV2SkRestUrl = "sidV2SkRestUrl",
+            certBundle = emptyList(),
+            configurationLastUpdateCheckDate = Date(),
+            configurationUpdateDate = Date(),
         )
 }

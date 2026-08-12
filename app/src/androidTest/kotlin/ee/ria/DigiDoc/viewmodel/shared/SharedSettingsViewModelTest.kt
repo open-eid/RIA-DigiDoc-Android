@@ -28,6 +28,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.documentfile.provider.DocumentFile
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
+import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.DIR_TSA_CERT
 import ee.ria.DigiDoc.common.Constant.Defaults.DEFAULT_UUID_VALUE
 import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
@@ -47,7 +48,10 @@ import ee.ria.DigiDoc.manager.ActivityManager
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.network.siva.SivaSetting
+import ee.ria.libdigidocpp.DigiDocConf
 import kotlinx.coroutines.runBlocking
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
 import org.apache.commons.io.FileUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -74,6 +78,9 @@ class SharedSettingsViewModelTest {
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
 
+    @get:Rule
+    val mockWebServer = MockWebServer()
+
     @Mock
     lateinit var contentResolver: ContentResolver
 
@@ -84,6 +91,8 @@ class SharedSettingsViewModelTest {
     private lateinit var activityManager: ActivityManager
 
     companion object {
+        private const val AWAIT_ERROR_TIMEOUT = 10_000L
+
         private lateinit var configurationLoader: ConfigurationLoader
         private lateinit var configurationRepository: ConfigurationRepository
 
@@ -127,6 +136,12 @@ class SharedSettingsViewModelTest {
         dataStore = DataStore(context)
         LibdigidocLibraryLoader().init(context)
         initialization = Initialization(configurationRepository)
+        initialization.overrideProxy("", 80, "", "")
+        dataStore.setProxySetting(ProxySetting.NO_PROXY)
+        dataStore.setProxyHost("")
+        dataStore.setProxyPort(80)
+        dataStore.setProxyUsername("")
+        dataStore.setProxyPassword("")
         viewModel =
             SharedSettingsViewModel(
                 context = context,
@@ -186,7 +201,7 @@ class SharedSettingsViewModelTest {
     fun sharedSettingsViewModel_saveProxySettings_savesManualProxySettings() {
         dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
         val manualProxySettings = ManualProxy("proxyHost", 8080, "proxyUser", "proxyPass")
-        viewModel.saveProxySettings(false, manualProxySettings)
+        viewModel.saveProxySettings(manualProxySettings)
 
         assertEquals("proxyHost", dataStore.getProxyHost())
         assertEquals(8080, dataStore.getProxyPort())
@@ -195,14 +210,18 @@ class SharedSettingsViewModelTest {
     }
 
     @Test
-    fun sharedSettingsViewModel_saveProxySettings_savesSystemProxySettingsWithClearSettingsIsFalse() {
+    fun sharedSettingsViewModel_saveProxySettings_keepsManualProxySettingsWhenSystemProxyIsChosen() {
         dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
         val manualProxySettings = ManualProxy("proxyHost", 8080, "proxyUser", "proxyPass")
-        viewModel.saveProxySettings(false, manualProxySettings)
+        viewModel.saveProxySettings(manualProxySettings)
 
-        System.setProperty("http.proxyHost", "proxyHost")
+        System.setProperty("http.proxyHost", "systemProxyHost")
         dataStore.setProxySetting(ProxySetting.SYSTEM_PROXY)
-        viewModel.saveProxySettings(false, ManualProxy("", 0, "", ""))
+        try {
+            viewModel.saveProxySettings(ManualProxy("", 80, "", ""))
+        } finally {
+            System.clearProperty("http.proxyHost")
+        }
 
         assertEquals("proxyHost", dataStore.getProxyHost())
         assertEquals(8080, dataStore.getProxyPort())
@@ -211,13 +230,13 @@ class SharedSettingsViewModelTest {
     }
 
     @Test
-    fun sharedSettingsViewModel_saveProxySettings_savesNoProxySettingsWithClearSettingsIsFalse() {
+    fun sharedSettingsViewModel_saveProxySettings_keepsManualProxySettingsWhenNoProxyIsChosen() {
         dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
         val manualProxySettings = ManualProxy("proxyHost", 8080, "proxyUser", "proxyPass")
-        viewModel.saveProxySettings(false, manualProxySettings)
+        viewModel.saveProxySettings(manualProxySettings)
 
         dataStore.setProxySetting(ProxySetting.NO_PROXY)
-        viewModel.saveProxySettings(false, ManualProxy("", 0, "", ""))
+        viewModel.saveProxySettings(ManualProxy("", 80, "", ""))
 
         assertEquals("proxyHost", dataStore.getProxyHost())
         assertEquals(8080, dataStore.getProxyPort())
@@ -226,33 +245,14 @@ class SharedSettingsViewModelTest {
     }
 
     @Test
-    fun sharedSettingsViewModel_saveProxySettings_savesSystemProxySettingsWithClearSettingsIsTrue() {
+    fun sharedSettingsViewModel_saveProxySettings_clearsLibdigidocppProxyWhenNoProxyIsChosen() {
         dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
-        val manualProxySettings = ManualProxy("proxyHost", 8080, "proxyUser", "proxyPass")
-        viewModel.saveProxySettings(false, manualProxySettings)
-        System.setProperty("http.proxyHost", "")
-        dataStore.setProxySetting(ProxySetting.SYSTEM_PROXY)
-        viewModel.saveProxySettings(true, manualProxySettings)
-
-        assertEquals("", dataStore.getProxyHost())
-        assertEquals(80, dataStore.getProxyPort())
-        assertEquals("", dataStore.getProxyUsername())
-        assertEquals("", dataStore.getProxyPassword())
-    }
-
-    @Test
-    fun sharedSettingsViewModel_saveProxySettings_savesNoProxySettingsWithClearSettingsIsTrue() {
-        dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
-        val manualProxySettings = ManualProxy("proxyHost", 8080, "proxyUser", "proxyPass")
-        viewModel.saveProxySettings(false, manualProxySettings)
+        viewModel.saveProxySettings(ManualProxy("proxyHost", 8080, "proxyUser", "proxyPass"))
 
         dataStore.setProxySetting(ProxySetting.NO_PROXY)
-        viewModel.saveProxySettings(true, manualProxySettings)
+        viewModel.saveProxySettings(ManualProxy("proxyHost", 8080, "proxyUser", "proxyPass"))
 
-        assertEquals("", dataStore.getProxyHost())
-        assertEquals(80, dataStore.getProxyPort())
-        assertEquals("", dataStore.getProxyUsername())
-        assertEquals("", dataStore.getProxyPassword())
+        assertEquals("", DigiDocConf.instance().proxyHost())
     }
 
     @Test
@@ -364,29 +364,71 @@ class SharedSettingsViewModelTest {
         viewModel.handleTsaFile(uri)
     }
 
-    @Test(expected = Test.None::class)
-    fun sharedSettingsViewModel_checkConnection_withInvalidManualProxySettings() {
+    @Test
+    fun sharedSettingsViewModel_checkConnection_savesManualProxySettings() {
+        mockWebServer.enqueue(MockResponse().setResponseCode(407))
         dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
-        val manualProxySettings = ManualProxy("proxyHost", 8080, "proxyUser", "proxyPass")
-        viewModel.checkConnection(manualProxySettings)
 
-        assertEquals("proxyHost", dataStore.getProxyHost())
-        assertEquals(8080, dataStore.getProxyPort())
+        viewModel.checkConnection(localProxy("proxyUser", "proxyPass"))
+
+        assertEquals("127.0.0.1", dataStore.getProxyHost())
+        assertEquals(mockWebServer.port, dataStore.getProxyPort())
         assertEquals("proxyUser", dataStore.getProxyUsername())
         assertEquals("proxyPass", dataStore.getProxyPassword())
     }
 
-    @Test(expected = Test.None::class)
-    fun sharedSettingsViewModel_checkConnection_withValidNoProxySettings() {
-        dataStore.setProxySetting(ProxySetting.NO_PROXY)
-        val manualProxySettings = ManualProxy("", 80, "", "")
-        viewModel.saveProxySettings(true, manualProxySettings)
-        viewModel.checkConnection(manualProxySettings)
+    @Test
+    fun sharedSettingsViewModel_checkConnection_reportsWrongCredentialsWhenProxyDemandsAuthentication() {
+        mockWebServer.enqueue(MockResponse().setResponseCode(407))
+        mockWebServer.enqueue(MockResponse().setResponseCode(407))
+        dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
 
-        assertEquals("", dataStore.getProxyHost())
-        assertEquals(80, dataStore.getProxyPort())
-        assertEquals("", dataStore.getProxyUsername())
-        assertEquals("", dataStore.getProxyPassword())
+        viewModel.checkConnection(localProxy("proxyUser", "wrongPass"))
+
+        assertEquals(
+            R.string.main_settings_proxy_check_username_and_password,
+            awaitErrorMessage(),
+        )
+    }
+
+    @Test
+    fun sharedSettingsViewModel_checkConnection_reportsWrongCredentialsWhenProxyForbidsConnect() {
+        mockWebServer.enqueue(MockResponse().setResponseCode(403))
+        dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
+
+        viewModel.checkConnection(localProxy("proxyUser", "proxyPass"))
+
+        assertEquals(
+            R.string.main_settings_proxy_check_username_and_password,
+            awaitErrorMessage(),
+        )
+    }
+
+    @Test
+    fun sharedSettingsViewModel_checkConnection_reportsUnsuccessfulWhenProxyFailsForAnotherReason() {
+        mockWebServer.enqueue(MockResponse().setResponseCode(500))
+        dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
+
+        viewModel.checkConnection(localProxy("proxyUser", "proxyPass"))
+
+        assertEquals(
+            R.string.main_settings_proxy_check_connection_unsuccessful,
+            awaitErrorMessage(),
+        )
+    }
+
+    private fun localProxy(
+        username: String,
+        password: String,
+    ) = ManualProxy("127.0.0.1", mockWebServer.port, username, password)
+
+    private fun awaitErrorMessage(): Int? {
+        val deadline = System.currentTimeMillis() + AWAIT_ERROR_TIMEOUT
+        while (System.currentTimeMillis() < deadline) {
+            viewModel.errorState.value?.let { return it }
+            Thread.sleep(50)
+        }
+        return null
     }
 
     @Test

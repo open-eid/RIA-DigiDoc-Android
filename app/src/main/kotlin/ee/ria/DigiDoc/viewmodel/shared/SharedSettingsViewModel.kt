@@ -51,8 +51,6 @@ import ee.ria.DigiDoc.network.siva.SivaSetting
 import ee.ria.DigiDoc.network.utils.NetworkUtil.constructClientBuilder
 import ee.ria.DigiDoc.network.utils.ProxyUtil
 import ee.ria.DigiDoc.network.utils.UserAgentUtil
-import ee.ria.DigiDoc.utils.snackbar.SnackBarMessage
-import ee.ria.DigiDoc.utils.snackbar.SnackbarType
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
@@ -128,8 +126,8 @@ class SharedSettingsViewModel
         private val _cryptoCertificate = MutableStateFlow<X509Certificate?>(null)
         val cryptoCertificate: StateFlow<X509Certificate?> = _cryptoCertificate
 
-        private val _errorState = MutableStateFlow<SnackBarMessage?>(null)
-        val errorState: StateFlow<SnackBarMessage?> = _errorState
+        private val _errorState = MutableStateFlow<Int?>(null)
+        val errorState: StateFlow<Int?> = _errorState
 
         private val defaultManualProxySettings = ManualProxy("", 80, "", "")
 
@@ -279,27 +277,15 @@ class SharedSettingsViewModel
             dataStore.setCryptoCertName(null)
         }
 
-        fun saveProxySettings(
-            clearSettings: Boolean,
-            manualProxySettings: ManualProxy,
-        ) {
-            val currentProxySetting: ProxySetting = dataStore.getProxySetting()
-            if (currentProxySetting == ProxySetting.MANUAL_PROXY) {
-                setManualProxySettings(manualProxySettings)
-            } else if (currentProxySetting == ProxySetting.SYSTEM_PROXY) {
-                val systemSettings: ProxyConfig = ProxyUtil.getProxy(currentProxySetting, defaultManualProxySettings)
-                val proxySettings: ManualProxy? = systemSettings.manualProxy()
-                if (proxySettings != null) {
-                    overrideLibdigidocppProxy(proxySettings)
-                    return
+        fun saveProxySettings(manualProxySettings: ManualProxy = defaultManualProxySettings) {
+            when (dataStore.getProxySetting()) {
+                ProxySetting.MANUAL_PROXY -> setManualProxySettings(manualProxySettings)
+                ProxySetting.SYSTEM_PROXY -> {
+                    val systemSettings: ProxyConfig =
+                        ProxyUtil.getProxy(ProxySetting.SYSTEM_PROXY, defaultManualProxySettings)
+                    overrideLibdigidocppProxy(systemSettings.manualProxy() ?: defaultManualProxySettings)
                 }
-                if (clearSettings) {
-                    clearProxySettings()
-                }
-            } else {
-                if (clearSettings) {
-                    clearProxySettings()
-                }
+                ProxySetting.NO_PROXY -> overrideLibdigidocppProxy(defaultManualProxySettings)
             }
         }
 
@@ -530,7 +516,7 @@ class SharedSettingsViewModel
         fun checkConnection(manualProxySettings: ManualProxy) {
             debugLog(logTag, "Checking connection")
 
-            saveProxySettings(false, manualProxySettings)
+            saveProxySettings(manualProxySettings)
 
             val request: Request =
                 Request
@@ -551,41 +537,36 @@ class SharedSettingsViewModel
                 val call = httpClient.newCall(request)
                 try {
                     val response = call.execute()
-                    if (response.code == 403) {
+                    val isProxyInUse = dataStore.getProxySetting() != ProxySetting.NO_PROXY
+                    if (isProxyInUse && (response.code == 403 || response.code == 407)) {
                         debugLog(logTag, "Forbidden error with proxy configuration")
                         _errorState.value =
-                            SnackBarMessage(context.getString(R.string.main_settings_proxy_check_username_and_password))
+                            R.string.main_settings_proxy_check_username_and_password
                     } else if (response.code != 200) {
                         debugLog(logTag, "No Internet connection detected")
                         _errorState.value =
-                            SnackBarMessage(
-                                context.getString(R.string.main_settings_proxy_check_connection_unsuccessful),
-                            )
+                            R.string.main_settings_proxy_check_connection_unsuccessful
                     } else {
                         debugLog(logTag, "Internet connection detected successfully")
                         _errorState.value =
-                            SnackBarMessage(
-                                context.getString(R.string.main_settings_proxy_check_connection_success),
-                                SnackbarType.SUCCESS,
-                            )
+                            R.string.main_settings_proxy_check_connection_success
                     }
                 } catch (e: IOException) {
                     val message = e.message
-                    if (message != null &&
-                        (
-                            message.contains("CONNECT: 403") ||
-                                message.contains("Failed to authenticate with proxy")
-                        )
-                    ) {
-                        errorLog(
-                            logTag,
-                            "Received HTTP status 403 or failed to authenticate. " +
-                                "Unable to connect with proxy configuration",
-                        )
-                    }
+                    val isProxyAuthenticationFailure =
+                        message != null &&
+                            (
+                                message.contains("CONNECT: 403") ||
+                                    message.contains("CONNECT: 407") ||
+                                    message.contains("Failed to authenticate with proxy")
+                            )
                     errorLog(logTag, "Unable to check Internet connection", e)
                     _errorState.value =
-                        SnackBarMessage(context.getString(R.string.main_settings_proxy_check_connection_unsuccessful))
+                        if (isProxyAuthenticationFailure) {
+                            R.string.main_settings_proxy_check_username_and_password
+                        } else {
+                            R.string.main_settings_proxy_check_connection_unsuccessful
+                        }
                 }
             }
         }

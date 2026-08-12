@@ -29,10 +29,7 @@ import ee.ria.DigiDoc.network.utils.ProxyUtil.getManualProxySettings
 import ee.ria.DigiDoc.network.utils.ProxyUtil.getProxy
 import ee.ria.DigiDoc.network.utils.ProxyUtil.getProxySetting
 import okhttp3.Authenticator
-import okhttp3.Credentials.basic
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.internal.tls.OkHostnameVerifier
 import java.net.Proxy
 import java.util.concurrent.TimeUnit
@@ -60,22 +57,6 @@ object NetworkUtil {
                 .proxyAuthenticator(
                     if (proxySetting === ProxySetting.NO_PROXY) Authenticator.NONE else proxyConfig.authenticator(),
                 )
-
-            builder.addInterceptor(
-                Interceptor { chain: Interceptor.Chain ->
-                    val originalRequest = chain.request()
-                    val credential =
-                        basic(manualProxy.username, manualProxy.password)
-                    val requestBuilder: Request.Builder =
-                        originalRequest
-                            .newBuilder()
-                            .addHeader("Proxy-Authorization", credential)
-                            .addHeader("Authorization", credential)
-
-                    val newRequest: Request = requestBuilder.build()
-                    chain.proceed(newRequest)
-                },
-            )
         }
 
         return builder

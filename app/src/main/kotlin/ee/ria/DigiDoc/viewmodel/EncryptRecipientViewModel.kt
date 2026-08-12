@@ -38,6 +38,7 @@ import ee.ria.DigiDoc.cryptolib.exception.CryptoException
 import ee.ria.DigiDoc.cryptolib.exception.DataFilesEmptyException
 import ee.ria.DigiDoc.cryptolib.exception.RecipientsEmptyException
 import ee.ria.DigiDoc.cryptolib.repository.RecipientRepository
+import ee.ria.DigiDoc.network.proxy.ProxyAuthenticationException
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
@@ -177,6 +178,9 @@ class EncryptRecipientViewModel
                         } catch (nce: NoInternetConnectionException) {
                             errorLog(LOG_TAG, "Unable to get LDAP addressees. No Internet connection", nce)
                             _errorState.postValue(R.string.no_internet_connection)
+                        } catch (pae: ProxyAuthenticationException) {
+                            errorLog(LOG_TAG, "Unable to get LDAP addressees. Proxy authentication failed", pae)
+                            _errorState.postValue(R.string.main_settings_proxy_check_username_and_password)
                         } catch (e: Exception) {
                             errorLog(LOG_TAG, "Unable to get LDAP addressees", e)
                             _errorState.postValue(R.string.error_general_client)

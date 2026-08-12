@@ -47,6 +47,7 @@ data class ConfigurationProvider(
     @SerializedName("SIDV2-PROXY-URL") val sidV2RestUrl: String,
     @SerializedName("SIDV2-SK-URL") val sidV2SkRestUrl: String,
     @SerializedName("CERT-BUNDLE") val certBundle: List<String>,
+    @SerializedName("LDAP-CERTS") val ldapCerts: List<String> = listOf(),
     var configurationLastUpdateCheckDate: Date?,
     var configurationUpdateDate: Date?,
 ) {

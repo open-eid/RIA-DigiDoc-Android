@@ -53,6 +53,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -81,6 +82,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
+import ee.ria.DigiDoc.utils.snackbar.SnackbarType
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.Dispatchers.Main
@@ -94,6 +96,8 @@ fun ProxyServicesSettingsScreen(
     sharedMenuViewModel: SharedMenuViewModel,
     navController: NavHostController,
 ) {
+    val context = LocalContext.current
+
     val hostFocusRequester = remember { FocusRequester() }
     val portFocusRequester = remember { FocusRequester() }
     val usernameFocusRequester = remember { FocusRequester() }
@@ -174,7 +178,13 @@ fun ProxyServicesSettingsScreen(
         sharedSettingsViewModel.errorState.collect { errorState ->
             errorState?.let {
                 withContext(Main) {
-                    showMessage(it.text, it.type)
+                    val type =
+                        if (it == R.string.main_settings_proxy_check_connection_success) {
+                            SnackbarType.SUCCESS
+                        } else {
+                            SnackbarType.ERROR
+                        }
+                    showMessage(context, it, type)
                     sharedSettingsViewModel.resetErrorState()
                 }
             }
@@ -236,7 +246,7 @@ fun ProxyServicesSettingsScreen(
                             .clickable {
                                 settingsProxyChoice.value = ProxySetting.NO_PROXY.name
                                 setProxySetting(ProxySetting.NO_PROXY)
-                                sharedSettingsViewModel.saveProxySettings(true, ManualProxy("", 80, "", ""))
+                                sharedSettingsViewModel.saveProxySettings()
                             },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -257,7 +267,7 @@ fun ProxyServicesSettingsScreen(
                         onClick = {
                             settingsProxyChoice.value = ProxySetting.NO_PROXY.name
                             setProxySetting(ProxySetting.NO_PROXY)
-                            sharedSettingsViewModel.saveProxySettings(true, ManualProxy("", 80, "", ""))
+                            sharedSettingsViewModel.saveProxySettings()
                         },
                     )
                 }
@@ -284,7 +294,7 @@ fun ProxyServicesSettingsScreen(
                             .clickable {
                                 settingsProxyChoice.value = ProxySetting.SYSTEM_PROXY.name
                                 setProxySetting(ProxySetting.SYSTEM_PROXY)
-                                sharedSettingsViewModel.saveProxySettings(true, ManualProxy("", 80, "", ""))
+                                sharedSettingsViewModel.saveProxySettings()
                             },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -305,7 +315,7 @@ fun ProxyServicesSettingsScreen(
                         onClick = {
                             settingsProxyChoice.value = ProxySetting.SYSTEM_PROXY.name
                             setProxySetting(ProxySetting.SYSTEM_PROXY)
-                            sharedSettingsViewModel.saveProxySettings(true, ManualProxy("", 80, "", ""))
+                            sharedSettingsViewModel.saveProxySettings()
                         },
                     )
                 }
@@ -334,7 +344,6 @@ fun ProxyServicesSettingsScreen(
                                 settingsProxyChoice.value = ProxySetting.MANUAL_PROXY.name
                                 setProxySetting(ProxySetting.MANUAL_PROXY)
                                 sharedSettingsViewModel.saveProxySettings(
-                                    false,
                                     ManualProxy(
                                         host = proxyHost.text,
                                         port = proxyPortValue,
@@ -365,7 +374,6 @@ fun ProxyServicesSettingsScreen(
                             settingsProxyChoice.value = ProxySetting.MANUAL_PROXY.name
                             setProxySetting(ProxySetting.MANUAL_PROXY)
                             sharedSettingsViewModel.saveProxySettings(
-                                false,
                                 ManualProxy(
                                     host = proxyHost.text,
                                     port = proxyPortValue,
