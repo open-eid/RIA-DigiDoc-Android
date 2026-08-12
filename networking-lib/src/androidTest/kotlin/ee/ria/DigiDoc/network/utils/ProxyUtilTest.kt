@@ -138,7 +138,7 @@ class ProxyUtilTest {
 
         assertNull(result.proxy())
         assertNull(result.manualProxy())
-        assertNotEquals(Authenticator.Companion.NONE, result.authenticator())
+        assertEquals(Authenticator.Companion.NONE, result.authenticator())
     }
 
     @Test

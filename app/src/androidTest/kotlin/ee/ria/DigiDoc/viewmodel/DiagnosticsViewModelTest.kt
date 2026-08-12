@@ -180,7 +180,10 @@ class DiagnosticsViewModelTest {
         proxySetting = ProxySetting.NO_PROXY
         manualProxy = ManualProxy("", 80, "", "")
         dataStore.setProxySetting(ProxySetting.NO_PROXY)
+        dataStore.setProxyHost("")
+        dataStore.setProxyPort(80)
         dataStore.setProxyUsername("")
+        dataStore.setProxyPassword("")
     }
 
     @Test
@@ -457,6 +460,8 @@ class DiagnosticsViewModelTest {
 
     @Test
     fun diagnosticsViewModel_isProxyAuthEnabled_returnTrueWhenUsernameSet() {
+        dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
+        dataStore.setProxyHost("proxyHost")
         dataStore.setProxyUsername("username")
 
         val result = viewModel.isProxyAuthEnabled()
@@ -466,9 +471,66 @@ class DiagnosticsViewModelTest {
 
     @Test
     fun diagnosticsViewModel_isProxyAuthEnabled_returnFalseWhenUsernameEmpty() {
+        dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
+        dataStore.setProxyHost("proxyHost")
         dataStore.setProxyUsername("")
 
         val result = viewModel.isProxyAuthEnabled()
+
+        assertFalse(result)
+    }
+
+    @Test
+    fun diagnosticsViewModel_isProxyAuthEnabled_returnFalseWhenManualProxyHasNoHost() {
+        dataStore.setProxySetting(ProxySetting.MANUAL_PROXY)
+        dataStore.setProxyHost("")
+        dataStore.setProxyUsername("username")
+
+        val result = viewModel.isProxyAuthEnabled()
+
+        assertFalse(result)
+    }
+
+    @Test
+    fun diagnosticsViewModel_isProxyAuthEnabled_returnFalseWhenNoProxyChosen() {
+        dataStore.setProxySetting(ProxySetting.NO_PROXY)
+        dataStore.setProxyUsername("username")
+
+        val result = viewModel.isProxyAuthEnabled()
+
+        assertFalse(result)
+    }
+
+    @Test
+    fun diagnosticsViewModel_isProxyAuthEnabled_returnTrueWhenSystemProxyHasCredentials() {
+        dataStore.setProxySetting(ProxySetting.SYSTEM_PROXY)
+        dataStore.setProxyUsername("")
+        System.setProperty("http.proxyHost", "systemProxyHost")
+        System.setProperty("http.proxyUser", "systemProxyUser")
+
+        val result =
+            try {
+                viewModel.isProxyAuthEnabled()
+            } finally {
+                System.clearProperty("http.proxyHost")
+                System.clearProperty("http.proxyUser")
+            }
+
+        assertTrue(result)
+    }
+
+    @Test
+    fun diagnosticsViewModel_isProxyAuthEnabled_returnFalseWhenSystemProxyHasNoHost() {
+        dataStore.setProxySetting(ProxySetting.SYSTEM_PROXY)
+        dataStore.setProxyUsername("")
+        System.setProperty("http.proxyUser", "systemProxyUser")
+
+        val result =
+            try {
+                viewModel.isProxyAuthEnabled()
+            } finally {
+                System.clearProperty("http.proxyUser")
+            }
 
         assertFalse(result)
     }
