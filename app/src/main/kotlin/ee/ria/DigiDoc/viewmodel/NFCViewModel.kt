@@ -26,6 +26,8 @@ import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Handler
 import android.os.Looper.getMainLooper
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -121,6 +123,13 @@ class NFCViewModel
 
         private val _courierCardDetected = MutableLiveData<Boolean?>(null)
         val courierCardDetected: LiveData<Boolean?> = _courierCardDetected
+
+        val pinCode: MutableState<ByteArray> = mutableStateOf(byteArrayOf())
+
+        fun resetPinCode() {
+            pinCode.value.fill(0)
+            pinCode.value = byteArrayOf()
+        }
 
         private val dialogMessages: ImmutableMap<SessionStatusResponseProcessStatus, Int> =
             ImmutableMap

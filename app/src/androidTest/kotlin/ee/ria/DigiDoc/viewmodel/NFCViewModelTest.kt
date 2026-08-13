@@ -454,6 +454,7 @@ class NFCViewModelTest {
 
             viewModel.performNFCSignWorkRequest(activity, context, null, byteArrayOf(1, 1, 5, 5, 5), "444222", null)
 
+            advanceUntilIdle()
             job.cancel()
 
             assertTrue(values.isNotEmpty())

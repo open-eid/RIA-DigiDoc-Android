@@ -124,7 +124,7 @@ private fun NfcProcessIcons() {
                 .fillMaxWidth()
                 .padding(vertical = MPadding)
                 .notAccessible(),
-        horizontalArrangement = Arrangement.spacedBy(MPadding),
+        horizontalArrangement = Arrangement.spacedBy(MPadding, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         NfcProcessIcon(R.drawable.ic_m3_phonelink_ring_48dp_wght400)

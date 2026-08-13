@@ -110,7 +110,7 @@ fun DecryptPasswordDialog(
                             .notAccessible(),
                     textAlign = TextAlign.Start,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
                 Text(

@@ -139,6 +139,7 @@ class RecentDocumentsViewModel
 
             if (isAsicsOrConfirmedDdoc || isCades) {
                 val signedContainer = openSignatureDocument(document, confirmed)
+                sharedContainerViewModel.clearContainers()
                 sharedContainerViewModel.setSignedContainer(signedContainer)
 
                 handleSendToSigningViewWithSiva(true)

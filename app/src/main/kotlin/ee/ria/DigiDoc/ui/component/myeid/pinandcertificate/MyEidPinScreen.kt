@@ -124,13 +124,13 @@ fun MyEidPinScreen(
 
     val content by sharedMyEidViewModel.pinScreenContent.collectAsState()
 
-    val currentPinState = remember { mutableStateOf(byteArrayOf()) }
-    val newPinState = remember { mutableStateOf(byteArrayOf()) }
-    val newPinRepeatedState = remember { mutableStateOf(byteArrayOf()) }
+    val currentPinState = sharedMyEidViewModel.currentPinState
+    val newPinState = sharedMyEidViewModel.newPinState
+    val newPinRepeatedState = sharedMyEidViewModel.newPinRepeatedState
 
-    val showCurrentPinField = rememberSaveable { mutableStateOf(true) }
-    val showNewPinField = rememberSaveable { mutableStateOf(false) }
-    val showNewRepeatPinField = rememberSaveable { mutableStateOf(false) }
+    val showCurrentPinField = sharedMyEidViewModel.showCurrentPinField
+    val showNewPinField = sharedMyEidViewModel.showNewPinField
+    val showNewRepeatPinField = sharedMyEidViewModel.showNewRepeatPinField
 
     val pinErrorText = rememberSaveable { mutableStateOf("") }
 
