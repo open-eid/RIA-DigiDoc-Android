@@ -239,7 +239,7 @@ fun NFCView(
         }
     val canNumberWithInvisibleSpaces = talkBackTextFieldValue(canNumber.text)
 
-    val pinCode = remember { mutableStateOf(byteArrayOf()) }
+    val pinCode = nfcViewModel.pinCode
 
     val pinType =
         if (identityAction == IdentityAction.SIGN) {
@@ -432,21 +432,26 @@ fun NFCView(
     }
 
     LaunchedEffect(nfcViewModel.dialogError) {
-        pinCode.value.clearSensitive()
         nfcViewModel.dialogError
             .asFlow()
             .filterNotNull()
             .filterNot { it == 0 }
             .collect {
                 withContext(Main) {
+                    nfcViewModel.resetPinCode()
                     nfcViewModel.resetErrorState()
                     showErrorDialog.value = true
                 }
             }
     }
 
+    val isPinReset = rememberSaveable { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
-        pinCode.value = byteArrayOf()
+        if (!isPinReset.value) {
+            nfcViewModel.resetPinCode()
+            isPinReset.value = true
+        }
         nfcViewModel.checkNFCStatus(nfcViewModel.getNFCStatus(activity))
     }
 

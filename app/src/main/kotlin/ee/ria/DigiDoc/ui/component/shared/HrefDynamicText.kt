@@ -113,8 +113,7 @@ fun HrefDynamicText(
                     if (!linkUrl.isEmpty()) {
                         contentDescription = "$text1 $text2 $linkText link $linkUrl"
                     }
-                }
-                .let {
+                }.let {
                     val urlInText =
                         annotatedStringWithLinks
                             .getStringAnnotations(tag = "URL", start = 0, end = annotatedStringWithLinks.length)

@@ -22,6 +22,8 @@
 package ee.ria.DigiDoc.viewmodel.shared
 
 import android.app.Activity
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -78,6 +80,26 @@ class SharedMyEidViewModel
 
         private val _isPinBlocked = MutableLiveData<Boolean>(false)
         val isPinBlocked: LiveData<Boolean> = _isPinBlocked
+
+        val currentPinState: MutableState<ByteArray> = mutableStateOf(byteArrayOf())
+        val newPinState: MutableState<ByteArray> = mutableStateOf(byteArrayOf())
+        val newPinRepeatedState: MutableState<ByteArray> = mutableStateOf(byteArrayOf())
+
+        val showCurrentPinField: MutableState<Boolean> = mutableStateOf(true)
+        val showNewPinField: MutableState<Boolean> = mutableStateOf(false)
+        val showNewRepeatPinField: MutableState<Boolean> = mutableStateOf(false)
+
+        fun resetPinEntryState() {
+            currentPinState.value.fill(0.toByte())
+            newPinState.value.fill(0.toByte())
+            newPinRepeatedState.value.fill(0.toByte())
+            currentPinState.value = byteArrayOf()
+            newPinState.value = byteArrayOf()
+            newPinRepeatedState.value = byteArrayOf()
+            showCurrentPinField.value = true
+            showNewPinField.value = false
+            showNewRepeatPinField.value = false
+        }
 
         fun setIdCardData(idCardData: IdCardData) {
             _idCardData.postValue(idCardData)
@@ -213,6 +235,7 @@ class SharedMyEidViewModel
             }
 
         fun setScreenContent(pinVariant: PinChangeVariant) {
+            resetPinEntryState()
             _pinScreenContent.value =
                 when (pinVariant) {
                     PinChangeVariant.ChangePin1 ->
@@ -388,6 +411,7 @@ class SharedMyEidViewModel
             resetIsPinBlocked()
             resetScreenContent()
             resetPinChangingState()
+            resetPinEntryState()
         }
 
         fun handleBackButton() {

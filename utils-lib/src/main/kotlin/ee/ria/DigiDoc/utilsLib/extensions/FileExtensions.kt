@@ -22,7 +22,6 @@
 package ee.ria.DigiDoc.utilsLib.extensions
 
 import android.content.Context
-import android.util.Log
 import android.webkit.MimeTypeMap
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
 import com.tom_roush.pdfbox.pdmodel.PDDocument

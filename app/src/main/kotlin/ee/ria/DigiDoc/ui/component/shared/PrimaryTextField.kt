@@ -124,10 +124,11 @@ fun PrimaryTextField(
         }
     }
 
-    Column(modifier = 
+    Column(
+        modifier =
             modifier.semantics {
                 isTraversalGroup = true
-            }
+            },
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

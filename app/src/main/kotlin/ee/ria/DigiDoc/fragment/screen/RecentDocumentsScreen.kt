@@ -354,6 +354,8 @@ fun RecentDocumentsScreen(
                                         } else {
                                             showSivaDialog.value = false
 
+                                            sharedContainerViewModel.clearContainers()
+
                                             val container =
                                                 recentDocumentsViewModel.openDocument(
                                                     document,
@@ -458,6 +460,8 @@ fun RecentDocumentsScreen(
                                             showSivaDialog.value = true
                                         } else {
                                             showSivaDialog.value = false
+
+                                            sharedContainerViewModel.clearContainers()
 
                                             val container =
                                                 recentDocumentsViewModel.openDocument(
