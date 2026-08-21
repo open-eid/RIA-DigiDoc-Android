@@ -22,6 +22,7 @@
 package ee.ria.DigiDoc.common
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.ZoneOffset
@@ -70,8 +71,11 @@ class ConstantTest {
 
     @Test
     fun testFilenameRestrictions() {
-        assertTrue(Constant.RESTRICTED_FILENAME_CHARACTERS_AND_RTL_CHARACTERS_AS_STRING.contains('@'))
-        assertTrue(Constant.RESTRICTED_FILENAME_CHARACTERS_AND_RTL_CHARACTERS_AS_STRING.contains('\u202E'))
+        assertTrue(Constant.FORBIDDEN_FILENAME_CHARACTERS.contains('/'))
+        assertTrue(Constant.FORBIDDEN_FILENAME_CHARACTERS.contains('*'))
+        assertFalse(Constant.FORBIDDEN_FILENAME_CHARACTERS.contains('@'))
+        // The app adds " (99)", an extension and "-data-files" to a name later
+        assertTrue(Constant.MAX_FILENAME_BYTES + 25 <= 255)
     }
 
     @Test

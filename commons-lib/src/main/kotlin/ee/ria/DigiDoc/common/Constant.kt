@@ -115,10 +115,14 @@ object Constant {
 
     const val TSL_SEQUENCE_NUMBER_ELEMENT: String = "TSLSequenceNumber"
     const val KEY_LOCALE = "locale"
-    private const val RESTRICTED_FILENAME_CHARACTERS_AS_STRING = "@%:^?[]\\'\"”’{}#&`\\\\~«»/´"
-    private const val RTL_CHARACTERS_AS_STRING = "" + '\u200E' + '\u200F' + '\u202E' + '\u202A' + '\u202B'
-    const val RESTRICTED_FILENAME_CHARACTERS_AND_RTL_CHARACTERS_AS_STRING =
-        RESTRICTED_FILENAME_CHARACTERS_AS_STRING + RTL_CHARACTERS_AS_STRING
+
+    const val FORBIDDEN_FILENAME_CHARACTERS = "/\\<>:\"|?*"
+
+    const val ZERO_WIDTH_JOINER_CODE = 0x200D
+
+    // 255 bytes is the file system limit. The rest is room for the " (99)",
+    // extension and "-data-files" that the app adds on top of this name.
+    const val MAX_FILENAME_BYTES = 230
     const val DEFAULT_FILENAME = "newFile"
     const val ALLOWED_URL_CHARACTERS =
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_,.:/%;+=@?&!()"

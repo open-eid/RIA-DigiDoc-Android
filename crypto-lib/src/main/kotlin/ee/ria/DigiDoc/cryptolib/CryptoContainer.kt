@@ -40,6 +40,7 @@ import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import ee.ria.DigiDoc.utilsLib.extensions.isCryptoContainer
 import ee.ria.DigiDoc.utilsLib.extensions.saveAs
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
+import ee.ria.DigiDoc.utilsLib.file.FileUtil.uniqueFileName
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.cdoc.CDoc
@@ -167,7 +168,8 @@ class CryptoContainer
 
         companion object {
             val logger = JavaLogger()
-            var loggingIsSet = false
+
+            private val libcdocLogLevel = LogLevel.LEVEL_TRACE
 
             // Encryption can pause and resume midway, so it needs the coroutine-friendly Mutex.
             // Decryption runs start-to-finish in one go, so a plain lock (ReentrantLock) is enough.
@@ -307,15 +309,17 @@ class CryptoContainer
                         debugLog(LOG_TAG, "Decryption started for container ${file.name}")
 
                         val fileInfo = FileInfo()
+                        val savedNames = mutableSetOf<String>()
+                        val dir = ContainerUtil.getContainerDataFilesDir(context, file)
+
+                        // Some file names crash the app if libcdoc logs them while reading
+                        logger.setMinLogLevel(LogLevel.LEVEL_INFO)
+
                         var result: Long = cdocReader.nextFile(fileInfo)
                         while (result == CDoc.OK.toLong()) {
                             val ofile = File(fileInfo.name)
-                            val dir =
-                                ContainerUtil.getContainerDataFilesDir(
-                                    context,
-                                    file,
-                                )
-                            val tmp = sanitizeString(ofile.name, "")
+                            val tmp = uniqueFileName(sanitizeString(ofile.name, ""), savedNames)
+                            savedNames.add(tmp)
                             val fileToSave = File(dir, tmp)
                             FileOutputStream(fileToSave).use { ofs ->
                                 cdocReader.readFile(ofs)
@@ -342,6 +346,7 @@ class CryptoContainer
                         errorLog(LOG_TAG, "IO Exception while decrypting container: ${exc.message}", exc)
                         throw CryptoException("IO Exception: ${exc.message}", exc)
                     } finally {
+                        logger.setMinLogLevel(libcdocLogLevel)
                         cdocReader.delete()
                     }
                 }
@@ -527,11 +532,8 @@ class CryptoContainer
 
             fun setLogging(isLoggingEnabled: Boolean) {
                 if (isLoggingEnabled) {
-                    logger.setMinLogLevel(LogLevel.LEVEL_TRACE)
-                    if (!loggingIsSet) {
-                        CDoc.setLogger(logger)
-                        loggingIsSet = true
-                    }
+                    logger.setMinLogLevel(libcdocLogLevel)
+                    CDoc.setLogger(logger)
                     CDoc.log(LogLevel.LEVEL_DEBUG, "CryptoContainer", 450, "Set libcdoc logging: true")
                 }
             }
