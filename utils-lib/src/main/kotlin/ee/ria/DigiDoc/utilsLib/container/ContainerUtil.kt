@@ -207,6 +207,7 @@ object ContainerUtil {
             if (i > 0) {
                 name.append(i)
             }
+
             dir = File(directory, name.toString())
             if (dir.isDirectory || !dir.exists()) {
                 break
@@ -220,6 +221,8 @@ object ContainerUtil {
             if (directory != null) {
                 debugLog(LOG_TAG, "Directories created or already exist for " + directory.path)
             }
+        } else if (!dir.isDirectory) {
+            errorLog(LOG_TAG, "Unable to create data file directory, name is ${dir.name.toByteArray().size} bytes")
         }
 
         return dir

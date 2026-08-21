@@ -28,7 +28,9 @@ import android.webkit.URLUtil
 import androidx.core.net.toUri
 import ee.ria.DigiDoc.common.Constant.ALLOWED_URL_CHARACTERS
 import ee.ria.DigiDoc.common.Constant.DEFAULT_FILENAME
-import ee.ria.DigiDoc.common.Constant.RESTRICTED_FILENAME_CHARACTERS_AND_RTL_CHARACTERS_AS_STRING
+import ee.ria.DigiDoc.common.Constant.FORBIDDEN_FILENAME_CHARACTERS
+import ee.ria.DigiDoc.common.Constant.MAX_FILENAME_BYTES
+import ee.ria.DigiDoc.common.Constant.ZERO_WIDTH_JOINER_CODE
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.infoLog
 import kotlinx.coroutines.Dispatchers
@@ -55,6 +57,8 @@ import java.io.OutputStreamWriter
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
+import java.text.BreakIterator
+import java.text.Normalizer
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.SAXParserFactory
 
@@ -124,26 +128,101 @@ object FileUtil {
         } else if (trimmed.startsWith(".")) {
             trimmed = DEFAULT_FILENAME + trimmed
         }
-        val sb = StringBuilder(trimmed.length)
-        if (!URLUtil.isValidUrl(trimmed) && !isRawUrl(trimmed)) {
-            for (element in trimmed) {
-                if (RESTRICTED_FILENAME_CHARACTERS_AND_RTL_CHARACTERS_AS_STRING.indexOf(element) != -1) {
-                    sb.append(replacement)
-                } else {
-                    sb.append(element)
-                }
-            }
-        } else if (!isRawUrl(trimmed)) {
-            return normalizeUri(trimmed.toUri()).toString()
+        if (isRawUrl(trimmed)) {
+            return FilenameUtils.getName(FilenameUtils.normalize(trimmed)) ?: DEFAULT_FILENAME
         }
-        return if (sb.toString().isNotEmpty()) {
+        if (URLUtil.isValidUrl(trimmed)) {
+            return FilenameUtils.getName(normalizeUri(trimmed.toUri()).toString()) ?: DEFAULT_FILENAME
+        }
+        val sb = StringBuilder(trimmed.length)
+        for (element in trimmed) {
+            if (isForbiddenInFileName(element)) {
+                sb.append(replacement)
+            } else {
+                sb.append(element)
+            }
+        }
+        val name: String =
             FilenameUtils.getName(
                 FilenameUtils.normalize(
-                    sb.toString(),
+                    sb.toString().trim { it <= ' ' },
                 ),
-            )
+            ) ?: ""
+        return if (name.isEmpty() || name.all { it == '.' }) {
+            DEFAULT_FILENAME
         } else {
-            FilenameUtils.normalize(trimmed)
+            truncateFileName(Normalizer.normalize(name, Normalizer.Form.NFC), MAX_FILENAME_BYTES)
+        }
+    }
+
+    private fun isForbiddenInFileName(character: Char): Boolean {
+        if (character.code == ZERO_WIDTH_JOINER_CODE) {
+            return false
+        }
+        return FORBIDDEN_FILENAME_CHARACTERS.indexOf(character) != -1 ||
+            character.category == CharCategory.CONTROL ||
+            character.category == CharCategory.FORMAT
+    }
+
+    fun truncateFileName(
+        fileName: String,
+        maxBytes: Int,
+    ): String {
+        if (fileName.toByteArray().size <= maxBytes) {
+            return fileName
+        }
+        val extension = FilenameUtils.getExtension(fileName)
+        val suffix = if (extension.isEmpty()) "" else ".$extension"
+        val baseName = FilenameUtils.getBaseName(fileName)
+
+        val shortenedBase = truncateToBytes(baseName, maxBytes - suffix.toByteArray().size)
+        if (shortenedBase.isNotEmpty()) {
+            return shortenedBase + suffix
+        }
+
+        val shortenedName = truncateToBytes(fileName, maxBytes)
+        if (shortenedName.isNotEmpty()) {
+            return shortenedName
+        }
+
+        return truncateToBytes(DEFAULT_FILENAME + suffix, maxBytes)
+    }
+
+    private fun truncateToBytes(
+        text: String,
+        maxBytes: Int,
+    ): String {
+        val characters = BreakIterator.getCharacterInstance()
+        characters.setText(text)
+
+        var lastFit = characters.first()
+        var bytes = 0
+        for (next in generateSequence { characters.next().takeIf { it != BreakIterator.DONE } }) {
+            bytes += text.substring(lastFit, next).toByteArray().size
+            if (bytes > maxBytes) {
+                break
+            }
+            lastFit = next
+        }
+        return text.substring(0, lastFit)
+    }
+
+    fun uniqueFileName(
+        fileName: String,
+        taken: Set<String>,
+    ): String {
+        if (!taken.contains(fileName)) {
+            return fileName
+        }
+        val baseName = FilenameUtils.getBaseName(fileName).ifEmpty { DEFAULT_FILENAME }
+        val extension = FilenameUtils.getExtension(fileName)
+        var counter = 1
+        while (true) {
+            val candidate = if (extension.isEmpty()) "$baseName ($counter)" else "$baseName ($counter).$extension"
+            if (!taken.contains(candidate)) {
+                return candidate
+            }
+            counter++
         }
     }
 

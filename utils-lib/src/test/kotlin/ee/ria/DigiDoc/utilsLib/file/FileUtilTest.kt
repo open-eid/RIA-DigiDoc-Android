@@ -24,11 +24,14 @@ package ee.ria.DigiDoc.utilsLib.file
 import android.content.ClipData
 import android.content.Intent
 import android.net.Uri
+import android.webkit.URLUtil
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.FilenameUtils
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mock
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.mockStatic
@@ -49,12 +52,13 @@ class FileUtilTest {
     fun fileUtil_getNameFromFileName_success() {
         val fileName = "test.txt"
 
-        val mockedFilenameUtils = mockStatic(FilenameUtils::class.java)
-        mockedFilenameUtils.`when`<String> { FilenameUtils.getName(fileName) }.thenReturn(expectedName)
+        mockStatic(FilenameUtils::class.java).use { mockedFilenameUtils ->
+            mockedFilenameUtils.`when`<String> { FilenameUtils.getName(fileName) }.thenReturn(expectedName)
 
-        val name = FileUtil.getNameFromFileName(fileName)
+            val name = FileUtil.getNameFromFileName(fileName)
 
-        assertEquals(expectedName, name)
+            assertEquals(expectedName, name)
+        }
     }
 
     @Test
@@ -244,4 +248,194 @@ class FileUtilTest {
             assertEquals(0, externalFileUris.size)
             assertEquals(listOf<Uri>(), externalFileUris)
         }
+
+    @Test
+    fun fileUtil_sanitizeString_keepsCharactersThatFileSystemsAllow() {
+        mockStatic(URLUtil::class.java).use { urlUtil ->
+            urlUtil.`when`<Boolean> { URLUtil.isValidUrl(anyString()) }.thenReturn(false)
+
+            val fileName = "pikk nimi2 !#\u00a4%&=`@\u00a3\${[]}\u00bd';,\u00a7^\u00d6\u00f6.txt"
+
+            assertEquals(fileName, FileUtil.sanitizeString(fileName, ""))
+        }
+    }
+
+    @Test
+    fun fileUtil_sanitizeString_removesCharactersFileSystemsRejectAndKeepsZeroWidthJoiner() {
+        mockStatic(URLUtil::class.java).use { urlUtil ->
+            urlUtil.`when`<Boolean> { URLUtil.isValidUrl(anyString()) }.thenReturn(false)
+
+            val rightToLeftOverride = Char(0x202E)
+            val zeroWidthJoiner = Char(0x200D)
+            val fileName = "na<m>e:wi\"th|ba?d*chars" + rightToLeftOverride + zeroWidthJoiner + ".txt"
+
+            assertEquals("namewithbadchars" + zeroWidthJoiner + ".txt", FileUtil.sanitizeString(fileName, ""))
+        }
+    }
+
+    @Test
+    fun fileUtil_sanitizeString_returnsDefaultNameWhenEverythingIsRemoved() {
+        mockStatic(URLUtil::class.java).use { urlUtil ->
+            urlUtil.`when`<Boolean> { URLUtil.isValidUrl(anyString()) }.thenReturn(false)
+
+            assertEquals("newFile", FileUtil.sanitizeString("<>:|?*", ""))
+        }
+    }
+
+    @Test
+    fun fileUtil_sanitizeString_shortensTooLongNameAndKeepsExtension() {
+        mockStatic(URLUtil::class.java).use { urlUtil ->
+            urlUtil.`when`<Boolean> { URLUtil.isValidUrl(anyString()) }.thenReturn(false)
+
+            val fileName = "\u00f5".repeat(200) + ".txt"
+
+            val name = FileUtil.sanitizeString(fileName, "")
+
+            assertTrue(name.toByteArray().size <= 230)
+            assertTrue(name.endsWith(".txt"))
+            assertTrue(fileName.startsWith(name.removeSuffix(".txt")))
+        }
+    }
+
+    @Test
+    fun fileUtil_sanitizeString_keepsOnlyTheNameOfARawUrl() {
+        assertEquals(
+            "test.txt",
+            FileUtil.sanitizeString("raw:/storage/emulated/0/Download/test.txt", ""),
+        )
+    }
+
+    @Test
+    fun fileUtil_sanitizeString_doesNotLetARawUrlEscapeTheDirectory() {
+        assertEquals(
+            "test.txt",
+            FileUtil.sanitizeString("raw:/storage/emulated/0/../../test.txt", ""),
+        )
+    }
+
+    @Test
+    fun fileUtil_sanitizeString_removesSpaceLeftBehindByARemovedCharacter() {
+        mockStatic(URLUtil::class.java).use { urlUtil ->
+            urlUtil.`when`<Boolean> { URLUtil.isValidUrl(anyString()) }.thenReturn(false)
+
+            assertEquals("report", FileUtil.sanitizeString("report *", ""))
+        }
+    }
+
+    @Test
+    fun fileUtil_sanitizeString_leavesRoomForTheNamesTheAppBuildsFromIt() {
+        mockStatic(URLUtil::class.java).use { urlUtil ->
+            urlUtil.`when`<Boolean> { URLUtil.isValidUrl(anyString()) }.thenReturn(false)
+
+            val sanitized = FileUtil.sanitizeString("\u00f5".repeat(200) + ".cdoc2", "")
+            val duplicate = FilenameUtils.getBaseName(sanitized) + " (99)." + FilenameUtils.getExtension(sanitized)
+            val dataFileDirectory = "$duplicate-data-files9"
+
+            assertTrue(sanitized.toByteArray().size <= 230)
+            assertTrue(duplicate.toByteArray().size <= 255)
+            assertTrue(
+                "directory name is ${dataFileDirectory.toByteArray().size} bytes",
+                dataFileDirectory.toByteArray().size <= 255,
+            )
+        }
+    }
+
+    @Test
+    fun fileUtil_truncateFileName_returnsSameNameWhenItFits() {
+        assertEquals("test.txt", FileUtil.truncateFileName("test.txt", 240))
+    }
+
+    @Test
+    fun fileUtil_truncateFileName_cutsBetweenCharactersNotBytes() {
+        val fileName = "\u03b1".repeat(20) + ".txt"
+
+        val name = FileUtil.truncateFileName(fileName, 20)
+
+        assertEquals("\u03b1\u03b1\u03b1\u03b1\u03b1\u03b1\u03b1\u03b1.txt", name)
+        assertEquals(20, name.toByteArray().size)
+    }
+
+    @Test
+    fun fileUtil_truncateFileName_dropsExtensionThatDoesNotFit() {
+        val name = FileUtil.truncateFileName("name.extensionthatistoolong", 10)
+
+        assertEquals("name.exten", name)
+    }
+
+    @Test
+    fun fileUtil_truncateFileName_dropsExtensionThatWouldLeaveNoName() {
+        val name = FileUtil.truncateFileName("name." + "test".repeat(30), 20)
+
+        assertTrue(name.isNotEmpty())
+        assertTrue(!name.startsWith("."))
+        assertEquals(20, name.toByteArray().size)
+    }
+
+    @Test
+    fun fileUtil_truncateFileName_keepsStartOfNameWhenOnlyExtensionWouldFit() {
+        val name = FileUtil.truncateFileName("\u00e4\u00e4\u00e4." + "test".repeat(17), 20)
+
+        assertTrue(name.isNotEmpty())
+        assertTrue(!name.startsWith("."))
+        assertTrue(name.toByteArray().size <= 20)
+    }
+
+    @Test
+    fun fileUtil_truncateFileName_staysWithinBudgetSmallerThanTheExtension() {
+        val name = FileUtil.truncateFileName("\u00e4.\u0424\u0430\u0439\u043b\u0420\u0430\u0441\u0448", 5)
+
+        assertTrue(name.toByteArray().size <= 5)
+    }
+
+    @Test
+    fun fileUtil_truncateFileName_fallsBackToDefaultNameWhenNoCharacterFits() {
+        val family = "\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67"
+
+        val name = FileUtil.truncateFileName("$family.txt", 12)
+
+        assertEquals("newFile.txt", name)
+        assertTrue(name.toByteArray().size <= 12)
+    }
+
+    @Test
+    fun fileUtil_truncateFileName_doesNotSplitCharacterMadeOfSeveralCodeUnits() {
+        val emoji = "\uD83D\uDE00"
+
+        val name = FileUtil.truncateFileName(emoji + emoji + ".txt", 9)
+
+        assertEquals(emoji + ".txt", name)
+    }
+
+    @Test
+    fun fileUtil_truncateFileName_doesNotSplitAccentFromItsLetter() {
+        val letterWithAccent = "e\u0301"
+
+        val name = FileUtil.truncateFileName(letterWithAccent + letterWithAccent + ".txt", 8)
+
+        assertEquals(letterWithAccent + ".txt", name)
+    }
+
+    @Test
+    fun fileUtil_uniqueFileName_returnsSameNameWhenNotTaken() {
+        assertEquals("test.txt", FileUtil.uniqueFileName("test.txt", setOf("other.txt")))
+    }
+
+    @Test
+    fun fileUtil_uniqueFileName_addsCounterToTakenName() {
+        assertEquals("test (1).txt", FileUtil.uniqueFileName("test.txt", setOf("test.txt")))
+        assertEquals(
+            "test (2).txt",
+            FileUtil.uniqueFileName("test.txt", setOf("test.txt", "test (1).txt")),
+        )
+    }
+
+    @Test
+    fun fileUtil_uniqueFileName_usesDefaultNameWhenThereIsNoBaseName() {
+        assertEquals("newFile (1).txt", FileUtil.uniqueFileName(".txt", setOf(".txt")))
+    }
+
+    @Test
+    fun fileUtil_uniqueFileName_addsCounterToNameWithoutExtension() {
+        assertEquals("test (1)", FileUtil.uniqueFileName("test", setOf("test")))
+    }
 }
