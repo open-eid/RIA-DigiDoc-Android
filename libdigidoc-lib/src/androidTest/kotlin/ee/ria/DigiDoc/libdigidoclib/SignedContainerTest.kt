@@ -657,7 +657,7 @@ class SignedContainerTest {
         runTest {
             val signedContainer = openOrCreate(context, container, listOf(container), true)
 
-            val signaturesStatuses = signedContainer.getSignaturesStatusCount()
+            val signaturesStatuses = signedContainer.getSignaturesStatusCount(signedContainer.getSignatures())
 
             assertNotNull(signaturesStatuses)
             assertEquals(0, signaturesStatuses[ValidatorInterface.Status.Valid])
@@ -677,7 +677,7 @@ class SignedContainerTest {
 
             val signedContainer = openOrCreate(context, noSignaturesContainer, listOf(noSignaturesContainer), true)
 
-            val signaturesStatuses = signedContainer.getSignaturesStatusCount()
+            val signaturesStatuses = signedContainer.getSignaturesStatusCount(signedContainer.getSignatures())
 
             assertNotNull(signaturesStatuses)
             assertEquals(0, signaturesStatuses[ValidatorInterface.Status.Valid])

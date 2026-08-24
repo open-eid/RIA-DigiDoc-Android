@@ -31,7 +31,6 @@ import ee.ria.DigiDoc.utilsLib.extensions.isSignedPDF
 import ee.ria.DigiDoc.utilsLib.extensions.isXades
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
-import kotlinx.coroutines.Dispatchers.Main
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -64,7 +63,7 @@ class SivaServiceImpl
         override suspend fun isTimestampedContainer(signedContainer: SignedContainer): Boolean =
             signedContainer.getDataFiles().size == 1 &&
                 signedContainer.containerMimetype().equals(ASICS_MIMETYPE) &&
-                signedContainer.getSignatures(Main).first().profile == "TimeStampToken"
+                signedContainer.getSignatures().firstOrNull()?.profile == "TimeStampToken"
 
         override suspend fun getTimestampedContainer(
             context: Context,
@@ -78,7 +77,7 @@ class SivaServiceImpl
                     nestedContainer?.rawContainer(),
                     parentContainer.getContainerFile(),
                     parentContainer.isExistingContainer(),
-                    parentContainer.getSignatures(Main),
+                    parentContainer.getSignatures(),
                 )
             } catch (ex: Exception) {
                 errorLog(logTag, "Unable to open timestamped container", ex)

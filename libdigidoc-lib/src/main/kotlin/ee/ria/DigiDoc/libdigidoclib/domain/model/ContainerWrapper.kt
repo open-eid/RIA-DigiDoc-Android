@@ -22,24 +22,26 @@
 package ee.ria.DigiDoc.libdigidoclib.domain.model
 
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
+import ee.ria.DigiDoc.libdigidoclib.init.libdigidocppDispatcher
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.text.TextUtil.removeEmptyStrings
 import ee.ria.libdigidocpp.ExternalSigner
 import ee.ria.libdigidocpp.Signature
 import ee.ria.libdigidocpp.StringVector
+import kotlinx.coroutines.withContext
 import java.security.cert.CertificateException
 
 interface ContainerWrapper {
     @Throws(CertificateException::class)
-    fun prepareSignature(
+    suspend fun prepareSignature(
         signer: ExternalSigner,
         signedContainer: SignedContainer?,
         cert: ByteArray?,
         roleData: RoleData?,
     ): ByteArray
 
-    fun finalizeSignature(
+    suspend fun finalizeSignature(
         signer: ExternalSigner,
         signedContainer: SignedContainer?,
         signatureArray: ByteArray,
@@ -51,44 +53,45 @@ class ContainerWrapperImpl : ContainerWrapper {
     private val logTag = "Libdigidoc-ContainerWrapper"
 
     @Throws(CertificateException::class)
-    override fun prepareSignature(
+    override suspend fun prepareSignature(
         signer: ExternalSigner,
         signedContainer: SignedContainer?,
         cert: ByteArray?,
         roleData: RoleData?,
-    ): ByteArray {
-        debugLog(logTag, "Preparing signature (with role data: ${roleData != null})")
-        signature =
-            when {
-                roleData != null && signedContainer != null -> {
-                    signer.setSignerRoles(StringVector(removeEmptyStrings(roleData.roles)))
-                    signer.setSignatureProductionPlace(
-                        roleData.city,
-                        roleData.state,
-                        roleData.zip,
-                        roleData.country,
-                    )
-                    signedContainer.rawContainer()?.prepareSignature(
-                        signer,
-                    ) ?: throw IllegalStateException("Failed to prepare signature with role data")
+    ): ByteArray =
+        withContext(libdigidocppDispatcher) {
+            debugLog(logTag, "Preparing signature (with role data: ${roleData != null})")
+            signature =
+                when {
+                    roleData != null && signedContainer != null -> {
+                        signer.setSignerRoles(StringVector(removeEmptyStrings(roleData.roles)))
+                        signer.setSignatureProductionPlace(
+                            roleData.city,
+                            roleData.state,
+                            roleData.zip,
+                            roleData.country,
+                        )
+                        signedContainer.rawContainer()?.prepareSignature(
+                            signer,
+                        ) ?: throw IllegalStateException("Failed to prepare signature with role data")
+                    }
+                    signedContainer?.rawContainer() != null -> {
+                        signedContainer.rawContainer()?.prepareSignature(
+                            signer,
+                        ) ?: throw IllegalStateException("Failed to prepare signature without role data")
+                    }
+                    else -> throw IllegalStateException("Unable to get container")
                 }
-                signedContainer?.rawContainer() != null -> {
-                    signedContainer.rawContainer()?.prepareSignature(
-                        signer,
-                    ) ?: throw IllegalStateException("Failed to prepare signature without role data")
-                }
-                else -> throw IllegalStateException("Unable to get container")
-            }
-        val dataToSign = signature.dataToSign()
-        debugLog(logTag, "Signature prepared (${dataToSign.size} bytes to sign)")
-        return dataToSign
-    }
+            val dataToSign = signature.dataToSign()
+            debugLog(logTag, "Signature prepared (${dataToSign.size} bytes to sign)")
+            dataToSign
+        }
 
-    override fun finalizeSignature(
+    override suspend fun finalizeSignature(
         signer: ExternalSigner,
         signedContainer: SignedContainer?,
         signatureArray: ByteArray,
-    ) {
+    ) = withContext(libdigidocppDispatcher) {
         signature.setSignatureValue(signatureArray)
         debugLog(logTag, "Extending signature profile (fetches OCSP confirmation and timestamp)")
         try {
