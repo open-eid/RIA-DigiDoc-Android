@@ -57,7 +57,6 @@ import ee.ria.DigiDoc.utilsLib.signing.CertificateUtil
 import ee.ria.DigiDoc.utilsLib.signing.UUIDUtil
 import ee.ria.DigiDoc.utilsLib.text.MessageUtil
 import ee.ria.libdigidocpp.ExternalSigner
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import retrofit2.Call
 import java.io.IOException
@@ -267,7 +266,7 @@ class SmartSignServiceImpl
                         String(dataToSignBytes, StandardCharsets.UTF_8)
                             .removeWhitespaces()
 
-                    val containerSignatures = signedContainer.getSignatures(Main)
+                    val containerSignatures = signedContainer.getSignatures()
 
                     signatureInterface =
                         if (containerSignatures.isEmpty()) {

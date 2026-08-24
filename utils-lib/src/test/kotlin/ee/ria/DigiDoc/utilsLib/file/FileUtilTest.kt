@@ -28,6 +28,7 @@ import android.webkit.URLUtil
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.FilenameUtils
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -38,6 +39,8 @@ import org.mockito.Mockito.mockStatic
 import org.mockito.Mockito.`when`
 import java.io.File
 import java.io.IOException
+import java.io.Reader
+import java.nio.file.Files
 
 class FileUtilTest {
     @Mock
@@ -438,4 +441,47 @@ class FileUtilTest {
     fun fileUtil_uniqueFileName_addsCounterToNameWithoutExtension() {
         assertEquals("test (1)", FileUtil.uniqueFileName("test", setOf("test")))
     }
+
+    @Test
+    fun fileUtil_writeToFile_writesContentAndLeavesNoTemporaryFile() {
+        val directory = createTempDirectory()
+
+        FileUtil.writeToFile("<TSL>content</TSL>".reader().buffered(), directory.path, "eu-lotl.xml")
+
+        val written = File(directory, "eu-lotl.xml")
+        assertTrue(written.exists())
+        assertEquals("<TSL>content</TSL>", written.readText().trim())
+        assertTrue("Temporary files were left behind", temporaryFilesIn(directory).isEmpty())
+    }
+
+    @Test
+    fun fileUtil_writeToFile_keepsPreviousContentWhenTheSourceFails() {
+        val directory = createTempDirectory()
+        val destination = File(directory, "eu-lotl.xml")
+        destination.writeText("<TSL>previous</TSL>")
+
+        val failingReader =
+            object : Reader() {
+                override fun read(
+                    buffer: CharArray,
+                    offset: Int,
+                    length: Int,
+                ): Int = throw IOException("source unavailable")
+
+                override fun close() = Unit
+            }.buffered()
+
+        assertThrows(IOException::class.java) {
+            FileUtil.writeToFile(failingReader, directory.path, "eu-lotl.xml")
+        }
+
+        assertEquals("<TSL>previous</TSL>", destination.readText())
+        assertTrue("Temporary files were left behind", temporaryFilesIn(directory).isEmpty())
+    }
+
+    private fun temporaryFilesIn(directory: File): List<File> =
+        directory.listFiles()?.filter { it.name.endsWith(".tmp") } ?: emptyList()
+
+    private fun createTempDirectory(): File =
+        Files.createTempDirectory("file-util-test").toFile().apply { deleteOnExit() }
 }

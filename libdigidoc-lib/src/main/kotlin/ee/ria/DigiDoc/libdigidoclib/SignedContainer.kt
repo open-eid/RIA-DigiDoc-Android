@@ -37,6 +37,7 @@ import ee.ria.DigiDoc.libdigidoclib.domain.model.SignatureWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.libdigidoclib.exceptions.ContainerDataFilesEmptyException
 import ee.ria.DigiDoc.libdigidoclib.exceptions.SSLHandshakeException
+import ee.ria.DigiDoc.libdigidoclib.init.libdigidocppDispatcher
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import ee.ria.DigiDoc.utilsLib.extensions.isContainer
 import ee.ria.DigiDoc.utilsLib.extensions.isPDF
@@ -48,17 +49,12 @@ import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.libdigidocpp.Container
 import ee.ria.libdigidocpp.ContainerOpenCB
 import ee.ria.libdigidocpp.Signature
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.coroutines.CoroutineContext
 
 private const val LOG_TAG = "SignedContainer"
 
@@ -72,16 +68,13 @@ class SignedContainer
         private val isExistingContainer: Boolean = false,
         private val timestamps: List<SignatureInterface> = emptyList(),
     ) : ee.ria.DigiDoc.common.container.Container {
-        suspend fun getDataFiles(): List<DataFileInterface> {
-            return CoroutineScope(IO)
-                .async {
-                    val wrappedDataFile =
-                        container
-                            ?.dataFiles()
-                            ?.mapNotNull { DataFileWrapper(it) } ?: emptyList()
-                    return@async wrappedDataFile
-                }.await()
-        }
+        suspend fun getDataFiles(): List<DataFileInterface> =
+            withContext(libdigidocppDispatcher) {
+                container
+                    ?.dataFiles()
+                    ?.filterNotNull()
+                    ?.map { DataFileWrapper(it) } ?: emptyList()
+            }
 
         @Throws(Exception::class)
         suspend fun getNestedTimestampedContainer(isSivaConfirmed: Boolean): SignedContainer? {
@@ -112,8 +105,8 @@ class SignedContainer
 
         fun getTimestamps(): List<SignatureInterface> = timestamps
 
-        suspend fun getSignatures(thread: CoroutineContext = IO): List<SignatureInterface> =
-            withContext(thread) {
+        suspend fun getSignatures(): List<SignatureInterface> =
+            withContext(libdigidocppDispatcher) {
                 try {
                     container
                         ?.signatures()
@@ -141,7 +134,7 @@ class SignedContainer
             val containerName = name.let { ContainerUtil.addExtensionToContainerFilename(it) }
             val newFile = File(containerFile?.parent, containerName)
 
-            withContext(IO) {
+            withContext(libdigidocppDispatcher) {
                 containerFile?.renameTo(newFile)
                 containerFile = newFile
 
@@ -185,18 +178,21 @@ class SignedContainer
                     }
                 }
             }
-            throw IllegalArgumentException("Could not find file ${dataFile.id} in container ${containerFile?.name}")
+            val message = "Could not find file ${dataFile.id} in container ${containerFile?.name}"
+            errorLog(LOG_TAG, message)
+            throw IllegalArgumentException(message)
         }
 
         @Throws(Exception::class)
-        suspend fun removeDataFile(dataFile: DataFileInterface) {
-            if ((container?.dataFiles()?.size ?: 0) == 1) {
-                throw ContainerDataFilesEmptyException()
-            }
+        suspend fun removeDataFile(dataFile: DataFileInterface) =
+            withContext(libdigidocppDispatcher) {
+                if ((container?.dataFiles()?.size ?: 0) == 1) {
+                    errorLog(LOG_TAG, "Refusing to remove the last data file from the container")
+                    throw ContainerDataFilesEmptyException()
+                }
 
-            val dataFiles = container?.dataFiles()
-            if (dataFiles != null) {
-                withContext(IO) {
+                val dataFiles = container?.dataFiles()
+                if (dataFiles != null) {
                     for (i in dataFiles.indices) {
                         if (dataFile.id == dataFiles[i].id()) {
                             container.removeDataFile(i.toLong())
@@ -207,7 +203,6 @@ class SignedContainer
                     container.save()
                 }
             }
-        }
 
         fun rawContainer(): Container? = container
 
@@ -239,10 +234,8 @@ class SignedContainer
             containerMimetype().equals(DDOC_MIMETYPE, true) &&
                 containerFile?.extension == DDOC_EXTENSION
 
-        suspend fun getSignaturesStatusCount(): Map<ValidatorInterface.Status, Int> {
-            val signatures = getSignatures(Main)
-            return countStatuses(signatures) { it.validator.status }
-        }
+        fun getSignaturesStatusCount(signatures: List<SignatureInterface>): Map<ValidatorInterface.Status, Int> =
+            countStatuses(signatures) { it.validator.status }
 
         fun getTimestampStatusCount(): Map<ValidatorInterface.Status, Int> {
             val timestamps = getTimestamps()
@@ -327,43 +320,53 @@ class SignedContainer
                 dataFiles: List<File?>?,
             ): SignedContainer {
                 if (dataFiles.isNullOrEmpty()) {
-                    throw NoSuchElementException("Cannot create an empty container")
+                    val message = "Cannot create an empty container"
+                    errorLog(LOG_TAG, message)
+                    throw NoSuchElementException(message)
                 }
 
                 val container =
-                    try {
-                        withContext(IO) {
-                            Container.create(file.path)
-                        }
-                    } catch (e: Exception) {
-                        handleContainerException(context, e)
-                    } ?: throw IOException("Container creation failed")
+                    withContext(libdigidocppDispatcher) {
+                        val created =
+                            try {
+                                Container.create(file.path)
+                            } catch (e: Exception) {
+                                handleContainerException(context, e)
+                            } ?: run {
+                                val message = "Container creation failed for ${file.name}"
+                                errorLog(LOG_TAG, message)
+                                throw IOException(message)
+                            }
 
-                dataFiles.forEachIndexed { index, dataFile ->
-                    dataFile?.let {
-                        debugLog(
-                            LOG_TAG,
-                            "Adding datafile '${dataFile.name}'. File ${index + 1} / ${dataFiles.size}",
-                        )
+                        dataFiles.forEachIndexed { index, dataFile ->
+                            dataFile?.let {
+                                debugLog(
+                                    LOG_TAG,
+                                    "Adding datafile '${dataFile.name}'. File ${index + 1} / ${dataFiles.size}",
+                                )
+                                try {
+                                    created.addDataFile(it.absolutePath, it.mimeType(context))
+                                } catch (e: Exception) {
+                                    errorLog(LOG_TAG, "Unable to add file '${it.name}' to container", e)
+                                }
+                            } ?: run {
+                                errorLog(LOG_TAG, "Unable to add file to container")
+                            }
+                        }
+
+                        if (created.dataFiles().isEmpty()) {
+                            val message = "No valid data files in the container"
+                            errorLog(LOG_TAG, message)
+                            throw NoSuchElementException(message)
+                        }
+
                         try {
-                            container.addDataFile(it.absolutePath, it.mimeType(context))
+                            created.save()
                         } catch (e: Exception) {
-                            errorLog(LOG_TAG, "Unable to add file to container. ${e.localizedMessage}")
+                            handleContainerException(context, e)
                         }
-                    } ?: run {
-                        errorLog(LOG_TAG, "Unable to add file to container")
+                        created
                     }
-                }
-
-                if (container.dataFiles().isEmpty()) {
-                    throw NoSuchElementException("No valid data files in the container")
-                }
-
-                try {
-                    container.save()
-                } catch (e: Exception) {
-                    handleContainerException(context, e)
-                }
 
                 return SignedContainer(context, container, file, false)
             }
@@ -376,7 +379,7 @@ class SignedContainer
             ): SignedContainer =
                 try {
                     val openedContainer =
-                        withContext(IO) {
+                        withContext(libdigidocppDispatcher) {
                             Container.open(file?.path ?: "", DigidocContainerOpenCB(isSivaConfirmed))
                         }
                     SignedContainer(context, openedContainer, file, true)
