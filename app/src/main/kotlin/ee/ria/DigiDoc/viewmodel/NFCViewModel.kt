@@ -227,7 +227,7 @@ class NFCViewModel
         }
 
         suspend fun removePendingSignature(signedContainer: SignedContainer) {
-            val signatures = signedContainer.getSignatures(Main)
+            val signatures = signedContainer.getSignatures()
             if (signatures.isNotEmpty()) {
                 val lastSignatureStatus = signatures.last().validator.status
                 if (lastSignatureStatus == ValidatorInterface.Status.Invalid ||
@@ -300,18 +300,22 @@ class NFCViewModel
                                 signer.setUserAgent(UserAgentUtil.getAppInfo(context, SendDiagnostics.NFC))
 
                                 val dataToSignBytes =
-                                    containerWrapper.prepareSignature(signer, container, signerCert, roleData)
+                                    runBlocking {
+                                        containerWrapper.prepareSignature(signer, container, signerCert, roleData)
+                                    }
 
                                 val signatureArray =
                                     card.calculateSignature(pin2Code, dataToSignBytes, true)
                                 pin2Code.clearSensitive()
                                 debugLog(logTag, "Signature: " + Hex.toHexString(signatureArray))
 
-                                containerWrapper.finalizeSignature(
-                                    signer,
-                                    container,
-                                    signatureArray,
-                                )
+                                runBlocking {
+                                    containerWrapper.finalizeSignature(
+                                        signer,
+                                        container,
+                                        signatureArray,
+                                    )
+                                }
 
                                 _shouldResetPIN.postValue(true)
                                 _signStatus.postValue(true)

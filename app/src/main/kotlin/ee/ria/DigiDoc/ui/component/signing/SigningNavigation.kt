@@ -557,29 +557,25 @@ fun SigningNavigation(
         signedContainer?.let {
             val pastTime = System.currentTimeMillis()
             showSignaturesLoadingIndicator.value = true
-            signatures = it.getSignatures(Main)
+            val validatedSignatures = it.getSignatures()
+            val signatureCounts = it.getSignaturesStatusCount(validatedSignatures)
+            val timestampCounts =
+                if (it.containerMimetype() != ASICS_MIMETYPE) it.getTimestampStatusCount() else null
+            val hasEmptyFile = signingViewModel.isEmptyFileInList(it.getDataFiles())
+            signatures = validatedSignatures
             showSignaturesLoadingIndicator.value = false
             withContext(Main) {
-                val signatureCounts = signedContainer?.getSignaturesStatusCount()
-                validSignaturesCount = signatureCounts?.get(ValidatorInterface.Status.Valid) ?: 0
-                unknownSignaturesCount =
-                    signatureCounts?.get(ValidatorInterface.Status.Unknown) ?: 0
-                invalidSignaturesCount =
-                    signatureCounts?.get(ValidatorInterface.Status.Invalid) ?: 0
+                validSignaturesCount = signatureCounts[ValidatorInterface.Status.Valid] ?: 0
+                unknownSignaturesCount = signatureCounts[ValidatorInterface.Status.Unknown] ?: 0
+                invalidSignaturesCount = signatureCounts[ValidatorInterface.Status.Invalid] ?: 0
 
-                if (signedContainer?.containerMimetype() != ASICS_MIMETYPE) {
-                    val timestampCounts = signedContainer?.getTimestampStatusCount()
-                    validTimestampsCount = timestampCounts?.get(ValidatorInterface.Status.Valid) ?: 0
-                    unknownTimestampsCount =
-                        timestampCounts?.get(ValidatorInterface.Status.Unknown) ?: 0
-                    invalidTimestampsCount =
-                        timestampCounts?.get(ValidatorInterface.Status.Invalid) ?: 0
+                if (timestampCounts != null) {
+                    validTimestampsCount = timestampCounts[ValidatorInterface.Status.Valid] ?: 0
+                    unknownTimestampsCount = timestampCounts[ValidatorInterface.Status.Unknown] ?: 0
+                    invalidTimestampsCount = timestampCounts[ValidatorInterface.Status.Invalid] ?: 0
                 }
 
-                isEmptyFileInContainer =
-                    signingViewModel.isEmptyFileInList(
-                        signedContainer?.getDataFiles() ?: listOf(),
-                    )
+                isEmptyFileInContainer = hasEmptyFile
 
                 sharedContainerViewModel.setContainerNotifications(
                     listOfNotNull(

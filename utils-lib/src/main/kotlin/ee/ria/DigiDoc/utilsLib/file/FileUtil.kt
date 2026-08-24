@@ -424,15 +424,19 @@ object FileUtil {
         directory.delete()
     }
 
+    @Throws(IOException::class)
     fun writeToFile(
         reader: BufferedReader,
         destinationPath: String,
         fileName: String,
     ) {
         val file = File(destinationPath, fileName)
+        var temporaryFile: File? = null
 
         try {
-            file.outputStream().use { outputStream ->
+            temporaryFile = File.createTempFile(fileName, ".tmp", File(destinationPath))
+
+            temporaryFile.outputStream().use { outputStream ->
                 OutputStreamWriter(outputStream, StandardCharsets.UTF_8).use { writer ->
                     reader.forEachLine { line ->
                         writer.write(line)
@@ -440,8 +444,20 @@ object FileUtil {
                     }
                 }
             }
-        } catch (e: IOException) {
+
+            if (!temporaryFile.renameTo(file)) {
+                throw IOException("Unable to move the completed file into place: $fileName")
+            }
+            infoLog(LOG_TAG, "Wrote file $fileName (${file.length()} bytes)")
+        } catch (e: Exception) {
             errorLog(LOG_TAG, "Failed to write to file: $fileName", e)
+            throw e
+        } finally {
+            temporaryFile?.let {
+                if (it.exists() && !it.delete()) {
+                    errorLog(LOG_TAG, "Unable to delete the temporary file: ${it.name}")
+                }
+            }
         }
     }
 

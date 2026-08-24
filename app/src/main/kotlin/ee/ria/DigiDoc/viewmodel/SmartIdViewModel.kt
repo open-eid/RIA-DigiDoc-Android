@@ -288,7 +288,7 @@ class SmartIdViewModel
                                 setErrorState(context, status)
                             } else {
                                 CoroutineScope(Main).launch {
-                                    val containerSignatures = container?.getSignatures(Main)
+                                    val containerSignatures = container?.getSignatures()
                                     val signatureInterface =
                                         if (containerSignatures?.isEmpty() == true) {
                                             null

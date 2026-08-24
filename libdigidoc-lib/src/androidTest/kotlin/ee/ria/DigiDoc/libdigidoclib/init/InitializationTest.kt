@@ -204,6 +204,7 @@ class InitializationTest {
     fun initialization_init_throwsAlreadyInitializedExceptionWhenInitTwice() {
         `when`(configurationRepository.getConfiguration())
             .thenReturn(configurationProvider.copy(tslUrl = "http://127.0.0.1:1/eu-lotl.xml"))
+
         assertThrows(AlreadyInitializedException::class.java) {
             runTest {
                 initialization.init(context)

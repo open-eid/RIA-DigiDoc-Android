@@ -44,7 +44,6 @@ import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.libdigidoclib.init.LibdigidocLibraryLoader
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager.NfcStatus
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
@@ -168,7 +167,7 @@ class NFCViewModelTest {
 
             viewModel.removePendingSignature(signedContainer)
 
-            assertEquals(1, signedContainer.getSignatures(Main).size)
+            assertEquals(1, signedContainer.getSignatures().size)
         }
 
     @Test
@@ -479,7 +478,7 @@ class NFCViewModelTest {
 
             viewModel.cancelNFCSignWorkRequest(signedContainer)
 
-            assertEquals(1, signedContainer.getSignatures(Main).size)
+            assertEquals(1, signedContainer.getSignatures().size)
         }
 
     @Test

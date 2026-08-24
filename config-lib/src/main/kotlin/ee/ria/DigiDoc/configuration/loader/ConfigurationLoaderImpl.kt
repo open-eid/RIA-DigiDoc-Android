@@ -42,6 +42,7 @@ import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
 import ee.ria.DigiDoc.utilsLib.extensions.removeWhitespaces
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -107,6 +108,19 @@ class ConfigurationLoaderImpl
 
         private fun getConfigCacheDir(context: Context): File = File(context.cacheDir, CACHE_CONFIG_FOLDER)
 
+        private fun cacheConfiguration(
+            context: Context,
+            confData: String,
+            publicKey: String,
+            signature: ByteArray,
+        ) {
+            try {
+                ConfigurationCache.cacheConfigurationFiles(context, confData, publicKey, signature)
+            } catch (e: Exception) {
+                errorLog(logTag, "Unable to cache the configuration, continuing with the loaded one", e)
+            }
+        }
+
         private fun decodeSignature(signatureBytes: ByteArray): ByteArray {
             val signatureText = String(signatureBytes, Charsets.UTF_8)
             return if (ConfigurationUtil.isBase64(signatureText)) {
@@ -144,11 +158,16 @@ class ConfigurationLoaderImpl
 
             val configText = confFile.readText()
             val publicKey = publicKeyFile.readText()
-            val signature = decodeSignature(signatureFile.readBytes())
+            val storedSignature = signatureFile.readBytes()
+            val signature = decodeSignature(storedSignature)
 
             configurationSignatureVerifier.verifyConfigurationSignature(configText, publicKey, signature)
             val configurationProvider = gson.fromJson(configText, ConfigurationProvider::class.java)
-            ConfigurationCache.cacheConfigurationFiles(context, configText, publicKey, signature)
+
+            if (!storedSignature.contentEquals(signature)) {
+                debugLog(logTag, "Normalizing the cached configuration signature to its decoded form")
+                cacheConfiguration(context, configText, publicKey, signature)
+            }
 
             if (!afterCentralCheck) {
                 configurationProperties.updateProperties(
@@ -181,12 +200,7 @@ class ConfigurationLoaderImpl
 
             configurationSignatureVerifier.verifyConfigurationSignature(confData, publicKey, signature)
 
-            ConfigurationCache.cacheConfigurationFiles(
-                context,
-                confData,
-                publicKey,
-                signature,
-            )
+            cacheConfiguration(context, confData, publicKey, signature)
             val configurationProvider = gson.fromJson(confData, ConfigurationProvider::class.java)
             configurationProperties.updateProperties(
                 context,
@@ -267,12 +281,7 @@ class ConfigurationLoaderImpl
                         centralConfigurationProvider.metaInf.serial,
                     )
                 ) {
-                    ConfigurationCache.cacheConfigurationFiles(
-                        context,
-                        centralConfig,
-                        centralPublicKey,
-                        centralSignature,
-                    )
+                    cacheConfiguration(context, centralConfig, centralPublicKey, centralSignature)
                     configurationProperties.updateProperties(
                         context,
                         Date(),

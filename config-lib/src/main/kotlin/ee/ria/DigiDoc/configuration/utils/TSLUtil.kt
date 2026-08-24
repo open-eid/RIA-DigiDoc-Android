@@ -66,9 +66,23 @@ object TSLUtil {
         if (!tslFiles.isNullOrEmpty()) {
             for (fileName in tslFiles) {
                 if (isXMLFile(fileName) && shouldCopyTSL(context, assetsPath, fileName, destination)) {
-                    copyTSLFromAssets(context, assetsPath, fileName, destination)
                     val tslFile = File(destination, fileName)
-                    setFileDateAttributes(tslFile)
+                    try {
+                        copyTSLFromAssets(context, assetsPath, fileName, destination)
+                    } catch (ioe: IOException) {
+                        errorLog(logTag, "Failed to copy TSL '$fileName' from assets into cache", ioe)
+                        continue
+                    }
+                    try {
+                        setFileDateAttributes(tslFile)
+                    } catch (e: Exception) {
+                        errorLog(
+                            logTag,
+                            "Unable to backdate TSL '$fileName'; libdigidocpp will only look for a newer " +
+                                "list once the cached copy is a day old",
+                            e,
+                        )
+                    }
                     removeExistingETag(tslFile.path)
                     debugLog(logTag, "Copied TSL '$fileName' from assets into cache (${tslFile.length()} bytes)")
                 }
@@ -89,52 +103,48 @@ object TSLUtil {
         if (!FileUtil.fileExists(cachedFile.path)) {
             debugLog(logTag, "TSL '$fileName' is not in the cache yet; copying it from assets")
             return true
-        } else {
+        }
+
+        val assetsTslVersion =
             try {
-                context.assets
-                    .open(File(sourcePath, fileName).path)
-                    .use { assetsTSLInputStream ->
-                        FileInputStream(cachedFile)
-                            .use { cachedTSLInputStream ->
-                                val assetsTslVersion: Int =
-                                    readSequenceNumber(assetsTSLInputStream)
-                                val cachedTslVersion: Int =
-                                    readSequenceNumber(cachedTSLInputStream)
-                                val isAssetNewer = assetsTslVersion > cachedTslVersion
-                                debugLog(
-                                    logTag,
-                                    "TSL '$fileName': assets version $assetsTslVersion, cached version " +
-                                        "$cachedTslVersion — ${if (isAssetNewer) "updating cache" else "cache is up to date"}",
-                                )
-                                return isAssetNewer
-                            }
-                    }
+                context.assets.open(File(sourcePath, fileName).path).use { readSequenceNumber(it) }
             } catch (e: Exception) {
-                val message = "Error comparing sequence number between assets and cached TSLs"
-                errorLog(logTag, message, e)
+                errorLog(logTag, "Unable to read the bundled TSL '$fileName'; keeping the cached copy", e)
                 return false
             }
-        }
+
+        val cachedTslVersion =
+            try {
+                FileInputStream(cachedFile).use { readSequenceNumber(it) }
+            } catch (e: Exception) {
+                errorLog(logTag, "Cached TSL '$fileName' cannot be parsed; replacing it from assets", e)
+                return true
+            }
+
+        val isAssetNewer = assetsTslVersion > cachedTslVersion
+        debugLog(
+            logTag,
+            "TSL '$fileName': assets version $assetsTslVersion, cached version $cachedTslVersion, " +
+                if (isAssetNewer) "updating cache" else "cache is up to date",
+        )
+        return isAssetNewer
     }
 
     @Suppress("SameParameterValue")
+    @Throws(IOException::class)
     private fun copyTSLFromAssets(
         context: Context,
         sourcePath: String,
         fileName: String,
         destinationDir: String,
     ) {
-        try {
-            BufferedReader(
-                InputStreamReader(
-                    context.assets.open(File(sourcePath, fileName).path),
-                    StandardCharsets.UTF_8,
-                ),
-            ).use { reader ->
-                FileUtil.writeToFile(reader, destinationDir, fileName)
-            }
-        } catch (ioe: IOException) {
-            errorLog(logTag, "Failed to copy file: $fileName from assets", ioe)
+        BufferedReader(
+            InputStreamReader(
+                context.assets.open(File(sourcePath, fileName).path),
+                StandardCharsets.UTF_8,
+            ),
+        ).use { reader ->
+            FileUtil.writeToFile(reader, destinationDir, fileName)
         }
     }
 
@@ -177,7 +187,8 @@ object TSLUtil {
 
         debugLog(
             logTag,
-            "Changed file ${file.name} modified date attribute ${currentFileAttrs.lastModifiedTime()} -> ${updatedFileAttrs.lastModifiedTime()}",
+            "Changed file ${file.name} modified date attribute " +
+                "${currentFileAttrs.lastModifiedTime()} -> ${updatedFileAttrs.lastModifiedTime()}",
         )
     }
 }

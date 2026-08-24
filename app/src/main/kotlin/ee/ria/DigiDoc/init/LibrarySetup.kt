@@ -32,6 +32,7 @@ import ee.ria.DigiDoc.libdigidoclib.exceptions.AlreadyInitializedException
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.libdigidoclib.init.LibdigidocLibraryLoader
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -66,7 +67,11 @@ class LibrarySetup
             if (!isConfigured) {
                 withContext(IO) {
                     try {
-                        TSLUtil.setupTSLFiles(context)
+                        try {
+                            TSLUtil.setupTSLFiles(context)
+                        } catch (ex: Exception) {
+                            errorLog(logTag, "Unable to set up the bundled TSL files", ex)
+                        }
                         configurationLoader.initConfiguration(
                             context,
                             dataStore.getProxySetting(),
@@ -74,15 +79,19 @@ class LibrarySetup
                         )
                         isConfigured = true
                     } catch (ex: Exception) {
-                        if (ex !is UnknownHostException &&
-                            ex !is SocketTimeoutException &&
-                            ex !is InterruptedIOException
-                        ) {
-                            errorLog(
+                        errorLog(logTag, "Unable to initialize configuration", ex)
+
+                        val isNetworkFailure =
+                            ex is UnknownHostException ||
+                                ex is SocketTimeoutException ||
+                                ex is InterruptedIOException
+                        if (isNetworkFailure) {
+                            debugLog(
                                 logTag,
-                                "Unable to initialize configuration: ",
-                                ex,
+                                "Configuration was not refreshed because the network is unreachable; " +
+                                    "continuing with the currently cached configuration",
                             )
+                        } else {
                             withContext(Main) {
                                 SnackBarManager.showMessage(
                                     context,
@@ -97,7 +106,9 @@ class LibrarySetup
             try {
                 initialization.init(context, isLoggingEnabled)
             } catch (e: Exception) {
-                if (e !is AlreadyInitializedException) {
+                if (e is AlreadyInitializedException) {
+                    debugLog(logTag, "libdigidocpp was already initialized")
+                } else {
                     errorLog(logTag, "Unable to initialize libdigidocpp", e)
                     withContext(Main) {
                         Toast

@@ -26,69 +26,61 @@ import ee.ria.DigiDoc.configuration.utils.Constant.CACHED_CONFIG_JSON
 import ee.ria.DigiDoc.configuration.utils.Constant.CACHED_CONFIG_PUB
 import ee.ria.DigiDoc.configuration.utils.Constant.CACHED_CONFIG_RSA
 import ee.ria.DigiDoc.configuration.utils.Constant.CACHE_CONFIG_FOLDER
-import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.infoLog
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
-import java.io.FileWriter
 import java.io.IOException
+import java.nio.charset.StandardCharsets
 
 object ConfigurationCache {
     private const val LOG_TAG = "ConfigurationCache"
+    private const val TEMPORARY_SUFFIX = ".tmp"
 
+    @Throws(IOException::class)
     fun cacheConfigurationFiles(
         context: Context,
         confData: String,
         publicKey: String,
         signature: ByteArray,
     ) {
-        cacheFile(context, CACHED_CONFIG_JSON, confData)
-        cacheFile(context, CACHED_CONFIG_PUB, publicKey)
-        cacheFile(context, CACHED_CONFIG_RSA, signature)
-    }
-
-    private fun cacheFile(
-        context: Context,
-        fileName: String,
-        data: String,
-    ) {
         val configDir = File(context.cacheDir, CACHE_CONFIG_FOLDER)
-        if (!configDir.exists()) {
-            configDir.mkdirs()
+        if (!configDir.exists() && !configDir.mkdirs()) {
+            val message = "Unable to create the configuration cache directory: ${configDir.path}"
+            errorLog(LOG_TAG, message)
+            throw IOException(message)
         }
 
-        val configFile = File(configDir, fileName)
-        try {
-            FileWriter(configFile).use { writer ->
-                writer.write(data)
-            }
-        } catch (ioe: IOException) {
-            LoggingUtil.errorLog(
-                LOG_TAG,
-                "Unable to cache file $fileName",
-                ioe,
+        val files =
+            listOf(
+                CACHED_CONFIG_JSON to confData.toByteArray(StandardCharsets.UTF_8),
+                CACHED_CONFIG_PUB to publicKey.toByteArray(StandardCharsets.UTF_8),
+                CACHED_CONFIG_RSA to signature,
             )
-        }
-    }
-
-    private fun cacheFile(
-        context: Context,
-        fileName: String,
-        data: ByteArray,
-    ) {
-        val configDir = File(context.cacheDir, CACHE_CONFIG_FOLDER)
-        if (!configDir.exists()) {
-            configDir.mkdirs()
-        }
-
-        val configFile = File(configDir, fileName)
+        val temporaryFiles = mutableListOf<File>()
 
         try {
-            FileOutputStream(configFile).use { fos ->
-                fos.write(data)
+            files.forEach { (fileName, data) ->
+                val temporaryFile = File.createTempFile(fileName, TEMPORARY_SUFFIX, configDir)
+                temporaryFiles += temporaryFile
+                FileOutputStream(temporaryFile).use { outputStream -> outputStream.write(data) }
             }
-        } catch (e: IOException) {
-            LoggingUtil.errorLog(LOG_TAG, "Unable to cache file $fileName", e)
+            files.forEachIndexed { index, (fileName, _) ->
+                if (!temporaryFiles[index].renameTo(File(configDir, fileName))) {
+                    throw IOException("Unable to move the cached configuration file into place: $fileName")
+                }
+            }
+            infoLog(LOG_TAG, "Cached the configuration, its public key and its signature")
+        } catch (e: Exception) {
+            errorLog(LOG_TAG, "Unable to cache the configuration files, keeping the previous ones", e)
+            throw e
+        } finally {
+            temporaryFiles.filter(File::exists).forEach { temporaryFile ->
+                if (!temporaryFile.delete()) {
+                    errorLog(LOG_TAG, "Unable to delete the temporary file: ${temporaryFile.name}")
+                }
+            }
         }
     }
 
@@ -102,6 +94,7 @@ object ConfigurationCache {
         if (configFile.exists() && configFile.isFile) {
             return configFile
         }
+        errorLog(LOG_TAG, "Cached configuration file not found: $fileName")
         throw FileNotFoundException()
     }
 }
