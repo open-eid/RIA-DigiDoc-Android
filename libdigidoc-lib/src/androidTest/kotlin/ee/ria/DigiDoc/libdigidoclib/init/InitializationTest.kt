@@ -26,11 +26,15 @@ import android.content.res.Resources
 import android.content.res.Resources.NotFoundException
 import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.common.Constant.Defaults.DEFAULT_UUID_VALUE
+import ee.ria.DigiDoc.common.testfiles.asset.AssetFile.Companion.getResourceFileAsFile
 import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
+import ee.ria.DigiDoc.libdigidoclib.SignedContainer.Companion.openOrCreate
 import ee.ria.DigiDoc.libdigidoclib.exceptions.AlreadyInitializedException
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
@@ -104,6 +108,18 @@ class InitializationTest {
             field.isAccessible = true
             field.setBoolean(initialization, false)
         }
+
+        @Throws(
+            SecurityException::class,
+            NoSuchFieldException::class,
+            java.lang.IllegalArgumentException::class,
+            IllegalAccessException::class,
+        )
+        private fun isInitializedFlag(): Boolean {
+            val field: Field = Initialization::class.java.getDeclaredField("isInitialized")
+            field.isAccessible = true
+            return field.getBoolean(initialization)
+        }
     }
 
     @Before
@@ -116,14 +132,36 @@ class InitializationTest {
     }
 
     @Test
-    fun initialization_init_success() {
+    fun initialization_init_doesNotThrowWhenTslUnreachable() {
         try {
-            `when`(configurationRepository.getConfiguration()).thenReturn(configurationProvider)
+            val configuration = configurationProvider.copy(tslUrl = "http://127.0.0.1:1/eu-lotl.xml")
+            `when`(configurationRepository.getConfiguration()).thenReturn(configuration)
             runTest {
                 initialization.init(context)
             }
-        } catch (_: Exception) {
-            fail("No exceptions should be thrown")
+        } catch (e: Exception) {
+            fail("Failing to download the list must not be fatal, but init threw: $e")
+        }
+
+        assertTrue(
+            "The library should still be marked as initialized when the list cannot be downloaded",
+            isInitializedFlag(),
+        )
+    }
+
+    @Test
+    fun initialization_init_containerRemainsUsableWhenTslUnreachable() {
+        val configuration = configurationProvider.copy(tslUrl = "http://127.0.0.1:1/eu-lotl.xml")
+        `when`(configurationRepository.getConfiguration()).thenReturn(configuration)
+
+        runTest {
+            initialization.init(context)
+
+            val containerFile =
+                getResourceFileAsFile(context, "example.asice", ee.ria.DigiDoc.common.R.raw.example)
+            val signedContainer = openOrCreate(context, containerFile, listOf(containerFile), false)
+
+            assertEquals(2, signedContainer.getSignatures().size)
         }
     }
 
@@ -159,6 +197,8 @@ class InitializationTest {
 
     @Test
     fun initialization_init_throwsAlreadyInitializedExceptionWhenInitTwice() {
+        `when`(configurationRepository.getConfiguration())
+            .thenReturn(configurationProvider.copy(tslUrl = "http://127.0.0.1:1/eu-lotl.xml"))
         assertThrows(AlreadyInitializedException::class.java) {
             runTest {
                 initialization.init(context)
