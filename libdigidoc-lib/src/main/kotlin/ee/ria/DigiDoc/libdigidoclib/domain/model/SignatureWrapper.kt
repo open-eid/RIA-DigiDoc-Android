@@ -57,7 +57,7 @@ class SignatureWrapper(
     override val postalCode: String = signature.postalCode()
     override val countryName: String = signature.countryName()
 
-    override val signerRoles: List<String> = signature.signerRoles()
+    override val signerRoles: List<String> = signature.signerRoles().toList()
     override val ocspProducedAt: String = signature.OCSPProducedAt()
     override val timeStampTime: String = signature.TimeStampTime()
     override val archiveTimeStampTime: String = signature.ArchiveTimeStampTime()
