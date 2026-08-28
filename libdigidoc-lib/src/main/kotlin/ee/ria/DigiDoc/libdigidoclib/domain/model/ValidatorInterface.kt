@@ -21,7 +21,9 @@
 
 package ee.ria.DigiDoc.libdigidoclib.domain.model
 
-interface ValidatorInterface {
+import java.io.Serializable
+
+interface ValidatorInterface : Serializable {
     val diagnostics: String
     val status: Status
 
