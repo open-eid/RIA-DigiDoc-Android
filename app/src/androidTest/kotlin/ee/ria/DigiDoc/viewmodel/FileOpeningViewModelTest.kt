@@ -56,6 +56,7 @@ import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
+import ee.ria.DigiDoc.libdigidoclib.exceptions.SSLHandshakeException
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.libdigidoclib.init.LibdigidocLibraryLoader
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
@@ -757,6 +758,30 @@ class FileOpeningViewModelTest {
 
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
             verify(errorStateObserver).onChanged(Pair(R.string.no_internet_connection, null))
+        }
+
+    @Test
+    fun fileOpeningViewModel_handleFiles_sslHandshakeException() =
+        runTest {
+            val uri: Uri = mock()
+            val uris = listOf(uri)
+            val exception = SSLHandshakeException(context)
+
+            val isSivaConfirmed = true
+
+            `when`(fileOpeningRepository.openOrCreateContainer(context, contentResolver, uris, isSivaConfirmed))
+                .thenThrow(exception)
+
+            viewModel.handleFiles(
+                context,
+                uris,
+                null,
+                isSivaConfirmed = isSivaConfirmed,
+                fileOpeningMethod = FileOpeningMethod.ALL,
+            )
+
+            verify(signedContainerObserver, atLeastOnce()).onChanged(null)
+            verify(errorStateObserver).onChanged(Pair(R.string.invalid_ssl_handshake, null))
         }
 
     @Test
