@@ -79,6 +79,8 @@ import java.io.IOException
 import java.net.UnknownHostException
 import java.security.NoSuchAlgorithmException
 import java.security.cert.CertificateException
+import java.security.cert.CertificateExpiredException
+import java.security.cert.CertificateNotYetValidException
 import javax.net.ssl.SSLPeerUnverifiedException
 
 @RunWith(MockitoJUnitRunner::class)
@@ -385,6 +387,163 @@ class SmartSignServiceImplTest {
             )
 
             verifyNoInteractions(call)
+        }
+
+    @Test
+    fun smartSignService_processSmartIdRequest_prepareSignatureCertificateExpired() =
+        runTest {
+            doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sidSignServiceUrl = request.url + "/",
+                certBundle = certBundle,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            doReturn(
+                Calls.response(
+                    Response.success(
+                        SessionResponse(
+                            sessionID = "sessionID",
+                        ),
+                    ),
+                ),
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
+                    semanticsIdentifier = "PNOEE-60001019906",
+                    body = getSmartCertificateRequest,
+                )
+
+            doReturn(
+                Calls.response(
+                    Response.success(
+                        SessionStatusResponse(
+                            state = SessionStatusResponseProcessState.COMPLETE,
+                            result =
+                                SessionStatusResponseStatus(
+                                    endResult = SessionStatusResponseProcessStatus.OK,
+                                    documentNumber = "documentNumber",
+                                ),
+                            signature =
+                                SmartSignatureResponse(
+                                    value = "dTzZ20E8kmoXXBAh5cV5yw==",
+                                    algorithm = "SmartIDSignatureAlgorithm",
+                                ),
+                            cert =
+                                SmartCertificateResponse(
+                                    value = cert,
+                                    assuranceLevel = "assuranceLevel",
+                                    certificateLevel = "certificateLevel",
+                                ),
+                        ),
+                    ),
+                ),
+            ).whenever(sidRestServiceClient)
+                .getSessionStatus("sessionID", 5000)
+
+            whenever(
+                containerWrapper.prepareSignature(
+                    signer = any<ExternalSigner>(),
+                    signedContainer = any<SignedContainer>(),
+                    cert = any<ByteArray>(),
+                    roleData = isNull(),
+                ),
+            ).thenThrow(CertificateExpiredException())
+
+            smartSignServiceImpl.processSmartIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.CERTIFICATE_EXPIRED)
+
+            verify(containerWrapper, never()).finalizeSignature(any(), any(), any())
+        }
+
+    @Test
+    fun smartSignService_processSmartIdRequest_prepareSignatureCertificateNotYetValid() =
+        runTest {
+            doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sidSignServiceUrl = request.url + "/",
+                certBundle = certBundle,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            doReturn(
+                Calls.response(
+                    Response.success(
+                        SessionResponse(
+                            sessionID = "sessionID",
+                        ),
+                    ),
+                ),
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
+                    semanticsIdentifier = "PNOEE-60001019906",
+                    body = getSmartCertificateRequest,
+                )
+
+            doReturn(
+                Calls.response(
+                    Response.success(
+                        SessionStatusResponse(
+                            state = SessionStatusResponseProcessState.COMPLETE,
+                            result =
+                                SessionStatusResponseStatus(
+                                    endResult = SessionStatusResponseProcessStatus.OK,
+                                    documentNumber = "documentNumber",
+                                ),
+                            signature =
+                                SmartSignatureResponse(
+                                    value = "dTzZ20E8kmoXXBAh5cV5yw==",
+                                    algorithm = "SmartIDSignatureAlgorithm",
+                                ),
+                            cert =
+                                SmartCertificateResponse(
+                                    value = cert,
+                                    assuranceLevel = "assuranceLevel",
+                                    certificateLevel = "certificateLevel",
+                                ),
+                        ),
+                    ),
+                ),
+            ).whenever(sidRestServiceClient)
+                .getSessionStatus("sessionID", 5000)
+
+            whenever(
+                containerWrapper.prepareSignature(
+                    signer = any<ExternalSigner>(),
+                    signedContainer = any<SignedContainer>(),
+                    cert = any<ByteArray>(),
+                    roleData = isNull(),
+                ),
+            ).thenThrow(CertificateNotYetValidException())
+
+            smartSignServiceImpl.processSmartIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce())
+                .onChanged(SessionStatusResponseProcessStatus.CERTIFICATE_NOT_YET_VALID)
+
+            verify(containerWrapper, never()).finalizeSignature(any(), any(), any())
         }
 
     @Test

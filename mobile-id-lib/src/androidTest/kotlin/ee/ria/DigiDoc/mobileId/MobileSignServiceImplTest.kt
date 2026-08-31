@@ -70,6 +70,7 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.isNull
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import retrofit2.Call
@@ -78,6 +79,8 @@ import retrofit2.mock.Calls
 import java.net.UnknownHostException
 import java.security.NoSuchAlgorithmException
 import java.security.cert.CertificateException
+import java.security.cert.CertificateExpiredException
+import java.security.cert.CertificateNotYetValidException
 import javax.net.ssl.SSLPeerUnverifiedException
 
 @RunWith(MockitoJUnitRunner::class)
@@ -374,6 +377,113 @@ class MobileSignServiceImplTest {
             verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.INVALID_ACCESS_RIGHTS)
 
             request.relyingPartyUUID = RELYING_PARTY_UUID
+        }
+
+    @Test
+    fun mobileSignService_processMobileIdRequest_prepareSignatureCertificateExpired() =
+        runTest {
+            doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sslContext = null,
+                midSignServiceUrl = request.url,
+                certBundle = certBundle,
+                trustManagers = trustManagers,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            doReturn(
+                Calls.response(
+                    Response.success(
+                        MobileCreateSignatureCertificateResponse(
+                            result = MobileCertificateResultType.OK,
+                            cert = cert,
+                        ),
+                    ),
+                ),
+            ).whenever(midRestServiceClient)
+                .getCertificate(
+                    body = getMobileCertificateRequest,
+                )
+
+            whenever(
+                containerWrapper.prepareSignature(
+                    signer = any<ExternalSigner>(),
+                    signedContainer = any<SignedContainer>(),
+                    cert = any<ByteArray>(),
+                    roleData = isNull(),
+                ),
+            ).thenThrow(CertificateExpiredException())
+
+            mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.CERTIFICATE_EXPIRED)
+
+            verify(containerWrapper, never()).finalizeSignature(any(), any(), any())
+        }
+
+    @Test
+    fun mobileSignService_processMobileIdRequest_prepareSignatureCertificateNotYetValid() =
+        runTest {
+            doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sslContext = null,
+                midSignServiceUrl = request.url,
+                certBundle = certBundle,
+                trustManagers = trustManagers,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            doReturn(
+                Calls.response(
+                    Response.success(
+                        MobileCreateSignatureCertificateResponse(
+                            result = MobileCertificateResultType.OK,
+                            cert = cert,
+                        ),
+                    ),
+                ),
+            ).whenever(midRestServiceClient)
+                .getCertificate(
+                    body = getMobileCertificateRequest,
+                )
+
+            whenever(
+                containerWrapper.prepareSignature(
+                    signer = any<ExternalSigner>(),
+                    signedContainer = any<SignedContainer>(),
+                    cert = any<ByteArray>(),
+                    roleData = isNull(),
+                ),
+            ).thenThrow(CertificateNotYetValidException())
+
+            mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce())
+                .onChanged(MobileCreateSignatureProcessStatus.CERTIFICATE_NOT_YET_VALID)
+
+            verify(containerWrapper, never()).finalizeSignature(any(), any(), any())
         }
 
     @Test

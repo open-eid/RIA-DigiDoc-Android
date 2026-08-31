@@ -41,6 +41,7 @@ import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepositoryImp
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
+import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.domain.model.ContainerFileOpeningResult
 import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
@@ -583,6 +584,97 @@ class SharedContainerViewModelTest {
         viewModel.setSignedContainer(signedContainer)
 
         assertFalse(viewModel.isNestedContainer(signedContainer))
+    }
+
+    @Test
+    fun sharedContainerViewModel_isNestedContainer_returnFalseForFreshContainerWhenStackClearedFirst() {
+        val staleContainer = SignedContainer(context)
+        val freshContainer = SignedContainer(context)
+
+        viewModel.setSignedContainer(staleContainer)
+
+        viewModel.clearContainers()
+        viewModel.setSignedContainer(freshContainer)
+
+        assertEquals(1, viewModel.nestedContainers.size)
+        assertFalse(viewModel.isNestedContainer(freshContainer))
+    }
+
+    @Test
+    fun sharedContainerViewModel_isNestedContainer_returnTrueForFreshContainerWhenStaleContainerLeftInStack() {
+        val staleContainer = SignedContainer(context)
+        val freshContainer = SignedContainer(context)
+
+        viewModel.setSignedContainer(staleContainer)
+        viewModel.setSignedContainer(freshContainer)
+
+        assertEquals(2, viewModel.nestedContainers.size)
+        assertTrue(viewModel.isNestedContainer(freshContainer))
+    }
+
+    @Test
+    fun sharedContainerViewModel_setSignedContainer_doesNotGrowStackWhenSameContainerIsSetAgain() {
+        val signedContainer = SignedContainer(context)
+
+        viewModel.setSignedContainer(signedContainer)
+        viewModel.setSignedContainer(signedContainer)
+
+        assertEquals(1, viewModel.nestedContainers.size)
+        assertTrue(viewModel.nestedContainers.contains(signedContainer))
+        assertFalse(viewModel.isNestedContainer(signedContainer))
+    }
+
+    @Test
+    fun sharedContainerViewModel_resetSignedContainer_leavesNestedContainerStackPopulated() {
+        val signedContainer = SignedContainer(context)
+
+        viewModel.setSignedContainer(signedContainer)
+        viewModel.resetSignedContainer()
+
+        assertNull(viewModel.signedContainer.value)
+        assertEquals(1, viewModel.nestedContainers.size)
+    }
+
+    @Test
+    fun sharedContainerViewModel_clearContainers_makesFreshCryptoContainerNonNested() {
+        val staleContainer = SignedContainer(context)
+        val freshCryptoContainer =
+            CryptoContainer(
+                context = context,
+                file = File.createTempFile("crypto", ".cdoc"),
+                dataFiles = arrayListOf(),
+                recipients = arrayListOf(),
+                decrypted = false,
+                encrypted = false,
+            )
+
+        viewModel.setSignedContainer(staleContainer)
+
+        viewModel.clearContainers()
+        viewModel.setCryptoContainer(freshCryptoContainer)
+
+        assertEquals(1, viewModel.nestedContainers.size)
+        assertFalse(viewModel.isNestedContainer(freshCryptoContainer))
+    }
+
+    @Test
+    fun sharedContainerViewModel_isNestedContainer_returnTrueForFreshCryptoContainerWhenStaleContainerLeftInStack() {
+        val staleContainer = SignedContainer(context)
+        val freshCryptoContainer =
+            CryptoContainer(
+                context = context,
+                file = File.createTempFile("crypto", ".cdoc"),
+                dataFiles = arrayListOf(),
+                recipients = arrayListOf(),
+                decrypted = false,
+                encrypted = false,
+            )
+
+        viewModel.setSignedContainer(staleContainer)
+        viewModel.setCryptoContainer(freshCryptoContainer)
+
+        assertEquals(2, viewModel.nestedContainers.size)
+        assertTrue(viewModel.isNestedContainer(freshCryptoContainer))
     }
 
     @Test

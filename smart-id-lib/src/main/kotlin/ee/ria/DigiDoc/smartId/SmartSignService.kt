@@ -64,6 +64,8 @@ import java.net.UnknownHostException
 import java.nio.charset.StandardCharsets
 import java.security.NoSuchAlgorithmException
 import java.security.cert.CertificateException
+import java.security.cert.CertificateExpiredException
+import java.security.cert.CertificateNotYetValidException
 import java.util.Base64
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -323,6 +325,24 @@ class SmartSignServiceImpl
                         setErrorState(errorString)
                         return
                     }
+                } catch (cee: CertificateExpiredException) {
+                    errorLog(
+                        logTag,
+                        "Failed to sign with Smart-ID. Signing certificate has expired. " +
+                            "Exception message: ${cee.message}",
+                        cee,
+                    )
+                    postFault(ServiceFault(SessionStatusResponseProcessStatus.CERTIFICATE_EXPIRED))
+                    return
+                } catch (cnyve: CertificateNotYetValidException) {
+                    errorLog(
+                        logTag,
+                        "Failed to sign with Smart-ID. Signing certificate is not yet valid. " +
+                            "Exception message: ${cnyve.message}",
+                        cnyve,
+                    )
+                    postFault(ServiceFault(SessionStatusResponseProcessStatus.CERTIFICATE_NOT_YET_VALID))
+                    return
                 } catch (e: UnknownHostException) {
                     postFault(ServiceFault(SessionStatusResponseProcessStatus.NO_RESPONSE))
                     errorLog(

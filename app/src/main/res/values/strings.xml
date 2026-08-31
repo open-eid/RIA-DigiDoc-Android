@@ -320,6 +320,8 @@
     <string name="sign_blocked_pin2_unchanged_url">https://www.id.ee/en/article/changing-id-card-pin-codes-and-puk-code/</string>
     <string name="signature_update_signature_error_message_certificate_revoked">Certificate status revoked</string>
     <string name="signature_update_signature_error_message_certificate_unknown">Certificate status unknown</string>
+    <string name="signature_update_signature_error_message_certificate_expired">Certificate has expired</string>
+    <string name="signature_update_signature_error_message_certificate_not_yet_valid">Certificate not yet valid</string>
     <string name="id_card_conditional_speech">ID-card\'s</string>
     <string name="mobile_id_conditional_speech">Mobile-ID</string>
     <string name="smart_id_conditional_speech">Smart-ID</string>
@@ -344,10 +346,8 @@
     <string name="signature_update_mobile_id_error_session_locked">Mobile signing session is locked, try again later</string>
     <string name="signature_update_mobile_id_error_general_user">An error occurred with the signers mobile phone</string>
     <string name="signature_update_mobile_id_error_not_mobile_id_user">User is not a mobile-ID client</string>
-    <string name="signature_update_mobile_id_error_user_certificate_revoked">Your mobile signing certificate is revoked</string>
     <string name="signature_update_mobile_id_error_user_certificate_status_unknown">Your mobile signing certificate status is unknown</string>
     <string name="signature_update_mobile_id_error_user_certificate_suspended">Your mobile signing certificate is suspended</string>
-    <string name="signature_update_mobile_id_error_user_certificate_expired">Your mobile signing certificate is expired</string>
     <string name="signature_update_mobile_id_error_message_exceeds_volume_limit">Too many datafiles in container</string>
     <string name="signature_update_mobile_id_error_message_access_rights">Failed to sign container. Check your mobile-ID service access settings. https://www.id.ee/en/article/for-organisations-that-sign-large-quantities-of-documents-using-digidoc4-client/</string>
     <string name="signature_update_mobile_id_error_simultaneous_requests_limit_exceeded">Simultaneous requests limit exceeded</string>

@@ -145,6 +145,9 @@ fun CryptoFileOpeningNavigation(
     LaunchedEffect(cryptoFileOpeningViewModel.cryptoContainer) {
         cryptoFileOpeningViewModel.cryptoContainer.asFlow().collect { cryptoContainer ->
             cryptoContainer?.let {
+                if (!sharedContainerViewModel.nestedContainers.contains(it)) {
+                    sharedContainerViewModel.clearContainers()
+                }
                 sharedContainerViewModel.setCryptoContainer(it)
                 delay(1000)
 

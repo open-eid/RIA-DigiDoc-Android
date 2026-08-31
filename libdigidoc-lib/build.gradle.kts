@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.androidx.hilt)
 
     testImplementation(libs.junit)
+    testImplementation(libs.mockito.kotlin)
 
     androidTestImplementation(libs.byte.buddy)
     androidTestImplementation(libs.mockito.android) {

@@ -25,6 +25,7 @@ import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.init.libdigidocppDispatcher
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
+import ee.ria.DigiDoc.utilsLib.signing.CertificateUtil
 import ee.ria.DigiDoc.utilsLib.text.TextUtil.removeEmptyStrings
 import ee.ria.libdigidocpp.ExternalSigner
 import ee.ria.libdigidocpp.Signature
@@ -61,6 +62,7 @@ class ContainerWrapperImpl : ContainerWrapper {
     ): ByteArray =
         withContext(libdigidocppDispatcher) {
             debugLog(logTag, "Preparing signature (with role data: ${roleData != null})")
+            checkCertificateValidity(cert)
             signature =
                 when {
                     roleData != null && signedContainer != null -> {
@@ -102,5 +104,15 @@ class ContainerWrapperImpl : ContainerWrapper {
         }
         signedContainer?.rawContainer()?.save()
         debugLog(logTag, "Signature finalized and container saved")
+    }
+
+    @Throws(CertificateException::class)
+    private fun checkCertificateValidity(cert: ByteArray?) {
+        if (cert == null) {
+            throw CertificateException("Unable to validate a missing signing certificate")
+        }
+        val x509Certificate = CertificateUtil.x509Certificate(cert)
+        debugLog(logTag, "Signing certificate valid from ${x509Certificate.notBefore} to ${x509Certificate.notAfter}")
+        x509Certificate.checkValidity()
     }
 }

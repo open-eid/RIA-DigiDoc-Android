@@ -142,16 +142,6 @@ class SigningViewModel
             ) &&
                 !isNestedContainer
 
-        fun isShareButtonShown(
-            signedContainer: SignedContainer?,
-            isNestedContainer: Boolean,
-        ): Boolean =
-            (
-                isExistingContainer(signedContainer) ||
-                    !isContainerWithoutSignatures(signedContainer)
-            ) &&
-                !isNestedContainer
-
         fun isBottomContainerButtonShown(
             signedContainer: SignedContainer?,
             isNestedContainer: Boolean,
