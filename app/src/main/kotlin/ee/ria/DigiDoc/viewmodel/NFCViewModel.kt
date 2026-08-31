@@ -62,6 +62,7 @@ import ee.ria.DigiDoc.utils.pin.PinCodeUtil.isPINLengthValid
 import ee.ria.DigiDoc.utilsLib.extensions.clearSensitive
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
+import ee.ria.DigiDoc.utilsLib.signing.CertificateUtil
 import ee.ria.libdigidocpp.ExternalSigner
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -70,6 +71,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.bouncycastle.util.encoders.Hex
+import java.security.cert.CertificateExpiredException
+import java.security.cert.CertificateNotYetValidException
 import java.util.Base64
 import javax.inject.Inject
 
@@ -329,6 +332,12 @@ class NFCViewModel
                                 val message = ex.message.orEmpty()
 
                                 when {
+                                    ex is CertificateExpiredException ->
+                                        showExpiredCertificateError(ex)
+
+                                    ex is CertificateNotYetValidException ->
+                                        showNotYetValidCertificateError(ex)
+
                                     message.contains("Certificate status: revoked") ->
                                         showRevokedCertificateError(ex)
 
@@ -695,6 +704,8 @@ class NFCViewModel
                                 }
                             }
 
+                            CertificateUtil.x509Certificate(signerCert).checkValidity()
+
                             val hashBytes = Base64.getDecoder().decode(hash)
                             val (_, signatureArray) = idCardService.sign(card, pin2Code, hashBytes)
 
@@ -712,6 +723,12 @@ class NFCViewModel
                             val message = ex.message.orEmpty()
 
                             when {
+                                ex is CertificateExpiredException ->
+                                    showExpiredCertificateError(ex)
+
+                                ex is CertificateNotYetValidException ->
+                                    showNotYetValidCertificateError(ex)
+
                                 message.contains("Certificate status: revoked") ->
                                     showRevokedCertificateError(ex)
 
@@ -789,6 +806,22 @@ class NFCViewModel
                 NFCError.CertificateRevoked(R.string.signature_update_signature_error_message_certificate_revoked)
             }
             errorLog(logTag, "Unable to sign with NFC - Certificate status: revoked", e)
+        }
+
+        private fun showExpiredCertificateError(e: Exception) {
+            _errorState.update {
+                NFCError.CertificateExpired(R.string.signature_update_signature_error_message_certificate_expired)
+            }
+            errorLog(logTag, "Unable to sign with NFC - Signing certificate has expired", e)
+        }
+
+        private fun showNotYetValidCertificateError(e: Exception) {
+            _errorState.update {
+                NFCError.CertificateNotYetValid(
+                    R.string.signature_update_signature_error_message_certificate_not_yet_valid,
+                )
+            }
+            errorLog(logTag, "Unable to sign with NFC - Signing certificate is not yet valid", e)
         }
 
         private fun showUnknownCertificateError(e: Exception) {

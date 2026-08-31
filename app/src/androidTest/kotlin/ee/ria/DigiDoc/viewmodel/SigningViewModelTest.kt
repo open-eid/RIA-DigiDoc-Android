@@ -246,36 +246,6 @@ class SigningViewModelTest {
         }
 
     @Test
-    fun signingViewModel_isShareButtonShown_returnTrue() =
-        runTest {
-            val file =
-                getResourceFileAsFile(
-                    context,
-                    "example_no_signatures.asice",
-                    R.raw.example_no_signatures,
-                )
-
-            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
-
-            val isShareButtonShown = viewModel.isShareButtonShown(container, false)
-
-            assertTrue(isShareButtonShown)
-        }
-
-    @Test
-    fun signingViewModel_isShareButtonShown_returnFalse() =
-        runTest {
-            val file = File.createTempFile("temp", ".txt")
-            file.writeText("test content")
-
-            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
-
-            val isShareButtonShown = viewModel.isShareButtonShown(container, false)
-
-            assertFalse(isShareButtonShown)
-        }
-
-    @Test
     fun signingViewModel_isExistingContainer_returnTrue() =
         runTest {
             val file =

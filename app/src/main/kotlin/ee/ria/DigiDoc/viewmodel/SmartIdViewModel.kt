@@ -152,6 +152,12 @@ class SmartIdViewModel
                     SessionStatusResponseProcessStatus.CERTIFICATE_REVOKED,
                     R.string.signature_update_signature_error_message_certificate_revoked,
                 ).put(
+                    SessionStatusResponseProcessStatus.CERTIFICATE_EXPIRED,
+                    R.string.signature_update_signature_error_message_certificate_expired,
+                ).put(
+                    SessionStatusResponseProcessStatus.CERTIFICATE_NOT_YET_VALID,
+                    R.string.signature_update_signature_error_message_certificate_not_yet_valid,
+                ).put(
                     SessionStatusResponseProcessStatus.NOT_QUALIFIED,
                     R.string.signature_update_smart_id_error_message_not_qualified,
                 ).put(
