@@ -22,9 +22,8 @@
 package ee.ria.DigiDoc.configuration.cache
 
 import android.content.Context
+import ee.ria.DigiDoc.configuration.utils.Constant.CACHED_CONFIG_ECC
 import ee.ria.DigiDoc.configuration.utils.Constant.CACHED_CONFIG_JSON
-import ee.ria.DigiDoc.configuration.utils.Constant.CACHED_CONFIG_PUB
-import ee.ria.DigiDoc.configuration.utils.Constant.CACHED_CONFIG_RSA
 import ee.ria.DigiDoc.configuration.utils.Constant.CACHE_CONFIG_FOLDER
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
@@ -61,50 +60,47 @@ class ConfigurationCacheTest {
     }
 
     @Test
-    fun configurationCache_cacheConfigurationFiles_writesAllThreeFiles() {
-        ConfigurationCache.cacheConfigurationFiles(context, "{}", "public-key", byteArrayOf(1, 2, 3))
+    fun configurationCache_cacheConfigurationFiles_writesBothFiles() {
+        ConfigurationCache.cacheConfigurationFiles(context, "{}", byteArrayOf(1, 2, 3))
 
-        assertEquals(3, configDir.listFiles()?.size ?: 0)
+        assertEquals(2, configDir.listFiles()?.size ?: 0)
         assertEquals("{}", File(configDir, CACHED_CONFIG_JSON).readText())
-        assertEquals("public-key", File(configDir, CACHED_CONFIG_PUB).readText())
-        assertArrayEquals(byteArrayOf(1, 2, 3), File(configDir, CACHED_CONFIG_RSA).readBytes())
+        assertArrayEquals(byteArrayOf(1, 2, 3), File(configDir, CACHED_CONFIG_ECC).readBytes())
     }
 
     @Test
     fun configurationCache_cacheConfigurationFiles_leavesNoTemporaryOrBackupFilesBehind() {
-        ConfigurationCache.cacheConfigurationFiles(context, "{}", "public-key", byteArrayOf(1))
+        ConfigurationCache.cacheConfigurationFiles(context, "{}", byteArrayOf(1))
 
         assertTrue("Leftover files: ${leftoverFilesIn(configDir)}", leftoverFilesIn(configDir).isEmpty())
     }
 
     @Test
     fun configurationCache_cacheConfigurationFiles_replacesThePreviousSetCompletely() {
-        ConfigurationCache.cacheConfigurationFiles(context, "{\"old\":1}", "old-key", byteArrayOf(9))
+        ConfigurationCache.cacheConfigurationFiles(context, "{\"old\":1}", byteArrayOf(9))
 
-        ConfigurationCache.cacheConfigurationFiles(context, "{\"new\":2}", "new-key", byteArrayOf(8))
+        ConfigurationCache.cacheConfigurationFiles(context, "{\"new\":2}", byteArrayOf(8))
 
-        assertEquals(3, configDir.listFiles()?.size ?: 0)
+        assertEquals(2, configDir.listFiles()?.size ?: 0)
         assertEquals("{\"new\":2}", File(configDir, CACHED_CONFIG_JSON).readText())
-        assertEquals("new-key", File(configDir, CACHED_CONFIG_PUB).readText())
-        assertArrayEquals(byteArrayOf(8), File(configDir, CACHED_CONFIG_RSA).readBytes())
+        assertArrayEquals(byteArrayOf(8), File(configDir, CACHED_CONFIG_ECC).readBytes())
     }
 
     @Test
     fun configurationCache_cacheConfigurationFiles_keepsThePreviousSetWhenTheWriteFails() {
-        ConfigurationCache.cacheConfigurationFiles(context, "{\"old\":1}", "old-key", byteArrayOf(9))
+        ConfigurationCache.cacheConfigurationFiles(context, "{\"old\":1}", byteArrayOf(9))
 
         assertTrue(configDir.setWritable(false))
         try {
             assertThrows(IOException::class.java) {
-                ConfigurationCache.cacheConfigurationFiles(context, "{\"new\":2}", "new-key", byteArrayOf(8))
+                ConfigurationCache.cacheConfigurationFiles(context, "{\"new\":2}", byteArrayOf(8))
             }
         } finally {
             assertTrue(configDir.setWritable(true))
         }
 
         assertEquals("{\"old\":1}", File(configDir, CACHED_CONFIG_JSON).readText())
-        assertEquals("old-key", File(configDir, CACHED_CONFIG_PUB).readText())
-        assertArrayEquals(byteArrayOf(9), File(configDir, CACHED_CONFIG_RSA).readBytes())
+        assertArrayEquals(byteArrayOf(9), File(configDir, CACHED_CONFIG_ECC).readBytes())
         assertTrue("Leftover files: ${leftoverFilesIn(configDir)}", leftoverFilesIn(configDir).isEmpty())
     }
 
@@ -112,19 +108,19 @@ class ConfigurationCacheTest {
     fun configurationCache_restorePreviousFiles_bringsBackEveryBackedUpFile() {
         assertTrue(configDir.mkdirs())
         val json = writeFile(CACHED_CONFIG_JSON, "{\"new\":2}")
-        val pub = writeFile(CACHED_CONFIG_PUB, "new-key")
+        val signature = writeFile(CACHED_CONFIG_ECC, "new-signature")
         val jsonBackup = writeFile("$CACHED_CONFIG_JSON.bak", "{\"old\":1}")
-        val pubBackup = writeFile("$CACHED_CONFIG_PUB.bak", "old-key")
+        val signatureBackup = writeFile("$CACHED_CONFIG_ECC.bak", "old-signature")
 
         ConfigurationCache.restorePreviousFiles(
-            listOf(json.toPath(), pub.toPath()),
-            mapOf(json.toPath() to jsonBackup.toPath(), pub.toPath() to pubBackup.toPath()),
+            listOf(json.toPath(), signature.toPath()),
+            mapOf(json.toPath() to jsonBackup.toPath(), signature.toPath() to signatureBackup.toPath()),
         )
 
         assertEquals("{\"old\":1}", json.readText())
-        assertEquals("old-key", pub.readText())
+        assertEquals("old-signature", signature.readText())
         assertFalse(jsonBackup.exists())
-        assertFalse(pubBackup.exists())
+        assertFalse(signatureBackup.exists())
         assertEquals(2, configDir.listFiles()?.size ?: 0)
     }
 
@@ -163,7 +159,7 @@ class ConfigurationCacheTest {
         assertTrue(File(cacheDir, "config").createNewFile())
 
         assertThrows(IOException::class.java) {
-            ConfigurationCache.cacheConfigurationFiles(context, "{}", "public-key", byteArrayOf(1))
+            ConfigurationCache.cacheConfigurationFiles(context, "{}", byteArrayOf(1))
         }
     }
 

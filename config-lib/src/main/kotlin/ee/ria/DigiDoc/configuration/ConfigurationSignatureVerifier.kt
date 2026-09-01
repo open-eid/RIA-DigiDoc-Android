@@ -21,9 +21,11 @@
 
 package ee.ria.DigiDoc.configuration
 
+import ee.ria.DigiDoc.configuration.exception.ConfigurationSignatureValidationException
 import ee.ria.DigiDoc.configuration.utils.SignatureVerifier
 
 interface ConfigurationSignatureVerifier {
+    @Throws(ConfigurationSignatureValidationException::class)
     fun verifyConfigurationSignature(
         config: String,
         publicKey: String,
@@ -37,7 +39,15 @@ class ConfigurationSignatureVerifierImpl : ConfigurationSignatureVerifier {
         publicKey: String,
         signature: ByteArray,
     ) {
-        val signatureValid: Boolean = SignatureVerifier.verify(signature, publicKey, config)
-        check(signatureValid) { "Configuration signature validation failed!" }
+        val signatureValid =
+            try {
+                SignatureVerifier.verify(signature, publicKey, config)
+            } catch (e: IllegalStateException) {
+                throw ConfigurationSignatureValidationException(e)
+            }
+
+        if (!signatureValid) {
+            throw ConfigurationSignatureValidationException()
+        }
     }
 }

@@ -169,7 +169,7 @@ class CryptoContainerTest {
                             ConfigurationPropertiesImpl(),
                             ConfigurationSignatureVerifierImpl(),
                         )
-                    configurationRepository = ConfigurationRepositoryImpl(context, configurationLoader)
+                    configurationRepository = ConfigurationRepositoryImpl(configurationLoader)
                     CryptoInitialization().init(
                         isLoggingEnabled = true,
                     )

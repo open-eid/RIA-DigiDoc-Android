@@ -44,7 +44,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnitRunner
 import java.util.UUID
@@ -70,7 +69,7 @@ class ConfigurationRepositoryTest {
     @Before
     fun setUp() {
         `when`(configurationLoader.getConfigurationFlow()).thenReturn(configurationFlow)
-        configurationRepository = ConfigurationRepositoryImpl(context, configurationLoader)
+        configurationRepository = ConfigurationRepositoryImpl(configurationLoader)
         Dispatchers.setMain(testDispatcher)
 
         proxySetting = ProxySetting.NO_PROXY
@@ -102,18 +101,6 @@ class ConfigurationRepositoryTest {
         val result = configurationRepository.getConfiguration()
         assertNull(result)
     }
-
-    @Test
-    fun configurationRepository_getCentralConfiguration_success() =
-        runBlocking {
-            val configurationProvider = mockConfigurationProvider()
-            configurationFlow.value = configurationProvider
-
-            val result = configurationRepository.getCentralConfiguration(proxySetting, manualProxy)
-            assertNotNull(result)
-            assertEquals(configurationProvider, result)
-            verify(configurationLoader).loadCentralConfiguration(context, proxySetting, manualProxy)
-        }
 
     @Test
     fun configurationRepository_observeConfigurationUpdates_success() =

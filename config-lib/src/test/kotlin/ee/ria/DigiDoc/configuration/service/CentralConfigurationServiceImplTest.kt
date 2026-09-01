@@ -150,17 +150,6 @@ class CentralConfigurationServiceImplTest {
         }
 
     @Test
-    fun centralConfigurationServiceImpl_fetchPublicKey_returnsResponse() =
-        runTest {
-            val expected = "public-key-value"
-            mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(expected))
-
-            val result = service.fetchPublicKey()
-
-            assertEquals(expected, result)
-        }
-
-    @Test
     fun centralConfigurationServiceImpl_fetchSignature_returnsResponse() =
         runTest {
             val expected = "signature-value"

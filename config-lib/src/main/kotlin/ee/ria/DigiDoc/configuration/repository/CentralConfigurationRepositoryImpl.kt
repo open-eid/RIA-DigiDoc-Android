@@ -35,8 +35,6 @@ class CentralConfigurationRepositoryImpl
     ) : CentralConfigurationRepository {
         override suspend fun fetchConfiguration(): String = configurationService.fetchConfiguration()
 
-        override suspend fun fetchPublicKey(): String = configurationService.fetchPublicKey()
-
         @Throws(Exception::class)
         override suspend fun fetchSignature(): String = configurationService.fetchSignature()
 

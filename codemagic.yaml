@@ -93,24 +93,25 @@ workflows:
           mkdir -p $CONFIG_DIR
           mkdir -p $TSL_FILES_DIR
 
-          # Remove current eu-lotl.xml if it exists
-          rm -f $TSL_FILES_DIR/eu-lotl.xml
-
-          # Download latest 'eu-lotl' file
-          echo "Downloading latest 'eu-lotl.xml' file"
-          wget "https://ec.europa.eu/tools/lotl/eu-lotl.xml" -P $TSL_FILES_DIR
-
           # Get repo.ria values from environmental variables, as CodeMagic doesn't have access to repo.ria domain
           if [[ "${{ inputs.defaultCentralConfigurationTslUrl_input }}" == *"ria.test"* ]]; then
             echo "Using repo.ria configuration"
             echo $REPO_RIA_DEFAULT_PROPERTIES | base64 --decode > $CONFIG_DIR/configuration.properties
             echo $REPO_RIA_CONFIG | base64 --decode > $CONFIG_DIR/default-config.json
-            echo $REPO_RIA_PUB_KEY | base64 --decode > $CONFIG_DIR/default-config.pub
-            echo $REPO_RIA_RSA | base64 --decode > $CONFIG_DIR/default-config.rsa
+            echo $REPO_RIA_PUB_KEY | base64 --decode > $CONFIG_DIR/default-config.ecpub
+            echo $REPO_RIA_SIGNATURE | base64 --decode > $CONFIG_DIR/default-config.ecc
             echo $REPO_RIA_TRUSTED_TEST_MP | base64 --decode > $TSL_FILES_DIR/trusted-test-mp.xml
-            echo $REPO_RIA_TL_MP_TEST_EE | base64 --decode > $TSL_FILES_DIR/tl-mp-test-EE.xml
             # EE_T.xml is too large to use in environmental variable. Using compressed variant
+            set -o pipefail
             echo $REPO_RIA_EE_TSL | base64 --decode | gunzip > $TSL_FILES_DIR/EE_T.xml
+            for configFile in "$CONFIG_DIR/configuration.properties" "$CONFIG_DIR/default-config.json" \
+              "$CONFIG_DIR/default-config.ecpub" "$CONFIG_DIR/default-config.ecc" \
+              "$TSL_FILES_DIR/EE_T.xml"; do
+              if [ ! -s "$configFile" ]; then
+                echo "ERROR: $configFile is missing or empty"
+                exit 1
+              fi
+            done
           else
             echo "Not using repo.ria configuration"
           fi

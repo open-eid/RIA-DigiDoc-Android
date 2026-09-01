@@ -19,23 +19,8 @@
 
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.configuration.repository
+package ee.ria.DigiDoc.configuration.exception
 
-import ee.ria.DigiDoc.network.proxy.ManualProxy
-import ee.ria.DigiDoc.network.proxy.ProxySetting
-import retrofit2.http.GET
-
-interface CentralConfigurationRepository {
-    @Throws(Exception::class)
-    @GET("config.json")
-    suspend fun fetchConfiguration(): String
-
-    @Throws(Exception::class)
-    @GET("config.ecc")
-    suspend fun fetchSignature(): String
-
-    suspend fun setupProxy(
-        proxySetting: ProxySetting?,
-        manualProxy: ManualProxy,
-    )
-}
+class ConfigurationSignatureValidationException(
+    cause: Throwable? = null,
+) : Exception("Configuration signature validation failed", cause)

@@ -19,23 +19,23 @@
 
 @file:Suppress("PackageName")
 
-package ee.ria.DigiDoc.configuration.repository
+package ee.ria.DigiDoc.configuration.shared
 
-import ee.ria.DigiDoc.network.proxy.ManualProxy
-import ee.ria.DigiDoc.network.proxy.ProxySetting
-import retrofit2.http.GET
+import ee.ria.DigiDoc.utilsLib.file.FileUtil
 
-interface CentralConfigurationRepository {
-    @Throws(Exception::class)
-    @GET("config.json")
-    suspend fun fetchConfiguration(): String
+internal object TestConfigurationFiles {
+    fun config(): String = bytes("config.json").toString(Charsets.UTF_8)
 
-    @Throws(Exception::class)
-    @GET("config.ecc")
-    suspend fun fetchSignature(): String
+    fun publicKey(): String = text("config.ecpub")
 
-    suspend fun setupProxy(
-        proxySetting: ProxySetting?,
-        manualProxy: ManualProxy,
-    )
+    fun signature(): ByteArray = bytes("config.ecc")
+
+    private fun bytes(name: String): ByteArray =
+        classLoader().getResourceAsStream(name).use { FileUtil.readFileContentBytes(it) }
+
+    private fun text(name: String): String =
+        classLoader().getResourceAsStream(name).use { FileUtil.readFileContent(it) }
+
+    private fun classLoader(): ClassLoader =
+        javaClass.classLoader ?: throw IllegalStateException("Unable to get ClassLoader")
 }

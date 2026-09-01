@@ -21,84 +21,60 @@
 
 package ee.ria.DigiDoc.configuration.utils
 
-import ee.ria.DigiDoc.utilsLib.file.FileUtil
+import ee.ria.DigiDoc.configuration.shared.TestConfigurationFiles
 import junit.framework.TestCase
+import org.junit.Assert.assertThrows
 import org.junit.Test
-import java.io.IOException
-import java.util.Optional
 
 class SignatureVerifierTest {
     @Test
     fun verifyValidSignature() {
-        val classLoader =
-            Optional
-                .ofNullable(javaClass.getClassLoader())
-                .orElseThrow {
-                    IllegalStateException(
-                        "Unable to get ClassLoader",
-                    )
-                }
-        try {
-            classLoader.getResourceAsStream("config.json").use { configJsonStream ->
-                classLoader.getResourceAsStream("config.rsa").use { configSignatureStream ->
-                    classLoader
-                        .getResourceAsStream("config.pub")
-                        .use { configSignaturePublicKeyStream ->
-                            val configJson: String =
-                                FileUtil.readFileContent(configJsonStream)
-                            val configSignature: ByteArray =
-                                FileUtil.readFileContentBytes(configSignatureStream)
-                            val configSignaturePublicKey: String =
-                                FileUtil.readFileContent(configSignaturePublicKeyStream)
-                            TestCase.assertTrue(
-                                SignatureVerifier.verify(
-                                    configSignature,
-                                    configSignaturePublicKey,
-                                    configJson,
-                                ),
-                            )
-                        }
-                }
-            }
-        } catch (_: IOException) {
-            throw IllegalStateException("Unable to read resource")
-        }
+        TestCase.assertTrue(SignatureVerifier.verify(signature(), publicKey(), config()))
     }
 
     @Test
     fun verifyInvalidSignature() {
-        val classLoader =
-            Optional
-                .ofNullable(javaClass.getClassLoader())
-                .orElseThrow {
-                    IllegalStateException(
-                        "Unable to get ClassLoader",
-                    )
-                }
-        try {
-            classLoader.getResourceAsStream("config.json").use { configJsonStream ->
-                classLoader.getResourceAsStream("config.rsa").use { configSignatureStream ->
-                    classLoader
-                        .getResourceAsStream("config.pub")
-                        .use { configSignaturePublicKeyStream ->
-                            val configJson: String =
-                                FileUtil.readFileContent(configJsonStream)
-                            val configSignature: ByteArray =
-                                FileUtil.readFileContentBytes(configSignatureStream)
-                            val configSignaturePublicKey: String =
-                                FileUtil.readFileContent(configSignaturePublicKeyStream)
-                            TestCase.assertFalse(
-                                SignatureVerifier.verify(
-                                    configSignature,
-                                    configSignaturePublicKey,
-                                    configJson + "a",
-                                ),
-                            )
-                        }
-                }
+        TestCase.assertFalse(SignatureVerifier.verify(signature(), publicKey(), config() + "a"))
+    }
+
+    @Test
+    fun verifyDoesNotAcceptGarbageSignatureBytes() {
+        val accepted =
+            try {
+                SignatureVerifier.verify(byteArrayOf(1, 2, 3, 4), publicKey(), config())
+            } catch (_: IllegalStateException) {
+                false
             }
-        } catch (_: IOException) {
-            throw IllegalStateException("Unable to read resource")
+
+        TestCase.assertFalse(accepted)
+    }
+
+    @Test
+    fun verifyThrowsIllegalStateWhenPublicKeyPemIsEmpty() {
+        assertThrows(IllegalStateException::class.java) {
+            SignatureVerifier.verify(ByteArray(0), "", "content")
         }
     }
+
+    @Test
+    fun verifyThrowsIllegalStateWhenPublicKeyPemIsNotPem() {
+        assertThrows(IllegalStateException::class.java) {
+            SignatureVerifier.verify(ByteArray(0), "not a pem at all", "content")
+        }
+    }
+
+    @Test
+    fun verifyThrowsIllegalStateWhenPublicKeyPemBodyIsGarbage() {
+        val garbagePem =
+            "-----BEGIN PUBLIC KEY-----\nbm90IGEgcHVibGljIGtleQ==\n-----END PUBLIC KEY-----\n"
+        assertThrows(IllegalStateException::class.java) {
+            SignatureVerifier.verify(ByteArray(0), garbagePem, "content")
+        }
+    }
+
+    private fun config(): String = TestConfigurationFiles.config()
+
+    private fun publicKey(): String = TestConfigurationFiles.publicKey()
+
+    private fun signature(): ByteArray = TestConfigurationFiles.signature()
 }

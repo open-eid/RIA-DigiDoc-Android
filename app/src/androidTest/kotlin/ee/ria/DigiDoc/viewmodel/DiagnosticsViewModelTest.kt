@@ -149,7 +149,7 @@ class DiagnosticsViewModelTest {
                             ConfigurationPropertiesImpl(),
                             ConfigurationSignatureVerifierImpl(),
                         )
-                    configurationRepository = ConfigurationRepositoryImpl(context, configurationLoader)
+                    configurationRepository = ConfigurationRepositoryImpl(configurationLoader)
                     LibdigidocLibraryLoader().init(context)
                     Initialization(configurationRepository).init(context)
                 } catch (_: Exception) {

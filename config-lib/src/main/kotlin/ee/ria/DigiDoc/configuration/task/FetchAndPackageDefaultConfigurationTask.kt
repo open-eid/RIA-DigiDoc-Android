@@ -30,9 +30,9 @@ import ee.ria.DigiDoc.configuration.utils.Constant.CONFIGURATION_DOWNLOAD_DATE_P
 import ee.ria.DigiDoc.configuration.utils.Constant.CONFIGURATION_UPDATE_INTERVAL_PROPERTY
 import ee.ria.DigiDoc.configuration.utils.Constant.CONFIGURATION_VERSION_SERIAL_PROPERTY
 import ee.ria.DigiDoc.configuration.utils.Constant.DEFAULT_CONFIGURATION_PROPERTIES_FILE_NAME
+import ee.ria.DigiDoc.configuration.utils.Constant.DEFAULT_CONFIG_ECC
+import ee.ria.DigiDoc.configuration.utils.Constant.DEFAULT_CONFIG_ECPUB
 import ee.ria.DigiDoc.configuration.utils.Constant.DEFAULT_CONFIG_JSON
-import ee.ria.DigiDoc.configuration.utils.Constant.DEFAULT_CONFIG_PUB
-import ee.ria.DigiDoc.configuration.utils.Constant.DEFAULT_CONFIG_RSA
 import ee.ria.DigiDoc.configuration.utils.Constant.DEFAULT_UPDATE_INTERVAL
 import ee.ria.DigiDoc.configuration.utils.Constant.PROPERTIES_FILE_NAME
 import ee.ria.DigiDoc.configuration.utils.Parser
@@ -44,6 +44,7 @@ import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.internal.tls.OkHostnameVerifier
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -71,23 +72,25 @@ object FetchAndPackageDefaultConfigurationTask {
         }
     }
 
+    internal fun createHttpClient(): OkHttpClient =
+        OkHttpClient
+            .Builder()
+            .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.NONE))
+            .addInterceptor(UserAgentInterceptor("Codemagic"))
+            .addInterceptor(NetworkInterceptor())
+            .hostnameVerifier(OkHostnameVerifier)
+            .connectTimeout(defaultTimeout, TimeUnit.SECONDS)
+            .readTimeout(defaultTimeout, TimeUnit.SECONDS)
+            .callTimeout(defaultTimeout, TimeUnit.SECONDS)
+            .writeTimeout(defaultTimeout, TimeUnit.SECONDS)
+            .build()
+
     @Throws(Exception::class)
     private suspend fun loadAndStoreDefaultConfiguration(args: Array<String>) {
         buildVariant = "main"
         val configurationServiceUrl = determineCentralConfigurationServiceUrl(args)
 
-        val okHttpClient =
-            OkHttpClient
-                .Builder()
-                .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
-                .addInterceptor(UserAgentInterceptor("Jenkins"))
-                .addInterceptor(NetworkInterceptor())
-                .hostnameVerifier(OkHostnameVerifier)
-                .connectTimeout(defaultTimeout, TimeUnit.SECONDS)
-                .readTimeout(defaultTimeout, TimeUnit.SECONDS)
-                .callTimeout(defaultTimeout, TimeUnit.SECONDS)
-                .writeTimeout(defaultTimeout, TimeUnit.SECONDS)
-                .build()
+        val okHttpClient = createHttpClient()
 
         val retrofit =
             Retrofit
@@ -100,10 +103,17 @@ object FetchAndPackageDefaultConfigurationTask {
 
         val centralConfigurationRepository = retrofit.create(CentralConfigurationRepository::class.java)
 
+        val publicKeyRequest = Request.Builder().url("$configurationServiceUrl/config.ecpub").build()
+        val publicKey =
+            okHttpClient.newCall(publicKeyRequest).execute().use { response ->
+                check(response.isSuccessful) { "Unable to fetch config.ecpub: ${response.code}" }
+                response.body.string()
+            }
+
         val configurationData =
             ConfigurationData(
                 centralConfigurationRepository.fetchConfiguration(),
-                centralConfigurationRepository.fetchPublicKey(),
+                publicKey,
                 Base64.getDecoder().decode(centralConfigurationRepository.fetchSignature().trim().removeWhitespaces()),
             )
 
@@ -115,8 +125,8 @@ object FetchAndPackageDefaultConfigurationTask {
         confServiceUrl: String,
         args: Array<String>,
     ) {
-        verifyConfigurationSignature(confData)
         assertConfigurationLoaded(confData)
+        verifyConfigurationSignature(confData)
         storeAsDefaultConfiguration(confData)
         val configurationParser = Parser(confData.configurationJson)
         val confVersionSerial: Int = configurationParser.parseIntValue("META-INF", "SERIAL")
@@ -168,9 +178,10 @@ object FetchAndPackageDefaultConfigurationTask {
     private fun assertConfigurationLoaded(confData: ConfigurationData) {
         check(
             !(
-                confData.configurationJson == null ||
+                confData.configurationJson.isNullOrBlank() ||
                     confData.configurationSignature == null ||
-                    confData.configurationSignaturePublicKey == null
+                    confData.configurationSignature.isEmpty() ||
+                    confData.configurationSignaturePublicKey.isNullOrBlank()
             ),
         ) {
             "Configuration loading has failed"
@@ -179,8 +190,8 @@ object FetchAndPackageDefaultConfigurationTask {
 
     private fun storeAsDefaultConfiguration(confData: ConfigurationData) {
         confData.configurationJson?.let { storeFile(DEFAULT_CONFIG_JSON, it) }
-        confData.configurationSignature?.let { storeFile(DEFAULT_CONFIG_RSA, it) }
-        confData.configurationSignaturePublicKey?.let { storeFile(DEFAULT_CONFIG_PUB, it) }
+        confData.configurationSignature?.let { storeFile(DEFAULT_CONFIG_ECC, it) }
+        confData.configurationSignaturePublicKey?.let { storeFile(DEFAULT_CONFIG_ECPUB, it) }
     }
 
     private fun storeApplicationProperties(
