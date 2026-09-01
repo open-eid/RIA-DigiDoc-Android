@@ -502,6 +502,7 @@
     <string name="configuration_updated">Configuration updated</string>
     <string name="configuration_update_success">RIA DigiDoc configuration update was successful</string>
     <string name="configuration_update_failed">Please check your internet connection and network settings</string>
+    <string name="configuration_update_validation_failed">The configuration file located on the server cannot be validated</string>
     <string name="language_changed">Language changed</string>
     <string name="theme_changed">Theme changed</string>
     <string name="setting_value_changed">Setting value changed</string>

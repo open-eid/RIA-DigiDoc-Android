@@ -68,6 +68,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ee.ria.DigiDoc.BuildConfig
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.configuration.exception.ConfigurationSignatureValidationException
+import ee.ria.DigiDoc.configuration.exception.PublicKeyNotFoundException
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.settings.SettingsSwitchItem
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
@@ -91,6 +93,7 @@ import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
 import ee.ria.DigiDoc.viewmodel.DiagnosticsViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -219,6 +222,12 @@ fun DiagnosticsScreen(
                                     diagnosticsViewModel.updateConfiguration(context)
                                 }
                                 showMessage(context, R.string.configuration_update_success, SnackbarType.SUCCESS)
+                            } catch (_: ConfigurationSignatureValidationException) {
+                                showMessage(context, R.string.configuration_update_validation_failed)
+                            } catch (_: PublicKeyNotFoundException) {
+                                showMessage(context, R.string.configuration_initialization_failed)
+                            } catch (ce: CancellationException) {
+                                throw ce
                             } catch (_: Exception) {
                                 showMessage(context, R.string.configuration_update_failed)
                             }

@@ -26,29 +26,31 @@ import com.google.gson.Gson
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifier
 import ee.ria.DigiDoc.configuration.cache.ConfigurationCache
-import ee.ria.DigiDoc.configuration.domain.model.ConfigurationData
+import ee.ria.DigiDoc.configuration.exception.ConfigurationSignatureValidationException
+import ee.ria.DigiDoc.configuration.exception.PublicKeyNotFoundException
 import ee.ria.DigiDoc.configuration.properties.ConfigurationProperties
 import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
 import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepository
 import ee.ria.DigiDoc.configuration.utils.ConfigurationUtil
+import ee.ria.DigiDoc.configuration.utils.Constant.CACHED_CONFIG_ECC
 import ee.ria.DigiDoc.configuration.utils.Constant.CACHED_CONFIG_JSON
-import ee.ria.DigiDoc.configuration.utils.Constant.CACHED_CONFIG_PUB
-import ee.ria.DigiDoc.configuration.utils.Constant.CACHED_CONFIG_RSA
 import ee.ria.DigiDoc.configuration.utils.Constant.CACHE_CONFIG_FOLDER
+import ee.ria.DigiDoc.configuration.utils.Constant.DEFAULT_CONFIG_ECC
+import ee.ria.DigiDoc.configuration.utils.Constant.DEFAULT_CONFIG_ECPUB
 import ee.ria.DigiDoc.configuration.utils.Constant.DEFAULT_CONFIG_JSON
-import ee.ria.DigiDoc.configuration.utils.Constant.DEFAULT_CONFIG_PUB
-import ee.ria.DigiDoc.configuration.utils.Constant.DEFAULT_CONFIG_RSA
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.utilsLib.date.DateUtil
 import ee.ria.DigiDoc.utilsLib.extensions.removeWhitespaces
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.File
+import java.io.IOException
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
@@ -90,43 +92,16 @@ class ConfigurationLoaderImpl
             if (shouldCheckForUpdates(context)) {
                 try {
                     loadCentralConfigurationCore(context, proxySetting, manualProxy)
+                } catch (e: ConfigurationSignatureValidationException) {
+                    errorLog(logTag, "Central configuration signature validation failed", e)
+                    restoreLocalConfiguration(context)
+                    throw e
+                } catch (ce: CancellationException) {
+                    throw ce
                 } catch (e: Exception) {
                     errorLog(logTag, "Unable to check Central configuration. Using current configuration", e)
+                    restoreLocalConfiguration(context)
                 }
-            }
-        }
-
-        // Load default configuration if cached configuration does not succeed
-        private suspend fun loadLocalConfiguration(context: Context) {
-            try {
-                loadCachedConfiguration(context, false)
-            } catch (e: Exception) {
-                errorLog(logTag, "Unable to load cached configuration. Using default configuration", e)
-                loadDefaultConfiguration(context)
-            }
-        }
-
-        private fun getConfigCacheDir(context: Context): File = File(context.cacheDir, CACHE_CONFIG_FOLDER)
-
-        private fun cacheConfiguration(
-            context: Context,
-            confData: String,
-            publicKey: String,
-            signature: ByteArray,
-        ) {
-            try {
-                ConfigurationCache.cacheConfigurationFiles(context, confData, publicKey, signature)
-            } catch (e: Exception) {
-                errorLog(logTag, "Unable to cache the configuration, continuing with the loaded one", e)
-            }
-        }
-
-        private fun decodeSignature(signatureBytes: ByteArray): ByteArray {
-            val signatureText = String(signatureBytes, Charsets.UTF_8)
-            return if (ConfigurationUtil.isBase64(signatureText)) {
-                Base64.getDecoder().decode(signatureText)
-            } else {
-                signatureBytes
             }
         }
 
@@ -147,17 +122,16 @@ class ConfigurationLoaderImpl
         ) {
             val cacheDir = getConfigCacheDir(context)
             val confFile = File(cacheDir, CACHED_CONFIG_JSON)
-            val publicKeyFile = File(cacheDir, CACHED_CONFIG_PUB)
-            val signatureFile = File(cacheDir, CACHED_CONFIG_RSA)
+            val signatureFile = File(cacheDir, CACHED_CONFIG_ECC)
 
-            val isCacheComplete = confFile.exists() && publicKeyFile.exists() && signatureFile.exists()
+            val isCacheComplete = confFile.exists() && signatureFile.exists()
             if (!isCacheComplete) {
                 loadDefaultConfiguration(context)
                 return
             }
 
             val configText = confFile.readText()
-            val publicKey = publicKeyFile.readText()
+            val publicKey = bundledPublicKey(context)
             val storedSignature = signatureFile.readBytes()
             val signature = decodeSignature(storedSignature)
 
@@ -166,7 +140,7 @@ class ConfigurationLoaderImpl
 
             if (!storedSignature.contentEquals(signature)) {
                 debugLog(logTag, "Normalizing the cached configuration signature to its decoded form")
-                cacheConfiguration(context, configText, publicKey, signature)
+                cacheConfiguration(context, configText, signature)
             }
 
             if (!afterCentralCheck) {
@@ -191,20 +165,31 @@ class ConfigurationLoaderImpl
             }
         }
 
+        // Load default configuration if cached configuration does not succeed
+        override suspend fun loadLocalConfiguration(context: Context) {
+            try {
+                loadCachedConfiguration(context, false)
+            } catch (e: Exception) {
+                errorLog(logTag, "Unable to load cached configuration. Using default configuration", e)
+                loadDefaultConfiguration(context)
+            }
+        }
+
         override suspend fun loadDefaultConfiguration(context: Context) {
             val assets = context.assets
 
             val confData = assets.open("config/${DEFAULT_CONFIG_JSON}").bufferedReader().use { it.readText() }
-            val publicKey = assets.open("config/${DEFAULT_CONFIG_PUB}").bufferedReader().use { it.readText() }
-            val signature = decodeSignature(assets.open("config/${DEFAULT_CONFIG_RSA}").readBytes())
+            val publicKey = bundledPublicKey(context)
+            val signature =
+                decodeSignature(assets.open("config/${DEFAULT_CONFIG_ECC}").use { it.readBytes() })
 
             configurationSignatureVerifier.verifyConfigurationSignature(confData, publicKey, signature)
 
-            cacheConfiguration(context, confData, publicKey, signature)
+            cacheConfiguration(context, confData, signature)
             val configurationProvider = gson.fromJson(confData, ConfigurationProvider::class.java)
             configurationProperties.updateProperties(
                 context,
-                DateUtil.getConfigurationDate(configurationProvider.metaInf.date),
+                null,
                 DateUtil.getConfigurationDate(configurationProvider.metaInf.date),
                 configurationProvider.metaInf.serial,
             )
@@ -216,31 +201,82 @@ class ConfigurationLoaderImpl
         }
 
         @Throws(Exception::class)
-        override suspend fun loadCentralConfigurationData(
-            configurationServiceUrl: String,
-            userAgent: String,
-        ): ConfigurationData {
-            val centralSignature =
-                Base64.getDecoder().decode(centralConfigurationRepository.fetchSignature().trim())
-            val centralConfig = centralConfigurationRepository.fetchConfiguration()
-            val centralPublicKey = centralConfigurationRepository.fetchPublicKey()
-
-            configurationSignatureVerifier.verifyConfigurationSignature(
-                centralConfig,
-                centralPublicKey,
-                centralSignature,
-            )
-
-            return ConfigurationData(centralConfig, centralPublicKey, centralSignature)
-        }
-
-        @Throws(Exception::class)
         override suspend fun loadCentralConfiguration(
             context: Context,
             proxySetting: ProxySetting?,
             proxy: ManualProxy,
         ) = loadMutex.withLock {
             loadCentralConfigurationCore(context, proxySetting, proxy)
+        }
+
+        override suspend fun shouldCheckForUpdates(context: Context): Boolean {
+            val lastExecutionDate =
+                configurationProperties
+                    .getConfigurationLastCheckDate(context)
+                    ?.toInstant()
+                    ?.atZone(ZoneId.systemDefault())
+                    ?.toLocalDateTime()
+
+            if (lastExecutionDate == null) {
+                return true
+            }
+
+            val currentDate = LocalDateTime.now()
+
+            val daysSinceLastUpdateCheck = ChronoUnit.DAYS.between(lastExecutionDate, currentDate)
+
+            return daysSinceLastUpdateCheck >= 4
+        }
+
+        private suspend fun restoreLocalConfiguration(context: Context) {
+            try {
+                loadLocalConfiguration(context)
+            } catch (recoveryFailure: Exception) {
+                errorLog(logTag, "Unable to restore local configuration", recoveryFailure)
+            }
+        }
+
+        private fun getConfigCacheDir(context: Context): File = File(context.cacheDir, CACHE_CONFIG_FOLDER)
+
+        private fun cacheConfiguration(
+            context: Context,
+            confData: String,
+            signature: ByteArray,
+        ) {
+            try {
+                ConfigurationCache.cacheConfigurationFiles(context, confData, signature)
+            } catch (e: Exception) {
+                errorLog(logTag, "Unable to cache the configuration, continuing with the loaded one", e)
+            }
+        }
+
+        private fun bundledPublicKey(context: Context): String {
+            val publicKey =
+                try {
+                    context.assets
+                        .open("config/${DEFAULT_CONFIG_ECPUB}")
+                        .bufferedReader()
+                        .use { it.readText() }
+                } catch (e: IOException) {
+                    throw PublicKeyNotFoundException("Bundled ${DEFAULT_CONFIG_ECPUB} is missing", e)
+                }
+
+            return publicKey.ifBlank {
+                throw PublicKeyNotFoundException("Bundled ${DEFAULT_CONFIG_ECPUB} is empty")
+            }
+        }
+
+        private fun decodeSignature(signatureBytes: ByteArray): ByteArray {
+            val signatureText = String(signatureBytes, Charsets.UTF_8).removeWhitespaces().trim()
+            if (signatureText.isEmpty()) {
+                return signatureBytes
+            }
+
+            return if (ConfigurationUtil.isBase64(signatureText)) {
+                Base64.getDecoder().decode(signatureText)
+            } else {
+                signatureBytes
+            }
         }
 
         @Throws(Exception::class)
@@ -250,7 +286,7 @@ class ConfigurationLoaderImpl
             proxy: ManualProxy,
         ) {
             val cachedSignature =
-                ConfigurationCache.getCachedFile(context, CACHED_CONFIG_RSA)
+                ConfigurationCache.getCachedFile(context, CACHED_CONFIG_ECC)
 
             val currentSignature = cachedSignature.readBytes()
 
@@ -259,16 +295,17 @@ class ConfigurationLoaderImpl
             centralConfigurationRepository.setupProxy(proxySetting, proxy)
 
             val centralSignature =
-                Base64.getDecoder().decode(
-                    centralConfigurationRepository.fetchSignature().removeWhitespaces().trim(),
-                )
+                try {
+                    Base64.getDecoder().decode(
+                        centralConfigurationRepository.fetchSignature().removeWhitespaces().trim(),
+                    )
+                } catch (e: IllegalArgumentException) {
+                    throw ConfigurationSignatureValidationException(e)
+                }
 
             if (!currentSignature.contentEquals(centralSignature)) {
                 val centralConfig = centralConfigurationRepository.fetchConfiguration()
-                val centralPublicKey = centralConfigurationRepository.fetchPublicKey()
-
-                val centralConfigurationProvider =
-                    gson.fromJson(centralConfig, ConfigurationProvider::class.java)
+                val centralPublicKey = bundledPublicKey(context)
 
                 configurationSignatureVerifier.verifyConfigurationSignature(
                     centralConfig,
@@ -276,12 +313,15 @@ class ConfigurationLoaderImpl
                     centralSignature,
                 )
 
+                val centralConfigurationProvider =
+                    gson.fromJson(centralConfig, ConfigurationProvider::class.java)
+
                 if (ConfigurationUtil.isSerialNewerThanCached(
                         configurationFlow.value?.metaInf?.serial ?: 0,
                         centralConfigurationProvider.metaInf.serial,
                     )
                 ) {
-                    cacheConfiguration(context, centralConfig, centralPublicKey, centralSignature)
+                    cacheConfiguration(context, centralConfig, centralSignature)
                     configurationProperties.updateProperties(
                         context,
                         Date(),
@@ -307,24 +347,5 @@ class ConfigurationLoaderImpl
             } else {
                 loadCachedConfiguration(context, true)
             }
-        }
-
-        override suspend fun shouldCheckForUpdates(context: Context): Boolean {
-            val lastExecutionDate =
-                configurationProperties
-                    .getConfigurationLastCheckDate(context)
-                    ?.toInstant()
-                    ?.atZone(ZoneId.systemDefault())
-                    ?.toLocalDateTime()
-
-            if (lastExecutionDate == null) {
-                return true
-            }
-
-            val currentDate = LocalDateTime.now()
-
-            val daysSinceLastUpdateCheck = ChronoUnit.DAYS.between(lastExecutionDate, currentDate)
-
-            return daysSinceLastUpdateCheck >= 4
         }
     }

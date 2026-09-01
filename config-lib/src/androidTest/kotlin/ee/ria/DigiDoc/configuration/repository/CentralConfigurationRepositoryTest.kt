@@ -58,18 +58,6 @@ class CentralConfigurationRepositoryTest {
         }
 
     @Test
-    fun centralConfigurationRepository_fetchPublicKey_success(): Unit =
-        runBlocking {
-            val expectedPublicKey = "Example Public Key"
-            `when`(configurationService.fetchPublicKey()).thenReturn(expectedPublicKey)
-
-            val result = centralConfigurationRepository.fetchPublicKey()
-
-            assertEquals(expectedPublicKey, result)
-            verify(configurationService).fetchPublicKey()
-        }
-
-    @Test
     fun centralConfigurationRepository_fetchSignature_success(): Unit =
         runBlocking {
             val expectedSignature = "Example Signature"

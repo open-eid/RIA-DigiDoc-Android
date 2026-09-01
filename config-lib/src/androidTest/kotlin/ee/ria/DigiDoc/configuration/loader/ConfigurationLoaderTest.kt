@@ -34,9 +34,8 @@ import ee.ria.DigiDoc.configuration.properties.ConfigurationProperties
 import ee.ria.DigiDoc.configuration.properties.ConfigurationPropertiesImpl
 import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
 import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepository
+import ee.ria.DigiDoc.configuration.utils.Constant.CACHED_CONFIG_ECC
 import ee.ria.DigiDoc.configuration.utils.Constant.CACHED_CONFIG_JSON
-import ee.ria.DigiDoc.configuration.utils.Constant.CACHED_CONFIG_PUB
-import ee.ria.DigiDoc.configuration.utils.Constant.CACHED_CONFIG_RSA
 import ee.ria.DigiDoc.configuration.utils.Constant.CACHE_CONFIG_FOLDER
 import ee.ria.DigiDoc.configuration.utils.Constant.CONFIGURATION_LAST_UPDATE_CHECK_DATE_PROPERTY_NAME
 import ee.ria.DigiDoc.configuration.utils.Constant.CONFIGURATION_PREFERENCES
@@ -111,13 +110,12 @@ class ConfigurationLoaderTest {
 
         propertiesFile = AssetFile.getAssetFileAsFile(context, "config/configuration.properties")
         confFile = AssetFile.getAssetFileAsFile(context, "config/default-config.json")
-        publicKeyFile = AssetFile.getAssetFileAsFile(context, "config/default-config.pub")
-        signatureFile = AssetFile.getAssetFileAsFile(context, "config/default-config.rsa")
+        publicKeyFile = AssetFile.getAssetFileAsFile(context, "config/default-config.ecpub")
+        signatureFile = AssetFile.getAssetFileAsFile(context, "config/default-config.ecc")
 
         File(context.cacheDir, CACHE_CONFIG_FOLDER).mkdirs()
         Files.copy(confFile, File(File(context.cacheDir, CACHE_CONFIG_FOLDER), CACHED_CONFIG_JSON))
-        Files.copy(publicKeyFile, File(File(context.cacheDir, CACHE_CONFIG_FOLDER), CACHED_CONFIG_PUB))
-        Files.copy(signatureFile, File(File(context.cacheDir, CACHE_CONFIG_FOLDER), CACHED_CONFIG_RSA))
+        Files.copy(signatureFile, File(File(context.cacheDir, CACHE_CONFIG_FOLDER), CACHED_CONFIG_ECC))
 
         proxySetting = ProxySetting.NO_PROXY
         manualProxy = ManualProxy("", 80, "", "")
@@ -127,8 +125,7 @@ class ConfigurationLoaderTest {
     fun tearDown() {
         File(context.cacheDir, PROPERTIES_FILE_NAME).delete()
         File(File(context.cacheDir, CACHE_CONFIG_FOLDER), CACHED_CONFIG_JSON).delete()
-        File(File(context.cacheDir, CACHE_CONFIG_FOLDER), CACHED_CONFIG_PUB).delete()
-        File(File(context.cacheDir, CACHE_CONFIG_FOLDER), CACHED_CONFIG_RSA).delete()
+        File(File(context.cacheDir, CACHE_CONFIG_FOLDER), CACHED_CONFIG_ECC).delete()
         File(context.cacheDir, CACHE_CONFIG_FOLDER).delete()
     }
 
@@ -191,10 +188,9 @@ class ConfigurationLoaderTest {
             val confData = mockConfigurationProvider()
 
             val centralConfig = gson.toJson(confData)
-            val centralPublicKey = "Public Key"
+            val centralPublicKey = publicKeyFile.readText()
             val centralSignature = "dGVzdA=="
             `when`(centralConfigurationRepository.fetchConfiguration()).thenReturn(centralConfig)
-            `when`(centralConfigurationRepository.fetchPublicKey()).thenReturn(centralPublicKey)
             `when`(centralConfigurationRepository.fetchSignature()).thenReturn(centralSignature)
 
             doNothing()
@@ -217,7 +213,7 @@ class ConfigurationLoaderTest {
             // Write random text to file, to make sure that current signature and new signature are different
             val configFolder = File(context.cacheDir, CACHE_CONFIG_FOLDER)
             configFolder.mkdirs()
-            val signatureFile = File(configFolder, CACHED_CONFIG_RSA)
+            val signatureFile = File(configFolder, CACHED_CONFIG_ECC)
 
             FileWriter(signatureFile).use { writer ->
                 writer.write("dGVzdDI=")
@@ -237,10 +233,9 @@ class ConfigurationLoaderTest {
             val confData = mockConfigurationProvider()
 
             val centralConfig = gson.toJson(confData)
-            val centralPublicKey = "Public Key"
+            val centralPublicKey = publicKeyFile.readText()
             val centralSignature = "dGVzdA=="
             `when`(centralConfigurationRepository.fetchConfiguration()).thenReturn(centralConfig)
-            `when`(centralConfigurationRepository.fetchPublicKey()).thenReturn(centralPublicKey)
             `when`(centralConfigurationRepository.fetchSignature()).thenReturn(centralSignature)
 
             doNothing()
@@ -263,7 +258,7 @@ class ConfigurationLoaderTest {
             // Write same signature to file, to make sure that current signature and new signature match
             val configFolder = File(context.cacheDir, CACHE_CONFIG_FOLDER)
             configFolder.mkdirs()
-            val signatureFile = File(configFolder, CACHED_CONFIG_RSA)
+            val signatureFile = File(configFolder, CACHED_CONFIG_ECC)
             FileWriter(signatureFile).use { writer ->
                 writer.write(String(Base64.getDecoder().decode(centralSignature)))
             }
@@ -274,33 +269,6 @@ class ConfigurationLoaderTest {
 
             signatureFile.delete()
             configFolder.delete()
-        }
-
-    @Test
-    fun configurationLoader_loadCentralConfigurationData_success() =
-        runBlocking {
-            val confData = mockConfigurationProvider()
-
-            val centralConfig = gson.toJson(confData)
-            val centralPublicKey = "Public Key"
-            val centralSignature = "dGVzdA=="
-            `when`(centralConfigurationRepository.fetchConfiguration()).thenReturn(centralConfig)
-            `when`(centralConfigurationRepository.fetchPublicKey()).thenReturn(centralPublicKey)
-            `when`(centralConfigurationRepository.fetchSignature()).thenReturn(centralSignature)
-
-            doNothing()
-                .`when`(configurationSignatureVerifier)
-                .verifyConfigurationSignature(
-                    centralConfig,
-                    centralPublicKey,
-                    Base64.getDecoder().decode(centralSignature),
-                )
-
-            val configurationData =
-                configurationLoader
-                    .loadCentralConfigurationData("serviceUri", "Tests")
-
-            assertNotNull(configurationData)
         }
 
     @Test

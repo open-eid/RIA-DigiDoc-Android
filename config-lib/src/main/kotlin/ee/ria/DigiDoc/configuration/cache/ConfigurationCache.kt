@@ -22,9 +22,8 @@
 package ee.ria.DigiDoc.configuration.cache
 
 import android.content.Context
+import ee.ria.DigiDoc.configuration.utils.Constant.CACHED_CONFIG_ECC
 import ee.ria.DigiDoc.configuration.utils.Constant.CACHED_CONFIG_JSON
-import ee.ria.DigiDoc.configuration.utils.Constant.CACHED_CONFIG_PUB
-import ee.ria.DigiDoc.configuration.utils.Constant.CACHED_CONFIG_RSA
 import ee.ria.DigiDoc.configuration.utils.Constant.CACHE_CONFIG_FOLDER
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.infoLog
@@ -51,7 +50,6 @@ object ConfigurationCache {
     fun cacheConfigurationFiles(
         context: Context,
         confData: String,
-        publicKey: String,
         signature: ByteArray,
     ) {
         val configDir = File(context.cacheDir, CACHE_CONFIG_FOLDER).toPath()
@@ -65,8 +63,7 @@ object ConfigurationCache {
         val files =
             listOf(
                 CACHED_CONFIG_JSON to confData.toByteArray(StandardCharsets.UTF_8),
-                CACHED_CONFIG_PUB to publicKey.toByteArray(StandardCharsets.UTF_8),
-                CACHED_CONFIG_RSA to signature,
+                CACHED_CONFIG_ECC to signature,
             )
         val temporaryFiles = mutableListOf<Path>()
         val backups = mutableMapOf<Path, Path>()
@@ -93,7 +90,7 @@ object ConfigurationCache {
                 temporaryFiles[index].moveTo(destination, overwrite = true)
                 replaced.add(destination)
             }
-            infoLog(LOG_TAG, "Cached the configuration, its public key and its signature")
+            infoLog(LOG_TAG, "Cached the configuration and its signature")
         } catch (e: Exception) {
             errorLog(LOG_TAG, "Unable to cache the configuration files, restoring the previous ones", e)
             restorePreviousFiles(replaced, backups)

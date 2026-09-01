@@ -56,6 +56,7 @@ import ee.ria.DigiDoc.utilsLib.file.FileUtil.getExternalFileUris
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.getLogsDirectory
 import ee.ria.DigiDoc.utilsLib.locale.LocaleUtil.getLocale
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import java.util.logging.Logger
 import javax.inject.Inject
@@ -87,6 +88,8 @@ class MainActivity :
 
     @Inject
     lateinit var secureUtil: SecureUtil
+
+    private val logTag = "MainActivity"
 
     private var isAppReady = false
 
@@ -160,15 +163,21 @@ class MainActivity :
             )
         val isLoggingEnabled = isDebug || (isDiagnosticsLoggingEnabled && isDiagnosticsLoggingRunning)
         lifecycleScope.launch {
-            LoggingUtil.initialize(
-                applicationContext,
-                Logger.getLogger(MainActivity::class.java.name),
-                isLoggingEnabled,
-            )
-            fileTypeSetup.initializeApplicationFileTypesAssociation(componentClassName)
-            librarySetup.setupLibraries(applicationContext, isLoggingEnabled)
-
-            isAppReady = true
+            try {
+                LoggingUtil.initialize(
+                    applicationContext,
+                    Logger.getLogger(MainActivity::class.java.name),
+                    isLoggingEnabled,
+                )
+                fileTypeSetup.initializeApplicationFileTypesAssociation(componentClassName)
+                librarySetup.setupLibraries(applicationContext, isLoggingEnabled)
+            } catch (ce: CancellationException) {
+                throw ce
+            } catch (t: Throwable) {
+                LoggingUtil.errorLog(logTag, "Unable to complete application setup", t)
+            } finally {
+                isAppReady = true
+            }
 
             setContent {
                 RIADigiDocTheme(darkTheme = useDarkMode) {

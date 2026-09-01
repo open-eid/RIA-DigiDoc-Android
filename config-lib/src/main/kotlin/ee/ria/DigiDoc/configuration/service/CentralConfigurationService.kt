@@ -48,8 +48,6 @@ import javax.inject.Singleton
 interface CentralConfigurationService {
     suspend fun fetchConfiguration(): String
 
-    suspend fun fetchPublicKey(): String
-
     suspend fun fetchSignature(): String
 
     suspend fun setupProxy(
@@ -88,16 +86,6 @@ open class CentralConfigurationServiceImpl
                 ).create(CentralConfigurationRepository::class.java)
 
             return retrofit.fetchConfiguration()
-        }
-
-        override suspend fun fetchPublicKey(): String {
-            val retrofit =
-                constructRetrofit(
-                    configurationProperty.centralConfigurationServiceUrl,
-                    constructHttpClient(defaultTimeout, proxySetting, manualProxy),
-                ).create(CentralConfigurationRepository::class.java)
-
-            return retrofit.fetchPublicKey()
         }
 
         @Throws(Exception::class)

@@ -23,13 +23,13 @@ package ee.ria.DigiDoc.configuration.loader
 
 import android.content.Context
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
-import ee.ria.DigiDoc.configuration.domain.model.ConfigurationData
 import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import kotlinx.coroutines.flow.StateFlow
 
 interface ConfigurationLoader {
+    @Throws(Exception::class)
     suspend fun initConfiguration(
         context: Context,
         proxySetting: ProxySetting?,
@@ -45,13 +45,9 @@ interface ConfigurationLoader {
         afterCentralCheck: Boolean,
     )
 
-    suspend fun loadDefaultConfiguration(context: Context)
+    suspend fun loadLocalConfiguration(context: Context)
 
-    @Throws(Exception::class)
-    suspend fun loadCentralConfigurationData(
-        configurationServiceUrl: String,
-        userAgent: String,
-    ): ConfigurationData
+    suspend fun loadDefaultConfiguration(context: Context)
 
     @Throws(Exception::class)
     suspend fun loadCentralConfiguration(

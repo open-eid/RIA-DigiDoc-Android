@@ -21,12 +21,10 @@
 
 package ee.ria.DigiDoc.configuration.di
 
-import android.content.Context
 import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifier
@@ -71,10 +69,8 @@ class ConfigModules {
     fun provideConfigurationSignatureVerifier(): ConfigurationSignatureVerifier = ConfigurationSignatureVerifierImpl()
 
     @Provides
-    fun provideConfigurationRepository(
-        @ApplicationContext context: Context,
-        configurationLoader: ConfigurationLoader,
-    ): ConfigurationRepository = ConfigurationRepositoryImpl(context, configurationLoader)
+    fun provideConfigurationRepository(configurationLoader: ConfigurationLoader): ConfigurationRepository =
+        ConfigurationRepositoryImpl(configurationLoader)
 
     @Provides
     fun provideCentralConfigurationRepository(

@@ -121,7 +121,7 @@ class IdCardServiceImplTest {
                             ConfigurationPropertiesImpl(),
                             ConfigurationSignatureVerifierImpl(),
                         )
-                    val configurationRepository = ConfigurationRepositoryImpl(context, configurationLoader)
+                    val configurationRepository = ConfigurationRepositoryImpl(configurationLoader)
                     LibdigidocLibraryLoader().init(context)
                     Initialization(configurationRepository).init(context)
                 } catch (_: Exception) {
