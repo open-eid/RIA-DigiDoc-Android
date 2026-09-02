@@ -25,12 +25,14 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import androidx.preference.PreferenceManager
+import ee.ria.DigiDoc.common.Constant.LIBDIGIDOCPP_LOG_FILE_NAME
 import ee.ria.DigiDoc.utilsLib.R.string.main_diagnostics_logging_key
 import ee.ria.DigiDoc.utilsLib.R.string.main_diagnostics_logging_running_key
 import ee.ria.DigiDoc.utilsLib.date.DateUtil.dateFormat
 import ee.ria.DigiDoc.utilsLib.date.DateUtil.dateTimeFormat
 import ee.ria.DigiDoc.utilsLib.file.FileUtil
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.util.Date
 import java.util.TimeZone
@@ -71,6 +73,7 @@ class LoggingUtil
             private lateinit var logger: Logger
             private var fileHandler: FileHandler? = null
             private var isLoggingEnabled: Boolean = false
+            private var hasResetLogs: Boolean = false
 
             fun initialize(
                 context: Context,
@@ -91,8 +94,13 @@ class LoggingUtil
                 } catch (se: SecurityException) {
                     Log.e(LOG_TAG, "Unable to close logging FileHandler", se)
                 }
-                if (logDirectory.exists()) {
-                    logDirectory.deleteRecursively()
+
+                logDirectory.listFiles()?.forEach { file ->
+                    if (file.name == LIBDIGIDOCPP_LOG_FILE_NAME) {
+                        emptyLibdigidocppLog(file)
+                    } else {
+                        file.deleteRecursively()
+                    }
                 }
 
                 if (!logDirectory.exists()) {
@@ -100,12 +108,29 @@ class LoggingUtil
                 }
             }
 
+            private fun emptyLibdigidocppLog(logFile: File) {
+                try {
+                    FileOutputStream(logFile).close()
+                } catch (ioe: IOException) {
+                    Log.e(LOG_TAG, "Unable to empty the libdigidocpp log", ioe)
+                }
+            }
+
             private fun setupLogger(context: Context) {
                 try {
                     val logDirectory = FileUtil.getLogsDirectory(context)
-                    val logFile = File(logDirectory, "${dateFormat.format(Date())}.log")
+                    val logFile = File(logDirectory, "${dateFormat.format(Date())}.txt")
 
-                    resetLogs(logDirectory)
+                    if (!hasResetLogs) {
+                        resetLogs(logDirectory)
+                        hasResetLogs = true
+                    }
+
+                    if (!logDirectory.exists()) {
+                        logDirectory.mkdirs()
+                    }
+
+                    removeHandlers()
 
                     fileHandler = FileHandler(logFile.absolutePath, Int.MAX_VALUE, 1, true)
                     fileHandler?.formatter = LogFormatter()
@@ -122,6 +147,18 @@ class LoggingUtil
                 } catch (ioe: IOException) {
                     Log.e("LoggingUtil", "Cannot setup logging", ioe)
                 }
+            }
+
+            private fun removeHandlers() {
+                try {
+                    logger.handlers.forEach { handler ->
+                        logger.removeHandler(handler)
+                        handler.close()
+                    }
+                } catch (se: SecurityException) {
+                    Log.e(LOG_TAG, "Unable to remove existing logging handlers", se)
+                }
+                fileHandler = null
             }
 
             fun format(record: LogRecord): String {

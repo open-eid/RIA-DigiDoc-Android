@@ -78,9 +78,9 @@ class DiagnosticsViewModel
     ) : ViewModel() {
         private val logTag = "SettingsViewModel"
         private val logsFileName =
-            "ria_digidoc_${getAppVersion()}.${getAppVersionCode()}_logs.log"
+            "ria_digidoc_${getAppVersion()}.${getAppVersionCode()}_logs.txt"
         private val diagnosticsFileName =
-            "ria_digidoc_${getAppVersion()}.${getAppVersionCode()}_diagnostics.log"
+            "ria_digidoc_${getAppVersion()}.${getAppVersionCode()}_diagnostics.txt"
 
         private val _updatedConfiguration = MutableLiveData<ConfigurationProvider?>()
         var updatedConfiguration: LiveData<ConfigurationProvider?> = _updatedConfiguration

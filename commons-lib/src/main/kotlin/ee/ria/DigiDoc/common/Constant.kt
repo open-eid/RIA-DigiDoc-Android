@@ -142,6 +142,8 @@ object Constant {
     const val DIR_EXTERNALLY_OPENED_FILES = "external_files"
     const val DEFAULT_CONTAINER_EXTENSION = "asice"
 
+    const val LIBDIGIDOCPP_LOG_FILE_NAME = "libdigidocpp.txt"
+
     const val CDOC1_EXTENSION = "cdoc"
     const val CDOC2_EXTENSION = "cdoc2"
 
