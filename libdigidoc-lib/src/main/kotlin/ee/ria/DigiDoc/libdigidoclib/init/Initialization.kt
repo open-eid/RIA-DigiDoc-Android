@@ -31,6 +31,7 @@ import android.widget.Toast
 import androidx.preference.PreferenceManager
 import ee.ria.DigiDoc.common.Constant.DIR_SIVA_CERT
 import ee.ria.DigiDoc.common.Constant.DIR_TSA_CERT
+import ee.ria.DigiDoc.common.Constant.LIBDIGIDOCPP_LOG_FILE_NAME
 import ee.ria.DigiDoc.common.preferences.EncryptedPreferences
 import ee.ria.DigiDoc.configuration.provider.ConfigurationProvider
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
@@ -325,7 +326,7 @@ class Initialization
             setLibdigidocppLogLevel(isLoggingEnabled)
             DigiDocConf
                 .instance()
-                .setLogFile(File(logDirectory, "libdigidocpp.log").absolutePath)
+                .setLogFile(File(logDirectory, LIBDIGIDOCPP_LOG_FILE_NAME).absolutePath)
         }
 
         private fun setLibdigidocppLogLevel(isLoggingEnabled: Boolean) {
