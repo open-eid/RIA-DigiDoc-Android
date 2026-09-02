@@ -75,6 +75,8 @@ import java.security.KeyStoreException
 import java.security.NoSuchAlgorithmException
 import java.security.UnrecoverableKeyException
 import java.security.cert.CertificateException
+import java.security.cert.CertificateExpiredException
+import java.security.cert.CertificateNotYetValidException
 import java.util.Base64
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -394,6 +396,24 @@ class MobileSignServiceImpl
                             return
                         }
                     }
+                } catch (cee: CertificateExpiredException) {
+                    errorLog(
+                        logTag,
+                        "Failed to sign with Mobile-ID. Signing certificate has expired. " +
+                            "Exception message: ${cee.message}",
+                        cee,
+                    )
+                    postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.CERTIFICATE_EXPIRED))
+                    return
+                } catch (cnyve: CertificateNotYetValidException) {
+                    errorLog(
+                        logTag,
+                        "Failed to sign with Mobile-ID. Signing certificate is not yet valid. " +
+                            "Exception message: ${cnyve.message}",
+                        cnyve,
+                    )
+                    postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.CERTIFICATE_NOT_YET_VALID))
+                    return
                 } catch (e: UnknownHostException) {
                     errorLog(
                         logTag,

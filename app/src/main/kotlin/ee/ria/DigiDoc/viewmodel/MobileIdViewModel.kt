@@ -132,6 +132,12 @@ class MobileIdViewModel
                     MobileCreateSignatureProcessStatus.CERTIFICATE_REVOKED,
                     R.string.signature_update_signature_error_message_certificate_revoked,
                 ).put(
+                    MobileCreateSignatureProcessStatus.CERTIFICATE_EXPIRED,
+                    R.string.signature_update_signature_error_message_certificate_expired,
+                ).put(
+                    MobileCreateSignatureProcessStatus.CERTIFICATE_NOT_YET_VALID,
+                    R.string.signature_update_signature_error_message_certificate_not_yet_valid,
+                ).put(
                     MobileCreateSignatureProcessStatus.GENERAL_ERROR,
                     R.string.error_general_client,
                 ).put(MobileCreateSignatureProcessStatus.NO_RESPONSE, R.string.no_internet_connection)

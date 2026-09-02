@@ -219,6 +219,9 @@ fun FileOpeningNavigation(
     LaunchedEffect(fileOpeningViewModel.signedContainer) {
         fileOpeningViewModel.signedContainer.asFlow().collect { signedContainer ->
             signedContainer?.let {
+                if (!sharedContainerViewModel.nestedContainers.contains(it)) {
+                    sharedContainerViewModel.clearContainers()
+                }
                 sharedContainerViewModel.setSignedContainer(it)
                 delay(1000)
 
@@ -235,6 +238,9 @@ fun FileOpeningNavigation(
     LaunchedEffect(fileOpeningViewModel.cryptoContainer) {
         fileOpeningViewModel.cryptoContainer.asFlow().collect { cryptoContainer ->
             cryptoContainer?.let {
+                if (!sharedContainerViewModel.nestedContainers.contains(it)) {
+                    sharedContainerViewModel.clearContainers()
+                }
                 sharedContainerViewModel.setCryptoContainer(it)
 
                 navController.navigate(Route.Encrypt.route) {
