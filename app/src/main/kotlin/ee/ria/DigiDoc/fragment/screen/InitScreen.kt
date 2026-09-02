@@ -23,13 +23,18 @@ package ee.ria.DigiDoc.fragment.screen
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -67,72 +72,80 @@ fun InitScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
 ) {
-    Box(
+    val scrollState = rememberScrollState()
+
+    BoxWithConstraints(
         modifier =
             modifier
                 .semantics {
                     testTagsAsResourceId = true
                 }.testTag("initScreen")
                 .systemBarsPadding()
-                .fillMaxWidth(),
+                .fillMaxSize(),
     ) {
         Column(
             modifier =
-                modifier
-                    .align(Alignment.TopCenter),
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = maxHeight)
+                    .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Image(
-                painterResource(id = R.drawable.image_eesti_shield),
-                contentDescription = stringResource(id = R.string.app_name),
-                modifier =
-                    modifier
-                        .height(iconSizeXXL)
-                        .padding(
-                            start = XLPadding,
-                            top = LPadding,
-                            bottom = zeroPadding,
-                            end = XLPadding,
-                        ).semantics {
-                            stateDescription = "logo"
-                        },
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Image(
+                    painterResource(id = R.drawable.image_eesti_shield),
+                    contentDescription = stringResource(id = R.string.app_name),
+                    modifier =
+                        Modifier
+                            .height(iconSizeXXL)
+                            .padding(
+                                start = XLPadding,
+                                top = LPadding,
+                                bottom = zeroPadding,
+                                end = XLPadding,
+                            ).semantics {
+                                stateDescription = "logo"
+                            },
+                )
+                Text(
+                    text = stringResource(id = R.string.digidoc_all_caps),
+                    style = MaterialTheme.typography.displayLarge,
+                    color = Color.White,
+                    modifier =
+                        Modifier
+                            .padding(bottom = LPadding)
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
+                )
+                LanguageChoiceButtonGroup(
+                    onClickAction = {
+                        navController.navigate(
+                            Route.Home.route,
+                        )
+                    },
+                )
+            }
+
+            val baseStyle = MaterialTheme.typography.displaySmall
             Text(
-                text = stringResource(id = R.string.digidoc_all_caps),
-                style = MaterialTheme.typography.displayLarge,
+                text =
+                    smallCapsText(
+                        text = stringResource(id = R.string.ria),
+                        normalSize = baseStyle.fontSize,
+                        smallCapsSize = baseStyle.fontSize * 0.8f,
+                    ),
+                style = MaterialTheme.typography.displaySmall,
                 color = Color.White,
                 modifier =
-                    modifier
-                        .padding(bottom = LPadding)
+                    Modifier
+                        .padding(bottom = MPadding)
                         .fillMaxWidth()
                         .wrapContentHeight(),
             )
-            LanguageChoiceButtonGroup(
-                modifier = modifier,
-                onClickAction = {
-                    navController.navigate(
-                        Route.Home.route,
-                    )
-                },
-            )
         }
-        val baseStyle = MaterialTheme.typography.displaySmall
-        Text(
-            text =
-                smallCapsText(
-                    text = stringResource(id = R.string.ria),
-                    normalSize = baseStyle.fontSize,
-                    smallCapsSize = baseStyle.fontSize * 0.8f,
-                ),
-            style = MaterialTheme.typography.displaySmall,
-            color = Color.White,
-            modifier =
-                modifier
-                    .padding(bottom = MPadding)
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .wrapContentHeight(),
-        )
     }
 }
 
