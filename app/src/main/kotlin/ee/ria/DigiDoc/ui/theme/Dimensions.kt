@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 
 object Dimensions {
     // Heights
-    val toolbarHeight = 48.dp
+    val compactToolbarHeight = 48.dp
     val dividerHeight = 0.1.dp
     val invisibleElementHeight = 1.dp
 

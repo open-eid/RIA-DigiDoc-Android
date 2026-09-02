@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -59,10 +60,13 @@ import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.popup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.core.net.toUri
 import androidx.lifecycle.asFlow
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.theme.Dimensions.compactToolbarHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
+import ee.ria.DigiDoc.utils.window.WindowUtil
 import ee.ria.DigiDoc.utilsLib.text.TextUtil
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -128,6 +132,8 @@ fun TopBar(
     val coroutineScope = rememberCoroutineScope()
     var debounceJob by remember { mutableStateOf<Job?>(null) }
 
+    val isCompactLandscape = WindowUtil.isCompactLandscapeWindow(LocalWindowInfo.current.containerDpSize)
+
     TopAppBar(
         modifier =
             modifier
@@ -135,6 +141,7 @@ fun TopBar(
                     isTraversalGroup = true
                     testTagsAsResourceId = true
                 }.testTag("toolbar"),
+        expandedHeight = if (isCompactLandscape) compactToolbarHeight else TopAppBarDefaults.TopAppBarExpandedHeight,
         colors =
             TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.surface,
@@ -183,7 +190,8 @@ fun TopBar(
                 PreventResize {
                     Text(
                         text = stringResource(id = title),
-                        maxLines = 2,
+                        maxLines = if (isCompactLandscape) 1 else 2,
+                        overflow = if (isCompactLandscape) TextOverflow.Ellipsis else TextOverflow.Clip,
                         modifier =
                             modifier
                                 .semantics { heading() }
