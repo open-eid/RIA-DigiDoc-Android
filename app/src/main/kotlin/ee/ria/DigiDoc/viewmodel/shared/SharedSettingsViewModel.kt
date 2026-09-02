@@ -69,7 +69,6 @@ import org.bouncycastle.cert.X509CertificateHolder
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder
 import java.io.File
 import java.io.IOException
-import java.io.InputStream
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
 import java.text.SimpleDateFormat
@@ -219,7 +218,6 @@ class SharedSettingsViewModel
         private fun resetSivaSettings() {
             dataStore.setSivaSetting(SivaSetting.DEFAULT)
             dataStore.setSettingsSivaUrl("")
-            dataStore.setSettingsSivaCertName(null)
             removeSivaCert()
         }
 
@@ -236,16 +234,7 @@ class SharedSettingsViewModel
             setSettingsAskRoleAndAddress(false)
             dataStore.setSettingsDefaultLTA(false)
             dataStore.setIsTsaCertificateViewVisible(false)
-            val certFile =
-                FileUtil.getCertFile(context, dataStore.getTSACertName(), DIR_TSA_CERT)
-            removeCertificate(certFile)
-        }
-
-        private fun removeCertificate(tsaFile: File?) {
-            if (tsaFile != null) {
-                FileUtil.removeFile(tsaFile.path)
-            }
-            dataStore.setTSACertName(null)
+            removeTsaCert()
         }
 
         private fun removeSivaCert() {
@@ -430,71 +419,74 @@ class SharedSettingsViewModel
         }
 
         fun handleSivaFile(uri: Uri) {
-            try {
-                val initialStream: InputStream? =
-                    contentResolver.openInputStream(uri)
-                        ?: throw IllegalStateException("Unable to open input stream for SiVa certificate URI")
-                val sivaCertFolder = File(context.filesDir, DIR_SIVA_CERT)
-                if (!sivaCertFolder.exists()) {
-                    val isFolderCreated = sivaCertFolder.mkdirs()
-                    debugLog(logTag, String.format("SiVa cert folder created: %s", isFolderCreated))
-                }
-                val fileName =
-                    DocumentFile
-                        .fromSingleUri(context, uri)
-                        ?.name
-                        .takeUnless { it.isNullOrEmpty() } ?: "sivaCert"
-                val sivaFile = File(sivaCertFolder, fileName)
-                FileUtils.copyInputStreamToFile(initialStream, sivaFile)
-                dataStore.setSettingsSivaCertName(sivaFile.name)
-            } catch (e: Exception) {
-                errorLog(logTag, "Unable to read SiVa certificate file data", e)
-            }
+            saveCertFile(
+                uri = uri,
+                certFolder = DIR_SIVA_CERT,
+                defaultFileName = "sivaCert",
+                label = "SiVa",
+                currentCertName = dataStore.getSettingsSivaCertName(),
+                setCertName = dataStore::setSettingsSivaCertName,
+            )
         }
 
         fun handleTsaFile(uri: Uri) {
-            try {
-                val initialStream: InputStream? =
-                    contentResolver.openInputStream(uri)
-                        ?: throw IllegalStateException("Unable to open input stream for TSA certificate URI")
-                val tsaCertFolder = File(context.filesDir, DIR_TSA_CERT)
-                if (!tsaCertFolder.exists()) {
-                    val isFolderCreated = tsaCertFolder.mkdirs()
-                    debugLog(logTag, String.format("TSA cert folder created: %s", isFolderCreated))
-                }
-                val fileName =
-                    DocumentFile
-                        .fromSingleUri(context, uri)
-                        ?.name
-                        .takeUnless { it.isNullOrEmpty() } ?: "tsaCert"
-                val tsaFile = File(tsaCertFolder, fileName)
-                FileUtils.copyInputStreamToFile(initialStream, tsaFile)
-                dataStore.setTSACertName(tsaFile.name)
-            } catch (e: Exception) {
-                errorLog(logTag, "Unable to read TSA certificate file data", e)
-            }
+            saveCertFile(
+                uri = uri,
+                certFolder = DIR_TSA_CERT,
+                defaultFileName = "tsaCert",
+                label = "TSA",
+                currentCertName = dataStore.getTSACertName(),
+                setCertName = dataStore::setTSACertName,
+            )
         }
 
         fun handleCryptoCertFile(uri: Uri) {
+            saveCertFile(
+                uri = uri,
+                certFolder = DIR_CRYPTO_CERT,
+                defaultFileName = "cryptoCert",
+                label = "Crypto",
+                currentCertName = dataStore.getCryptoCertName(),
+                setCertName = dataStore::setCryptoCertName,
+            )
+        }
+
+        private fun saveCertFile(
+            uri: Uri,
+            certFolder: String,
+            defaultFileName: String,
+            label: String,
+            currentCertName: String,
+            setCertName: (String?) -> Unit,
+        ) {
             try {
-                val initialStream: InputStream? =
-                    contentResolver.openInputStream(uri)
-                        ?: throw IllegalStateException("Unable to open input stream for crypto certificate URI")
-                val cryptoCertFolder = File(context.filesDir, DIR_CRYPTO_CERT)
-                if (!cryptoCertFolder.exists()) {
-                    val isFolderCreated = cryptoCertFolder.mkdirs()
-                    debugLog(logTag, String.format("Crypto cert folder created: %s", isFolderCreated))
+                val stream = contentResolver.openInputStream(uri)
+                if (stream == null) {
+                    errorLog(logTag, "Unable to open input stream for the $label certificate URI")
+                    return
                 }
-                val fileName =
-                    DocumentFile
-                        .fromSingleUri(context, uri)
-                        ?.name
-                        .takeUnless { it.isNullOrEmpty() } ?: "cryptoCert"
-                val cryptoCertFile = File(cryptoCertFolder, fileName)
-                FileUtils.copyInputStreamToFile(initialStream, cryptoCertFile)
-                dataStore.setCryptoCertName(cryptoCertFile.name)
+                stream.use { input ->
+                    val certDir = File(context.filesDir, certFolder)
+                    if (!certDir.exists()) {
+                        val isFolderCreated = certDir.mkdirs()
+                        debugLog(logTag, "$label cert folder created: $isFolderCreated")
+                    }
+                    val fileName =
+                        DocumentFile
+                            .fromSingleUri(context, uri)
+                            ?.name
+                            ?.takeIf(String::isNotEmpty) ?: defaultFileName
+                    val certFile = File(certDir, fileName)
+                    FileUtils.copyToFile(input, certFile)
+                    setCertName(certFile.name)
+                    if (currentCertName != certFile.name) {
+                        FileUtil.getCertFile(context, currentCertName, certFolder)?.let {
+                            FileUtil.removeFile(it.path)
+                        }
+                    }
+                }
             } catch (e: Exception) {
-                errorLog(logTag, "Unable to read Crypto certificate file data", e)
+                errorLog(logTag, "Unable to read $label certificate file data", e)
             }
         }
 
