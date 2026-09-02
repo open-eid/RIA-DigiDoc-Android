@@ -59,6 +59,10 @@ sealed class NFCError {
         override val message: Int,
     ) : NFCError()
 
+    data class InvalidSslHandshake(
+        override val message: Int,
+    ) : NFCError()
+
     data class NoLockFound(
         override val message: Int,
     ) : NFCError()
