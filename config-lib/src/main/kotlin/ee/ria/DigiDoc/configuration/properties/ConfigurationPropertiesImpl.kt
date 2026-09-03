@@ -24,6 +24,7 @@ package ee.ria.DigiDoc.configuration.properties
 import android.content.Context
 import androidx.core.content.edit
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
+import ee.ria.DigiDoc.configuration.utils.Constant.CONFIGURATION_LAST_CHECKED_APP_VERSION_PROPERTY_NAME
 import ee.ria.DigiDoc.configuration.utils.Constant.CONFIGURATION_LAST_UPDATE_CHECK_DATE_PROPERTY_NAME
 import ee.ria.DigiDoc.configuration.utils.Constant.CONFIGURATION_PREFERENCES
 import ee.ria.DigiDoc.configuration.utils.Constant.CONFIGURATION_UPDATE_DATE_PROPERTY_NAME
@@ -116,6 +117,28 @@ class ConfigurationPropertiesImpl
                     ?.let { DateUtil.stringToDate(it) }
             }
             return null
+        }
+
+        override fun clearConfigurationLastCheckDate(context: Context) {
+            val sharedPreferences = context.getSharedPreferences(CONFIGURATION_PREFERENCES, Context.MODE_PRIVATE)
+            sharedPreferences.edit {
+                remove(CONFIGURATION_LAST_UPDATE_CHECK_DATE_PROPERTY_NAME)
+            }
+        }
+
+        override fun getLastCheckedAppVersion(context: Context): String? {
+            val sharedPreferences = context.getSharedPreferences(CONFIGURATION_PREFERENCES, Context.MODE_PRIVATE)
+            return sharedPreferences.getString(CONFIGURATION_LAST_CHECKED_APP_VERSION_PROPERTY_NAME, null)
+        }
+
+        override fun setLastCheckedAppVersion(
+            context: Context,
+            version: String,
+        ) {
+            val sharedPreferences = context.getSharedPreferences(CONFIGURATION_PREFERENCES, Context.MODE_PRIVATE)
+            sharedPreferences.edit {
+                putString(CONFIGURATION_LAST_CHECKED_APP_VERSION_PROPERTY_NAME, version)
+            }
         }
 
         override fun setConfigurationVersionSerial(
