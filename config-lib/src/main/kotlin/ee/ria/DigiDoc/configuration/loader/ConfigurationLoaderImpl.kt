@@ -22,6 +22,7 @@
 package ee.ria.DigiDoc.configuration.loader
 
 import android.content.Context
+import android.content.pm.PackageManager
 import com.google.gson.Gson
 import ee.ria.DigiDoc.configuration.ConfigurationProperty
 import ee.ria.DigiDoc.configuration.ConfigurationSignatureVerifier
@@ -187,6 +188,7 @@ class ConfigurationLoaderImpl
 
             cacheConfiguration(context, confData, signature)
             val configurationProvider = gson.fromJson(confData, ConfigurationProvider::class.java)
+            configurationProperties.clearConfigurationLastCheckDate(context)
             configurationProperties.updateProperties(
                 context,
                 null,
@@ -221,11 +223,16 @@ class ConfigurationLoaderImpl
                 return true
             }
 
+            val appVersion = appVersion(context)
+            if (appVersion.isNotEmpty() && configurationProperties.getLastCheckedAppVersion(context) != appVersion) {
+                return true
+            }
+
             val currentDate = LocalDateTime.now()
 
             val daysSinceLastUpdateCheck = ChronoUnit.DAYS.between(lastExecutionDate, currentDate)
 
-            return daysSinceLastUpdateCheck >= 4
+            return daysSinceLastUpdateCheck >= configurationProperty.updateInterval
         }
 
         private suspend fun restoreLocalConfiguration(context: Context) {
@@ -249,6 +256,19 @@ class ConfigurationLoaderImpl
                 errorLog(logTag, "Unable to cache the configuration, continuing with the loaded one", e)
             }
         }
+
+        private fun appVersion(context: Context): String =
+            try {
+                val packageInfo =
+                    context.packageManager.getPackageInfo(
+                        context.packageName,
+                        PackageManager.PackageInfoFlags.of(0),
+                    )
+                "${packageInfo.versionName}.${packageInfo.longVersionCode}"
+            } catch (e: Exception) {
+                errorLog(logTag, "Unable to read the application version", e)
+                ""
+            }
 
         private fun bundledPublicKey(context: Context): String {
             val publicKey =
@@ -347,5 +367,7 @@ class ConfigurationLoaderImpl
             } else {
                 loadCachedConfiguration(context, true)
             }
+
+            configurationProperties.setLastCheckedAppVersion(context, appVersion(context))
         }
     }

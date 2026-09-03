@@ -46,4 +46,6 @@ object Constant {
         "configuration.last-update-check-date"
     const val CONFIGURATION_UPDATE_DATE_PROPERTY_NAME = "configuration.update-date"
     const val CONFIGURATION_VERSION_SERIAL_PROPERTY_NAME = "configuration.version-serial"
+    const val CONFIGURATION_LAST_CHECKED_APP_VERSION_PROPERTY_NAME =
+        "configuration.last-checked-app-version"
 }

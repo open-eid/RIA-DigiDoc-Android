@@ -49,6 +49,15 @@ interface ConfigurationProperties {
         date: Date?,
     )
 
+    fun clearConfigurationLastCheckDate(context: Context)
+
+    fun getLastCheckedAppVersion(context: Context): String?
+
+    fun setLastCheckedAppVersion(
+        context: Context,
+        version: String,
+    )
+
     fun getConfigurationVersionSerial(context: Context): Int?
 
     fun setConfigurationVersionSerial(

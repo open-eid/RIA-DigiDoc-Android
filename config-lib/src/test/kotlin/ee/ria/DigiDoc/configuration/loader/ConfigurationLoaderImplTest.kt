@@ -33,7 +33,9 @@ import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.mock
@@ -46,7 +48,10 @@ import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileNotFoundException
 import java.nio.file.Files
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
+import java.util.Date
 
 class ConfigurationLoaderImplTest {
     private lateinit var context: Context
@@ -96,6 +101,88 @@ class ConfigurationLoaderImplTest {
             any(),
             check { assertArrayEquals("test".toByteArray(), it) },
         )
+    }
+
+    @Test
+    fun configurationLoader_shouldCheckForUpdates_honoursTheConfiguredUpdateInterval() {
+        val loader =
+            ConfigurationLoaderImpl(
+                Gson(),
+                centralConfigurationRepository,
+                ConfigurationProperty(updateInterval = 7),
+                configurationProperties,
+                configurationSignatureVerifier,
+            )
+        `when`(configurationProperties.getConfigurationLastCheckDate(context))
+            .thenReturn(Date.from(Instant.now().minus(5, ChronoUnit.DAYS)))
+
+        assertFalse(runBlocking { loader.shouldCheckForUpdates(context) })
+    }
+
+    @Test
+    fun configurationLoader_shouldCheckForUpdates_afterTheConfiguredUpdateInterval() {
+        val loader =
+            ConfigurationLoaderImpl(
+                Gson(),
+                centralConfigurationRepository,
+                ConfigurationProperty(updateInterval = 7),
+                configurationProperties,
+                configurationSignatureVerifier,
+            )
+        `when`(configurationProperties.getConfigurationLastCheckDate(context))
+            .thenReturn(Date.from(Instant.now().minus(8, ChronoUnit.DAYS)))
+
+        assertTrue(runBlocking { loader.shouldCheckForUpdates(context) })
+    }
+
+    @Test
+    fun configurationLoader_loadDefaultConfiguration_clearsLastCheckDateSoAnUpdateIsNotDeferred() {
+        val bundledKey = "-----BEGIN PUBLIC KEY-----\nBUNDLED\n-----END PUBLIC KEY-----\n"
+        `when`(assets.open("config/default-config.ecpub"))
+            .thenReturn(ByteArrayInputStream(bundledKey.toByteArray()))
+        `when`(assets.open("config/default-config.ecc"))
+            .thenReturn(ByteArrayInputStream("dGVzdA==\n".toByteArray()))
+        `when`(assets.open("config/default-config.json"))
+            .thenReturn(
+                ByteArrayInputStream(
+                    """{"META-INF":{"VER":1,"SERIAL":205,"URL":"https://id.eesti.ee/config.json","DATE":"20260101000000Z"}}"""
+                        .toByteArray(),
+                ),
+            )
+        `when`(context.cacheDir).thenReturn(Files.createTempDirectory("loaderDefaultTest").toFile())
+
+        runBlocking { configurationLoader.loadDefaultConfiguration(context) }
+
+        verify(configurationProperties).clearConfigurationLastCheckDate(context)
+    }
+
+    @Test
+    fun configurationLoader_loadCentralConfiguration_recordsTheAppVersionSoAnUpdateForcesTheNextCheck() {
+        val bundledKey = "-----BEGIN PUBLIC KEY-----\nBUNDLED\n-----END PUBLIC KEY-----\n"
+        val cacheDir = Files.createTempDirectory("loaderVersionTest").toFile()
+        File(cacheDir, "config").mkdirs()
+        File(cacheDir, "config/active-config.ecc").writeBytes("test".toByteArray())
+        File(cacheDir, "config/active-config.json").writeText(
+            """{"META-INF":{"VER":1,"SERIAL":205,"URL":"https://id.eesti.ee/config.json","DATE":"20260101000000Z"}}""",
+        )
+
+        `when`(context.cacheDir).thenReturn(cacheDir)
+        `when`(assets.open("config/default-config.ecpub"))
+            .thenReturn(ByteArrayInputStream(bundledKey.toByteArray()))
+        `when`(configurationProperties.getConfigurationProperties(context))
+            .thenReturn(ConfigurationProperty("https://example.org", 4, 1, LocalDateTime.now()))
+
+        runBlocking {
+            `when`(centralConfigurationRepository.fetchSignature()).thenReturn("dGVzdA==")
+
+            configurationLoader.loadCentralConfiguration(
+                context,
+                ProxySetting.NO_PROXY,
+                ManualProxy("", 80, "", ""),
+            )
+        }
+
+        verify(configurationProperties).setLastCheckedAppVersion(eq(context), any())
     }
 
     @Test
