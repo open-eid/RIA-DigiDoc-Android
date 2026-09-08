@@ -31,11 +31,15 @@ import ee.ria.DigiDoc.webEid.WebEidSignService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -79,10 +83,102 @@ class WebEidViewModelTest {
 
     private val signingCertBase64 = signingCertBase64Raw.replace("\\s+".toRegex(), "")
 
+    private val validAuthUri =
+        "web-eid-mobile://auth#eyJjaGFsbGVuZ2UiOiJ0ZXN0LWNoYWxsZW5nZS0wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsImxvZ2luVXJpIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9yZXNwb25zZSIsImdldFNpZ25pbmdDZXJ0aWZpY2F0ZSI6dHJ1ZX0"
+
+    private val validCertUri = "web-eid-mobile://cert#eyJyZXNwb25zZVVyaSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcmVzcG9uc2UifQ"
+
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
         viewModel = WebEidViewModel(authService, signService)
+    }
+
+    @Test
+    fun webEidViewModel_handleCertificate_clearsPreviousSignRequest() {
+        runTest {
+            viewModel.handleSign(Uri.parse(createSignUri(signingCertBase64)))
+            assertNotNull(viewModel.signRequest.value)
+
+            viewModel.handleCertificate(Uri.parse(validCertUri))
+
+            assertNull(viewModel.signRequest.value)
+            assertNotNull(viewModel.certificateRequest.value)
+        }
+    }
+
+    @Test
+    fun webEidViewModel_handleSign_clearsPreviousCertificateRequest() {
+        runTest {
+            viewModel.handleCertificate(Uri.parse(validCertUri))
+            assertNotNull(viewModel.certificateRequest.value)
+
+            viewModel.handleSign(Uri.parse(createSignUri(signingCertBase64)))
+
+            assertNull(viewModel.certificateRequest.value)
+            assertNotNull(viewModel.signRequest.value)
+        }
+    }
+
+    @Test
+    fun webEidViewModel_handleAuth_clearsPreviousSignRequest() {
+        runTest {
+            viewModel.handleSign(Uri.parse(createSignUri(signingCertBase64)))
+            assertNotNull(viewModel.signRequest.value)
+
+            viewModel.handleAuth(Uri.parse(validAuthUri))
+
+            assertNull(viewModel.signRequest.value)
+            assertNotNull(viewModel.authRequest.value)
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun webEidViewModel_secondResponseForSameFlow_isIgnored() {
+        runTest(UnconfinedTestDispatcher()) {
+            val emitted = mutableListOf<Uri>()
+            val job = launch { viewModel.relyingPartyResponseEvents.toList(emitted) }
+
+            viewModel.handleAuth(Uri.parse(validAuthUri))
+            viewModel.handleUserCancelled()
+            viewModel.handleUserCancelled()
+
+            advanceUntilIdle()
+            job.cancel()
+            assertEquals(1, emitted.size)
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun webEidViewModel_newRequest_reArmsTheResponder() {
+        runTest(UnconfinedTestDispatcher()) {
+            val emitted = mutableListOf<Uri>()
+            val job = launch { viewModel.relyingPartyResponseEvents.toList(emitted) }
+
+            viewModel.handleAuth(Uri.parse(validAuthUri))
+            viewModel.handleUserCancelled()
+            viewModel.handleAuth(Uri.parse(validAuthUri))
+            viewModel.handleUserCancelled()
+
+            advanceUntilIdle()
+            job.cancel()
+            assertEquals(2, emitted.size)
+        }
+    }
+
+    @Test
+    fun webEidViewModel_response_isDeliveredWhenCollectedAfterItIsSent() {
+        runTest {
+            viewModel.handleAuth(Uri.parse(validAuthUri))
+            viewModel.handleUserCancelled()
+
+            val received = viewModel.relyingPartyResponseEvents.first()
+
+            assertNotNull(received)
+            assert(received.toString().startsWith("https://example.com/response#"))
+        }
     }
 
     @Test
