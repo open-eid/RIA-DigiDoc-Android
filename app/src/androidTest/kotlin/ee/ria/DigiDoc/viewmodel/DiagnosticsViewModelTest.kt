@@ -294,7 +294,7 @@ class DiagnosticsViewModelTest {
     @Test
     fun diagnosticsViewModel_createDiagnosticsFile_success() {
         val diagnosticsFileName =
-            "ria_digidoc_${viewModel.getAppVersion()}.${viewModel.getAppVersionCode()}_diagnostics.log"
+            "ria_digidoc_${viewModel.getAppVersion()}.${viewModel.getAppVersionCode()}_diagnostics.txt"
         val diagnosticsFilePath: String = File(context.filesDir.path, "diagnostics").path
         val resultFile = viewModel.createDiagnosticsFile(context, configurationProvider)
 
@@ -305,7 +305,7 @@ class DiagnosticsViewModelTest {
     @Test
     fun diagnosticsViewModel_createLogFile_success() {
         val diagnosticsLogsFilePath =
-            "ria_digidoc_${viewModel.getAppVersion()}.${viewModel.getAppVersionCode()}_logs.log"
+            "ria_digidoc_${viewModel.getAppVersion()}.${viewModel.getAppVersionCode()}_logs.txt"
         val logFolder = FileUtil.getLogsDirectory(context)
         val resultFile = viewModel.createLogFile(context)
 

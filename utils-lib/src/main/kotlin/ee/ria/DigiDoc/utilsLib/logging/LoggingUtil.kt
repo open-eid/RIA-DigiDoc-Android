@@ -103,7 +103,7 @@ class LoggingUtil
             private fun setupLogger(context: Context) {
                 try {
                     val logDirectory = FileUtil.getLogsDirectory(context)
-                    val logFile = File(logDirectory, "${dateFormat.format(Date())}.log")
+                    val logFile = File(logDirectory, "${dateFormat.format(Date())}.txt")
 
                     resetLogs(logDirectory)
 
