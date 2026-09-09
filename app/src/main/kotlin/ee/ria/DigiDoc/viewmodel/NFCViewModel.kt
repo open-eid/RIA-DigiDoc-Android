@@ -779,6 +779,11 @@ class NFCViewModel
             errorLog(logTag, "Unable to sign with NFC - Unable to create proxy connection with host", e)
         }
 
+        private fun showSslHandshakeError(e: Exception) {
+            _errorState.update { NFCError.InvalidSslHandshake(R.string.invalid_ssl_handshake) }
+            errorLog(logTag, "Unable to sign with NFC - Failed to create SSL connection with host", e)
+        }
+
         private fun showNoLockFoundError(e: Exception) {
             _errorState.update { NFCError.NoLockFound(R.string.no_lock_found) }
             errorLog(logTag, "Unable to decrypt with NFC - No lock found with certificate key", e)
@@ -879,6 +884,11 @@ class NFCViewModel
 
                 message.contains("Failed to create proxy connection with host") -> {
                     showProxyError(ex)
+                    true
+                }
+
+                message.contains("Failed to create ssl connection with host") -> {
+                    showSslHandshakeError(ex)
                     true
                 }
 
