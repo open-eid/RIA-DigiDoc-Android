@@ -38,6 +38,7 @@ import ee.ria.DigiDoc.cryptolib.CDOC2Settings
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
+import ee.ria.DigiDoc.libdigidoclib.exceptions.SSLHandshakeException
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil
 import ee.ria.DigiDoc.utilsLib.extensions.isCades
 import ee.ria.DigiDoc.utilsLib.extensions.isCryptoContainer
@@ -170,6 +171,10 @@ class RecentDocumentsViewModel
 
                 if (ex is NoInternetConnectionException) {
                     errorMessage = R.string.no_internet_connection
+                }
+
+                if (ex is SSLHandshakeException) {
+                    errorMessage = R.string.invalid_ssl_handshake
                 }
 
                 _errorState.postValue(errorMessage)

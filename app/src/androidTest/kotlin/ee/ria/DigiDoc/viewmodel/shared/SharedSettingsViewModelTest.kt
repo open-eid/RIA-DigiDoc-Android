@@ -21,14 +21,14 @@
 
 package ee.ria.DigiDoc.viewmodel.shared
 
-import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.documentfile.provider.DocumentFile
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.common.Constant.DIR_CRYPTO_CERT
+import ee.ria.DigiDoc.common.Constant.DIR_SIVA_CERT
 import ee.ria.DigiDoc.common.Constant.DIR_TSA_CERT
 import ee.ria.DigiDoc.common.Constant.Defaults.DEFAULT_UUID_VALUE
 import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
@@ -52,7 +52,6 @@ import ee.ria.libdigidocpp.DigiDocConf
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import org.apache.commons.io.FileUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -68,7 +67,6 @@ import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.mock
 import java.io.File
-import java.io.InputStream
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.util.TimeZone
@@ -80,9 +78,6 @@ class SharedSettingsViewModelTest {
 
     @get:Rule
     val mockWebServer = MockWebServer()
-
-    @Mock
-    lateinit var contentResolver: ContentResolver
 
     @Mock
     lateinit var configurationRepository: ConfigurationRepository
@@ -145,7 +140,7 @@ class SharedSettingsViewModelTest {
         viewModel =
             SharedSettingsViewModel(
                 context = context,
-                contentResolver = contentResolver,
+                contentResolver = context.contentResolver,
                 dataStore = dataStore,
                 configurationRepository = configurationRepository,
                 initialization = initialization,
@@ -162,14 +157,9 @@ class SharedSettingsViewModelTest {
 
     @Test
     fun sharedSettingsViewModel_resetToDefaultSettings_success() {
-        val file =
-            AssetFile.getResourceFileAsFile(
-                context,
-                "siva.cer",
-                ee.ria.DigiDoc.common.R.raw.siva,
-            )
-        val uri = Uri.fromFile(file)
-        saveTsaCert(uri)
+        val tsaCertFile = writeCertFile(DIR_TSA_CERT, "tsaCert")
+        dataStore.setTSACertName(tsaCertFile.name)
+
         viewModel.resetToDefaultSettings()
 
         // resetSigningSettings
@@ -180,6 +170,7 @@ class SharedSettingsViewModelTest {
         assertFalse(dataStore.getIsTsaCertificateViewVisible())
 
         assertEquals("", dataStore.getTSACertName())
+        assertFalse(tsaCertFile.exists())
 
         // resetRightsSettings
         assertTrue(dataStore.getSettingsOpenAllFileTypes())
@@ -205,6 +196,39 @@ class SharedSettingsViewModelTest {
         viewModel.resetToDefaultSettings()
 
         assertFalse(dataStore.getSettingsDefaultLTA())
+    }
+
+    @Test
+    fun sharedSettingsViewModel_resetToDefaultSettings_deletesSivaCertificateFile() {
+        val certFile = writeCertFile(DIR_SIVA_CERT, "sivaCert")
+        dataStore.setSettingsSivaCertName(certFile.name)
+
+        viewModel.resetToDefaultSettings()
+
+        assertFalse(certFile.exists())
+        assertEquals("", dataStore.getSettingsSivaCertName())
+    }
+
+    @Test
+    fun sharedSettingsViewModel_resetToDefaultSettings_deletesTsaCertificateFile() {
+        val certFile = writeCertFile(DIR_TSA_CERT, "tsaCert")
+        dataStore.setTSACertName(certFile.name)
+
+        viewModel.resetToDefaultSettings()
+
+        assertFalse(certFile.exists())
+        assertEquals("", dataStore.getTSACertName())
+    }
+
+    @Test
+    fun sharedSettingsViewModel_resetToDefaultSettings_deletesCryptoCertificateFile() {
+        val certFile = writeCertFile(DIR_CRYPTO_CERT, "cryptoCert")
+        dataStore.setCryptoCertName(certFile.name)
+
+        viewModel.resetToDefaultSettings()
+
+        assertFalse(certFile.exists())
+        assertEquals("", dataStore.getCryptoCertName())
     }
 
     @Test
@@ -343,7 +367,9 @@ class SharedSettingsViewModelTest {
 
         val uri = Uri.fromFile(file)
         viewModel.handleSivaFile(uri)
+
         assertEquals("sivaCert", dataStore.getSettingsSivaCertName())
+        assertTrue(File(File(context.filesDir, DIR_SIVA_CERT), "sivaCert").exists())
     }
 
     @Test(expected = Test.None::class)
@@ -364,7 +390,9 @@ class SharedSettingsViewModelTest {
 
         val uri = Uri.fromFile(file)
         viewModel.handleTsaFile(uri)
+
         assertEquals("tsaCert", dataStore.getTSACertName())
+        assertTrue(File(File(context.filesDir, DIR_TSA_CERT), "tsaCert").exists())
     }
 
     @Test(expected = Test.None::class)
@@ -372,6 +400,60 @@ class SharedSettingsViewModelTest {
         val uri: Uri = mock()
 
         viewModel.handleTsaFile(uri)
+    }
+
+    @Test
+    fun sharedSettingsViewModel_handleSivaFile_deletesPreviouslyAddedCertificateFile() {
+        val previousCertFile = writeCertFile(DIR_SIVA_CERT, "previousSivaCert")
+        dataStore.setSettingsSivaCertName(previousCertFile.name)
+        val file =
+            AssetFile.getResourceFileAsFile(
+                context,
+                "siva.cer",
+                ee.ria.DigiDoc.common.R.raw.siva,
+            )
+        val uri = Uri.fromFile(file)
+        viewModel.handleSivaFile(uri)
+
+        assertFalse(previousCertFile.exists())
+        assertEquals("sivaCert", dataStore.getSettingsSivaCertName())
+        assertTrue(File(File(context.filesDir, DIR_SIVA_CERT), "sivaCert").exists())
+    }
+
+    @Test
+    fun sharedSettingsViewModel_handleTsaFile_deletesPreviouslyAddedCertificateFile() {
+        val previousCertFile = writeCertFile(DIR_TSA_CERT, "previousTsaCert")
+        dataStore.setTSACertName(previousCertFile.name)
+        val file =
+            AssetFile.getResourceFileAsFile(
+                context,
+                "siva.cer",
+                ee.ria.DigiDoc.common.R.raw.siva,
+            )
+        val uri = Uri.fromFile(file)
+        viewModel.handleTsaFile(uri)
+
+        assertFalse(previousCertFile.exists())
+        assertEquals("tsaCert", dataStore.getTSACertName())
+        assertTrue(File(File(context.filesDir, DIR_TSA_CERT), "tsaCert").exists())
+    }
+
+    @Test
+    fun sharedSettingsViewModel_handleCryptoCertFile_deletesPreviouslyAddedCertificateFile() {
+        val previousCertFile = writeCertFile(DIR_CRYPTO_CERT, "previousCryptoCert")
+        dataStore.setCryptoCertName(previousCertFile.name)
+        val file =
+            AssetFile.getResourceFileAsFile(
+                context,
+                "siva.cer",
+                ee.ria.DigiDoc.common.R.raw.siva,
+            )
+        val uri = Uri.fromFile(file)
+        viewModel.handleCryptoCertFile(uri)
+
+        assertFalse(previousCertFile.exists())
+        assertEquals("cryptoCert", dataStore.getCryptoCertName())
+        assertTrue(File(File(context.filesDir, DIR_CRYPTO_CERT), "cryptoCert").exists())
     }
 
     @Test
@@ -458,28 +540,16 @@ class SharedSettingsViewModelTest {
         return tempFile
     }
 
-    private fun saveTsaCert(uri: Uri) {
-        try {
-            val initialStream: InputStream? = contentResolver.openInputStream(uri)
-            val documentFile = DocumentFile.fromSingleUri(context, uri)
-            if (documentFile != null) {
-                val tsaCertFolder = File(context.filesDir, DIR_TSA_CERT)
-                if (!tsaCertFolder.exists()) {
-                    tsaCertFolder.mkdirs()
-                }
-
-                var fileName = documentFile.name
-                if (fileName.isNullOrEmpty()) {
-                    fileName = "tsaCert"
-                }
-                val tsaFile = File(tsaCertFolder, fileName)
-
-                FileUtils.copyInputStreamToFile(initialStream, tsaFile)
-
-                dataStore.setTSACertName(tsaFile.name)
-            }
-        } catch (_: Exception) {
-            // Do nothing
+    private fun writeCertFile(
+        certFolder: String,
+        fileName: String,
+    ): File {
+        val folder = File(context.filesDir, certFolder)
+        if (!folder.exists()) {
+            folder.mkdirs()
         }
+        val certFile = File(folder, fileName)
+        Files.write(certFile.toPath(), "cert".toByteArray(Charset.defaultCharset()))
+        return certFile
     }
 }

@@ -43,6 +43,7 @@ import ee.ria.DigiDoc.domain.repository.siva.SivaRepository
 import ee.ria.DigiDoc.exceptions.EmptyFileException
 import ee.ria.DigiDoc.exceptions.FileAlreadyExistsException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
+import ee.ria.DigiDoc.libdigidoclib.exceptions.SSLHandshakeException
 import ee.ria.DigiDoc.utilsLib.extensions.isCryptoContainer
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
@@ -271,6 +272,9 @@ class FileOpeningViewModel
                 }
                 is NoInternetConnectionException -> {
                     _errorState.postValue(Pair(R.string.no_internet_connection, null))
+                }
+                is SSLHandshakeException -> {
+                    _errorState.postValue(Pair(R.string.invalid_ssl_handshake, null))
                 }
                 is IOException -> {
                     val message = e.message ?: ""
