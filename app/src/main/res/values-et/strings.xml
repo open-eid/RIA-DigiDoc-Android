@@ -320,6 +320,8 @@
     <string name="sign_blocked_pin2_unchanged_url">https://www.id.ee/artikkel/id-kaardi-pin-ja-puk-koodide-muutmine/</string>
     <string name="signature_update_signature_error_message_certificate_revoked">Sertifikaat on kehtetu</string>
     <string name="signature_update_signature_error_message_certificate_unknown">Sertifikaadi staatus on teadmata</string>
+    <string name="signature_update_signature_error_message_certificate_expired">Sertifikaat on aegunud</string>
+    <string name="signature_update_signature_error_message_certificate_not_yet_valid">Sertifikaat pole veel kehtiv</string>
     <string name="id_card_conditional_speech">ID-kaardi</string>
     <string name="mobile_id_conditional_speech">Mobiil-ID</string>
     <string name="smart_id_conditional_speech">Smart-ID</string>
@@ -344,10 +346,8 @@
     <string name="signature_update_mobile_id_error_session_locked">Mobiilse allkirjastamise sessioon on lukustunud, proovi hiljem uuesti</string>
     <string name="signature_update_mobile_id_error_general_user">Viga mobiil-ID kasutamisel kasutaja telefonis</string>
     <string name="signature_update_mobile_id_error_not_mobile_id_user">Kasutaja ei ole mobiil-ID klient</string>
-    <string name="signature_update_mobile_id_error_user_certificate_revoked">Sinu mobiil-ID allkirjastamise sertifikaat on tühistatud</string>
     <string name="signature_update_mobile_id_error_user_certificate_status_unknown">Sinu mobiil-ID allkirjastamise sertifikaadi olek on teadmata</string>
     <string name="signature_update_mobile_id_error_user_certificate_suspended">Sinu mobiil-ID allkirjastamise sertifikaadi kehtivus on peatatud</string>
-    <string name="signature_update_mobile_id_error_user_certificate_expired">Sinu mobiil-ID allkirjastamise sertifikaat on aegunud</string>
     <string name="signature_update_mobile_id_error_message_exceeds_volume_limit">Liiga palju faile ühes konteineris</string>
     <string name="signature_update_mobile_id_error_message_access_rights">Ümbriku allkirjastamine ebaõnnestus. Kontrolli mobiil-ID teenuse ligipääsu seadeid. https://www.id.ee/artikkel/asutustele-kus-allkirjastatakse-digidoc4-kliendi-kaudu-suuremates-kogustes-dokumente/</string>
     <string name="signature_update_mobile_id_error_simultaneous_requests_limit_exceeded">Samaaegsete pöördumiste limiit ületatud</string>

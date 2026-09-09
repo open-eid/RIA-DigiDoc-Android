@@ -67,6 +67,14 @@ sealed class NFCError {
         override val message: Int,
     ) : NFCError()
 
+    data class CertificateExpired(
+        override val message: Int,
+    ) : NFCError()
+
+    data class CertificateNotYetValid(
+        override val message: Int,
+    ) : NFCError()
+
     data class CertificateUnknown(
         override val message: Int,
     ) : NFCError()
