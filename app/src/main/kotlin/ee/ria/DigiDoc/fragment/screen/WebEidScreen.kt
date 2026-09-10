@@ -203,10 +203,12 @@ fun WebEidScreen(
                         rememberMe = rememberMe,
                         isWebEidAuthenticating = isWebEidAuthenticating,
                         onError = {
+                            sharedSettingsViewModel.dataStore.setWebEidSessionActive(false)
                             isWebEidAuthenticating = false
                             cancelWebEidAuthenticateAction()
                         },
                         onSuccess = {
+                            sharedSettingsViewModel.dataStore.setWebEidSessionActive(false)
                             isWebEidAuthenticating = false
                             navController.navigateUp()
                         },
@@ -261,6 +263,7 @@ fun WebEidScreen(
                             showPinField = false,
                             isWebEidAuthenticating = isWebEidAuthenticating,
                             onError = {
+                                sharedSettingsViewModel.dataStore.setWebEidSessionActive(false)
                                 isWebEidAuthenticating = false
                                 cancelWebEidSignAction()
                             },
@@ -292,6 +295,7 @@ fun WebEidScreen(
                             isWebEidAuthenticating = isWebEidAuthenticating,
                             isCanNumberReadOnly = hasStoredCanNumber,
                             onError = {
+                                sharedSettingsViewModel.dataStore.setWebEidSessionActive(false)
                                 isWebEidAuthenticating = false
                                 cancelWebEidSignAction()
                             },
