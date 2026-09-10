@@ -130,6 +130,7 @@ class DataStore
         }
 
         fun clearTemporaryCanNumber() {
+            debugLog(logTag, "Clearing temporary CAN")
             runEncryptedWrite(context, "Unable to clear temporary CAN") {
                 EncryptedPreferences.putString(
                     context,
@@ -153,6 +154,7 @@ class DataStore
             }.toBoolean()
 
         fun setWebEidSessionActive(active: Boolean) {
+            debugLog(logTag, "Setting Web eID session active: $active")
             runEncryptedWrite(context, "Unable to save Web eID session state") {
                 EncryptedPreferences.putString(context, "web_eid_session_active", active.toString())
             }
