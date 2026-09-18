@@ -132,7 +132,7 @@ class WebEidViewModelTest {
 
             viewModel.handleAuth(uri)
 
-            val emittedUri = deferred.await()
+            val emittedUri = deferred.await().uri
             assert(emittedUri.toString().startsWith("https://example.com/response#"))
             assert(emittedUri.fragment != null)
             val decodedPayload = String(decode(emittedUri.fragment, URL_SAFE))
@@ -157,7 +157,7 @@ class WebEidViewModelTest {
 
             viewModel.handleAuth(uri)
 
-            val emittedUri = deferred.await()
+            val emittedUri = deferred.await().uri
             assert(
                 emittedUri.toString().startsWith(
                     "https://example.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.com/response#",
@@ -202,7 +202,7 @@ class WebEidViewModelTest {
             viewModel.handleWebEidAuthResult(cert, signingCert, signature)
 
             verify(authService).buildAuthToken(cert, signingCert, signature)
-            val emittedUri = deferred.await()
+            val emittedUri = deferred.await().uri
             assert(emittedUri.toString().startsWith("https://example.com/response#"))
             assert(emittedUri.fragment != null)
             val decodedPayload = String(decode(emittedUri.fragment, URL_SAFE))
@@ -234,7 +234,7 @@ class WebEidViewModelTest {
             viewModel.handleWebEidAuthResult(cert, signingCert, signature)
 
             verify(authService).buildAuthToken(cert, null, signature)
-            val emittedUri = deferred.await()
+            val emittedUri = deferred.await().uri
             assert(emittedUri.toString().startsWith("https://example.com/response#"))
             assert(emittedUri.fragment != null)
             val decodedPayload = String(decode(emittedUri.fragment, URL_SAFE))
@@ -266,7 +266,7 @@ class WebEidViewModelTest {
             viewModel.handleWebEidAuthResult(cert, signingCert, signature)
 
             verify(authService).buildAuthToken(cert, signingCert, signature)
-            val emittedUri = deferred.await()
+            val emittedUri = deferred.await().uri
             assert(emittedUri.toString().startsWith("https://example.com/response#"))
             assert(emittedUri.fragment != null)
             val decodedPayload = String(decode(emittedUri.fragment, URL_SAFE))
@@ -301,7 +301,7 @@ class WebEidViewModelTest {
 
             verify(authService).buildAuthToken(cert, null, signature)
 
-            val emittedUri = deferred.await()
+            val emittedUri = deferred.await().uri
             assert(emittedUri.toString().startsWith("https://example.com/response#"))
             assert(emittedUri.fragment != null)
 
@@ -376,7 +376,7 @@ class WebEidViewModelTest {
 
             viewModel.handleSign(uri)
 
-            val emittedUri = deferred.await()
+            val emittedUri = deferred.await().uri
             assert(emittedUri.toString().startsWith("https://example.com/response#"))
             assert(emittedUri.fragment != null)
             val decodedPayload = String(decode(emittedUri.fragment, URL_SAFE))
@@ -434,7 +434,7 @@ class WebEidViewModelTest {
             viewModel.handleWebEidCertificateResult(signingCert)
 
             verify(signService).buildCertificatePayload(signingCert)
-            val emittedUri = deferred.await()
+            val emittedUri = deferred.await().uri
             assert(emittedUri.toString().startsWith("https://example.com/response#"))
             assert(emittedUri.fragment != null)
             val decodedPayload = String(decode(emittedUri.fragment, URL_SAFE))
@@ -466,7 +466,7 @@ class WebEidViewModelTest {
             viewModel.handleWebEidCertificateResult(signingCert)
 
             verify(signService).buildCertificatePayload(signingCert)
-            val emittedUri = deferred.await()
+            val emittedUri = deferred.await().uri
             assert(emittedUri.toString().startsWith("https://example.com/response#"))
             assert(emittedUri.fragment != null)
             val decodedPayload = String(decode(emittedUri.fragment, URL_SAFE))
@@ -497,7 +497,7 @@ class WebEidViewModelTest {
             viewModel.handleWebEidSignResult(signingCert, signature, responseUri)
 
             verify(signService).buildSignPayload(signingCert, signature, hashFunction)
-            val emittedUri = deferred.await()
+            val emittedUri = deferred.await().uri
             assert(emittedUri.toString().startsWith("https://example.com/response#"))
             assert(emittedUri.fragment != null)
             val decodedPayload = String(decode(emittedUri.fragment, URL_SAFE))
@@ -527,7 +527,7 @@ class WebEidViewModelTest {
             viewModel.handleWebEidSignResult(signingCert, signature, responseUri)
 
             verify(signService).buildSignPayload(signingCert, signature, hashFunction)
-            val emittedUri = deferred.await()
+            val emittedUri = deferred.await().uri
             assert(emittedUri.toString().startsWith("https://example.com/response#"))
             assert(emittedUri.fragment != null)
             val decodedPayload = String(decode(emittedUri.fragment, URL_SAFE))
@@ -555,7 +555,7 @@ class WebEidViewModelTest {
 
             viewModel.handleUserCancelled()
 
-            val emittedUri = deferred.await()
+            val emittedUri = deferred.await().uri
 
             assert(emittedUri.toString().startsWith("https://example.com/response#"))
             assertNotNull(emittedUri.fragment)
@@ -586,7 +586,7 @@ class WebEidViewModelTest {
 
             viewModel.handleUserCancelled()
 
-            val emittedUri = deferred.await()
+            val emittedUri = deferred.await().uri
 
             assert(emittedUri.toString().startsWith("https://example.com/response#"))
             assertNotNull(emittedUri.fragment)
@@ -614,7 +614,7 @@ class WebEidViewModelTest {
 
             viewModel.handleUserCancelled()
 
-            val emittedUri = deferred.await()
+            val emittedUri = deferred.await().uri
 
             assert(emittedUri.toString().startsWith("https://rp.example.com/sign/response#"))
             assertNotNull(emittedUri.fragment)
