@@ -725,6 +725,8 @@
     <string name="web_eid_sign_title">Sign with ID-card</string>
     <string name="web_eid_cert_request_from">Certificate request from:</string>
     <string name="web_eid_sign_request_from">Signing request from:</string>
+    <string name="web_eid_select_browser_title">Select browser</string>
+    <string name="web_eid_select_browser_message">Select the browser where you started the authentication flow.</string>
     <string name="web_eid_cancel">Cancel</string>
     <string name="web_eid_invalid_request_error">Invalid Web eID request</string>
     <string name="web_eid_request_error">Request error</string>

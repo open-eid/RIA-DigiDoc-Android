@@ -725,6 +725,8 @@
     <string name="web_eid_sign_title">Allkirjasta ID-kaardiga</string>
     <string name="web_eid_cert_request_from">Sertifikaadipäring:</string>
     <string name="web_eid_sign_request_from">Allkirjastamispäring:</string>
+    <string name="web_eid_select_browser_title">Vali brauser</string>
+    <string name="web_eid_select_browser_message">Vali brauser, kus alustasid autentimist.</string>
     <string name="web_eid_cancel">Tühista</string>
     <string name="web_eid_invalid_request_error">Vigane Web eID päring</string>
     <string name="web_eid_request_error">Päringu viga</string>

@@ -39,8 +39,16 @@ enum class WebEidOperation(
 
 object WebEidUriUtil {
     private const val CUSTOM_SCHEME = "web-eid-mobile"
+    private const val ANDROID_APP_SCHEME = "android-app"
 
     fun isWebEidUri(uri: Uri): Boolean = getOperation(uri) != null
+
+    fun browserPackageCandidate(
+        applicationId: String?,
+        referrer: Uri?,
+    ): String? =
+        applicationId?.takeIf { it.isNotEmpty() }
+            ?: referrer?.takeIf { it.scheme == ANDROID_APP_SCHEME }?.authority?.takeIf { it.isNotEmpty() }
 
     fun getOperation(uri: Uri): WebEidOperation? {
         val operation =
