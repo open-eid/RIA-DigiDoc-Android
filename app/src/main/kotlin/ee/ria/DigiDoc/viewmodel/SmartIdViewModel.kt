@@ -80,8 +80,6 @@ class SmartIdViewModel
         val challenge: LiveData<String?> = _challenge
         private val _status = MutableLiveData<SessionStatusResponseProcessStatus?>(null)
         val status: LiveData<SessionStatusResponseProcessStatus?> = _status
-        private val _selectDevice = MutableLiveData(false)
-        val selectDevice: LiveData<Boolean?> = _selectDevice
 
         private val _dialogError = MutableLiveData(0)
         val dialogError: LiveData<Int> = _dialogError
@@ -225,7 +223,6 @@ class SmartIdViewModel
             _errorState.postValue(null)
             _challenge.postValue(null)
             _status.postValue(null)
-            _selectDevice.postValue(false)
             smartSignService.resetValues()
         }
 
@@ -273,11 +270,6 @@ class SmartIdViewModel
                             title = challengeTitle,
                             message = challenge,
                         )
-                    }
-                }
-                smartSignService.selectDevice.observeForever {
-                    if (it != null) {
-                        _selectDevice.postValue(it)
                     }
                 }
                 smartSignService.status.observeForever { status ->

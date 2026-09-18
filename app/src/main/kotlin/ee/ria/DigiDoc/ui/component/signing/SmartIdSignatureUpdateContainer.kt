@@ -72,6 +72,8 @@ fun SmartIdSignatureUpdateContainer(
 ) {
     val controlCode = stringResource(id = R.string.challenge_code_text)
     val controlCodeLoadingText = stringResource(id = R.string.control_code_loading)
+    val selectDeviceText = stringResource(id = R.string.signature_update_smart_id_select_device)
+    val challengeInfoText = stringResource(id = R.string.signature_update_smart_id_info)
     var challengeText by remember { mutableStateOf("") }
 
     LaunchedEffect(smartIdViewModel.challenge) {
@@ -141,6 +143,18 @@ fun SmartIdSignatureUpdateContainer(
                                 "$controlCode ${formatNumbers(challengeText)}"
                         }
                     }.testTag("signatureUpdateSmartIdChallenge"),
+        )
+
+        Text(
+            text = if (challengeText.isEmpty()) selectDeviceText else challengeInfoText,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Normal,
+            modifier =
+                modifier
+                    .fillMaxWidth()
+                    .testTag("signatureUpdateSmartIdInfo"),
         )
     }
 }

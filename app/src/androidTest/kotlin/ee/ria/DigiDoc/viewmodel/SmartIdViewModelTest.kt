@@ -109,9 +109,6 @@ class SmartIdViewModelTest {
     @Mock
     lateinit var challengeObserver: Observer<String?>
 
-    @Mock
-    lateinit var selectDeviceObserver: Observer<Boolean?>
-
     private lateinit var scenario: ActivityScenario<ComponentActivity>
     private lateinit var activity: ComponentActivity
 
@@ -207,7 +204,6 @@ class SmartIdViewModelTest {
         viewModel.status.observeForever(statusObserver)
         viewModel.signedContainer.observeForever(signedContainerObserver)
         viewModel.challenge.observeForever(challengeObserver)
-        viewModel.selectDevice.observeForever(selectDeviceObserver)
 
         scenario = ActivityScenario.launch(ComponentActivity::class.java)
 
@@ -241,7 +237,6 @@ class SmartIdViewModelTest {
             `when`(smartSignService.status).thenReturn(MutableLiveData<SessionStatusResponseProcessStatus?>(null))
             `when`(smartSignService.challenge).thenReturn(MutableLiveData<String?>(null))
             `when`(smartSignService.cancelled).thenReturn(MutableLiveData<Boolean?>(true))
-            `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(null))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>("Some error occurred"))
 
             viewModel.performSmartIdWorkRequest(
@@ -275,7 +270,6 @@ class SmartIdViewModelTest {
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(null)
             verify(challengeObserver, atLeastOnce()).onChanged(null)
-            verify(selectDeviceObserver, atLeastOnce()).onChanged(false)
         }
 
     @Test
@@ -304,7 +298,6 @@ class SmartIdViewModelTest {
             )
             `when`(smartSignService.challenge).thenReturn(MutableLiveData<String?>("0660"))
             `when`(smartSignService.cancelled).thenReturn(MutableLiveData<Boolean?>(false))
-            `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(false))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
             viewModel.performSmartIdWorkRequest(
@@ -338,7 +331,6 @@ class SmartIdViewModelTest {
             verify(signedContainerObserver, atLeastOnce()).onChanged(any<SignedContainer>())
             verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.OK)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
-            verify(selectDeviceObserver, atLeastOnce()).onChanged(false)
         }
 
     @Test
@@ -363,7 +355,6 @@ class SmartIdViewModelTest {
             `when`(smartSignService.status).thenReturn(MutableLiveData<SessionStatusResponseProcessStatus?>(null))
             `when`(smartSignService.challenge).thenReturn(MutableLiveData<String?>("0660"))
             `when`(smartSignService.cancelled).thenReturn(MutableLiveData<Boolean?>(false))
-            `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(true))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
             viewModel.performSmartIdWorkRequest(
@@ -397,7 +388,6 @@ class SmartIdViewModelTest {
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.NO_RESPONSE)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
-            verify(selectDeviceObserver, atLeastOnce()).onChanged(true)
         }
 
     @Test
@@ -424,7 +414,6 @@ class SmartIdViewModelTest {
             )
             `when`(smartSignService.challenge).thenReturn(MutableLiveData<String?>("0660"))
             `when`(smartSignService.cancelled).thenReturn(MutableLiveData<Boolean?>(true))
-            `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(true))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
             viewModel.performSmartIdWorkRequest(
@@ -461,7 +450,6 @@ class SmartIdViewModelTest {
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.OCSP_INVALID_TIME_SLOT)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
-            verify(selectDeviceObserver, atLeastOnce()).onChanged(true)
         }
 
     @Test
@@ -488,7 +476,6 @@ class SmartIdViewModelTest {
             )
             `when`(smartSignService.challenge).thenReturn(MutableLiveData<String?>("0660"))
             `when`(smartSignService.cancelled).thenReturn(MutableLiveData<Boolean?>(true))
-            `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(true))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
             viewModel.performSmartIdWorkRequest(
@@ -525,7 +512,6 @@ class SmartIdViewModelTest {
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.TOO_MANY_REQUESTS)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
-            verify(selectDeviceObserver, atLeastOnce()).onChanged(true)
         }
 
     @Test
@@ -550,7 +536,6 @@ class SmartIdViewModelTest {
             )
             `when`(smartSignService.challenge).thenReturn(MutableLiveData<String?>("0660"))
             `when`(smartSignService.cancelled).thenReturn(MutableLiveData<Boolean?>(true))
-            `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(true))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
             viewModel.performSmartIdWorkRequest(
@@ -587,7 +572,6 @@ class SmartIdViewModelTest {
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.USER_REFUSED)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
-            verify(selectDeviceObserver, atLeastOnce()).onChanged(true)
         }
 
     @Test
@@ -612,7 +596,6 @@ class SmartIdViewModelTest {
             )
             `when`(smartSignService.challenge).thenReturn(MutableLiveData<String?>("0660"))
             `when`(smartSignService.cancelled).thenReturn(MutableLiveData<Boolean?>(true))
-            `when`(smartSignService.selectDevice).thenReturn(MutableLiveData<Boolean?>(true))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
             viewModel.performSmartIdWorkRequest(
@@ -649,7 +632,6 @@ class SmartIdViewModelTest {
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.USER_CANCELLED)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
-            verify(selectDeviceObserver, atLeastOnce()).onChanged(true)
         }
 
     @Test
