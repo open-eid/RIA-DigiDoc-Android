@@ -48,11 +48,7 @@ class ConstantTest {
 
     @Test
     fun testNFCConstants() {
-        assertEquals(4, Constant.NFCConstants.PIN1_MIN_LENGTH)
-        assertEquals(5, Constant.NFCConstants.PIN2_MIN_LENGTH)
-        assertEquals(12, Constant.NFCConstants.PIN_MAX_LENGTH)
-        assertEquals(8, Constant.NFCConstants.PUK_MIN_LENGTH)
-        assertEquals(6, Constant.NFCConstants.CAN_LENGTH)
+        assertEquals("DO_NOT_SHOW_WRONG_CAN_DIALOG", Constant.NFCConstants.DO_NOT_SHOW_WRONG_CAN_DIALOG)
     }
 
     @Test
@@ -100,11 +96,5 @@ class ConstantTest {
     @Test
     fun testThemeSettingKey() {
         assertEquals("THEME_SETTING", Constant.Theme.THEME_SETTING)
-    }
-
-    @Test
-    fun testMyEIDPinLimits() {
-        assertEquals(4, Constant.MyEID.PIN1_MINIMUM_LENGTH)
-        assertEquals(12, Constant.MyEID.PIN_MAXIMUM_LENGTH)
     }
 }

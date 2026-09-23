@@ -52,12 +52,6 @@ object Constant {
     }
 
     object NFCConstants {
-        const val PIN1_MIN_LENGTH: Int = 4
-        const val PIN2_MIN_LENGTH: Int = 5
-        const val PIN_MAX_LENGTH: Int = 12
-        const val PUK_MIN_LENGTH: Int = 8
-        const val CAN_LENGTH: Int = 6
-
         const val DO_NOT_SHOW_WRONG_CAN_DIALOG: String = "DO_NOT_SHOW_WRONG_CAN_DIALOG"
     }
 
@@ -210,13 +204,6 @@ object Constant {
 
     object Theme {
         const val THEME_SETTING = "THEME_SETTING"
-    }
-
-    object MyEID {
-        const val PIN1_MINIMUM_LENGTH = 4
-        const val PIN2_MINIMUM_LENGTH = 5
-        const val PUK_MINIMUM_LENGTH = 8
-        const val PIN_MAXIMUM_LENGTH = 12
     }
 
     object Crypto {

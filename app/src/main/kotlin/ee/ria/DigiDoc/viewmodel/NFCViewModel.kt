@@ -34,7 +34,6 @@ import androidx.lifecycle.ViewModel
 import com.google.common.collect.ImmutableMap
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.common.Constant.NFCConstants.CAN_LENGTH
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.SIGNATURE_PROFILE_TS
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.cryptolib.CDOC2Settings
@@ -44,9 +43,12 @@ import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.domain.service.IdCardService
 import ee.ria.DigiDoc.exceptions.NFCError
 import ee.ria.DigiDoc.idcard.CertificateType
+import ee.ria.DigiDoc.idcard.CodeNotActivatedException
 import ee.ria.DigiDoc.idcard.CodeType
+import ee.ria.DigiDoc.idcard.CodeVerificationException
 import ee.ria.DigiDoc.idcard.PaceTunnelException
 import ee.ria.DigiDoc.idcard.TokenWithPace
+import ee.ria.DigiDoc.idcard.TokenWithPace.CAN_LENGTH
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
@@ -55,6 +57,7 @@ import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatu
 import ee.ria.DigiDoc.network.utils.SendDiagnostics
 import ee.ria.DigiDoc.network.utils.UserAgentUtil
 import ee.ria.DigiDoc.smartcardreader.ApduResponseException
+import ee.ria.DigiDoc.smartcardreader.CardConnectionLostException
 import ee.ria.DigiDoc.smartcardreader.SmartCardReaderException
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager.NfcStatus
@@ -484,7 +487,7 @@ class NFCViewModel
                         } catch (e: Exception) {
                             resetIdCardUserData()
 
-                            if (e.message?.contains("TagLostException") == true) {
+                            if (e is CardConnectionLostException) {
                                 _errorState.update { NFCError.TagLost(R.string.signature_update_nfc_tag_lost) }
                             } else if (e is ApduResponseException) {
                                 _errorState.update {
@@ -617,7 +620,7 @@ class NFCViewModel
 
                             _webEidCertificateResult.postValue(signingCertB64)
                         } catch (ex: SmartCardReaderException) {
-                            if (ex.message?.contains("TagLostException") == true) {
+                            if (ex is CardConnectionLostException) {
                                 _errorState.update { NFCError.TagLost(R.string.signature_update_nfc_tag_lost) }
                             } else if (ex is ApduResponseException) {
                                 _errorState.update {
@@ -812,12 +815,11 @@ class NFCViewModel
             errorLog(logTag, "Unable to perform with NFC: ${e.message}", e)
         }
 
-        private fun handleSmartCardReaderException(
+        internal fun handleSmartCardReaderException(
             ex: SmartCardReaderException,
             codeType: CodeType,
             pinType: String,
         ) {
-            val pinName = codeType.name
             val isSigning = codeType == CodeType.PIN2
 
             if (isSigning) {
@@ -825,30 +827,23 @@ class NFCViewModel
             }
 
             when {
-                ex.message?.contains("TagLostException") == true -> {
+                ex is CardConnectionLostException -> {
                     _errorState.update { NFCError.TagLost(R.string.signature_update_nfc_tag_lost) }
                 }
 
-                isSigning && ex.message?.contains("PIN2 has not been changed") == true -> {
+                isSigning && ex is CodeNotActivatedException -> {
                     _dialogError.postValue(R.string.sign_blocked_pin2_unchanged_message)
                 }
 
-                ex.message?.contains("$pinName verification failed") == true &&
-                    ex.message?.contains("Retries left: 2") == true -> {
+                ex is CodeVerificationException && ex.type == codeType -> {
                     _shouldResetPIN.postValue(true)
-                    _errorState.update { NFCError.WrongPin(pinType, 2, R.string.id_card_sign_pin_invalid) }
-                }
-
-                ex.message?.contains("$pinName verification failed") == true &&
-                    ex.message?.contains("Retries left: 1") == true -> {
-                    _shouldResetPIN.postValue(true)
-                    _errorState.update { NFCError.WrongPin(pinType, 1, R.string.id_card_sign_pin_invalid_final) }
-                }
-
-                ex.message?.contains("$pinName verification failed") == true &&
-                    ex.message?.contains("Retries left: 0") == true -> {
-                    _shouldResetPIN.postValue(true)
-                    _errorState.update { NFCError.PinBlocked(pinType, R.string.id_card_sign_pin_locked) }
+                    _errorState.update {
+                        when (ex.retries) {
+                            2 -> NFCError.WrongPin(pinType, 2, R.string.id_card_sign_pin_invalid)
+                            1 -> NFCError.WrongPin(pinType, 1, R.string.id_card_sign_pin_invalid_final)
+                            else -> NFCError.PinBlocked(pinType, R.string.id_card_sign_pin_locked)
+                        }
+                    }
                 }
 
                 ex is ApduResponseException -> {

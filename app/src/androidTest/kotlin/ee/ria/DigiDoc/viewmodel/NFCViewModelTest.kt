@@ -36,12 +36,18 @@ import ee.ria.DigiDoc.domain.model.IdCardData
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.domain.service.IdCardService
 import ee.ria.DigiDoc.exceptions.NFCError
+import ee.ria.DigiDoc.idcard.CodeNotActivatedException
 import ee.ria.DigiDoc.idcard.CodeType
+import ee.ria.DigiDoc.idcard.CodeVerificationException
+import ee.ria.DigiDoc.idcard.PaceTunnelException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapperImpl
 import ee.ria.DigiDoc.libdigidoclib.init.Initialization
 import ee.ria.DigiDoc.libdigidoclib.init.LibdigidocLibraryLoader
+import ee.ria.DigiDoc.smartcardreader.ApduResponseException
+import ee.ria.DigiDoc.smartcardreader.CardConnectionLostException
+import ee.ria.DigiDoc.smartcardreader.SmartCardReaderException
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager.NfcStatus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -69,6 +75,7 @@ import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.atLeastOnce
 import java.io.File
+import java.io.IOException
 
 @RunWith(MockitoJUnitRunner::class)
 class NFCViewModelTest {
@@ -540,5 +547,117 @@ class NFCViewModelTest {
             verify(userDataObserver, atLeastOnce()).onChanged(null)
 
             viewModel.userData.removeObserver(userDataObserver)
+        }
+
+    private fun handleException(
+        ex: SmartCardReaderException,
+        codeType: CodeType = CodeType.PIN2,
+    ) = viewModel.handleSmartCardReaderException(ex, codeType, codeType.name)
+
+    @Test
+    fun nfcViewModel_handleSmartCardReaderException_cardConnectionLostReportsTagLost() =
+        runTest {
+            handleException(CardConnectionLostException(IOException("tag left the field")))
+            assertEquals(
+                NFCError.TagLost(R.string.signature_update_nfc_tag_lost),
+                viewModel.errorState.value,
+            )
+        }
+
+    @Test
+    fun nfcViewModel_handleSmartCardReaderException_codeNotActivatedShowsDialogWhenSigning() =
+        runTest {
+            handleException(CodeNotActivatedException(CodeType.PIN2))
+            assertEquals(R.string.sign_blocked_pin2_unchanged_message, viewModel.dialogError.value)
+            assertNull(viewModel.errorState.value)
+        }
+
+    @Test
+    fun nfcViewModel_handleSmartCardReaderException_codeNotActivatedIsTechnicalErrorWhenNotSigning() =
+        runTest {
+            handleException(CodeNotActivatedException(CodeType.PIN2), CodeType.PIN1)
+            assertEquals(
+                NFCError.TechnicalError(R.string.signature_update_nfc_technical_error),
+                viewModel.errorState.value,
+            )
+        }
+
+    @Test
+    fun nfcViewModel_handleSmartCardReaderException_twoRetriesLeftReportsWrongPin() =
+        runTest {
+            handleException(CodeVerificationException(CodeType.PIN2, 2))
+            assertEquals(
+                NFCError.WrongPin("PIN2", 2, R.string.id_card_sign_pin_invalid),
+                viewModel.errorState.value,
+            )
+            assertTrue(viewModel.shouldResetPIN.value == true)
+        }
+
+    @Test
+    fun nfcViewModel_handleSmartCardReaderException_oneRetryLeftReportsFinalAttempt() =
+        runTest {
+            handleException(CodeVerificationException(CodeType.PIN2, 1))
+            assertEquals(
+                NFCError.WrongPin("PIN2", 1, R.string.id_card_sign_pin_invalid_final),
+                viewModel.errorState.value,
+            )
+        }
+
+    @Test
+    fun nfcViewModel_handleSmartCardReaderException_noRetriesLeftReportsPinBlocked() =
+        runTest {
+            handleException(CodeVerificationException(CodeType.PIN2, 0))
+            assertEquals(
+                NFCError.PinBlocked("PIN2", R.string.id_card_sign_pin_locked),
+                viewModel.errorState.value,
+            )
+        }
+
+    @Test
+    fun nfcViewModel_handleSmartCardReaderException_pin1FlowReportsItsOwnRetryCount() =
+        runTest {
+            handleException(CodeVerificationException(CodeType.PIN1, 1), CodeType.PIN1)
+            assertEquals(
+                NFCError.WrongPin("PIN1", 1, R.string.id_card_sign_pin_invalid_final),
+                viewModel.errorState.value,
+            )
+        }
+
+    @Test
+    fun nfcViewModel_handleSmartCardReaderException_codeTypeMismatchFallsThroughToTechnicalError() =
+        runTest {
+            handleException(CodeVerificationException(CodeType.PUK, 2))
+            assertEquals(
+                NFCError.TechnicalError(R.string.signature_update_nfc_technical_error),
+                viewModel.errorState.value,
+            )
+            assertFalse(viewModel.shouldResetPIN.value == true)
+        }
+
+    @Test
+    fun nfcViewModel_handleSmartCardReaderException_apduResponseReportsTechnicalError() =
+        runTest {
+            handleException(ApduResponseException(0x6A.toByte(), 0x88.toByte()))
+            assertEquals(
+                NFCError.ApduResponse(R.string.signature_update_nfc_technical_error),
+                viewModel.errorState.value,
+            )
+        }
+
+    @Test
+    fun nfcViewModel_handleSmartCardReaderException_paceTunnelReportsWrongCan() =
+        runTest {
+            handleException(PaceTunnelException(IOException("wrong CAN")))
+            assertEquals(
+                NFCError.WrongCan(R.string.signature_update_nfc_wrong_can),
+                viewModel.errorState.value,
+            )
+        }
+
+    @Test
+    fun nfcViewModel_handleSmartCardReaderException_signingFailureClearsSignStatus() =
+        runTest {
+            handleException(CardConnectionLostException(IOException()))
+            assertFalse(viewModel.signStatus.value == true)
         }
 }

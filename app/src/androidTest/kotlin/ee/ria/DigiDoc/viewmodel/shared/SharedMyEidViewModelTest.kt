@@ -30,7 +30,6 @@ import ee.ria.DigiDoc.CertificateCreator
 import ee.ria.DigiDoc.IdCardDataCreator.Companion.createMockIdCardData
 import ee.ria.DigiDoc.MainActivity
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.common.Constant
 import ee.ria.DigiDoc.domain.model.IdCardData
 import ee.ria.DigiDoc.domain.model.pin.PinChangeVariant
 import ee.ria.DigiDoc.domain.preferences.DataStore
@@ -343,19 +342,19 @@ class SharedMyEidViewModelTest {
     @Test
     fun sharedMyEidViewModel_isPinCodeTooEasy_returnsCorrectMinimumLengthForPIN1() {
         val result = viewModel.getPinCodeMinimumLength(CodeType.PIN1)
-        assertEquals(Constant.MyEID.PIN1_MINIMUM_LENGTH, result)
+        assertEquals(4, result)
     }
 
     @Test
     fun sharedMyEidViewModel_isPinCodeTooEasy_returnsCorrectMinimumLengthForPIN2() {
         val result = viewModel.getPinCodeMinimumLength(CodeType.PIN2)
-        assertEquals(Constant.MyEID.PIN2_MINIMUM_LENGTH, result)
+        assertEquals(5, result)
     }
 
     @Test
     fun sharedMyEidViewModel_isPinCodeTooEasy_returnsCorrectMinimumLengthForPUK() {
         val result = viewModel.getPinCodeMinimumLength(CodeType.PUK)
-        assertEquals(Constant.MyEID.PUK_MINIMUM_LENGTH, result)
+        assertEquals(8, result)
     }
 
     @Test
