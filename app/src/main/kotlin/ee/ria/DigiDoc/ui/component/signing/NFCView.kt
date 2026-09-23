@@ -81,14 +81,11 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.common.Constant.NFCConstants.CAN_LENGTH
-import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN1_MIN_LENGTH
-import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN2_MIN_LENGTH
-import ee.ria.DigiDoc.common.Constant.NFCConstants.PIN_MAX_LENGTH
 import ee.ria.DigiDoc.domain.model.IdCardData
 import ee.ria.DigiDoc.domain.model.IdentityAction
 import ee.ria.DigiDoc.exceptions.NFCError
 import ee.ria.DigiDoc.idcard.CodeType
+import ee.ria.DigiDoc.idcard.TokenWithPace.CAN_LENGTH
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.smartcardreader.nfc.NfcSmartCardReaderManager.NfcStatus
 import ee.ria.DigiDoc.ui.component.shared.CancelAndOkButtonRow
@@ -250,19 +247,14 @@ fun NFCView(
 
     val pinCodeLabel = stringResource(id = R.string.signature_update_nfc_pin, pinType)
 
-    val pinMinLength =
-        if (identityAction == IdentityAction.SIGN) {
-            PIN2_MIN_LENGTH
-        } else {
-            PIN1_MIN_LENGTH
-        }
-
     val codeType =
         if (identityAction == IdentityAction.SIGN) {
             CodeType.PIN2
         } else {
             CodeType.PIN1
         }
+
+    val pinMinLength = codeType.minLength
 
     val webEidAuth = webEidViewModel?.authRequest?.collectAsState()?.value
     val originString = webEidAuth?.origin ?: ""
@@ -924,7 +916,7 @@ fun NFCView(
                                     stringResource(id = R.string.id_card_sign_pin_invalid_length),
                                     pinType,
                                     pinMinLength,
-                                    PIN_MAX_LENGTH.toString(),
+                                    codeType.maxLength.toString(),
                                 )
                             } else {
                                 ""

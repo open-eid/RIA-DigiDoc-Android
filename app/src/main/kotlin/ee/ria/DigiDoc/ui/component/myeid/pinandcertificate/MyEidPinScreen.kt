@@ -74,10 +74,10 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.common.Constant
 import ee.ria.DigiDoc.idcard.CodeType
 import ee.ria.DigiDoc.idcard.PaceTunnelException
 import ee.ria.DigiDoc.smartcardreader.ApduResponseException
+import ee.ria.DigiDoc.smartcardreader.CardConnectionLostException
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
 import ee.ria.DigiDoc.ui.component.shared.PrimaryOutlinedButton
 import ee.ria.DigiDoc.ui.component.shared.SecurePinTextField
@@ -168,7 +168,7 @@ fun MyEidPinScreen(
             sharedMyEidViewModel.getPinCodeMinimumLength(
                 currentPinCodeType,
             ),
-            Constant.MyEID.PIN_MAXIMUM_LENGTH,
+            currentPinCodeType.maxLength,
         )}. ${if (isForgottenPin && showCurrentPinField.value) {
             stringResource(R.string.myeid_puk_info)
         } else {
@@ -454,7 +454,7 @@ fun MyEidPinScreen(
                                         }
                                     }
                                 } else {
-                                    if (exc?.message?.contains("TagLostException") == true) {
+                                    if (exc is CardConnectionLostException) {
                                         showMessage(context, R.string.signature_update_nfc_tag_lost)
                                     } else if (exc is ApduResponseException) {
                                         showMessage(context, R.string.signature_update_nfc_technical_error)
@@ -485,7 +485,7 @@ fun MyEidPinScreen(
                                         }
                                     }
                                 } else {
-                                    if (exc?.message?.contains("TagLostException") == true) {
+                                    if (exc is CardConnectionLostException) {
                                         showMessage(context, R.string.signature_update_nfc_tag_lost)
                                     } else if (exc is ApduResponseException) {
                                         showMessage(context, R.string.signature_update_nfc_technical_error)

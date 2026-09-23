@@ -29,7 +29,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
-import ee.ria.DigiDoc.common.Constant
 import ee.ria.DigiDoc.domain.model.IdCardData
 import ee.ria.DigiDoc.domain.model.pin.PinChangeVariant
 import ee.ria.DigiDoc.domain.preferences.DataStore
@@ -214,25 +213,9 @@ class SharedMyEidViewModel
         fun isPinCodeLengthValid(
             codeType: CodeType,
             pinCode: ByteArray,
-        ): Boolean =
-            when (codeType) {
-                CodeType.PIN1 ->
-                    pinCode.size in
-                        Constant.MyEID.PIN1_MINIMUM_LENGTH..Constant.MyEID.PIN_MAXIMUM_LENGTH
-                CodeType.PIN2 ->
-                    pinCode.size in
-                        Constant.MyEID.PIN2_MINIMUM_LENGTH..Constant.MyEID.PIN_MAXIMUM_LENGTH
-                CodeType.PUK ->
-                    pinCode.size in
-                        Constant.MyEID.PUK_MINIMUM_LENGTH..Constant.MyEID.PIN_MAXIMUM_LENGTH
-            }
+        ): Boolean = codeType.isLengthValid(pinCode.size)
 
-        fun getPinCodeMinimumLength(codeType: CodeType): Int =
-            when (codeType) {
-                CodeType.PIN1 -> Constant.MyEID.PIN1_MINIMUM_LENGTH
-                CodeType.PIN2 -> Constant.MyEID.PIN2_MINIMUM_LENGTH
-                CodeType.PUK -> Constant.MyEID.PUK_MINIMUM_LENGTH
-            }
+        fun getPinCodeMinimumLength(codeType: CodeType): Int = codeType.minLength
 
         fun setScreenContent(pinVariant: PinChangeVariant) {
             resetPinEntryState()
