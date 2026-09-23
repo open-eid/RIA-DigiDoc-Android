@@ -91,15 +91,12 @@ import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.PrimaryTextField
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
 import ee.ria.DigiDoc.ui.component.shared.dialog.OptionChooserDialog
-import ee.ria.DigiDoc.ui.component.shared.talkBackTextFieldValue
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.removeInvisibleElement
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator
 import ee.ria.DigiDoc.viewmodel.SmartIdViewModel
@@ -183,8 +180,6 @@ fun SmartIdView(
 
     val clearButtonText = stringResource(R.string.clear_text)
     val buttonName = stringResource(id = R.string.button_name)
-
-    val personalCodeWithInvisibleSpaces = talkBackTextFieldValue(personalCode.text)
 
     val smartIdChallengeNotificationId = Constant.SmartIdConstants.NOTIFICATION_PERMISSION_CODE
 
@@ -513,53 +508,44 @@ fun SmartIdView(
                             .focusProperties {
                                 previous = countryFocusRequester
                             },
-                    value =
-                        if (!isTalkBackEnabled(context)) {
-                            personalCode
-                        } else {
-                            personalCodeWithInvisibleSpaces
-                        },
+                    value = personalCode,
                     onValueChange = { newValue ->
-                        if (!isTalkBackEnabled(context)) {
-                            val rawText = newValue.text
-                            val cursorPosition = newValue.selection.start
+                        val rawText = newValue.text
+                        val cursorPosition = newValue.selection.start
 
-                            if (selectedCountry == SmartIdCountry.LATVIA.index) {
-                                val allowedChars = rawText.filter { char -> char.isDigit() || char == '-' }
+                        if (selectedCountry == SmartIdCountry.LATVIA.index) {
+                            val allowedChars = rawText.filter { char -> char.isDigit() || char == '-' }
 
-                                if (allowedChars != personalCode.text) {
-                                    val (formattedText, cursorPosition) =
-                                        smartIdViewModel
-                                            .formatLatvianPersonalCode(
-                                                allowedChars,
-                                                cursorPosition,
-                                                personalCode.text,
-                                            )
-
-                                    personalCode =
-                                        TextFieldValue(
-                                            text = formattedText,
-                                            selection = TextRange(cursorPosition),
+                            if (allowedChars != personalCode.text) {
+                                val (formattedText, cursorPosition) =
+                                    smartIdViewModel
+                                        .formatLatvianPersonalCode(
+                                            allowedChars,
+                                            cursorPosition,
+                                            personalCode.text,
                                         )
-                                } else {
-                                    personalCode =
-                                        TextFieldValue(
-                                            text = allowedChars,
-                                            selection = TextRange(minOf(cursorPosition, allowedChars.length)),
-                                        )
-                                }
-                            } else {
-                                val cleaned = rawText.filter { char -> char.isDigit() }
-                                val newCursorPosition = minOf(cursorPosition, cleaned.length)
 
                                 personalCode =
                                     TextFieldValue(
-                                        text = cleaned,
-                                        selection = TextRange(newCursorPosition),
+                                        text = formattedText,
+                                        selection = TextRange(cursorPosition),
+                                    )
+                            } else {
+                                personalCode =
+                                    TextFieldValue(
+                                        text = allowedChars,
+                                        selection = TextRange(minOf(cursorPosition, allowedChars.length)),
                                     )
                             }
                         } else {
-                            personalCode = TextFieldValue(removeInvisibleElement(newValue.text))
+                            val cleaned = rawText.filter { char -> char.isDigit() }
+                            val newCursorPosition = minOf(cursorPosition, cleaned.length)
+
+                            personalCode =
+                                TextFieldValue(
+                                    text = cleaned,
+                                    selection = TextRange(newCursorPosition),
+                                )
                         }
                     },
                     singleLine = true,

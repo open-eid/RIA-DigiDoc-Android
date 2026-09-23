@@ -22,7 +22,6 @@
 package ee.ria.DigiDoc.fragment.screen
 
 import android.content.res.Configuration
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,7 +37,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
@@ -68,9 +66,7 @@ fun LanguageChooserScreen(
     sharedSettingsViewModel: SharedSettingsViewModel,
     sharedMenuViewModel: SharedMenuViewModel,
 ) {
-    LocalContext.current
     val languageText = stringResource(id = R.string.menu_language)
-    val languageSelected = stringResource(id = R.string.menu_language_selected)
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
     var currentLanguage by remember { mutableStateOf(sharedSettingsViewModel.dataStore.getLocale()) }
     val selectedOption by remember { mutableStateOf(currentLanguage?.language ?: Language.English.locale) }
@@ -113,23 +109,14 @@ fun LanguageChooserScreen(
                     modifier =
                         modifier
                             .fillMaxWidth()
-                            .padding(horizontal = SPadding, vertical = XSPadding)
-                            .clickable {
-                                selectedOption == languageItem.locale
-                                setLanguageSetting(sharedSettingsViewModel, languageItem.locale)
-                            },
+                            .padding(horizontal = SPadding, vertical = XSPadding),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     RadioButtonItem(
                         modifier = modifier,
                         title = languageItem.label,
                         changedLabel = R.string.language_changed,
-                        contentDescription =
-                            if (languageItem.locale == currentLanguage?.language) {
-                                "${languageItem.contentDescription} $languageSelected"
-                            } else {
-                                "$languageText ${languageItem.contentDescription}"
-                            },
+                        contentDescription = "$languageText ${languageItem.contentDescription}",
                         testTag = languageItem.testTag,
                         isSelected = selectedOption == languageItem.locale,
                     ) {

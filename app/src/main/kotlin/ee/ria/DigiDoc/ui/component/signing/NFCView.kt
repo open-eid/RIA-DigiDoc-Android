@@ -99,15 +99,12 @@ import ee.ria.DigiDoc.ui.component.shared.RoleDataView
 import ee.ria.DigiDoc.ui.component.shared.SecurePinTextField
 import ee.ria.DigiDoc.ui.component.shared.dialog.CourierCardActivationDialog
 import ee.ria.DigiDoc.ui.component.shared.dialog.WrongCanDialog
-import ee.ria.DigiDoc.ui.component.shared.talkBackTextFieldValue
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.removeInvisibleElement
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.pin.PinCodeUtil.shouldShowPINCodeError
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
@@ -237,7 +234,6 @@ fun NFCView(
         } else {
             R.string.id_card_courier_must_activate_to_sign
         }
-    val canNumberWithInvisibleSpaces = talkBackTextFieldValue(canNumber.text)
 
     val pinCode = nfcViewModel.pinCode
 
@@ -867,21 +863,10 @@ fun NFCView(
                                 .padding(top = XSPadding)
                                 .focusRequester(canNumberFocusRequester)
                                 .testTag("nfcCanNumber"),
-                        value =
-                            if (!isTalkBackEnabled(context)) {
-                                canNumber
-                            } else {
-                                canNumberWithInvisibleSpaces
-                            },
+                        value = canNumber,
                         onValueChange = {
                             canNumberTextEdited.value = true
-
-                            canNumber =
-                                if (!isTalkBackEnabled(context)) {
-                                    it
-                                } else {
-                                    TextFieldValue(removeInvisibleElement(it.text))
-                                }
+                            canNumber = it
                         },
                         readOnly = isCanNumberReadOnly,
                         enabled = !isCanNumberReadOnly,
