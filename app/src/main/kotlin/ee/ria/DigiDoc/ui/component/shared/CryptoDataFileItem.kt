@@ -169,7 +169,7 @@ fun CryptoDataFileItem(
                                         stringResource(
                                             R.string.more_options,
                                         )
-                                    } $buttonName",
+                                    }",
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }

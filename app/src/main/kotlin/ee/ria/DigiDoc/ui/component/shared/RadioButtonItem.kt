@@ -24,8 +24,10 @@ package ee.ria.DigiDoc.ui.component.shared
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -33,10 +35,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -54,29 +58,37 @@ fun RadioButtonItem(
     val changedText = stringResource(id = changedLabel)
 
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .minimumInteractiveComponentSize()
+                .selectable(
+                    selected = isSelected,
+                    role = Role.RadioButton,
+                    onClick = {
+                        onSelect()
+                        sendAccessibilityEvent(
+                            context,
+                            changedText,
+                        )
+                    },
+                ).semantics {
+                    testTagsAsResourceId = true
+                    this.contentDescription = contentDescription
+                }.testTag(testTag),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = titleText,
-            modifier = modifier.weight(1f),
+            modifier =
+                modifier
+                    .weight(1f)
+                    .notAccessible(),
         )
 
         RadioButton(
-            modifier =
-                Modifier
-                    .semantics {
-                        testTagsAsResourceId = true
-                        this.contentDescription = contentDescription
-                    }.testTag(testTag),
             selected = isSelected,
-            onClick = {
-                onSelect()
-                sendAccessibilityEvent(
-                    context,
-                    changedText,
-                )
-            },
+            onClick = null,
         )
     }
 }

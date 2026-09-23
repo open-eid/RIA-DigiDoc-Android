@@ -410,10 +410,7 @@
     <string name="encryption_cancelled">Krüpteerimine katkestatud</string>
     <string name="button_name">Nupp</string>
     <string name="signature_method">Allkirjastamise meetod</string>
-    <string name="signature_method_selected">Allkirjastamise meetod valitud</string>
     <string name="menu_language">Keel</string>
-    <string name="menu_language_selected">Keel valitud</string>
-    <string name="menu_theme_selected">Teema valitud</string>
     <string name="item_selected">valitud</string>
     <string name="signatures_loading">Allkirjade laadimine</string>
     <string name="signatures_loaded">Allkirjad laaditud</string>

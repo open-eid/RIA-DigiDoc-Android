@@ -410,10 +410,7 @@
     <string name="encryption_cancelled">Encryption cancelled</string>
     <string name="button_name">Button</string>
     <string name="signature_method">Signing method</string>
-    <string name="signature_method_selected">Signing method selected</string>
     <string name="menu_language">Language</string>
-    <string name="menu_language_selected">Language selected</string>
-    <string name="menu_theme_selected">Theme selected</string>
     <string name="item_selected">selected</string>
     <string name="signatures_loading">Signatures loading</string>
     <string name="signatures_loaded">Signatures loaded</string>

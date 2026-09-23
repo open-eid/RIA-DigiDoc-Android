@@ -96,7 +96,6 @@ fun ContainerNameView(
 
     val containerTitleText = stringResource(R.string.container_title)
 
-    val buttonName = stringResource(id = R.string.button_name)
     val panelDescription = stringResource(R.string.panel)
 
     Card(
@@ -190,7 +189,7 @@ fun ContainerNameView(
                                     testTagsAsResourceId = true
                                 }.testTag("containerNameMoreOptionsIcon"),
                         imageVector = ImageVector.vectorResource(R.drawable.ic_more_vert),
-                        contentDescription = "${stringResource(R.string.more_options)} $buttonName",
+                        contentDescription = stringResource(R.string.more_options),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
@@ -210,8 +209,7 @@ fun ContainerNameView(
                                 modifier =
                                     modifier
                                         .semantics {
-                                            contentDescription =
-                                                "$leftActionButtonContentDescriptionText $buttonName"
+                                            contentDescription = leftActionButtonContentDescriptionText
                                             testTagsAsResourceId = true
                                         }.testTag("containerNameLeftActionButton"),
                                 text = stringResource(leftActionButtonName),
@@ -225,8 +223,7 @@ fun ContainerNameView(
                                 modifier =
                                     modifier
                                         .semantics {
-                                            contentDescription =
-                                                "$rightActionButtonContentDescriptionText $buttonName"
+                                            contentDescription = rightActionButtonContentDescriptionText
                                             testTagsAsResourceId = true
                                         }.testTag("containerNameRightActionButton"),
                                 text = stringResource(rightActionButtonName),
