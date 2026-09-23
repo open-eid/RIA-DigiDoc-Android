@@ -84,6 +84,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.XSBorder
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.spokenDates
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.EncryptionServicesViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
@@ -595,9 +596,15 @@ fun EncryptionServicesSettingsScreen(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
 
+                                    val validToText = "$validToTitleText $validTo"
+                                    val spokenValidTo = spokenDates(validToText)
                                     Text(
-                                        modifier = modifier.fillMaxWidth(),
-                                        text = "$validToTitleText $validTo",
+                                        modifier =
+                                            modifier.fillMaxWidth().semantics {
+                                                contentDescription =
+                                                    spokenValidTo
+                                            },
+                                        text = validToText,
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )

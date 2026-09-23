@@ -24,8 +24,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
@@ -46,7 +44,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -83,7 +80,6 @@ import ee.ria.DigiDoc.ui.component.shared.DataFileItem
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
-import ee.ria.DigiDoc.ui.component.shared.StatusAnnouncer
 import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TabItem
 import ee.ria.DigiDoc.ui.component.shared.TabView
@@ -104,7 +100,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
-import ee.ria.DigiDoc.utils.extensions.reachedBottom
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utils.snackbar.SnackbarType
@@ -129,7 +124,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
 import java.io.File
-import kotlin.time.Duration.Companion.seconds
 
 private const val LOG_TAG = "SigningNavigation"
 
@@ -161,20 +155,9 @@ fun SigningNavigation(
     val signatureAddedSuccess = remember { mutableStateOf(false) }
     val signatureAddedSuccessText = stringResource(id = R.string.signature_update_signature_add_success)
 
-    var statusAnnouncement by remember { mutableStateOf("") }
-
     LaunchedEffect(signatureAddedSuccess.value) {
         if (signatureAddedSuccess.value) {
             showMessage(signatureAddedSuccessText, SnackbarType.SUCCESS)
-            withFrameNanos { }
-            statusAnnouncement = signatureAddedSuccessText
-        }
-    }
-
-    LaunchedEffect(statusAnnouncement) {
-        if (statusAnnouncement.isNotEmpty()) {
-            delay(1.seconds)
-            statusAnnouncement = ""
         }
     }
 
@@ -286,8 +269,6 @@ fun SigningNavigation(
     val dataFilesLoading = stringResource(id = R.string.container_files_loading)
 
     val filesAdded by sharedContainerViewModel.addedFilesCount.collectAsState(0)
-
-    val listState = rememberLazyListState()
 
     val showContainerCloseConfirmationDialog = rememberSaveable { mutableStateOf(false) }
     val showExtendSignaturesConfirmDialog = rememberSaveable { mutableStateOf(false) }
@@ -796,220 +777,207 @@ fun SigningNavigation(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start,
             ) {
-                StatusAnnouncer(message = statusAnnouncement)
-
-                LazyColumn(
-                    state = listState,
-                    modifier = modifier.testTag("lazyColumnScrollView"),
+                Column(
+                    modifier =
+                        modifier
+                            .verticalScroll(rememberScrollState())
+                            .testTag("lazyColumnScrollView"),
                 ) {
-                    item {
-                        signedContainerName = signedContainer?.getName() ?: ""
-                        containerName =
-                            TextFieldValue(
-                                text = removeExtensionFromContainerFilename(signedContainerName),
-                            )
-                        signedContainer?.let {
-                            val isNonNestedSignedContainer =
-                                signingViewModel.isContainerWithoutSignatures(signedContainer) &&
-                                    !isNestedContainer
-                            if (isNonNestedSignedContainer) {
-                                Text(
-                                    modifier =
-                                        modifier
-                                            .padding(bottom = SPadding)
-                                            .semantics {
-                                                heading()
-                                                testTagsAsResourceId = true
-                                            }.testTag("signingTitle"),
-                                    text = stringResource(R.string.signature_update_title),
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    color = MaterialTheme.colorScheme.onBackground,
-                                    textAlign = TextAlign.Start,
-                                )
-                            }
-                            val containerNameIcon =
-                                if (signingViewModel.isContainerWithoutSignatures(signedContainer)) {
-                                    R.drawable.ic_m3_folder_48dp_wght400
-                                } else {
-                                    R.drawable.ic_m3_stylus_note_48dp_wght400
-                                }
-
-                            ContainerNameView(
-                                icon = containerNameIcon,
-                                name = signedContainerName,
-                                showLeftActionButton =
-                                    signedContainer?.isSigned() == true &&
-                                        signingViewModel.isSignButtonShown(
-                                            signedContainer,
-                                            isNestedContainer,
-                                            isXadesContainer,
-                                            isCadesContainer,
-                                        ),
-                                showRightActionButton =
-                                    signingViewModel.isEncryptButtonShown(
-                                        signedContainer,
-                                        isNestedContainer,
-                                    ),
-                                leftActionButtonName = R.string.signature_update_signature_add,
-                                rightActionButtonName = R.string.encrypt_button,
-                                leftActionButtonContentDescription = R.string.signature_update_signature_add,
-                                rightActionButtonContentDescription = R.string.encrypt_button_accessibility,
-                                onLeftActionButtonClick = {
-                                    val isSignedPDF = signedContainer?.isSignedPDF() == true
-                                    val currentSignedContainer = signedContainer
-
-                                    if (currentSignedContainer != null && isSignedPDF) {
-                                        scope.launch(IO) {
-                                            createContainerForSignedPDF(
-                                                context = context,
-                                                navController = navController,
-                                                currentSignedContainer = currentSignedContainer,
-                                                signingViewModel = signingViewModel,
-                                                sharedContainerViewModel = sharedContainerViewModel,
-                                            )
-                                        }
-                                    } else {
-                                        navController.navigate(Route.SignatureInputScreen.route)
-                                    }
-                                },
-                                onRightActionButtonClick = onEncryptActionClick,
-                                onMoreOptionsActionButtonClick = {
-                                    showContainerBottomSheet.value = true
-                                },
+                    signedContainerName = signedContainer?.getName() ?: ""
+                    containerName =
+                        TextFieldValue(
+                            text = removeExtensionFromContainerFilename(signedContainerName),
+                        )
+                    signedContainer?.let {
+                        val isNonNestedSignedContainer =
+                            signingViewModel.isContainerWithoutSignatures(signedContainer) &&
+                                !isNestedContainer
+                        if (isNonNestedSignedContainer) {
+                            Text(
+                                modifier =
+                                    modifier
+                                        .padding(bottom = SPadding)
+                                        .semantics {
+                                            heading()
+                                            testTagsAsResourceId = true
+                                        }.testTag("signingTitle"),
+                                text = stringResource(R.string.signature_update_title),
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                textAlign = TextAlign.Start,
                             )
                         }
+                        val containerNameIcon =
+                            if (signingViewModel.isContainerWithoutSignatures(signedContainer)) {
+                                R.drawable.ic_m3_folder_48dp_wght400
+                            } else {
+                                R.drawable.ic_m3_stylus_note_48dp_wght400
+                            }
+
+                        ContainerNameView(
+                            icon = containerNameIcon,
+                            name = signedContainerName,
+                            showLeftActionButton =
+                                signedContainer?.isSigned() == true &&
+                                    signingViewModel.isSignButtonShown(
+                                        signedContainer,
+                                        isNestedContainer,
+                                        isXadesContainer,
+                                        isCadesContainer,
+                                    ),
+                            showRightActionButton =
+                                signingViewModel.isEncryptButtonShown(
+                                    signedContainer,
+                                    isNestedContainer,
+                                ),
+                            leftActionButtonName = R.string.signature_update_signature_add,
+                            rightActionButtonName = R.string.encrypt_button,
+                            leftActionButtonContentDescription = R.string.signature_update_signature_add,
+                            rightActionButtonContentDescription = R.string.encrypt_button_accessibility,
+                            onLeftActionButtonClick = {
+                                val isSignedPDF = signedContainer?.isSignedPDF() == true
+                                val currentSignedContainer = signedContainer
+
+                                if (currentSignedContainer != null && isSignedPDF) {
+                                    scope.launch(IO) {
+                                        createContainerForSignedPDF(
+                                            context = context,
+                                            navController = navController,
+                                            currentSignedContainer = currentSignedContainer,
+                                            signingViewModel = signingViewModel,
+                                            sharedContainerViewModel = sharedContainerViewModel,
+                                        )
+                                    }
+                                } else {
+                                    navController.navigate(Route.SignatureInputScreen.route)
+                                }
+                            },
+                            onRightActionButtonClick = onEncryptActionClick,
+                            onMoreOptionsActionButtonClick = {
+                                showContainerBottomSheet.value = true
+                            },
+                        )
                     }
                     signedContainer?.let {
                         if (showDataFilesLoadingIndicator.value) {
-                            item {
-                                Box(
+                            Box(
+                                modifier =
+                                    modifier
+                                        .fillMaxSize()
+                                        .padding(vertical = MPadding),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                CircularProgressIndicator(
                                     modifier =
                                         modifier
-                                            .fillMaxSize()
-                                            .padding(vertical = MPadding),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    CircularProgressIndicator(
-                                        modifier =
-                                            modifier
-                                                .size(loadingBarSize)
-                                                .semantics {
-                                                    this.contentDescription = dataFilesLoading
-                                                }.testTag("dataFilesLoadingProgress"),
-                                    )
-                                }
+                                            .size(loadingBarSize)
+                                            .semantics {
+                                                this.contentDescription = dataFilesLoading
+                                            }.testTag("dataFilesLoadingProgress"),
+                                )
                             }
                         } else {
                             if (signingViewModel.isContainerWithoutSignatures(signedContainer)) {
-                                item {
-                                    Text(
-                                        modifier =
-                                            modifier
-                                                .padding(horizontal = SPadding)
-                                                .padding(top = SPadding)
-                                                .semantics {
-                                                    heading()
-                                                    testTagsAsResourceId = true
-                                                }.testTag("signingDocumentsTitle"),
-                                        text = stringResource(R.string.signing_documents_title),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        textAlign = TextAlign.Start,
-                                    )
-                                    DataFileItem(
-                                        modifier,
-                                        dataFiles,
-                                        onDataFileClick,
-                                        onDataFileMoreOptionsActionButtonClick,
-                                    )
-                                }
+                                Text(
+                                    modifier =
+                                        modifier
+                                            .padding(horizontal = SPadding)
+                                            .padding(top = SPadding)
+                                            .semantics {
+                                                heading()
+                                                testTagsAsResourceId = true
+                                            }.testTag("signingDocumentsTitle"),
+                                    text = stringResource(R.string.signing_documents_title),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    textAlign = TextAlign.Start,
+                                )
+                                DataFileItem(
+                                    modifier,
+                                    dataFiles,
+                                    onDataFileClick,
+                                    onDataFileMoreOptionsActionButtonClick,
+                                )
                             } else {
-                                item {
-                                    TabView(
-                                        modifier = modifier,
-                                        testTag = "signingTabView",
-                                        selectedTabIndex = selectedSignedContainerTabIndex.intValue,
-                                        onTabSelected = { index -> selectedSignedContainerTabIndex.intValue = index },
-                                        listOf(
-                                            TabItem(
-                                                stringResource(R.string.signing_documents_title),
-                                            ) {
-                                                DataFileItem(
-                                                    modifier,
-                                                    dataFiles,
-                                                    onDataFileClick,
-                                                    onDataFileMoreOptionsActionButtonClick,
-                                                )
-                                            },
-                                            TabItem(
-                                                stringResource(R.string.signing_container_signatures_title),
-                                            ) {
-                                                Column {
-                                                    if (signingViewModel.isContainerWithTimestamps(
-                                                            signedContainer,
-                                                        )
-                                                    ) {
-                                                        signedContainer?.let { container ->
-                                                            container
-                                                                .getTimestamps()
-                                                                .let { timestamps ->
-                                                                    Row {
-                                                                        SignatureComponent(
-                                                                            modifier,
-                                                                            true,
-                                                                            timestamps,
-                                                                            showSignaturesLoadingIndicator.value,
-                                                                            signaturesLoading,
-                                                                            true,
-                                                                            false,
-                                                                            onSignatureMoreClick,
-                                                                            onSignatureMoreClick,
-                                                                        )
-                                                                    }
+                                TabView(
+                                    modifier = modifier,
+                                    testTag = "signingTabView",
+                                    selectedTabIndex = selectedSignedContainerTabIndex.intValue,
+                                    onTabSelected = { index -> selectedSignedContainerTabIndex.intValue = index },
+                                    listOf(
+                                        TabItem(
+                                            stringResource(R.string.signing_documents_title),
+                                        ) {
+                                            DataFileItem(
+                                                modifier,
+                                                dataFiles,
+                                                onDataFileClick,
+                                                onDataFileMoreOptionsActionButtonClick,
+                                            )
+                                        },
+                                        TabItem(
+                                            stringResource(R.string.signing_container_signatures_title),
+                                        ) {
+                                            Column {
+                                                if (signingViewModel.isContainerWithTimestamps(
+                                                        signedContainer,
+                                                    )
+                                                ) {
+                                                    signedContainer?.let { container ->
+                                                        container
+                                                            .getTimestamps()
+                                                            .let { timestamps ->
+                                                                Row {
+                                                                    SignatureComponent(
+                                                                        modifier,
+                                                                        true,
+                                                                        timestamps,
+                                                                        showSignaturesLoadingIndicator.value,
+                                                                        signaturesLoading,
+                                                                        true,
+                                                                        false,
+                                                                        onSignatureMoreClick,
+                                                                        onSignatureMoreClick,
+                                                                    )
                                                                 }
-                                                        }
-                                                    }
-
-                                                    val timestamps = signedContainer?.getTimestamps()
-                                                    val firstTimestamp = timestamps?.firstOrNull()
-                                                    val isDdoc = signedContainer?.containerMimetype() == DDOC_MIMETYPE
-                                                    val isValid =
-                                                        firstTimestamp
-                                                            ?.let {
-                                                                SignatureStatusUtil.isDdocSignatureValid(it)
-                                                            } == true
-
-                                                    Row {
-                                                        SignatureComponent(
-                                                            modifier,
-                                                            isTimestampedContainer,
-                                                            signatures,
-                                                            showSignaturesLoadingIndicator.value,
-                                                            signaturesLoading,
-                                                            isTimestampedContainer ||
-                                                                signedContainer
-                                                                    ?.containerMimetype() == ASICS_MIMETYPE &&
-                                                                signatures.size == 1,
-                                                            !timestamps.isNullOrEmpty() && isDdoc && isValid,
-                                                            onSignatureMoreClick,
-                                                            onSignatureMoreClick,
-                                                        )
+                                                            }
                                                     }
                                                 }
-                                            },
-                                        ),
-                                    )
-                                }
+
+                                                val timestamps = signedContainer?.getTimestamps()
+                                                val firstTimestamp = timestamps?.firstOrNull()
+                                                val isDdoc = signedContainer?.containerMimetype() == DDOC_MIMETYPE
+                                                val isValid =
+                                                    firstTimestamp
+                                                        ?.let {
+                                                            SignatureStatusUtil.isDdocSignatureValid(it)
+                                                        } == true
+
+                                                Row {
+                                                    SignatureComponent(
+                                                        modifier,
+                                                        isTimestampedContainer,
+                                                        signatures,
+                                                        showSignaturesLoadingIndicator.value,
+                                                        signaturesLoading,
+                                                        isTimestampedContainer ||
+                                                            signedContainer
+                                                                ?.containerMimetype() == ASICS_MIMETYPE &&
+                                                            signatures.size == 1,
+                                                        !timestamps.isNullOrEmpty() && isDdoc && isValid,
+                                                        onSignatureMoreClick,
+                                                        onSignatureMoreClick,
+                                                    )
+                                                }
+                                            }
+                                        },
+                                    ),
+                                )
                             }
                         }
                     }
-                    item {
-                        Spacer(
-                            modifier = modifier.height(invisibleElementHeight),
-                        )
-                        if (listState.reachedBottom()) {
-                            InvisibleElement(modifier = modifier)
-                        }
-                    }
+                    Spacer(
+                        modifier = modifier.height(invisibleElementHeight),
+                    )
                 }
             }
             if (openEditContainerNameDialog.value) {

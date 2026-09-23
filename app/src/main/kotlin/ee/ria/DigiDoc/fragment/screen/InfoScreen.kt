@@ -83,6 +83,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXL
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utilsLib.text.TextUtil
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
@@ -205,19 +206,24 @@ fun InfoScreen(
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.Start,
                     ) {
+                        val aboutTitle = stringResource(id = R.string.main_about_ria_digidoc_title)
+                        val aboutVersion =
+                            String.format(
+                                stringResource(id = R.string.main_about_version_title),
+                                BuildConfig.VERSION_NAME + '.' + BuildConfig.VERSION_CODE,
+                            )
                         Column(
-                            modifier = modifier.semantics(mergeDescendants = true) {},
+                            modifier =
+                                modifier.semantics(mergeDescendants = true) {
+                                    contentDescription = formatNumbers("$aboutTitle $aboutVersion")
+                                },
                         ) {
                             Text(
-                                text = stringResource(id = R.string.main_about_ria_digidoc_title),
+                                text = aboutTitle,
                                 style = MaterialTheme.typography.titleLarge,
                             )
                             Text(
-                                text =
-                                    String.format(
-                                        stringResource(id = R.string.main_about_version_title),
-                                        BuildConfig.VERSION_NAME + '.' + BuildConfig.VERSION_CODE,
-                                    ),
+                                text = aboutVersion,
                                 style = MaterialTheme.typography.bodyMedium,
                             )
                         }
@@ -294,6 +300,11 @@ fun InfoScreen(
                         }
                     }
                 }
+                val licensesTitle =
+                    String.format(
+                        stringResource(id = R.string.main_about_licenses_title),
+                        BuildConfig.VERSION_NAME + '.' + BuildConfig.VERSION_CODE,
+                    )
                 Text(
                     modifier =
                         modifier
@@ -302,12 +313,11 @@ fun InfoScreen(
                                 top = MPadding,
                                 end = SPadding,
                                 bottom = SPadding,
-                            ).semantics { heading() },
-                    text =
-                        String.format(
-                            stringResource(id = R.string.main_about_licenses_title),
-                            BuildConfig.VERSION_NAME + '.' + BuildConfig.VERSION_CODE,
-                        ),
+                            ).semantics {
+                                heading()
+                                contentDescription = formatNumbers(licensesTitle)
+                            },
+                    text = licensesTitle,
                     textAlign = TextAlign.Start,
                     style = MaterialTheme.typography.titleLarge,
                 )
