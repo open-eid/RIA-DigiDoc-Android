@@ -131,6 +131,142 @@ class AddresseeTest {
         assertEquals(3, restored.lockIndex)
     }
 
+    @Test
+    fun addressee_fromLabelInfo_usesRawLabelAsCnWhenLabelIsNotMachineReadable() {
+        val addressee =
+            Addressee.fromLabelInfo(
+                info = emptyMap(),
+                rawLabel = "TESTSURNAME,TESTGIVENNAME,47101010033",
+                pub = ByteArray(0),
+                concatKDFAlgorithmURI = "",
+            )
+
+        assertEquals("TESTSURNAME", addressee.surname)
+        assertEquals("TESTGIVENNAME", addressee.givenName)
+        assertEquals("47101010033", addressee.identifier)
+    }
+
+    @Test
+    fun addressee_fromLabelInfo_usesWholeRawLabelAsIdentifierWhenItHasNoNameParts() {
+        val addressee =
+            Addressee.fromLabelInfo(
+                info = emptyMap(),
+                rawLabel = "TESTORG",
+                pub = ByteArray(0),
+                concatKDFAlgorithmURI = "",
+            )
+
+        assertEquals("TESTORG", addressee.identifier)
+        assertNull(addressee.surname)
+        assertNull(addressee.givenName)
+    }
+
+    @Test
+    fun addressee_fromLabelInfo_prefersCnOverRawLabel() {
+        val addressee =
+            Addressee.fromLabelInfo(
+                info = mapOf("cn" to "TESTSURNAME,TESTGIVENNAME,47101010033"),
+                rawLabel = "data:v=1&type=ID-card&cn=TESTSURNAME%2CTESTGIVENNAME%2C47101010033",
+                pub = ByteArray(0),
+                concatKDFAlgorithmURI = "",
+            )
+
+        assertEquals("47101010033", addressee.identifier)
+    }
+
+    @Test
+    fun addressee_fromLabelInfo_fallsBackToLabelKeyWhenThereIsNoCn() {
+        val addressee =
+            Addressee.fromLabelInfo(
+                info = mapOf("label" to "MyKey"),
+                rawLabel = "data:,v=1&label=MyKey&type=pw",
+                pub = ByteArray(0),
+                concatKDFAlgorithmURI = "",
+            )
+
+        assertEquals("MyKey", addressee.identifier)
+    }
+
+    @Test
+    fun addressee_fromLabelInfo_keepsTwoPartCnWholeInsteadOfThrowing() {
+        val addressee =
+            Addressee.fromLabelInfo(
+                info = mapOf("cn" to "TESTSURNAME,TESTGIVENNAME"),
+                rawLabel = "",
+                pub = ByteArray(0),
+                concatKDFAlgorithmURI = "",
+            )
+
+        assertEquals("TESTSURNAME,TESTGIVENNAME", addressee.identifier)
+        assertNull(addressee.surname)
+        assertNull(addressee.givenName)
+    }
+
+    @Test
+    fun addressee_fromLabelInfo_mapsCertTypeFromLabelType() {
+        val info = mapOf("cn" to "TESTSURNAME,TESTGIVENNAME,47101010033", "type" to "Digi-ID")
+        val addressee = Addressee.fromLabelInfo(info, "", ByteArray(0), "")
+
+        assertEquals(CertType.DigiIDType, addressee.certType)
+    }
+
+    @Test
+    fun addressee_fromLabelInfo_certTypeIsUnknownWhenLabelDeclaresNoType() {
+        val addressee =
+            Addressee.fromLabelInfo(
+                info = emptyMap(),
+                rawLabel = "TESTORG",
+                pub = ByteArray(0),
+                concatKDFAlgorithmURI = "",
+            )
+
+        assertEquals(CertType.UnknownType, addressee.certType)
+    }
+
+    @Test
+    fun addressee_fromLabelInfo_readsServerExpirationAndSerialNumber() {
+        val info =
+            mapOf(
+                "cn" to "TESTORG",
+                "serial_number" to "12345678",
+                "server_exp" to "2000000000",
+            )
+        val addressee = Addressee.fromLabelInfo(info, "", ByteArray(0), "")
+
+        assertEquals("12345678", addressee.serialNumber)
+        assertEquals(Date(2000000000L * 1000), addressee.validTo)
+    }
+
+    @Test
+    fun addressee_fromLabelInfo_resolvesSymmetricKeyLabelInsteadOfShowingTheRawDataUri() {
+        val addressee =
+            Addressee.fromLabelInfo(
+                info = mapOf("label" to "Shared key", "type" to "key"),
+                rawLabel = "data:,v=1&type=key&label=Shared%20key",
+                pub = ByteArray(0),
+                concatKDFAlgorithmURI = "",
+            )
+
+        assertEquals("Shared key", addressee.identifier)
+        assertEquals(CertType.UnknownType, addressee.certType)
+    }
+
+    @Test
+    fun addressee_fromCN_keepsTwoPartCnWholeInsteadOfThrowing() {
+        val addressee =
+            Addressee.fromCN(
+                cn = "TESTSURNAME,TESTGIVENNAME",
+                sn = "",
+                certType = CertType.UnknownType,
+                validTo = null,
+                data = ByteArray(0),
+            )
+
+        assertEquals("TESTSURNAME,TESTGIVENNAME", addressee.identifier)
+        assertNull(addressee.surname)
+        assertNull(addressee.givenName)
+    }
+
     private fun addressee(
         lockLabel: String? = null,
         lockType: String? = null,

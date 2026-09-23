@@ -64,7 +64,7 @@ data class Addressee(
             data: ByteArray,
         ): Addressee {
             val split = cn.split(',').map { it.trim() }
-            return if (split.size > 1) {
+            return if (split.size >= 3) {
                 Addressee(
                     data = data,
                     identifier = split[2],
@@ -103,14 +103,26 @@ data class Addressee(
             pub: ByteArray,
             concatKDFAlgorithmURI: String,
         ): Addressee {
-            val info = parseLabel(label)
-            val cn = info["cn"]
-            val type = info["type"]
-            val serverExp = info["server_exp"]
-            val sn = info["serial_number"]
+            val info =
+                try {
+                    parseLabel(label)
+                } catch (e: Exception) {
+                    errorLog(LOG_TAG, "Unable to parse key label", e)
+                    emptyMap()
+                }
+            return fromLabelInfo(info, label, pub, concatKDFAlgorithmURI)
+        }
+
+        internal fun fromLabelInfo(
+            info: Map<String, String>,
+            rawLabel: String,
+            pub: ByteArray,
+            concatKDFAlgorithmURI: String,
+        ): Addressee {
+            val cn = info["cn"] ?: info["label"] ?: rawLabel
 
             val certType =
-                when (type) {
+                when (info["type"]) {
                     "cert" -> CertType.IDCardType
                     "ID-card" -> CertType.IDCardType
                     "Digi-ID" -> CertType.DigiIDType
@@ -118,31 +130,17 @@ data class Addressee(
                     else -> CertType.UnknownType
                 }
 
-            val validTo = serverExp?.toLongOrNull()?.let { Date(it * 1000) }
-
-            val split = cn?.split(',')?.map { it.trim() }
-            val surname: String?
-            val givenName: String?
-            val identifier: String?
-
-            if (split != null && split.size > 1) {
-                surname = split[0]
-                givenName = split[1]
-                identifier = split[2]
-            } else {
-                surname = null
-                givenName = null
-                identifier = cn
-            }
+            val split = cn.split(',').map { it.trim() }
+            val isPersonName = split.size >= 3
 
             return Addressee(
                 data = pub,
-                identifier = identifier ?: "",
-                serialNumber = sn,
-                givenName = givenName,
-                surname = surname,
+                identifier = if (isPersonName) split[2] else cn,
+                serialNumber = info["serial_number"],
+                givenName = if (isPersonName) split[1] else null,
+                surname = if (isPersonName) split[0] else null,
                 certType = certType,
-                validTo = validTo,
+                validTo = info["server_exp"]?.toLongOrNull()?.let { Date(it * 1000) },
                 concatKDFAlgorithmURI = concatKDFAlgorithmURI,
             )
         }
