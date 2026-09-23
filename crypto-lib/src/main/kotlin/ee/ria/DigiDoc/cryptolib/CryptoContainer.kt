@@ -186,6 +186,17 @@ class CryptoContainer
                     label.orEmpty()
                 }
 
+            private fun technicalKeyLabel(label: String): String? {
+                val parsed =
+                    try {
+                        parseLabel(label)
+                    } catch (e: Exception) {
+                        errorLog(LOG_TAG, "Unable to parse key label", e)
+                        emptyMap()
+                    }
+                return label.takeIf { parsed.isNotEmpty() }
+            }
+
             @Throws(CryptoException::class)
             private suspend fun open(
                 context: Context,
@@ -275,12 +286,12 @@ class CryptoContainer
                                 lockType = lock.type.name,
                             )
                         lock.isSymmetric ->
-                            Addressee.fromCN(lock.label, "", CertType.UnknownType, null, ByteArray(0))
+                            Addressee.fromLabel(lock.label, ByteArray(0), "")
                         else -> {
                             debugLog(LOG_TAG, "Unknown lock type for label ${lock.label}, mapping to 'Unknown capsule'")
                             Addressee.fromLabel("Unknown capsule", ByteArray(0), "")
                         }
-                    }.copy(keyLabel = lock.label.takeIf { it.isNotBlank() }, lockIndex = lockIndex)
+                    }.copy(keyLabel = technicalKeyLabel(lock.label), lockIndex = lockIndex)
 
                 if (lock.type != Lock.Type.SERVER) {
                     return addressee
