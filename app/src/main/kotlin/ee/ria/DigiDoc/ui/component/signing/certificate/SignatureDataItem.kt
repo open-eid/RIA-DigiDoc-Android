@@ -42,6 +42,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.spokenDates
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -74,13 +75,13 @@ fun SignatureDataItem(
             if (formatForAccessibility) {
                 formatNumbers("$detailKeyText $detailValue").lowercase()
             } else {
-                "$detailKeyText $detailValue".lowercase()
+                spokenDates("$detailKeyText $detailValue").lowercase()
             }
         } else {
             if (formatForAccessibility) {
                 formatNumbers(contentDescription).lowercase()
             } else {
-                contentDescription.lowercase()
+                spokenDates(contentDescription).lowercase()
             }
         }
 

@@ -10,6 +10,7 @@ import android.net.Uri
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -44,11 +45,13 @@ import ee.ria.DigiDoc.fragment.ThemeChooserFragment
 import ee.ria.DigiDoc.fragment.ValidationServicesSettingsFragment
 import ee.ria.DigiDoc.fragment.WebEidFragment
 import ee.ria.DigiDoc.ui.component.crypto.recipient.RecipientDetailsView
+import ee.ria.DigiDoc.ui.component.shared.StatusAnnouncer
 import ee.ria.DigiDoc.ui.component.signing.certificate.CertificateDetailsView
 import ee.ria.DigiDoc.ui.component.signing.certificate.SignerDetailsView
 import ee.ria.DigiDoc.ui.component.signing.notifications.ContainerNotificationsFragment
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utils.snackbar.SnackBarManager
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
@@ -80,6 +83,10 @@ fun RIADigiDocAppScreen(
             sharedSettingsViewModel.dataStore.getLocale() != null -> Route.Home.route
             else -> Route.Init.route
         }
+
+    val snackbarMessage by SnackBarManager.currentMessage.collectAsState()
+
+    StatusAnnouncer(message = snackbarMessage?.text.orEmpty())
 
     NavHost(
         navController = navController,

@@ -66,6 +66,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeM
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.viewmodel.HomeViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
@@ -253,15 +254,19 @@ fun HomeScreen(
                                 text = stringResource(id = R.string.digidoc),
                             )
                         }
+                        val versionText =
+                            String.format(
+                                stringResource(id = R.string.main_home_version),
+                                BuildConfig.VERSION_NAME + '.' + BuildConfig.VERSION_CODE,
+                            )
                         Text(
-                            modifier = modifier.padding(XSPadding),
+                            modifier =
+                                modifier
+                                    .padding(XSPadding)
+                                    .semantics { contentDescription = formatNumbers(versionText) },
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            text =
-                                String.format(
-                                    stringResource(id = R.string.main_home_version),
-                                    BuildConfig.VERSION_NAME + '.' + BuildConfig.VERSION_CODE,
-                                ),
+                            text = versionText,
                         )
                     }
                 }

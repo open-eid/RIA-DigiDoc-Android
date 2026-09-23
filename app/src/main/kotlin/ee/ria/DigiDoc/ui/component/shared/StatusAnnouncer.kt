@@ -39,7 +39,9 @@ fun StatusAnnouncer(message: String) {
                 .size(invisibleElementHeight)
                 .semantics {
                     liveRegion = LiveRegionMode.Assertive
-                    contentDescription = announcement
+                    if (announcement.isNotEmpty()) {
+                        contentDescription = announcement
+                    }
                 },
     )
 }

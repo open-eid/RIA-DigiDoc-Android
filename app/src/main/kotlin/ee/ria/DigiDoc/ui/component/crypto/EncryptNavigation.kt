@@ -22,8 +22,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
@@ -44,7 +42,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -81,7 +78,6 @@ import ee.ria.DigiDoc.ui.component.shared.CryptoDataFileItem
 import ee.ria.DigiDoc.ui.component.shared.CryptoDataFilesLocked
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
-import ee.ria.DigiDoc.ui.component.shared.StatusAnnouncer
 import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TabItem
 import ee.ria.DigiDoc.ui.component.shared.TabView
@@ -99,7 +95,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
-import ee.ria.DigiDoc.utils.extensions.reachedBottom
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utils.snackbar.SnackbarType
 import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.createContainerAction
@@ -122,7 +117,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
 import java.io.File
-import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -160,8 +154,6 @@ fun EncryptNavigation(
     val containerEncryptedSuccess = remember { mutableStateOf(false) }
     val containerEncryptedSuccessText = stringResource(id = R.string.crypto_create_success)
     val containerDecryptedSuccessText = stringResource(id = R.string.crypto_decrypt_success)
-
-    var statusAnnouncement by remember { mutableStateOf("") }
 
     val emptyFileInContainerText = stringResource(id = R.string.crypto_empty_file_message)
 
@@ -254,8 +246,6 @@ fun EncryptNavigation(
     val dataFilesLoading = stringResource(id = R.string.container_files_loading)
 
     val filesAdded by sharedContainerViewModel.addedFilesCount.collectAsState(0)
-
-    val listState = rememberLazyListState()
 
     val showContainerCloseConfirmationDialog = rememberSaveable { mutableStateOf(false) }
     val showDecryptPasswordDialog = rememberSaveable { mutableStateOf(false) }
@@ -529,7 +519,6 @@ fun EncryptNavigation(
                     withContext(Main) {
                         sharedContainerViewModel.setDecryptNFCStatus(null)
                         showMessage(containerDecryptedSuccessText, SnackbarType.SUCCESS)
-                        statusAnnouncement = containerDecryptedSuccessText
                     }
                 }
             }
@@ -543,7 +532,6 @@ fun EncryptNavigation(
                     withContext(Main) {
                         sharedContainerViewModel.setDecryptIDCardStatus(null)
                         showMessage(containerDecryptedSuccessText, SnackbarType.SUCCESS)
-                        statusAnnouncement = containerDecryptedSuccessText
                     }
                 }
             }
@@ -554,17 +542,8 @@ fun EncryptNavigation(
         sharedContainerViewModel.containerEncrypted.collect { containerEncrypted ->
             if (containerEncrypted == true) {
                 selectedCryptoContainerTabIndex.intValue = 1
-                withFrameNanos { }
-                statusAnnouncement = containerEncryptedSuccessText
                 sharedContainerViewModel.resetContainerEncrypted()
             }
-        }
-    }
-
-    LaunchedEffect(statusAnnouncement) {
-        if (statusAnnouncement.isNotEmpty()) {
-            delay(1.seconds)
-            statusAnnouncement = ""
         }
     }
 
@@ -674,8 +653,6 @@ fun EncryptNavigation(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start,
             ) {
-                StatusAnnouncer(message = statusAnnouncement)
-
                 if (containerEncryptedSuccess.value) {
                     showMessage(containerEncryptedSuccessText, SnackbarType.SUCCESS)
                     containerEncryptedSuccess.value = false
@@ -687,192 +664,181 @@ fun EncryptNavigation(
                     showMessage(emptyFileInContainerText)
                 }
 
-                LazyColumn(
-                    state = listState,
-                    modifier = modifier.testTag("lazyColumnScrollView"),
+                Column(
+                    modifier =
+                        modifier
+                            .verticalScroll(rememberScrollState())
+                            .testTag("lazyColumnScrollView"),
                 ) {
-                    item {
-                        cryptoContainerName = cryptoContainer?.getName() ?: ""
-                        containerName =
-                            TextFieldValue(
-                                text = removeExtensionFromContainerFilename(cryptoContainerName),
-                            )
-                        cryptoContainer?.let {
-                            if (isUnencryptedCryptoContainer) {
-                                Text(
-                                    modifier =
-                                        modifier
-                                            .padding(bottom = SPadding)
-                                            .semantics {
-                                                heading()
-                                                testTagsAsResourceId = true
-                                            }.testTag("encryptionTitle"),
-                                    text = stringResource(R.string.crypto_new_title),
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    color = MaterialTheme.colorScheme.onBackground,
-                                    textAlign = TextAlign.Start,
-                                )
-                            }
-                            val rightActionButtonName =
-                                if (encryptViewModel.isDecryptButtonShown(cryptoContainer, isNestedContainer)) {
-                                    if (hasBothDecryptionMethods) {
-                                        R.string.decrypt_with_id_card_button
-                                    } else {
-                                        R.string.decrypt_button
-                                    }
-                                } else if (encryptViewModel.isEncryptButtonShown(cryptoContainer, isNestedContainer)) {
-                                    R.string.encrypt_button
-                                } else {
-                                    0
-                                }
-
-                            val containerNameIcon =
-                                if (encryptViewModel.isEncryptedContainer(cryptoContainer)) {
-                                    R.drawable.ic_m3_encrypted_48dp_wght400
-                                } else if (encryptViewModel.isDecryptedContainer(cryptoContainer)) {
-                                    R.drawable.ic_m3_encrypted_off_48dp_wght400
-                                } else {
-                                    R.drawable.ic_m3_folder_48dp_wght400
-                                }
-
-                            ContainerNameView(
-                                icon = containerNameIcon,
-                                name = cryptoContainerName,
-                                showLeftActionButton = false,
-                                showRightActionButton =
-                                    encryptViewModel.isDecryptButtonShown(
-                                        cryptoContainer,
-                                        isNestedContainer,
-                                    ) ||
-                                        encryptViewModel.isEncryptButtonShown(
-                                            cryptoContainer,
-                                            isNestedContainer,
-                                        ),
-                                leftActionButtonName = R.string.sign_button,
-                                rightActionButtonName = rightActionButtonName,
-                                leftActionButtonContentDescription = R.string.sign_button,
-                                rightActionButtonContentDescription = rightActionButtonName,
-                                onLeftActionButtonClick = {},
-                                onRightActionButtonClick = {
-                                    when {
-                                        encryptViewModel.isDecryptButtonShown(cryptoContainer, isNestedContainer) -> {
-                                            onDecryptActionClick()
-                                        }
-
-                                        encryptViewModel.isEncryptButtonShown(cryptoContainer, isNestedContainer) -> {
-                                            onEncryptClick()
-                                        }
-                                    }
-                                },
-                                onMoreOptionsActionButtonClick = {
-                                    showContainerBottomSheet.value = true
-                                },
+                    cryptoContainerName = cryptoContainer?.getName() ?: ""
+                    containerName =
+                        TextFieldValue(
+                            text = removeExtensionFromContainerFilename(cryptoContainerName),
+                        )
+                    cryptoContainer?.let {
+                        if (isUnencryptedCryptoContainer) {
+                            Text(
+                                modifier =
+                                    modifier
+                                        .padding(bottom = SPadding)
+                                        .semantics {
+                                            heading()
+                                            testTagsAsResourceId = true
+                                        }.testTag("encryptionTitle"),
+                                text = stringResource(R.string.crypto_new_title),
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                textAlign = TextAlign.Start,
                             )
                         }
+                        val rightActionButtonName =
+                            if (encryptViewModel.isDecryptButtonShown(cryptoContainer, isNestedContainer)) {
+                                if (hasBothDecryptionMethods) {
+                                    R.string.decrypt_with_id_card_button
+                                } else {
+                                    R.string.decrypt_button
+                                }
+                            } else if (encryptViewModel.isEncryptButtonShown(cryptoContainer, isNestedContainer)) {
+                                R.string.encrypt_button
+                            } else {
+                                0
+                            }
+
+                        val containerNameIcon =
+                            if (encryptViewModel.isEncryptedContainer(cryptoContainer)) {
+                                R.drawable.ic_m3_encrypted_48dp_wght400
+                            } else if (encryptViewModel.isDecryptedContainer(cryptoContainer)) {
+                                R.drawable.ic_m3_encrypted_off_48dp_wght400
+                            } else {
+                                R.drawable.ic_m3_folder_48dp_wght400
+                            }
+
+                        ContainerNameView(
+                            icon = containerNameIcon,
+                            name = cryptoContainerName,
+                            showLeftActionButton = false,
+                            showRightActionButton =
+                                encryptViewModel.isDecryptButtonShown(
+                                    cryptoContainer,
+                                    isNestedContainer,
+                                ) ||
+                                    encryptViewModel.isEncryptButtonShown(
+                                        cryptoContainer,
+                                        isNestedContainer,
+                                    ),
+                            leftActionButtonName = R.string.sign_button,
+                            rightActionButtonName = rightActionButtonName,
+                            leftActionButtonContentDescription = R.string.sign_button,
+                            rightActionButtonContentDescription = rightActionButtonName,
+                            onLeftActionButtonClick = {},
+                            onRightActionButtonClick = {
+                                when {
+                                    encryptViewModel.isDecryptButtonShown(cryptoContainer, isNestedContainer) -> {
+                                        onDecryptActionClick()
+                                    }
+
+                                    encryptViewModel.isEncryptButtonShown(cryptoContainer, isNestedContainer) -> {
+                                        onEncryptClick()
+                                    }
+                                }
+                            },
+                            onMoreOptionsActionButtonClick = {
+                                showContainerBottomSheet.value = true
+                            },
+                        )
                     }
                     cryptoContainer?.let {
                         if (showDataFilesLoadingIndicator.value) {
-                            item {
-                                Box(
+                            Box(
+                                modifier =
+                                    modifier
+                                        .fillMaxSize()
+                                        .padding(vertical = XLPadding),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                CircularProgressIndicator(
                                     modifier =
                                         modifier
-                                            .fillMaxSize()
-                                            .padding(vertical = XLPadding),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    CircularProgressIndicator(
-                                        modifier =
-                                            modifier
-                                                .size(loadingBarSize)
-                                                .semantics {
-                                                    this.contentDescription = dataFilesLoading
-                                                }.testTag("dataFilesLoadingProgress"),
-                                    )
-                                }
+                                            .size(loadingBarSize)
+                                            .semantics {
+                                                this.contentDescription = dataFilesLoading
+                                            }.testTag("dataFilesLoadingProgress"),
+                                )
                             }
                         } else {
                             if (encryptViewModel.isContainerWithoutRecipients(cryptoContainer) && !isNestedContainer) {
-                                item {
-                                    Text(
-                                        modifier =
-                                            modifier
-                                                .padding(horizontal = SPadding)
-                                                .padding(top = SPadding)
-                                                .semantics {
-                                                    heading()
-                                                    testTagsAsResourceId = true
-                                                }.testTag("encryptDocumentsTitle"),
-                                        text = containerFilesDescription,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        textAlign = TextAlign.Start,
-                                    )
-                                    CryptoDataFileItem(
-                                        modifier = modifier,
-                                        dataFiles = dataFiles,
-                                        isMoreOptionsButtonShown = true,
-                                        onClick = onDataFileClick,
-                                        onDataFileMoreOptionsActionButtonClick = onDataFileMoreOptionsActionButtonClick,
-                                    )
-                                }
+                                Text(
+                                    modifier =
+                                        modifier
+                                            .padding(horizontal = SPadding)
+                                            .padding(top = SPadding)
+                                            .semantics {
+                                                heading()
+                                                testTagsAsResourceId = true
+                                            }.testTag("encryptDocumentsTitle"),
+                                    text = containerFilesDescription,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    textAlign = TextAlign.Start,
+                                )
+                                CryptoDataFileItem(
+                                    modifier = modifier,
+                                    dataFiles = dataFiles,
+                                    isMoreOptionsButtonShown = true,
+                                    onClick = onDataFileClick,
+                                    onDataFileMoreOptionsActionButtonClick = onDataFileMoreOptionsActionButtonClick,
+                                )
                             } else {
-                                item {
-                                    TabView(
-                                        modifier = modifier,
-                                        testTag = "encryptionTabView",
-                                        selectedTabIndex = selectedCryptoContainerTabIndex.intValue,
-                                        onTabSelected = { index ->
-                                            selectedCryptoContainerTabIndex.intValue = index
-                                        },
-                                        listOf(
-                                            TabItem(containerFilesDescription) {
-                                                if (encryptViewModel
-                                                        .shouldShowDataFiles(cryptoContainer)
-                                                ) {
-                                                    CryptoDataFileItem(
-                                                        modifier = modifier,
-                                                        dataFiles = dataFiles,
-                                                        isMoreOptionsButtonShown =
-                                                            encryptViewModel.isContainerUnlocked(
-                                                                cryptoContainer,
-                                                            ),
-                                                        onClick = onDataFileClick,
-                                                        onDataFileMoreOptionsActionButtonClick =
-                                                        onDataFileMoreOptionsActionButtonClick,
-                                                    )
-                                                } else {
-                                                    CryptoDataFilesLocked(modifier = modifier)
-                                                }
-                                            },
-                                            TabItem(
-                                                stringResource(R.string.crypto_container_recipients_title),
+                                TabView(
+                                    modifier = modifier,
+                                    testTag = "encryptionTabView",
+                                    selectedTabIndex = selectedCryptoContainerTabIndex.intValue,
+                                    onTabSelected = { index ->
+                                        selectedCryptoContainerTabIndex.intValue = index
+                                    },
+                                    listOf(
+                                        TabItem(containerFilesDescription) {
+                                            if (encryptViewModel
+                                                    .shouldShowDataFiles(cryptoContainer)
                                             ) {
-                                                RecipientComponent(
-                                                    modifier,
-                                                    recipients,
-                                                    showRecipientsLoadingIndicator.value,
-                                                    recipientsLoading,
-                                                    onRecipientItemClick,
-                                                    isCDOC2Container =
-                                                        !encryptViewModel.isCDOC1Container(cryptoContainer),
-                                                    isEncryptedOrDecrypted =
-                                                        encryptViewModel.isEncryptedContainer(cryptoContainer) ||
-                                                            encryptViewModel.isDecryptedContainer(cryptoContainer),
+                                                CryptoDataFileItem(
+                                                    modifier = modifier,
+                                                    dataFiles = dataFiles,
+                                                    isMoreOptionsButtonShown =
+                                                        encryptViewModel.isContainerUnlocked(
+                                                            cryptoContainer,
+                                                        ),
+                                                    onClick = onDataFileClick,
+                                                    onDataFileMoreOptionsActionButtonClick =
+                                                    onDataFileMoreOptionsActionButtonClick,
                                                 )
-                                            },
-                                        ),
-                                    )
-                                }
+                                            } else {
+                                                CryptoDataFilesLocked(modifier = modifier)
+                                            }
+                                        },
+                                        TabItem(
+                                            stringResource(R.string.crypto_container_recipients_title),
+                                        ) {
+                                            RecipientComponent(
+                                                modifier,
+                                                recipients,
+                                                showRecipientsLoadingIndicator.value,
+                                                recipientsLoading,
+                                                onRecipientItemClick,
+                                                isCDOC2Container =
+                                                    !encryptViewModel.isCDOC1Container(cryptoContainer),
+                                                isEncryptedOrDecrypted =
+                                                    encryptViewModel.isEncryptedContainer(cryptoContainer) ||
+                                                        encryptViewModel.isDecryptedContainer(cryptoContainer),
+                                            )
+                                        },
+                                    ),
+                                )
                             }
                         }
                     }
-                    item {
-                        Spacer(
-                            modifier = modifier.height(invisibleElementHeight),
-                        )
-                        if (listState.reachedBottom()) {
-                            InvisibleElement(modifier = modifier)
-                        }
-                    }
+                    Spacer(
+                        modifier = modifier.height(invisibleElementHeight),
+                    )
                 }
             }
             if (openEditContainerNameDialog.value) {
@@ -1087,8 +1053,6 @@ fun EncryptNavigation(
                                     selectedCryptoContainerTabIndex.intValue = 0
                                     showLoadingScreen.value = false
                                     showMessage(containerDecryptedSuccessText, SnackbarType.SUCCESS)
-                                    withFrameNanos { }
-                                    statusAnnouncement = containerDecryptedSuccessText
                                 }
                             } catch (_: WrongPasswordException) {
                                 errorLog(logTag, "Wrong password — showing error to user")
