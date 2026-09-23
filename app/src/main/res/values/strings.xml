@@ -266,6 +266,8 @@
     <string name="signature_update_mobile_id_display_message">Sign document</string>
 
     <string name="signature_update_smart_id_message">Enter your personal code to sign with Smart-ID</string>
+    <string name="signature_update_smart_id_select_device">Confirm device for signing in Smart-ID application.</string>
+    <string name="signature_update_smart_id_info">Make sure control code matches with one in phone screen and enter Smart-ID PIN2 code.</string>
     <string name="choose_country_option">Choose country</string>
     <string name="signature_update_smart_id_country">Country</string>
     <string name="signature_update_smart_id_status_document_unusable">Your Smart-ID transaction has failed. Please check your Smart-ID application or contact Smart-ID customer support.</string>

@@ -75,7 +75,6 @@ interface SmartSignService {
     val status: LiveData<SessionStatusResponseProcessStatus?>
     val errorState: LiveData<String?>
     val cancelled: LiveData<Boolean?>
-    val selectDevice: LiveData<Boolean?>
 
     fun setCancelled(
         signedContainer: SignedContainer,
@@ -116,8 +115,6 @@ class SmartSignServiceImpl
         override val challenge: LiveData<String?> = _challenge
         private val _status = MutableLiveData<SessionStatusResponseProcessStatus?>(null)
         override val status: LiveData<SessionStatusResponseProcessStatus?> = _status
-        private val _selectDevice = MutableLiveData(false)
-        override val selectDevice: LiveData<Boolean?> = _selectDevice
 
         private val _cancelled = MutableLiveData(false)
         override val cancelled: LiveData<Boolean?> = _cancelled
@@ -129,7 +126,6 @@ class SmartSignServiceImpl
             _errorState.postValue(null)
             _challenge.postValue(null)
             _status.postValue(null)
-            _selectDevice.postValue(false)
             _cancelled.postValue(false)
         }
 
@@ -157,10 +153,6 @@ class SmartSignServiceImpl
 
         private fun setStatus(status: SessionStatusResponseProcessStatus?) {
             _status.postValue(status)
-        }
-
-        private fun setSelectDevice(selectDevice: Boolean?) {
-            _selectDevice.postValue(selectDevice)
         }
 
         override suspend fun processSmartIdRequest(
@@ -238,7 +230,6 @@ class SmartSignServiceImpl
                                 semanticsIdentifier,
                                 getCertificateRequest(request),
                             ),
-                            true,
                         )
                     if (sessionStatusResponse == null) {
                         errorLog(logTag, "No session status response")
@@ -297,7 +288,6 @@ class SmartSignServiceImpl
                                     sessionStatusResponse.result?.documentNumber,
                                     requestString,
                                 ),
-                                false,
                             )
                         if (sessionStatusResponse == null) {
                             errorLog(logTag, "Unable to get session status response")
@@ -485,7 +475,6 @@ class SmartSignServiceImpl
         private suspend fun doSessionStatusRequestLoop(
             signedContainer: SignedContainer,
             request: Call<SessionResponse>,
-            certRequest: Boolean,
         ): SessionStatusResponse? {
             var timeout: Long = 0
             val sessionResponse: SessionResponse? = handleRequest(signedContainer, request)
@@ -536,9 +525,6 @@ class SmartSignServiceImpl
                     debugLog(logTag, "Received Smart-ID session status response: $status")
 
                     return null
-                }
-                if (certRequest) {
-                    postSmartCreateSignatureSelectDevice()
                 }
                 timeout += SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS
             }
@@ -715,16 +701,6 @@ class SmartSignServiceImpl
             setErrorState(fault.detailMessage)
             setStatus(fault.status)
             setChallenge(null)
-            setSelectDevice(false)
-        }
-
-        private fun postSmartCreateSignatureSelectDevice() {
-            debugLog(logTag, "User selecting device")
-            setResponse(null)
-            setErrorState(null)
-            setStatus(null)
-            setChallenge(null)
-            setSelectDevice(true)
         }
 
         private fun postSmartCreateSignatureStatusResponse(response: SessionStatusResponse) {
@@ -734,7 +710,6 @@ class SmartSignServiceImpl
             setErrorState(null)
             setStatus(smartIdServiceResponse.status)
             setChallenge(null)
-            setSelectDevice(false)
             debugLog(logTag, "Smart-ID service response: $smartIdServiceResponse")
         }
 
