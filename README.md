@@ -1,6 +1,6 @@
 ![EU Regional Development Fund](docs/images/EL_Regionaalarengu_Fond_horisontaalne-vaike.jpg)
 
-* License: LGPL 2.1
+* License: LGPL-2.1-or-later
 * &copy; Estonian Information System Authority
 
 # RIA-DigiDoc-Android
