@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-FileCopyrightText: Estonian Information System Authority -->
+<!-- SPDX-License-Identifier: LGPL-2.1-or-later -->
 <resources>
     <string name="libdigidocpp_custom_siva_cert_error">Viga SiVa sertifikaadi lisamisel!</string>
     <string name="signing_container_signature_status_valid">Allkiri on kehtiv</string>

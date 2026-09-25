@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: Estonian Information System Authority
+// SPDX-License-Identifier: LGPL-2.1-or-later
+
 import ee.ria.DigiDoc.libdigidoc.update.LibdigidocppPlugin
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
