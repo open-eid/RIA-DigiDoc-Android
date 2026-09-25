@@ -103,9 +103,6 @@ class SmartSignServiceImplTest {
     lateinit var statusObserver: Observer<SessionStatusResponseProcessStatus?>
 
     @Mock
-    lateinit var selectDeviceObserver: Observer<Boolean?>
-
-    @Mock
     lateinit var cancelledObserver: Observer<Boolean?>
 
     private lateinit var signedContainer: SignedContainer
@@ -202,7 +199,6 @@ class SmartSignServiceImplTest {
         smartSignServiceImpl.errorState.observeForever(errorStateObserver)
         smartSignServiceImpl.challenge.observeForever(challengeObserver)
         smartSignServiceImpl.status.observeForever(statusObserver)
-        smartSignServiceImpl.selectDevice.observeForever(selectDeviceObserver)
         smartSignServiceImpl.cancelled.observeForever(cancelledObserver)
 
         val container =
@@ -230,7 +226,6 @@ class SmartSignServiceImplTest {
         verify(errorStateObserver, atLeastOnce()).onChanged(null)
         verify(challengeObserver, atLeastOnce()).onChanged(null)
         verify(statusObserver, atLeastOnce()).onChanged(null)
-        verify(selectDeviceObserver, atLeastOnce()).onChanged(false)
         verify(cancelledObserver, atLeastOnce()).onChanged(false)
     }
 

@@ -266,6 +266,8 @@
     <string name="signature_update_mobile_id_display_message">Allkirjasta dokument</string>
 
     <string name="signature_update_smart_id_message">Sisesta oma isikukood Smart-IDga allkirjastamiseks</string>
+    <string name="signature_update_smart_id_select_device">Allkirjastamiseks kinnita seade Smart-ID rakenduses.</string>
+    <string name="signature_update_smart_id_info">Veendu kontrollkoodi õigsuses ja sisesta nutiseadmes Smart-ID PIN2-kood.</string>
     <string name="choose_country_option">Vali riik</string>
     <string name="signature_update_smart_id_country">Riik</string>
     <string name="signature_update_smart_id_status_document_unusable">Sinu Smart-ID toiming ebaõnnestus. Palun kontrolli Smart-ID rakendust või võta ühendust Smart-ID klienditoega.</string>
