@@ -327,7 +327,7 @@ fun DiagnosticsScreen(
                                             .putExtra(
                                                 Intent.EXTRA_TITLE,
                                                 sanitizeString(logFile.name, ""),
-                                            ).setType("text/x-log")
+                                            ).setType("text/plain")
                                             .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION),
                                         null,
                                     )

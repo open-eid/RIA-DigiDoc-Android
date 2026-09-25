@@ -71,6 +71,7 @@ class LoggingUtil
             private lateinit var logger: Logger
             private var fileHandler: FileHandler? = null
             private var isLoggingEnabled: Boolean = false
+            private var hasResetLogs: Boolean = false
 
             fun initialize(
                 context: Context,
@@ -103,9 +104,18 @@ class LoggingUtil
             private fun setupLogger(context: Context) {
                 try {
                     val logDirectory = FileUtil.getLogsDirectory(context)
-                    val logFile = File(logDirectory, "${dateFormat.format(Date())}.log")
+                    val logFile = File(logDirectory, "${dateFormat.format(Date())}.txt")
 
-                    resetLogs(logDirectory)
+                    if (!hasResetLogs) {
+                        resetLogs(logDirectory)
+                        hasResetLogs = true
+                    }
+
+                    if (!logDirectory.exists()) {
+                        logDirectory.mkdirs()
+                    }
+
+                    removeHandlers()
 
                     fileHandler = FileHandler(logFile.absolutePath, Int.MAX_VALUE, 1, true)
                     fileHandler?.formatter = LogFormatter()
@@ -122,6 +132,18 @@ class LoggingUtil
                 } catch (ioe: IOException) {
                     Log.e("LoggingUtil", "Cannot setup logging", ioe)
                 }
+            }
+
+            private fun removeHandlers() {
+                try {
+                    logger.handlers.forEach { handler ->
+                        logger.removeHandler(handler)
+                        handler.close()
+                    }
+                } catch (se: SecurityException) {
+                    Log.e(LOG_TAG, "Unable to remove existing logging handlers", se)
+                }
+                fileHandler = null
             }
 
             fun format(record: LogRecord): String {

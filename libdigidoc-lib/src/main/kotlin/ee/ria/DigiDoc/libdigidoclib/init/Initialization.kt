@@ -325,7 +325,7 @@ class Initialization
             setLibdigidocppLogLevel(isLoggingEnabled)
             DigiDocConf
                 .instance()
-                .setLogFile(File(logDirectory, "libdigidocpp.log").absolutePath)
+                .setLogFile(File(logDirectory, "libdigidocpp.txt").absolutePath)
         }
 
         private fun setLibdigidocppLogLevel(isLoggingEnabled: Boolean) {

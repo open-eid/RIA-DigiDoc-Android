@@ -272,7 +272,7 @@ object FileUtil {
             }
             if (files != null) {
                 for (file in files) {
-                    if (file.extension == "log") {
+                    if (file.extension == "txt" && file.name != diagnosticsLogsFileName) {
                         val header = """
 
 ===== File: ${file.getName()} =====
