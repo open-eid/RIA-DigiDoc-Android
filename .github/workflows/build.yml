@@ -8,6 +8,8 @@ on:
     branches: [main]
   schedule:
     - cron: "0 3 * * 1" # Weekly
+permissions:
+  contents: read
 env:
   BUILD_NUMBER: ${{ github.run_number }}
 jobs:
