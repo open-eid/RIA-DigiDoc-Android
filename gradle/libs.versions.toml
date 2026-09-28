@@ -8,8 +8,8 @@ targetSdkVersion = "37"
 versionCode = "1" # Updated via CodeMagic pipeline.
 versionName = "3.2.0"
 
-agp = "9.2.1"
-algp = "9.2.1"
+agp = "9.4.1"
+algp = "9.4.1"
 kotlin = "2.3.21"
 ksp = "2.3.7"
 coreKtx = "1.18.0"

@@ -46,8 +46,8 @@ kotlin {
 }
 
 dependencies {
-    api(project(":id-card-lib:id-lib"))
-    api(project(":id-card-lib:smart-lib"))
+    api("ee.ria.DigiDoc:id-card-lib") { version { branch = "main" } }
+    api("ee.ria.DigiDoc:smart-card-reader-lib") { version { branch = "main" } }
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
