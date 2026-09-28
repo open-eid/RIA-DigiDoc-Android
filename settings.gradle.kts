@@ -11,6 +11,12 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+sourceControl {
+    gitRepository(uri("https://github.com/open-eid/nfc-android-lib.git")) {
+        producesModule("ee.ria.DigiDoc:id-card-lib")
+        producesModule("ee.ria.DigiDoc:smart-card-reader-lib")
+    }
+}
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -31,6 +37,4 @@ include(":utils-lib")
 include(":commons-lib")
 include(":id-card-lib")
 include(":commons-lib:test-files")
-include(":id-card-lib:id-lib")
-include(":id-card-lib:smart-lib")
 include(":web-eid-lib")
