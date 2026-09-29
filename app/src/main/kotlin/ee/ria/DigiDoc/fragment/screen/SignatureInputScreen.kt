@@ -325,9 +325,6 @@ fun SignatureInputScreen(
                         isValidToSign = { isValid ->
                             isValidToSign = isValid
                         },
-                        onCourierCardDialogDismissed = {
-                            navController.navigateUp()
-                        },
                         signAction = { action ->
                             signAction = action
                         },
