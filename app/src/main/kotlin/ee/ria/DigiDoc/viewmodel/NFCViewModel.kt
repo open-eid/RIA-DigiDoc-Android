@@ -124,9 +124,6 @@ class NFCViewModel
         private val _certMismatch = MutableLiveData(false)
         val certMismatch: LiveData<Boolean> = _certMismatch
 
-        private val _courierCardDetected = MutableLiveData<Boolean?>(null)
-        val courierCardDetected: LiveData<Boolean?> = _courierCardDetected
-
         val pinCode: MutableState<ByteArray> = mutableStateOf(byteArrayOf())
 
         fun resetPinCode() {
@@ -287,11 +284,6 @@ class NFCViewModel
 
                                 val card = TokenWithPace.create(nfcReader)
                                 card.tunnel(canNumber)
-                                val pin1ChangedFlagValue = card.pinChangedFlag(CodeType.PIN1)
-                                if (pin1ChangedFlagValue != 1) {
-                                    _courierCardDetected.postValue(true)
-                                    return@startDiscovery
-                                }
                                 val signerCert = card.certificate(CertificateType.SIGNING)
                                 debugLog(
                                     logTag,
@@ -394,12 +386,6 @@ class NFCViewModel
                                 val card = TokenWithPace.create(nfcReader)
                                 card.tunnel(canNumber)
 
-                                val pin1ChangedFlagValue = card.pinChangedFlag(CodeType.PIN1)
-                                if (pin1ChangedFlagValue != 1) {
-                                    _courierCardDetected.postValue(true)
-                                    return@startDiscovery
-                                }
-
                                 val authCert =
                                     card.certificate(CertificateType.AUTHENTICATION)
                                 debugLog(
@@ -417,7 +403,6 @@ class NFCViewModel
                                         cdoc2Settings,
                                         configurationRepository,
                                     )
-
                                 pin1Code.clearSensitive()
 
                                 _shouldResetPIN.postValue(true)
@@ -764,10 +749,6 @@ class NFCViewModel
 
         fun resetDialogErrorState() {
             _dialogError.postValue(0)
-        }
-
-        fun resetCourierCardDetected() {
-            _courierCardDetected.postValue(null)
         }
 
         fun resetIdCardUserData() {

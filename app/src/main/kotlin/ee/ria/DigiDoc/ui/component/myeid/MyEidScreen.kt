@@ -104,10 +104,9 @@ fun MyEidScreen(
     val isPin2Blocked = idCardData?.pin2RetryCount == 0
     val isPukBlocked = idCardData?.pukRetryCount == 0
     val isPin2Activated = idCardData?.pin2CodeChanged == true
-    val isCourierCard = idCardData?.personalData != null && idCardData?.pin1CodeChanged == false
 
-    val alphaForPin1BlockedState = getAlphaForBlockedState((isPin1Blocked && isPukBlocked) || isCourierCard)
-    val alphaForPin2BlockedState = getAlphaForBlockedState((isPin2Blocked && isPukBlocked) || isCourierCard)
+    val alphaForPin1BlockedState = getAlphaForBlockedState(isPin1Blocked && isPukBlocked)
+    val alphaForPin2BlockedState = getAlphaForBlockedState(isPin2Blocked && isPukBlocked)
     val alphaForPukBlockedState = getAlphaForBlockedState(isPukBlocked)
 
     val selectedMyEidTabIndex = rememberSaveable { mutableIntStateOf(0) }
@@ -334,7 +333,6 @@ fun MyEidScreen(
                                                 ),
                                             isPinBlocked = isPin1Blocked,
                                             isPukBlocked = isPukBlocked,
-                                            isNotActivated = isCourierCard,
                                             forgotPinText =
                                                 if (isPin1Blocked) {
                                                     stringResource(
@@ -391,12 +389,6 @@ fun MyEidScreen(
                                                 style = MaterialTheme.typography.bodySmall,
                                             )
                                         }
-                                        if (isCourierCard) {
-                                            CourierCardWarningText(
-                                                modifier = modifier,
-                                                testTag = "myEidCourierCardPin1DescriptionText",
-                                            )
-                                        }
                                     }
                                 }
                                 item {
@@ -422,7 +414,6 @@ fun MyEidScreen(
                                                 ),
                                             isPinBlocked = isPin2Blocked,
                                             isPukBlocked = isPukBlocked,
-                                            isNotActivated = isCourierCard,
                                             forgotPinText =
                                                 if (isPin2Blocked) {
                                                     stringResource(
@@ -448,12 +439,7 @@ fun MyEidScreen(
                                             },
                                         )
 
-                                        if (isCourierCard) {
-                                            CourierCardWarningText(
-                                                modifier = modifier,
-                                                testTag = "myEidCourierCardPin2DescriptionText",
-                                            )
-                                        } else if (!isPin2Activated) {
+                                        if (!isPin2Activated) {
                                             Text(
                                                 modifier =
                                                     modifier
@@ -636,38 +622,6 @@ fun MyEidScreen(
         confirmButton = R.string.myeid_pin_unblock_button,
         confirmButtonExtra = CodeType.PIN2.name,
         onResult = handlePinDialogResult,
-    )
-}
-
-@Composable
-private fun CourierCardWarningText(
-    modifier: Modifier,
-    testTag: String,
-) {
-    val message = stringResource(R.string.id_card_courier_warning_message)
-    val linkText = stringResource(R.string.id_card_courier_activate_button)
-    val linkUrl = stringResource(R.string.id_card_courier_activate_url)
-    val linkWord = stringResource(R.string.link)
-    HrefDynamicText(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .focusable(true)
-                .testTag(testTag)
-                .semantics {
-                    contentDescription = "$message $linkText, $linkWord, $linkUrl"
-                },
-        text1 = message,
-        text2 = null,
-        linkText = linkText,
-        linkUrl = linkUrl,
-        newLineBeforeLink = true,
-        textStyle =
-            TextStyle(
-                color = MaterialTheme.colorScheme.error,
-                fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                textAlign = TextAlign.Start,
-            ),
     )
 }
 
