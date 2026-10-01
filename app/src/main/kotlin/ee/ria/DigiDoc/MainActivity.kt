@@ -8,7 +8,9 @@ package ee.ria.DigiDoc
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.provider.Browser
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -40,6 +42,7 @@ import ee.ria.DigiDoc.utilsLib.file.FileUtil.getExternalFileUris
 import ee.ria.DigiDoc.utilsLib.file.FileUtil.getLogsDirectory
 import ee.ria.DigiDoc.utilsLib.locale.LocaleUtil.getLocale
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import java.util.logging.Logger
@@ -163,6 +166,16 @@ class MainActivity :
                 isAppReady = true
             }
 
+            if (webEidUri != null) {
+                try {
+                    logWebEidLaunchSource(intent, browserPackage)
+                } catch (ce: CancellationException) {
+                    throw ce
+                } catch (t: Throwable) {
+                    LoggingUtil.errorLog(logTag, "Unable to log Web eID launch source", t)
+                }
+            }
+
             setContent {
                 RIADigiDocTheme(darkTheme = useDarkMode) {
                     RIADigiDocAppScreen(
@@ -198,13 +211,11 @@ class MainActivity :
     private fun isDarkModeEnabled(dataStore: DataStore): Boolean = dataStore.getThemeSetting() == ThemeSetting.DARK
 
     private fun resolveBrowserPackage(intent: Intent): String? =
-        (
-            intent
-                .getStringExtra("com.android.browser.application_id")
-                ?.takeIf { it.isNotEmpty() }
-                ?: ActivityCompat.getReferrer(this)?.host
-        ) // TODO: This needs testing with App Link
-            ?.takeIf { pkg ->
+        WebEidUriUtil
+            .browserPackageCandidate(
+                intent.getStringExtra(Browser.EXTRA_APPLICATION_ID),
+                ActivityCompat.getReferrer(this),
+            )?.takeIf { pkg ->
                 val browseIntent =
                     Intent(Intent.ACTION_VIEW, "https://".toUri()).apply {
                         setPackage(pkg)
@@ -215,4 +226,24 @@ class MainActivity :
                     PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong()),
                 ) != null
             }
+
+    private fun logWebEidLaunchSource(
+        intent: Intent,
+        browserPackage: String?,
+    ) {
+        val referrer = ActivityCompat.getReferrer(this)
+        val initialCallerPackage =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                initialCaller.getPackage()
+            } else {
+                null
+            }
+        debugLog(
+            logTag,
+            "Web eID launch source. Application id ${intent.getStringExtra(Browser.EXTRA_APPLICATION_ID)}, " +
+                "referrer scheme ${referrer?.scheme}, referrer authority ${referrer?.authority}, " +
+                "initial caller $initialCallerPackage, extra keys ${intent.extras?.keySet()}, " +
+                "resolved browser $browserPackage, task $taskId, task root $isTaskRoot",
+        )
+    }
 }
