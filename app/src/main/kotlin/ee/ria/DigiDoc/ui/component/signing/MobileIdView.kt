@@ -78,15 +78,12 @@ import ee.ria.DigiDoc.ui.component.shared.HrefMessageDialog
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.PrimaryTextField
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
-import ee.ria.DigiDoc.ui.component.shared.talkBackTextFieldValue
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.removeInvisibleElement
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator
 import ee.ria.DigiDoc.viewmodel.MobileIdViewModel
@@ -189,9 +186,6 @@ fun MobileIdView(
 
     val phoneNumberFocusRequester = remember { FocusRequester() }
     val personalCodeFocusRequester = remember { FocusRequester() }
-
-    val phoneNumberWithInvisibleSpaces = talkBackTextFieldValue(countryCodeAndPhone.text)
-    val personalCodeWithInvisibleSpaces = talkBackTextFieldValue(personalCode.text)
 
     BackHandler {
         if (isSigning) {
@@ -417,21 +411,10 @@ fun MobileIdView(
                             .semantics(mergeDescendants = true) {
                                 testTagsAsResourceId = true
                             }.testTag("signatureUpdateMobileIdPhoneNo"),
-                    value =
-                        if (!isTalkBackEnabled(context)) {
-                            countryCodeAndPhone
-                        } else {
-                            phoneNumberWithInvisibleSpaces
-                        },
+                    value = countryCodeAndPhone,
                     onValueChange = {
                         countryCodeAndPhoneEdited.value = true
-
-                        countryCodeAndPhone =
-                            if (!isTalkBackEnabled(context)) {
-                                it
-                            } else {
-                                TextFieldValue(removeInvisibleElement(it.text))
-                            }
+                        countryCodeAndPhone = it
                     },
                     singleLine = true,
                     label = countryCodeAndPhoneNumberLabel,
@@ -465,21 +448,10 @@ fun MobileIdView(
                             .focusProperties {
                                 previous = phoneNumberFocusRequester
                             },
-                    value =
-                        if (!isTalkBackEnabled(context)) {
-                            personalCode
-                        } else {
-                            personalCodeWithInvisibleSpaces
-                        },
+                    value = personalCode,
                     onValueChange = {
                         personalCodeEdited.value = true
-
-                        personalCode =
-                            if (!isTalkBackEnabled(context)) {
-                                it
-                            } else {
-                                TextFieldValue(removeInvisibleElement(it.text))
-                            }
+                        personalCode = it
                     },
                     singleLine = true,
                     label = personalCodeLabel,

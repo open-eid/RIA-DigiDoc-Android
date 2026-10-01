@@ -37,9 +37,12 @@ import androidx.compose.ui.semantics.semantics
 import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
 
 @Composable
-fun StatusAnnouncer(message: String) {
+fun StatusAnnouncer(
+    message: String,
+    announceInitialMessage: Boolean = false,
+) {
     var announcement by remember { mutableStateOf("") }
-    var isInitialMessage by remember { mutableStateOf(true) }
+    var isInitialMessage by remember { mutableStateOf(!announceInitialMessage) }
 
     LaunchedEffect(message) {
         if (isInitialMessage) {
@@ -55,7 +58,9 @@ fun StatusAnnouncer(message: String) {
                 .size(invisibleElementHeight)
                 .semantics {
                     liveRegion = LiveRegionMode.Assertive
-                    contentDescription = announcement
+                    if (announcement.isNotEmpty()) {
+                        contentDescription = announcement
+                    }
                 },
     )
 }

@@ -67,9 +67,13 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.editableText
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.text.VerbatimTtsAnnotation
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.text.isDigitsOnly
@@ -523,7 +527,20 @@ private fun RecipientTabContent(
             modifier = Modifier.padding(horizontal = searchBarPadding),
             inputField = {
                 SearchBarDefaults.InputField(
-                    modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .semantics {
+                                if (searchText.isNotEmpty()) {
+                                    editableText =
+                                        buildAnnotatedString {
+                                            pushTtsAnnotation(VerbatimTtsAnnotation(searchText))
+                                            append(searchText)
+                                            pop()
+                                        }
+                                }
+                            },
                     query = searchText,
                     onQueryChange = onSearchTextChange,
                     onSearch = {

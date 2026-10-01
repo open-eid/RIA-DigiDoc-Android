@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTagsAsResourceId
@@ -60,6 +61,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXL
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utils.extensions.notAccessible
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -67,6 +69,9 @@ fun InitScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
 ) {
+    val appName = stringResource(id = R.string.app_name)
+    val riaName = stringResource(id = R.string.ria)
+
     Box(
         modifier =
             modifier
@@ -84,7 +89,7 @@ fun InitScreen(
         ) {
             Image(
                 painterResource(id = R.drawable.image_eesti_shield),
-                contentDescription = stringResource(id = R.string.app_name),
+                contentDescription = appName,
                 modifier =
                     modifier
                         .height(iconSizeXXL)
@@ -105,7 +110,8 @@ fun InitScreen(
                     modifier
                         .padding(bottom = LPadding)
                         .fillMaxWidth()
-                        .wrapContentHeight(),
+                        .wrapContentHeight()
+                        .notAccessible(),
             )
             LanguageChoiceButtonGroup(
                 modifier = modifier,
@@ -120,7 +126,7 @@ fun InitScreen(
         Text(
             text =
                 smallCapsText(
-                    text = stringResource(id = R.string.ria),
+                    text = riaName,
                     normalSize = baseStyle.fontSize,
                     smallCapsSize = baseStyle.fontSize * 0.8f,
                 ),
@@ -131,7 +137,10 @@ fun InitScreen(
                     .padding(bottom = MPadding)
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)
-                    .wrapContentHeight(),
+                    .wrapContentHeight()
+                    .semantics {
+                        contentDescription = riaName
+                    },
         )
     }
 }

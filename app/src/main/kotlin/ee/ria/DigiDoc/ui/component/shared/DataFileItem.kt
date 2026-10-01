@@ -168,7 +168,7 @@ fun DataFileItem(
                                 imageVector = ImageVector.vectorResource(R.drawable.ic_more_vert),
                                 contentDescription = "$fileDescription ${index + 1} ${stringResource(
                                     R.string.more_options,
-                                )} $buttonName",
+                                )}",
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }

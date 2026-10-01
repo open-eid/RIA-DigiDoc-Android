@@ -89,7 +89,6 @@ fun SignatureComponent(
 ) {
     val signatureText = stringResource(R.string.signature_details_signer_details_title)
 
-    val buttonName = stringResource(id = R.string.button_name)
     val panelDescription = stringResource(R.string.panel)
 
     if (showSignaturesLoadingIndicator) {
@@ -276,7 +275,7 @@ fun SignatureComponent(
                                     imageVector = ImageVector.vectorResource(R.drawable.ic_more_vert),
                                     contentDescription = "$signatureText ${index + 1} ${stringResource(
                                         R.string.more_options,
-                                    )} $buttonName",
+                                    )}",
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }

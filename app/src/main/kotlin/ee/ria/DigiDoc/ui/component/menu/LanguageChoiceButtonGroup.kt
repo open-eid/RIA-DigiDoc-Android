@@ -75,9 +75,7 @@ fun LanguageChoiceButtonGroup(
                         .testTag(languageItem.testTag),
                 testTag = languageItem.testTag,
                 label = languageItem.label,
-                contentDescription = "${stringResource(
-                    id = R.string.menu_language,
-                )} ${languageItem.contentDescription}",
+                contentDescription = languageItem.contentDescription,
                 onClickItem = {
                     val locale = getLocale(languageItem.locale)
 

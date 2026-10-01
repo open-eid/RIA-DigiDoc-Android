@@ -22,7 +22,6 @@
 package ee.ria.DigiDoc.fragment.screen
 
 import android.content.res.Configuration
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -38,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +50,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -87,7 +89,6 @@ fun SignatureMethodScreen(
     }
 
     val signingMethodText = stringResource(id = R.string.signature_method)
-    val signingMethodSelectedText = stringResource(id = R.string.signature_method_selected)
 
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
 
@@ -140,7 +141,16 @@ fun SignatureMethodScreen(
                         modifier
                             .fillMaxWidth()
                             .padding(start = XSPadding)
-                            .clickable { selectedOption = option.method },
+                            .minimumInteractiveComponentSize()
+                            .selectable(
+                                selected = selectedOption == option.method,
+                                role = Role.RadioButton,
+                                onClick = { selectedOption = option.method },
+                            ).semantics {
+                                testTagsAsResourceId = true
+                                this.contentDescription =
+                                    "$signingMethodText ${option.contentDescription}"
+                            }.testTag(option.testTag),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
@@ -151,19 +161,8 @@ fun SignatureMethodScreen(
                                 .notAccessible(),
                     )
                     RadioButton(
-                        modifier =
-                            modifier
-                                .semantics {
-                                    testTagsAsResourceId = true
-                                    this.contentDescription =
-                                        if (option.method == selectedOption) {
-                                            "${option.contentDescription} $signingMethodSelectedText"
-                                        } else {
-                                            "$signingMethodText ${option.contentDescription}"
-                                        }
-                                }.testTag(option.testTag),
                         selected = selectedOption == option.method,
-                        onClick = { selectedOption = option.method },
+                        onClick = null,
                     )
                 }
                 HorizontalDivider()

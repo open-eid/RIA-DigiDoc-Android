@@ -84,7 +84,6 @@ fun Recipient(
 ) {
     val context = LocalContext.current
     val recipientText = stringResource(id = R.string.crypto_recipient_title)
-    val buttonName = stringResource(id = R.string.button_name)
     val panelDescription = stringResource(R.string.panel)
 
     val isPasswordRecipient = recipient.certType == CertType.PasswordType
@@ -204,7 +203,7 @@ fun Recipient(
                                 stringResource(
                                     R.string.more_options,
                                 )
-                            } $buttonName",
+                            }",
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }

@@ -87,7 +87,6 @@ fun RecipientComponent(
     isEncryptedOrDecrypted: Boolean,
 ) {
     val recipientText = stringResource(R.string.crypto_recipient_title)
-    val buttonName = stringResource(id = R.string.button_name)
     val panelDescription = stringResource(R.string.panel)
 
     if (showRecipientsLoadingIndicator) {
@@ -260,7 +259,7 @@ fun RecipientComponent(
                                     imageVector = ImageVector.vectorResource(R.drawable.ic_more_vert),
                                     contentDescription = "$recipientText ${index + 1} ${stringResource(
                                         R.string.more_options,
-                                    )} $buttonName",
+                                    )}",
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
