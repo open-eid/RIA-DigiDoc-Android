@@ -35,14 +35,20 @@ import ee.ria.DigiDoc.webEid.exception.WebEidErrorCode
 import ee.ria.DigiDoc.webEid.exception.WebEidException
 import ee.ria.DigiDoc.webEid.utils.WebEidRequestParser
 import ee.ria.DigiDoc.webEid.utils.WebEidResponseUtil
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import org.json.JSONObject
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
+
+data class WebEidResponse(
+    val uri: Uri,
+    val isCompletedOperation: Boolean,
+)
 
 @HiltViewModel
 class WebEidViewModel
@@ -59,10 +65,34 @@ class WebEidViewModel
         val certificateRequest: StateFlow<WebEidCertificateRequest?> = _certificateRequest.asStateFlow()
         private val _signRequest = MutableStateFlow<WebEidSignRequest?>(null)
         val signRequest: StateFlow<WebEidSignRequest?> = _signRequest.asStateFlow()
-        private val _relyingPartyResponseEvents = MutableSharedFlow<Uri>()
-        val relyingPartyResponseEvents: SharedFlow<Uri> = _relyingPartyResponseEvents.asSharedFlow()
+        private val _relyingPartyResponseEvents = Channel<WebEidResponse>(Channel.BUFFERED)
+        val relyingPartyResponseEvents: Flow<WebEidResponse> = _relyingPartyResponseEvents.receiveAsFlow()
+        private val hasResponded = AtomicBoolean(false)
+        private val hasDispatchedResponse = AtomicBoolean(false)
         private val _dialogError = MutableStateFlow(0)
         val dialogError: StateFlow<Int> = _dialogError
+
+        private val _browserSelectionUri = MutableStateFlow<Uri?>(null)
+        val browserSelectionUri: StateFlow<Uri?> = _browserSelectionUri.asStateFlow()
+
+        fun requestBrowserSelection(responseUri: Uri) {
+            _browserSelectionUri.value = responseUri
+        }
+
+        fun startResponseDispatch(): Boolean {
+            if (!hasDispatchedResponse.compareAndSet(false, true)) {
+                errorLog(logTag, "Ignoring repeated Web eID response dispatch")
+                return false
+            }
+            _browserSelectionUri.value = null
+            return true
+        }
+
+        val requestOrigin: String?
+            get() =
+                authRequest.value?.origin
+                    ?: certificateRequest.value?.origin
+                    ?: signRequest.value?.origin
 
         suspend fun handleAuth(uri: Uri) {
             try {
@@ -71,7 +101,7 @@ class WebEidViewModel
                 errorLog(logTag, "Invalid Web eID authentication request: $uri", e)
                 val errorPayload = WebEidResponseUtil.createErrorPayload(e.errorCode, e.message)
                 val responseUri = WebEidResponseUtil.createResponseUri(e.responseUri, errorPayload)
-                _relyingPartyResponseEvents.emit(responseUri)
+                sendResponse(responseUri, isCompletedOperation = false)
             } catch (e: Exception) {
                 errorLog(logTag, "Unable parse Web eID authentication request: $uri", e)
                 _dialogError.value = R.string.web_eid_invalid_auth_request_error
@@ -94,7 +124,7 @@ class WebEidViewModel
                 errorLog(logTag, "Invalid Web eID signing request: $uri", e)
                 val errorPayload = WebEidResponseUtil.createErrorPayload(e.errorCode, e.message)
                 val responseUri = WebEidResponseUtil.createResponseUri(e.responseUri, errorPayload)
-                _relyingPartyResponseEvents.emit(responseUri)
+                sendResponse(responseUri, isCompletedOperation = false)
             } catch (e: Exception) {
                 errorLog(logTag, "Unable parse Web eID signing request: $uri", e)
                 _dialogError.value = R.string.web_eid_invalid_request_error
@@ -123,7 +153,7 @@ class WebEidViewModel
                     )
                 val payload = JSONObject().put("authToken", token)
                 val responseUri = WebEidResponseUtil.createResponseUri(loginUri, payload)
-                _relyingPartyResponseEvents.emit(responseUri)
+                sendResponse(responseUri, isCompletedOperation = true)
             } catch (e: Exception) {
                 errorLog(logTag, "Unexpected error building auth token", e)
                 val errorPayload =
@@ -132,7 +162,7 @@ class WebEidViewModel
                         "Unexpected error",
                     )
                 val responseUri = WebEidResponseUtil.createResponseUri(loginUri, errorPayload)
-                _relyingPartyResponseEvents.emit(responseUri)
+                sendResponse(responseUri, isCompletedOperation = false)
             }
         }
 
@@ -147,7 +177,7 @@ class WebEidViewModel
             try {
                 val payload = signService.buildCertificatePayload(signingCert)
                 val response = WebEidResponseUtil.createResponseUri(responseUri, payload)
-                _relyingPartyResponseEvents.emit(response)
+                sendResponse(response, isCompletedOperation = true)
             } catch (e: Exception) {
                 errorLog(logTag, "Unexpected error building certificate payload", e)
                 val errorPayload =
@@ -156,7 +186,7 @@ class WebEidViewModel
                         "Unexpected error",
                     )
                 val errorUri = WebEidResponseUtil.createResponseUri(responseUri, errorPayload)
-                _relyingPartyResponseEvents.emit(errorUri)
+                sendResponse(errorUri, isCompletedOperation = false)
             }
         }
 
@@ -177,7 +207,7 @@ class WebEidViewModel
                         hashFunction,
                     )
                 val response = WebEidResponseUtil.createResponseUri(responseUri, payload)
-                _relyingPartyResponseEvents.emit(response)
+                sendResponse(response, isCompletedOperation = true)
             } catch (e: Exception) {
                 errorLog(logTag, "Unexpected error building sign payload", e)
                 val errorPayload =
@@ -186,7 +216,7 @@ class WebEidViewModel
                         "Unexpected error",
                     )
                 val errorUri = WebEidResponseUtil.createResponseUri(responseUri, errorPayload)
-                _relyingPartyResponseEvents.emit(errorUri)
+                sendResponse(errorUri, isCompletedOperation = false)
             }
         }
 
@@ -211,9 +241,20 @@ class WebEidViewModel
                 val errorUri =
                     WebEidResponseUtil.createResponseUri(responseUri, errorPayload)
 
-                _relyingPartyResponseEvents.emit(errorUri)
+                sendResponse(errorUri, isCompletedOperation = false)
             } catch (e: Exception) {
                 errorLog(logTag, "Failed to send cancel response", e)
             }
+        }
+
+        private suspend fun sendResponse(
+            responseUri: Uri,
+            isCompletedOperation: Boolean,
+        ) {
+            if (!hasResponded.compareAndSet(false, true)) {
+                errorLog(logTag, "Ignoring additional Web eID response")
+                return
+            }
+            _relyingPartyResponseEvents.send(WebEidResponse(responseUri, isCompletedOperation))
         }
     }
