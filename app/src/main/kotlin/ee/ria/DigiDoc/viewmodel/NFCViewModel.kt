@@ -211,7 +211,7 @@ class NFCViewModel
             return false
         }
 
-        fun getNFCStatus(activity: Activity): NfcStatus = NfcStatus.NFC_ACTIVE
+        fun getNFCStatus(activity: Activity): NfcStatus = nfcSmartCardReaderManager.detectNfcStatus(activity)
 
         private fun resetValues() {
             _errorState.value = null

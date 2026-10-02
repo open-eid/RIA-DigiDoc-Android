@@ -65,6 +65,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -305,6 +306,22 @@ fun NFCView(
 
     LaunchedEffect(Unit) {
         nfcViewModel.resetIdCardUserData()
+    }
+
+    val isWindowFocused = LocalWindowInfo.current.isWindowFocused
+
+    LaunchedEffect(isWindowFocused) {
+        if (!isWindowFocused) return@LaunchedEffect
+        val previousStatus = nfcStatus
+        nfcStatus = nfcViewModel.getNFCStatus(activity)
+        val isNfcOperationInProgress = isSigning || isWebEidAuthenticating || isAuthenticating || isDecrypting
+        if (isNfcOperationInProgress &&
+            previousStatus == NfcStatus.NFC_ACTIVE &&
+            nfcStatus != NfcStatus.NFC_ACTIVE
+        ) {
+            nfcViewModel.handleBackButton(activity)
+            onError()
+        }
     }
 
     LaunchedEffect(nfcViewModel.shouldResetPIN) {
@@ -646,8 +663,8 @@ fun NFCView(
                 onError = onError,
             )
         } else {
-            LaunchedEffect(Unit, isSupported) {
-                isSupported(nfcStatus != NfcStatus.NFC_NOT_SUPPORTED)
+            LaunchedEffect(nfcStatus, isSupported) {
+                isSupported(nfcStatus == NfcStatus.NFC_ACTIVE)
             }
 
             if (nfcStatus !== NfcStatus.NFC_ACTIVE) {
