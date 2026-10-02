@@ -55,7 +55,7 @@ jobs:
             -dname "CN=Android Debug,O=Android,C=US"
           echo "Generated debug.keystore at ${{ github.workspace }}/app/src/main/assets/keystore/debug.keystore"
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
       - name: Run fetch default configuration
         run: |
           ./gradlew fetchAndPackageDefaultConfiguration
@@ -142,7 +142,7 @@ jobs:
 
       - name: Set up Android SDK
         if: matrix.build-mode == 'manual'
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Setup Gradle
         if: matrix.build-mode == 'manual'

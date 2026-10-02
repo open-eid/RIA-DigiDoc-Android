@@ -136,13 +136,15 @@ class PinCodeUtilTest {
 
     @Test
     fun pinCodeUtil_isPINLengthValid_pukValidLengths() {
+        assertTrue(PinCodeUtil.isPINLengthValid(ByteArray(8), CodeType.PUK))
         assertTrue(PinCodeUtil.isPINLengthValid(ByteArray(9), CodeType.PUK))
-        assertTrue(PinCodeUtil.isPINLengthValid(ByteArray(15), CodeType.PUK))
+        assertTrue(PinCodeUtil.isPINLengthValid(ByteArray(12), CodeType.PUK))
     }
 
     @Test
     fun pinCodeUtil_isPINLengthValid_pukInvalidLengths() {
-        assertFalse(PinCodeUtil.isPINLengthValid(ByteArray(8), CodeType.PUK))
+        assertFalse(PinCodeUtil.isPINLengthValid(ByteArray(7), CodeType.PUK))
+        assertFalse(PinCodeUtil.isPINLengthValid(ByteArray(13), CodeType.PUK))
         assertFalse(PinCodeUtil.isPINLengthValid(ByteArray(3), CodeType.PUK))
     }
 }
