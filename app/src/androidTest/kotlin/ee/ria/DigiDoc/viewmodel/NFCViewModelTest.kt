@@ -7,6 +7,7 @@ package ee.ria.DigiDoc.viewmodel
 
 import android.content.Context
 import android.content.res.Resources
+import android.nfc.NfcAdapter
 import androidx.activity.ComponentActivity
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
@@ -333,9 +334,19 @@ class NFCViewModelTest {
         }
 
     @Test
-    fun nfcViewModel_getNFCStatus_success() =
+    fun nfcViewModel_getNFCStatus_returnsStatusMatchingNfcAdapterState() =
         runTest {
-            viewModel.getNFCStatus(activity)
+            val nfcAdapter = NfcAdapter.getDefaultAdapter(activity)
+            val expectedStatus =
+                when {
+                    nfcAdapter == null -> NfcStatus.NFC_NOT_SUPPORTED
+                    !nfcAdapter.isEnabled -> NfcStatus.NFC_NOT_ACTIVE
+                    else -> NfcStatus.NFC_ACTIVE
+                }
+
+            val result = viewModel.getNFCStatus(activity)
+
+            assertEquals(expectedStatus, result)
         }
 
     @Test
