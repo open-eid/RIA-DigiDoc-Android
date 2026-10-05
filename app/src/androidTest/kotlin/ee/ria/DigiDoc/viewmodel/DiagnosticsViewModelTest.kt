@@ -317,7 +317,7 @@ class DiagnosticsViewModelTest {
         // Verify that the logs directory is cleared
         val logDirectory = FileUtil.getLogsDirectory(context)
         assertTrue(logDirectory.exists())
-        assertTrue(logDirectory.listFiles()?.isEmpty() ?: true)
+        assertTrue(logDirectory.listFiles()?.all { it.length() == 0L } ?: true)
     }
 
     @Test(expected = FileNotFoundException::class)

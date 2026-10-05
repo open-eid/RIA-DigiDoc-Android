@@ -252,7 +252,7 @@ object FileUtil {
     fun logsExist(logsDirectory: File): Boolean {
         if (logsDirectory.exists()) {
             val files = logsDirectory.listFiles()
-            return files != null && files.isNotEmpty()
+            return files?.any { it.length() > 0 } == true
         }
         return false
     }

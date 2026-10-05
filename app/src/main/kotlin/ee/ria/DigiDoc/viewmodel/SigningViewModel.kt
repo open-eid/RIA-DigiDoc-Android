@@ -32,6 +32,8 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
+import ee.ria.DigiDoc.common.Constant.UNENCRYPTABLE_CONTAINER_EXTENSIONS
+import ee.ria.DigiDoc.common.Constant.UNENCRYPTABLE_CONTAINER_MIMETYPES
 import ee.ria.DigiDoc.common.Constant.UNSIGNABLE_CONTAINER_EXTENSIONS
 import ee.ria.DigiDoc.common.Constant.UNSIGNABLE_CONTAINER_MIMETYPES
 import ee.ria.DigiDoc.common.exception.NoInternetConnectionException
@@ -118,7 +120,7 @@ class SigningViewModel
             signedContainer != null &&
                 (
                     !UNSIGNABLE_CONTAINER_MIMETYPES.contains(
-                        signedContainer.getContainerFile()?.let { getMimetype(it) },
+                        signedContainer.getContainerFile()?.let { getMimetype(it) }?.lowercase(),
                     )
                 ) &&
                 (
@@ -140,7 +142,19 @@ class SigningViewModel
                 isExistingContainer(signedContainer) ||
                     !isContainerWithoutSignatures(signedContainer)
             ) &&
-                !isNestedContainer
+                !isNestedContainer &&
+                isEncryptableContainer(signedContainer)
+
+        fun isEncryptableContainer(signedContainer: SignedContainer?): Boolean =
+            signedContainer != null &&
+                !UNENCRYPTABLE_CONTAINER_MIMETYPES.contains(
+                    signedContainer.getContainerFile()?.let { getMimetype(it) }?.lowercase(),
+                ) &&
+                !UNENCRYPTABLE_CONTAINER_EXTENSIONS.contains(
+                    FilenameUtils
+                        .getExtension(signedContainer.getName())
+                        .lowercase(Locale.getDefault()),
+                )
 
         fun isBottomContainerButtonShown(
             signedContainer: SignedContainer?,

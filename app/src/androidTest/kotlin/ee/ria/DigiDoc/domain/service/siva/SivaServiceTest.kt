@@ -53,6 +53,7 @@ import org.junit.BeforeClass
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import java.io.File
 
 class SivaServiceTest {
@@ -126,6 +127,26 @@ class SivaServiceTest {
         val file = createZipWithTextFile(ASICS_MIMETYPE, "mimetype")
         val files = listOf(file)
         val isSivaConfirmationNeeded = sivaService.isSivaConfirmationNeeded(context, files)
+        assertTrue(isSivaConfirmationNeeded)
+    }
+
+    @Test
+    fun sivaService_isSivaConfirmationNeeded_returnTrueForUppercaseDDOCMimetype() {
+        val file = createZipWithTextFile(DDOC_MIMETYPE, "mimetype")
+        val uppercaseMimeTypeResolver = mock(MimeTypeResolver::class.java)
+        `when`(uppercaseMimeTypeResolver.mimeType(file)).thenReturn(DDOC_MIMETYPE.uppercase())
+        val isSivaConfirmationNeeded =
+            SivaServiceImpl(uppercaseMimeTypeResolver).isSivaConfirmationNeeded(context, listOf(file))
+        assertTrue(isSivaConfirmationNeeded)
+    }
+
+    @Test
+    fun sivaService_isSivaConfirmationNeeded_returnTrueForUppercaseASICSMimetype() {
+        val file = createZipWithTextFile(ASICS_MIMETYPE, "mimetype")
+        val uppercaseMimeTypeResolver = mock(MimeTypeResolver::class.java)
+        `when`(uppercaseMimeTypeResolver.mimeType(file)).thenReturn(ASICS_MIMETYPE.uppercase())
+        val isSivaConfirmationNeeded =
+            SivaServiceImpl(uppercaseMimeTypeResolver).isSivaConfirmationNeeded(context, listOf(file))
         assertTrue(isSivaConfirmationNeeded)
     }
 
