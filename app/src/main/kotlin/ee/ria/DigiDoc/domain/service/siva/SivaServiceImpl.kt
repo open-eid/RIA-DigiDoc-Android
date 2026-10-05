@@ -36,7 +36,7 @@ class SivaServiceImpl
             }
 
             val file = files.first()
-            val mimetype = mimeTypeResolver.mimeType(file)
+            val mimetype = mimeTypeResolver.mimeType(file)?.lowercase()
 
             return SEND_SIVA_CONTAINER_NOTIFICATION_MIMETYPES.contains(mimetype) &&
                 !file.isXades(context) ||
@@ -46,7 +46,7 @@ class SivaServiceImpl
 
         override suspend fun isTimestampedContainer(signedContainer: SignedContainer): Boolean =
             signedContainer.getDataFiles().size == 1 &&
-                signedContainer.containerMimetype().equals(ASICS_MIMETYPE) &&
+                signedContainer.containerMimetype().equals(ASICS_MIMETYPE, ignoreCase = true) &&
                 signedContainer.getSignatures().firstOrNull()?.profile == "TimeStampToken"
 
         override suspend fun getTimestampedContainer(

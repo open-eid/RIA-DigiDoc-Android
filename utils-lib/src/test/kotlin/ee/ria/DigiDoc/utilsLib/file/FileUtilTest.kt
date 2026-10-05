@@ -12,6 +12,7 @@ import android.webkit.URLUtil
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.io.FilenameUtils
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -461,6 +462,29 @@ class FileUtilTest {
 
         assertEquals("<TSL>previous</TSL>", destination.readText())
         assertTrue("Temporary files were left behind", temporaryFilesIn(directory).isEmpty())
+    }
+
+    @Test
+    fun fileUtil_logsExist_returnTrueWhenDirectoryHasNonEmptyLogFile() {
+        val directory = createTempDirectory()
+        File(directory, "libdigidocpp.txt").writeText("log line")
+
+        assertTrue(FileUtil.logsExist(directory))
+    }
+
+    @Test
+    fun fileUtil_logsExist_returnFalseWhenDirectoryHasOnlyEmptyLogFiles() {
+        val directory = createTempDirectory()
+        File(directory, "libdigidocpp.txt").createNewFile()
+
+        assertFalse(FileUtil.logsExist(directory))
+    }
+
+    @Test
+    fun fileUtil_logsExist_returnFalseWhenDirectoryIsMissing() {
+        val directory = File(createTempDirectory(), "missing")
+
+        assertFalse(FileUtil.logsExist(directory))
     }
 
     private fun temporaryFilesIn(directory: File): List<File> =

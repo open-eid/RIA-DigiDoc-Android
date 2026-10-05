@@ -1254,7 +1254,8 @@ fun SigningNavigation(
                     signingViewModel.isBottomContainerButtonShown(
                         signedContainer,
                         isNestedContainer,
-                    ),
+                    ) &&
+                        signingViewModel.isEncryptableContainer(signedContainer),
                 isExtendSignaturesButtonShown =
                     signingViewModel.isExtendSignaturesButtonShown(
                         signedContainer,

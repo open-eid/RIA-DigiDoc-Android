@@ -13,6 +13,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
 import ee.ria.DigiDoc.common.Constant.ASICE_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.ASICS_MIMETYPE
+import ee.ria.DigiDoc.common.Constant.DDOC_MIMETYPE
 import ee.ria.DigiDoc.common.Constant.DEFAULT_MIME_TYPE
 import ee.ria.DigiDoc.common.R
 import ee.ria.DigiDoc.common.testfiles.asset.AssetFile.Companion.getResourceFileAsFile
@@ -158,6 +159,20 @@ class SigningViewModelTest {
         }
 
     @Test
+    fun signingViewModel_isSignButtonShown_returnFalseWithUppercaseAsicsMimetype() =
+        runTest {
+            `when`(mimeTypeCache.getMimeType(anyOrNull())).thenReturn(ASICS_MIMETYPE.uppercase())
+
+            val file = File.createTempFile("temp", ".txt")
+            Files.write(file.toPath(), "content".toByteArray(Charset.defaultCharset()))
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
+
+            val isSignButtonShown = viewModel.isSignButtonShown(container, false, false, false)
+
+            assertFalse(isSignButtonShown)
+        }
+
+    @Test
     fun signingViewModel_isSignButtonShown_containerIsNullReturnFalse() =
         runTest {
             val isSignButtonShown = viewModel.isSignButtonShown(null, false, false, false)
@@ -202,6 +217,8 @@ class SigningViewModelTest {
     @Test
     fun signingViewModel_isEncryptButtonShown_returnTrue() =
         runTest {
+            `when`(mimeTypeCache.getMimeType(anyOrNull())).thenReturn(ASICE_MIMETYPE)
+
             val file =
                 getResourceFileAsFile(
                     context,
@@ -228,6 +245,82 @@ class SigningViewModelTest {
 
             assertFalse(isEncryptButtonShown)
         }
+
+    @Test
+    fun signingViewModel_isEncryptButtonShown_returnFalseWithSignedAsicsContainer() =
+        runTest {
+            `when`(mimeTypeCache.getMimeType(anyOrNull())).thenReturn(ASICS_MIMETYPE)
+
+            val file =
+                getResourceFileAsFile(
+                    context,
+                    "example.asice",
+                    R.raw.example,
+                )
+
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
+
+            val isEncryptButtonShown = viewModel.isEncryptButtonShown(container, false)
+
+            assertFalse(isEncryptButtonShown)
+        }
+
+    @Test
+    fun signingViewModel_isEncryptableContainer_returnTrueWithAsiceContainer() =
+        runTest {
+            `when`(mimeTypeCache.getMimeType(anyOrNull())).thenReturn(ASICE_MIMETYPE)
+
+            val file = File.createTempFile("temp", ".txt")
+            file.writeText("test content")
+
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
+
+            assertTrue(viewModel.isEncryptableContainer(container))
+        }
+
+    @Test
+    fun signingViewModel_isEncryptableContainer_returnFalseWithDdocContainer() =
+        runTest {
+            `when`(mimeTypeCache.getMimeType(anyOrNull())).thenReturn(DDOC_MIMETYPE)
+
+            val file = File.createTempFile("temp", ".txt")
+            file.writeText("test content")
+
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
+
+            assertFalse(viewModel.isEncryptableContainer(container))
+        }
+
+    @Test
+    fun signingViewModel_isEncryptableContainer_returnFalseWithAsicsContainer() =
+        runTest {
+            `when`(mimeTypeCache.getMimeType(anyOrNull())).thenReturn(ASICS_MIMETYPE)
+
+            val file = File.createTempFile("temp", ".txt")
+            file.writeText("test content")
+
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
+
+            assertFalse(viewModel.isEncryptableContainer(container))
+        }
+
+    @Test
+    fun signingViewModel_isEncryptableContainer_returnFalseWithUppercaseAsicsMimetype() =
+        runTest {
+            `when`(mimeTypeCache.getMimeType(anyOrNull())).thenReturn(ASICS_MIMETYPE.uppercase())
+
+            val file = File.createTempFile("temp", ".txt")
+            file.writeText("test content")
+
+            val container = SignedContainer.openOrCreate(context, file, listOf(file), true)
+
+            assertFalse(viewModel.isEncryptableContainer(container))
+        }
+
+    @Test
+    fun signingViewModel_isEncryptableContainer_returnFalseWithNullContainer() {
+        assertFalse(viewModel.isEncryptableContainer(null))
+    }
 
     @Test
     fun signingViewModel_isExistingContainer_returnTrue() =
