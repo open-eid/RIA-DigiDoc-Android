@@ -943,7 +943,7 @@ class FileOpeningViewModelTest {
     @Test
     fun fileOpeningViewModel_resetExternalFileState_externalFileStateIsReset() =
         runTest {
-            val sharedContainerViewModel = SharedContainerViewModel(context, contentResolver)
+            val sharedContainerViewModel = SharedContainerViewModel(context)
             viewModel.resetExternalFileState(sharedContainerViewModel)
 
             assertEquals(listOf<Uri>(), sharedContainerViewModel.externalFileUris.value)

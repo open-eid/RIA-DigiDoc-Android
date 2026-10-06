@@ -5,11 +5,7 @@
 
 package ee.ria.DigiDoc.viewmodel
 
-import android.content.ContentResolver
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import androidx.activity.result.ActivityResult
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import androidx.test.platform.app.InstrumentationRegistry
@@ -45,14 +41,11 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import java.io.File
 import java.io.FileNotFoundException
-import java.nio.charset.Charset
-import java.nio.file.Files
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -62,9 +55,6 @@ import java.util.UUID
 class DiagnosticsViewModelTest {
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
-
-    @Mock
-    lateinit var contentResolver: ContentResolver
 
     @Mock
     lateinit var configurationLoader: ConfigurationLoader
@@ -159,7 +149,6 @@ class DiagnosticsViewModelTest {
                 dataStore,
                 configurationLoader,
                 configurationRepository,
-                contentResolver,
             )
         proxySetting = ProxySetting.NO_PROXY
         manualProxy = ManualProxy("", 80, "", "")
@@ -318,51 +307,6 @@ class DiagnosticsViewModelTest {
         }
 
     @Test
-    fun diagnosticsViewModel_saveFile_success() {
-        val file = createTempFileWithStringContent("test", "Test content")
-        val intent = Intent()
-        val uri = Uri.fromFile(file)
-        intent.data = uri
-        val activityResult = ActivityResult(-1, intent)
-        viewModel.saveFile(file, activityResult)
-    }
-
-    @Test
-    fun diagnosticsViewModel_saveFile_intentNull() {
-        val file = createTempFileWithStringContent("test", "Test content")
-        val intent = Intent()
-        intent.data = Uri.fromFile(file)
-        val activityResult = ActivityResult(-1, null)
-        viewModel.saveFile(file, activityResult)
-    }
-
-    @Test
-    fun diagnosticsViewModel_saveFile_intentDataNull() {
-        val file = createTempFileWithStringContent("test", "Test content")
-        val intent = Intent()
-        val activityResult = ActivityResult(-1, intent)
-        viewModel.saveFile(file, activityResult)
-    }
-
-    @Test(expected = FileNotFoundException::class)
-    fun diagnosticsViewModel_saveFile_throwsFileNotFoundException() {
-        val file = createTempFileWithStringContent("test", "Test content")
-        val intent = Intent()
-        intent.data = mock(Uri::class.java)
-        val activityResult = ActivityResult(-1, intent)
-        viewModel.saveFile(file, activityResult)
-    }
-
-    @Test(expected = NullPointerException::class)
-    fun diagnosticsViewModel_saveFile_throwsNullPointerException() {
-        val file = mock(File::class.java)
-        val intent = Intent()
-        intent.data = mock(Uri::class.java)
-        val activityResult = ActivityResult(-1, intent)
-        viewModel.saveFile(file, activityResult)
-    }
-
-    @Test
     fun diagnosticsViewModel_isCdoc2Selected_returnTrue() {
         dataStore.setCdocSetting(CDOCSetting.CDOC2)
         viewModel.updatedConfiguration = MutableLiveData(configurationProvider)
@@ -517,15 +461,5 @@ class DiagnosticsViewModelTest {
             }
 
         assertFalse(result)
-    }
-
-    @Suppress("SameParameterValue")
-    private fun createTempFileWithStringContent(
-        filename: String,
-        content: String,
-    ): File {
-        val tempFile = File.createTempFile(filename, ".txt", context.cacheDir)
-        Files.write(tempFile.toPath(), content.toByteArray(Charset.defaultCharset()))
-        return tempFile
     }
 }
