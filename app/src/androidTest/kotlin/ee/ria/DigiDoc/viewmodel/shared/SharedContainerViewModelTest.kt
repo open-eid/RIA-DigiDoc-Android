@@ -7,9 +7,7 @@ package ee.ria.DigiDoc.viewmodel.shared
 
 import android.content.ContentResolver
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
-import androidx.activity.result.ActivityResult
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
@@ -53,10 +51,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
-import org.mockito.kotlin.whenever
-import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileNotFoundException
 import java.nio.charset.Charset
 import java.nio.file.Files
 
@@ -107,53 +102,7 @@ class SharedContainerViewModelTest {
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        viewModel = SharedContainerViewModel(context, contentResolver)
-    }
-
-    @Test
-    fun sharedContainerViewModel_saveContainerFile_success() {
-        val file = createTempFileWithStringContent("test", "Test content")
-        val intent = Intent()
-        val uri = Uri.fromFile(file)
-        intent.data = uri
-        whenever(contentResolver.openOutputStream(uri)).thenReturn(ByteArrayOutputStream())
-        val activityResult = ActivityResult(-1, intent)
-        viewModel.saveContainerFile(file, activityResult)
-    }
-
-    @Test
-    fun sharedContainerViewModel_saveContainerFile_intentNull() {
-        val file = createTempFileWithStringContent("test", "Test content")
-        val intent = Intent()
-        intent.data = Uri.fromFile(file)
-        val activityResult = ActivityResult(-1, null)
-        viewModel.saveContainerFile(file, activityResult)
-    }
-
-    @Test
-    fun sharedContainerViewModel_saveContainerFile_intentDataNull() {
-        val file = createTempFileWithStringContent("test", "Test content")
-        val intent = Intent()
-        val activityResult = ActivityResult(-1, intent)
-        viewModel.saveContainerFile(file, activityResult)
-    }
-
-    @Test(expected = FileNotFoundException::class)
-    fun sharedContainerViewModel_saveContainerFile_throwsFileNotFoundException() {
-        val file = createTempFileWithStringContent("test", "Test content")
-        val intent = Intent()
-        intent.data = mock(Uri::class.java)
-        val activityResult = ActivityResult(-1, intent)
-        viewModel.saveContainerFile(file, activityResult)
-    }
-
-    @Test(expected = NullPointerException::class)
-    fun sharedContainerViewModel_saveContainerFile_throwsNullPointerException() {
-        val file = mock(File::class.java)
-        val intent = Intent()
-        intent.data = mock(Uri::class.java)
-        val activityResult = ActivityResult(-1, intent)
-        viewModel.saveContainerFile(file, activityResult)
+        viewModel = SharedContainerViewModel(context)
     }
 
     @Test

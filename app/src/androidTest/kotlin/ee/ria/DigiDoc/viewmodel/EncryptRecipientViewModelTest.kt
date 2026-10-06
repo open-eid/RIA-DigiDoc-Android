@@ -57,7 +57,7 @@ class EncryptRecipientViewModelTest {
     fun setUp() {
         MockitoAnnotations.openMocks(this)
         context = InstrumentationRegistry.getInstrumentation().targetContext
-        sharedContainerViewModel = SharedContainerViewModel(context, context.contentResolver)
+        sharedContainerViewModel = SharedContainerViewModel(context)
         viewModel =
             EncryptRecipientViewModel(
                 context,

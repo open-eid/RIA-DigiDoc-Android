@@ -5,7 +5,6 @@
 
 package ee.ria.DigiDoc.viewmodel
 
-import android.content.ContentResolver
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.platform.app.InstrumentationRegistry
@@ -45,7 +44,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
@@ -124,10 +122,7 @@ class RecentDocumentsViewModelTest {
             }
 
         sharedContainerViewModel =
-            SharedContainerViewModel(
-                context,
-                mock(ContentResolver::class.java),
-            )
+            SharedContainerViewModel(context)
     }
 
     @Test

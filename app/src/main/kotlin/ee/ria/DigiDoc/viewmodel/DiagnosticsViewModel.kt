@@ -5,15 +5,12 @@
 
 package ee.ria.DigiDoc.viewmodel
 
-import android.content.ContentResolver
 import android.content.Context
 import android.os.Build
-import androidx.activity.result.ActivityResult
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.common.io.ByteStreams
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.BuildConfig
@@ -58,7 +55,6 @@ class DiagnosticsViewModel
         val dataStore: DataStore,
         private val configurationLoader: ConfigurationLoader,
         private val configurationRepository: ConfigurationRepository,
-        private val contentResolver: ContentResolver,
     ) : ViewModel() {
         private val logTag = "SettingsViewModel"
         private val logsFileName =
@@ -217,22 +213,6 @@ class DiagnosticsViewModel
             } catch (ex: Exception) {
                 errorLog(logTag, "Central configuration update failed", ex)
                 throw ex
-            }
-        }
-
-        fun saveFile(
-            documentFile: File,
-            activityResult: ActivityResult,
-        ) {
-            FileInputStream(documentFile).use { inputStream ->
-                activityResult.data?.data?.let {
-                    contentResolver
-                        .openOutputStream(it)
-                        .use { outputStream ->
-                            outputStream ?: throw FileNotFoundException("Unable to open output stream for URI: $it")
-                            ByteStreams.copy(inputStream, outputStream)
-                        }
-                }
             }
         }
 
