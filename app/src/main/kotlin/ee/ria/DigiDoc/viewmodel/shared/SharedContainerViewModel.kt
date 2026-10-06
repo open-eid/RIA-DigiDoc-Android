@@ -5,14 +5,11 @@
 
 package ee.ria.DigiDoc.viewmodel.shared
 
-import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.os.Build
-import androidx.activity.result.ActivityResult
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import com.google.common.io.ByteStreams
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.common.Constant.PDF_MIMETYPE
@@ -40,9 +37,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileNotFoundException
-import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -50,7 +44,6 @@ class SharedContainerViewModel
     @Inject
     constructor(
         @param:ApplicationContext private val context: Context,
-        private val contentResolver: ContentResolver,
     ) : ViewModel() {
         private val _signedContainer = MutableStateFlow<SignedContainer?>(null)
         val signedContainer: StateFlow<SignedContainer?> = _signedContainer.asStateFlow()
@@ -346,23 +339,6 @@ class SharedContainerViewModel
             _signedContainer.value = null
             delay(100L)
             _signedContainer.value = signedContainer
-        }
-
-        @Throws(FileNotFoundException::class, IOException::class)
-        fun saveContainerFile(
-            documentFile: File,
-            activityResult: ActivityResult,
-        ) {
-            FileInputStream(documentFile).use { inputStream ->
-                activityResult.data?.data?.let {
-                    contentResolver
-                        .openOutputStream(it)
-                        .use { outputStream ->
-                            outputStream ?: throw FileNotFoundException("Unable to open output stream for URI: $it")
-                            ByteStreams.copy(inputStream, outputStream)
-                        }
-                }
-            }
         }
 
         suspend fun removeSignature(

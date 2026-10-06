@@ -6,8 +6,6 @@
 package ee.ria.DigiDoc.ui.component.signing.bottomsheet
 
 import android.content.Context
-import android.content.Intent
-import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
@@ -39,8 +37,7 @@ fun DataFileBottomSheet(
     showSivaDialog: MutableState<Boolean>,
     handleSivaConfirmation: () -> Unit,
     context: Context,
-    saveFileLauncher: ActivityResultLauncher<Intent>,
-    saveFile: (File, String, ActivityResultLauncher<Intent>) -> Unit,
+    saveFile: (File, String?) -> Unit,
     openRemoveFileDialog: MutableState<Boolean>,
     onBackButtonClick: () -> Unit,
 ) {
@@ -99,7 +96,7 @@ fun DataFileBottomSheet(
                                 }
 
                             if (file != null) {
-                                saveFile(file, mimeType, saveFileLauncher)
+                                saveFile(file, mimeType)
                             }
                         } catch (ex: Exception) {
                             errorLog("DataFileBottomSheet", "Unable to save file. Unable to get data file", ex)

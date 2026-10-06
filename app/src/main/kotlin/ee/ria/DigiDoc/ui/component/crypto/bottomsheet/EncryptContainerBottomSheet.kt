@@ -5,8 +5,6 @@
 
 package ee.ria.DigiDoc.ui.component.crypto.bottomsheet
 
-import android.content.Intent
-import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
@@ -25,8 +23,7 @@ fun EncryptContainerBottomSheet(
     openEditContainerNameDialog: MutableState<Boolean>,
     isSaveButtonShown: Boolean = true,
     cryptoContainer: CryptoContainer?,
-    saveFileLauncher: ActivityResultLauncher<Intent>,
-    saveFile: (File, String?, ActivityResultLauncher<Intent>) -> Unit,
+    saveFile: (File, String?) -> Unit,
 ) {
     val buttonName = stringResource(id = R.string.button_name)
 
@@ -61,7 +58,6 @@ fun EncryptContainerBottomSheet(
                         saveFile(
                             file,
                             cryptoContainer.containerMimetype(),
-                            saveFileLauncher,
                         )
                     }
                 },

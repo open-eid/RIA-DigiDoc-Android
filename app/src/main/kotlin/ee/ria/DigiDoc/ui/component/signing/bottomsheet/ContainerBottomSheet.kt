@@ -5,8 +5,6 @@
 
 package ee.ria.DigiDoc.ui.component.signing.bottomsheet
 
-import android.content.Intent
-import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
@@ -28,8 +26,7 @@ fun ContainerBottomSheet(
     signedContainer: SignedContainer?,
     onEncryptClick: () -> Unit,
     onExtendSignaturesClick: () -> Unit,
-    saveFileLauncher: ActivityResultLauncher<Intent>,
-    saveFile: (File, String?, ActivityResultLauncher<Intent>) -> Unit,
+    saveFile: (File, String?) -> Unit,
 ) {
     val buttonName = stringResource(id = R.string.button_name)
 
@@ -63,7 +60,6 @@ fun ContainerBottomSheet(
                         saveFile(
                             file,
                             signedContainer.containerMimetype(),
-                            saveFileLauncher,
                         )
                     }
                 },
