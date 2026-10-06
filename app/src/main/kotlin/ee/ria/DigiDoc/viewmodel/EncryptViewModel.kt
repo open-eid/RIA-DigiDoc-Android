@@ -92,6 +92,7 @@ class EncryptViewModel
         ): Boolean {
             val base = isEncryptedContainer(cryptoContainer) && !isNestedContainer
             if (!base) return false
+            if (isCDOC1Container(cryptoContainer)) return true
 
             val now = Date()
             val allExpired =
