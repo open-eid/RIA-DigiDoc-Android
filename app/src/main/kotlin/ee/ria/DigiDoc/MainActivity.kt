@@ -8,12 +8,19 @@ package ee.ria.DigiDoc
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
 import android.provider.Browser
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.core.app.ActivityCompat
 import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -28,6 +35,7 @@ import ee.ria.DigiDoc.common.model.AppState
 import ee.ria.DigiDoc.domain.model.theme.ThemeSetting
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.fragment.RootFragment
+import ee.ria.DigiDoc.fragment.UnsupportedVersionFragment
 import ee.ria.DigiDoc.init.LibrarySetup
 import ee.ria.DigiDoc.manager.ActivityManager
 import ee.ria.DigiDoc.root.RootChecker
@@ -43,6 +51,7 @@ import ee.ria.DigiDoc.utilsLib.file.FileUtil.getLogsDirectory
 import ee.ria.DigiDoc.utilsLib.locale.LocaleUtil.getLocale
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
+import ee.ria.DigiDoc.viewmodel.UnsupportedVersionViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import java.util.logging.Logger
@@ -76,6 +85,8 @@ class MainActivity :
     @Inject
     lateinit var secureUtil: SecureUtil
 
+    private val unsupportedVersionViewModel: UnsupportedVersionViewModel by viewModels()
+
     private val logTag = "MainActivity"
 
     private var isAppReady = false
@@ -106,7 +117,9 @@ class MainActivity :
             isAppReady = true
             setContent {
                 RIADigiDocTheme(darkTheme = useDarkMode) {
-                    RootFragment()
+                    BlockingScreenLocale {
+                        RootFragment()
+                    }
                 }
             }
             return
@@ -176,13 +189,23 @@ class MainActivity :
                 }
             }
 
+            val isAppVersionUnsupported =
+                unsupportedVersionViewModel.isAppVersionUnsupported(
+                    "${BuildConfig.VERSION_NAME}.${BuildConfig.VERSION_CODE}",
+                )
             setContent {
                 RIADigiDocTheme(darkTheme = useDarkMode) {
-                    RIADigiDocAppScreen(
-                        externalFileUris = externalFileUris,
-                        webEidUri = webEidUri,
-                        browserPackage = browserPackage,
-                    )
+                    if (isAppVersionUnsupported) {
+                        BlockingScreenLocale {
+                            UnsupportedVersionFragment()
+                        }
+                    } else {
+                        RIADigiDocAppScreen(
+                            externalFileUris = externalFileUris,
+                            webEidUri = webEidUri,
+                            browserPackage = browserPackage,
+                        )
+                    }
                 }
             }
         }
@@ -204,6 +227,23 @@ class MainActivity :
     override fun onStop(owner: LifecycleOwner) {
         super<DefaultLifecycleObserver>.onStop(owner)
         AppState.isAppInForeground = false
+    }
+
+    @Composable
+    private fun BlockingScreenLocale(content: @Composable () -> Unit) {
+        val localizedContext =
+            remember {
+                localeUtil.createLocalizedContext(
+                    this,
+                    dataStore.getLocale(),
+                    Resources.getSystem().configuration.locales,
+                )
+            }
+        CompositionLocalProvider(
+            LocalContext provides localizedContext,
+            LocalResources provides localizedContext.resources,
+            content = content,
+        )
     }
 
     private fun isSystemModeEnabled(dataStore: DataStore): Boolean = dataStore.getThemeSetting() == ThemeSetting.SYSTEM
