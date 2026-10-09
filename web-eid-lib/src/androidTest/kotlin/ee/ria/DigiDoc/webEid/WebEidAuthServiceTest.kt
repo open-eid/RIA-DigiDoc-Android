@@ -5,8 +5,10 @@
 
 package ee.ria.DigiDoc.webEid
 
+import android.content.pm.PackageManager
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -22,6 +24,7 @@ class WebEidAuthServiceTest {
     val instantExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var service: WebEidAuthService
+    private lateinit var expectedAppVersion: String
     private val authCertBase64 =
         """
         MIIECTCCA4+gAwIBAgIUN2tgxiz6MdXE3QfegLIoan8ZNW0wCgYIKoZIzj0EAwMwXDEYMBYGA1UEAwwPVGVzdCBFU1RFSUQyMDI1MRcwFQYDVQRh
@@ -58,7 +61,13 @@ class WebEidAuthServiceTest {
 
     @Before
     fun setup() {
-        service = WebEidAuthServiceImpl()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        service = WebEidAuthServiceImpl(context)
+        val versionName =
+            context.packageManager
+                .getPackageInfo(context.packageName, PackageManager.PackageInfoFlags.of(0))
+                .versionName
+        expectedAppVersion = "https://id.eesti.ee/releases/v$versionName"
     }
 
     @Test
@@ -105,5 +114,16 @@ class WebEidAuthServiceTest {
         assert(token.getString("signature").isNotBlank())
         assertFalse(token.has("unverifiedSigningCertificate"))
         assertFalse(token.has("supportedSignatureAlgorithms"))
+    }
+
+    @Test
+    fun buildAuthToken_withValidInputs_returnsAppVersionAndIssuerApp() {
+        val authCertBytes = Base64.getMimeDecoder().decode(authCertBase64)
+        val signature = byteArrayOf(1, 2, 3, 4, 5)
+
+        val token = service.buildAuthToken(authCertBytes, null, signature)
+
+        assertEquals(expectedAppVersion, token.getString("appVersion"))
+        assertEquals(expectedAppVersion, token.getString("issuerApp"))
     }
 }
