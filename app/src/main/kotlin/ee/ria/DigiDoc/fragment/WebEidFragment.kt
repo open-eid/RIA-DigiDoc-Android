@@ -79,7 +79,11 @@ fun WebEidFragment(
                 WebEidBrowserCache.rememberResolved(origin, browserPackage)
             }
             val targetPackage = browserPackage ?: origin?.let { WebEidBrowserCache.recall(it) }
-            debugLog(LOG_TAG, "Web eID response. Target browser $targetPackage")
+            debugLog(
+                LOG_TAG,
+                "Web eID response. Origin $origin, resolved browser $browserPackage, " +
+                    "target browser $targetPackage",
+            )
             val browsers = if (targetPackage == null) installedBrowsers(context) else emptyList()
             if (browsers.size > 1) {
                 viewModel.requestBrowserSelection(response.uri)
@@ -114,9 +118,15 @@ fun WebEidFragment(
                     R.string.web_eid_select_browser_message_signing
                 },
             onSelect = { selectedPackage ->
-                debugLog(LOG_TAG, "Web eID response. Selected browser $selectedPackage")
                 val selectedOrigin = viewModel.requestOrigin
-                if (viewModel.certificateRequest.value != null && selectedOrigin != null) {
+                val isCertificateRequest = viewModel.certificateRequest.value != null
+                val remembering = isCertificateRequest && selectedOrigin != null
+                debugLog(
+                    LOG_TAG,
+                    "Web eID response. Selected browser $selectedPackage, origin $selectedOrigin, " +
+                        "is certificate request $isCertificateRequest, remembering $remembering",
+                )
+                if (remembering && selectedOrigin != null) {
                     WebEidBrowserCache.rememberSelected(selectedOrigin, selectedPackage)
                 }
                 if (viewModel.startResponseDispatch()) {
