@@ -34,6 +34,7 @@ data class ConfigurationProvider(
     @SerializedName("LDAP-CERTS") val ldapCerts: List<String> = listOf(),
     var configurationLastUpdateCheckDate: Date?,
     var configurationUpdateDate: Date?,
+    @SerializedName("RIADD-UNSUPPORTED") val riaddUnsupported: String? = null,
 ) {
     data class MetaInf(
         @SerializedName("URL") val url: String,
