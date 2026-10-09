@@ -5,6 +5,9 @@
 
 package ee.ria.DigiDoc.webEid
 
+import android.content.Context
+import android.content.pm.PackageManager
+import dagger.hilt.android.qualifiers.ApplicationContext
 import ee.ria.DigiDoc.webEid.utils.WebEidAlgorithmUtil.buildSupportedSignatureAlgorithms
 import ee.ria.DigiDoc.webEid.utils.WebEidAlgorithmUtil.getAlgorithm
 import org.json.JSONArray
@@ -18,7 +21,9 @@ import javax.inject.Singleton
 @Singleton
 class WebEidAuthServiceImpl
     @Inject
-    constructor() : WebEidAuthService {
+    constructor(
+        @param:ApplicationContext private val context: Context,
+    ) : WebEidAuthService {
         override fun buildAuthToken(
             authCert: ByteArray,
             signingCert: ByteArray?,
@@ -31,11 +36,17 @@ class WebEidAuthServiceImpl
 
             val publicKey = cert.publicKey
             val algorithm = getAlgorithm(publicKey)
+            val versionName =
+                context.packageManager
+                    .getPackageInfo(context.packageName, PackageManager.PackageInfoFlags.of(0))
+                    .versionName
+            val appVersion = "https://id.eesti.ee/releases/v$versionName"
 
             return JSONObject().apply {
                 put("algorithm", algorithm)
                 put("unverifiedCertificate", Base64.getEncoder().encodeToString(authCert))
-                put("issuerApp", "https://web-eid.eu/web-eid-mobile-app/releases/v1.0.0")
+                put("issuerApp", appVersion)
+                put("appVersion", appVersion)
                 put("signature", Base64.getEncoder().encodeToString(signature))
 
                 if (signingCert != null) {

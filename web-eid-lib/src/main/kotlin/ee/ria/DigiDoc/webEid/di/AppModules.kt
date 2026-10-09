@@ -5,9 +5,11 @@
 
 package ee.ria.DigiDoc.webEid.di
 
+import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import ee.ria.DigiDoc.webEid.WebEidAuthService
 import ee.ria.DigiDoc.webEid.WebEidAuthServiceImpl
@@ -20,7 +22,9 @@ import javax.inject.Singleton
 class AppModules {
     @Provides
     @Singleton
-    fun provideWebEidAuthService(): WebEidAuthService = WebEidAuthServiceImpl()
+    fun provideWebEidAuthService(
+        @ApplicationContext context: Context,
+    ): WebEidAuthService = WebEidAuthServiceImpl(context)
 
     @Provides
     @Singleton
