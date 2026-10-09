@@ -75,6 +75,10 @@ android {
     namespace = "ee.ria.DigiDoc"
     compileSdk = Integer.parseInt(libs.versions.compileSdkVersion.get())
 
+    androidResources {
+        localeFilters += listOf("en", "et")
+    }
+
     defaultConfig {
         applicationId = "ee.ria.DigiDoc"
         minSdk = Integer.parseInt(libs.versions.minSdkVersion.get())

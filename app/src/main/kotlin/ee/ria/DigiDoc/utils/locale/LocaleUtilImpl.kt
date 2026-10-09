@@ -6,6 +6,8 @@
 package ee.ria.DigiDoc.utils.locale
 
 import android.content.Context
+import android.content.res.Configuration
+import android.os.LocaleList
 import androidx.preference.PreferenceManager
 import ee.ria.DigiDoc.common.Constant.KEY_LOCALE
 import java.util.Locale
@@ -30,5 +32,15 @@ class LocaleUtilImpl
             config.setLocale(locale)
             config.setLayoutDirection(locale)
             return context.createConfigurationContext(config)
+        }
+
+        override fun createLocalizedContext(
+            context: Context,
+            selectedLocale: Locale?,
+            deviceLocales: LocaleList,
+        ): Context {
+            val configuration = Configuration(context.resources.configuration)
+            configuration.setLocales(selectedLocale?.let { LocaleList(it) } ?: deviceLocales)
+            return context.createConfigurationContext(configuration)
         }
     }

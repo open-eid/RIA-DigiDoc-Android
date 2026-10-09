@@ -6,6 +6,7 @@
 package ee.ria.DigiDoc.utils.locale
 
 import android.content.Context
+import android.os.LocaleList
 import java.util.Locale
 
 interface LocaleUtil {
@@ -14,5 +15,11 @@ interface LocaleUtil {
     fun updateLocale(
         context: Context,
         locale: Locale,
+    ): Context
+
+    fun createLocalizedContext(
+        context: Context,
+        selectedLocale: Locale?,
+        deviceLocales: LocaleList,
     ): Context
 }
