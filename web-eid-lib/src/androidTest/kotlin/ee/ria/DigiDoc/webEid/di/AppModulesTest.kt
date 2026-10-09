@@ -6,6 +6,7 @@
 package ee.ria.DigiDoc.webEid.di
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.webEid.WebEidAuthServiceImpl
 import ee.ria.DigiDoc.webEid.WebEidSignServiceImpl
 import org.junit.Assert.assertNotNull
@@ -25,7 +26,7 @@ class AppModulesTest {
 
     @Test
     fun provideWebEidAuthService_returnsCorrectImpl() {
-        val service = modules.provideWebEidAuthService()
+        val service = modules.provideWebEidAuthService(InstrumentationRegistry.getInstrumentation().targetContext)
         assertNotNull(service)
         assertTrue(service is WebEidAuthServiceImpl)
     }
