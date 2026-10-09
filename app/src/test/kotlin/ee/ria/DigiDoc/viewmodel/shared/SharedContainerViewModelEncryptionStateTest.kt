@@ -5,7 +5,6 @@
 
 package ee.ria.DigiDoc.viewmodel.shared
 
-import android.content.ContentResolver
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import org.junit.Assert.assertNull
@@ -26,15 +25,12 @@ class SharedContainerViewModelEncryptionStateTest {
     @Mock
     private lateinit var context: Context
 
-    @Mock
-    private lateinit var contentResolver: ContentResolver
-
     private lateinit var viewModel: SharedContainerViewModel
 
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        viewModel = SharedContainerViewModel(context, contentResolver)
+        viewModel = SharedContainerViewModel(context)
     }
 
     @Test

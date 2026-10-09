@@ -5,13 +5,8 @@
 
 package ee.ria.DigiDoc.fragment.screen
 
-import android.app.Activity
-import android.content.ActivityNotFoundException
-import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -64,6 +59,7 @@ import ee.ria.DigiDoc.ui.component.shared.PrimaryOutlinedButton
 import ee.ria.DigiDoc.ui.component.shared.SpannableBoldText
 import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TopBar
+import ee.ria.DigiDoc.ui.component.shared.handler.rememberSaveFileLauncher
 import ee.ria.DigiDoc.ui.component.shared.keyboard.keyboardScrollable
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
@@ -73,7 +69,7 @@ import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utils.snackbar.SnackbarType
-import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
+import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.viewmodel.DiagnosticsViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedMenuViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
@@ -82,6 +78,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+
+private const val LOG_TAG = "DiagnosticsScreen"
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -103,7 +101,6 @@ fun DiagnosticsScreen(
         diagnosticsViewModel.updatedConfiguration.asFlow().collectAsState(
             null,
         )
-    var actionFile by remember { mutableStateOf<File?>(null) }
     var enableOneTimeLogGeneration by remember {
         mutableStateOf(diagnosticsViewModel.dataStore.getIsLogFileGenerationEnabled())
     }
@@ -120,31 +117,22 @@ fun DiagnosticsScreen(
         closeRestartConfirmationDialog()
         sendAccessibilityEvent(context, settingValueChangeCancelled)
     }
-    val saveFileLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                actionFile?.let { file ->
-                    diagnosticsViewModel.saveFile(file, result)
-                }
-                showMessage(context, R.string.file_saved, SnackbarType.SUCCESS)
-            }
-        }
+    var logFile by rememberSaveable { mutableStateOf<File?>(null) }
 
-    val saveLogFileLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                actionFile?.let { file ->
-                    diagnosticsViewModel.saveFile(file, result)
+    val saveFile =
+        rememberSaveFileLauncher(
+            onSaved = { savedFile ->
+                if (savedFile == logFile) {
+                    debugLog(LOG_TAG, "Log file saved, ending logging session")
+                    enableOneTimeLogGeneration = false
+                    diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(false)
+                    diagnosticsViewModel.dataStore.setIsLogFileGenerationRunning(false)
+                    diagnosticsViewModel.resetLogs(context)
+                    sendAccessibilityEvent(context, settingValueChanged)
+                    sharedSettingsViewModel.recreateActivity(true)
                 }
-                showMessage(context, R.string.file_saved, SnackbarType.SUCCESS)
-                enableOneTimeLogGeneration = false
-                diagnosticsViewModel.dataStore.setIsLogFileGenerationEnabled(false)
-                diagnosticsViewModel.dataStore.setIsLogFileGenerationRunning(false)
-                diagnosticsViewModel.resetLogs(context)
-                sendAccessibilityEvent(context, settingValueChanged)
-                sharedSettingsViewModel.recreateActivity(true)
-            }
-        }
+            },
+        )
 
     Scaffold(
         modifier =
@@ -231,25 +219,11 @@ fun DiagnosticsScreen(
                     title = R.string.main_diagnostics_configuration_save_diagnostics_button,
                     iconRes = R.drawable.ic_m3_download_48dp_wght400,
                     onClickItem = {
-                        try {
-                            val diagnosticsFile =
-                                diagnosticsViewModel.createDiagnosticsFile(context, currentConfiguration)
-                            actionFile = diagnosticsFile
-                            val saveIntent =
-                                Intent.createChooser(
-                                    Intent(Intent.ACTION_CREATE_DOCUMENT)
-                                        .addCategory(Intent.CATEGORY_OPENABLE)
-                                        .putExtra(
-                                            Intent.EXTRA_TITLE,
-                                            sanitizeString(diagnosticsFile.name, ""),
-                                        ).setType("text/plain")
-                                        .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION),
-                                    null,
-                                )
-                            saveFileLauncher.launch(saveIntent)
-                        } catch (_: ActivityNotFoundException) {
-                            // no Activity to handle this kind of files
-                        }
+                        debugLog(LOG_TAG, "Saving diagnostics file")
+                        saveFile(
+                            diagnosticsViewModel.createDiagnosticsFile(context, currentConfiguration),
+                            "text/plain",
+                        )
                     },
                 )
 
@@ -301,24 +275,10 @@ fun DiagnosticsScreen(
                         title = R.string.main_diagnostics_save_log,
                         iconRes = R.drawable.ic_m3_download_48dp_wght400,
                         onClickItem = {
-                            try {
-                                val logFile = diagnosticsViewModel.createLogFile(context)
-                                actionFile = logFile
-                                val saveIntent =
-                                    Intent.createChooser(
-                                        Intent(Intent.ACTION_CREATE_DOCUMENT)
-                                            .addCategory(Intent.CATEGORY_OPENABLE)
-                                            .putExtra(
-                                                Intent.EXTRA_TITLE,
-                                                sanitizeString(logFile.name, ""),
-                                            ).setType("text/plain")
-                                            .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION),
-                                        null,
-                                    )
-                                saveLogFileLauncher.launch(saveIntent)
-                            } catch (_: ActivityNotFoundException) {
-                                // no Activity to handle this kind of files
-                            }
+                            debugLog(LOG_TAG, "Saving log file")
+                            val createdLogFile = diagnosticsViewModel.createLogFile(context)
+                            logFile = createdLogFile
+                            saveFile(createdLogFile, "text/plain")
                         },
                     )
                 }

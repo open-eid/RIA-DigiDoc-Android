@@ -131,10 +131,7 @@ class SigningViewModelTest {
             )
         viewModel.shouldResetSignedContainer.observeForever(shouldResetSignedContainerObserver)
         sharedContainerViewModel =
-            SharedContainerViewModel(
-                mock(Context::class.java),
-                contentResolver,
-            )
+            SharedContainerViewModel(mock(Context::class.java))
     }
 
     @Test

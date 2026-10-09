@@ -5,16 +5,11 @@
 
 package ee.ria.DigiDoc.ui.component.signing
 
-import android.app.Activity
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
@@ -96,6 +91,7 @@ import ee.ria.DigiDoc.ui.component.shared.TopBar
 import ee.ria.DigiDoc.ui.component.shared.dialog.SingleButtonDialog
 import ee.ria.DigiDoc.ui.component.shared.dialog.SivaConfirmationDialog
 import ee.ria.DigiDoc.ui.component.shared.handler.containerFileOpeningHandler
+import ee.ria.DigiDoc.ui.component.shared.handler.rememberSaveFileLauncher
 import ee.ria.DigiDoc.ui.component.signing.bottombar.SigningBottomBar
 import ee.ria.DigiDoc.ui.component.signing.bottomsheet.ContainerBottomSheet
 import ee.ria.DigiDoc.ui.component.signing.bottomsheet.DataFileBottomSheet
@@ -117,7 +113,6 @@ import ee.ria.DigiDoc.utilsLib.container.ContainerUtil.removeExtensionFromContai
 import ee.ria.DigiDoc.utilsLib.extensions.isContainer
 import ee.ria.DigiDoc.utilsLib.extensions.isSignedPDF
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
-import ee.ria.DigiDoc.utilsLib.file.FileUtil.sanitizeString
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.viewmodel.EncryptViewModel
@@ -475,29 +470,7 @@ fun SigningNavigation(
 
     val containerNotifications by sharedContainerViewModel.containerNotifications.collectAsState()
 
-    val saveFileLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                try {
-                    clickedDataFile.value?.let { datafile ->
-                        sharedContainerViewModel
-                            .getContainerDataFile(signedContainer, datafile)
-                            ?.let { sharedContainerViewModel.saveContainerFile(it, result) }
-                        showMessage(context, R.string.file_saved, SnackbarType.SUCCESS)
-                        clickedDataFile.value = null
-                        isSaved = true
-                    } ?: run {
-                        signedContainer?.getContainerFile()?.let {
-                            sharedContainerViewModel.saveContainerFile(it, result)
-                            showMessage(context, R.string.file_saved, SnackbarType.SUCCESS)
-                            isSaved = true
-                        } ?: showMessage(context, R.string.file_saved_error)
-                    }
-                } catch (_: Exception) {
-                    showMessage(context, R.string.file_saved_error)
-                }
-            }
-        }
+    val saveFile = rememberSaveFileLauncher(onSaved = { isSaved = true })
 
     BackHandler {
         if (!isNestedContainer) {
@@ -1229,8 +1202,7 @@ fun SigningNavigation(
                 showSivaDialog = showSivaDialog,
                 handleSivaConfirmation = handleSivaConfirmation,
                 context = context,
-                saveFileLauncher = saveFileLauncher,
-                saveFile = ::saveFile,
+                saveFile = saveFile,
                 openRemoveFileDialog = openRemoveFileDialog,
                 onBackButtonClick = {
                     handleBackButtonClick(
@@ -1264,8 +1236,7 @@ fun SigningNavigation(
                 signedContainer = signedContainer,
                 onEncryptClick = onEncryptActionClick,
                 onExtendSignaturesClick = onExtendSignaturesActionClick,
-                saveFileLauncher = saveFileLauncher,
-                saveFile = ::saveFile,
+                saveFile = saveFile,
             )
 
             SignatureBottomSheet(
@@ -1367,11 +1338,7 @@ fun SigningNavigation(
                     onDismissButton = {
                         val file = signedContainer?.getContainerFile()
                         if (file != null) {
-                            saveFile(
-                                file,
-                                signedContainer?.containerMimetype(),
-                                saveFileLauncher,
-                            )
+                            saveFile(file, signedContainer?.containerMimetype())
                         }
                     },
                     onConfirmButton = {
@@ -1439,29 +1406,6 @@ private fun handleBackButtonClick(
         sharedContainerViewModel.clearContainers()
         signingViewModel.handleBackButton()
         navController.navigateUp()
-    }
-}
-
-private fun saveFile(
-    file: File,
-    mimetype: String?,
-    saveFileLauncher: ActivityResultLauncher<Intent>,
-) {
-    try {
-        val saveIntent =
-            Intent.createChooser(
-                Intent(Intent.ACTION_CREATE_DOCUMENT)
-                    .addCategory(Intent.CATEGORY_OPENABLE)
-                    .putExtra(
-                        Intent.EXTRA_TITLE,
-                        sanitizeString(file.name, ""),
-                    ).setType(mimetype)
-                    .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION),
-                null,
-            )
-        saveFileLauncher.launch(saveIntent)
-    } catch (_: ActivityNotFoundException) {
-        // No activity to handle this kind of files
     }
 }
 

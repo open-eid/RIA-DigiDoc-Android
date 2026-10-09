@@ -6,8 +6,6 @@
 package ee.ria.DigiDoc.ui.component.crypto.bottomsheet
 
 import android.content.Context
-import android.content.Intent
-import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -39,8 +37,7 @@ fun CryptoDataFileBottomSheet(
     showSivaDialog: MutableState<Boolean>,
     handleSivaConfirmation: () -> Unit,
     context: Context,
-    saveFileLauncher: ActivityResultLauncher<Intent>,
-    saveFile: (File, String, ActivityResultLauncher<Intent>) -> Unit,
+    saveFile: (File, String?) -> Unit,
     openRemoveFileDialog: MutableState<Boolean>,
     onBackButtonClick: () -> Unit,
 ) {
@@ -93,7 +90,7 @@ fun CryptoDataFileBottomSheet(
                         try {
                             val file = sharedContainerViewModel.getCryptoContainerDataFile(cryptoContainer, dataFile)
                             if (file != null) {
-                                saveFile(file, dataFile.mimeType(context), saveFileLauncher)
+                                saveFile(file, dataFile.mimeType(context))
                             }
                         } catch (ex: Exception) {
                             errorLog("SigningContainer", "Unable to save file. Unable to get datafile", ex)
