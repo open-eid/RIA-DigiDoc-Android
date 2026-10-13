@@ -21,6 +21,8 @@
     <string name="action_continue">Jätka</string>
 
     <string name="rooted_device">Seda rakendust ei saa kasutada turvamata (ingl rooted) seadmes.</string>
+    <string name="unsupported_version_message">Sinu nutiseadmes olev ID-tarkvara ei ole toetatud. RIA Digidoc kasutamiseks pead ID-tarkvara uuendama. Paigalda uus ID-tarkvara veebilehelt %1$s.</string>
+    <string name="unsupported_version_url">https://www.id.ee/artikkel/paigalda-id-tarkvara/</string>
 
     <string name="configuration_initialization_failed">Konfiguratsiooni initsialiseerimine ebaõnnestus</string>
     <string name="error_general_client">Midagi läks valesti, proovi uuesti</string>

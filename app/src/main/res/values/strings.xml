@@ -21,6 +21,8 @@
     <string name="action_continue">Continue</string>
 
     <string name="rooted_device">This app cannot be used in rooted device.</string>
+    <string name="unsupported_version_message">This version of ID-software on your computer is unsupported. RIA DigiDoc cannot be used until you update ID-software. Install new ID-software from %1$s.</string>
+    <string name="unsupported_version_url">https://www.id.ee/en/article/install-id-software/</string>
 
     <string name="configuration_initialization_failed">Failed to initialize configuration</string>
     <string name="error_general_client">Something went wrong, try again</string>

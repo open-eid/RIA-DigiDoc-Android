@@ -12,24 +12,29 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.getValue
 import androidx.core.app.ActivityCompat
 import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import ee.ria.DigiDoc.common.model.AppState
+import ee.ria.DigiDoc.configuration.loader.ConfigurationLoader
 import ee.ria.DigiDoc.domain.model.theme.ThemeSetting
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.fragment.RootFragment
+import ee.ria.DigiDoc.fragment.UnsupportedVersionFragment
 import ee.ria.DigiDoc.init.LibrarySetup
 import ee.ria.DigiDoc.manager.ActivityManager
 import ee.ria.DigiDoc.root.RootChecker
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.VersionUtil
 import ee.ria.DigiDoc.utils.WebEidUriUtil
 import ee.ria.DigiDoc.utils.locale.LocaleUtil
 import ee.ria.DigiDoc.utils.locale.LocaleUtilImpl
@@ -72,6 +77,9 @@ class MainActivity :
 
     @Inject
     lateinit var secureUtil: SecureUtil
+
+    @Inject
+    lateinit var configurationLoader: ConfigurationLoader
 
     private val logTag = "MainActivity"
 
@@ -163,13 +171,19 @@ class MainActivity :
                 isAppReady = true
             }
 
+            val appVersion = "${BuildConfig.VERSION_NAME}.${BuildConfig.VERSION_CODE}"
             setContent {
+                val configuration by configurationLoader.getConfigurationFlow().collectAsStateWithLifecycle()
                 RIADigiDocTheme(darkTheme = useDarkMode) {
-                    RIADigiDocAppScreen(
-                        externalFileUris = externalFileUris,
-                        webEidUri = webEidUri,
-                        browserPackage = browserPackage,
-                    )
+                    if (VersionUtil.isLowerThan(appVersion, configuration?.riaddUnsupported)) {
+                        UnsupportedVersionFragment()
+                    } else {
+                        RIADigiDocAppScreen(
+                            externalFileUris = externalFileUris,
+                            webEidUri = webEidUri,
+                            browserPackage = browserPackage,
+                        )
+                    }
                 }
             }
         }
