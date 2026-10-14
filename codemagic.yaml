@@ -91,6 +91,7 @@ workflows:
         script: |
           set -e -o pipefail
 
+          CONFIG_URL='${{ inputs.defaultCentralConfigurationUrl_input }}'
           TSL_URL='${{ inputs.defaultCentralConfigurationTslUrl_input }}'
           MEMBER_TSLS='${{ inputs.memberTsl_input }}'
 
@@ -111,17 +112,15 @@ workflows:
           wget -q "https://ec.europa.eu/tools/lotl/eu-lotl.xml" -O "$TSL_BASE_DIR/eu-lotl.xml"
 
           # Get repo.ria values from environmental variables, as CodeMagic doesn't have access to repo.ria domain
-          if [[ "$TSL_URL" == *"ria.test"* ]]; then
+          if [[ "$CONFIG_URL" == *"ria.test"* ]]; then
             echo "Using repo.ria configuration"
             echo $REPO_RIA_DEFAULT_PROPERTIES | base64 --decode > $CONFIG_DIR/configuration.properties
             echo $REPO_RIA_CONFIG | base64 --decode > $CONFIG_DIR/default-config.json
             echo $REPO_RIA_PUB_KEY | base64 --decode > $CONFIG_DIR/default-config.ecpub
             echo $REPO_RIA_SIGNATURE | base64 --decode > $CONFIG_DIR/default-config.ecc
-            echo $REPO_RIA_TRUSTED_TEST_MP | base64 --decode > "$TSL_BASE_DIR/trusted-test-mp.xml"
 
             for configFile in "$CONFIG_DIR/configuration.properties" "$CONFIG_DIR/default-config.json" \
-              "$CONFIG_DIR/default-config.ecpub" "$CONFIG_DIR/default-config.ecc" \
-              "$TSL_BASE_DIR/trusted-test-mp.xml"; do
+              "$CONFIG_DIR/default-config.ecpub" "$CONFIG_DIR/default-config.ecc"; do
               if [ ! -s "$configFile" ]; then
                 echo "ERROR: $configFile is missing or empty"
                 exit 1
@@ -129,7 +128,17 @@ workflows:
             done
           else
             echo "Not using repo.ria configuration"
+          fi
 
+          if [[ "$TSL_URL" == *"ria.test"* ]]; then
+            echo "Using repo.ria TSL"
+            echo $REPO_RIA_TRUSTED_TEST_MP | base64 --decode > "$TSL_BASE_DIR/trusted-test-mp.xml"
+
+            if [ ! -s "$TSL_BASE_DIR/trusted-test-mp.xml" ]; then
+              echo "ERROR: $TSL_BASE_DIR/trusted-test-mp.xml is missing or empty"
+              exit 1
+            fi
+          else
             if [ ! -f "$TSL_BASE_DIR/$CONFIGURED_TSL" ]; then
               echo "Downloading '$CONFIGURED_TSL' file"
               wget -q "$TSL_URL" -O "$TSL_BASE_DIR/$CONFIGURED_TSL"
@@ -197,7 +206,7 @@ workflows:
       - name: Fetch default configuration
         script: |
           # Not running 'fetchAndPackageDefaultConfiguration' for repo.ria as necessary files are already setup
-          if [[ ! "${{ inputs.defaultCentralConfigurationTslUrl_input }}" == *"ria.test"* ]]; then
+          if [[ ! "${{ inputs.defaultCentralConfigurationUrl_input }}" == *"ria.test"* ]]; then
             ./gradlew clean --no-daemon fetchAndPackageDefaultConfiguration --args="${{ inputs.defaultCentralConfigurationUrl_input }} ${{ inputs.defaultCentralConfigurationUpdateInterval_input }}" -Dorg.gradle.jvmargs="-Xmx4g"
           else
             echo "Skipping default configuration fetching for repo.ria"
