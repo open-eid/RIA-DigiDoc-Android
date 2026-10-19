@@ -122,9 +122,3 @@
 
 # BouncyCastle
 -keep class org.bouncycastle.** { *; }
-
-# Woodstox
--keep class com.ctc.wstx.stax.** { *; }
-
--keep class javax.xml.namespace.** { *; }
--keep class javax.xml.stream.** { *; }
