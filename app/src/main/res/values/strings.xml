@@ -373,6 +373,7 @@
     <string name="signature_update_nfc_tag_lost">NFC connection lost</string>
     <string name="signature_update_nfc_technical_error">Technical error</string>
     <string name="signature_update_nfc_wrong_can">Wrong CAN number</string>
+    <string name="signature_update_nfc_card_not_supported">Card not supported</string>
     <string name="signature_update_nfc_hold">Hold your phone near the ID-card</string>
     <string name="signature_update_nfc_detected">Establishing connection with ID-card</string>
     <string name="signature_update_nfc_wrong_can_message">NFC actions use the CAN number. NFC may lock up if CAN is entered incorrectly multiple times.</string>

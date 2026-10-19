@@ -59,6 +59,7 @@ import androidx.lifecycle.asFlow
 import androidx.navigation.NavHostController
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.idcard.CodeType
+import ee.ria.DigiDoc.idcard.NotSupportedException
 import ee.ria.DigiDoc.idcard.PaceTunnelException
 import ee.ria.DigiDoc.smartcardreader.ApduResponseException
 import ee.ria.DigiDoc.smartcardreader.CardConnectionLostException
@@ -445,6 +446,8 @@ fun MyEidPinScreen(
                                             showMessage(context, R.string.signature_update_nfc_technical_error)
                                         is PaceTunnelException ->
                                             showMessage(context, R.string.signature_update_nfc_wrong_can)
+                                        is NotSupportedException ->
+                                            showMessage(context, R.string.signature_update_nfc_card_not_supported)
                                         else ->
                                             showMessage(context, R.string.signature_update_nfc_technical_error)
                                     }
@@ -477,6 +480,8 @@ fun MyEidPinScreen(
                                             showMessage(context, R.string.signature_update_nfc_technical_error)
                                         is PaceTunnelException ->
                                             showMessage(context, R.string.signature_update_nfc_wrong_can)
+                                        is NotSupportedException ->
+                                            showMessage(context, R.string.signature_update_nfc_card_not_supported)
                                         else ->
                                             showMessage(context, R.string.signature_update_nfc_technical_error)
                                     }

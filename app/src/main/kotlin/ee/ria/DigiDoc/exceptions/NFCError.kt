@@ -31,6 +31,10 @@ sealed class NFCError {
         override val message: Int,
     ) : NFCError()
 
+    data class CardNotSupported(
+        override val message: Int,
+    ) : NFCError()
+
     data class LimitExceeded(
         override val message: Int,
     ) : NFCError()
