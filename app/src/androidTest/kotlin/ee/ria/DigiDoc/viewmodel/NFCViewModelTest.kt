@@ -24,6 +24,7 @@ import ee.ria.DigiDoc.exceptions.NFCError
 import ee.ria.DigiDoc.idcard.CodeNotActivatedException
 import ee.ria.DigiDoc.idcard.CodeType
 import ee.ria.DigiDoc.idcard.CodeVerificationException
+import ee.ria.DigiDoc.idcard.NotSupportedException
 import ee.ria.DigiDoc.idcard.PaceTunnelException
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
@@ -645,6 +646,16 @@ class NFCViewModelTest {
             handleException(PaceTunnelException(IOException("wrong CAN")))
             assertEquals(
                 NFCError.WrongCan(R.string.signature_update_nfc_wrong_can),
+                viewModel.errorState.value,
+            )
+        }
+
+    @Test
+    fun nfcViewModel_handleSmartCardReaderException_notSupportedReportsCardNotSupported() =
+        runTest {
+            handleException(mock(NotSupportedException::class.java))
+            assertEquals(
+                NFCError.CardNotSupported(R.string.signature_update_nfc_card_not_supported),
                 viewModel.errorState.value,
             )
         }

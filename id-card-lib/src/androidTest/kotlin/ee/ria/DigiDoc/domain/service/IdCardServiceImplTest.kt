@@ -19,6 +19,7 @@ import ee.ria.DigiDoc.configuration.properties.ConfigurationPropertiesImpl
 import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
+import ee.ria.DigiDoc.idcard.CardType
 import ee.ria.DigiDoc.idcard.CertificateType
 import ee.ria.DigiDoc.idcard.CodeType
 import ee.ria.DigiDoc.idcard.CodeVerificationException
@@ -44,6 +45,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doNothing
 import org.mockito.kotlin.eq
+import java.time.LocalDate
 
 @RunWith(MockitoJUnitRunner::class)
 class IdCardServiceImplTest {
@@ -125,7 +127,7 @@ class IdCardServiceImplTest {
         runBlocking {
             val testData = byteArrayOf(1, 2, 3)
 
-            val mockPersonalData = Mockito.mock(PersonalData::class.java)
+            val mockPersonalData = createPersonalData()
             val keyUsage = Mockito.mock(KeyUsage::class.java)
             val extendedKeyUsage = Mockito.mock(ExtendedKeyUsage::class.java)
 
@@ -199,7 +201,7 @@ class IdCardServiceImplTest {
 
             val testData = byteArrayOf(1, 2, 3)
 
-            val mockPersonalData = Mockito.mock(PersonalData::class.java)
+            val mockPersonalData = createPersonalData()
             val keyUsage = Mockito.mock(KeyUsage::class.java)
             val extendedKeyUsage = Mockito.mock(ExtendedKeyUsage::class.java)
 
@@ -281,7 +283,7 @@ class IdCardServiceImplTest {
 
             val testData = byteArrayOf(1, 2, 3)
 
-            val mockPersonalData = Mockito.mock(PersonalData::class.java)
+            val mockPersonalData = createPersonalData()
             val keyUsage = Mockito.mock(KeyUsage::class.java)
             val extendedKeyUsage = Mockito.mock(ExtendedKeyUsage::class.java)
 
@@ -381,4 +383,18 @@ class IdCardServiceImplTest {
         Assert.assertNull(result.second)
         Assert.assertArrayEquals(signature, result.third)
     }
+
+    private fun createPersonalData(): PersonalData =
+        PersonalData(
+            "TESTSURNAME",
+            "TESTGIVENNAME",
+            "EST",
+            "EST",
+            LocalDate.of(2000, 1, 1),
+            "00000000000",
+            "T0000000",
+            LocalDate.of(2030, 1, 1),
+            LocalDate.of(2030, 1, 1),
+            CardType.ID1,
+        )
 }

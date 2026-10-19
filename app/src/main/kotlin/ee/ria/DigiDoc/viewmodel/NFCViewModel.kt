@@ -30,6 +30,7 @@ import ee.ria.DigiDoc.idcard.CertificateType
 import ee.ria.DigiDoc.idcard.CodeNotActivatedException
 import ee.ria.DigiDoc.idcard.CodeType
 import ee.ria.DigiDoc.idcard.CodeVerificationException
+import ee.ria.DigiDoc.idcard.NotSupportedException
 import ee.ria.DigiDoc.idcard.PaceTunnelException
 import ee.ria.DigiDoc.idcard.TokenWithPace
 import ee.ria.DigiDoc.idcard.TokenWithPace.CAN_LENGTH
@@ -489,6 +490,10 @@ class NFCViewModel
                                     }
                                 is PaceTunnelException ->
                                     _errorState.update { NFCError.WrongCan(R.string.signature_update_nfc_wrong_can) }
+                                is NotSupportedException ->
+                                    _errorState.update {
+                                        NFCError.CardNotSupported(R.string.signature_update_nfc_card_not_supported)
+                                    }
                                 else ->
                                     _errorState.update {
                                         NFCError.TechnicalError(R.string.signature_update_nfc_technical_error)
@@ -623,6 +628,10 @@ class NFCViewModel
                                     }
                                 is PaceTunnelException ->
                                     _errorState.update { NFCError.WrongCan(R.string.signature_update_nfc_wrong_can) }
+                                is NotSupportedException ->
+                                    _errorState.update {
+                                        NFCError.CardNotSupported(R.string.signature_update_nfc_card_not_supported)
+                                    }
                                 else -> showTechnicalError(ex)
                             }
 
@@ -875,6 +884,12 @@ class NFCViewModel
 
                 ex is PaceTunnelException -> {
                     _errorState.update { NFCError.WrongCan(R.string.signature_update_nfc_wrong_can) }
+                }
+
+                ex is NotSupportedException -> {
+                    _errorState.update {
+                        NFCError.CardNotSupported(R.string.signature_update_nfc_card_not_supported)
+                    }
                 }
 
                 else -> {
