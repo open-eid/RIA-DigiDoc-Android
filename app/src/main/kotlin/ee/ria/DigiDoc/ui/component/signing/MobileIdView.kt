@@ -242,7 +242,7 @@ fun MobileIdView(
         var linkText = 0
         var linkUrl = 0
         if (dialogError == R.string.too_many_requests_message) {
-            text1Arg = R.string.id_card_conditional_speech
+            text1Arg = R.string.mobile_id_conditional_speech
             linkText = R.string.additional_information
             linkUrl = R.string.too_many_requests_url
         } else if (dialogError == R.string.invalid_time_slot_message) {
