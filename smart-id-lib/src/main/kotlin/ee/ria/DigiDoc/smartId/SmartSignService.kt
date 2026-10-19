@@ -52,6 +52,7 @@ import java.security.cert.CertificateNotYetValidException
 import java.util.Base64
 import javax.inject.Inject
 import javax.inject.Singleton
+import javax.net.ssl.SSLHandshakeException
 import javax.net.ssl.SSLPeerUnverifiedException
 
 interface SmartSignService {
@@ -336,11 +337,21 @@ class SmartSignServiceImpl
                         e,
                     )
                     return
-                } catch (e: IOException) {
-                    postFault(ServiceFault(SessionStatusResponseProcessStatus.GENERAL_ERROR, e.message))
+                } catch (e: SSLHandshakeException) {
+                    postFault(ServiceFault(SessionStatusResponseProcessStatus.INVALID_SSL_HANDSHAKE))
                     errorLog(
                         logTag,
-                        "REST API certificate request failed. " +
+                        "SSL handshake failed. " +
+                            "Exception message: ${e.message}. " +
+                            "Exception: ${e.stackTrace.contentToString()}",
+                        e,
+                    )
+                    return
+                } catch (e: IOException) {
+                    postFault(ServiceFault(SessionStatusResponseProcessStatus.NO_RESPONSE))
+                    errorLog(
+                        logTag,
+                        "REST API certificate request failed. Unable to reach the Smart-ID service. " +
                             "Exception message: ${e.message}. " +
                             "Exception: ${e.stackTrace.contentToString()}",
                         e,
@@ -355,6 +366,10 @@ class SmartSignServiceImpl
                             "Exception: ${e.stackTrace.contentToString()}",
                         e,
                     )
+                    return
+                } catch (sume: ServiceUnderMaintenanceException) {
+                    postFault(ServiceFault(SessionStatusResponseProcessStatus.UNDER_MAINTENANCE))
+                    errorLog(logTag, "Smart-ID service is under maintenance", sume)
                     return
                 } catch (e: InterruptedException) {
                     val errorString =
@@ -474,7 +489,7 @@ class SmartSignServiceImpl
             }
         }
 
-        @Throws(IOException::class, SigningCancelledException::class)
+        @Throws(IOException::class, SigningCancelledException::class, ServiceUnderMaintenanceException::class)
         private suspend fun doSessionStatusRequestLoop(
             signedContainer: SignedContainer,
             request: Call<SessionResponse>,
@@ -494,6 +509,8 @@ class SmartSignServiceImpl
             }
 
             var consecutiveIoFailures = 0
+            var underMaintenanceRetries = 0
+            var hasPolledSuccessfully = false
 
             while (timeout < TIMEOUT_CANCEL) {
                 debugLog(logTag, "doSessionStatusRequestLoop timeout counter: $timeout")
@@ -521,11 +538,29 @@ class SmartSignServiceImpl
                         delay(SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS)
                         timeout += SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS
                         continue
+                    } catch (sume: ServiceUnderMaintenanceException) {
+                        underMaintenanceRetries++
+                        if (underMaintenanceRetries > MAX_UNDER_MAINTENANCE_RETRIES) {
+                            if (!hasPolledSuccessfully) {
+                                throw sume
+                            }
+                            postFault(ServiceFault(SessionStatusResponseProcessStatus.TIMEOUT))
+                            debugLog(logTag, "Smart-ID session expired, service keeps answering under maintenance")
+                            return null
+                        }
+                        debugLog(logTag, "Smart-ID session status under maintenance, retry $underMaintenanceRetries")
+                        if (!hasPolledSuccessfully) {
+                            delay(SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS)
+                            timeout += SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS
+                        }
+                        continue
                     }
                 if (sessionStatusResponse == null) {
                     errorLog(logTag, "No session status response")
                     return null
                 }
+                underMaintenanceRetries = 0
+                hasPolledSuccessfully = true
                 debugLog(
                     logTag,
                     "doSessionStatusRequestLoop session response: $sessionResponse",
@@ -571,7 +606,12 @@ class SmartSignServiceImpl
             return signatureRequest
         }
 
-        @Throws(IOException::class, SigningCancelledException::class, IllegalStateException::class)
+        @Throws(
+            IOException::class,
+            SigningCancelledException::class,
+            IllegalStateException::class,
+            ServiceUnderMaintenanceException::class,
+        )
         private fun <S> handleRequest(
             signedContainer: SignedContainer,
             request: Call<S>,
@@ -649,11 +689,11 @@ class SmartSignServiceImpl
                     }
 
                     580 -> {
-                        postFault(ServiceFault(SessionStatusResponseProcessStatus.UNDER_MAINTENANCE))
                         debugLog(
                             logTag,
                             "Under maintenance - HTTP status code: ${httpResponse.code()}",
                         )
+                        throw ServiceUnderMaintenanceException()
                     }
 
                     else -> {
@@ -757,5 +797,8 @@ class SmartSignServiceImpl
             private const val SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS = (5 * 1000).toLong()
             private const val TIMEOUT_CANCEL = (180 * 1000).toLong()
             private const val MAX_CONSECUTIVE_IO_FAILURES = 3
+            private const val MAX_UNDER_MAINTENANCE_RETRIES = 3
         }
     }
+
+private class ServiceUnderMaintenanceException : Exception()

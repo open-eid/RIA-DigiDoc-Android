@@ -64,6 +64,7 @@ import java.security.NoSuchAlgorithmException
 import java.security.cert.CertificateException
 import java.security.cert.CertificateExpiredException
 import java.security.cert.CertificateNotYetValidException
+import javax.net.ssl.SSLHandshakeException
 import javax.net.ssl.SSLPeerUnverifiedException
 
 @RunWith(MockitoJUnitRunner::class)
@@ -734,7 +735,52 @@ class SmartSignServiceImplTest {
                 accessTokenPass = "accessTokenPass",
             )
 
-            verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.GENERAL_ERROR)
+            verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.NO_RESPONSE)
+            verify(statusObserver, never()).onChanged(SessionStatusResponseProcessStatus.GENERAL_ERROR)
+        }
+
+    @Test
+    fun smartSignService_processSmartIdRequest_catchSSLHandshakeException() =
+        runTest {
+            doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sidSignServiceUrl = request.url + "/",
+                certBundle = certBundle,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            val call = mock(Call::class.java)
+            doReturn(call)
+                .whenever(sidRestServiceClient)
+                .getCertificateV2(
+                    semanticsIdentifier = "PNOEE-60001019906",
+                    body = getSmartCertificateRequest,
+                )
+
+            doReturn(call)
+                .whenever(call)
+                .clone()
+
+            doThrow(SSLHandshakeException(""))
+                .whenever(call)
+                .execute()
+
+            smartSignServiceImpl.processSmartIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce())
+                .onChanged(SessionStatusResponseProcessStatus.INVALID_SSL_HANDSHAKE)
+            verify(statusObserver, never()).onChanged(SessionStatusResponseProcessStatus.NO_RESPONSE)
         }
 
     @Test
@@ -1081,6 +1127,153 @@ class SmartSignServiceImplTest {
             )
 
             verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.UNDER_MAINTENANCE)
+        }
+
+    @Test
+    fun smartSignService_processSmartIdRequest_sessionStatusUnderMaintenanceAfterAnsweredPollIsTimeout() =
+        runTest {
+            doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sidSignServiceUrl = request.url + "/",
+                certBundle = certBundle,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            doReturn(
+                Calls.response(
+                    Response.success(
+                        SessionResponse(
+                            sessionID = "sessionID",
+                        ),
+                    ),
+                ),
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
+                    semanticsIdentifier = "PNOEE-60001019906",
+                    body = getSmartCertificateRequest,
+                )
+
+            whenever(sidRestServiceClient.getSessionStatus("sessionID", 5000)).thenReturn(
+                sessionStatusCall(SessionStatusResponseProcessState.RUNNING, null),
+                underMaintenanceCall(),
+                underMaintenanceCall(),
+                underMaintenanceCall(),
+                underMaintenanceCall(),
+            )
+
+            smartSignServiceImpl.processSmartIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.TIMEOUT)
+            verify(statusObserver, never()).onChanged(SessionStatusResponseProcessStatus.UNDER_MAINTENANCE)
+        }
+
+    @Test
+    fun smartSignService_processSmartIdRequest_sessionStatusUnderMaintenanceWithoutAnsweredPollIsUnderMaintenance() =
+        runTest {
+            doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sidSignServiceUrl = request.url + "/",
+                certBundle = certBundle,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            doReturn(
+                Calls.response(
+                    Response.success(
+                        SessionResponse(
+                            sessionID = "sessionID",
+                        ),
+                    ),
+                ),
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
+                    semanticsIdentifier = "PNOEE-60001019906",
+                    body = getSmartCertificateRequest,
+                )
+
+            whenever(sidRestServiceClient.getSessionStatus("sessionID", 5000)).thenReturn(
+                underMaintenanceCall(),
+                underMaintenanceCall(),
+                underMaintenanceCall(),
+                underMaintenanceCall(),
+            )
+
+            smartSignServiceImpl.processSmartIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.UNDER_MAINTENANCE)
+            verify(statusObserver, never()).onChanged(SessionStatusResponseProcessStatus.TIMEOUT)
+        }
+
+    @Test
+    fun smartSignService_processSmartIdRequest_sessionStatusUnderMaintenanceIsRetried() =
+        runTest {
+            doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sidSignServiceUrl = request.url + "/",
+                certBundle = certBundle,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            doReturn(
+                Calls.response(
+                    Response.success(
+                        SessionResponse(
+                            sessionID = "sessionID",
+                        ),
+                    ),
+                ),
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
+                    semanticsIdentifier = "PNOEE-60001019906",
+                    body = getSmartCertificateRequest,
+                )
+
+            whenever(sidRestServiceClient.getSessionStatus("sessionID", 5000)).thenReturn(
+                sessionStatusCall(SessionStatusResponseProcessState.RUNNING, null),
+                underMaintenanceCall(),
+                sessionStatusCall(
+                    SessionStatusResponseProcessState.COMPLETE,
+                    SessionStatusResponseProcessStatus.USER_REFUSED,
+                ),
+            )
+
+            smartSignServiceImpl.processSmartIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.USER_REFUSED)
+            verify(statusObserver, never()).onChanged(SessionStatusResponseProcessStatus.UNDER_MAINTENANCE)
         }
 
     @Test
@@ -1896,6 +2089,36 @@ class SmartSignServiceImplTest {
                 accessTokenPass = "accessTokenPass",
             )
 
-            verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.GENERAL_ERROR)
+            verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.NO_RESPONSE)
+            verify(statusObserver, never()).onChanged(SessionStatusResponseProcessStatus.GENERAL_ERROR)
         }
+
+    private fun sessionStatusCall(
+        state: SessionStatusResponseProcessState,
+        endResult: SessionStatusResponseProcessStatus?,
+    ): Call<SessionStatusResponse> =
+        Calls.response(
+            Response.success(
+                SessionStatusResponse(
+                    state = state,
+                    result =
+                        endResult?.let {
+                            SessionStatusResponseStatus(
+                                endResult = it,
+                                documentNumber = "documentNumber",
+                            )
+                        },
+                    signature = null,
+                    cert = null,
+                ),
+            ),
+        )
+
+    private fun underMaintenanceCall(): Call<SessionStatusResponse> =
+        Calls.response(
+            Response.error(
+                580,
+                "errorResponse".toResponseBody("application/json".toMediaTypeOrNull()),
+            ),
+        )
 }
