@@ -1086,6 +1086,153 @@ class SmartSignServiceImplTest {
         }
 
     @Test
+    fun smartSignService_processSmartIdRequest_sessionStatusUnderMaintenanceAfterAnsweredPollIsTimeout() =
+        runTest {
+            doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sidSignServiceUrl = request.url + "/",
+                certBundle = certBundle,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            doReturn(
+                Calls.response(
+                    Response.success(
+                        SessionResponse(
+                            sessionID = "sessionID",
+                        ),
+                    ),
+                ),
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
+                    semanticsIdentifier = "PNOEE-60001019906",
+                    body = getSmartCertificateRequest,
+                )
+
+            whenever(sidRestServiceClient.getSessionStatus("sessionID", 5000)).thenReturn(
+                sessionStatusCall(SessionStatusResponseProcessState.RUNNING, null),
+                underMaintenanceCall(),
+                underMaintenanceCall(),
+                underMaintenanceCall(),
+                underMaintenanceCall(),
+            )
+
+            smartSignServiceImpl.processSmartIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.TIMEOUT)
+            verify(statusObserver, never()).onChanged(SessionStatusResponseProcessStatus.UNDER_MAINTENANCE)
+        }
+
+    @Test
+    fun smartSignService_processSmartIdRequest_sessionStatusUnderMaintenanceWithoutAnsweredPollIsUnderMaintenance() =
+        runTest {
+            doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sidSignServiceUrl = request.url + "/",
+                certBundle = certBundle,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            doReturn(
+                Calls.response(
+                    Response.success(
+                        SessionResponse(
+                            sessionID = "sessionID",
+                        ),
+                    ),
+                ),
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
+                    semanticsIdentifier = "PNOEE-60001019906",
+                    body = getSmartCertificateRequest,
+                )
+
+            whenever(sidRestServiceClient.getSessionStatus("sessionID", 5000)).thenReturn(
+                underMaintenanceCall(),
+                underMaintenanceCall(),
+                underMaintenanceCall(),
+                underMaintenanceCall(),
+            )
+
+            smartSignServiceImpl.processSmartIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.UNDER_MAINTENANCE)
+            verify(statusObserver, never()).onChanged(SessionStatusResponseProcessStatus.TIMEOUT)
+        }
+
+    @Test
+    fun smartSignService_processSmartIdRequest_sessionStatusUnderMaintenanceIsRetried() =
+        runTest {
+            doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sidSignServiceUrl = request.url + "/",
+                certBundle = certBundle,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            doReturn(
+                Calls.response(
+                    Response.success(
+                        SessionResponse(
+                            sessionID = "sessionID",
+                        ),
+                    ),
+                ),
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
+                    semanticsIdentifier = "PNOEE-60001019906",
+                    body = getSmartCertificateRequest,
+                )
+
+            whenever(sidRestServiceClient.getSessionStatus("sessionID", 5000)).thenReturn(
+                sessionStatusCall(SessionStatusResponseProcessState.RUNNING, null),
+                underMaintenanceCall(),
+                sessionStatusCall(
+                    SessionStatusResponseProcessState.COMPLETE,
+                    SessionStatusResponseProcessStatus.USER_REFUSED,
+                ),
+            )
+
+            smartSignServiceImpl.processSmartIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.USER_REFUSED)
+            verify(statusObserver, never()).onChanged(SessionStatusResponseProcessStatus.UNDER_MAINTENANCE)
+        }
+
+    @Test
     fun smartSignService_processSmartIdRequest_responseOLD_API() =
         runTest {
             doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
@@ -1759,4 +1906,33 @@ class SmartSignServiceImplTest {
 
             verify(errorStateObserver, atLeastOnce()).onChanged("Base64 (Prepare signature) is empty or null")
         }
+
+    private fun sessionStatusCall(
+        state: SessionStatusResponseProcessState,
+        endResult: SessionStatusResponseProcessStatus?,
+    ): Call<SessionStatusResponse> =
+        Calls.response(
+            Response.success(
+                SessionStatusResponse(
+                    state = state,
+                    result =
+                        endResult?.let {
+                            SessionStatusResponseStatus(
+                                endResult = it,
+                                documentNumber = "documentNumber",
+                            )
+                        },
+                    signature = null,
+                    cert = null,
+                ),
+            ),
+        )
+
+    private fun underMaintenanceCall(): Call<SessionStatusResponse> =
+        Calls.response(
+            Response.error(
+                580,
+                "errorResponse".toResponseBody("application/json".toMediaTypeOrNull()),
+            ),
+        )
 }
