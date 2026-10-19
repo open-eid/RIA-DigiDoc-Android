@@ -357,6 +357,10 @@ class SmartSignServiceImpl
                         e,
                     )
                     return
+                } catch (sume: ServiceUnderMaintenanceException) {
+                    postFault(ServiceFault(SessionStatusResponseProcessStatus.UNDER_MAINTENANCE))
+                    errorLog(logTag, "Smart-ID service is under maintenance", sume)
+                    return
                 } catch (e: InterruptedException) {
                     val errorString =
                         "Waiting for next call to SID REST API interrupted. " +
@@ -475,7 +479,7 @@ class SmartSignServiceImpl
             }
         }
 
-        @Throws(IOException::class, SigningCancelledException::class)
+        @Throws(IOException::class, SigningCancelledException::class, ServiceUnderMaintenanceException::class)
         private suspend fun doSessionStatusRequestLoop(
             signedContainer: SignedContainer,
             request: Call<SessionResponse>,
@@ -494,6 +498,9 @@ class SmartSignServiceImpl
                 return null
             }
 
+            var underMaintenanceRetries = 0
+            var hasPolledSuccessfully = false
+
             while (timeout < TIMEOUT_CANCEL) {
                 // Wait until the app is in the foreground to avoid networking errors
                 while (!AppState.isAppInForeground) {
@@ -504,17 +511,37 @@ class SmartSignServiceImpl
 
                 debugLog(logTag, "doSessionStatusRequestLoop timeout counter: $timeout")
                 val sessionStatusResponse: SessionStatusResponse? =
-                    handleRequest(
-                        signedContainer,
-                        sidRestServiceClient.getSessionStatus(
-                            sessionResponse.sessionID,
-                            SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS,
-                        ),
-                    )
+                    try {
+                        handleRequest(
+                            signedContainer,
+                            sidRestServiceClient.getSessionStatus(
+                                sessionResponse.sessionID,
+                                SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS,
+                            ),
+                        )
+                    } catch (sume: ServiceUnderMaintenanceException) {
+                        underMaintenanceRetries++
+                        if (underMaintenanceRetries > MAX_UNDER_MAINTENANCE_RETRIES) {
+                            if (!hasPolledSuccessfully) {
+                                throw sume
+                            }
+                            postFault(ServiceFault(SessionStatusResponseProcessStatus.TIMEOUT))
+                            debugLog(logTag, "Smart-ID session expired, service keeps answering under maintenance")
+                            return null
+                        }
+                        debugLog(logTag, "Smart-ID session status under maintenance, retry $underMaintenanceRetries")
+                        if (!hasPolledSuccessfully) {
+                            delay(SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS)
+                            timeout += SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS
+                        }
+                        continue
+                    }
                 if (sessionStatusResponse == null) {
                     errorLog(logTag, "No session status response")
                     return null
                 }
+                underMaintenanceRetries = 0
+                hasPolledSuccessfully = true
                 debugLog(
                     logTag,
                     "doSessionStatusRequestLoop session response: $sessionResponse",
@@ -560,7 +587,12 @@ class SmartSignServiceImpl
             return signatureRequest
         }
 
-        @Throws(IOException::class, SigningCancelledException::class, IllegalStateException::class)
+        @Throws(
+            IOException::class,
+            SigningCancelledException::class,
+            IllegalStateException::class,
+            ServiceUnderMaintenanceException::class,
+        )
         private fun <S> handleRequest(
             signedContainer: SignedContainer,
             request: Call<S>,
@@ -638,11 +670,11 @@ class SmartSignServiceImpl
                     }
 
                     580 -> {
-                        postFault(ServiceFault(SessionStatusResponseProcessStatus.UNDER_MAINTENANCE))
                         debugLog(
                             logTag,
                             "Under maintenance - HTTP status code: ${httpResponse.code()}",
                         )
+                        throw ServiceUnderMaintenanceException()
                     }
 
                     else -> {
@@ -746,5 +778,8 @@ class SmartSignServiceImpl
             private const val INITIAL_STATUS_REQUEST_DELAY_IN_MILLISECONDS: Long = 1000
             private const val SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS = (5 * 1000).toLong()
             private const val TIMEOUT_CANCEL = (80 * 1000).toLong()
+            private const val MAX_UNDER_MAINTENANCE_RETRIES = 3
         }
     }
+
+private class ServiceUnderMaintenanceException : Exception()
