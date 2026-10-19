@@ -1219,6 +1219,189 @@ class MobileSignServiceImplTest {
             )
 
             verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.TOO_MANY_REQUESTS)
+            verify(statusObserver, never()).onChanged(MobileCreateSignatureProcessStatus.GENERAL_ERROR)
+        }
+
+    @Test
+    fun mobileSignService_processMobileIdRequest_getMobileCreateSignatureSessionStatusResultPHONE_ABSENT() =
+        runTest {
+            doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sslContext = null,
+                midSignServiceUrl = request.url,
+                certBundle = certBundle,
+                trustManagers = trustManagers,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            doReturn(
+                Calls.response(
+                    Response.success(
+                        MobileCreateSignatureCertificateResponse(
+                            result = MobileCertificateResultType.OK,
+                            cert = cert,
+                        ),
+                    ),
+                ),
+            ).whenever(midRestServiceClient)
+                .getCertificate(
+                    body = getMobileCertificateRequest,
+                )
+
+            whenever(
+                containerWrapper.prepareSignature(
+                    signer = any<ExternalSigner>(),
+                    signedContainer = any<SignedContainer>(),
+                    cert = any<ByteArray>(),
+                    roleData = isNull(),
+                ),
+            ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==".toByteArray())
+
+            whenever(midRestServiceClient.getMobileCreateSession(any()))
+                .thenReturn(
+                    Calls.response(
+                        Response.success(
+                            MobileCreateSignatureSessionResponse(
+                                sessionID = "sessionID",
+                                traceId = "traceId",
+                                time = "time",
+                                error = null,
+                            ),
+                        ),
+                    ),
+                )
+
+            whenever(
+                midRestServiceClient.getMobileCreateSignatureSessionStatus(
+                    eq("sessionID"),
+                    eq("1000"),
+                ),
+            ).thenReturn(
+                Calls.response(
+                    Response.success(
+                        MobileCreateSignatureSessionStatusResponse(
+                            state = MobileCreateSignatureProcessState.COMPLETE,
+                            result = MobileCreateSignatureProcessStatus.PHONE_ABSENT,
+                            signature =
+                                MobileSignatureResponse(
+                                    value = "MobileIDSignatureValue",
+                                    algorithm = "MobileIDSignatureAlgorithm",
+                                ),
+                            cert = "cert",
+                            time = "time",
+                            traceId = "traceId",
+                            error = null,
+                        ),
+                    ),
+                ),
+            )
+
+            mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.PHONE_ABSENT)
+            verify(statusObserver, never()).onChanged(MobileCreateSignatureProcessStatus.GENERAL_ERROR)
+        }
+
+    @Test
+    fun mobileSignService_processMobileIdRequest_getMobileCreateSignatureSessionStatusResultTIMEOUT() =
+        runTest {
+            doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sslContext = null,
+                midSignServiceUrl = request.url,
+                certBundle = certBundle,
+                trustManagers = trustManagers,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            doReturn(
+                Calls.response(
+                    Response.success(
+                        MobileCreateSignatureCertificateResponse(
+                            result = MobileCertificateResultType.OK,
+                            cert = cert,
+                        ),
+                    ),
+                ),
+            ).whenever(midRestServiceClient)
+                .getCertificate(
+                    body = getMobileCertificateRequest,
+                )
+
+            whenever(
+                containerWrapper.prepareSignature(
+                    signer = any<ExternalSigner>(),
+                    signedContainer = any<SignedContainer>(),
+                    cert = any<ByteArray>(),
+                    roleData = isNull(),
+                ),
+            ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==".toByteArray())
+
+            whenever(midRestServiceClient.getMobileCreateSession(any()))
+                .thenReturn(
+                    Calls.response(
+                        Response.success(
+                            MobileCreateSignatureSessionResponse(
+                                sessionID = "sessionID",
+                                traceId = "traceId",
+                                time = "time",
+                                error = null,
+                            ),
+                        ),
+                    ),
+                )
+
+            whenever(
+                midRestServiceClient.getMobileCreateSignatureSessionStatus(
+                    eq("sessionID"),
+                    eq("1000"),
+                ),
+            ).thenReturn(
+                Calls.response(
+                    Response.success(
+                        MobileCreateSignatureSessionStatusResponse(
+                            state = MobileCreateSignatureProcessState.COMPLETE,
+                            result = MobileCreateSignatureProcessStatus.TIMEOUT,
+                            signature =
+                                MobileSignatureResponse(
+                                    value = "MobileIDSignatureValue",
+                                    algorithm = "MobileIDSignatureAlgorithm",
+                                ),
+                            cert = "cert",
+                            time = "time",
+                            traceId = "traceId",
+                            error = null,
+                        ),
+                    ),
+                ),
+            )
+
+            mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.TIMEOUT)
+            verify(statusObserver, never()).onChanged(MobileCreateSignatureProcessStatus.GENERAL_ERROR)
         }
 
     @Test

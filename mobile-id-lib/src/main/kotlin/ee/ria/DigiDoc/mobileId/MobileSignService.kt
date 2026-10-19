@@ -611,15 +611,7 @@ class MobileSignServiceImpl
                     )
                 ) {
                     debugLog(logTag, "Response error: $responseWrapper")
-                    if (response.result == MobileCreateSignatureProcessStatus.USER_CANCELLED) {
-                        return
-                    }
-                    throw IOException(
-                        java.lang.String.format(
-                            "Error getting response: %s",
-                            responseWrapper.errorBody(),
-                        ),
-                    )
+                    return
                 }
                 debugLog(logTag, "Finalizing signature...")
                 val signatureValueBytes: ByteArray = Base64.getDecoder().decode(response.signature?.value)
