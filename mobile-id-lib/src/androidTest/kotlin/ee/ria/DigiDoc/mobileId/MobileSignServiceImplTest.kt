@@ -65,6 +65,7 @@ import java.security.NoSuchAlgorithmException
 import java.security.cert.CertificateException
 import java.security.cert.CertificateExpiredException
 import java.security.cert.CertificateNotYetValidException
+import javax.net.ssl.SSLHandshakeException
 import javax.net.ssl.SSLPeerUnverifiedException
 
 @RunWith(MockitoJUnitRunner::class)
@@ -773,6 +774,84 @@ class MobileSignServiceImplTest {
             )
 
             verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.INVALID_SSL_HANDSHAKE)
+        }
+
+    @Test
+    fun mobileSignService_processMobileIdRequest_catchSSLHandshakeException() =
+        runTest {
+            doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sslContext = null,
+                midSignServiceUrl = request.url,
+                certBundle = certBundle,
+                trustManagers = trustManagers,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+            val call = mock(Call::class.java)
+            doReturn(call)
+                .whenever(midRestServiceClient)
+                .getCertificate(
+                    body = getMobileCertificateRequest,
+                )
+
+            doThrow(SSLHandshakeException(""))
+                .whenever(call)
+                .execute()
+
+            mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = null,
+                accessTokenPass = null,
+            )
+
+            verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.INVALID_SSL_HANDSHAKE)
+            verify(statusObserver, never()).onChanged(MobileCreateSignatureProcessStatus.NO_RESPONSE)
+        }
+
+    @Test
+    fun mobileSignService_processMobileIdRequest_catchIOException() =
+        runTest {
+            doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sslContext = null,
+                midSignServiceUrl = request.url,
+                certBundle = certBundle,
+                trustManagers = trustManagers,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+            val call = mock(Call::class.java)
+            doReturn(call)
+                .whenever(midRestServiceClient)
+                .getCertificate(
+                    body = getMobileCertificateRequest,
+                )
+
+            doThrow(IOException(""))
+                .whenever(call)
+                .execute()
+
+            mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = null,
+                accessTokenPass = null,
+            )
+
+            verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.NO_RESPONSE)
+            verify(statusObserver, never()).onChanged(MobileCreateSignatureProcessStatus.GENERAL_ERROR)
         }
 
     @Test
@@ -2549,7 +2628,8 @@ class MobileSignServiceImplTest {
                 accessTokenPass = "accessTokenPass",
             )
 
-            verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.GENERAL_ERROR)
+            verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.NO_RESPONSE)
+            verify(statusObserver, never()).onChanged(MobileCreateSignatureProcessStatus.GENERAL_ERROR)
             verify(containerWrapper, never()).finalizeSignature(any(), any(), any())
         }
 }

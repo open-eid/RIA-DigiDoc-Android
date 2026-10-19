@@ -65,6 +65,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
+import javax.net.ssl.SSLHandshakeException
 import javax.net.ssl.SSLPeerUnverifiedException
 import javax.net.ssl.TrustManager
 
@@ -417,6 +418,16 @@ class MobileSignServiceImpl
                     )
                     postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.INVALID_SSL_HANDSHAKE))
                     return
+                } catch (e: SSLHandshakeException) {
+                    errorLog(
+                        logTag,
+                        "Failed to sign with Mobile-ID. SSL handshake failed. " +
+                            "Exception message: ${e.message}. " +
+                            "Exception: ${e.stackTrace.contentToString()}",
+                        e,
+                    )
+                    postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.INVALID_SSL_HANDSHAKE))
+                    return
                 } catch (e: IOException) {
                     val message = e.message
 
@@ -451,11 +462,12 @@ class MobileSignServiceImpl
                     errorLog(
                         logTag,
                         "Failed to sign with Mobile-ID. REST API certificate request failed. " +
+                            "Unable to reach the Mobile-ID service. " +
                             "Exception message: $message. " +
                             "Exception: ${e.stackTrace.contentToString()}",
                         e,
                     )
-                    postFault(defaultError(message))
+                    postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.NO_RESPONSE))
                     return
                 } catch (e: CertificateException) {
                     errorLog(
