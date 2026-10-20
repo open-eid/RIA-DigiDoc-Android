@@ -117,7 +117,10 @@ workflows:
             echo $REPO_RIA_CONFIG | base64 --decode > $CONFIG_DIR/default-config.json
             echo $REPO_RIA_PUB_KEY | base64 --decode > $CONFIG_DIR/default-config.ecpub
             echo $REPO_RIA_SIGNATURE | base64 --decode > $CONFIG_DIR/default-config.ecc
-            echo $REPO_RIA_TRUSTED_TEST_MP | base64 --decode > "$TSL_BASE_DIR/trusted-test-mp.xml"
+            if ! printf '%s' "$REPO_RIA_TRUSTED_TEST_MP" | base64 --decode | gunzip -c > "$TSL_BASE_DIR/trusted-test-mp.xml"; then
+              echo "ERROR: REPO_RIA_TRUSTED_TEST_MP must be gzip compressed and base64 encoded"
+              exit 1
+            fi
 
             for configFile in "$CONFIG_DIR/configuration.properties" "$CONFIG_DIR/default-config.json" \
               "$CONFIG_DIR/default-config.ecpub" "$CONFIG_DIR/default-config.ecc" \
