@@ -82,11 +82,11 @@ class WebEidViewModel
             _relyingPartyResponseEvents.send(WebEidResponse(responseUri, isCompletedOperation))
         }
 
-        private val _browserSelectionUri = MutableStateFlow<Uri?>(null)
-        val browserSelectionUri: StateFlow<Uri?> = _browserSelectionUri.asStateFlow()
+        private val _browserSelection = MutableStateFlow<WebEidResponse?>(null)
+        val browserSelection: StateFlow<WebEidResponse?> = _browserSelection.asStateFlow()
 
-        fun requestBrowserSelection(responseUri: Uri) {
-            _browserSelectionUri.value = responseUri
+        fun requestBrowserSelection(response: WebEidResponse) {
+            _browserSelection.value = response
         }
 
         fun startResponseDispatch(): Boolean {
@@ -94,7 +94,7 @@ class WebEidViewModel
                 errorLog(logTag, "Ignoring repeated Web eID response dispatch")
                 return false
             }
-            _browserSelectionUri.value = null
+            _browserSelection.value = null
             return true
         }
 
@@ -232,6 +232,25 @@ class WebEidViewModel
                 val errorUri = WebEidResponseUtil.createResponseUri(responseUri, errorPayload)
                 sendResponse(errorUri, isCompletedOperation = false)
             }
+        }
+
+        fun userCancelledResponseUri(): Uri? {
+            val responseUri =
+                authRequest.value?.loginUri
+                    ?: certificateRequest.value?.responseUri
+                    ?: signRequest.value?.responseUri
+
+            if (responseUri.isNullOrBlank()) {
+                errorLog(logTag, "Cannot build cancel response — missing response URI")
+                return null
+            }
+
+            val errorPayload =
+                WebEidResponseUtil.createErrorPayload(
+                    WebEidErrorCode.ERR_WEBEID_USER_CANCELLED,
+                    "User cancelled",
+                )
+            return WebEidResponseUtil.createResponseUri(responseUri, errorPayload)
         }
 
         suspend fun handleUserCancelled() {
