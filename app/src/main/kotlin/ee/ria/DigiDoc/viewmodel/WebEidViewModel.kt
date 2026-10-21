@@ -82,11 +82,11 @@ class WebEidViewModel
             _relyingPartyResponseEvents.send(WebEidResponse(responseUri, isCompletedOperation))
         }
 
-        private val _browserSelectionUri = MutableStateFlow<Uri?>(null)
-        val browserSelectionUri: StateFlow<Uri?> = _browserSelectionUri.asStateFlow()
+        private val _browserSelection = MutableStateFlow<WebEidResponse?>(null)
+        val browserSelection: StateFlow<WebEidResponse?> = _browserSelection.asStateFlow()
 
-        fun requestBrowserSelection(responseUri: Uri) {
-            _browserSelectionUri.value = responseUri
+        fun requestBrowserSelection(response: WebEidResponse) {
+            _browserSelection.value = response
         }
 
         fun startResponseDispatch(): Boolean {
@@ -94,7 +94,7 @@ class WebEidViewModel
                 errorLog(logTag, "Ignoring repeated Web eID response dispatch")
                 return false
             }
-            _browserSelectionUri.value = null
+            _browserSelection.value = null
             return true
         }
 
