@@ -65,7 +65,7 @@ fun WebEidFragment(
 ) {
     val activity = LocalActivity.current as Activity
     val context = LocalContext.current
-    val browserSelectionUri by viewModel.browserSelectionUri.collectAsState()
+    val browserSelection by viewModel.browserSelection.collectAsState()
 
     LaunchedEffect(viewModel) {
         viewModel.relyingPartyResponseEvents.collect { response ->
@@ -78,7 +78,9 @@ fun WebEidFragment(
             ) {
                 WebEidBrowserCache.rememberResolved(origin, browserPackage)
             }
-            val targetPackage = browserPackage ?: origin?.let { WebEidBrowserCache.recall(it) }
+            val isSignStep = viewModel.signRequest.value != null
+            val targetPackage =
+                browserPackage ?: origin?.takeIf { isSignStep }?.let { WebEidBrowserCache.recall(it) }
             debugLog(
                 LOG_TAG,
                 "Web eID response. Origin $origin, resolved browser $browserPackage, " +
@@ -86,7 +88,7 @@ fun WebEidFragment(
             )
             val browsers = if (targetPackage == null) installedBrowsers(context) else emptyList()
             if (browsers.size > 1) {
-                viewModel.requestBrowserSelection(response.uri)
+                viewModel.requestBrowserSelection(response)
                 return@collect
             }
             if (viewModel.startResponseDispatch()) {
@@ -106,7 +108,7 @@ fun WebEidFragment(
         }
     }
 
-    browserSelectionUri?.let { responseUri ->
+    browserSelection?.let { selectionResponse ->
         val browsers = remember { installedBrowsers(context) }
         val isAuthentication = webEidUri?.let { WebEidUriUtil.getOperation(it) } == WebEidOperation.AUTH
         WebEidBrowserBottomSheet(
@@ -120,7 +122,8 @@ fun WebEidFragment(
             onSelect = { selectedPackage ->
                 val selectedOrigin = viewModel.requestOrigin
                 val isCertificateRequest = viewModel.certificateRequest.value != null
-                val remembering = isCertificateRequest && selectedOrigin != null
+                val remembering =
+                    isCertificateRequest && selectionResponse.isCompletedOperation && selectedOrigin != null
                 debugLog(
                     LOG_TAG,
                     "Web eID response. Selected browser $selectedPackage, origin $selectedOrigin, " +
@@ -130,10 +133,18 @@ fun WebEidFragment(
                     WebEidBrowserCache.rememberSelected(selectedOrigin, selectedPackage)
                 }
                 if (viewModel.startResponseDispatch()) {
-                    sendResponse(activity, responseUri, selectedPackage)
+                    sendResponse(activity, selectionResponse.uri, selectedPackage)
                 }
             },
-            onDismiss = { activity.finishAndRemoveTask() },
+            onDismiss = {
+                val cancelUri = viewModel.userCancelledResponseUri()
+                if (cancelUri != null && viewModel.startResponseDispatch()) {
+                    debugLog(LOG_TAG, "Web eID response. Browser selection dismissed, sending cancel")
+                    sendResponse(activity, cancelUri, null)
+                } else {
+                    activity.finishAndRemoveTask()
+                }
+            },
         )
     }
 
