@@ -7,6 +7,7 @@ package ee.ria.DigiDoc.fragment.screen
 
 import android.app.Activity
 import android.content.res.Configuration
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
@@ -115,6 +116,15 @@ fun WebEidScreen(
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val dialogError by viewModel.dialogError.collectAsState()
+
+    val cancelWebEid: () -> Unit = {
+        isWebEidAuthenticating = false
+        scope.launch {
+            viewModel.handleUserCancelled()
+        }
+    }
+
+    BackHandler(enabled = dialogError == 0, onBack = cancelWebEid)
     var rememberMe by rememberSaveable {
         mutableStateOf(sharedSettingsViewModel.dataStore.getWebEidRememberMe())
     }
@@ -351,12 +361,7 @@ fun WebEidScreen(
                 }
 
                 OutlinedButton(
-                    onClick = {
-                        isWebEidAuthenticating = false
-                        scope.launch {
-                            viewModel.handleUserCancelled()
-                        }
-                    },
+                    onClick = cancelWebEid,
                     modifier = Modifier.fillMaxWidth(),
                     colors =
                         ButtonDefaults.outlinedButtonColors(
