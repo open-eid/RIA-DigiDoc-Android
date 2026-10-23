@@ -17,6 +17,7 @@
     <string name="init_lang_locale_en">English</string>
 
     <string name="last_invisible_element_name">Invisible element</string>
+    <string name="unsupported_version_link_text">www.id.ee</string>
 
     <!-- Main About -->
     <string name="main_about_libdigidocpp_title">libdigidocpp</string>
