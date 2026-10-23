@@ -51,6 +51,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.spokenDates
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.libdigidoc.RecipientCertTypeUtil.getRecipientCertTypeText
 import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatCompanyName
@@ -88,6 +89,7 @@ fun Recipient(
                 ?.let { stringResource(R.string.crypto_cert_valid_to, it) }
                 ?: ""
         }
+    val spokenCertValidTo = spokenDates(certValidTo)
 
     val iconRes =
         if (isPasswordRecipient || (recipient.surname.isNullOrEmpty() && recipient.givenName.isNullOrEmpty())) {
@@ -102,7 +104,7 @@ fun Recipient(
                 .clickable { onClick(recipient) }
                 .semantics(mergeDescendants = true) {
                     this.contentDescription =
-                        "$recipientText ${formatNumbers(nameText)} $certTypeText $certValidTo"
+                        "$recipientText ${formatNumbers(nameText)} $certTypeText $spokenCertValidTo"
                     testTagsAsResourceId = true
                 }.testTag("recipientItemContainer"),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),

@@ -40,14 +40,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.editableText
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.VerbatimTtsAnnotation
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
@@ -57,6 +54,7 @@ import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.readCharacterByCharacter
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import kotlinx.coroutines.Dispatchers.Main
@@ -151,13 +149,8 @@ fun PrimaryTextField(
                                         "$label: ${value.text}"
                                     }
                                 }
-                            if (readDigitByDigit && value.text.isNotEmpty()) {
-                                editableText =
-                                    buildAnnotatedString {
-                                        pushTtsAnnotation(VerbatimTtsAnnotation(value.text))
-                                        append(value.text)
-                                        pop()
-                                    }
+                            if (readDigitByDigit) {
+                                readCharacterByCharacter(value.text, value.selection)
                             }
                             testTagsAsResourceId = true
                         }.then(if (testTag.isNotEmpty()) Modifier.testTag(testTag) else Modifier),

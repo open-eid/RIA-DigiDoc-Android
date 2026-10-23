@@ -44,7 +44,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -81,7 +80,6 @@ import ee.ria.DigiDoc.ui.component.shared.DataFileItem
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.LoadingScreen
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
-import ee.ria.DigiDoc.ui.component.shared.StatusAnnouncer
 import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TabItem
 import ee.ria.DigiDoc.ui.component.shared.TabView
@@ -126,7 +124,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
 import java.io.File
-import kotlin.time.Duration.Companion.seconds
 
 private const val LOG_TAG = "SigningNavigation"
 
@@ -158,20 +155,9 @@ fun SigningNavigation(
     val signatureAddedSuccess = remember { mutableStateOf(false) }
     val signatureAddedSuccessText = stringResource(id = R.string.signature_update_signature_add_success)
 
-    var statusAnnouncement by remember { mutableStateOf("") }
-
     LaunchedEffect(signatureAddedSuccess.value) {
         if (signatureAddedSuccess.value) {
             showMessage(signatureAddedSuccessText, SnackbarType.SUCCESS)
-            withFrameNanos { }
-            statusAnnouncement = signatureAddedSuccessText
-        }
-    }
-
-    LaunchedEffect(statusAnnouncement) {
-        if (statusAnnouncement.isNotEmpty()) {
-            delay(1.seconds)
-            statusAnnouncement = ""
         }
     }
 
@@ -791,8 +777,6 @@ fun SigningNavigation(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start,
             ) {
-                StatusAnnouncer(message = statusAnnouncement)
-
                 Column(
                     modifier =
                         modifier

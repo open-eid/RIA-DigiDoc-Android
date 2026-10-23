@@ -51,6 +51,7 @@ import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
 import ee.ria.DigiDoc.ui.theme.Dimensions.LPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.spokenDates
 import ee.ria.DigiDoc.viewmodel.shared.SharedCertificateViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
 import kotlinx.coroutines.Dispatchers.IO
@@ -212,9 +213,11 @@ fun TimestampServicesComponent(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
 
+                    val validToText = "$validToTitleText $validTo"
+                    val spokenValidTo = spokenDates(validToText)
                     Text(
-                        modifier = modifier.fillMaxWidth(),
-                        text = "$validToTitleText $validTo",
+                        modifier = modifier.fillMaxWidth().semantics { contentDescription = spokenValidTo },
+                        text = validToText,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

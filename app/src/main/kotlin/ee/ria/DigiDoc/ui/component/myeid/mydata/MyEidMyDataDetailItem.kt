@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.spokenDates
 
 data class MyEidMyDataDetailItem(
     val showTagBadge: Boolean = false,
@@ -78,7 +79,7 @@ data class MyEidMyDataDetailItem(
                 value = dateOfBirth,
                 contentDescription =
                     if (dateOfBirth != null) {
-                        "${stringResource(id = R.string.myeid_date_of_birth)}, $dateOfBirth"
+                        spokenDates("${stringResource(id = R.string.myeid_date_of_birth)}, $dateOfBirth")
                     } else {
                         ""
                     },
@@ -101,7 +102,7 @@ data class MyEidMyDataDetailItem(
                 value = validTo,
                 contentDescription =
                     if (validTo != null) {
-                        "${stringResource(id = R.string.myeid_valid_to)}, $validTo"
+                        spokenDates("${stringResource(id = R.string.myeid_valid_to)}, $validTo")
                     } else {
                         ""
                     },

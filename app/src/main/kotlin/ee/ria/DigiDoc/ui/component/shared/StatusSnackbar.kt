@@ -53,11 +53,6 @@ fun StatusSnackbarHost() {
     var lastMessage by remember { mutableStateOf<SnackBarMessage?>(null) }
     if (currentMessage != null) lastMessage = currentMessage
 
-    StatusAnnouncer(
-        message = currentMessage?.text ?: "",
-        announceInitialMessage = true,
-    )
-
     AnimatedVisibility(
         visible = currentMessage != null,
         enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),

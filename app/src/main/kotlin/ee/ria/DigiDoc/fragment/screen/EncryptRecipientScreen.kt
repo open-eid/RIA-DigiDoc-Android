@@ -39,7 +39,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -52,12 +51,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.editableText
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.compose.ui.text.VerbatimTtsAnnotation
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.text.isDigitsOnly
@@ -78,7 +74,6 @@ import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
 import ee.ria.DigiDoc.ui.component.shared.PreventResize
 import ee.ria.DigiDoc.ui.component.shared.Recipient
-import ee.ria.DigiDoc.ui.component.shared.StatusAnnouncer
 import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TabItem
 import ee.ria.DigiDoc.ui.component.shared.TabView
@@ -91,6 +86,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
 import ee.ria.DigiDoc.ui.theme.Dimensions.zeroPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.utils.Route
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.readCharacterByCharacter
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.reachedBottom
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
@@ -107,7 +103,6 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.time.Duration.Companion.seconds
 
 private const val RECIPIENT_TAB_INDEX = 0
 private const val PASSWORD_TAB_INDEX = 1
@@ -139,8 +134,6 @@ fun EncryptRecipientScreen(
     val encryptionButtonEnabled = remember { mutableStateOf(true) }
     val containerEncryptedSuccess = remember { mutableStateOf(false) }
     val containerEncryptedSuccessText = stringResource(id = R.string.crypto_create_success)
-
-    var statusAnnouncement by remember { mutableStateOf("") }
 
     val containerRecipientList =
         remember {
@@ -207,8 +200,6 @@ fun EncryptRecipientScreen(
                     containerRecipientList.value =
                         encryptRecipientViewModel
                             .getContainerRecipientList(sharedContainerViewModel)
-                    withFrameNanos { }
-                    statusAnnouncement = recipientAddedSuccessText
                     encryptRecipientViewModel.handleIsRecipientAdded(false)
                 }
             }
@@ -267,13 +258,6 @@ fun EncryptRecipientScreen(
         if (containerEncryptedSuccess.value) {
             showMessage(containerEncryptedSuccessText, SnackbarType.SUCCESS)
             containerEncryptedSuccess.value = false
-        }
-    }
-
-    LaunchedEffect(statusAnnouncement) {
-        if (statusAnnouncement.isNotEmpty()) {
-            delay(1.seconds)
-            statusAnnouncement = ""
         }
     }
 
@@ -373,8 +357,6 @@ fun EncryptRecipientScreen(
             Column(
                 modifier = modifier.padding(paddingValues).fillMaxSize(),
             ) {
-                StatusAnnouncer(message = statusAnnouncement)
-
                 TabView(
                     modifier = modifier,
                     testTag = "encryptRecipientTabView",
@@ -398,8 +380,6 @@ fun EncryptRecipientScreen(
             Column(
                 modifier = modifier.padding(paddingValues).fillMaxWidth(),
             ) {
-                StatusAnnouncer(message = statusAnnouncement)
-
                 RecipientTab(Modifier.fillMaxWidth())
             }
         }
@@ -516,13 +496,8 @@ private fun RecipientTabContent(
                             .fillMaxWidth()
                             .wrapContentHeight()
                             .semantics {
-                                if (searchText.isNotEmpty()) {
-                                    editableText =
-                                        buildAnnotatedString {
-                                            pushTtsAnnotation(VerbatimTtsAnnotation(searchText))
-                                            append(searchText)
-                                            pop()
-                                        }
+                                if (searchText.isDigitsOnly()) {
+                                    readCharacterByCharacter(searchText)
                                 }
                             },
                     query = searchText,

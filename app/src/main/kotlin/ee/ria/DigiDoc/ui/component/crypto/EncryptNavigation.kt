@@ -42,7 +42,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -79,7 +78,6 @@ import ee.ria.DigiDoc.ui.component.shared.CryptoDataFileItem
 import ee.ria.DigiDoc.ui.component.shared.CryptoDataFilesLocked
 import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.MessageDialog
-import ee.ria.DigiDoc.ui.component.shared.StatusAnnouncer
 import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TabItem
 import ee.ria.DigiDoc.ui.component.shared.TabView
@@ -119,7 +117,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FilenameUtils
 import java.io.File
-import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -157,8 +154,6 @@ fun EncryptNavigation(
     val containerEncryptedSuccess = remember { mutableStateOf(false) }
     val containerEncryptedSuccessText = stringResource(id = R.string.crypto_create_success)
     val containerDecryptedSuccessText = stringResource(id = R.string.crypto_decrypt_success)
-
-    var statusAnnouncement by remember { mutableStateOf("") }
 
     val emptyFileInContainerText = stringResource(id = R.string.crypto_empty_file_message)
 
@@ -524,7 +519,6 @@ fun EncryptNavigation(
                     withContext(Main) {
                         sharedContainerViewModel.setDecryptNFCStatus(null)
                         showMessage(containerDecryptedSuccessText, SnackbarType.SUCCESS)
-                        statusAnnouncement = containerDecryptedSuccessText
                     }
                 }
             }
@@ -538,7 +532,6 @@ fun EncryptNavigation(
                     withContext(Main) {
                         sharedContainerViewModel.setDecryptIDCardStatus(null)
                         showMessage(containerDecryptedSuccessText, SnackbarType.SUCCESS)
-                        statusAnnouncement = containerDecryptedSuccessText
                     }
                 }
             }
@@ -549,17 +542,8 @@ fun EncryptNavigation(
         sharedContainerViewModel.containerEncrypted.collect { containerEncrypted ->
             if (containerEncrypted == true) {
                 selectedCryptoContainerTabIndex.intValue = 1
-                withFrameNanos { }
-                statusAnnouncement = containerEncryptedSuccessText
                 sharedContainerViewModel.resetContainerEncrypted()
             }
-        }
-    }
-
-    LaunchedEffect(statusAnnouncement) {
-        if (statusAnnouncement.isNotEmpty()) {
-            delay(1.seconds)
-            statusAnnouncement = ""
         }
     }
 
@@ -669,8 +653,6 @@ fun EncryptNavigation(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start,
             ) {
-                StatusAnnouncer(message = statusAnnouncement)
-
                 if (containerEncryptedSuccess.value) {
                     showMessage(containerEncryptedSuccessText, SnackbarType.SUCCESS)
                     containerEncryptedSuccess.value = false
@@ -1071,8 +1053,6 @@ fun EncryptNavigation(
                                     selectedCryptoContainerTabIndex.intValue = 0
                                     showLoadingScreen.value = false
                                     showMessage(containerDecryptedSuccessText, SnackbarType.SUCCESS)
-                                    withFrameNanos { }
-                                    statusAnnouncement = containerDecryptedSuccessText
                                 }
                             } catch (_: WrongPasswordException) {
                                 errorLog(logTag, "Wrong password — showing error to user")

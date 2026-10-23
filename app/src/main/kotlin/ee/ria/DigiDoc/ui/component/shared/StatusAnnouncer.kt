@@ -21,12 +21,9 @@ import androidx.compose.ui.semantics.semantics
 import ee.ria.DigiDoc.ui.theme.Dimensions.invisibleElementHeight
 
 @Composable
-fun StatusAnnouncer(
-    message: String,
-    announceInitialMessage: Boolean = false,
-) {
+fun StatusAnnouncer(message: String) {
     var announcement by remember { mutableStateOf("") }
-    var isInitialMessage by remember { mutableStateOf(!announceInitialMessage) }
+    var isInitialMessage by remember { mutableStateOf(true) }
 
     LaunchedEffect(message) {
         if (isInitialMessage) {
