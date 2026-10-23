@@ -52,6 +52,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.spokenDates
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil.getSignatureStatusText
 import ee.ria.DigiDoc.utils.libdigidoc.SignatureStatusUtil.getTimestampStatusText
@@ -73,7 +74,6 @@ fun SignatureComponent(
 ) {
     val signatureText = stringResource(R.string.signature_details_signer_details_title)
 
-    val buttonName = stringResource(id = R.string.button_name)
     val panelDescription = stringResource(R.string.panel)
 
     if (showSignaturesLoadingIndicator) {
@@ -118,6 +118,7 @@ fun SignatureComponent(
                         DateUtil.formattedDateTime(signature.trustedSigningTime).date,
                         DateUtil.formattedDateTime(signature.trustedSigningTime).time,
                     )
+                val spokenSignedTime = spokenDates(signedTime)
                 val roles = signature.signerRoles.joinToString(" / ")
                 val roleAndAddress =
                     stringResource(R.string.signature_update_signature_role_and_address_title)
@@ -133,7 +134,7 @@ fun SignatureComponent(
                                         append(
                                             "$signatureText ${index + 1}, ${formatNumbers(
                                                 nameText,
-                                            )}, $statusText, $signedTime",
+                                            )}, $statusText, $spokenSignedTime",
                                         )
                                         if (roles.isNotEmpty()) {
                                             append(", $roleAndAddress: $roles")
@@ -260,7 +261,7 @@ fun SignatureComponent(
                                     imageVector = ImageVector.vectorResource(R.drawable.ic_more_vert),
                                     contentDescription = "$signatureText ${index + 1} ${stringResource(
                                         R.string.more_options,
-                                    )} $buttonName",
+                                    )}",
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }

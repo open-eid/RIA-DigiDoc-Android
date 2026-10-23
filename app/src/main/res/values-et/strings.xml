@@ -414,10 +414,7 @@
     <string name="encryption_cancelled">Krüpteerimine katkestatud</string>
     <string name="button_name">Nupp</string>
     <string name="signature_method">Allkirjastamise meetod</string>
-    <string name="signature_method_selected">Allkirjastamise meetod valitud</string>
     <string name="menu_language">Keel</string>
-    <string name="menu_language_selected">Keel valitud</string>
-    <string name="menu_theme_selected">Teema valitud</string>
     <string name="item_selected">valitud</string>
     <string name="signatures_loading">Allkirjade laadimine</string>
     <string name="signatures_loaded">Allkirjad laaditud</string>
@@ -738,4 +735,5 @@
     <string name="web_eid_invalid_auth_request_error">Vigane autentimispäring</string>
     <string name="signature_update_nfc_detection_timeout">Kaarti ei tuvastatud. Palun alusta uuesti.</string>
     <string name="web_eid_signing_card_mismatch">Valitud ID-kaart ei vasta nõutud isikule. Palun kasuta õiget ID-kaarti.</string>
+    <string name="spoken_date_format">d. MMMM yyyy</string>
 </resources>

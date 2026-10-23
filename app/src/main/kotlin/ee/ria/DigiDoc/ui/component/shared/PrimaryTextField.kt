@@ -53,8 +53,8 @@ import androidx.compose.ui.text.style.TextAlign
 import ee.ria.DigiDoc.R
 import ee.ria.DigiDoc.ui.theme.Dimensions.MSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
-import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.addInvisibleElement
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isTalkBackEnabled
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.readCharacterByCharacter
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.sendAccessibilityEvent
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import kotlinx.coroutines.Dispatchers.Main
@@ -134,8 +134,12 @@ fun PrimaryTextField(
                             }
                         }.semantics {
                             contentDescription =
-                                if (readDigitByDigit && value.text.isNotEmpty() && value.text.all { it.isDigit() }) {
-                                    value.text.split("").joinToString(" ")
+                                if (readDigitByDigit) {
+                                    if (description.isNotEmpty()) {
+                                        "$label, $description"
+                                    } else {
+                                        label
+                                    }
                                 } else if (isPasswordText && !passwordVisible) {
                                     ""
                                 } else {
@@ -145,6 +149,9 @@ fun PrimaryTextField(
                                         "$label: ${value.text}"
                                     }
                                 }
+                            if (readDigitByDigit) {
+                                readCharacterByCharacter(value.text, value.selection)
+                            }
                             testTagsAsResourceId = true
                         }.then(if (testTag.isNotEmpty()) Modifier.testTag(testTag) else Modifier),
                 enabled = enabled,
@@ -302,12 +309,4 @@ fun PrimaryTextField(
             )
         }
     }
-}
-
-fun talkBackTextFieldValue(text: String): TextFieldValue {
-    val withInvisibleElements = addInvisibleElement(text)
-    return TextFieldValue(
-        text = withInvisibleElements,
-        selection = TextRange(withInvisibleElements.length),
-    )
 }
