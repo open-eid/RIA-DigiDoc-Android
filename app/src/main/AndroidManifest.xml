@@ -140,6 +140,11 @@
                 <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
             </intent-filter>
         </provider>
+
+        <service
+            android:name=".utils.notification.SigningForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="shortService" />
     </application>
 
     <queries>

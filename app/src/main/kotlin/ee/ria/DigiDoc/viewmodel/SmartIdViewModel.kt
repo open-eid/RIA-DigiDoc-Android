@@ -6,14 +6,13 @@
 package ee.ria.DigiDoc.viewmodel
 
 import android.Manifest
-import android.app.Activity
 import android.content.Context
-import android.content.pm.ActivityInfo
 import androidx.annotation.RequiresPermission
-import androidx.core.app.NotificationCompat.PRIORITY_MIN
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.common.collect.ImmutableMap
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
@@ -28,18 +27,23 @@ import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.network.sid.dto.request.SmartCreateSignatureRequest
 import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
+import ee.ria.DigiDoc.network.sid.dto.response.SmartIDServiceResponse
 import ee.ria.DigiDoc.smartId.SmartSignService
 import ee.ria.DigiDoc.smartId.utils.SmartCreateSignatureRequestHelper
 import ee.ria.DigiDoc.utils.notification.NotificationUtil
+import ee.ria.DigiDoc.utils.notification.SigningForegroundService
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
-import ee.ria.DigiDoc.utilsLib.signing.PowerUtil
 import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator
 import ee.ria.libdigidocpp.Conf
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Objects
@@ -70,6 +74,11 @@ class SmartIdViewModel
 
         private val _requestNotificationPermission = MutableSharedFlow<Pair<String, String>>()
         val requestNotificationPermission: SharedFlow<Pair<String, String>> = _requestNotificationPermission
+
+        private val _signingInProgress = MutableStateFlow(false)
+        val signingInProgress: StateFlow<Boolean> = _signingInProgress
+
+        private var signingJob: Job? = null
 
         private val countries: ImmutableMap<Int, String> =
             ImmutableMap
@@ -185,6 +194,7 @@ class SmartIdViewModel
             if (signedContainer != null) {
                 smartSignService.setCancelled(signedContainer, true)
             }
+            signingJob?.cancel()
         }
 
         private fun setErrorState(
@@ -216,41 +226,27 @@ class SmartIdViewModel
             smartSignService.resetValues()
         }
 
-        suspend fun performSmartIdWorkRequest(
-            activity: Activity,
+        fun performSmartIdWorkRequest(
             context: Context,
             displayMessage: String,
             container: SignedContainer?,
             personalCode: String,
             country: Int,
             roleData: RoleData?,
-        ) {
-            activity.requestedOrientation = activity.resources.configuration.orientation
-            resetValues()
-            val configurationProvider = configurationRepository.getConfiguration()
-            val uuid = dataStore.getSettingsUUID()
-            val proxySetting: ProxySetting = dataStore.getProxySetting()
-            val manualProxySettings: ManualProxy = dataStore.getManualProxySettings()
+        ): Job? {
+            if (signingJob?.isActive == true) {
+                debugLog(logTag, "Smart-ID signing already in progress, ignoring request")
+                return signingJob
+            }
 
-            val request: SmartCreateSignatureRequest =
-                SmartCreateSignatureRequestHelper
-                    .create(
-                        container,
-                        uuid,
-                        configurationProvider?.sidV2RestUrl,
-                        configurationProvider?.sidV2SkRestUrl,
-                        countries[country],
-                        personalCode,
-                        displayMessage,
-                    )
-            val certBundle = ArrayList(configurationProvider?.certBundle ?: emptyList())
-            withContext(Main) {
-                smartSignService.errorState.observeForever {
+            val errorStateObserver =
+                Observer<String?> {
                     if (it != null) {
                         _errorState.postValue(it)
                     }
                 }
-                smartSignService.challenge.observeForever { challenge ->
+            val challengeObserver =
+                Observer<String?> { challenge ->
                     if (challenge != null) {
                         _challenge.postValue(challenge)
 
@@ -262,14 +258,15 @@ class SmartIdViewModel
                         )
                     }
                 }
-                smartSignService.status.observeForever { status ->
+            val statusObserver =
+                Observer<SessionStatusResponseProcessStatus?> { status ->
                     if (status != null) {
                         _status.postValue(status)
                         if (status != SessionStatusResponseProcessStatus.OK) {
                             if (status != SessionStatusResponseProcessStatus.USER_CANCELLED) {
                                 setErrorState(context, status)
                             } else {
-                                CoroutineScope(Main).launch {
+                                viewModelScope.launch(IO) {
                                     val containerSignatures = container?.getSignatures()
                                     val signatureInterface =
                                         if (containerSignatures?.isEmpty() == true) {
@@ -299,13 +296,12 @@ class SmartIdViewModel
                         }
                     }
                 }
-                smartSignService.response.observeForever {
+            val responseObserver =
+                Observer<SmartIDServiceResponse?> {
                     when (it?.status) {
                         SessionStatusResponseProcessStatus.OK -> {
-                            CoroutineScope(Main).launch {
-                                _status.postValue(it.status)
-                                _signedContainer.postValue(container)
-                            }
+                            _status.postValue(it.status)
+                            _signedContainer.postValue(container)
                         }
 
                         else -> {
@@ -316,38 +312,69 @@ class SmartIdViewModel
                         }
                     }
                 }
-            }
-            smartSignService.resetValues()
-            if (container != null) {
-                if (PowerUtil.isPowerSavingMode(context)) {
-                    sendEmptyNotification()
-                }
-                smartSignService.processSmartIdRequest(
-                    context = context,
-                    signedContainer = container,
-                    request = request,
-                    roleDataRequest = roleData,
-                    proxySetting = proxySetting,
-                    manualProxySettings = manualProxySettings,
-                    certificateBundle = certBundle,
-                    accessTokenPath = Objects.requireNonNull(Conf.instance()).PKCS12Cert(),
-                    accessTokenPass = Objects.requireNonNull(Conf.instance()).PKCS12Pass(),
-                )
-            } else {
-                CoroutineScope(Main).launch {
-                    _status.postValue(SessionStatusResponseProcessStatus.GENERAL_ERROR)
-                    _errorState.postValue(context.getString(R.string.error_general_client))
-                    errorLog(logTag, "Unable to get container value. Container is 'null'")
-                }
-            }
 
-            withContext(Main) {
-                smartSignService.errorState.removeObserver {}
-                smartSignService.challenge.removeObserver {}
-                smartSignService.status.removeObserver {}
-                smartSignService.response.removeObserver {}
-                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-            }
+            signingJob =
+                viewModelScope.launch(IO) {
+                    _signingInProgress.value = true
+                    try {
+                        resetValues()
+                        val configurationProvider = configurationRepository.getConfiguration()
+                        val uuid = dataStore.getSettingsUUID()
+                        val proxySetting: ProxySetting = dataStore.getProxySetting()
+                        val manualProxySettings: ManualProxy = dataStore.getManualProxySettings()
+
+                        val request: SmartCreateSignatureRequest =
+                            SmartCreateSignatureRequestHelper
+                                .create(
+                                    container,
+                                    uuid,
+                                    configurationProvider?.sidV2RestUrl,
+                                    configurationProvider?.sidV2SkRestUrl,
+                                    countries[country],
+                                    personalCode,
+                                    displayMessage,
+                                )
+                        val certBundle = ArrayList(configurationProvider?.certBundle ?: emptyList())
+
+                        withContext(Main) {
+                            smartSignService.errorState.observeForever(errorStateObserver)
+                            smartSignService.challenge.observeForever(challengeObserver)
+                            smartSignService.status.observeForever(statusObserver)
+                            smartSignService.response.observeForever(responseObserver)
+                        }
+
+                        smartSignService.resetValues()
+                        if (container != null) {
+                            SigningForegroundService.start(context)
+                            smartSignService.processSmartIdRequest(
+                                context = context,
+                                signedContainer = container,
+                                request = request,
+                                roleDataRequest = roleData,
+                                proxySetting = proxySetting,
+                                manualProxySettings = manualProxySettings,
+                                certificateBundle = certBundle,
+                                accessTokenPath = Objects.requireNonNull(Conf.instance()).PKCS12Cert(),
+                                accessTokenPass = Objects.requireNonNull(Conf.instance()).PKCS12Pass(),
+                            )
+                        } else {
+                            _status.postValue(SessionStatusResponseProcessStatus.GENERAL_ERROR)
+                            _errorState.postValue(context.getString(R.string.error_general_client))
+                            errorLog(logTag, "Unable to get container value. Container is 'null'")
+                        }
+                    } finally {
+                        SigningForegroundService.stop(context)
+                        withContext(NonCancellable + Main) {
+                            smartSignService.errorState.removeObserver(errorStateObserver)
+                            smartSignService.challenge.removeObserver(challengeObserver)
+                            smartSignService.status.removeObserver(statusObserver)
+                            smartSignService.response.removeObserver(responseObserver)
+                        }
+                        _signingInProgress.value = false
+                    }
+                }
+
+            return signingJob
         }
 
         fun positiveButtonEnabled(
@@ -453,20 +480,6 @@ class SmartIdViewModel
                     message = message,
                     channelId = NOTIFICATION_CHANNEL,
                     channelName = NOTIFICATION_NAME,
-                )
-            }
-        }
-
-        @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
-        fun sendEmptyNotification() {
-            if (notificationUtil.hasNotificationPermission()) {
-                notificationUtil.sendNotification(
-                    title = "",
-                    message = "",
-                    isSilent = true,
-                    channelId = NOTIFICATION_CHANNEL,
-                    channelName = NOTIFICATION_NAME,
-                    priority = PRIORITY_MIN,
                 )
             }
         }

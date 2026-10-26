@@ -10,7 +10,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.RELYING_PARTY_UUID
-import ee.ria.DigiDoc.common.model.AppState
 import ee.ria.DigiDoc.common.testfiles.asset.AssetFile
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
@@ -60,6 +59,7 @@ import org.mockito.kotlin.whenever
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.mock.Calls
+import java.io.IOException
 import java.net.UnknownHostException
 import java.security.NoSuchAlgorithmException
 import java.security.cert.CertificateException
@@ -181,7 +181,6 @@ class MobileSignServiceImplTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         context = InstrumentationRegistry.getInstrumentation().targetContext
-        AppState.isAppInForeground = true
         serviceGenerator = mock(ServiceGenerator::class.java)
         containerWrapper = mock(ContainerWrapper::class.java)
         mobileSignServiceImpl =
@@ -2194,5 +2193,363 @@ class MobileSignServiceImplTest {
             )
 
             verify(errorStateObserver, atLeastOnce()).onChanged("Base64 (Prepare signature) is empty or null")
+        }
+
+    @Test
+    fun mobileSignService_processMobileIdRequest_getCertificateReturnsNOT_MID_CLIENT() =
+        runTest {
+            doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sslContext = null,
+                midSignServiceUrl = request.url,
+                certBundle = certBundle,
+                trustManagers = trustManagers,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            val errorResponse = "errorResponse"
+            val errorResponseBody = errorResponse.toResponseBody("application/json".toMediaTypeOrNull())
+            val mockResponse = Response.error<MobileCreateSignatureCertificateResponse>(404, errorResponseBody)
+
+            doReturn(
+                Calls.response(
+                    mockResponse,
+                ),
+            ).whenever(midRestServiceClient)
+                .getCertificate(
+                    body = getMobileCertificateRequest,
+                )
+
+            mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.NOT_MID_CLIENT)
+        }
+
+    @Test
+    fun mobileSignService_processMobileIdRequest_getMobileCreateSessionReturnNOT_MID_CLIENT() =
+        runTest {
+            doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sslContext = null,
+                midSignServiceUrl = request.url,
+                certBundle = certBundle,
+                trustManagers = trustManagers,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            doReturn(
+                Calls.response(
+                    Response.success(
+                        MobileCreateSignatureCertificateResponse(
+                            result = MobileCertificateResultType.OK,
+                            cert = cert,
+                        ),
+                    ),
+                ),
+            ).whenever(midRestServiceClient)
+                .getCertificate(
+                    body = getMobileCertificateRequest,
+                )
+
+            whenever(
+                containerWrapper.prepareSignature(
+                    signer = any<ExternalSigner>(),
+                    signedContainer = any<SignedContainer>(),
+                    cert = any<ByteArray>(),
+                    roleData = isNull(),
+                ),
+            ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==".toByteArray())
+
+            val errorResponse = "errorResponse"
+            val errorResponseBody = errorResponse.toResponseBody("application/json".toMediaTypeOrNull())
+            val mockResponse = Response.error<MobileCreateSignatureSessionResponse>(404, errorResponseBody)
+
+            whenever(midRestServiceClient.getMobileCreateSession(any()))
+                .thenReturn(
+                    Calls.response(
+                        mockResponse,
+                    ),
+                )
+
+            mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.NOT_MID_CLIENT)
+        }
+
+    @Test
+    fun mobileSignService_processMobileIdRequest_getMobileCreateSignatureSessionStatusReturnTIMEOUT() =
+        runTest {
+            doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sslContext = null,
+                midSignServiceUrl = request.url,
+                certBundle = certBundle,
+                trustManagers = trustManagers,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            doReturn(
+                Calls.response(
+                    Response.success(
+                        MobileCreateSignatureCertificateResponse(
+                            result = MobileCertificateResultType.OK,
+                            cert = cert,
+                        ),
+                    ),
+                ),
+            ).whenever(midRestServiceClient)
+                .getCertificate(
+                    body = getMobileCertificateRequest,
+                )
+
+            whenever(
+                containerWrapper.prepareSignature(
+                    signer = any<ExternalSigner>(),
+                    signedContainer = any<SignedContainer>(),
+                    cert = any<ByteArray>(),
+                    roleData = isNull(),
+                ),
+            ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==".toByteArray())
+
+            whenever(midRestServiceClient.getMobileCreateSession(any()))
+                .thenReturn(
+                    Calls.response(
+                        Response.success(
+                            MobileCreateSignatureSessionResponse(
+                                sessionID = "sessionID",
+                                traceId = "traceId",
+                                time = "time",
+                                error = null,
+                            ),
+                        ),
+                    ),
+                )
+
+            val errorResponse = "errorResponse"
+            val errorResponseBody = errorResponse.toResponseBody("application/json".toMediaTypeOrNull())
+            val mockResponse = Response.error<MobileCreateSignatureSessionStatusResponse>(404, errorResponseBody)
+
+            whenever(
+                midRestServiceClient.getMobileCreateSignatureSessionStatus(
+                    eq("sessionID"),
+                    eq("1000"),
+                ),
+            ).thenReturn(
+                Calls.response(
+                    mockResponse,
+                ),
+            )
+
+            mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.TIMEOUT)
+        }
+
+    @Test
+    fun mobileSignService_processMobileIdRequest_retriesSessionStatusAfterNetworkDrop() =
+        runTest {
+            doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sslContext = null,
+                midSignServiceUrl = request.url,
+                certBundle = certBundle,
+                trustManagers = trustManagers,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            doReturn(
+                Calls.response(
+                    Response.success(
+                        MobileCreateSignatureCertificateResponse(
+                            result = MobileCertificateResultType.OK,
+                            cert = cert,
+                        ),
+                    ),
+                ),
+            ).whenever(midRestServiceClient)
+                .getCertificate(
+                    body = getMobileCertificateRequest,
+                )
+
+            whenever(
+                containerWrapper.prepareSignature(
+                    signer = any<ExternalSigner>(),
+                    signedContainer = any<SignedContainer>(),
+                    cert = any<ByteArray>(),
+                    roleData = isNull(),
+                ),
+            ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==".toByteArray())
+
+            whenever(midRestServiceClient.getMobileCreateSession(any()))
+                .thenReturn(
+                    Calls.response(
+                        Response.success(
+                            MobileCreateSignatureSessionResponse(
+                                sessionID = "sessionID",
+                                traceId = "traceId",
+                                time = "time",
+                                error = null,
+                            ),
+                        ),
+                    ),
+                )
+
+            @Suppress("UNCHECKED_CAST")
+            val sessionStatusCall =
+                mock(Call::class.java) as Call<MobileCreateSignatureSessionStatusResponse>
+            whenever(
+                midRestServiceClient.getMobileCreateSignatureSessionStatus(
+                    eq("sessionID"),
+                    eq("1000"),
+                ),
+            ).thenReturn(sessionStatusCall)
+            doReturn(sessionStatusCall).whenever(sessionStatusCall).clone()
+            whenever(sessionStatusCall.execute())
+                .thenThrow(IOException("Software caused connection abort"))
+                .thenReturn(
+                    Response.success(
+                        MobileCreateSignatureSessionStatusResponse(
+                            state = MobileCreateSignatureProcessState.COMPLETE,
+                            result = MobileCreateSignatureProcessStatus.OK,
+                            signature =
+                                MobileSignatureResponse(
+                                    value = "dTzZ20E8kmoXXBAh5cV5yw==",
+                                    algorithm = "MobileIDSignatureAlgorithm",
+                                ),
+                            cert = cert,
+                            time = "time",
+                            traceId = "traceId",
+                            error = null,
+                        ),
+                    ),
+                )
+
+            mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.OK)
+            verify(statusObserver, never()).onChanged(MobileCreateSignatureProcessStatus.GENERAL_ERROR)
+        }
+
+    @Test
+    fun mobileSignService_processMobileIdRequest_givesUpAfterRepeatedSessionStatusNetworkDrops() =
+        runTest {
+            doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sslContext = null,
+                midSignServiceUrl = request.url,
+                certBundle = certBundle,
+                trustManagers = trustManagers,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            doReturn(
+                Calls.response(
+                    Response.success(
+                        MobileCreateSignatureCertificateResponse(
+                            result = MobileCertificateResultType.OK,
+                            cert = cert,
+                        ),
+                    ),
+                ),
+            ).whenever(midRestServiceClient)
+                .getCertificate(
+                    body = getMobileCertificateRequest,
+                )
+
+            whenever(
+                containerWrapper.prepareSignature(
+                    signer = any<ExternalSigner>(),
+                    signedContainer = any<SignedContainer>(),
+                    cert = any<ByteArray>(),
+                    roleData = isNull(),
+                ),
+            ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==".toByteArray())
+
+            whenever(midRestServiceClient.getMobileCreateSession(any()))
+                .thenReturn(
+                    Calls.response(
+                        Response.success(
+                            MobileCreateSignatureSessionResponse(
+                                sessionID = "sessionID",
+                                traceId = "traceId",
+                                time = "time",
+                                error = null,
+                            ),
+                        ),
+                    ),
+                )
+
+            @Suppress("UNCHECKED_CAST")
+            val sessionStatusCall =
+                mock(Call::class.java) as Call<MobileCreateSignatureSessionStatusResponse>
+            whenever(
+                midRestServiceClient.getMobileCreateSignatureSessionStatus(
+                    eq("sessionID"),
+                    eq("1000"),
+                ),
+            ).thenReturn(sessionStatusCall)
+            doReturn(sessionStatusCall).whenever(sessionStatusCall).clone()
+            whenever(sessionStatusCall.execute())
+                .thenThrow(IOException("Software caused connection abort"))
+
+            mobileSignServiceImpl.processMobileIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.GENERAL_ERROR)
+            verify(containerWrapper, never()).finalizeSignature(any(), any(), any())
         }
 }

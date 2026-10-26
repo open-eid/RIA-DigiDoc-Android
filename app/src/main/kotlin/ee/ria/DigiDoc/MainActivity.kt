@@ -24,14 +24,11 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.core.app.ActivityCompat
 import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
 import dagger.hilt.android.AndroidEntryPoint
-import ee.ria.DigiDoc.common.model.AppState
 import ee.ria.DigiDoc.domain.model.theme.ThemeSetting
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.fragment.RootFragment
@@ -58,9 +55,7 @@ import java.util.logging.Logger
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity :
-    ComponentActivity(),
-    DefaultLifecycleObserver {
+class MainActivity : ComponentActivity() {
     @Inject
     lateinit var librarySetup: LibrarySetup
 
@@ -124,8 +119,6 @@ class MainActivity :
             }
             return
         }
-
-        lifecycle.addObserver(this)
 
         val componentClassName = this.javaClass.name
 
@@ -217,16 +210,6 @@ class MainActivity :
         val language = localeUtilImpl.getPreferredLanguage(newBase)
         val localizedContext = newBase?.let { localeUtilImpl.updateLocale(it, getLocale(language)) }
         super.attachBaseContext(localizedContext)
-    }
-
-    override fun onStart(owner: LifecycleOwner) {
-        super<DefaultLifecycleObserver>.onStart(owner)
-        AppState.isAppInForeground = true
-    }
-
-    override fun onStop(owner: LifecycleOwner) {
-        super<DefaultLifecycleObserver>.onStop(owner)
-        AppState.isAppInForeground = false
     }
 
     @Composable
