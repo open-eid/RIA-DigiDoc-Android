@@ -5,12 +5,12 @@
 
 package ee.ria.DigiDoc.viewmodel
 
-import android.app.Activity
 import android.content.Context
-import android.content.pm.ActivityInfo
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.common.collect.ImmutableMap
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ee.ria.DigiDoc.R
@@ -19,6 +19,7 @@ import ee.ria.DigiDoc.common.Constant.MINIMUM_PHONE_NUMBER_LENGTH
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.domain.preferences.DataStore
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
+import ee.ria.DigiDoc.libdigidoclib.domain.model.MobileIdServiceResponse
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ValidatorInterface
 import ee.ria.DigiDoc.mobileId.MobileSignService
@@ -28,12 +29,17 @@ import ee.ria.DigiDoc.network.mid.dto.request.MobileCreateSignatureRequest
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
+import ee.ria.DigiDoc.utils.notification.SigningForegroundService
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
 import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator
 import ee.ria.libdigidocpp.Conf
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
@@ -61,6 +67,11 @@ class MobileIdViewModel
 
         private val _dialogError = MutableLiveData(0)
         val dialogError: LiveData<Int> = _dialogError
+
+        private val _signingInProgress = MutableStateFlow(false)
+        val signingInProgress: StateFlow<Boolean> = _signingInProgress
+
+        private var signingJob: Job? = null
 
         private val faults: ImmutableMap<MobileCertificateResultType, Int> =
             ImmutableMap
@@ -157,6 +168,7 @@ class MobileIdViewModel
             if (signedContainer != null) {
                 mobileSignService.setCancelled(signedContainer, true)
             }
+            signingJob?.cancel()
         }
 
         private fun setErrorState(
@@ -187,47 +199,33 @@ class MobileIdViewModel
             mobileSignService.resetValues()
         }
 
-        suspend fun performMobileIdWorkRequest(
-            activity: Activity,
+        fun performMobileIdWorkRequest(
             context: Context,
             displayMessage: String,
             container: SignedContainer?,
             personalCode: String,
             phoneNumber: String,
             roleData: RoleData?,
-        ) {
-            activity.requestedOrientation = activity.resources.configuration.orientation
-            resetValues()
-            val configurationProvider = configurationRepository.getConfiguration()
-            val uuid = dataStore.getSettingsUUID()
-            val proxySetting: ProxySetting = dataStore.getProxySetting()
-            val manualProxySettings: ManualProxy = dataStore.getManualProxySettings()
+        ): Job? {
+            if (signingJob?.isActive == true) {
+                debugLog(logTag, "Mobile-ID signing already in progress, ignoring request")
+                return signingJob
+            }
 
-            val request: MobileCreateSignatureRequest =
-                MobileCreateSignatureRequestHelper
-                    .create(
-                        container,
-                        uuid,
-                        configurationProvider?.midRestUrl,
-                        configurationProvider?.midSkRestUrl,
-                        Locale.getDefault(),
-                        personalCode,
-                        phoneNumber,
-                        displayMessage,
-                    )
-            val certBundle = ArrayList(configurationProvider?.certBundle ?: emptyList())
-            withContext(Main) {
-                mobileSignService.errorState.observeForever {
+            val errorStateObserver =
+                Observer<String?> {
                     if (it != null) {
                         _errorState.postValue(it)
                     }
                 }
-                mobileSignService.challenge.observeForever { challenge ->
+            val challengeObserver =
+                Observer<String?> { challenge ->
                     if (challenge != null) {
                         _challenge.postValue(challenge)
                     }
                 }
-                mobileSignService.result.observeForever {
+            val resultObserver =
+                Observer<MobileCertificateResultType?> {
                     if (it != null) {
                         _errorState.postValue(
                             faults[it]?.let { res ->
@@ -238,14 +236,15 @@ class MobileIdViewModel
                         )
                     }
                 }
-                mobileSignService.status.observeForever { status ->
+            val statusObserver =
+                Observer<MobileCreateSignatureProcessStatus?> { status ->
                     if (status != null) {
                         _status.postValue(status)
                         if (status != MobileCreateSignatureProcessStatus.OK) {
                             if (status != MobileCreateSignatureProcessStatus.USER_CANCELLED) {
                                 setErrorState(context, status)
                             } else {
-                                CoroutineScope(Main).launch {
+                                viewModelScope.launch(IO) {
                                     val containerSignatures = container?.getSignatures()
                                     val signatureInterface =
                                         if (containerSignatures?.isEmpty() == true) {
@@ -276,13 +275,12 @@ class MobileIdViewModel
                         }
                     }
                 }
-                mobileSignService.response.observeForever {
+            val responseObserver =
+                Observer<MobileIdServiceResponse?> {
                     when (it?.status) {
                         MobileCreateSignatureProcessStatus.OK -> {
-                            CoroutineScope(Main).launch {
-                                _status.postValue(it.status)
-                                _signedContainer.postValue(container)
-                            }
+                            _status.postValue(it.status)
+                            _signedContainer.postValue(container)
                         }
                         else -> {
                             if (it != null) {
@@ -292,36 +290,72 @@ class MobileIdViewModel
                         }
                     }
                 }
-            }
-            mobileSignService.resetValues()
-            if (container != null) {
-                mobileSignService.processMobileIdRequest(
-                    context = context,
-                    signedContainer = container,
-                    request = request,
-                    roleDataRequest = roleData,
-                    proxySetting = proxySetting,
-                    manualProxySettings = manualProxySettings,
-                    certificateBundle = certBundle,
-                    accessTokenPath = Objects.requireNonNull(Conf.instance()).PKCS12Cert(),
-                    accessTokenPass = Objects.requireNonNull(Conf.instance()).PKCS12Pass(),
-                )
-            } else {
-                CoroutineScope(Main).launch {
-                    _status.postValue(MobileCreateSignatureProcessStatus.GENERAL_ERROR)
-                    _errorState.postValue(context.getString(R.string.error_general_client))
-                    errorLog(logTag, "Unable to get container value. Container is 'null'")
-                }
-            }
 
-            withContext(Main) {
-                mobileSignService.errorState.removeObserver {}
-                mobileSignService.challenge.removeObserver {}
-                mobileSignService.status.removeObserver {}
-                mobileSignService.result.removeObserver {}
-                mobileSignService.response.removeObserver {}
-                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-            }
+            signingJob =
+                viewModelScope.launch(IO) {
+                    _signingInProgress.value = true
+                    try {
+                        resetValues()
+                        val configurationProvider = configurationRepository.getConfiguration()
+                        val uuid = dataStore.getSettingsUUID()
+                        val proxySetting: ProxySetting = dataStore.getProxySetting()
+                        val manualProxySettings: ManualProxy = dataStore.getManualProxySettings()
+
+                        val request: MobileCreateSignatureRequest =
+                            MobileCreateSignatureRequestHelper
+                                .create(
+                                    container,
+                                    uuid,
+                                    configurationProvider?.midRestUrl,
+                                    configurationProvider?.midSkRestUrl,
+                                    Locale.getDefault(),
+                                    personalCode,
+                                    phoneNumber,
+                                    displayMessage,
+                                )
+                        val certBundle = ArrayList(configurationProvider?.certBundle ?: emptyList())
+
+                        withContext(Main) {
+                            mobileSignService.errorState.observeForever(errorStateObserver)
+                            mobileSignService.challenge.observeForever(challengeObserver)
+                            mobileSignService.result.observeForever(resultObserver)
+                            mobileSignService.status.observeForever(statusObserver)
+                            mobileSignService.response.observeForever(responseObserver)
+                        }
+
+                        mobileSignService.resetValues()
+                        if (container != null) {
+                            SigningForegroundService.start(context)
+                            mobileSignService.processMobileIdRequest(
+                                context = context,
+                                signedContainer = container,
+                                request = request,
+                                roleDataRequest = roleData,
+                                proxySetting = proxySetting,
+                                manualProxySettings = manualProxySettings,
+                                certificateBundle = certBundle,
+                                accessTokenPath = Objects.requireNonNull(Conf.instance()).PKCS12Cert(),
+                                accessTokenPass = Objects.requireNonNull(Conf.instance()).PKCS12Pass(),
+                            )
+                        } else {
+                            _status.postValue(MobileCreateSignatureProcessStatus.GENERAL_ERROR)
+                            _errorState.postValue(context.getString(R.string.error_general_client))
+                            errorLog(logTag, "Unable to get container value. Container is 'null'")
+                        }
+                    } finally {
+                        SigningForegroundService.stop(context)
+                        withContext(NonCancellable + Main) {
+                            mobileSignService.errorState.removeObserver(errorStateObserver)
+                            mobileSignService.challenge.removeObserver(challengeObserver)
+                            mobileSignService.result.removeObserver(resultObserver)
+                            mobileSignService.status.removeObserver(statusObserver)
+                            mobileSignService.response.removeObserver(responseObserver)
+                        }
+                        _signingInProgress.value = false
+                    }
+                }
+
+            return signingJob
         }
 
         fun isPersonalCodeValid(personalCode: String?): Boolean =

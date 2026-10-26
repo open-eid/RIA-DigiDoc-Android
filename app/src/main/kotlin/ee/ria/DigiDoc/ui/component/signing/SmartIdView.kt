@@ -6,6 +6,7 @@
 package ee.ria.DigiDoc.ui.component.signing
 
 import android.app.Activity
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
@@ -32,13 +33,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -89,11 +90,9 @@ import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator
 import ee.ria.DigiDoc.viewmodel.SmartIdViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -114,12 +113,26 @@ fun SmartIdView(
     cancelAction: (() -> Unit) -> Unit = {},
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     val signedContainer by sharedContainerViewModel.signedContainer.collectAsState()
     val dialogError by smartIdViewModel.dialogError.asFlow().collectAsState(0)
+    val isSigningInProgress by smartIdViewModel.signingInProgress.collectAsState()
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
 
     val focusManager = LocalFocusManager.current
+
+    DisposableEffect(isSigningInProgress) {
+        if (isSigningInProgress) {
+            activity.requestedOrientation =
+                if (activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                } else {
+                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                }
+        }
+        onDispose {
+            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        }
+    }
 
     val countryOptions = stringArrayResource(id = R.array.smart_id_country)
     var selectedCountry by rememberSaveable { mutableIntStateOf(sharedSettingsViewModel.dataStore.getCountry()) }
@@ -370,17 +383,14 @@ fun SmartIdView(
                                     zip = zip,
                                 )
                         }
-                        scope.launch(IO) {
-                            smartIdViewModel.performSmartIdWorkRequest(
-                                activity = activity,
-                                context = context,
-                                displayMessage = displayMessage,
-                                container = signedContainer,
-                                personalCode = personalCode.text,
-                                country = selectedCountry,
-                                roleData = roleDataRequest,
-                            )
-                        }
+                        smartIdViewModel.performSmartIdWorkRequest(
+                            context = context,
+                            displayMessage = displayMessage,
+                            container = signedContainer,
+                            personalCode = personalCode.text,
+                            country = selectedCountry,
+                            roleData = roleDataRequest,
+                        )
                     }
                     cancelAction {
                         smartIdViewModel.cancelSmartIdWorkRequest(signedContainer)

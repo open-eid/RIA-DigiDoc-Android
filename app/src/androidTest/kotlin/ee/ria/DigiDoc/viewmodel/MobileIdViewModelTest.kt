@@ -90,7 +90,6 @@ class MobileIdViewModelTest {
     lateinit var challengeObserver: Observer<String?>
 
     private lateinit var scenario: ActivityScenario<ComponentActivity>
-    private lateinit var activity: ComponentActivity
 
     private lateinit var signedContainer: SignedContainer
 
@@ -186,10 +185,6 @@ class MobileIdViewModelTest {
 
         scenario = ActivityScenario.launch(ComponentActivity::class.java)
 
-        scenario.onActivity { activityInstance ->
-            activity = activityInstance
-        }
-
         val container =
             AssetFile.getResourceFileAsFile(
                 context,
@@ -219,15 +214,15 @@ class MobileIdViewModelTest {
             `when`(mobileIdService.result).thenReturn(MutableLiveData<MobileCertificateResultType?>(null))
             `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>("Some error occurred"))
 
-            viewModel.performMobileIdWorkRequest(
-                activity,
-                context,
-                "test message",
-                signedContainer,
-                "45611283812",
-                "5629421",
-                null,
-            )
+            viewModel
+                .performMobileIdWorkRequest(
+                    context,
+                    "test message",
+                    signedContainer,
+                    "45611283812",
+                    "5629421",
+                    null,
+                )?.join()
 
             verify(mobileIdService, atLeastOnce()).resetValues()
             verify(
@@ -271,15 +266,15 @@ class MobileIdViewModelTest {
             `when`(mobileIdService.result).thenReturn(MutableLiveData<MobileCertificateResultType?>(null))
             `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performMobileIdWorkRequest(
-                activity,
-                context,
-                "test message",
-                signedContainer,
-                "45611283812",
-                "5629421",
-                null,
-            )
+            viewModel
+                .performMobileIdWorkRequest(
+                    context,
+                    "test message",
+                    signedContainer,
+                    "45611283812",
+                    "5629421",
+                    null,
+                )?.join()
 
             verify(mobileIdService, atLeastOnce()).resetValues()
             verify(
@@ -320,15 +315,15 @@ class MobileIdViewModelTest {
             `when`(mobileIdService.result).thenReturn(MutableLiveData<MobileCertificateResultType?>(null))
             `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performMobileIdWorkRequest(
-                activity,
-                context,
-                "test message",
-                signedContainer,
-                "45611283812",
-                "5629421",
-                null,
-            )
+            viewModel
+                .performMobileIdWorkRequest(
+                    context,
+                    "test message",
+                    signedContainer,
+                    "45611283812",
+                    "5629421",
+                    null,
+                )?.join()
 
             verify(mobileIdService, atLeastOnce()).resetValues()
             verify(
@@ -376,15 +371,15 @@ class MobileIdViewModelTest {
             `when`(mobileIdService.result).thenReturn(MutableLiveData<MobileCertificateResultType?>(null))
             `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performMobileIdWorkRequest(
-                activity,
-                context,
-                "test message",
-                signedContainer,
-                "45611283812",
-                "5629421",
-                null,
-            )
+            viewModel
+                .performMobileIdWorkRequest(
+                    context,
+                    "test message",
+                    signedContainer,
+                    "45611283812",
+                    "5629421",
+                    null,
+                )?.join()
 
             verify(mobileIdService, atLeastOnce()).resetValues()
             verify(
@@ -435,15 +430,15 @@ class MobileIdViewModelTest {
             `when`(mobileIdService.result).thenReturn(MutableLiveData<MobileCertificateResultType?>(null))
             `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performMobileIdWorkRequest(
-                activity,
-                context,
-                "test message",
-                signedContainer,
-                "45611283812",
-                "5629421",
-                null,
-            )
+            viewModel
+                .performMobileIdWorkRequest(
+                    context,
+                    "test message",
+                    signedContainer,
+                    "45611283812",
+                    "5629421",
+                    null,
+                )?.join()
 
             verify(mobileIdService, atLeastOnce()).resetValues()
             verify(
@@ -492,15 +487,15 @@ class MobileIdViewModelTest {
             `when`(mobileIdService.result).thenReturn(MutableLiveData<MobileCertificateResultType?>(null))
             `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performMobileIdWorkRequest(
-                activity,
-                context,
-                "test message",
-                signedContainer,
-                "45611283812",
-                "5629421",
-                null,
-            )
+            viewModel
+                .performMobileIdWorkRequest(
+                    context,
+                    "test message",
+                    signedContainer,
+                    "45611283812",
+                    "5629421",
+                    null,
+                )?.join()
 
             verify(mobileIdService, atLeastOnce()).resetValues()
             verify(
@@ -549,15 +544,15 @@ class MobileIdViewModelTest {
             `when`(mobileIdService.result).thenReturn(MutableLiveData<MobileCertificateResultType?>(null))
             `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performMobileIdWorkRequest(
-                activity,
-                context,
-                "test message",
-                signedContainer,
-                "45611283812",
-                "5629421",
-                null,
-            )
+            viewModel
+                .performMobileIdWorkRequest(
+                    context,
+                    "test message",
+                    signedContainer,
+                    "45611283812",
+                    "5629421",
+                    null,
+                )?.join()
 
             verify(mobileIdService, atLeastOnce()).resetValues()
             verify(
@@ -600,15 +595,15 @@ class MobileIdViewModelTest {
             ).thenReturn(MutableLiveData<MobileCertificateResultType?>(MobileCertificateResultType.NOT_FOUND))
             `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performMobileIdWorkRequest(
-                activity,
-                context,
-                "test message",
-                signedContainer,
-                "45611283812",
-                "5629421",
-                null,
-            )
+            viewModel
+                .performMobileIdWorkRequest(
+                    context,
+                    "test message",
+                    signedContainer,
+                    "45611283812",
+                    "5629421",
+                    null,
+                )?.join()
 
             verify(mobileIdService, atLeastOnce()).resetValues()
             verify(

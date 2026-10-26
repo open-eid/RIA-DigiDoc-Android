@@ -11,7 +11,6 @@ import androidx.lifecycle.MutableLiveData
 import ee.ria.DigiDoc.common.Constant.PEM_BEGIN_CERT
 import ee.ria.DigiDoc.common.Constant.PEM_END_CERT
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.SIGNATURE_PROFILE_TS
-import ee.ria.DigiDoc.common.model.AppState
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.MobileIdServiceResponse
@@ -562,19 +561,13 @@ class MobileSignServiceImpl
             signer: ExternalSigner,
             signedContainer: SignedContainer,
             request: GetMobileCreateSignatureSessionStatusRequest,
+            consecutiveIoFailures: Int = 0,
         ) {
             try {
                 checkSigningCancelled(signedContainer)
             } catch (sce: SigningCancelledException) {
                 errorLog(logTag, "Unable to sign with Mobile-ID. Signing has been cancelled", sce)
                 return
-            }
-
-            // Wait until the app is in the foreground to avoid networking errors
-            while (!AppState.isAppInForeground) {
-                debugLog(logTag, "Mobile-ID: App is in the background, waiting to return to foreground...")
-                delay(1000)
-                timeout += 1000
             }
 
             val responseCall: Call<MobileCreateSignatureSessionStatusResponse> =
@@ -584,7 +577,28 @@ class MobileSignServiceImpl
                 )
 
             val responseWrapper: Response<MobileCreateSignatureSessionStatusResponse> =
-                responseCall.clone().execute()
+                try {
+                    responseCall.clone().execute()
+                } catch (ioe: IOException) {
+                    if (consecutiveIoFailures + 1 > MAX_CONSECUTIVE_IO_FAILURES || timeout > TIMEOUT_CANCEL) {
+                        throw ioe
+                    }
+                    errorLog(
+                        logTag,
+                        "Mobile-ID session status request failed, retrying. " +
+                            "Consecutive failures: ${consecutiveIoFailures + 1}. " +
+                            "Exception message: ${ioe.message}",
+                        ioe,
+                    )
+                    sleep(SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS)
+                    doCreateSignatureStatusRequestLoop(
+                        signer,
+                        signedContainer,
+                        request,
+                        consecutiveIoFailures + 1,
+                    )
+                    return
+                }
             debugLog(
                 logTag,
                 "MobileCreateSignatureSessionStatusResponse response: $responseWrapper",
@@ -748,6 +762,13 @@ class MobileSignServiceImpl
                         "HTTP status code: ${responseWrapper.code()}",
                 )
                 postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.EXCEEDED_UNSUCCESSFUL_REQUESTS))
+            } else if (responseWrapper.code() == 404) {
+                debugLog(
+                    logTag,
+                    "Failed to sign with Mobile-ID. Not a Mobile-ID client, " +
+                        "HTTP status code: ${responseWrapper.code()}",
+                )
+                postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.NOT_MID_CLIENT))
             } else {
                 debugLog(
                     logTag,
@@ -782,6 +803,13 @@ class MobileSignServiceImpl
                     logTag,
                     "Failed to sign with Mobile-ID. " +
                         "Exceeded unsuccessful requests, HTTP status code: ${responseWrapper.code()}",
+                )
+            } else if (responseWrapper.code() == 404) {
+                postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.NOT_MID_CLIENT))
+                debugLog(
+                    logTag,
+                    "Failed to sign with Mobile-ID. " +
+                        "Not a Mobile-ID client, HTTP status code: ${responseWrapper.code()}",
                 )
             } else {
                 postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.TECHNICAL_ERROR))
@@ -818,6 +846,13 @@ class MobileSignServiceImpl
                     "Failed to sign with Mobile-ID. " +
                         "Exceeded unsuccessful requests, HTTP status code: ${responseWrapper.code()}",
                 )
+            } else if (responseWrapper.code() == 404) {
+                postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.TIMEOUT))
+                debugLog(
+                    logTag,
+                    "Failed to sign with Mobile-ID. " +
+                        "Session not found or expired, HTTP status code: ${responseWrapper.code()}",
+                )
             } else {
                 postFault(RESTServiceFault(MobileCreateSignatureProcessStatus.TECHNICAL_ERROR))
                 debugLog(
@@ -836,7 +871,6 @@ class MobileSignServiceImpl
             setErrorState(null)
             setStatus(fault.status)
             setResult(fault.result)
-            setChallenge(null)
         }
 
         private fun postMobileCreateSignatureStatusResponse(
@@ -991,7 +1025,8 @@ class MobileSignServiceImpl
         companion object {
             private const val INITIAL_STATUS_REQUEST_DELAY_IN_MILLISECONDS: Long = 1000
             private const val SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS = (5 * 1000).toLong()
-            private const val TIMEOUT_CANCEL = (120 * 1000).toLong()
+            private const val TIMEOUT_CANCEL = (180 * 1000).toLong()
+            private const val MAX_CONSECUTIVE_IO_FAILURES = 3
 
             @Throws(
                 CertificateException::class,

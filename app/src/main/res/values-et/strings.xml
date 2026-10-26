@@ -95,6 +95,8 @@
     <string name="challenge_code_text">Kontrollkood:</string>
     <string name="mobile_id_challenge">Mobiil-ID allkirjastamise kontrollkood</string>
     <string name="smart_id_challenge">Smart-ID allkirjastamise kontrollkood</string>
+    <string name="signing_notification_channel_name">Allkirjastamine</string>
+    <string name="signing_in_progress">Allkirjastamine on pooleli</string>
 
     <!-- Libdigidocpp -->
     <string name="libdigidocpp_initialization_failed">Libdigidocpp initsialiseerimine ebaõnnestus</string>

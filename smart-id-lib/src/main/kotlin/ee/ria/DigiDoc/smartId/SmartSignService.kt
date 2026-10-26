@@ -11,7 +11,6 @@ import androidx.lifecycle.MutableLiveData
 import ee.ria.DigiDoc.common.Constant.PEM_BEGIN_CERT
 import ee.ria.DigiDoc.common.Constant.PEM_END_CERT
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.SIGNATURE_PROFILE_TS
-import ee.ria.DigiDoc.common.model.AppState
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
 import ee.ria.DigiDoc.libdigidoclib.domain.model.ContainerWrapper
 import ee.ria.DigiDoc.libdigidoclib.domain.model.RoleData
@@ -494,23 +493,35 @@ class SmartSignServiceImpl
                 return null
             }
 
-            while (timeout < TIMEOUT_CANCEL) {
-                // Wait until the app is in the foreground to avoid networking errors
-                while (!AppState.isAppInForeground) {
-                    debugLog(logTag, "Smart-ID: App is in the background, waiting to return to foreground...")
-                    delay(1000)
-                    timeout += 1000
-                }
+            var consecutiveIoFailures = 0
 
+            while (timeout < TIMEOUT_CANCEL) {
                 debugLog(logTag, "doSessionStatusRequestLoop timeout counter: $timeout")
                 val sessionStatusResponse: SessionStatusResponse? =
-                    handleRequest(
-                        signedContainer,
-                        sidRestServiceClient.getSessionStatus(
-                            sessionResponse.sessionID,
-                            SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS,
-                        ),
-                    )
+                    try {
+                        handleRequest(
+                            signedContainer,
+                            sidRestServiceClient.getSessionStatus(
+                                sessionResponse.sessionID,
+                                SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS,
+                            ),
+                        ).also { consecutiveIoFailures = 0 }
+                    } catch (ioe: IOException) {
+                        consecutiveIoFailures++
+                        if (consecutiveIoFailures > MAX_CONSECUTIVE_IO_FAILURES) {
+                            throw ioe
+                        }
+                        errorLog(
+                            logTag,
+                            "Smart-ID session status request failed, retrying. " +
+                                "Consecutive failures: $consecutiveIoFailures. " +
+                                "Exception message: ${ioe.message}",
+                            ioe,
+                        )
+                        delay(SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS)
+                        timeout += SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS
+                        continue
+                    }
                 if (sessionStatusResponse == null) {
                     errorLog(logTag, "No session status response")
                     return null
@@ -702,9 +713,8 @@ class SmartSignServiceImpl
             debugLog(logTag, "Updating fault: $fault")
 
             setResponse(null)
-            setErrorState(fault.detailMessage)
+            setErrorState(null)
             setStatus(fault.status)
-            setChallenge(null)
         }
 
         private fun postSmartCreateSignatureStatusResponse(response: SessionStatusResponse) {
@@ -745,6 +755,7 @@ class SmartSignServiceImpl
         companion object {
             private const val INITIAL_STATUS_REQUEST_DELAY_IN_MILLISECONDS: Long = 1000
             private const val SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS = (5 * 1000).toLong()
-            private const val TIMEOUT_CANCEL = (80 * 1000).toLong()
+            private const val TIMEOUT_CANCEL = (180 * 1000).toLong()
+            private const val MAX_CONSECUTIVE_IO_FAILURES = 3
         }
     }

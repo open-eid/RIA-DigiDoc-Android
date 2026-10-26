@@ -367,7 +367,9 @@ fun SignatureInputScreen(
                 Button(
                     onClick = {
                         scope.launch(Main) {
-                            if (chosenMethod == SigningMethod.SMART_ID) {
+                            if (chosenMethod == SigningMethod.SMART_ID ||
+                                chosenMethod == SigningMethod.MOBILE_ID
+                            ) {
                                 try {
                                     val isNotificationShowingGranted = requestNotificationPermission()
                                     debugLog(

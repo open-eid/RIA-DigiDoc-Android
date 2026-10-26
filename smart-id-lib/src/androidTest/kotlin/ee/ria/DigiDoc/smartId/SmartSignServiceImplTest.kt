@@ -10,7 +10,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.test.platform.app.InstrumentationRegistry
 import ee.ria.DigiDoc.common.Constant.SignatureRequest.RELYING_PARTY_UUID
-import ee.ria.DigiDoc.common.model.AppState
 import ee.ria.DigiDoc.common.testfiles.asset.AssetFile.Companion.getResourceFileAsFile
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.libdigidoclib.SignedContainer
@@ -172,7 +171,6 @@ class SmartSignServiceImplTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         context = InstrumentationRegistry.getInstrumentation().targetContext
-        AppState.isAppInForeground = true
         serviceGenerator = mock(ServiceGenerator::class.java)
         containerWrapper = mock(ContainerWrapper::class.java)
         smartSignServiceImpl =
@@ -1758,5 +1756,146 @@ class SmartSignServiceImplTest {
             )
 
             verify(errorStateObserver, atLeastOnce()).onChanged("Base64 (Prepare signature) is empty or null")
+        }
+
+    @Test
+    fun smartSignService_processSmartIdRequest_retriesSessionStatusAfterNetworkDrop() =
+        runTest {
+            doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sidSignServiceUrl = request.url + "/",
+                certBundle = certBundle,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            doReturn(
+                Calls.response(
+                    Response.success(
+                        SessionResponse(
+                            sessionID = "sessionID",
+                        ),
+                    ),
+                ),
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
+                    semanticsIdentifier = "PNOEE-60001019906",
+                    body = getSmartCertificateRequest,
+                )
+
+            @Suppress("UNCHECKED_CAST")
+            val sessionStatusCall = mock(Call::class.java) as Call<SessionStatusResponse>
+            doReturn(sessionStatusCall)
+                .whenever(sidRestServiceClient)
+                .getSessionStatus("sessionID", 5000)
+            doReturn(sessionStatusCall).whenever(sessionStatusCall).clone()
+            whenever(sessionStatusCall.execute())
+                .thenThrow(IOException("Software caused connection abort"))
+                .thenReturn(
+                    Response.success(
+                        SessionStatusResponse(
+                            state = SessionStatusResponseProcessState.COMPLETE,
+                            result =
+                                SessionStatusResponseStatus(
+                                    endResult = SessionStatusResponseProcessStatus.OK,
+                                    documentNumber = "documentNumber",
+                                ),
+                            signature =
+                                SmartSignatureResponse(
+                                    value = "dTzZ20E8kmoXXBAh5cV5yw==",
+                                    algorithm = "SmartIDSignatureAlgorithm",
+                                ),
+                            cert =
+                                SmartCertificateResponse(
+                                    value = cert,
+                                    assuranceLevel = "assuranceLevel",
+                                    certificateLevel = "certificateLevel",
+                                ),
+                        ),
+                    ),
+                )
+
+            whenever(
+                containerWrapper.prepareSignature(
+                    signer = any<ExternalSigner>(),
+                    signedContainer = any<SignedContainer>(),
+                    cert = any<ByteArray>(),
+                    roleData = isNull(),
+                ),
+            ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==".toByteArray())
+
+            whenever(
+                sidRestServiceClient.getCreateSignature(
+                    eq("documentNumber"),
+                    any(),
+                ),
+            ).thenReturn(
+                Calls.response(Response.success(SessionResponse(sessionID = "sessionID"))),
+            )
+
+            smartSignServiceImpl.processSmartIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(responseObserver, atLeastOnce()).onChanged(
+                SmartIDServiceResponse(status = SessionStatusResponseProcessStatus.OK),
+            )
+        }
+
+    @Test
+    fun smartSignService_processSmartIdRequest_givesUpAfterRepeatedSessionStatusNetworkDrops() =
+        runTest {
+            doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sidSignServiceUrl = request.url + "/",
+                certBundle = certBundle,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            doReturn(
+                Calls.response(
+                    Response.success(
+                        SessionResponse(
+                            sessionID = "sessionID",
+                        ),
+                    ),
+                ),
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
+                    semanticsIdentifier = "PNOEE-60001019906",
+                    body = getSmartCertificateRequest,
+                )
+
+            @Suppress("UNCHECKED_CAST")
+            val sessionStatusCall = mock(Call::class.java) as Call<SessionStatusResponse>
+            doReturn(sessionStatusCall)
+                .whenever(sidRestServiceClient)
+                .getSessionStatus("sessionID", 5000)
+            doReturn(sessionStatusCall).whenever(sessionStatusCall).clone()
+            whenever(sessionStatusCall.execute())
+                .thenThrow(IOException("Software caused connection abort"))
+
+            smartSignServiceImpl.processSmartIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.GENERAL_ERROR)
         }
 }

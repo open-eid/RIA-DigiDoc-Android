@@ -94,7 +94,6 @@ class SmartIdViewModelTest {
     lateinit var challengeObserver: Observer<String?>
 
     private lateinit var scenario: ActivityScenario<ComponentActivity>
-    private lateinit var activity: ComponentActivity
 
     private lateinit var signedContainer: SignedContainer
 
@@ -191,10 +190,6 @@ class SmartIdViewModelTest {
 
         scenario = ActivityScenario.launch(ComponentActivity::class.java)
 
-        scenario.onActivity { activityInstance ->
-            activity = activityInstance
-        }
-
         val container =
             AssetFile.getResourceFileAsFile(
                 context,
@@ -223,15 +218,15 @@ class SmartIdViewModelTest {
             `when`(smartSignService.cancelled).thenReturn(MutableLiveData<Boolean?>(true))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>("Some error occurred"))
 
-            viewModel.performSmartIdWorkRequest(
-                activity,
-                context,
-                "test message",
-                signedContainer,
-                "45611283812",
-                0,
-                null,
-            )
+            viewModel
+                .performSmartIdWorkRequest(
+                    context,
+                    "test message",
+                    signedContainer,
+                    "45611283812",
+                    0,
+                    null,
+                )?.join()
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -284,15 +279,15 @@ class SmartIdViewModelTest {
             `when`(smartSignService.cancelled).thenReturn(MutableLiveData<Boolean?>(false))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performSmartIdWorkRequest(
-                activity,
-                context,
-                "test message",
-                signedContainer,
-                "45611283812",
-                0,
-                null,
-            )
+            viewModel
+                .performSmartIdWorkRequest(
+                    context,
+                    "test message",
+                    signedContainer,
+                    "45611283812",
+                    0,
+                    null,
+                )?.join()
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -341,15 +336,15 @@ class SmartIdViewModelTest {
             `when`(smartSignService.cancelled).thenReturn(MutableLiveData<Boolean?>(false))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performSmartIdWorkRequest(
-                activity,
-                context,
-                "test message",
-                signedContainer,
-                "45611283812",
-                0,
-                null,
-            )
+            viewModel
+                .performSmartIdWorkRequest(
+                    context,
+                    "test message",
+                    signedContainer,
+                    "45611283812",
+                    0,
+                    null,
+                )?.join()
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -400,15 +395,15 @@ class SmartIdViewModelTest {
             `when`(smartSignService.cancelled).thenReturn(MutableLiveData<Boolean?>(true))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performSmartIdWorkRequest(
-                activity,
-                context,
-                "test message",
-                signedContainer,
-                "45611283812",
-                0,
-                null,
-            )
+            viewModel
+                .performSmartIdWorkRequest(
+                    context,
+                    "test message",
+                    signedContainer,
+                    "45611283812",
+                    0,
+                    null,
+                )?.join()
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -462,15 +457,15 @@ class SmartIdViewModelTest {
             `when`(smartSignService.cancelled).thenReturn(MutableLiveData<Boolean?>(true))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performSmartIdWorkRequest(
-                activity,
-                context,
-                "test message",
-                signedContainer,
-                "45611283812",
-                0,
-                null,
-            )
+            viewModel
+                .performSmartIdWorkRequest(
+                    context,
+                    "test message",
+                    signedContainer,
+                    "45611283812",
+                    0,
+                    null,
+                )?.join()
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -522,15 +517,15 @@ class SmartIdViewModelTest {
             `when`(smartSignService.cancelled).thenReturn(MutableLiveData<Boolean?>(true))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performSmartIdWorkRequest(
-                activity,
-                context,
-                "test message",
-                signedContainer,
-                "45611283812",
-                0,
-                null,
-            )
+            viewModel
+                .performSmartIdWorkRequest(
+                    context,
+                    "test message",
+                    signedContainer,
+                    "45611283812",
+                    0,
+                    null,
+                )?.join()
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
@@ -582,15 +577,15 @@ class SmartIdViewModelTest {
             `when`(smartSignService.cancelled).thenReturn(MutableLiveData<Boolean?>(true))
             `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
 
-            viewModel.performSmartIdWorkRequest(
-                activity,
-                context,
-                "test message",
-                signedContainer,
-                "45611283812",
-                0,
-                null,
-            )
+            viewModel
+                .performSmartIdWorkRequest(
+                    context,
+                    "test message",
+                    signedContainer,
+                    "45611283812",
+                    0,
+                    null,
+                )?.join()
 
             verify(smartSignService, atLeastOnce()).resetValues()
             verify(
