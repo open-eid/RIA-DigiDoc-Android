@@ -79,7 +79,6 @@ import ee.ria.DigiDoc.ui.component.shared.InvisibleElement
 import ee.ria.DigiDoc.ui.component.shared.PrimaryTextField
 import ee.ria.DigiDoc.ui.component.shared.RoleDataView
 import ee.ria.DigiDoc.ui.component.shared.SecurePinTextField
-import ee.ria.DigiDoc.ui.component.shared.dialog.CourierCardActivationDialog
 import ee.ria.DigiDoc.ui.component.shared.dialog.WrongCanDialog
 import ee.ria.DigiDoc.ui.component.shared.talkBackTextFieldValue
 import ee.ria.DigiDoc.ui.component.support.textFieldValueSaver
@@ -128,7 +127,6 @@ fun NFCView(
     isValidToSign: (Boolean) -> Unit = {},
     isValidToDecrypt: (Boolean) -> Unit = {},
     isValidToWebEidAuthenticate: (Boolean) -> Unit = {},
-    onCourierCardDialogDismissed: () -> Unit = {},
     showPinField: Boolean = true,
     isValidToAuthenticate: (Boolean) -> Unit = {},
     signAction: (() -> Unit) -> Unit = {},
@@ -191,7 +189,6 @@ fun NFCView(
     var doNotShowWrongCanDialogAgain by remember {
         mutableStateOf(nfcViewModel.getDoNotShowWrongCanDialog())
     }
-    val showCourierCardDialog = rememberSaveable { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val saveFormParams = {
         val currentCan = canNumber.text
@@ -210,15 +207,6 @@ fun NFCView(
 
     val canNumberFocusRequester = remember { FocusRequester() }
     val pinNumberFocusRequester = remember { FocusRequester() }
-
-    val isCourierCard = userData?.personalData != null && userData?.pin1CodeChanged == false
-    var isDecryptingWithCourierCard by rememberSaveable { mutableStateOf(false) }
-    val courierDialogMessage =
-        if (identityAction == IdentityAction.DECRYPT) {
-            R.string.id_card_courier_must_activate_to_decrypt
-        } else {
-            R.string.id_card_courier_must_activate_to_sign
-        }
     val canNumberWithInvisibleSpaces = talkBackTextFieldValue(canNumber.text)
 
     val pinCode = nfcViewModel.pinCode
@@ -410,20 +398,6 @@ fun NFCView(
         }
     }
 
-    LaunchedEffect(nfcViewModel.courierCardDetected) {
-        nfcViewModel.courierCardDetected
-            .asFlow()
-            .filterNotNull()
-            .collect {
-                withContext(Main) {
-                    pinCode.value.clearSensitive()
-                    isDecryptingWithCourierCard = true
-                    showCourierCardDialog.value = true
-                    nfcViewModel.resetCourierCardDetected()
-                }
-            }
-    }
-
     LaunchedEffect(nfcViewModel.dialogError) {
         nfcViewModel.dialogError
             .asFlow()
@@ -489,40 +463,6 @@ fun NFCView(
             showMessage(errorText)
             errorText = ""
         }
-    }
-
-    LaunchedEffect(isCourierCard) {
-        if (isCourierCard) {
-            isValidToSign(false)
-            isValidToDecrypt(false)
-            if (identityAction == IdentityAction.SIGN ||
-                identityAction == IdentityAction.DECRYPT
-            ) {
-                showCourierCardDialog.value = true
-            }
-        } else {
-            showCourierCardDialog.value = false
-        }
-    }
-
-    if (errorText.isNotEmpty()) {
-        showMessage(errorText)
-        errorText = ""
-    }
-
-    if (showCourierCardDialog.value) {
-        CourierCardActivationDialog(
-            message = courierDialogMessage,
-            onDismiss = {
-                showCourierCardDialog.value = false
-                if (isDecryptingWithCourierCard) {
-                    isDecryptingWithCourierCard = false
-                    onError()
-                } else {
-                    onCourierCardDialogDismissed()
-                }
-            },
-        )
     }
 
     if (showErrorDialog.value) {
