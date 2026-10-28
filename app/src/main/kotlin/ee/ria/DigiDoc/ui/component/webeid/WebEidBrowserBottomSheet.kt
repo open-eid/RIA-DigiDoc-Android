@@ -23,6 +23,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalBottomSheetProperties
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -33,6 +35,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import ee.ria.DigiDoc.R
@@ -48,11 +52,19 @@ fun WebEidBrowserBottomSheet(
     browsers: List<WebEidBrowser>,
     @StringRes message: Int,
     onSelect: (String) -> Unit,
-    onDismiss: () -> Unit,
 ) {
     ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(),
+        onDismissRequest = {},
+        sheetState =
+            rememberModalBottomSheetState(
+                skipPartiallyExpanded = true,
+                confirmValueChange = { it != SheetValue.Hidden },
+            ),
+        properties =
+            ModalBottomSheetProperties(
+                shouldDismissOnBackPress = false,
+                shouldDismissOnClickOutside = false,
+            ),
         containerColor = MaterialTheme.colorScheme.surfaceVariant,
     ) {
         Column(
@@ -72,7 +84,7 @@ fun WebEidBrowserBottomSheet(
                     modifier
                         .padding(XSPadding)
                         .testTag("webEidBrowserSheetTitle")
-                        .notAccessible(),
+                        .semantics { heading() },
                 text = stringResource(R.string.web_eid_select_browser_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -89,7 +101,7 @@ fun WebEidBrowserBottomSheet(
                     modifier =
                         modifier
                             .fillMaxWidth()
-                            .clickable { onSelect(browser.packageName) }
+                            .clickable(role = Role.Button) { onSelect(browser.packageName) }
                             .padding(XSPadding)
                             .testTag("webEidBrowserSheetItem"),
                     horizontalArrangement = Arrangement.Start,

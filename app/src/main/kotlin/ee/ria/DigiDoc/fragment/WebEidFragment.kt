@@ -136,15 +136,6 @@ fun WebEidFragment(
                     sendResponse(activity, selectionResponse.uri, selectedPackage)
                 }
             },
-            onDismiss = {
-                val cancelUri = viewModel.userCancelledResponseUri()
-                if (cancelUri != null && viewModel.startResponseDispatch()) {
-                    debugLog(LOG_TAG, "Web eID response. Browser selection dismissed, sending cancel")
-                    sendResponse(activity, cancelUri, null)
-                } else {
-                    activity.finishAndRemoveTask()
-                }
-            },
         )
     }
 

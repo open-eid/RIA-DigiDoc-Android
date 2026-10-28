@@ -234,25 +234,6 @@ class WebEidViewModel
             }
         }
 
-        fun userCancelledResponseUri(): Uri? {
-            val responseUri =
-                authRequest.value?.loginUri
-                    ?: certificateRequest.value?.responseUri
-                    ?: signRequest.value?.responseUri
-
-            if (responseUri.isNullOrBlank()) {
-                errorLog(logTag, "Cannot build cancel response — missing response URI")
-                return null
-            }
-
-            val errorPayload =
-                WebEidResponseUtil.createErrorPayload(
-                    WebEidErrorCode.ERR_WEBEID_USER_CANCELLED,
-                    "User cancelled",
-                )
-            return WebEidResponseUtil.createResponseUri(responseUri, errorPayload)
-        }
-
         suspend fun handleUserCancelled() {
             try {
                 val responseUri =
