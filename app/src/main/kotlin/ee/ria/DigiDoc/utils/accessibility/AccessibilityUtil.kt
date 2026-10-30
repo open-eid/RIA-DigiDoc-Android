@@ -24,7 +24,7 @@ import java.util.Locale
 
 class AccessibilityUtil {
     companion object {
-        private val numericDate = Regex("""\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b""")
+        private val numericDate = Regex("""(?<![\d.])(\d{1,2})\.(\d{1,2})\.(\d{4})(?![\d.])""")
 
         fun sendAccessibilityEvent(
             context: Context,
@@ -59,6 +59,9 @@ class AccessibilityUtil {
             }
         }
 
+        fun isDottedNumber(text: String): Boolean =
+            text.contains('.') && text.any { it.isDigit() } && text.all { it.isDigit() || it == '.' }
+
         fun SemanticsPropertyReceiver.readCharacterByCharacter(
             text: String,
             selection: TextRange = TextRange(text.length),
@@ -85,7 +88,6 @@ class AccessibilityUtil {
         fun spokenDates(text: String): String =
             spokenDates(text, stringResource(R.string.spoken_date_format), LocalConfiguration.current.locales[0])
 
-        // Every character but the last is followed by a separator, so offset n lands at 2n - 1
         private fun separatedOffset(offset: Int): Int = if (offset == 0) 0 else offset * 2 - 1
     }
 }

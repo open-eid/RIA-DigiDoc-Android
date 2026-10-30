@@ -8,10 +8,12 @@ package ee.ria.DigiDoc.utils.accessibility
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.text.TextRange
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isDottedNumber
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.readCharacterByCharacter
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.spokenDates
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.util.Locale
 
@@ -111,5 +113,63 @@ class AccessibilityUtilTest {
         val spoken = spokenDates("libdigidocpp 4.5.0, serial 12.345", "d MMMM yyyy", Locale.ENGLISH)
 
         assertEquals("libdigidocpp 4.5.0, serial 12.345", spoken)
+    }
+
+    @Test
+    fun spokenDates_leavesVersionWithBuildNumberUnchanged() {
+        val spoken = spokenDates("libdigidocpp 4.5.6.1234", "d MMMM yyyy", Locale.ENGLISH)
+
+        assertEquals("libdigidocpp 4.5.6.1234", spoken)
+    }
+
+    @Test
+    fun spokenDates_leavesDottedAddressUnchanged() {
+        val spoken = spokenDates("10.11.12.2026", "d MMMM yyyy", Locale.ENGLISH)
+
+        assertEquals("10.11.12.2026", spoken)
+    }
+
+    @Test
+    fun spokenDates_leavesDottedRunInsideUrlUnchanged() {
+        val spoken = spokenDates("https://10.11.12.2026/tsl", "d MMMM yyyy", Locale.ENGLISH)
+
+        assertEquals("https://10.11.12.2026/tsl", spoken)
+    }
+
+    @Test
+    fun spokenDates_leavesYearFirstDateUnchanged() {
+        val spoken = spokenDates("2026.10.30", "d MMMM yyyy", Locale.ENGLISH)
+
+        assertEquals("2026.10.30", spoken)
+    }
+
+    @Test
+    fun isDottedNumber_acceptsAnIpAddress() {
+        assertTrue(isDottedNumber("10.11.12.13"))
+    }
+
+    @Test
+    fun isDottedNumber_acceptsAnIpAddressBeingTyped() {
+        assertTrue(isDottedNumber("10.11"))
+    }
+
+    @Test
+    fun isDottedNumber_rejectsAHostname() {
+        assertFalse(isDottedNumber("proxy.example.com"))
+    }
+
+    @Test
+    fun isDottedNumber_rejectsADigitsOnlyPort() {
+        assertFalse(isDottedNumber("8080"))
+    }
+
+    @Test
+    fun isDottedNumber_rejectsEmptyText() {
+        assertFalse(isDottedNumber(""))
+    }
+
+    @Test
+    fun isDottedNumber_rejectsDotsWithoutDigits() {
+        assertFalse(isDottedNumber("..."))
     }
 }
