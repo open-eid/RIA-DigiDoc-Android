@@ -145,7 +145,7 @@ class CryptoContainer
         suspend fun removeRecipient(recipient: Addressee) {
             if (recipients.isNotEmpty()) {
                 withContext(IO) {
-                    val index = recipients.indexOfFirst { it.identifier == recipient.identifier }
+                    val index = recipients.indexOfFirst { RecipientUtil.isSameRecipient(it, recipient) }
                     if (index != -1) {
                         recipients.removeAt(index)
                     }

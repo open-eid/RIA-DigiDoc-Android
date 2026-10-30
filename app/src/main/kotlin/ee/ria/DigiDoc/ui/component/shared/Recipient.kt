@@ -5,6 +5,7 @@
 
 package ee.ria.DigiDoc.ui.component.shared
 
+import android.content.Context
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -59,37 +60,53 @@ import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatName
 import ee.ria.DigiDoc.utilsLib.date.DateUtil.dateFormat
 import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator
 
+fun recipientContentDescription(
+    recipient: Addressee,
+    recipientText: String,
+    certText: String,
+): String = "$recipientText ${formatNumbers(recipientNameText(recipient))} $certText"
+
+fun recipientCertText(
+    context: Context,
+    recipient: Addressee,
+): String {
+    val certTypeText = getRecipientCertTypeText(context, recipient.certType)
+    val certValidTo =
+        if (recipient.certType == CertType.PasswordType) {
+            ""
+        } else {
+            recipient.validTo
+                ?.let { dateFormat.format(it) }
+                ?.let { context.getString(R.string.crypto_cert_valid_to, it) }
+                ?: ""
+        }
+    return "$certTypeText $certValidTo"
+}
+
+fun recipientNameText(recipient: Addressee): String =
+    when {
+        recipient.certType == CertType.PasswordType -> recipient.identifier
+        PersonalCodeValidator.isPersonalCodeValid(recipient.identifier) ->
+            formatName(recipient.surname, recipient.givenName, recipient.identifier)
+        else -> formatCompanyName(recipient.identifier, recipient.serialNumber)
+    }
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Recipient(
     modifier: Modifier = Modifier,
     recipient: Addressee,
     isMoreOptionsButtonShown: Boolean = true,
+    recipientText: String,
     onClick: (recipient: Addressee) -> Unit = {},
 ) {
     val context = LocalContext.current
-    val recipientText = stringResource(id = R.string.crypto_recipient_title)
     val panelDescription = stringResource(R.string.panel)
 
     val isPasswordRecipient = recipient.certType == CertType.PasswordType
-    val nameText =
-        when {
-            isPasswordRecipient -> recipient.identifier
-            PersonalCodeValidator.isPersonalCodeValid(recipient.identifier) ->
-                formatName(recipient.surname, recipient.givenName, recipient.identifier)
-            else -> formatCompanyName(recipient.identifier, recipient.serialNumber)
-        }
-    val certTypeText = getRecipientCertTypeText(context, recipient.certType)
-    val certValidTo =
-        if (isPasswordRecipient) {
-            ""
-        } else {
-            recipient.validTo
-                ?.let { dateFormat.format(it) }
-                ?.let { stringResource(R.string.crypto_cert_valid_to, it) }
-                ?: ""
-        }
-    val spokenCertValidTo = spokenDates(certValidTo)
+    val nameText = recipientNameText(recipient)
+    val certText = recipientCertText(context, recipient)
+    val contentDescription = recipientContentDescription(recipient, recipientText, spokenDates(certText))
 
     val iconRes =
         if (isPasswordRecipient || (recipient.surname.isNullOrEmpty() && recipient.givenName.isNullOrEmpty())) {
@@ -103,8 +120,7 @@ fun Recipient(
                 .fillMaxWidth()
                 .clickable { onClick(recipient) }
                 .semantics(mergeDescendants = true) {
-                    this.contentDescription =
-                        "$recipientText ${formatNumbers(nameText)} $certTypeText $spokenCertValidTo"
+                    this.contentDescription = contentDescription
                     testTagsAsResourceId = true
                 }.testTag("recipientItemContainer"),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
@@ -112,17 +128,17 @@ fun Recipient(
     ) {
         Column(
             modifier =
-                modifier
+                Modifier
                     .fillMaxWidth()
                     .padding(SPadding),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Box(
                     modifier =
-                        modifier
+                        Modifier
                             .wrapContentHeight(),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -131,7 +147,7 @@ fun Recipient(
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurface,
                         modifier =
-                            modifier
+                            Modifier
                                 .padding(XSPadding)
                                 .size(iconSizeXXS)
                                 .wrapContentHeight(align = Alignment.CenterVertically)
@@ -142,11 +158,11 @@ fun Recipient(
                     )
                 }
 
-                Spacer(modifier = modifier.width(SPadding))
+                Spacer(modifier = Modifier.width(SPadding))
 
                 Column(
                     modifier =
-                        modifier
+                        Modifier
                             .weight(1f)
                             .semantics(mergeDescendants = true) {
                                 testTagsAsResourceId = true
@@ -155,7 +171,7 @@ fun Recipient(
                 ) {
                     StyledNameText(
                         modifier =
-                            modifier
+                            Modifier
                                 .focusable(false)
                                 .semantics {
                                     testTagsAsResourceId = true
@@ -164,9 +180,9 @@ fun Recipient(
                         formatName = false,
                     )
                     Text(
-                        text = "$certTypeText $certValidTo",
+                        text = certText,
                         modifier =
-                            modifier
+                            Modifier
                                 .focusable(false)
                                 .semantics {
                                     testTagsAsResourceId = true
@@ -179,7 +195,7 @@ fun Recipient(
                     IconButton(onClick = { onClick(recipient) }) {
                         Icon(
                             modifier =
-                                modifier
+                                Modifier
                                     .semantics {
                                         stateDescription = panelDescription
                                         testTagsAsResourceId = true
@@ -222,6 +238,7 @@ fun RecipientPreview() {
             Column {
                 Recipient(
                     recipient = recipient,
+                    recipientText = stringResource(id = R.string.crypto_recipient_title),
                 )
             }
         }
