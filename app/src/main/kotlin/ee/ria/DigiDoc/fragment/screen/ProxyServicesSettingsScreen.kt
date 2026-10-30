@@ -64,6 +64,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSBorder
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.isDottedNumber
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
 import ee.ria.DigiDoc.utils.snackbar.SnackbarType
@@ -400,6 +401,7 @@ fun ProxyServicesSettingsScreen(
                             },
                             singleLine = true,
                             label = stringResource(R.string.main_settings_proxy_host),
+                            readDigitByDigit = isDottedNumber(proxyHost.text),
                             enabled = settingsProxyChoice.value == ProxySetting.MANUAL_PROXY.name,
                             keyboardOptions =
                                 KeyboardOptions.Default.copy(

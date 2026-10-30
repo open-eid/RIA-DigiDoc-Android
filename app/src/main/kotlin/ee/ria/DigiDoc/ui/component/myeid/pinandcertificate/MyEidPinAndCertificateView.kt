@@ -49,6 +49,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.buttonShadowElevation
 import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeM
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.spokenDates
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import java.time.LocalDate
 
@@ -69,6 +70,8 @@ fun MyEidPinAndCertificateView(
     changePinText: String = "",
     onChangePinClick: (() -> Unit)? = null,
 ) {
+    val spokenTitleAndSubtitle = spokenDates("$title. $subtitle").lowercase()
+
     Column(
         modifier =
             modifier
@@ -118,7 +121,7 @@ fun MyEidPinAndCertificateView(
                             .padding(vertical = XSPadding)
                             .focusable()
                             .semantics(mergeDescendants = true) {
-                                this.contentDescription = "$title. $subtitle".lowercase()
+                                this.contentDescription = spokenTitleAndSubtitle
                                 testTagsAsResourceId = true
                             }.testTag("myEidCertificateTitle"),
                 ) {

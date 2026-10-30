@@ -21,6 +21,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewLargePadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.screenViewSmallPadding
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.spokenDates
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -29,9 +31,11 @@ fun DiagnosticsText(
     testTag: String,
     @StringRes labelRes: Int,
     value: String,
+    isDate: Boolean = false,
     textAlign: TextAlign = TextAlign.Start,
 ) {
     val label = stringResource(id = labelRes)
+    val spokenValue = if (isDate) spokenDates(value) else formatNumbers(value)
     val annotatedString =
         buildAnnotatedString {
             append(label)
@@ -43,7 +47,7 @@ fun DiagnosticsText(
             modifier
                 .semantics {
                     testTagsAsResourceId = true
-                    contentDescription = label.lowercase() + " " + value.lowercase()
+                    contentDescription = label.lowercase() + " " + spokenValue.lowercase()
                 }.testTag(testTag)
                 .padding(
                     start = screenViewLargePadding,

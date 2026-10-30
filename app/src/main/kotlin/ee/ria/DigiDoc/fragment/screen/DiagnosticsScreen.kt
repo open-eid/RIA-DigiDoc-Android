@@ -293,6 +293,7 @@ fun DiagnosticsScreen(
                     testTag = "mainDiagnosticsCentralConfigurationDate",
                     labelRes = R.string.main_diagnostics_date_title,
                     value = currentConfiguration?.metaInf?.date ?: "",
+                    isDate = true,
                 )
                 DiagnosticsText(
                     modifier = modifier,
@@ -317,6 +318,7 @@ fun DiagnosticsScreen(
                     testTag = "mainDiagnosticsCentralConfigurationUpdateDate",
                     labelRes = R.string.main_diagnostics_configuration_update_date,
                     value = diagnosticsViewModel.getConfigurationDate(currentConfiguration?.configurationUpdateDate),
+                    isDate = true,
                 )
                 DiagnosticsText(
                     modifier = modifier,
@@ -326,6 +328,7 @@ fun DiagnosticsScreen(
                         diagnosticsViewModel.getConfigurationDate(
                             currentConfiguration?.configurationLastUpdateCheckDate,
                         ),
+                    isDate = true,
                 )
                 HorizontalDivider(
                     modifier =

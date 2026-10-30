@@ -51,6 +51,7 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.iconSizeXXS
 import ee.ria.DigiDoc.ui.theme.Dimensions.loadingBarSize
 import ee.ria.DigiDoc.ui.theme.buttonRoundedCornerShape
 import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.formatNumbers
+import ee.ria.DigiDoc.utils.accessibility.AccessibilityUtil.Companion.spokenDates
 import ee.ria.DigiDoc.utils.extensions.notAccessible
 import ee.ria.DigiDoc.utils.libdigidoc.RecipientCertTypeUtil.getRecipientCertTypeText
 import ee.ria.DigiDoc.utilsLib.container.NameUtil.formatCompanyName
@@ -71,7 +72,6 @@ fun RecipientComponent(
     isEncryptedOrDecrypted: Boolean,
 ) {
     val recipientText = stringResource(R.string.crypto_recipient_title)
-    val buttonName = stringResource(id = R.string.button_name)
     val panelDescription = stringResource(R.string.panel)
 
     if (showRecipientsLoadingIndicator) {
@@ -133,6 +133,7 @@ fun RecipientComponent(
                             stringResource(R.string.crypto_decryption_valid_to, formattedValidTo.orEmpty())
                         null -> ""
                     }
+                val spokenValidToText = spokenDates(if (isCDOC2Container) decryptionValidToText else certValidTo)
 
                 Card(
                     modifier =
@@ -140,9 +141,10 @@ fun RecipientComponent(
                             .fillMaxWidth()
                             .clickable { onClick(recipient) }
                             .semantics {
-                                val validToText = if (isCDOC2Container) decryptionValidToText else certValidTo
                                 this.contentDescription =
-                                    "$recipientText ${index + 1} ${formatNumbers(nameText)} $certTypeText $validToText"
+                                    "$recipientText ${index + 1} ${formatNumbers(
+                                        nameText,
+                                    )} $certTypeText $spokenValidToText"
 
                                 testTagsAsResourceId = true
                             }.testTag("recipientComponentContainer"),
@@ -244,7 +246,7 @@ fun RecipientComponent(
                                     imageVector = ImageVector.vectorResource(R.drawable.ic_more_vert),
                                     contentDescription = "$recipientText ${index + 1} ${stringResource(
                                         R.string.more_options,
-                                    )} $buttonName",
+                                    )}",
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
