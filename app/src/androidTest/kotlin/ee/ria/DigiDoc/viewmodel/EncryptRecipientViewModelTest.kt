@@ -19,20 +19,35 @@ import ee.ria.DigiDoc.cryptolib.exception.CryptoException
 import ee.ria.DigiDoc.cryptolib.repository.RecipientRepository
 import ee.ria.DigiDoc.utilsLib.mimetype.MimeTypeResolver
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import java.io.File
 
 @RunWith(MockitoJUnitRunner::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class EncryptRecipientViewModelTest {
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
@@ -49,6 +64,8 @@ class EncryptRecipientViewModelTest {
     @Mock
     private lateinit var errorStateObserver: Observer<Int?>
 
+    private val testDispatcher = UnconfinedTestDispatcher()
+
     private lateinit var context: Context
     private lateinit var sharedContainerViewModel: SharedContainerViewModel
     private lateinit var viewModel: EncryptRecipientViewModel
@@ -56,6 +73,7 @@ class EncryptRecipientViewModelTest {
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
+        Dispatchers.setMain(testDispatcher)
         context = InstrumentationRegistry.getInstrumentation().targetContext
         sharedContainerViewModel = SharedContainerViewModel(context)
         viewModel =
@@ -66,6 +84,11 @@ class EncryptRecipientViewModelTest {
                 CDOC2Settings(context, configurationRepository),
                 configurationRepository,
             )
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test
@@ -130,4 +153,101 @@ class EncryptRecipientViewModelTest {
 
             assertEquals(R.string.crypto_encrypt_data_files_empty_error, viewModel.errorState.value)
         }
+
+    @Test
+    fun encryptRecipientViewModel_recipientList_hidesRecipientsAlreadyInContainer() =
+        runTest(testDispatcher) {
+            val addedRecipient = recipient(byteArrayOf(1))
+            val foundRecipient = recipient(byteArrayOf(2))
+            `when`(recipientRepository.find(context, SEARCH_QUERY))
+                .thenReturn(Pair(listOf(addedRecipient, foundRecipient), 2))
+            sharedContainerViewModel.setCryptoContainer(cryptoContainer(addedRecipient))
+            viewModel.updateContainerRecipients(sharedContainerViewModel)
+
+            val emitted = mutableListOf<RecipientSearchState>()
+            val job = launch { viewModel.recipientSearchState.toList(emitted) }
+
+            viewModel.onQueryTextChange(SEARCH_QUERY)
+            advanceUntilIdle()
+            job.cancel()
+
+            assertTrue(emitted.isNotEmpty())
+            assertEquals(listOf(foundRecipient), emitted.last().recipients)
+            assertFalse(emitted.last().allFoundRecipientsAdded)
+        }
+
+    @Test
+    fun encryptRecipientViewModel_allFoundRecipientsAdded_returnsTrueWhenEveryResultIsInContainer() =
+        runTest(testDispatcher) {
+            val addedRecipient = recipient(byteArrayOf(1))
+            `when`(recipientRepository.find(context, SEARCH_QUERY))
+                .thenReturn(Pair(listOf(addedRecipient), 1))
+            sharedContainerViewModel.setCryptoContainer(cryptoContainer(addedRecipient))
+            viewModel.updateContainerRecipients(sharedContainerViewModel)
+
+            val emitted = mutableListOf<RecipientSearchState>()
+            val job = launch { viewModel.recipientSearchState.toList(emitted) }
+
+            viewModel.onQueryTextChange(SEARCH_QUERY)
+            advanceUntilIdle()
+            job.cancel()
+
+            assertTrue(emitted.isNotEmpty())
+            assertEquals(listOf<Addressee>(), emitted.last().recipients)
+            assertTrue(emitted.last().allFoundRecipientsAdded)
+        }
+
+    @Test
+    fun encryptRecipientViewModel_recipientList_returnsRecipientRemovedFromContainer() =
+        runTest(testDispatcher) {
+            val addedRecipient = recipient(byteArrayOf(1))
+            `when`(recipientRepository.find(context, SEARCH_QUERY))
+                .thenReturn(Pair(listOf(addedRecipient), 1))
+            val container = cryptoContainer(addedRecipient)
+            sharedContainerViewModel.setCryptoContainer(container)
+            viewModel.updateContainerRecipients(sharedContainerViewModel)
+
+            val emitted = mutableListOf<RecipientSearchState>()
+            val job = launch { viewModel.recipientSearchState.toList(emitted) }
+
+            viewModel.onQueryTextChange(SEARCH_QUERY)
+            advanceUntilIdle()
+            assertTrue(emitted.isNotEmpty())
+            assertEquals(listOf<Addressee>(), emitted.last().recipients)
+
+            sharedContainerViewModel.removeRecipient(container, addedRecipient)
+            viewModel.updateContainerRecipients(sharedContainerViewModel)
+            advanceUntilIdle()
+            job.cancel()
+
+            assertTrue(emitted.isNotEmpty())
+            assertEquals(listOf(addedRecipient), emitted.last().recipients)
+            verify(recipientRepository, times(1)).find(context, SEARCH_QUERY)
+        }
+
+    private fun cryptoContainer(recipient: Addressee): CryptoContainer =
+        CryptoContainer(
+            context = context,
+            file = File(context.cacheDir, "test.cdoc"),
+            dataFiles = ArrayList(),
+            recipients = arrayListOf(recipient),
+            decrypted = false,
+            encrypted = false,
+        )
+
+    private fun recipient(data: ByteArray): Addressee =
+        Addressee(
+            data = data,
+            identifier = "11111111111",
+            serialNumber = "11111111111",
+            givenName = "Test",
+            surname = "Recipient",
+            certType = CertType.IDCardType,
+            validTo = null,
+            concatKDFAlgorithmURI = null,
+        )
+
+    private companion object {
+        const val SEARCH_QUERY = "recipient"
+    }
 }
