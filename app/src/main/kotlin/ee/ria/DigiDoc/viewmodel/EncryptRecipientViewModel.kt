@@ -18,6 +18,7 @@ import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.cryptolib.Addressee
 import ee.ria.DigiDoc.cryptolib.CDOC2Settings
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
+import ee.ria.DigiDoc.cryptolib.RecipientUtil.isRecipientAdded
 import ee.ria.DigiDoc.cryptolib.exception.CryptoException
 import ee.ria.DigiDoc.cryptolib.exception.DataFilesEmptyException
 import ee.ria.DigiDoc.cryptolib.exception.RecipientsEmptyException
@@ -33,10 +34,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
+
+data class RecipientSearchState(
+    val recipients: List<Addressee>,
+    val allFoundRecipientsAdded: Boolean,
+)
 
 @HiltViewModel
 class EncryptRecipientViewModel
@@ -61,8 +68,10 @@ class EncryptRecipientViewModel
         private val _searchText = MutableStateFlow("")
         val searchText = _searchText.asStateFlow()
 
-        private val _recipientList = MutableStateFlow(getRecipientList())
-        val recipientList = filterRecipients()
+        private val _containerRecipients = MutableStateFlow(listOf<Addressee>())
+        val containerRecipients = _containerRecipients.asStateFlow()
+
+        val recipientSearchState = filterRecipients()
 
         private val _isRecipientAdded = MutableLiveData(false)
         val isRecipientAdded: LiveData<Boolean> = _isRecipientAdded
@@ -154,7 +163,7 @@ class EncryptRecipientViewModel
 
         private fun filterRecipients() =
             queryText
-                .combine(_recipientList) { text, _ ->
+                .map { text ->
                     if (!text.isEmpty()) {
                         var allRecipients: Pair<List<Addressee>, Int> = Pair(listOf(), 0)
                         try {
@@ -177,22 +186,26 @@ class EncryptRecipientViewModel
 
                         _hasSearched.postValue(true)
 
-                        allRecipients.first
+                        allRecipients.first.distinct()
                     } else {
                         listOf()
                     }
+                }.combine(_containerRecipients) { found, added ->
+                    val visibleRecipients = found.filterNot { recipient -> isRecipientAdded(recipient, added) }
+                    RecipientSearchState(
+                        recipients = visibleRecipients,
+                        allFoundRecipientsAdded = found.isNotEmpty() && visibleRecipients.isEmpty(),
+                    )
                 }.stateIn(
                     scope = viewModelScope,
                     // It will allow the StateFlow survive 5 seconds before it been canceled
                     started = SharingStarted.WhileSubscribed(5000),
-                    initialValue = _recipientList.value,
+                    initialValue = RecipientSearchState(listOf(), false),
                 )
 
-        fun getRecipientList(): List<Addressee> = listOf<Addressee>()
-
-        fun getContainerRecipientList(sharedContainerViewModel: SharedContainerViewModel): List<Addressee> {
-            val cryptoContainer = sharedContainerViewModel.cryptoContainer.value
-            return cryptoContainer?.getRecipients() ?: listOf()
+        fun updateContainerRecipients(sharedContainerViewModel: SharedContainerViewModel) {
+            _containerRecipients.value =
+                sharedContainerViewModel.cryptoContainer.value?.getRecipients() ?: listOf()
         }
 
         fun addRecipientToContainer(
@@ -201,17 +214,16 @@ class EncryptRecipientViewModel
         ) {
             val cryptoContainer = sharedContainerViewModel.cryptoContainer.value
 
-            cryptoContainer?.getRecipients()?.forEach {
-                if (recipient.data.contentEquals(it.data)) {
-                    _errorState.postValue(R.string.crypto_recipients_error_exists)
-                    handleIsRecipientAdded(false)
-                    return
-                }
+            if (isRecipientAdded(recipient, cryptoContainer?.getRecipients() ?: listOf())) {
+                _errorState.postValue(R.string.crypto_recipients_error_exists)
+                handleIsRecipientAdded(false)
+                return
             }
 
             cryptoContainer?.addRecipients(listOf(recipient))
 
             sharedContainerViewModel.setCryptoContainer(cryptoContainer)
+            updateContainerRecipients(sharedContainerViewModel)
             handleIsRecipientAdded(true)
         }
 
