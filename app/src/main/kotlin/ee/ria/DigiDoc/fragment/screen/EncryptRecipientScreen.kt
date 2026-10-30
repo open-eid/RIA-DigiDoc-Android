@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -39,7 +40,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -79,6 +79,7 @@ import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
 import ee.ria.DigiDoc.ui.component.shared.TabItem
 import ee.ria.DigiDoc.ui.component.shared.TabView
 import ee.ria.DigiDoc.ui.component.shared.TopBar
+import ee.ria.DigiDoc.ui.component.shared.recipientContentDescription
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.Dimensions.dividerHeight
@@ -107,6 +108,7 @@ import kotlin.time.Duration.Companion.seconds
 
 private const val RECIPIENT_TAB_INDEX = 0
 private const val PASSWORD_TAB_INDEX = 1
+private const val NO_ADDED_INDEX = -1
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -138,14 +140,9 @@ fun EncryptRecipientScreen(
 
     var statusAnnouncement by remember { mutableStateOf("") }
 
-    val containerRecipientList =
-        remember {
-            mutableStateOf(
-                encryptRecipientViewModel.getContainerRecipientList(sharedContainerViewModel),
-            )
-        }
+    val containerRecipientList by encryptRecipientViewModel.containerRecipients.collectAsState()
 
-    val hasRecipients = containerRecipientList.value.isNotEmpty()
+    val hasRecipients = containerRecipientList.isNotEmpty()
     val showRecipientBottomSheet = remember { mutableStateOf(false) }
     var actionRecipient by rememberSaveable { mutableStateOf<Addressee?>(null) }
     val clickedRecipient = rememberSaveable { mutableStateOf<Addressee?>(null) }
@@ -187,7 +184,7 @@ fun EncryptRecipientScreen(
 
     var expanded by rememberSaveable { mutableStateOf(false) }
     val searchText by encryptRecipientViewModel.searchText.collectAsState()
-    val recipientList by encryptRecipientViewModel.recipientList.collectAsState()
+    val recipientSearchState by encryptRecipientViewModel.recipientSearchState.collectAsState()
     val hasSearched by encryptRecipientViewModel.hasSearched.asFlow().collectAsState(false)
 
     val dismissSearch = {
@@ -195,16 +192,17 @@ fun EncryptRecipientScreen(
         encryptRecipientViewModel.onSearchTextChange("")
     }
 
+    LaunchedEffect(cryptoContainer) {
+        cryptoContainer?.let {
+            encryptRecipientViewModel.updateContainerRecipients(sharedContainerViewModel)
+        }
+    }
+
     LaunchedEffect(encryptRecipientViewModel.isRecipientAdded) {
         encryptRecipientViewModel.isRecipientAdded.asFlow().collect { isRecipientAdded ->
             if (isRecipientAdded) {
                 withContext(Main) {
                     recipientAddedSuccess.value = true
-                    containerRecipientList.value =
-                        encryptRecipientViewModel
-                            .getContainerRecipientList(sharedContainerViewModel)
-                    withFrameNanos { }
-                    statusAnnouncement = recipientAddedSuccessText
                     encryptRecipientViewModel.handleIsRecipientAdded(false)
                 }
             }
@@ -349,9 +347,10 @@ fun EncryptRecipientScreen(
                 invalidPersonalCodeMessage = invalidPersonalCodeMessage,
                 onSearch = { encryptRecipientViewModel.onQueryTextChange(it) },
                 onDismissSearch = dismissSearch,
-                recipientList = recipientList,
+                recipientList = recipientSearchState.recipients,
                 hasSearched = hasSearched,
-                containerRecipientList = containerRecipientList.value,
+                allFoundRecipientsAdded = recipientSearchState.allFoundRecipientsAdded,
+                containerRecipientList = containerRecipientList,
                 onAddRecipientToContainer = { recipient ->
                     encryptRecipientViewModel.addRecipientToContainer(
                         recipient,
@@ -362,6 +361,7 @@ fun EncryptRecipientScreen(
                     clickedRecipient.value = recipient
                     showRecipientBottomSheet.value = true
                 },
+                onAnnounce = { statusAnnouncement = it },
             )
         }
 
@@ -432,10 +432,6 @@ fun EncryptRecipientScreen(
                 onConfirmButton = {
                     scope.launch(IO) {
                         sharedContainerViewModel.removeRecipient(cryptoContainer, actionRecipient)
-                        delay(1000L)
-                        containerRecipientList.value =
-                            encryptRecipientViewModel
-                                .getContainerRecipientList(sharedContainerViewModel)
                     }
 
                     closeRecipientDialog()
@@ -474,13 +470,31 @@ private fun RecipientTabContent(
     onDismissSearch: () -> Unit,
     recipientList: List<Addressee>,
     hasSearched: Boolean,
+    allFoundRecipientsAdded: Boolean,
     containerRecipientList: List<Addressee>,
     onAddRecipientToContainer: (Addressee) -> Unit,
     onRecipientClick: (Addressee) -> Unit,
+    onAnnounce: (String) -> Unit,
 ) {
+    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val searchListState = rememberLazyListState()
     val mainListState = rememberLazyListState()
+    val recipientText = stringResource(id = R.string.crypto_recipient_title)
+    val addedRecipientText = stringResource(id = R.string.crypto_recipient_added_title)
+    val recipientAddedText = stringResource(id = R.string.crypto_recipients_recipient_add_success)
+    var addedFromIndex by remember { mutableIntStateOf(NO_ADDED_INDEX) }
+
+    LaunchedEffect(recipientList) {
+        if (addedFromIndex == NO_ADDED_INDEX) return@LaunchedEffect
+        val focusedRecipient = recipientList.getOrNull(addedFromIndex)
+        addedFromIndex = NO_ADDED_INDEX
+        onAnnounce(
+            focusedRecipient
+                ?.let { "$recipientAddedText. ${recipientContentDescription(context, it, recipientText)}" }
+                ?: recipientAddedText,
+        )
+    }
 
     Column(
         modifier = modifier,
@@ -578,26 +592,41 @@ private fun RecipientTabContent(
                                     .height(dividerHeight),
                         )
                     }
-                    items(recipientList) { recipient ->
+                    itemsIndexed(recipientList) { index, recipient ->
                         RecipientItem(
+                            modifier = Modifier,
                             recipient = recipient,
                             isMoreOptionsButtonShown = false,
-                            onClick = { onAddRecipientToContainer(it) },
+                            onClick = {
+                                addedFromIndex = index
+                                onAddRecipientToContainer(it)
+                            },
                         )
                     }
                 } else if (hasSearched) {
                     item {
+                        val emptyListText =
+                            if (allFoundRecipientsAdded) {
+                                R.string.crypto_recipients_already_added
+                            } else {
+                                R.string.crypto_recipients_search_empty
+                            }
                         Box(
                             modifier =
                                 Modifier
-                                    .fillParentMaxSize()
-                                    .padding(SPadding),
+                                    .then(
+                                        if (containerRecipientList.isEmpty()) {
+                                            Modifier.fillParentMaxSize()
+                                        } else {
+                                            Modifier.fillMaxWidth()
+                                        },
+                                    ).padding(SPadding),
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
                                 modifier = Modifier.testTag("encryptRecipientsListEmpty"),
                                 textAlign = TextAlign.Center,
-                                text = stringResource(id = R.string.crypto_recipients_search_empty),
+                                text = stringResource(id = emptyListText),
                                 color = MaterialTheme.colorScheme.onSurface,
                                 style = MaterialTheme.typography.bodyLarge,
                             )
@@ -620,9 +649,11 @@ private fun RecipientTabContent(
                             textAlign = TextAlign.Start,
                         )
                     }
-                    items(containerRecipientList) { recipient ->
+                    items(containerRecipientList, key = { "added-${it.data.contentHashCode()}" }) { recipient ->
                         RecipientItem(
+                            modifier = Modifier.animateItem(),
                             recipient = recipient,
+                            recipientText = addedRecipientText,
                             onClick = { onRecipientClick(it) },
                         )
                     }
@@ -670,9 +701,11 @@ private fun RecipientTabContent(
                             textAlign = TextAlign.Start,
                         )
                     }
-                    items(containerRecipientList) { recipient ->
+                    items(containerRecipientList, key = { "added-${it.data.contentHashCode()}" }) { recipient ->
                         RecipientItem(
+                            modifier = Modifier.animateItem(),
                             recipient = recipient,
+                            recipientText = addedRecipientText,
                             onClick = { onRecipientClick(it) },
                         )
                     }
@@ -710,22 +743,27 @@ private fun PasswordTabContent(modifier: Modifier = Modifier) {
 
 @Composable
 private fun RecipientItem(
+    modifier: Modifier,
     recipient: Addressee,
     isMoreOptionsButtonShown: Boolean = true,
+    recipientText: String = stringResource(id = R.string.crypto_recipient_title),
     onClick: (Addressee) -> Unit = {},
 ) {
-    Recipient(
-        recipient = recipient,
-        isMoreOptionsButtonShown = isMoreOptionsButtonShown,
-        onClick = onClick,
-    )
-    HorizontalDivider(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(SPadding)
-                .height(dividerHeight),
-    )
+    Column(modifier = modifier) {
+        Recipient(
+            recipient = recipient,
+            isMoreOptionsButtonShown = isMoreOptionsButtonShown,
+            recipientText = recipientText,
+            onClick = onClick,
+        )
+        HorizontalDivider(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(SPadding)
+                    .height(dividerHeight),
+        )
+    }
 }
 
 @Preview(showBackground = true)

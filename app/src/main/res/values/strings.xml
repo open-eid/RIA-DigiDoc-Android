@@ -181,6 +181,7 @@
     <string name="crypto_container_latest_recipients_title">Recently added</string>
     <string name="crypto_container_added_recipients_title">Added recipients</string>
     <string name="crypto_recipient_title">Recipient</string>
+    <string name="crypto_recipient_added_title">Added recipient</string>
     <string name="crypto_decryption_valid_to">Decryption until %1$s</string>
     <string name="crypto_decryption_expired">Decryption expired %1$s</string>
     <string name="crypto_recipient_expires_on">Expires on %1$s</string>
@@ -209,6 +210,7 @@
     <string name="crypto_recipients_search">Search recipients…</string>
     <string name="crypto_recipients_search_cancel">Cancel search recipients</string>
     <string name="crypto_recipients_search_empty">No recipients found</string>
+    <string name="crypto_recipients_already_added">Recipients already exist in the container</string>
     <string name="crypto_recipients_recipient_add_success">Recipient added</string>
     <string name="crypto_encrypt_error">Container encryption was unsuccessful</string>
     <string name="crypto_decrypt_error">Container decryption was unsuccessful</string>

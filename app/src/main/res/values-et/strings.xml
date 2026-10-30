@@ -181,6 +181,7 @@
     <string name="crypto_container_latest_recipients_title">Viimati lisatud</string>
     <string name="crypto_container_added_recipients_title">Lisatud adressaadid</string>
     <string name="crypto_recipient_title">Adressaat</string>
+    <string name="crypto_recipient_added_title">Lisatud adressaat</string>
     <string name="crypto_decryption_valid_to">Dekrüpteerimine võimalik kuni %1$s</string>
     <string name="crypto_decryption_expired">Dekrüpteerimise võimalus aegus %1$s</string>
     <string name="crypto_recipient_expires_on">Aegub %1$s</string>
@@ -209,6 +210,7 @@
     <string name="crypto_recipients_search">Leia adressaat…</string>
     <string name="crypto_recipients_search_cancel">Katkesta adressaadi otsing</string>
     <string name="crypto_recipients_search_empty">Adressaati ei leitud</string>
+    <string name="crypto_recipients_already_added">Adressaadid on konteineris juba olemas</string>
     <string name="crypto_recipients_recipient_add_success">Adressaat lisatud</string>
     <string name="crypto_encrypt_error">Ümbriku krüpteerimine ebaõnnestus.</string>
     <string name="crypto_decrypt_error">Ümbriku dekrüpteerimine ebaõnnestus.</string>
