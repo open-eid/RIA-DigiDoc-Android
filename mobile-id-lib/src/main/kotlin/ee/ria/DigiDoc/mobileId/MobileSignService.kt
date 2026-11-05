@@ -45,6 +45,7 @@ import ee.ria.DigiDoc.utilsLib.signing.UUIDUtil
 import ee.ria.DigiDoc.utilsLib.text.MessageUtil
 import ee.ria.libdigidocpp.Container
 import ee.ria.libdigidocpp.ExternalSigner
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import retrofit2.Call
 import retrofit2.Response
@@ -491,6 +492,9 @@ class MobileSignServiceImpl
                     // If user has cancelled signing, do not show any message
                     setStatus(MobileCreateSignatureProcessStatus.USER_CANCELLED)
                     return
+                } catch (ce: CancellationException) {
+                    errorLog(logTag, "Mobile-ID signing cancelled", ce)
+                    throw ce
                 } catch (e: Exception) {
                     val message = e.message
                     if (!message.isNullOrEmpty() && message.contains("Too Many Requests")) {

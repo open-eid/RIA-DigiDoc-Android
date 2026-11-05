@@ -38,8 +38,6 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
@@ -67,9 +65,6 @@ class MobileIdViewModel
 
         private val _dialogError = MutableLiveData(0)
         val dialogError: LiveData<Int> = _dialogError
-
-        private val _signingInProgress = MutableStateFlow(false)
-        val signingInProgress: StateFlow<Boolean> = _signingInProgress
 
         private var signingJob: Job? = null
 
@@ -293,7 +288,6 @@ class MobileIdViewModel
 
             signingJob =
                 viewModelScope.launch(IO) {
-                    _signingInProgress.value = true
                     try {
                         resetValues()
                         val configurationProvider = configurationRepository.getConfiguration()
@@ -351,7 +345,6 @@ class MobileIdViewModel
                             mobileSignService.status.removeObserver(statusObserver)
                             mobileSignService.response.removeObserver(responseObserver)
                         }
-                        _signingInProgress.value = false
                     }
                 }
 

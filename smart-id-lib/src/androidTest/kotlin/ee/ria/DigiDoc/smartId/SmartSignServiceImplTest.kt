@@ -32,10 +32,12 @@ import ee.ria.DigiDoc.network.sid.dto.response.SmartSignatureResponse
 import ee.ria.DigiDoc.network.sid.rest.SIDRestServiceClient
 import ee.ria.DigiDoc.network.sid.rest.ServiceGenerator
 import ee.ria.libdigidocpp.ExternalSigner
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody.Companion.toResponseBody
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -2091,6 +2093,55 @@ class SmartSignServiceImplTest {
 
             verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.NO_RESPONSE)
             verify(statusObserver, never()).onChanged(SessionStatusResponseProcessStatus.GENERAL_ERROR)
+        }
+
+    @Test
+    fun smartSignService_processSmartIdRequest_rethrowsCancellationException() =
+        runTest {
+            doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sidSignServiceUrl = request.url + "/",
+                certBundle = certBundle,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            val call = mock(Call::class.java)
+            doReturn(call)
+                .whenever(sidRestServiceClient)
+                .getCertificateV2(
+                    semanticsIdentifier = "PNOEE-60001019906",
+                    body = getSmartCertificateRequest,
+                )
+
+            doReturn(call)
+                .whenever(call)
+                .clone()
+
+            doThrow(CancellationException("Signing cancelled"))
+                .whenever(call)
+                .execute()
+
+            var cancellation: CancellationException? = null
+            try {
+                smartSignServiceImpl.processSmartIdRequest(
+                    context = context,
+                    signedContainer = signedContainer,
+                    request = request,
+                    roleDataRequest = null,
+                    proxySetting = proxySetting,
+                    manualProxySettings = manualProxy,
+                    certificateBundle = certBundle,
+                    accessTokenPath = "accessTokenPath",
+                    accessTokenPass = "accessTokenPass",
+                )
+            } catch (ce: CancellationException) {
+                cancellation = ce
+            }
+
+            assertNotNull(cancellation)
+            verify(statusObserver, never()).onChanged(SessionStatusResponseProcessStatus.GENERAL_ERROR)
+            verify(statusObserver, never()).onChanged(SessionStatusResponseProcessStatus.TECHNICAL_ERROR)
         }
 
     private fun sessionStatusCall(
