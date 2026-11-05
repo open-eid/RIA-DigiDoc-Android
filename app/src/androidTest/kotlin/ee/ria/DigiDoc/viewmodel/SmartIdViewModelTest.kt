@@ -7,11 +7,9 @@ package ee.ria.DigiDoc.viewmodel
 
 import android.content.ContentResolver
 import android.content.Context
-import androidx.activity.ComponentActivity
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
 import ee.ria.DigiDoc.R
@@ -40,7 +38,6 @@ import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.BeforeClass
@@ -92,8 +89,6 @@ class SmartIdViewModelTest {
 
     @Mock
     lateinit var challengeObserver: Observer<String?>
-
-    private lateinit var scenario: ActivityScenario<ComponentActivity>
 
     private lateinit var signedContainer: SignedContainer
 
@@ -188,8 +183,6 @@ class SmartIdViewModelTest {
         viewModel.signedContainer.observeForever(signedContainerObserver)
         viewModel.challenge.observeForever(challengeObserver)
 
-        scenario = ActivityScenario.launch(ComponentActivity::class.java)
-
         val container =
             AssetFile.getResourceFileAsFile(
                 context,
@@ -201,11 +194,6 @@ class SmartIdViewModelTest {
             runBlocking {
                 SignedContainer.openOrCreate(context, container, listOf(container), true)
             }
-    }
-
-    @After
-    fun cleanup() {
-        scenario.close()
     }
 
     @Test

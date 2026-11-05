@@ -40,6 +40,7 @@ import ee.ria.DigiDoc.utilsLib.signing.CertificateUtil
 import ee.ria.DigiDoc.utilsLib.signing.UUIDUtil
 import ee.ria.DigiDoc.utilsLib.text.MessageUtil
 import ee.ria.libdigidocpp.ExternalSigner
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import retrofit2.Call
 import java.io.IOException
@@ -119,8 +120,17 @@ class SmartSignServiceImpl
             signedContainer: SignedContainer,
             cancelled: Boolean?,
         ) {
-            signatureInterface?.let {
-                signedContainer.removeSignature(it)
+            try {
+                signatureInterface?.let {
+                    signedContainer.removeSignature(it)
+                }
+            } catch (e: Exception) {
+                errorLog(
+                    logTag,
+                    "Failed to remove signature from container. Exception message: ${e.message}. " +
+                        "Exception: ${e.stackTrace.contentToString()}",
+                    e,
+                )
             }
             _cancelled.postValue(cancelled)
         }
@@ -393,6 +403,9 @@ class SmartSignServiceImpl
                             "Exception: ${e.stackTrace.contentToString()}",
                     )
                     return
+                } catch (ce: CancellationException) {
+                    errorLog(logTag, "Smart-ID signing cancelled", ce)
+                    throw ce
                 } catch (e: Exception) {
                     val message = e.message
                     errorLog(
@@ -526,6 +539,13 @@ class SmartSignServiceImpl
                     } catch (ioe: IOException) {
                         consecutiveIoFailures++
                         if (consecutiveIoFailures > MAX_CONSECUTIVE_IO_FAILURES) {
+                            errorLog(
+                                logTag,
+                                "Smart-ID session status request failed, giving up after " +
+                                    "$consecutiveIoFailures consecutive failures. " +
+                                    "Exception message: ${ioe.message}",
+                                ioe,
+                            )
                             throw ioe
                         }
                         errorLog(

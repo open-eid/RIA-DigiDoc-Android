@@ -41,9 +41,7 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Objects
@@ -74,9 +72,6 @@ class SmartIdViewModel
 
         private val _requestNotificationPermission = MutableSharedFlow<Pair<String, String>>()
         val requestNotificationPermission: SharedFlow<Pair<String, String>> = _requestNotificationPermission
-
-        private val _signingInProgress = MutableStateFlow(false)
-        val signingInProgress: StateFlow<Boolean> = _signingInProgress
 
         private var signingJob: Job? = null
 
@@ -194,7 +189,6 @@ class SmartIdViewModel
             if (signedContainer != null) {
                 smartSignService.setCancelled(signedContainer, true)
             }
-            signingJob?.cancel()
         }
 
         private fun setErrorState(
@@ -315,7 +309,6 @@ class SmartIdViewModel
 
             signingJob =
                 viewModelScope.launch(IO) {
-                    _signingInProgress.value = true
                     try {
                         resetValues()
                         val configurationProvider = configurationRepository.getConfiguration()
@@ -370,7 +363,6 @@ class SmartIdViewModel
                             smartSignService.status.removeObserver(statusObserver)
                             smartSignService.response.removeObserver(responseObserver)
                         }
-                        _signingInProgress.value = false
                     }
                 }
 

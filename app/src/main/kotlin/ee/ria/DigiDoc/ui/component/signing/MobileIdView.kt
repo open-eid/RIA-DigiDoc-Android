@@ -5,11 +5,8 @@
 
 package ee.ria.DigiDoc.ui.component.signing
 
-import android.app.Activity
-import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -28,7 +25,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -82,7 +78,6 @@ import kotlinx.coroutines.withContext
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun MobileIdView(
-    activity: Activity,
     modifier: Modifier = Modifier,
     isSigning: Boolean,
     onError: () -> Unit = {},
@@ -99,26 +94,11 @@ fun MobileIdView(
     val context = LocalContext.current
     val signedContainer by sharedContainerViewModel.signedContainer.collectAsState()
     val dialogError by mobileIdViewModel.dialogError.asFlow().collectAsState(0)
-    val isSigningInProgress by mobileIdViewModel.signingInProgress.collectAsState()
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
 
     var shouldRememberMe by rememberSaveable { mutableStateOf(rememberMe) }
 
     val focusManager = LocalFocusManager.current
-
-    DisposableEffect(isSigningInProgress) {
-        if (isSigningInProgress) {
-            activity.requestedOrientation =
-                if (activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                } else {
-                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                }
-        }
-        onDispose {
-            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-        }
-    }
 
     var countryCodeAndPhone by rememberSaveable(stateSaver = textFieldValueSaver) {
         mutableStateOf(
@@ -183,6 +163,12 @@ fun MobileIdView(
 
     val phoneNumberFocusRequester = remember { FocusRequester() }
     val personalCodeFocusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(signedContainer) {
+        cancelAction {
+            mobileIdViewModel.cancelMobileIdWorkRequest(signedContainer)
+        }
+    }
 
     BackHandler {
         if (isSigning) {
@@ -384,9 +370,6 @@ fun MobileIdView(
                             roleData = roleDataRequest,
                         )
                     }
-                    cancelAction {
-                        mobileIdViewModel.cancelMobileIdWorkRequest(signedContainer)
-                    }
                 }
             }
 
@@ -478,7 +461,6 @@ fun MobileIdViewPreview() {
     val sharedContainerViewModel: SharedContainerViewModel = hiltViewModel()
     RIADigiDocTheme {
         MobileIdView(
-            activity = LocalActivity.current as Activity,
             sharedSettingsViewModel = sharedSettingsViewModel,
             sharedContainerViewModel = sharedContainerViewModel,
             isSigning = false,
