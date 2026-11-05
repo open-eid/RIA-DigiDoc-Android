@@ -5,11 +5,8 @@
 
 package ee.ria.DigiDoc.ui.component.signing
 
-import android.app.Activity
-import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
@@ -33,7 +30,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -95,7 +91,6 @@ import kotlinx.coroutines.withContext
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun SmartIdView(
-    activity: Activity,
     modifier: Modifier = Modifier,
     isSigning: Boolean,
     onError: () -> Unit = {},
@@ -112,24 +107,9 @@ fun SmartIdView(
     val context = LocalContext.current
     val signedContainer by sharedContainerViewModel.signedContainer.collectAsState()
     val dialogError by smartIdViewModel.dialogError.asFlow().collectAsState(0)
-    val isSigningInProgress by smartIdViewModel.signingInProgress.collectAsState()
     val getSettingsAskRoleAndAddress = sharedSettingsViewModel.dataStore::getSettingsAskRoleAndAddress
 
     val focusManager = LocalFocusManager.current
-
-    DisposableEffect(isSigningInProgress) {
-        if (isSigningInProgress) {
-            activity.requestedOrientation =
-                if (activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                } else {
-                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                }
-        }
-        onDispose {
-            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-        }
-    }
 
     val countryOptions = stringArrayResource(id = R.array.smart_id_country)
     var selectedCountry by rememberSaveable { mutableIntStateOf(sharedSettingsViewModel.dataStore.getCountry()) }
@@ -179,6 +159,13 @@ fun SmartIdView(
     val buttonName = stringResource(id = R.string.button_name)
 
     val smartIdChallengeNotificationId = Constant.SmartIdConstants.NOTIFICATION_PERMISSION_CODE
+
+    LaunchedEffect(signedContainer) {
+        cancelAction {
+            smartIdViewModel.cancelSmartIdWorkRequest(signedContainer)
+            smartIdViewModel.cancelNotification(smartIdChallengeNotificationId)
+        }
+    }
 
     BackHandler {
         if (isSigning) {
@@ -387,10 +374,6 @@ fun SmartIdView(
                             roleData = roleDataRequest,
                         )
                     }
-                    cancelAction {
-                        smartIdViewModel.cancelSmartIdWorkRequest(signedContainer)
-                        smartIdViewModel.cancelNotification(smartIdChallengeNotificationId)
-                    }
                 }
             }
 
@@ -580,7 +563,6 @@ fun SmartIdViewPreview() {
     val sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel()
     RIADigiDocTheme {
         SmartIdView(
-            activity = LocalActivity.current as Activity,
             sharedSettingsViewModel = sharedSettingsViewModel,
             sharedContainerViewModel = sharedContainerViewModel,
             isSigning = false,

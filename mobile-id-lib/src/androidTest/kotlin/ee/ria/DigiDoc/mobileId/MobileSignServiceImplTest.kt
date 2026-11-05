@@ -32,11 +32,13 @@ import ee.ria.DigiDoc.network.proxy.ManualProxy
 import ee.ria.DigiDoc.network.proxy.ProxySetting
 import ee.ria.DigiDoc.utilsLib.signing.TrustManagerUtil
 import ee.ria.libdigidocpp.ExternalSigner
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -2631,5 +2633,51 @@ class MobileSignServiceImplTest {
             verify(statusObserver, atLeastOnce()).onChanged(MobileCreateSignatureProcessStatus.NO_RESPONSE)
             verify(statusObserver, never()).onChanged(MobileCreateSignatureProcessStatus.GENERAL_ERROR)
             verify(containerWrapper, never()).finalizeSignature(any(), any(), any())
+        }
+
+    @Test
+    fun mobileSignService_processMobileIdRequest_rethrowsCancellationException() =
+        runTest {
+            doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sslContext = null,
+                midSignServiceUrl = request.url,
+                certBundle = certBundle,
+                trustManagers = trustManagers,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            val call = mock(Call::class.java)
+            doReturn(call)
+                .whenever(midRestServiceClient)
+                .getCertificate(
+                    body = getMobileCertificateRequest,
+                )
+
+            doThrow(CancellationException("Signing cancelled"))
+                .whenever(call)
+                .execute()
+
+            var cancellation: CancellationException? = null
+            try {
+                mobileSignServiceImpl.processMobileIdRequest(
+                    context = context,
+                    signedContainer = signedContainer,
+                    request = request,
+                    roleDataRequest = null,
+                    proxySetting = proxySetting,
+                    manualProxySettings = manualProxy,
+                    certificateBundle = certBundle,
+                    accessTokenPath = "accessTokenPath",
+                    accessTokenPass = "accessTokenPass",
+                )
+            } catch (ce: CancellationException) {
+                cancellation = ce
+            }
+
+            assertNotNull(cancellation)
+            verify(statusObserver, never()).onChanged(MobileCreateSignatureProcessStatus.GENERAL_ERROR)
+            verify(statusObserver, never()).onChanged(MobileCreateSignatureProcessStatus.TECHNICAL_ERROR)
         }
 }

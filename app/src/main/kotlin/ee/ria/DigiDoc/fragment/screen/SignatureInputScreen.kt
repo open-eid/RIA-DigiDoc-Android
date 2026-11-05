@@ -241,7 +241,6 @@ fun SignatureInputScreen(
                 SigningMethod.MOBILE_ID ->
                     MobileIdView(
                         modifier = modifier,
-                        activity = context,
                         onError = {
                             isSigning = false
                             isAddingRoleAndAddress = false
@@ -272,7 +271,6 @@ fun SignatureInputScreen(
                 SigningMethod.SMART_ID ->
                     SmartIdView(
                         modifier = modifier,
-                        activity = context,
                         onError = {
                             isSigning = false
                             isAddingRoleAndAddress = false
