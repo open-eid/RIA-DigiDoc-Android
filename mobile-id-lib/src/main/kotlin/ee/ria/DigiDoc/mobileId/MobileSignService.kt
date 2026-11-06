@@ -123,14 +123,9 @@ class MobileSignServiceImpl
         private val _cancelled = MutableLiveData(false)
         override val cancelled: LiveData<Boolean?> = _cancelled
 
-        @Volatile
-        private var isCancelled = false
-
         private var signatureInterface: SignatureInterface? = null
 
         override fun resetValues() {
-            isCancelled = false
-            signatureInterface = null
             _response.postValue(null)
             _errorState.postValue(null)
             _challenge.postValue(null)
@@ -143,7 +138,18 @@ class MobileSignServiceImpl
             signedContainer: SignedContainer,
             cancelled: Boolean?,
         ) {
-            isCancelled = cancelled == true
+            try {
+                signatureInterface?.let {
+                    signedContainer.removeSignature(it)
+                }
+            } catch (e: Exception) {
+                errorLog(
+                    logTag,
+                    "Failed to remove signature from container. Exception message: ${e.message}. " +
+                        "Exception: ${e.stackTrace.contentToString()}",
+                    e,
+                )
+            }
             _cancelled.postValue(cancelled)
         }
 
@@ -591,14 +597,6 @@ class MobileSignServiceImpl
                     responseCall.clone().execute()
                 } catch (ioe: IOException) {
                     if (consecutiveIoFailures + 1 > MAX_CONSECUTIVE_IO_FAILURES || timeout > TIMEOUT_CANCEL) {
-                        errorLog(
-                            logTag,
-                            "Mobile-ID session status request failed, giving up. " +
-                                "Consecutive failures: ${consecutiveIoFailures + 1}. " +
-                                "Timeout counter: $timeout. " +
-                                "Exception message: ${ioe.message}",
-                            ioe,
-                        )
                         throw ioe
                     }
                     errorLog(
@@ -645,31 +643,9 @@ class MobileSignServiceImpl
                     debugLog(logTag, "Response error: $responseWrapper")
                     return
                 }
-                try {
-                    checkSigningCancelled(signedContainer)
-                } catch (sce: SigningCancelledException) {
-                    errorLog(
-                        logTag,
-                        "Unable to sign with Mobile-ID. " +
-                            "Signing has been cancelled before finalizing the signature",
-                        sce,
-                    )
-                    return
-                }
                 debugLog(logTag, "Finalizing signature...")
                 val signatureValueBytes: ByteArray = Base64.getDecoder().decode(response.signature?.value)
                 containerWrapper.finalizeSignature(signer, signedContainer, signatureValueBytes)
-                try {
-                    checkSigningCancelled(signedContainer)
-                } catch (sce: SigningCancelledException) {
-                    errorLog(
-                        logTag,
-                        "Unable to sign with Mobile-ID. " +
-                            "Signing has been cancelled while finalizing the signature",
-                        sce,
-                    )
-                    return
-                }
                 debugLog(logTag, "Posting create signature status response")
                 signedContainer.rawContainer()?.let {
                     postMobileCreateSignatureStatusResponse(
@@ -701,7 +677,7 @@ class MobileSignServiceImpl
 
         @Throws(SigningCancelledException::class)
         private fun checkSigningCancelled(signedContainer: SignedContainer) {
-            if (isCancelled) {
+            if (_cancelled.value == true) {
                 try {
                     signatureInterface?.let { signedContainer.removeSignature(it) }
                 } catch (e: Exception) {

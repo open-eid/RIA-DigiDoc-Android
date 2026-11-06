@@ -50,7 +50,6 @@ import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
-import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.eq
@@ -2143,106 +2142,6 @@ class SmartSignServiceImplTest {
             assertNotNull(cancellation)
             verify(statusObserver, never()).onChanged(SessionStatusResponseProcessStatus.GENERAL_ERROR)
             verify(statusObserver, never()).onChanged(SessionStatusResponseProcessStatus.TECHNICAL_ERROR)
-        }
-
-    @Test
-    fun smartSignService_processSmartIdRequest_cancelledDuringLastSessionStatusRequestDoesNotFinalize() =
-        runTest {
-            doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
-                context = context,
-                sidSignServiceUrl = request.url + "/",
-                certBundle = certBundle,
-                proxySetting = proxySetting,
-                manualProxySettings = manualProxy,
-            )
-
-            doReturn(
-                Calls.response(
-                    Response.success(
-                        SessionResponse(
-                            sessionID = "sessionID",
-                        ),
-                    ),
-                ),
-            ).whenever(sidRestServiceClient)
-                .getCertificateV2(
-                    semanticsIdentifier = "PNOEE-60001019906",
-                    body = getSmartCertificateRequest,
-                )
-
-            val call = mock(Call::class.java)
-
-            doReturn(call)
-                .whenever(call)
-                .clone()
-
-            var sessionStatusRequests = 0
-
-            doAnswer {
-                sessionStatusRequests++
-                if (sessionStatusRequests > 1) {
-                    smartSignServiceImpl.setCancelled(signedContainer, true)
-                }
-                Response.success(
-                    SessionStatusResponse(
-                        state = SessionStatusResponseProcessState.COMPLETE,
-                        result =
-                            SessionStatusResponseStatus(
-                                endResult = SessionStatusResponseProcessStatus.OK,
-                                documentNumber = "documentNumber",
-                            ),
-                        signature =
-                            SmartSignatureResponse(
-                                value = "dTzZ20E8kmoXXBAh5cV5yw==",
-                                algorithm = "SmartIDSignatureAlgorithm",
-                            ),
-                        cert =
-                            SmartCertificateResponse(
-                                value = cert,
-                                assuranceLevel = "assuranceLevel",
-                                certificateLevel = "certificateLevel",
-                            ),
-                    ),
-                )
-            }.whenever(call)
-                .execute()
-
-            doReturn(call)
-                .whenever(sidRestServiceClient)
-                .getSessionStatus("sessionID", 5000)
-
-            whenever(
-                containerWrapper.prepareSignature(
-                    signer = any<ExternalSigner>(),
-                    signedContainer = any<SignedContainer>(),
-                    cert = any<ByteArray>(),
-                    roleData = isNull(),
-                ),
-            ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==".toByteArray())
-
-            whenever(
-                sidRestServiceClient.getCreateSignature(
-                    eq("documentNumber"),
-                    any(),
-                ),
-            ).thenReturn(
-                Calls.response(Response.success(SessionResponse(sessionID = "sessionID"))),
-            )
-
-            smartSignServiceImpl.processSmartIdRequest(
-                context = context,
-                signedContainer = signedContainer,
-                request = request,
-                roleDataRequest = null,
-                proxySetting = proxySetting,
-                manualProxySettings = manualProxy,
-                certificateBundle = certBundle,
-                accessTokenPath = "accessTokenPath",
-                accessTokenPass = "accessTokenPass",
-            )
-
-            verify(containerWrapper, never()).finalizeSignature(any(), any(), any())
-            verify(statusObserver, never()).onChanged(SessionStatusResponseProcessStatus.GENERAL_ERROR)
         }
 
     private fun sessionStatusCall(

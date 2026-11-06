@@ -19,7 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -58,11 +58,13 @@ fun SmartIdSignatureUpdateContainer(
     val controlCodeLoadingText = stringResource(id = R.string.control_code_loading)
     val selectDeviceText = stringResource(id = R.string.signature_update_smart_id_select_device)
     val challengeInfoText = stringResource(id = R.string.signature_update_smart_id_info)
-    var challengeText by rememberSaveable { mutableStateOf("") }
+    var challengeText by remember { mutableStateOf("") }
 
     LaunchedEffect(smartIdViewModel.challenge) {
         smartIdViewModel.challenge.asFlow().collect { challenge ->
-            challengeText = challenge ?: ""
+            challenge?.let {
+                challengeText = challenge
+            }
         }
     }
 

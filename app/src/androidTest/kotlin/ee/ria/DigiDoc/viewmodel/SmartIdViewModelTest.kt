@@ -7,9 +7,11 @@ package ee.ria.DigiDoc.viewmodel
 
 import android.content.ContentResolver
 import android.content.Context
+import androidx.activity.ComponentActivity
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
 import ee.ria.DigiDoc.R
@@ -35,10 +37,10 @@ import ee.ria.DigiDoc.network.sid.dto.response.SmartIDServiceResponse
 import ee.ria.DigiDoc.smartId.SmartSignService
 import ee.ria.DigiDoc.utils.notification.NotificationUtil
 import junit.framework.TestCase.assertFalse
-import junit.framework.TestCase.assertNotSame
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.BeforeClass
@@ -54,10 +56,7 @@ import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
 import org.mockito.kotlin.atLeastOnce
 import org.mockito.kotlin.eq
-import org.mockito.kotlin.times
 import java.util.UUID
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @RunWith(MockitoJUnitRunner::class)
 class SmartIdViewModelTest {
@@ -93,6 +92,8 @@ class SmartIdViewModelTest {
 
     @Mock
     lateinit var challengeObserver: Observer<String?>
+
+    private lateinit var scenario: ActivityScenario<ComponentActivity>
 
     private lateinit var signedContainer: SignedContainer
 
@@ -187,6 +188,8 @@ class SmartIdViewModelTest {
         viewModel.signedContainer.observeForever(signedContainerObserver)
         viewModel.challenge.observeForever(challengeObserver)
 
+        scenario = ActivityScenario.launch(ComponentActivity::class.java)
+
         val container =
             AssetFile.getResourceFileAsFile(
                 context,
@@ -198,6 +201,11 @@ class SmartIdViewModelTest {
             runBlocking {
                 SignedContainer.openOrCreate(context, container, listOf(container), true)
             }
+    }
+
+    @After
+    fun cleanup() {
+        scenario.close()
     }
 
     @Test
@@ -603,65 +611,6 @@ class SmartIdViewModelTest {
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.USER_CANCELLED)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
-        }
-
-    @Test
-    fun smartIdViewModel_performSmartIdWorkRequest_cancelledRequestIsRetriedNotDropped() =
-        runTest {
-            val firstRequestStarted = CountDownLatch(1)
-            val releaseFirstRequest = CountDownLatch(1)
-
-            `when`(configurationRepository.getConfiguration()).thenAnswer {
-                firstRequestStarted.countDown()
-                releaseFirstRequest.await(10, TimeUnit.SECONDS)
-                configurationProvider
-            }
-            `when`(smartSignService.response).thenReturn(MutableLiveData<SmartIDServiceResponse?>(null))
-            `when`(smartSignService.status).thenReturn(MutableLiveData<SessionStatusResponseProcessStatus?>(null))
-            `when`(smartSignService.challenge).thenReturn(MutableLiveData<String?>(null))
-            `when`(smartSignService.cancelled).thenReturn(MutableLiveData<Boolean?>(false))
-            `when`(smartSignService.errorState).thenReturn(MutableLiveData<String?>(null))
-
-            val firstJob =
-                viewModel.performSmartIdWorkRequest(
-                    context,
-                    "test message",
-                    signedContainer,
-                    "45611283812",
-                    0,
-                    null,
-                )
-            firstRequestStarted.await(10, TimeUnit.SECONDS)
-
-            viewModel.cancelSmartIdWorkRequest(signedContainer)
-
-            val secondJob =
-                viewModel.performSmartIdWorkRequest(
-                    context,
-                    "test message",
-                    signedContainer,
-                    "45611283812",
-                    0,
-                    null,
-                )
-
-            assertNotSame(firstJob, secondJob)
-
-            releaseFirstRequest.countDown()
-            firstJob?.join()
-            secondJob?.join()
-
-            verify(smartSignService, times(2)).processSmartIdRequest(
-                any(),
-                any<SignedContainer>(),
-                any(),
-                eq(null),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-            )
         }
 
     @Test

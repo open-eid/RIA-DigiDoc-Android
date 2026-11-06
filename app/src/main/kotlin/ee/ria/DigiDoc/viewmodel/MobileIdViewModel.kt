@@ -68,8 +68,6 @@ class MobileIdViewModel
 
         private var signingJob: Job? = null
 
-        private var cancelRequested = false
-
         private val faults: ImmutableMap<MobileCertificateResultType, Int> =
             ImmutableMap
                 .builder<MobileCertificateResultType, Int>()
@@ -162,11 +160,10 @@ class MobileIdViewModel
         }
 
         fun cancelMobileIdWorkRequest(signedContainer: SignedContainer?) {
-            cancelRequested = true
             if (signedContainer != null) {
                 mobileSignService.setCancelled(signedContainer, true)
             }
-            _challenge.postValue(null)
+            signingJob?.cancel()
         }
 
         private fun setErrorState(
@@ -205,12 +202,10 @@ class MobileIdViewModel
             phoneNumber: String,
             roleData: RoleData?,
         ): Job? {
-            val previousSigningJob = signingJob
-            if (previousSigningJob?.isActive == true && !cancelRequested) {
+            if (signingJob?.isActive == true) {
                 debugLog(logTag, "Mobile-ID signing already in progress, ignoring request")
-                return previousSigningJob
+                return signingJob
             }
-            cancelRequested = false
 
             val errorStateObserver =
                 Observer<String?> {
@@ -294,10 +289,6 @@ class MobileIdViewModel
             signingJob =
                 viewModelScope.launch(IO) {
                     try {
-                        if (previousSigningJob?.isActive == true) {
-                            debugLog(logTag, "Waiting for the cancelled Mobile-ID signing to finish")
-                            previousSigningJob.join()
-                        }
                         resetValues()
                         val configurationProvider = configurationRepository.getConfiguration()
                         val uuid = dataStore.getSettingsUUID()

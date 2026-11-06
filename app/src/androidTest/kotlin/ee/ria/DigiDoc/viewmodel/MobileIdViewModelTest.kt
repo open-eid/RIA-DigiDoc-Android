@@ -7,9 +7,11 @@ package ee.ria.DigiDoc.viewmodel
 
 import android.content.ContentResolver
 import android.content.Context
+import androidx.activity.ComponentActivity
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.gson.Gson
 import ee.ria.DigiDoc.R
@@ -35,10 +37,10 @@ import ee.ria.DigiDoc.mobileId.MobileSignService
 import ee.ria.DigiDoc.network.mid.dto.MobileCertificateResultType
 import ee.ria.DigiDoc.network.mid.dto.response.MobileCreateSignatureProcessStatus
 import junit.framework.TestCase.assertFalse
-import junit.framework.TestCase.assertNotSame
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -53,10 +55,7 @@ import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
 import org.mockito.kotlin.atLeastOnce
 import org.mockito.kotlin.eq
-import org.mockito.kotlin.times
 import java.util.UUID
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @RunWith(MockitoJUnitRunner::class)
 class MobileIdViewModelTest {
@@ -89,6 +88,8 @@ class MobileIdViewModelTest {
 
     @Mock
     lateinit var challengeObserver: Observer<String?>
+
+    private lateinit var scenario: ActivityScenario<ComponentActivity>
 
     private lateinit var signedContainer: SignedContainer
 
@@ -182,6 +183,8 @@ class MobileIdViewModelTest {
         viewModel.signedContainer.observeForever(signedContainerObserver)
         viewModel.challenge.observeForever(challengeObserver)
 
+        scenario = ActivityScenario.launch(ComponentActivity::class.java)
+
         val container =
             AssetFile.getResourceFileAsFile(
                 context,
@@ -193,6 +196,11 @@ class MobileIdViewModelTest {
             runBlocking {
                 SignedContainer.openOrCreate(context, container, listOf(container), true)
             }
+    }
+
+    @After
+    fun cleanup() {
+        scenario.close()
     }
 
     @Test
@@ -609,66 +617,6 @@ class MobileIdViewModelTest {
             verify(signedContainerObserver, atLeastOnce()).onChanged(null)
             verify(statusObserver, atLeastOnce()).onChanged(null)
             verify(challengeObserver, atLeastOnce()).onChanged("0660")
-        }
-
-    @Test
-    fun mobileIdViewModel_performMobileIdWorkRequest_cancelledRequestIsRetriedNotDropped() =
-        runTest {
-            val firstRequestStarted = CountDownLatch(1)
-            val releaseFirstRequest = CountDownLatch(1)
-
-            `when`(configurationRepository.getConfiguration()).thenAnswer {
-                firstRequestStarted.countDown()
-                releaseFirstRequest.await(10, TimeUnit.SECONDS)
-                configurationProvider
-            }
-            `when`(mobileIdService.response).thenReturn(MutableLiveData<MobileIdServiceResponse?>(null))
-            `when`(mobileIdService.status).thenReturn(MutableLiveData<MobileCreateSignatureProcessStatus?>(null))
-            `when`(mobileIdService.challenge).thenReturn(MutableLiveData<String?>(null))
-            `when`(mobileIdService.cancelled).thenReturn(MutableLiveData<Boolean?>(false))
-            `when`(mobileIdService.result).thenReturn(MutableLiveData<MobileCertificateResultType?>(null))
-            `when`(mobileIdService.errorState).thenReturn(MutableLiveData<String?>(null))
-
-            val firstJob =
-                viewModel.performMobileIdWorkRequest(
-                    context,
-                    "test message",
-                    signedContainer,
-                    "45611283812",
-                    "5629421",
-                    null,
-                )
-            firstRequestStarted.await(10, TimeUnit.SECONDS)
-
-            viewModel.cancelMobileIdWorkRequest(signedContainer)
-
-            val secondJob =
-                viewModel.performMobileIdWorkRequest(
-                    context,
-                    "test message",
-                    signedContainer,
-                    "45611283812",
-                    "5629421",
-                    null,
-                )
-
-            assertNotSame(firstJob, secondJob)
-
-            releaseFirstRequest.countDown()
-            firstJob?.join()
-            secondJob?.join()
-
-            verify(mobileIdService, times(2)).processMobileIdRequest(
-                any(),
-                any<SignedContainer>(),
-                any(),
-                eq(null),
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-            )
         }
 
     @Test

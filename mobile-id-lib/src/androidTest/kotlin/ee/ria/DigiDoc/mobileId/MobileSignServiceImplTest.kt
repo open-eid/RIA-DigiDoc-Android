@@ -51,7 +51,6 @@ import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
-import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.eq
@@ -573,106 +572,6 @@ class MobileSignServiceImplTest {
                     status = MobileCreateSignatureProcessStatus.OK,
                 ),
             )
-        }
-
-    @Test
-    fun mobileSignService_processMobileIdRequest_cancelledDuringSessionStatusRequestDoesNotFinalize() =
-        runTest {
-            doReturn(midRestServiceClient).whenever(serviceGenerator).createService(
-                context = context,
-                sslContext = null,
-                midSignServiceUrl = request.url,
-                certBundle = certBundle,
-                trustManagers = trustManagers,
-                proxySetting = proxySetting,
-                manualProxySettings = manualProxy,
-            )
-
-            doReturn(
-                Calls.response(
-                    Response.success(
-                        MobileCreateSignatureCertificateResponse(
-                            result = MobileCertificateResultType.OK,
-                            cert = cert,
-                        ),
-                    ),
-                ),
-            ).whenever(midRestServiceClient)
-                .getCertificate(
-                    body = getMobileCertificateRequest,
-                )
-
-            whenever(
-                containerWrapper.prepareSignature(
-                    signer = any<ExternalSigner>(),
-                    signedContainer = any<SignedContainer>(),
-                    cert = any<ByteArray>(),
-                    roleData = isNull(),
-                ),
-            ).thenReturn("dTzZ20E8kmoXXBAh5cV5yw==".toByteArray())
-
-            whenever(midRestServiceClient.getMobileCreateSession(any()))
-                .thenReturn(
-                    Calls.response(
-                        Response.success(
-                            MobileCreateSignatureSessionResponse(
-                                sessionID = "sessionID",
-                                traceId = "traceId",
-                                time = "time",
-                                error = null,
-                            ),
-                        ),
-                    ),
-                )
-
-            val call = mock(Call::class.java)
-
-            doReturn(call)
-                .whenever(call)
-                .clone()
-
-            doAnswer {
-                mobileSignServiceImpl.setCancelled(signedContainer, true)
-                Response.success(
-                    MobileCreateSignatureSessionStatusResponse(
-                        state = MobileCreateSignatureProcessState.COMPLETE,
-                        result = MobileCreateSignatureProcessStatus.OK,
-                        signature =
-                            MobileSignatureResponse(
-                                value = "dTzZ20E8kmoXXBAh5cV5yw==",
-                                algorithm = "MobileIDSignatureAlgorithm",
-                            ),
-                        cert = cert,
-                        time = "time",
-                        traceId = "traceId",
-                        error = null,
-                    ),
-                )
-            }.whenever(call)
-                .execute()
-
-            doReturn(call)
-                .whenever(midRestServiceClient)
-                .getMobileCreateSignatureSessionStatus(
-                    eq("sessionID"),
-                    eq("1000"),
-                )
-
-            mobileSignServiceImpl.processMobileIdRequest(
-                context = context,
-                signedContainer = signedContainer,
-                request = request,
-                roleDataRequest = null,
-                proxySetting = proxySetting,
-                manualProxySettings = manualProxy,
-                certificateBundle = certBundle,
-                accessTokenPath = "accessTokenPath",
-                accessTokenPass = "accessTokenPass",
-            )
-
-            verify(containerWrapper, never()).finalizeSignature(any(), any(), any())
-            verify(statusObserver, never()).onChanged(MobileCreateSignatureProcessStatus.GENERAL_ERROR)
-            verify(statusObserver, never()).onChanged(MobileCreateSignatureProcessStatus.TECHNICAL_ERROR)
         }
 
     @Test
