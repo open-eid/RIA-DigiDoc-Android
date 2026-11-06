@@ -75,6 +75,8 @@ class SmartIdViewModel
 
         private var signingJob: Job? = null
 
+        private var cancelRequested = false
+
         private val countries: ImmutableMap<Int, String> =
             ImmutableMap
                 .builder<Int, String>()
@@ -186,9 +188,11 @@ class SmartIdViewModel
         }
 
         fun cancelSmartIdWorkRequest(signedContainer: SignedContainer?) {
+            cancelRequested = true
             if (signedContainer != null) {
                 smartSignService.setCancelled(signedContainer, true)
             }
+            _challenge.postValue(null)
         }
 
         private fun setErrorState(
@@ -228,10 +232,12 @@ class SmartIdViewModel
             country: Int,
             roleData: RoleData?,
         ): Job? {
-            if (signingJob?.isActive == true) {
+            val previousSigningJob = signingJob
+            if (previousSigningJob?.isActive == true && !cancelRequested) {
                 debugLog(logTag, "Smart-ID signing already in progress, ignoring request")
-                return signingJob
+                return previousSigningJob
             }
+            cancelRequested = false
 
             val errorStateObserver =
                 Observer<String?> {
@@ -310,6 +316,10 @@ class SmartIdViewModel
             signingJob =
                 viewModelScope.launch(IO) {
                     try {
+                        if (previousSigningJob?.isActive == true) {
+                            debugLog(logTag, "Waiting for the cancelled Smart-ID signing to finish")
+                            previousSigningJob.join()
+                        }
                         resetValues()
                         val configurationProvider = configurationRepository.getConfiguration()
                         val uuid = dataStore.getSettingsUUID()

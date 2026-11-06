@@ -106,9 +106,14 @@ class SmartSignServiceImpl
         private val _cancelled = MutableLiveData(false)
         override val cancelled: LiveData<Boolean?> = _cancelled
 
+        @Volatile
+        private var isCancelled = false
+
         private var signatureInterface: SignatureInterface? = null
 
         override fun resetValues() {
+            isCancelled = false
+            signatureInterface = null
             _response.postValue(null)
             _errorState.postValue(null)
             _challenge.postValue(null)
@@ -120,18 +125,7 @@ class SmartSignServiceImpl
             signedContainer: SignedContainer,
             cancelled: Boolean?,
         ) {
-            try {
-                signatureInterface?.let {
-                    signedContainer.removeSignature(it)
-                }
-            } catch (e: Exception) {
-                errorLog(
-                    logTag,
-                    "Failed to remove signature from container. Exception message: ${e.message}. " +
-                        "Exception: ${e.stackTrace.contentToString()}",
-                    e,
-                )
-            }
+            isCancelled = cancelled == true
             _cancelled.postValue(cancelled)
         }
 
@@ -290,6 +284,17 @@ class SmartSignServiceImpl
                             return
                         }
                         debugLog(logTag, "SessionStatusResponse: $sessionStatusResponse")
+                        try {
+                            checkSigningCancelled(signedContainer)
+                        } catch (sce: SigningCancelledException) {
+                            errorLog(
+                                logTag,
+                                "Unable to sign with Smart-ID. " +
+                                    "Signing has been cancelled before finalizing the signature",
+                                sce,
+                            )
+                            return
+                        }
                         debugLog(logTag, "Finalizing signature...")
                         val signatureValueBytes: ByteArray =
                             Base64.getDecoder().decode(
@@ -300,6 +305,17 @@ class SmartSignServiceImpl
                             signedContainer,
                             signatureValueBytes,
                         )
+                        try {
+                            checkSigningCancelled(signedContainer)
+                        } catch (sce: SigningCancelledException) {
+                            errorLog(
+                                logTag,
+                                "Unable to sign with Smart-ID. " +
+                                    "Signing has been cancelled while finalizing the signature",
+                                sce,
+                            )
+                            return
+                        }
                         debugLog(logTag, "Posting signature status response")
                         postSmartCreateSignatureStatusResponse(sessionStatusResponse)
                         return
@@ -744,7 +760,7 @@ class SmartSignServiceImpl
 
         @Throws(SigningCancelledException::class)
         private fun checkSigningCancelled(signedContainer: SignedContainer) {
-            if (_cancelled.value == true) {
+            if (isCancelled) {
                 try {
                     signatureInterface?.let { signedContainer.removeSignature(it) }
                 } catch (e: Exception) {

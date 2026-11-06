@@ -60,9 +60,7 @@ fun MobileIdSignatureUpdateContainer(
 
     LaunchedEffect(mobileIdViewModel.challenge) {
         mobileIdViewModel.challenge.asFlow().collect { challenge ->
-            challenge?.let {
-                challengeText = challenge
-            }
+            challengeText = challenge ?: ""
         }
     }
 

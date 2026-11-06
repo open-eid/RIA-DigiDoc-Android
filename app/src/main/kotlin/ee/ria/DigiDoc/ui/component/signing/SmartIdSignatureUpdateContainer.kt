@@ -62,9 +62,7 @@ fun SmartIdSignatureUpdateContainer(
 
     LaunchedEffect(smartIdViewModel.challenge) {
         smartIdViewModel.challenge.asFlow().collect { challenge ->
-            challenge?.let {
-                challengeText = challenge
-            }
+            challengeText = challenge ?: ""
         }
     }
 
