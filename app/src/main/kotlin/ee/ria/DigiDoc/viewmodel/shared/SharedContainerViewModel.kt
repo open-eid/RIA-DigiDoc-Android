@@ -32,10 +32,10 @@ import ee.ria.DigiDoc.utilsLib.extensions.isSignedPDF
 import ee.ria.DigiDoc.utilsLib.extensions.isXades
 import ee.ria.DigiDoc.utilsLib.extensions.mimeType
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.errorLog
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import java.io.File
 import javax.inject.Inject
 
@@ -48,8 +48,18 @@ class SharedContainerViewModel
         private val _signedContainer = MutableStateFlow<SignedContainer?>(null)
         val signedContainer: StateFlow<SignedContainer?> = _signedContainer.asStateFlow()
 
+        // Removing a signature or file changes the container but not the object itself,
+        // so screens can't tell anything happened. Increment this to make them reload.
+        private val _signedContainerContentVersion = MutableStateFlow(0)
+        val signedContainerContentVersion: StateFlow<Int> = _signedContainerContentVersion.asStateFlow()
+
         private val _cryptoContainer = MutableStateFlow<CryptoContainer?>(null)
         val cryptoContainer: StateFlow<CryptoContainer?> = _cryptoContainer.asStateFlow()
+
+        // Removing a file or recipient changes the container but not the object itself,
+        // so screens can't tell anything happened. Increment this to make them reload.
+        private val _cryptoContainerContentVersion = MutableStateFlow(0)
+        val cryptoContainerContentVersion: StateFlow<Int> = _cryptoContainerContentVersion.asStateFlow()
 
         private val _nestedContainers = mutableStateListOf<Container?>()
         val nestedContainers: List<Container?> get() = _nestedContainers
@@ -299,9 +309,8 @@ class SharedContainerViewModel
             dataFile: File?,
         ) {
             dataFile?.let { cryptoContainer?.removeDataFile(it) }
-            _cryptoContainer.value = null
-            delay(100L)
             _cryptoContainer.value = cryptoContainer
+            _cryptoContainerContentVersion.update { it + 1 }
         }
 
         @Throws(Exception::class)
@@ -310,9 +319,8 @@ class SharedContainerViewModel
             recipient: Addressee?,
         ) {
             recipient?.let { cryptoContainer?.removeRecipient(it) }
-            _cryptoContainer.value = null
-            delay(100L)
             _cryptoContainer.value = cryptoContainer
+            _cryptoContainerContentVersion.update { it + 1 }
         }
 
         @Throws(Exception::class)
@@ -336,9 +344,8 @@ class SharedContainerViewModel
             dataFile: DataFileInterface?,
         ) {
             dataFile?.let { signedContainer?.removeDataFile(it) }
-            _signedContainer.value = null
-            delay(100L)
             _signedContainer.value = signedContainer
+            _signedContainerContentVersion.update { it + 1 }
         }
 
         suspend fun removeSignature(
@@ -346,9 +353,8 @@ class SharedContainerViewModel
             signature: SignatureInterface?,
         ) {
             signature?.let { signedContainer?.removeSignature(it) }
-            _signedContainer.value = null
-            delay(100L)
             _signedContainer.value = signedContainer
+            _signedContainerContentVersion.update { it + 1 }
         }
 
         fun setContainerNotifications(notifications: List<ContainerNotificationType>) {

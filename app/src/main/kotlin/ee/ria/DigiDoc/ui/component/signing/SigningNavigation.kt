@@ -140,6 +140,7 @@ fun SigningNavigation(
     sharedSettingsViewModel: SharedSettingsViewModel = hiltViewModel(),
 ) {
     val signedContainer by sharedContainerViewModel.signedContainer.collectAsState()
+    val signedContainerContentVersion by sharedContainerViewModel.signedContainerContentVersion.collectAsState()
     val shouldResetContainer by signingViewModel.shouldResetSignedContainer.asFlow().collectAsState(false)
     val context = LocalContext.current
 
@@ -551,7 +552,7 @@ fun SigningNavigation(
         }
     }
 
-    LaunchedEffect(signedContainer) {
+    LaunchedEffect(signedContainer, signedContainerContentVersion) {
         signedContainer?.let {
             val pastTime = System.currentTimeMillis()
             showSignaturesLoadingIndicator.value = true
@@ -634,7 +635,7 @@ fun SigningNavigation(
         }
     }
 
-    LaunchedEffect(signedContainer) {
+    LaunchedEffect(signedContainer, signedContainerContentVersion) {
         signedContainer?.let {
             showDataFilesLoadingIndicator.value = true
             dataFiles = it.getDataFiles()
@@ -656,7 +657,7 @@ fun SigningNavigation(
         }
     }
 
-    LaunchedEffect(signedContainer, isSivaConfirmed) {
+    LaunchedEffect(signedContainer, signedContainerContentVersion, isSivaConfirmed) {
         signedContainer?.let { container ->
             scope.launch(IO) {
                 isTimestampedContainer =
