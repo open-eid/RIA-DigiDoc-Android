@@ -23,6 +23,9 @@ import ee.ria.DigiDoc.configuration.repository.CentralConfigurationRepositoryImp
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepository
 import ee.ria.DigiDoc.configuration.repository.ConfigurationRepositoryImpl
 import ee.ria.DigiDoc.configuration.service.CentralConfigurationServiceImpl
+import ee.ria.DigiDoc.cryptolib.Addressee
+import ee.ria.DigiDoc.cryptolib.CDOC2Settings
+import ee.ria.DigiDoc.cryptolib.CertType
 import ee.ria.DigiDoc.cryptolib.CryptoContainer
 import ee.ria.DigiDoc.domain.model.ContainerFileOpeningResult
 import ee.ria.DigiDoc.domain.repository.fileopening.FileOpeningRepository
@@ -166,6 +169,7 @@ class SharedContainerViewModelTest {
                     ?.getSignatures()
                     ?.size,
             )
+            assertEquals(1, viewModel.signedContainerContentVersion.value)
         }
 
     @Test
@@ -239,6 +243,56 @@ class SharedContainerViewModelTest {
                     ?.getDataFiles()
                     ?.size,
             )
+            assertEquals(1, viewModel.signedContainerContentVersion.value)
+        }
+
+    @Test
+    fun sharedContainerViewModel_removeCryptoContainerDataFile_success() =
+        runTest {
+            val file = createTempFileWithStringContent("test", "Test content")
+            val anotherFile = createTempFileWithStringContent("test2", "Another file")
+            val cryptoContainer =
+                CryptoContainer.openOrCreate(
+                    context,
+                    file,
+                    listOf(file, anotherFile),
+                    CDOC2Settings(context, configurationRepository),
+                )
+
+            viewModel.removeCryptoContainerDataFile(cryptoContainer, anotherFile)
+
+            assertEquals(
+                1,
+                viewModel.cryptoContainer.value
+                    ?.getDataFiles()
+                    ?.size,
+            )
+            assertEquals(1, viewModel.cryptoContainerContentVersion.value)
+        }
+
+    @Test
+    fun sharedContainerViewModel_removeRecipient_success() =
+        runTest {
+            val file = createTempFileWithStringContent("test", "Test content")
+            val cryptoContainer =
+                CryptoContainer.openOrCreate(
+                    context,
+                    file,
+                    listOf(file),
+                    CDOC2Settings(context, configurationRepository),
+                )
+            val recipient = recipient(byteArrayOf(1))
+            cryptoContainer.addRecipients(listOf(recipient, recipient(byteArrayOf(2))))
+
+            viewModel.removeRecipient(cryptoContainer, recipient)
+
+            assertEquals(
+                1,
+                viewModel.cryptoContainer.value
+                    ?.getRecipients()
+                    ?.size,
+            )
+            assertEquals(1, viewModel.cryptoContainerContentVersion.value)
         }
 
     @Test(expected = ContainerDataFilesEmptyException::class)
@@ -734,4 +788,16 @@ class SharedContainerViewModelTest {
         Files.write(tempFile.toPath(), content.toByteArray(Charset.defaultCharset()))
         return tempFile
     }
+
+    private fun recipient(data: ByteArray): Addressee =
+        Addressee(
+            data = data,
+            identifier = "11111111111",
+            serialNumber = "11111111111",
+            givenName = "Test",
+            surname = "Recipient",
+            certType = CertType.IDCardType,
+            validTo = null,
+            concatKDFAlgorithmURI = null,
+        )
 }

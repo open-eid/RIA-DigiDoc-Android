@@ -23,6 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -199,7 +200,7 @@ class EncryptRecipientViewModelTest {
 
     @Test
     fun encryptRecipientViewModel_recipientList_returnsRecipientRemovedFromContainer() =
-        runTest(testDispatcher) {
+        runTest(StandardTestDispatcher(testDispatcher.scheduler)) {
             val addedRecipient = recipient(byteArrayOf(1))
             `when`(recipientRepository.find(context, SEARCH_QUERY))
                 .thenReturn(Pair(listOf(addedRecipient), 1))

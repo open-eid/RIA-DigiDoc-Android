@@ -131,6 +131,7 @@ fun EncryptRecipientScreen(
     val scope = rememberCoroutineScope()
 
     val cryptoContainer by sharedContainerViewModel.cryptoContainer.collectAsState()
+    val cryptoContainerContentVersion by sharedContainerViewModel.cryptoContainerContentVersion.collectAsState()
 
     val isEncrypting by encryptRecipientViewModel.isEncrypting.collectAsState()
     val isSettingsMenuBottomSheetVisible = rememberSaveable { mutableStateOf(false) }
@@ -197,7 +198,7 @@ fun EncryptRecipientScreen(
         encryptRecipientViewModel.onSearchTextChange("")
     }
 
-    LaunchedEffect(cryptoContainer) {
+    LaunchedEffect(cryptoContainer, cryptoContainerContentVersion) {
         cryptoContainer?.let {
             encryptRecipientViewModel.updateContainerRecipients(sharedContainerViewModel)
         }
@@ -667,7 +668,7 @@ private fun RecipientTabContent(
                             textAlign = TextAlign.Start,
                         )
                     }
-                    items(containerRecipientList, key = { "added-${it.data.contentHashCode()}" }) { recipient ->
+                    items(containerRecipientList, key = { recipientKey(it) }) { recipient ->
                         RecipientItem(
                             modifier = Modifier.animateItem(),
                             recipient = recipient,
@@ -719,7 +720,7 @@ private fun RecipientTabContent(
                             textAlign = TextAlign.Start,
                         )
                     }
-                    items(containerRecipientList, key = { "added-${it.data.contentHashCode()}" }) { recipient ->
+                    items(containerRecipientList, key = { recipientKey(it) }) { recipient ->
                         RecipientItem(
                             modifier = Modifier.animateItem(),
                             recipient = recipient,
@@ -797,3 +798,6 @@ fun EncryptRecipientScreenPreview() {
         )
     }
 }
+
+private fun recipientKey(recipient: Addressee): String =
+    recipient.lockIndex?.let { "lock-$it" } ?: "added-${recipient.data.contentHashCode()}"

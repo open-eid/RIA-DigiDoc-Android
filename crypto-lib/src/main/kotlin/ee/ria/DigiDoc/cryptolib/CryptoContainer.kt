@@ -249,11 +249,7 @@ class CryptoContainer
                         lock.isPKI ->
                             Addressee.fromLabel(
                                 lock.label,
-                                if (lock.type == Lock.Type.PUBLIC_KEY) {
-                                    lock.getBytes(Lock.Params.RCPT_KEY) ?: ByteArray(0)
-                                } else {
-                                    ByteArray(0)
-                                },
+                                lock.getBytes(Lock.Params.RCPT_KEY) ?: ByteArray(0),
                                 "",
                             )
                         lock.type == Lock.Type.PASSWORD ->

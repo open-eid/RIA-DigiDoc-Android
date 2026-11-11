@@ -132,6 +132,7 @@ fun EncryptNavigation(
 ) {
     val logTag = "EncryptNavigation"
     val cryptoContainer by sharedContainerViewModel.cryptoContainer.collectAsState()
+    val cryptoContainerContentVersion by sharedContainerViewModel.cryptoContainerContentVersion.collectAsState()
     val shouldResetContainer by encryptViewModel.shouldResetCryptoContainer.asFlow().collectAsState(false)
     val context = LocalContext.current
 
@@ -477,7 +478,7 @@ fun EncryptNavigation(
         }
     }
 
-    LaunchedEffect(cryptoContainer) {
+    LaunchedEffect(cryptoContainer, cryptoContainerContentVersion) {
         cryptoContainer?.let {
             val pastTime = System.currentTimeMillis()
             showRecipientsLoadingIndicator.value = true
@@ -490,7 +491,7 @@ fun EncryptNavigation(
         }
     }
 
-    LaunchedEffect(cryptoContainer) {
+    LaunchedEffect(cryptoContainer, cryptoContainerContentVersion) {
         cryptoContainer?.let {
             showDataFilesLoadingIndicator.value = true
             dataFiles = it.getDataFiles()
