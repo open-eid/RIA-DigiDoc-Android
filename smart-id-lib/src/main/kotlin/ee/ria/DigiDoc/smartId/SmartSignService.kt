@@ -156,7 +156,7 @@ class SmartSignServiceImpl
             if (request != null) {
                 try {
                     if (certificateBundle != null) {
-                        debugLog(logTag, request.toString())
+                        debugLog(logTag, "Smart-ID request country ${request.country}")
 
                         sidRestServiceClient =
                             serviceGenerator.createService(
@@ -216,13 +216,14 @@ class SmartSignServiceImpl
                                 semanticsIdentifier,
                                 getCertificateRequest(request),
                             ),
+                            SidRequest.CERTIFICATE_CHOICE,
                         )
                     if (sessionStatusResponse == null) {
                         errorLog(logTag, "No session status response")
                         return
                     }
 
-                    debugLog(logTag, "Session status response: $sessionStatusResponse")
+                    debugLog(logTag, "Certificate choice state ${sessionStatusResponse.state}")
 
                     val signerCert = getCertificate(sessionStatusResponse.cert?.value)
                     val signer = ExternalSigner(signerCert)
@@ -265,7 +266,7 @@ class SmartSignServiceImpl
                         val requestString =
                             MessageUtil.toJsonString(getSignatureRequestV2(request, base64Hash))
 
-                        debugLog(logTag, "Request: $requestString")
+                        debugLog(logTag, "Signature request created")
 
                         sessionStatusResponse =
                             doSessionStatusRequestLoop(
@@ -274,12 +275,13 @@ class SmartSignServiceImpl
                                     sessionStatusResponse.result?.documentNumber,
                                     requestString,
                                 ),
+                                SidRequest.SIGNATURE,
                             )
                         if (sessionStatusResponse == null) {
                             errorLog(logTag, "Unable to get session status response")
                             return
                         }
-                        debugLog(logTag, "SessionStatusResponse: $sessionStatusResponse")
+                        debugLog(logTag, "Signing state ${sessionStatusResponse.state}")
                         debugLog(logTag, "Finalizing signature...")
                         val signatureValueBytes: ByteArray =
                             Base64.getDecoder().decode(
@@ -493,9 +495,10 @@ class SmartSignServiceImpl
         private suspend fun doSessionStatusRequestLoop(
             signedContainer: SignedContainer,
             request: Call<SessionResponse>,
+            sidRequest: SidRequest,
         ): SessionStatusResponse? {
             var timeout: Long = 0
-            val sessionResponse: SessionResponse? = handleRequest(signedContainer, request)
+            val sessionResponse: SessionResponse? = handleRequest(signedContainer, request, sidRequest)
             if (sessionResponse == null) {
                 errorLog(logTag, "Session response null")
                 return null
@@ -522,6 +525,7 @@ class SmartSignServiceImpl
                                 sessionResponse.sessionID,
                                 SUBSEQUENT_STATUS_REQUEST_DELAY_IN_MILLISECONDS,
                             ),
+                            SidRequest.SESSION_STATUS,
                         ).also { consecutiveIoFailures = 0 }
                     } catch (ioe: IOException) {
                         consecutiveIoFailures++
@@ -588,7 +592,7 @@ class SmartSignServiceImpl
             request: SmartCreateSignatureRequest,
             hash: String,
         ): PostCreateSignatureRequestV2 {
-            debugLog(logTag, "Signature request V2: $request")
+            debugLog(logTag, "Building Smart-ID signature request")
             val allowedInteractionsOrder =
                 RequestAllowedInteractionsOrder(
                     "confirmationMessageAndVerificationCodeChoice",
@@ -615,6 +619,7 @@ class SmartSignServiceImpl
         private fun <S> handleRequest(
             signedContainer: SignedContainer,
             request: Call<S>,
+            sidRequest: SidRequest,
         ): S? {
             try {
                 checkSigningCancelled(signedContainer)
@@ -627,11 +632,21 @@ class SmartSignServiceImpl
                 debugLog(
                     logTag,
                     "Smart-ID request unsuccessful. Status: ${httpResponse.code()}, " +
-                        "message: ${httpResponse.message()}, " +
-                        "body: ${httpResponse.body()}, " +
-                        "errorBody: ${httpResponse.errorBody()}",
+                        "message: ${httpResponse.message()}",
                 )
                 when (httpResponse.code()) {
+                    400 -> {
+                        if (sidRequest == SidRequest.CERTIFICATE_CHOICE) {
+                            postFault(ServiceFault(SessionStatusResponseProcessStatus.INVALID_PERSONAL_CODE))
+                        } else {
+                            postFault(ServiceFault(SessionStatusResponseProcessStatus.TECHNICAL_ERROR))
+                        }
+                        debugLog(
+                            logTag,
+                            "Bad request for $sidRequest - HTTP status code: ${httpResponse.code()}",
+                        )
+                    }
+
                     401, 403 -> {
                         postFault(ServiceFault(SessionStatusResponseProcessStatus.INVALID_ACCESS_RIGHTS))
                         debugLog(
@@ -643,7 +658,7 @@ class SmartSignServiceImpl
                     404 -> {
                         postFault(
                             ServiceFault(
-                                if (httpResponse.body() is SessionResponse) {
+                                if (sidRequest == SidRequest.SESSION_STATUS) {
                                     SessionStatusResponseProcessStatus.SESSION_NOT_FOUND
                                 } else {
                                     SessionStatusResponseProcessStatus.ACCOUNT_NOT_FOUND
@@ -680,6 +695,15 @@ class SmartSignServiceImpl
                         )
                     }
 
+                    472 -> {
+                        postFault(ServiceFault(SessionStatusResponseProcessStatus.DOCUMENT_UNUSABLE))
+                        debugLog(
+                            logTag,
+                            "Person should view Smart-ID app or self-service portal - " +
+                                "HTTP status code: ${httpResponse.code()}",
+                        )
+                    }
+
                     480 -> {
                         postFault(ServiceFault(SessionStatusResponseProcessStatus.OLD_API))
                         debugLog(
@@ -709,15 +733,12 @@ class SmartSignServiceImpl
             }
             debugLog(
                 logTag,
-                "Response status: ${httpResponse.code()}, response body: ${httpResponse.body()}",
+                "Response status: ${httpResponse.code()}",
             )
             debugLog(
                 logTag,
                 "Smart-ID request: isSuccessful: ${httpResponse.isSuccessful}, " +
-                    "status: ${httpResponse.code()}, " +
-                    "message: ${httpResponse.message()}, " +
-                    "body: ${httpResponse.body()}, " +
-                    "errorBody: ${httpResponse.errorBody()}",
+                    "status: ${httpResponse.code()}",
             )
             return httpResponse.body()
         }
@@ -741,7 +762,7 @@ class SmartSignServiceImpl
         }
 
         private fun generateSmartIdResponse(response: SessionStatusResponse): SmartIDServiceResponse {
-            debugLog(logTag, "Generating Smart ID response: $response")
+            debugLog(logTag, "Generating Smart-ID response, end result ${response.result?.endResult}")
             val smartIdResponse =
                 SmartIDServiceResponse(
                     response.result?.endResult,
@@ -758,7 +779,7 @@ class SmartSignServiceImpl
         }
 
         private fun postSmartCreateSignatureStatusResponse(response: SessionStatusResponse) {
-            debugLog(logTag, "postSmartCreateSignatureStatusResponse: $response")
+            debugLog(logTag, "Posting Smart-ID status response, end result ${response.result?.endResult}")
             val smartIdServiceResponse = generateSmartIdResponse(response)
             setResponse(smartIdServiceResponse)
             setErrorState(null)
@@ -788,7 +809,7 @@ class SmartSignServiceImpl
                     request.relyingPartyName,
                     request.relyingPartyUUID,
                 )
-            debugLog(logTag, "Certificate request: $request")
+            debugLog(logTag, "Building Smart-ID certificate request")
             return certificateRequest
         }
 
@@ -802,3 +823,9 @@ class SmartSignServiceImpl
     }
 
 private class ServiceUnderMaintenanceException : Exception()
+
+private enum class SidRequest {
+    CERTIFICATE_CHOICE,
+    SIGNATURE,
+    SESSION_STATUS,
+}

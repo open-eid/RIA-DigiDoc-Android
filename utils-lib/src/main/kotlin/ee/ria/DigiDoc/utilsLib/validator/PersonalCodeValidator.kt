@@ -16,15 +16,17 @@ object PersonalCodeValidator {
     private val LOG_TAG = javaClass.simpleName
 
     fun isPersonalCodeValid(personalCode: String): Boolean =
+        isEstonianPersonalCodeValid(personalCode) || isLatvianPersonalCodeValid(personalCode)
+
+    fun isEstonianPersonalCodeValid(personalCode: String): Boolean =
         (
             isPersonalCodeLengthValid(personalCode) &&
                 isBirthDateValid(personalCode) &&
                 isChecksumValid(personalCode)
         ) ||
-            (isPersonalCodeLengthValid(personalCode) && isMobileIdTestCode(personalCode)) ||
-            isLatvianPersonalCodeValid(personalCode)
+            (isPersonalCodeLengthValid(personalCode) && isMobileIdTestCode(personalCode))
 
-    private fun isLatvianPersonalCodeValid(personalCode: String): Boolean {
+    fun isLatvianPersonalCodeValid(personalCode: String): Boolean {
         val regex = "^\\d{6}-\\d{5}$"
 
         return personalCode.isNotEmpty() &&

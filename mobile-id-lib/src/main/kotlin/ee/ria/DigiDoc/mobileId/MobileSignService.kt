@@ -209,7 +209,7 @@ class MobileSignServiceImpl
             if (request != null) {
                 val certificateRequest: PostMobileCreateSignatureCertificateRequest =
                     getCertificateRequest(request)
-                debugLog(logTag, "Certificate request: $certificateRequest")
+                debugLog(logTag, "Mobile-ID certificate request built")
                 var restSSLConfig: SSLContext?
                 try {
                     debugLog(logTag, "Creating SSL config")
@@ -313,7 +313,7 @@ class MobileSignServiceImpl
                             setErrorState(errorString)
                             return
                         }
-                        debugLog(logTag, "MobileCreateSignatureCertificateResponse response body: $response")
+                        debugLog(logTag, "Mobile-ID certificate response result ${response.result}")
                         if (isResponseError(
                                 responseWrapper,
                                 response,
@@ -636,7 +636,7 @@ class MobileSignServiceImpl
                         MobileCreateSignatureSessionStatusResponse::class.java,
                     )
                 ) {
-                    debugLog(logTag, "Response error: $responseWrapper")
+                    debugLog(logTag, "Response error, status ${responseWrapper.code()}")
                     return
                 }
                 debugLog(logTag, "Finalizing signature...")
@@ -696,12 +696,10 @@ class MobileSignServiceImpl
             request: MobileCreateSignatureRequest?,
         ): String? {
             val sessionRequest: PostMobileCreateSignatureSessionRequest = getSessionRequest(request)
-            debugLog(logTag, "Session request: $sessionRequest")
             sessionRequest.hash = hash
-            debugLog(logTag, "Request hash: $hash")
 
             val requestString: String = MessageUtil.toJsonString(sessionRequest)
-            debugLog(logTag, "Request string: $requestString")
+            debugLog(logTag, "Mobile-ID session request created")
 
             try {
                 checkSigningCancelled(signedContainer)
@@ -881,7 +879,7 @@ class MobileSignServiceImpl
             response: MobileCreateSignatureSessionStatusResponse,
             container: Container,
         ) {
-            debugLog(logTag, "Posting create signature status response: $response")
+            debugLog(logTag, "Posting Mobile-ID status response, result ${response.result}")
             val mobileIdServiceResponse = generateMobileIdResponse(response, container)
 
             setResponse(mobileIdServiceResponse)
@@ -891,7 +889,7 @@ class MobileSignServiceImpl
         }
 
         private fun postMobileCreateSignatureResponse(base64Hash: String) {
-            debugLog(logTag, "Posting create signature response: $base64Hash")
+            debugLog(logTag, "Posting Mobile-ID signature challenge")
             val verificationCode =
                 VerificationCodeUtil.calculateMobileIdVerificationCode(
                     Base64.getDecoder().decode(base64Hash),
@@ -934,7 +932,7 @@ class MobileSignServiceImpl
             certificateRequest.relyingPartyUUID = signatureRequest?.relyingPartyUUID
             certificateRequest.phoneNumber = signatureRequest?.phoneNumber
             certificateRequest.nationalIdentityNumber = signatureRequest?.nationalIdentityNumber
-            debugLog(logTag, "Mobile-ID certificate request: $certificateRequest")
+            debugLog(logTag, "Mobile-ID certificate request created")
             return certificateRequest
         }
 
@@ -950,7 +948,7 @@ class MobileSignServiceImpl
             sessionRequest.hashType = signatureRequest?.hashType
             sessionRequest.displayText = signatureRequest?.displayText
             sessionRequest.displayTextFormat = signatureRequest?.displayTextFormat
-            debugLog(logTag, "Mobile-ID session request: $sessionRequest")
+            debugLog(logTag, "Mobile-ID session request created")
             return sessionRequest
         }
 

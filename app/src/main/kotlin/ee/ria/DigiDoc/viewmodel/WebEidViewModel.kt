@@ -109,12 +109,12 @@ class WebEidViewModel
             try {
                 _authRequest.value = WebEidRequestParser.parseAuthUri(uri)
             } catch (e: WebEidException) {
-                errorLog(logTag, "Invalid Web eID authentication request: $uri", e)
+                errorLog(logTag, "Invalid Web eID authentication request ${routeOf(uri)}", e)
                 val errorPayload = WebEidResponseUtil.createErrorPayload(e.errorCode, e.message)
                 val responseUri = WebEidResponseUtil.createResponseUri(e.responseUri, errorPayload)
                 sendResponse(responseUri, isCompletedOperation = false)
             } catch (e: Exception) {
-                errorLog(logTag, "Unable parse Web eID authentication request: $uri", e)
+                errorLog(logTag, "Unable parse Web eID authentication request ${routeOf(uri)}", e)
                 _dialogError.value = R.string.web_eid_invalid_auth_request_error
             }
         }
@@ -124,7 +124,7 @@ class WebEidViewModel
             try {
                 _certificateRequest.value = WebEidRequestParser.parseCertificateUri(uri)
             } catch (e: Exception) {
-                errorLog(logTag, "Unable parse Web eID certificate request: $uri", e)
+                errorLog(logTag, "Unable parse Web eID certificate request ${routeOf(uri)}", e)
                 _dialogError.value = R.string.web_eid_invalid_request_error
             }
         }
@@ -134,19 +134,19 @@ class WebEidViewModel
             try {
                 _signRequest.value = WebEidRequestParser.parseSignUri(uri)
             } catch (e: WebEidException) {
-                errorLog(logTag, "Invalid Web eID signing request: $uri", e)
+                errorLog(logTag, "Invalid Web eID signing request ${routeOf(uri)}", e)
                 val errorPayload = WebEidResponseUtil.createErrorPayload(e.errorCode, e.message)
                 val responseUri = WebEidResponseUtil.createResponseUri(e.responseUri, errorPayload)
                 sendResponse(responseUri, isCompletedOperation = false)
             } catch (e: Exception) {
-                errorLog(logTag, "Unable parse Web eID signing request: $uri", e)
+                errorLog(logTag, "Unable parse Web eID signing request ${routeOf(uri)}", e)
                 _dialogError.value = R.string.web_eid_invalid_request_error
             }
         }
 
         fun handleUnknown(uri: Uri) {
             resetRequests()
-            errorLog(logTag, "Unable parse Web eID request: $uri")
+            errorLog(logTag, "Unable parse Web eID request ${routeOf(uri)}")
             _dialogError.value = R.string.web_eid_invalid_request_error
         }
 
@@ -260,4 +260,6 @@ class WebEidViewModel
                 errorLog(logTag, "Failed to send cancel response", e)
             }
         }
+
+        private fun routeOf(uri: Uri): String = "${uri.scheme}://${uri.host}${uri.path}"
     }
