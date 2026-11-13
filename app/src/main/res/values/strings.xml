@@ -706,7 +706,7 @@
     <string name="myeid_puk_blocked_url">https://www.id.ee/en/article/changing-id-card-pin-codes-and-puk-code/</string>
     <string name="myeid_thales_puk_blocked">PUK has been blocked because PUK code has been entered incorrectly 3 times. You can not unblock the PUK code yourself.\n\nAs long as the PUK code is blocked, all eID options can be used, except transactions that need PUK code.\n\nA new document must be requested to receive the new PUK code.</string>
     <string name="myeid_thales_puk_blocked_url">https://www.id.ee/en/article/changing-id-card-pin-codes-and-puk-code/</string>
-    <string name="myeid_cert_expired">Certificate has &lt;c>expired&lt;/c>! %1$s cannot be used because the certificate has expired.</string>
+    <string name="myeid_cert_expired">%1$s cannot be used because the certificate has expired.</string>
     <string name="myeid_pin_part_personal_code_error">New %1$s code can\'t be part of your personal code</string>
     <string name="myeid_pin_part_dob_error">New %1$s code can\'t be your date of birth</string>
     <string name="myeid_pin_too_easy_error">New %1$s code can\'t be so easy</string>

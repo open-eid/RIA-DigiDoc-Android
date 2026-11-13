@@ -28,6 +28,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -52,7 +53,9 @@ import ee.ria.DigiDoc.idcard.CardType
 import ee.ria.DigiDoc.idcard.CodeType
 import ee.ria.DigiDoc.idcard.DateOfBirthUtil
 import ee.ria.DigiDoc.ui.component.menu.SettingsMenuBottomSheet
+import ee.ria.DigiDoc.ui.component.myeid.mydata.MyEidDocumentStatus
 import ee.ria.DigiDoc.ui.component.myeid.mydata.MyEidMyDataView
+import ee.ria.DigiDoc.ui.component.myeid.mydata.certificateStatus
 import ee.ria.DigiDoc.ui.component.myeid.pinandcertificate.MyEidPinAndCertificateView
 import ee.ria.DigiDoc.ui.component.shared.HrefDynamicText
 import ee.ria.DigiDoc.ui.component.shared.StatusSnackbarHost
@@ -89,6 +92,11 @@ fun MyEidScreen(
     val isPukBlocked = idCardData?.pukRetryCount == 0
     val isPin2Activated = idCardData?.pin2CodeChanged == true
     val isCourierCard = idCardData?.personalData != null && idCardData?.pin1CodeChanged == false
+
+    val authCertificate = remember(idCardData) { idCardData?.authCertificate?.data?.x509Certificate() }
+    val signCertificate = remember(idCardData) { idCardData?.signCertificate?.data?.x509Certificate() }
+    val authCertificateStatus = idCardData?.let { certificateStatus(authCertificate) }
+    val signCertificateStatus = idCardData?.let { certificateStatus(signCertificate) }
 
     val alphaForPin1BlockedState = getAlphaForBlockedState((isPin1Blocked && isPukBlocked) || isCourierCard)
     val alphaForPin2BlockedState = getAlphaForBlockedState((isPin2Blocked && isPukBlocked) || isCourierCard)
@@ -310,15 +318,14 @@ fun MyEidScreen(
                                                     .alpha(alphaForPin1BlockedState),
                                             title = stringResource(R.string.myeid_authentication_certificate_title),
                                             subtitle =
-                                                stringResource(
-                                                    R.string.myeid_certificate_valid_to,
-                                                    sharedMyEidViewModel.getNotAfter(
-                                                        idCardData?.authCertificate?.data?.x509Certificate(),
-                                                    ),
+                                                certificateSubtitle(
+                                                    authCertificateStatus,
+                                                    sharedMyEidViewModel.getNotAfter(authCertificate),
                                                 ),
                                             isPinBlocked = isPin1Blocked,
                                             isPukBlocked = isPukBlocked,
                                             isNotActivated = isCourierCard,
+                                            certificateStatus = authCertificateStatus,
                                             forgotPinText =
                                                 if (isPin1Blocked) {
                                                     stringResource(
@@ -343,6 +350,14 @@ fun MyEidScreen(
                                                 showChangePin1Dialog.value = true
                                             },
                                         )
+
+                                        if (authCertificateStatus == MyEidDocumentStatus.EXPIRED) {
+                                            ExpiredCertificateText(
+                                                modifier = modifier,
+                                                testTag = "myEidExpiredPin1DescriptionText",
+                                                codeType = CodeType.PIN1,
+                                            )
+                                        }
 
                                         if (isPin1Blocked && !isPukBlocked) {
                                             Text(
@@ -398,15 +413,14 @@ fun MyEidScreen(
                                                     .alpha(alphaForPin2BlockedState),
                                             title = stringResource(R.string.myeid_signing_certificate_title),
                                             subtitle =
-                                                stringResource(
-                                                    R.string.myeid_certificate_valid_to,
-                                                    sharedMyEidViewModel.getNotAfter(
-                                                        idCardData?.signCertificate?.data?.x509Certificate(),
-                                                    ),
+                                                certificateSubtitle(
+                                                    signCertificateStatus,
+                                                    sharedMyEidViewModel.getNotAfter(signCertificate),
                                                 ),
                                             isPinBlocked = isPin2Blocked,
                                             isPukBlocked = isPukBlocked,
                                             isNotActivated = isCourierCard,
+                                            certificateStatus = signCertificateStatus,
                                             forgotPinText =
                                                 if (isPin2Blocked) {
                                                     stringResource(
@@ -432,12 +446,22 @@ fun MyEidScreen(
                                             },
                                         )
 
+                                        if (signCertificateStatus == MyEidDocumentStatus.EXPIRED) {
+                                            ExpiredCertificateText(
+                                                modifier = modifier,
+                                                testTag = "myEidExpiredPin2DescriptionText",
+                                                codeType = CodeType.PIN2,
+                                            )
+                                        }
+
                                         if (isCourierCard) {
                                             CourierCardWarningText(
                                                 modifier = modifier,
                                                 testTag = "myEidCourierCardPin2DescriptionText",
                                             )
-                                        } else if (!isPin2Activated) {
+                                        } else if (!isPin2Activated &&
+                                            signCertificateStatus != MyEidDocumentStatus.EXPIRED
+                                        ) {
                                             Text(
                                                 modifier =
                                                     modifier
@@ -620,6 +644,36 @@ fun MyEidScreen(
         confirmButton = R.string.myeid_pin_unblock_button,
         confirmButtonExtra = CodeType.PIN2.name,
         onResult = handlePinDialogResult,
+    )
+}
+
+@Composable
+private fun certificateSubtitle(
+    status: MyEidDocumentStatus?,
+    validTo: String,
+): String =
+    when (status) {
+        MyEidDocumentStatus.EXPIRED ->
+            stringResource(R.string.signature_update_signature_error_message_certificate_expired)
+        MyEidDocumentStatus.UNKNOWN -> stringResource(R.string.myeid_status_unknown)
+        else -> stringResource(R.string.myeid_certificate_valid_to, validTo)
+    }
+
+@Composable
+private fun ExpiredCertificateText(
+    modifier: Modifier,
+    testTag: String,
+    codeType: CodeType,
+) {
+    Text(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .focusable(true)
+                .testTag(testTag),
+        text = stringResource(R.string.myeid_cert_expired, codeType),
+        color = MaterialTheme.colorScheme.error,
+        style = MaterialTheme.typography.bodySmall,
     )
 }
 

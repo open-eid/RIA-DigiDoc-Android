@@ -42,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import ee.ria.DigiDoc.R
+import ee.ria.DigiDoc.ui.component.myeid.mydata.MyEidDocumentStatus
 import ee.ria.DigiDoc.ui.component.shared.HrefDynamicText
 import ee.ria.DigiDoc.ui.theme.Dimensions.LINE_HEIGHT
 import ee.ria.DigiDoc.ui.theme.Dimensions.SPadding
@@ -64,6 +65,7 @@ fun MyEidPinAndCertificateView(
     isPinBlocked: Boolean = false,
     isPukBlocked: Boolean = false,
     isNotActivated: Boolean = false,
+    certificateStatus: MyEidDocumentStatus? = null,
     showForgotPin: Boolean = true,
     forgotPinText: String = "",
     onForgotPinClick: (() -> Unit)? = null,
@@ -71,6 +73,15 @@ fun MyEidPinAndCertificateView(
     onChangePinClick: (() -> Unit)? = null,
 ) {
     val spokenTitleAndSubtitle = spokenDates("$title. $subtitle").lowercase()
+
+    val isCertificateUsable = certificateStatus == null || certificateStatus == MyEidDocumentStatus.VALID
+    val showErrorIcon = !isCertificateUsable || isPinBlocked
+    val subtitleColor =
+        if (isCertificateUsable) {
+            MaterialTheme.colorScheme.onSurface
+        } else {
+            MaterialTheme.colorScheme.error
+        }
 
     Column(
         modifier =
@@ -101,9 +112,21 @@ fun MyEidPinAndCertificateView(
                 horizontalArrangement = Arrangement.Start,
             ) {
                 Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_m3_check_circle_48dp_wght400),
+                    imageVector =
+                        ImageVector.vectorResource(
+                            if (showErrorIcon) {
+                                R.drawable.ic_m3_error_48dp_wght400
+                            } else {
+                                R.drawable.ic_m3_check_circle_48dp_wght400
+                            },
+                        ),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint =
+                        if (showErrorIcon) {
+                            MaterialTheme.colorScheme.error
+                        } else {
+                            MaterialTheme.colorScheme.primary
+                        },
                     modifier =
                         modifier
                             .size(iconSizeM)
@@ -141,7 +164,7 @@ fun MyEidPinAndCertificateView(
                             newLineBeforeLink = true,
                             textStyle =
                                 TextStyle(
-                                    color = MaterialTheme.colorScheme.onSurface,
+                                    color = subtitleColor,
                                     fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                                     textAlign = TextAlign.Start,
                                     lineHeight = TextUnit(LINE_HEIGHT, TextUnitType.Sp),
@@ -152,7 +175,7 @@ fun MyEidPinAndCertificateView(
                             modifier = modifier.notAccessible(),
                             text = subtitle,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
+                            color = subtitleColor,
                         )
                     }
                 }
@@ -241,6 +264,15 @@ fun MyEidPinAndCertificateViewPreview() {
             MyEidPinAndCertificateView(
                 title = "Identity certificate",
                 subtitle = "Certificate is valid until ${LocalDate.now()}",
+                certificateStatus = MyEidDocumentStatus.VALID,
+                forgotPinText = "Forgot PIN?",
+                onForgotPinClick = {},
+                changePinText = "Change PIN",
+            )
+            MyEidPinAndCertificateView(
+                title = "Signing certificate",
+                subtitle = "Certificate has expired",
+                certificateStatus = MyEidDocumentStatus.EXPIRED,
                 forgotPinText = "Forgot PIN?",
                 onForgotPinClick = {},
                 changePinText = "Change PIN",
@@ -248,7 +280,9 @@ fun MyEidPinAndCertificateViewPreview() {
             MyEidPinAndCertificateView(
                 title = "Identity certificate",
                 subtitle = "Certificate is valid until ${LocalDate.now()}",
-                forgotPinText = "Forgot PIN?",
+                isPinBlocked = true,
+                certificateStatus = MyEidDocumentStatus.VALID,
+                forgotPinText = "Unblock PIN",
                 onForgotPinClick = {},
                 changePinText = "Change PIN",
             )

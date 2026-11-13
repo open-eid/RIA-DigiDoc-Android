@@ -706,7 +706,7 @@
     <string name="myeid_puk_blocked_url">https://www.id.ee/artikkel/id-kaardi-pin-ja-puk-koodide-muutmine/</string>
     <string name="myeid_thales_puk_blocked">PUK on blokeeritud, kuna PUK-koodi on sisestatud 3 korda valesti. PUK-koodi ei saa ise lahti blokeerida.\n\nKuigi PUK-kood on blokeeritud, saab kõiki eID võimalusi kasutada, välja arvatud PUK-koodi vajavaid.\n\nUue PUK-koodi saamiseks tuleb taotleda uus dokument.</string>
     <string name="myeid_thales_puk_blocked_url">https://www.id.ee/artikkel/id-kaardi-pin-ja-puk-koodide-muutmine/</string>
-    <string name="myeid_cert_expired">Sertifikaat on &lt;c>aegunud&lt;/c>! %1$s ei saa kasutada, kuna sertifikaat on aegunud.</string>
+    <string name="myeid_cert_expired">%1$s ei saa kasutada, kuna sertifikaat on aegunud.</string>
     <string name="myeid_pin_part_personal_code_error">Uus %1$s-kood ei saa olla osa sinu isikukoodist</string>
     <string name="myeid_pin_part_dob_error">Uus %1$s-kood ei saa olla sinu sünnikuupäev</string>
     <string name="myeid_pin_too_easy_error">Uus %1$s-kood ei saa olla nii lihtne</string>
