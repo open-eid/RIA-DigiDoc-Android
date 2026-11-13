@@ -30,6 +30,7 @@ import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatu
 import ee.ria.DigiDoc.network.sid.dto.response.SmartIDServiceResponse
 import ee.ria.DigiDoc.smartId.SmartSignService
 import ee.ria.DigiDoc.smartId.utils.SmartCreateSignatureRequestHelper
+import ee.ria.DigiDoc.ui.component.signing.SmartIdCountry
 import ee.ria.DigiDoc.utils.notification.NotificationUtil
 import ee.ria.DigiDoc.utils.notification.SigningForegroundService
 import ee.ria.DigiDoc.utilsLib.logging.LoggingUtil.Companion.debugLog
@@ -149,6 +150,9 @@ class SmartIdViewModel
                 ).put(
                     SessionStatusResponseProcessStatus.INVALID_ACCESS_RIGHTS,
                     R.string.signature_update_smart_id_error_message_access_rights,
+                ).put(
+                    SessionStatusResponseProcessStatus.INVALID_PERSONAL_CODE,
+                    R.string.signature_update_mobile_id_invalid_personal_code,
                 ).put(
                     SessionStatusResponseProcessStatus.OLD_API,
                     R.string.signature_update_smart_id_error_message_old_api,
@@ -374,17 +378,15 @@ class SmartIdViewModel
             country: Int,
             personalCode: String?,
         ): Boolean {
-            if (personalCode != null) {
-                return country != 0 || PersonalCodeValidator.isPersonalCodeValid(personalCode)
+            if (personalCode == null) {
+                return false
             }
-            return false
+            return when (country) {
+                SmartIdCountry.ESTONIA.index -> PersonalCodeValidator.isEstonianPersonalCodeValid(personalCode)
+                SmartIdCountry.LATVIA.index -> PersonalCodeValidator.isLatvianPersonalCodeValid(personalCode)
+                else -> true
+            }
         }
-
-        fun isPersonalCodeValid(personalCode: String?): Boolean =
-            !(
-                !personalCode.isNullOrEmpty() &&
-                    !PersonalCodeValidator.isPersonalCodeValid(personalCode)
-            )
 
         // Format Latvian personal code
         fun formatLatvianPersonalCode(

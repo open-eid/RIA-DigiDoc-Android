@@ -79,7 +79,6 @@ import ee.ria.DigiDoc.ui.theme.Dimensions.XSPadding
 import ee.ria.DigiDoc.ui.theme.RIADigiDocTheme
 import ee.ria.DigiDoc.ui.theme.buttonRoundCornerShape
 import ee.ria.DigiDoc.utils.snackbar.SnackBarManager.showMessage
-import ee.ria.DigiDoc.utilsLib.validator.PersonalCodeValidator
 import ee.ria.DigiDoc.viewmodel.SmartIdViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedContainerViewModel
 import ee.ria.DigiDoc.viewmodel.shared.SharedSettingsViewModel
@@ -124,13 +123,12 @@ fun SmartIdView(
             ),
         )
     }
+    val isPersonalCodeInvalid =
+        personalCode.text.isNotEmpty() &&
+            !smartIdViewModel.positiveButtonEnabled(selectedCountry, personalCode.text)
     val personalCodeErrorText =
-        if (personalCode.text.isNotEmpty()) {
-            if (!PersonalCodeValidator.isPersonalCodeValid(personalCode.text)) {
-                stringResource(id = R.string.signature_update_mobile_id_invalid_personal_code)
-            } else {
-                ""
-            }
+        if (isPersonalCodeInvalid) {
+            stringResource(id = R.string.signature_update_mobile_id_invalid_personal_code)
         } else {
             ""
         }
@@ -326,9 +324,7 @@ fun SmartIdView(
             val isValid =
                 countryString.isNotEmpty() &&
                     personalCode.text.isNotEmpty() &&
-                    PersonalCodeValidator.isPersonalCodeValid(
-                        personalCode.text,
-                    )
+                    !isPersonalCodeInvalid
 
             LaunchedEffect(isValid) {
                 isValidToSign(isValid)
@@ -544,7 +540,7 @@ fun SmartIdView(
                                     KeyboardType.Number
                                 },
                         ),
-                    isError = !smartIdViewModel.isPersonalCodeValid(personalCode.text),
+                    isError = isPersonalCodeInvalid,
                     errorText = personalCodeErrorText,
                     testTag = "smartIdPersonalCodeTextField",
                     removeIconTestTag = "smartIdPersonalCodeRemoveIconButton",

@@ -1064,7 +1064,7 @@ class SmartSignServiceImplTest {
 
             val errorResponse = "errorResponse"
             val errorResponseBody = errorResponse.toResponseBody("application/json".toMediaTypeOrNull())
-            val mockResponse = Response.error<MobileCreateSignatureSessionStatusResponse>(400, errorResponseBody)
+            val mockResponse = Response.error<MobileCreateSignatureSessionStatusResponse>(500, errorResponseBody)
 
             doReturn(
                 Calls.response(
@@ -1559,6 +1559,135 @@ class SmartSignServiceImplTest {
             )
 
             verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.INVALID_ACCESS_RIGHTS)
+        }
+
+    @Test
+    fun smartSignService_processSmartIdRequest_response400INVALID_PERSONAL_CODE() =
+        runTest {
+            doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sidSignServiceUrl = request.url + "/",
+                certBundle = certBundle,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            val errorResponse = "errorResponse"
+            val errorResponseBody = errorResponse.toResponseBody("application/json".toMediaTypeOrNull())
+            val mockResponse = Response.error<SessionResponse>(400, errorResponseBody)
+
+            doReturn(
+                Calls.response(
+                    mockResponse,
+                ),
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
+                    semanticsIdentifier = "PNOEE-60001019906",
+                    body = getSmartCertificateRequest,
+                )
+
+            smartSignServiceImpl.processSmartIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.INVALID_PERSONAL_CODE)
+        }
+
+    @Test
+    fun smartSignService_processSmartIdRequest_response472DOCUMENT_UNUSABLE() =
+        runTest {
+            doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sidSignServiceUrl = request.url + "/",
+                certBundle = certBundle,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            val errorResponse = "errorResponse"
+            val errorResponseBody = errorResponse.toResponseBody("application/json".toMediaTypeOrNull())
+            val mockResponse = Response.error<SessionResponse>(472, errorResponseBody)
+
+            doReturn(
+                Calls.response(
+                    mockResponse,
+                ),
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
+                    semanticsIdentifier = "PNOEE-60001019906",
+                    body = getSmartCertificateRequest,
+                )
+
+            smartSignServiceImpl.processSmartIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.DOCUMENT_UNUSABLE)
+        }
+
+    @Test
+    fun smartSignService_processSmartIdRequest_sessionStatusNotFoundSESSION_NOT_FOUND() =
+        runTest {
+            doReturn(sidRestServiceClient).whenever(serviceGenerator).createService(
+                context = context,
+                sidSignServiceUrl = request.url + "/",
+                certBundle = certBundle,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+            )
+
+            doReturn(
+                Calls.response(
+                    Response.success(
+                        SessionResponse(
+                            sessionID = "sessionID",
+                        ),
+                    ),
+                ),
+            ).whenever(sidRestServiceClient)
+                .getCertificateV2(
+                    semanticsIdentifier = "PNOEE-60001019906",
+                    body = getSmartCertificateRequest,
+                )
+
+            val errorResponse = "errorResponse"
+            val errorResponseBody = errorResponse.toResponseBody("application/json".toMediaTypeOrNull())
+            doReturn(
+                Calls.response(
+                    Response.error<SessionStatusResponse>(404, errorResponseBody),
+                ),
+            ).whenever(sidRestServiceClient)
+                .getSessionStatus("sessionID", 5000)
+
+            smartSignServiceImpl.processSmartIdRequest(
+                context = context,
+                signedContainer = signedContainer,
+                request = request,
+                roleDataRequest = null,
+                proxySetting = proxySetting,
+                manualProxySettings = manualProxy,
+                certificateBundle = certBundle,
+                accessTokenPath = "accessTokenPath",
+                accessTokenPass = "accessTokenPass",
+            )
+
+            verify(statusObserver, atLeastOnce()).onChanged(SessionStatusResponseProcessStatus.SESSION_NOT_FOUND)
         }
 
     @Test

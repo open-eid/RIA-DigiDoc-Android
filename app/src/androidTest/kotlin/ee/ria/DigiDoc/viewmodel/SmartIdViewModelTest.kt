@@ -35,6 +35,7 @@ import ee.ria.DigiDoc.libdigidoclib.init.LibdigidocLibraryLoader
 import ee.ria.DigiDoc.network.sid.dto.response.SessionStatusResponseProcessStatus
 import ee.ria.DigiDoc.network.sid.dto.response.SmartIDServiceResponse
 import ee.ria.DigiDoc.smartId.SmartSignService
+import ee.ria.DigiDoc.ui.component.signing.SmartIdCountry
 import ee.ria.DigiDoc.utils.notification.NotificationUtil
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
@@ -651,70 +652,70 @@ class SmartIdViewModelTest {
     @Test
     fun smartIdViewModel_positiveButtonEnabled_true() =
         runTest {
-            val result = viewModel.positiveButtonEnabled(0, "38207253718")
+            val result = viewModel.positiveButtonEnabled(SmartIdCountry.ESTONIA.index, "38207253718")
             assertTrue(result)
         }
 
     @Test
     fun smartIdViewModel_positiveButtonEnabled_personalCodeHashInvalidReturnFalse() =
         runTest {
-            val result = viewModel.positiveButtonEnabled(0, "38308263913")
+            val result = viewModel.positiveButtonEnabled(SmartIdCountry.ESTONIA.index, "38308263913")
             assertFalse(result)
         }
 
     @Test
-    fun smartIdViewModel_positiveButtonEnabled_countryNotEEReturnTrue() =
+    fun smartIdViewModel_positiveButtonEnabled_lithuanianCodeNotValidatedReturnTrue() =
         runTest {
-            val result = viewModel.positiveButtonEnabled(1, "3830826391")
+            val result = viewModel.positiveButtonEnabled(SmartIdCountry.LITHUANIA.index, "3830826391")
             assertTrue(result)
+        }
+
+    @Test
+    fun smartIdViewModel_positiveButtonEnabled_latvianCodeReturnTrue() =
+        runTest {
+            val result = viewModel.positiveButtonEnabled(SmartIdCountry.LATVIA.index, "123456-78901")
+            assertTrue(result)
+        }
+
+    @Test
+    fun smartIdViewModel_positiveButtonEnabled_latvianCodeWithoutHyphenReturnFalse() =
+        runTest {
+            val result = viewModel.positiveButtonEnabled(SmartIdCountry.LATVIA.index, "12345678901")
+            assertFalse(result)
+        }
+
+    @Test
+    fun smartIdViewModel_positiveButtonEnabled_incompleteLatvianCodeReturnFalse() =
+        runTest {
+            val result = viewModel.positiveButtonEnabled(SmartIdCountry.LATVIA.index, "12345")
+            assertFalse(result)
         }
 
     @Test
     fun smartIdViewModel_positiveButtonEnabled_false() =
         runTest {
-            val result = viewModel.positiveButtonEnabled(0, "3830826391")
+            val result = viewModel.positiveButtonEnabled(SmartIdCountry.ESTONIA.index, "3830826391")
             assertFalse(result)
         }
 
     @Test
     fun smartIdViewModel_positiveButtonEnabled_personalCodeNullReturnFalse() =
         runTest {
-            val result = viewModel.positiveButtonEnabled(0, null)
+            val result = viewModel.positiveButtonEnabled(SmartIdCountry.ESTONIA.index, null)
             assertFalse(result)
         }
 
     @Test
-    fun smartIdViewModel_isPersonalCodeValid_true() =
+    fun smartIdViewModel_positiveButtonEnabled_latvianFormatCodeForEstoniaReturnFalse() =
         runTest {
-            val result = viewModel.isPersonalCodeValid("38207253718")
-            assertTrue(result)
-        }
-
-    @Test
-    fun smartIdViewModel_isPersonalCodeValid_hashIsInvalidReturnFalse() =
-        runTest {
-            val result = viewModel.isPersonalCodeValid("38308263913")
+            val result = viewModel.positiveButtonEnabled(SmartIdCountry.ESTONIA.index, "123456-78901")
             assertFalse(result)
         }
 
     @Test
-    fun smartIdViewModel_isPersonalCodeValid_lengthIsLessThan11DigitsReturnFalse() =
+    fun smartIdViewModel_positiveButtonEnabled_emptyCodeForLithuaniaReturnTrue() =
         runTest {
-            val result = viewModel.isPersonalCodeValid("3830826391")
-            assertFalse(result)
-        }
-
-    @Test
-    fun smartIdViewModel_isPersonalCodeValid_isNullReturnTrue() =
-        runTest {
-            val result = viewModel.isPersonalCodeValid(null)
-            assertTrue(result)
-        }
-
-    @Test
-    fun smartIdViewModel_isPersonalCodeValid_isEmptyReturnTrue() =
-        runTest {
-            val result = viewModel.isPersonalCodeValid("")
+            val result = viewModel.positiveButtonEnabled(SmartIdCountry.LITHUANIA.index, "")
             assertTrue(result)
         }
 
