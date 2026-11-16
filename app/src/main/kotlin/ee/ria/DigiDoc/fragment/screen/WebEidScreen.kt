@@ -514,7 +514,7 @@ private fun WebEidAuthInfo(authRequest: WebEidAuthRequest) {
             Spacer(modifier = Modifier.height(XXSPadding))
 
             Text(
-                text = authRequest.origin.take(80),
+                text = "web-eid.eu",
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Left,
@@ -597,7 +597,7 @@ private fun WebEidSignOrCertificateInfo(
             Spacer(modifier = Modifier.height(XXSPadding))
 
             Text(
-                text = origin.take(80),
+                text = "web-eid.eu",
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Left,

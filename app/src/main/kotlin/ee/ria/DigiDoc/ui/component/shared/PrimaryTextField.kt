@@ -14,6 +14,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -31,7 +32,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -78,6 +81,7 @@ fun PrimaryTextField(
     isError: Boolean = false,
     errorText: String = "",
     isPasswordText: Boolean = false,
+    isBlurredText: Boolean = false,
     keyboardOptions: KeyboardOptions =
         KeyboardOptions.Default.copy(
             imeAction = ImeAction.Done,
@@ -156,6 +160,15 @@ fun PrimaryTextField(
                         }.then(if (testTag.isNotEmpty()) Modifier.testTag(testTag) else Modifier),
                 enabled = enabled,
                 value = value,
+                textStyle =
+                    if (isBlurredText) {
+                        LocalTextStyle.current.copy(
+                            color = Color.Transparent,
+                            shadow = Shadow(color = MaterialTheme.colorScheme.onSurface, blurRadius = 24f),
+                        )
+                    } else {
+                        LocalTextStyle.current
+                    },
                 readOnly = readOnly,
                 singleLine = singleLine,
                 onValueChange = { newValue ->

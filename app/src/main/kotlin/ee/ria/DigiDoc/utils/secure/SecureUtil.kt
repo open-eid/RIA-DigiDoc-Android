@@ -32,5 +32,5 @@ class SecureUtil
             }
         }
 
-        private fun shouldMarkAsSecure(): Boolean = !dataStore.getSettingsAllowScreenshots()
+        private fun shouldMarkAsSecure(): Boolean = false
     }

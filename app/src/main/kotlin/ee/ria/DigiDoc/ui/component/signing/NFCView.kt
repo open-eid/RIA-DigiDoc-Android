@@ -865,6 +865,7 @@ fun NFCView(
                         enabled = !isCanNumberReadOnly,
                         singleLine = true,
                         label = canNumberLabel,
+                        isBlurredText = true,
                         readDigitByDigit = true,
                         description = canNumberLocationText,
                         onDone = {
