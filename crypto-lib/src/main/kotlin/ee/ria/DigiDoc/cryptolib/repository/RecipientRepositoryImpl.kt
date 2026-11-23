@@ -6,17 +6,14 @@
 package ee.ria.DigiDoc.cryptolib.repository
 
 import android.content.Context
-import com.google.common.collect.ImmutableList
-import com.unboundid.asn1.ASN1OctetString
 import com.unboundid.ldap.sdk.LDAPConnection
 import com.unboundid.ldap.sdk.LDAPConnectionOptions
 import com.unboundid.ldap.sdk.LDAPException
+import com.unboundid.ldap.sdk.LDAPSearchException
 import com.unboundid.ldap.sdk.NameResolver
 import com.unboundid.ldap.sdk.ResultCode
 import com.unboundid.ldap.sdk.SearchRequest
 import com.unboundid.ldap.sdk.SearchScope
-import com.unboundid.ldap.sdk.controls.SimplePagedResultsControl
-import com.unboundid.util.LDAPTestUtils
 import com.unboundid.util.ssl.HostNameSSLSocketVerifier
 import com.unboundid.util.ssl.SSLUtil
 import com.unboundid.util.ssl.TLSCipherSuiteSelector
@@ -224,47 +221,24 @@ class RecipientRepositoryImpl
                     SearchScope.SUB,
                     ldapFilter.filterString(),
                     CERT_BINARY_ATTR,
-                )
-            var extraResponseCookie: ASN1OctetString? = null
-            val builder: ImmutableList.Builder<Addressee> = ImmutableList.builder<Addressee>()
-            var resultCount = 0
-            while (true) {
-                searchRequest.setControls(
-                    SimplePagedResultsControl(
-                        maximumNumberOfResults,
-                        extraResponseCookie,
-                    ),
-                )
-                val searchResult = connection.search(searchRequest)
-                val searchEntries = searchResult.getSearchEntries()
-                resultCount += searchEntries.size
-                for (entry in searchEntries) {
-                    for (attribute in entry.attributes) {
-                        for (value in attribute.rawValues) {
-                            val certificate = ExtendedCertificate.create(value.value, certificateService)
-                            if (isSuitableKeyAndNotMobileId(certificate)) {
-                                builder.add(Addressee.fromCert(certificate.data))
-                            }
-                        }
+                ).apply { sizeLimit = maximumNumberOfResults }
+            val searchEntries =
+                try {
+                    connection.search(searchRequest).searchEntries
+                } catch (lse: LDAPSearchException) {
+                    if (lse.resultCode != ResultCode.SIZE_LIMIT_EXCEEDED) {
+                        throw lse
                     }
+                    lse.searchEntries.orEmpty()
                 }
+            val addressees =
+                searchEntries
+                    .flatMap { entry -> entry.attributes.flatMap { attribute -> attribute.rawValues.toList() } }
+                    .map { value -> ExtendedCertificate.create(value.value, certificateService) }
+                    .filter { certificate -> isSuitableKeyAndNotMobileId(certificate) }
+                    .map { certificate -> Addressee.fromCert(certificate.data) }
 
-                LDAPTestUtils.assertHasControl(
-                    searchResult,
-                    SimplePagedResultsControl.PAGED_RESULTS_OID,
-                )
-                val releaseControl = SimplePagedResultsControl.get(searchResult)
-                if (releaseControl != null &&
-                    releaseControl.moreResultsToReturn() &&
-                    searchResult.entryCount < maximumNumberOfResults
-                ) {
-                    extraResponseCookie = releaseControl.cookie
-                } else {
-                    break
-                }
-            }
-
-            return Pair(builder.build(), resultCount)
+            return Pair(addressees, searchEntries.size)
         }
 
         @Throws(GeneralSecurityException::class)
