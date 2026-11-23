@@ -71,7 +71,6 @@ dependencies {
     ksp(libs.google.dagger.hilt.android.compile)
     implementation(libs.androidx.hilt)
     implementation(libs.bouncy.castle)
-    api(libs.guava)
     implementation(libs.unboundid.ldapsdk)
     implementation(libs.okhttp3)
     implementation(libs.preferencex)
